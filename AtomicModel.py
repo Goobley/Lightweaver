@@ -12,6 +12,28 @@ from Barklem import Barklem
 
 # TODO(cmo): Handle Stark (+ Linear stark for H) broadening in the same way as VdW, i.e. move all of Broaden to Python AtomicModel
 # TODO(cmo): Add collisional beam rates as a default empty field to AtomicModel
+# TODO(cmo): Prune Kurucz lines after loading all of them, based on the ones we have detailed models for. This lets us remove the element checks from rlk_opacity!
+# May need to compute the RLK unsold cross-section in Python, where we have access to all the element stuff
+# RlkProfile needs the atomic weight
+# The easiest option may instead be to fill a CElement struct for these functions, especially the ICE stuff
+
+# Process of setting up a simulation:
+# Load/Update abundances/AtomicTable
+# Load Atomic Models -- select active and initial solutions
+# Load Background Molecular Models
+# Setup Atmosphere
+# Load and prune rlk lines
+# Set up computational atoms
+# Set up CAtomicTable -- backrefs
+# Set up computational molecule
+# Set up spectrum/wvl contributions/activeset i.e. Spectrum
+# LTE/initial/ICE pops
+# Compute background 
+# Compute line profiles for active -- damping and collisions from Python atoms
+# Solve!
+
+
+
 
 @dataclass
 class PrincipalQuantum:

@@ -1,10 +1,15 @@
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, TYPE_CHECKING
 from copy import copy, deepcopy
 from collections import OrderedDict
 from xdrlib import Unpacker
 from dataclasses import dataclass, field
 import numpy as np
 import Constants as Const
+from Atmosphere import Atmosphere
+from scipy.interpolate import interp1d
+
+if TYPE_CHECKING:
+   from ComputationalAtom import ComputationalAtom
 
 AtomicWeights: OrderedDict = \
    OrderedDict([
@@ -196,10 +201,91 @@ class Element:
    weight: float
    abundance: float
    ionpot: np.ndarray
+   Tpf: np.ndarray
    pf: np.ndarray
+   atom: Optional['ComputationalAtom'] = None
+
+   def __hash__(self):
+      return hash(repr(self))
+
+   def __cmp__(self, other):
+      return hash(self) == hash(other)
 
    def __repr__(self):
       return 'Element(name=\'%s\', weight=%e, abundance=%e)' % (self.name, self.weight, self.abundance)
+
+   def lte_populations(self, atmos: Atmosphere) -> np.ndarray:
+      Nspace = atmos.depthScale.shape[0]
+
+      C1 = (Const.HPLANCK / (2.0 * np.pi * Const.M_ELECTRON)) * Const.HPLANCK / Const.KBOLTZMANN
+      
+      CtNe = 2.0 * (C1/atmos.temperature)**(-1.5) / atmos.ne
+      total = np.ones_like(CtNe)
+      pops = np.zeros((self.ionpot.shape[0], Nspace))
+      pops[0, :] = 1.0
+
+      Uk = interp1d(self.Tpf, self.pf[0])(atmos.temperature)
+
+      Nstage = self.ionpot.shape[0]
+      for i in range(1, Nstage):
+         Ukp1 = interp1d(self.Tpf, self.pf[i])(atmos.temperature)
+
+         pops[i, :] = pops[i-1, :] * CtNe * np.exp(Ukp1 - Uk - self.ionpot[i-1]) \
+                        / Const.KBOLTZMANN * atmos.temperature
+         total += pops[i]
+
+         Ukp1, Uk = Uk, Ukp1
+
+      pops[0] = self.abundance * atmos.nHTot / total
+      for i in range(1, Nstage):
+         pops[i] *= pops[0]
+
+      return pops
+
+   def fjk(self, atmos, k) -> np.ndarray:
+      Nspace = atmos.depthScale.shape[0]
+      T = atmos.temperature[k]
+      ne = atmos.ne[k]
+
+      C1 = (Const.HPLANCK / (2.0 * np.pi * Const.M_ELECTRON)) * Const.HPLANCK / Const.KBOLTZMANN
+      
+      CtNe = 2.0 * (C1/T)**(-1.5) / ne
+      Nstage = self.ionpot.shape[0]
+      fjk = np.zeros(Nstage)
+      fjk[0] = 1.0
+      dfjk = np.zeros(Nstage)
+      sum1 = 0.0
+      sum2 = 0.0
+
+      Uk = interp1d(self.Tpf, self.pf[0])(T)
+
+      for j in range(1, Nstage):
+         Ukp1 = interp1d(self.Tpf, self.pf[j])(T)
+
+         fjk[j] = fjk[j-1] * CtNe * np.exp(Ukp1 - Uk - self.ionpot[j-1] / (Const.KBOLTZMANN * T))
+         dfjk[j] = -j * fjk[j] / ne
+
+         sum1 += fjk[j]
+         sum2 += dfjk[j]
+         Uk = Ukp1
+
+      fjk /= sum1
+      dfjk = (dfjk - fjk * sum2) / sum1
+      return fjk, dfjk
+
+
+@dataclass
+class LtePopulations:
+   atomicTable: 'AtomicTable'
+   atmosphere: Atmosphere
+   populations: List[np.ndarray]
+
+   def __getitem__(self, name: str) -> np.ndarray:
+      name = name.upper()
+      if len(name) == 1:
+         name += ' '
+      return self.populations[self.atomicTable.indices[name]]
+   
 
 class AtomicTable:
    def __init__(self, kuruczPfPath: Optional[str]=None, metallicity: float=0.0, 
@@ -235,12 +321,12 @@ class AtomicTable:
       u = Unpacker(s)
 
       self.Tpf = np.array(u.unpack_array(u.unpack_double))
-      ptis = []
+      ptIndex = [] # Index in the periodic table (fortran based, so +1) -- could be used for validation
       stages = []
       pf = []
       ionpot = []
       for i in range(len(AtomicWeights)):
-         ptis.append(u.unpack_int())
+         ptIndex.append(u.unpack_int())
          stages.append(u.unpack_int())
          pf.append(np.array(u.unpack_farray(stages[-1] * self.Tpf.shape[0], u.unpack_double)).reshape(stages[-1], self.Tpf.shape[0]))
          ionpot.append(np.array(u.unpack_farray(stages[-1], u.unpack_double)))
@@ -253,7 +339,7 @@ class AtomicTable:
       self.elements: List[Element] = []
       for k, v in AtomicWeights.items():
          i = self.indices[k]
-         ele = Element(k, v, self.abund[k], ionpot[i], pf[i])
+         ele = Element(k, v, self.abund[k], ionpot[i], self.Tpf, pf[i])
          self.elements.append(ele)
          totalAbund += ele.abundance
          avgWeight += ele.abundance * ele.weight
@@ -267,6 +353,14 @@ class AtomicTable:
       if len(name) == 1:
          name += ' '
       return self.elements[self.indices[name]]
+
+   def lte_populations(self, atmos: Atmosphere) -> LtePopulations:
+      pops = []
+      for ele in self.elements:
+         pops.append(ele.lte_populations(atmos))
+
+      return LtePopulations(self, atmos, pops)
+
 
 
       
