@@ -28,7 +28,7 @@ class Atmosphere:
     def convert_scales(self, atomicTable):
         # This is only temporary
         eos = witt.witt()
-        rho = Const.AMU * atomicTable.weightPerH * self.nHTot
+        rho = Const.AMU * atomicTable.weightPerH * self.nHTot * Const.CM_TO_M**3 * Const.G_TO_KG
         pgas = np.zeros_like(self.depthScale)
         pe = np.zeros_like(self.depthScale)
         for k in range(self.depthScale.shape[0]):
