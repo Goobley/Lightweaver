@@ -28,7 +28,8 @@ class Atmosphere:
     def convert_scales(self, atomicTable):
         # This is only temporary
         eos = witt.witt()
-        rho = Const.AMU * atomicTable.weightPerH * self.nHTot * Const.CM_TO_M**3 * Const.G_TO_KG
+        rhoSI = Const.AMU * atomicTable.weightPerH * self.nHTot
+        rho = Const.AMU * atomicTable.weightPerH * self.nHTot * Const.CM_TO_M**3 / Const.G_TO_KG
         pgas = np.zeros_like(self.depthScale)
         pe = np.zeros_like(self.depthScale)
         for k in range(self.depthScale.shape[0]):
@@ -37,7 +38,7 @@ class Atmosphere:
 
         chi_c = np.zeros_like(self.depthScale)
         for k in range(self.depthScale.shape[0]):
-            chi_c[k] = eos.contOpacity(self.temperature[k], pgas[k], pe[k], [5000.0]) * 10.0
+            chi_c[k] = eos.contOpacity(self.temperature[k], pgas[k], pe[k], [5000.0]) / Const.CM_TO_M
 
         if self.scale == ScaleType.ColumnMass:
             height = np.zeros_like(self.depthScale)
@@ -45,9 +46,9 @@ class Atmosphere:
             cmass = self.depthScale
 
             height[0] = 0.0
-            tau_ref[0] = chi_c[0] / rho[0] * cmass[0]
+            tau_ref[0] = chi_c[0] / rhoSI[0] * cmass[0]
             for k in range(1, cmass.shape[0]):
-                height[k] = height[k-1] - 2.0 * (cmass[k] - cmass[k-1]) / (rho[k-1] + rho[k])
+                height[k] = height[k-1] - 2.0 * (cmass[k] - cmass[k-1]) / (rhoSI[k-1] + rhoSI[k])
                 tau_ref[k] = tau_ref[k-1] + 0.5 * (chi_c[k-1] + chi_c[k]) * (height[k-1] - height[k])
 
             hTau1 = interp1d(tau_ref, height)(1.0)

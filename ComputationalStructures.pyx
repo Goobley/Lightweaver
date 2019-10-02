@@ -163,7 +163,7 @@ cdef extern from "../RhCoreData.h":
         Molecule* H2
         Molecule* OH
         Molecule* CH
-        Molecule* molecules
+        Molecule** molecules
         Molecule** activemols
         AtomicTable* atomicTable
 
@@ -218,6 +218,158 @@ cdef extern from "../RhCoreData.h":
         double* vel
         double** Itop
         double** Ibottom
+
+    struct Molecule:
+        # char ID[MOLECULE_ID_WIDTH + 1], *popsFile, *configs;
+        bool_t active
+        # int* pt_index
+        # int* pt_count
+        # int Nelement
+        # int Nnuclei
+        # int Npf
+        # int Neqc
+        int Nrt
+        # int charge
+        int Nconfig,
+        int Nv
+        int NJ
+        int activeindex
+        double Ediss
+        # double Tmin
+        # double Tmax
+        # double weight
+        double* vbroad
+        double* pf_coef
+        double* eqc_coef
+        double* pf
+        double** pfv,
+        double* n
+        double** nv
+        double** nvstar
+        double* C_ul
+        double** Gamma
+        MolecularLine* mrt
+        struct Ng* Ng_nv
+        # rhthread* rhth
+        RhAccumulate* rhAcc
+
+    struct MolecularLine:
+        enum type type
+        enum Hund Hundi
+        enum Hund Hundj
+        bool_t symmetric
+        bool_t Voigt
+        bool_t polarizable
+        char configi[3]
+        char configj[3]
+        char parityi[2]
+        char parityj[2]
+        int vi
+        int vj
+        int Nlambda
+        int Nblue
+        int subi
+        int subj
+        int Lambdai
+        int Lambdaj
+        int ecnoi,
+        int ecnoj
+        double lambda0
+        double* wavelength
+        double isotope_frac
+        double Ei
+        double Ej
+        double gi
+        double gj
+        double Si
+        double Sj
+        double Omegai
+        double Omegaj,
+        double** phi
+        double* wphi
+        double g_Lande_eff
+        double Grad
+        double qcore
+        double qwing
+        double Aji
+        double Bji
+        double Bij
+        Molecule* molecule
+        ZeemanMultiplet* zm
+
+
+    struct Background:
+        int Nspect
+        int Nray
+        int Ndir
+        int Nrlk
+        RLK_Line* rlk_lines
+        bool_t polarized
+        double** chi
+        double** eta
+        double** sca
+        double** chip
+
+    struct DepthData:
+        double** IDepth
+        double** SDepth
+        double** chiDepth
+
+    struct Options:
+        pass
+
+    struct AtomicTransition:
+        enum type type
+        union ptype:
+            AtomicLine* line
+            AtomicContinuum* continuum
+        Atom *atom
+
+    struct MolTransition:
+        enum type type
+        union ptype:
+            MolecularLine *vrline
+        Molecule *molecule
+
+    struct ActiveSet:
+        int* Nactiveatomrt
+        int* Nactivemolrt
+        int* Nlower
+        int* Nupper
+        int** lower_levels
+        int** upper_levels
+        double* chi
+        double* eta
+        double* chip
+        AtomicTransition** art
+        MolTransition** mrt
+
+    struct Spectrum:
+        bool_t updateJ
+        int Nspect
+        int* PRDindex
+        double* wavelength
+        double** J
+        double** I
+        double** Stokes_Q
+        double** Stokes_U
+        double** Stokes_V
+        double** J20
+        double** Jgas 
+        ActiveSet* aset
+        int* nc
+        int* iprdh
+        double* cprdh
+
+    struct RhContext:
+        Atmosphere* atmos
+        Geometry* geo
+        Spectrum* spectrum
+        DepthData* depth
+        Background* background
+        Options* options
+
+
 
 cdef convert_element(ele, Element* cEle):
     name = ele.name.encode()
@@ -453,6 +605,83 @@ cdef init_geometry(Geometry* geo):
     geo.Itop = NULL
     geo.Ibottom = NULL
 
+cdef init_molecule(Molecule* mol):
+    mol.active = False
+    mol.Nrt = 0
+    mol.Nconfig = 0
+    mol.Nv = 0
+    mol.NJ = 0
+    mol.activeindex = 0
+    mol.Ediss = 0.0
+    mol.vbroad = NULL
+    mol.pf_coef = NULL
+    mol.eqc_coef = NULL
+    mol.pf = NULL
+    mol.pfv = NULL
+    mol.n = NULL
+    mol.nv = NULL
+    mol.nvstar = NULL
+    mol.C_ul = NULL
+    mol.Gamma = NULL
+    mol.mrt = NULL
+    mol.Ng_nv = NULL
+    mol.rhAcc = NULL
+
+cdef init_background(Background* bg):
+    bg.Nspect = 0
+    bg.Nray = 0
+    bg.Ndir = 0
+    bg.Nrlk = 0
+    bg.rlk_lines = NULL
+    bg.polarized = False
+    bg.chi = NULL
+    bg.eta = NULL
+    bg.sca = NULL
+    bg.chip = NULL
+
+cdef init_depthdata(DepthData* d)
+    d.IDepth = NULL
+    d.SDepth = NULL
+    d.chiDepth = NULL
+
+cdef init_rhcontext(RhContext* ctx):
+    ctx.atmosphere = NULL
+    ctx.geo = NULL
+    ctx.spectrum = NULL
+    ctx.depth = NULL
+    ctx.background = NULL
+    ctx.options = NULL
+
+cdef init_activeset(ActiveSet* aset):
+    aset.Nactiveatomrt = NULL
+    aset.Nactivemolrt = NULL
+    aset.Nlower = NULL
+    aset.Nupper = NULL
+    aset.lower_levels = NULL
+    aset.upper_levels = NULL
+    aset.chi = NULL
+    aset.eta = NULL
+    aset.chip = NULL
+    aset.art = NULL
+    aset.mrt = NULL
+
+cdef init_spectrum(Spectrum* spect):
+    spect.updateJ = False
+    spect.Nspect = 0
+    spect.PRDindex = NULL
+    spect.wavelength = NULL
+    spect.J = NULL
+    spect.I = NULL
+    spect.Stokes_Q = NULL
+    spect.Stokes_U = NULL
+    spect.Stokes_V = NULL
+    spect.J20 = NULL
+    spect.Jgas = NULL
+    spect.aset = NULL
+    spect.nc = NULL
+    spect.iprdh = NULL
+    spect.cprdh = NULL
+
 cdef class ComputationalAtomicContinuum:
     cdef AtomicContinuum* cCont
 
@@ -499,7 +728,7 @@ cdef class ComputationalAtomicContinuum:
             return self.cCont.i
 
         @property
-        def i(self):
+        def j(self):
             return self.cCont.j
 
 
@@ -598,8 +827,6 @@ cdef class ComputationalAtomicLine:
 
         
 cdef class ComputationalAtom:
-    # TODO(cmo): This should really be a pointer, since the atoms are allocated in a flat list
-    # No -- we'll change the flat list to a pointer of pointers
     cdef Atom cAtom
     cdef int Nthread
 
@@ -721,20 +948,42 @@ cdef class ComputationalAtom:
             self.n = self.nstar
             self.cAtom.n = self.cAtom.nstar
 
+cdef ComputationalMolecule:
+    cdef Molecule cMol
+
+    def __init__(self, mol, atmos, pops, active, options):
+        self.mol = mol
+        if active:
+            raise ValueError('Active Molecules NYI')
+        init_molecule(&self.cMol)
+        self.cMol.Ediss = mol.Ediss
+        self.active = active
+        self.cMol.active = active
+        self.n = np.ascontiguousarray(pops)
+        cdef np.ndarray[np.double_t, ndim=1] n = np.ascontiguousarray(self.n)
+        self.cMol.n = <double*> &n[0]
+
 cdef class ComputationalAtmosphere:
     cdef Atmosphere cAtmos
     cdef Geometry cGeo
 
     def __dealloc__(self):
         free(<void*> self.cAtmos.N)
+        free(<void*> self.cAtmos.atoms)
+        free(<void*> self.cAtmos.activeatoms)
+        free(<void*> self.cAtmos.molecules)
+        free(<void*> self.cAtmos.activemols)
 
-    def __init__(self, atmos, atoms, nRays, **kwargs):
+    def __init__(self, atmos, atoms, mols, nRays, **kwargs):
         init_atmosphere(&self.cAtmos)
         init_geometry(&self.cGeo)
         # assume that the incoming atmosphere is already in the right units
         # Also assume that all depth scales are filled in? Yes for now
         self.atmos = atmos
-        self.atoms = atoms
+        self.cAtoms = atoms
+        self.cMolecules = mols
+        # self.atoms = atoms
+        # self.molecules = mols
 
         # Set up the atmosphere and geometry structures based on the the inputs.
         # What order between atoms and atmosphere?
@@ -830,14 +1079,88 @@ cdef class ComputationalAtmosphere:
         self.cGeo.vboundary[TOP] = ZERO
         self.cGeo.vboundary[BOTTOM] = THERMALIZED
 
-        # Construct ComputationalAtoms for each atom -- we need to be passed Options from the caller then
-        # Construct a ComputationalMolecule for each molecume
-        # Get an AtomicTable from somewhere (caller? i.e. Context)
-        # The context configures this guy, sets up the RLKlines, then does the sort lambda and initial solution, and allocates the background arrays
+        # Put atoms and molecules into the atmosphere
+        cdef int Natom = len(self.cAtoms)
+        self.cAtmos.Natom = Natom
+        self.cAtmos.atoms = <Atom**> malloc(Natom * sizeof(Atom*))
+        cdef ComputationalAtom atom
+        for i in range(Natom):
+            atom = self.cAtoms[i]
+            self.cAtmos.atoms[i] = &atom.cAtom
+            if atom.atomicModel.name == 'H' or  atom.atomicModel.name == 'H ':
+                self.cAtmos.H = &atom.cAtom
+
+        cdef int Nmolecule = len(self.cMolecules)
+        self.cAtmos.Nmolecule = Nmolecule
+        self.cAtmos.molecules = <Molecule**> malloc(Nmolecule * sizeof(Molecule*))
+        cdef ComputationalMolecule mol
+        for i in range(Nmolecule):
+            mol = self.cMolecules[i]
+            self.cAtmos.molecules[i] = &mol.cMol
+            if mol.mol.name == 'H2':
+                self.cAtmos.H2 = &mol.cMol
+            elif mol.mol.name == 'OH':
+                self.cAtmos.OH = &mol.cMol
+            elif mol.mol.name == 'CH':
+                self.cAtmos.CH = &mol.cMol
+
+        # Special case for H^-
+        # TODO
+
+class ComputationalBackground:
+    cdef Background cBg
+
+    def __init__(self, ComputationalAtmosphere atomsphere, thing):
+        init_background(&self.cBg)
+
+class ComputationalSpectrum:
+    cdef Spectrum cSpect
+
+    def __init__(self, activeAtoms, activeMols, extraWavelengths):
+        init_spectrum(&self.cSpect)
+
+        # Collect the wavelength grid for all of the atoms and molecules
+        # Sort and remove duplicates
+        # Adjust the wavelengths for each transition
+        # Recompute the wavelength/alpha grids for the continua
+        # Fill the active set and set the upper/lower levels
+
+class Context:
+    cdef RhContext ctx
+
+    def __init__(self, atoms, molecules, atmosphere, equilibriumPops, nRays, options):
+        init_rhcontext(&self.ctx)
+
+        self.atoms = atoms
+        self.molecules = molecules
+        self.atmosphere =  atmosphere
+        self.atomicTable = equilibriumPops.atomicTable
+        self.populations = equilibriumPops
+        self.nRays = nRays
+        self.options = options
+
+        self.cAtoms = []
+        for atom in atoms:
+            self.cAtoms.append(ComputationalAtom(atom.atomicModel, atmosphere, atom.active, self.atomicTable, options))
+
+        self.cMolecules = []
+        for mol in molecules:
+            self.cMolecules.append(ComputationalMolecule(mol.molecularModel, atmosphere, mol.active, options))
+
+        self.cAtmos = ComputationalAtmosphere(atmos, self.cAtoms, self.cMolecules, nRays)
+
+        self.ctx.atmos = &self.cAtmos.cAtmos
+        self.ctx.geo = &self.cAtmos.cGeo
+
+        # Spectrum stuff
+        # TODO(cmo): Configure the Spectrum object once, so we can actually not mess around with the computational atoms for the spectrum stuff once done
+
+        # Background stuff
 
 
 
-# TODO(cmo): RLK binding
+
+# TODO(cmo): RLK binding -- we can probably actually ignore this for now
 # TODO(cmo): Basic molecule handling
 # TODO(cmo): RhContext
 

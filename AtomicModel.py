@@ -3,6 +3,7 @@ from enum import Enum, auto
 from typing import List, Sequence, Optional
 
 import numpy as np
+from scipy.interpolate import interp1d
 from parse import parse
 
 import Constants as Const
@@ -90,6 +91,9 @@ class AtomicModel:
             s += '\t\t' + repr(c) + ',\n'
         s += '])\n'
         return s
+
+    def __hash__(self):
+        return hash(repr(self))
 
 @dataclass
 class AtomicLevel:
@@ -271,12 +275,16 @@ class AtomicLine:
     atom: AtomicModel = field(init=False)
     jLevel: AtomicLevel = field(init=False)
     iLevel: AtomicLevel = field(init=False)
+    wavelength: np.ndarray = field(init=False)
 
     def __repr__(self):
         s = 'AtomicLine(j=%d, i=%d, f=%e, type=%s, Nlambda=%d, qCore=%f, qWing=%f, vdw=%s, gRad=%e, stark=%f, gLandeEff=%f)' % (
                 self.j, self.i, self.f, repr(self.type), self.Nlambda, self.qCore, self.qWing, repr(self.vdw), 
                 self.gRad, self.stark, self.gLandeEff)
         return s
+
+    def __hash__(self):
+        return hash(repr(self))
 
 @dataclass
 class VoigtLine(AtomicLine):
@@ -302,6 +310,8 @@ class VoigtLine(AtomicLine):
     def setup_xrd_wavelength(self):
         self.xrd = []
 
+        # This is just a hack to keep the search happy
+        self.wavelength = np.zeros(1)
         if self.type == LineType.PRD:
 
             thisIdx = self.atom.lines.index(self)
@@ -468,9 +478,16 @@ class AtomicContinuum:
         s = 'AtomicContinuum(j=%d, i=%d)' % (self.j, self.i)
         return s
 
+    def compute_alpha(self, wavelength) -> np.ndarray:
+        pass
+
+    def __hash__(self):
+        return hash(repr(self))
+
 @dataclass
 class ExplicitContinuum(AtomicContinuum):
     alphaGrid: Sequence[Sequence[float]]
+    Nlambda: int = field(init=False)
 
     def setup(self, atom):
         if self.j < self.i:
@@ -483,10 +500,14 @@ class ExplicitContinuum(AtomicContinuum):
         self.alpha = np.copy(lambdaAlpha[1, ::-1])
         self.jLevel: AtomicLevel = atom.levels[self.j]
         self.iLevel: AtomicLevel = atom.levels[self.i]
+        self.Nlambda = self.wavelength.shape[0]
 
     def __repr__(self):
         s = 'ExplicitContinuum(j=%d, i=%d, alphaGrid=%s)' % (self.j, self.i, repr(self.alphaGrid))
         return s
+
+    def compute_alpha(self, wavelength) -> np.ndarray:
+        return interp1d(self.wavelength, self.alpha)(wavelength)
 
     @property
     def lambda0(self) -> float:
@@ -517,12 +538,15 @@ class HydrogenicContinuum(AtomicContinuum):
             raise ValueError('Minimum wavelength is larger than continuum edge at %f [nm] in continuum %s' % (self.lambda0, repr(self)))
         self.wavelength = np.linspace(self.minLambda, self.lambda0, self.Nlambda)
 
-        # Maybe pull this out into a separate function so we can recompute it later
+        self.alpha = self.compute_alpha(self.wavelength)
+
+    def compute_alpha(self, wavelength) -> np.ndarray:
         Z = self.jLevel.stage
         nEff = Z * np.sqrt(Const.E_RYDBERG / (self.jLevel.E_SI - self.iLevel.E_SI))
         gbf0 = gaunt_bf(self.lambda0, nEff, Z)
-        gbf = gaunt_bf(self.wavelength, nEff, Z)
-        self.alpha = self.alpha0 * gbf / gbf0 * (self.wavelength / self.lambda0)**3
+        gbf = gaunt_bf(wavelength, nEff, Z)
+        alpha = self.alpha0 * gbf / gbf0 * (wavelength / self.lambda0)**3
+        return alpha
 
     @property
     def lambda0(self) -> float:
@@ -532,8 +556,6 @@ class HydrogenicContinuum(AtomicContinuum):
     def lambda0_m(self) -> float:
         deltaE = self.jLevel.E_SI - self.iLevel.E_SI
         return Const.HC / deltaE
-
-
 
 
 @dataclass
