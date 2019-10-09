@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import List, Sequence, Optional
+import re
 
 import numpy as np
 from scipy.interpolate import interp1d
@@ -109,6 +110,7 @@ class AtomicLevel:
         try: 
             self.qNo = determinate(self)
         except Exception as e:
+            print(self.atom.name)
             self.noPol = True
             print('Unable to treat level with polarisation: %s' % e)
             
@@ -307,12 +309,41 @@ class VoigtLine(AtomicLine):
                 self.gRad, self.stark, self.gLandeEff)
         return s
 
+    def stark_broaden(self, atmos):
+        weight = self.atom.atomicTable[self.atom.name].weight
+        C = 8.0 * Const.KBOLTZMANN / (np.pi * Const.AMU * weight)
+        Cm = (1.0 + weight / (Const.M_ELECTRON / Const.AMU))**(1.0/6.0)
+        # NOTE(cmo): 28.0 is average atomic weight
+        Cm += (1.0 + weight / (28.0))**(1.0/6.0)
+
+        Z = self.iLevel.stage + 1
+        ic = self.i + 1
+        while self.atom.levels[ic].stage < Z and ic < len(self.atom.levels):
+            ic += 1
+        if self.atom.levels[ic].stage == self.iLevel.stage:
+            raise ValueError('Cant find overlying cont: %s' % repr(self))
+
+        E_Ryd = Const.E_RYDBERG / (1.0 + Const.M_ELECTRON / (weight * Const.AMU))
+        neff_l = Z * np.sqrt(E_Ryd / (self.atom.levels[ic].E_SI - self.iLevel.E_SI))
+        neff_u = Z * np.sqrt(E_Ryd / (self.atom.levels[ic].E_SI - self.jLevel.E_SI))
+
+        C4 = Const.Q_ELECTRON**2 / (4.0 * np.pi * Const.EPSILON_0) \
+             * Const.RBOHR \
+             * (2.0 * np.pi * Const.RBOHR**2 / Const.HPLANCK) / (18.0 * Z**4) \
+             * ((neff_u * (5.0 * neff_u**2 + 1.0))**2 \
+                 - (neff_l * (5.0 * neff_l**2 + 1.0))**2)
+        cStark23 = 11.37 * (self.stark * C4)**(2.0/3.0)
+
+        vRel = (C * atmos.temperature)**(1.0/6.0) * Cm
+        return cStark23 * vRel * atmos.ne
+
     def setup_xrd_wavelength(self):
         self.xrd = []
 
         # This is just a hack to keep the search happy
         self.wavelength = np.zeros(1)
-        if self.type == LineType.PRD:
+        # NOTE(cmo): This is currently disabled
+        if self.type == LineType.PRD and False:
 
             thisIdx = self.atom.lines.index(self)
 
@@ -422,6 +453,19 @@ class VoigtLine(AtomicLine):
     def Bij(self) -> float:
         return self.jLevel.g / self.iLevel.g * self.Bji
 
+    def damping(self, atmos, vBroad):
+        aDamp = np.zeros(atmos.Nspace)
+        Qelast = np.zeros(atmos.Nspace)
+
+        self.vdw.broaden(atmos.temperature, atmos.hydrogenPops[0, :], aDamp)
+        Qelast += aDamp
+
+        Qelast += self.stark_broaden(atmos)
+
+        cDop = self.lambda0_m / (4.0 * np.pi)
+        aDamp = (self.gRad + Qelast) * cDop / vBroad
+        return aDamp
+
 
 def get_oribital_number(orbit: str) -> int:
     orbits = ['S', 'P', 'D', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'O', 'Q', 'R', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
@@ -429,14 +473,20 @@ def get_oribital_number(orbit: str) -> int:
     
 
 def determinate(level: AtomicLevel) -> PrincipalQuantum:
-    endIdx = [level.label.rfind(x) for x in ['E', 'O']]
+    endIdx = [level.label.upper().rfind(x) for x in ['E', 'O']]
     maxIdx = max(endIdx)
     if maxIdx == -1:
         raise ValueError("Unable to determine parity of level %s" % (repr(level)))
-    label = level.label[:maxIdx]
+    label = level.label[:maxIdx+1].upper()
     words: List[str] = label.split()
 
-    multiplicity, orbit = parse('{:d}{!s}', words[-1])
+    # _, multiplicity, orbit = parse('{}{:d}{!s}', words[-1])
+    match = re.match('[\S-]*(\d)(\S)[EO]$', words[-1])
+    if match is None:
+        raise ValueError('Unable to parse level label: %s' % level.label)
+    else:
+        multiplicity = int(match.group(1))
+        orbit = match.group(2)
     S = (multiplicity - 1) / 2.0
     L = get_oribital_number(orbit)
     J = (level.g - 1.0) / 2.0
@@ -571,7 +621,9 @@ class CollisionalRates:
         return s
 
     def setup(self, atom):
-        # TODO(cmo): Implement on derived classes!
+        pass
+
+    def compute_rates(self, atmos, nstar, Cmat):
         pass
 
 @dataclass
@@ -580,8 +632,22 @@ class Omega(CollisionalRates):
         s = 'Omega(j=%d, i=%d, temperature=%s, rates=%s)' % (self.j, self.i, repr(self.temperature), repr(self.rates))
         return s
 
-    def compute_rates(self, *args):
-        pass
+    def setup(self, atom):
+        i, j = self.i, self.j
+        self.i = min(i, j)
+        self.j = max(i, j)
+        self.atom = atom
+        self.jLevel = atom.levels[self.j]
+        self.iLevel = atom.levels[self.i]
+        self.C0 = Const.E_RYDBERG / np.sqrt(Const.M_ELECTRON) * np.pi * Const.RBOHR**2 * np.sqrt(8.0 / (np.pi * Const.KBOLTZMANN))
+
+    def compute_rates(self, atmos, nstar, Cmat):
+        # TODO(cmo): Remove the nstar argument -- replace with g_ij exp(-hv/kbT)
+        # NOTE(cmo): This is only linear
+        C = interp1d(self.temperature, self.rates, kind=3)(atmos.temperature)
+        Cdown = self.C0 * atmos.ne * C / (self.jLevel.g * np.sqrt(atmos.temperature))
+        Cmat[self.i, self.j, :] += Cdown
+        Cmat[self.j, self.i, :] += Cdown * nstar[self.j] / nstar[self.i]
 
 @dataclass
 class CI(CollisionalRates):
@@ -589,6 +655,19 @@ class CI(CollisionalRates):
         s = 'CI(j=%d, i=%d, temperature=%s, rates=%s)' % (self.j, self.i, repr(self.temperature), repr(self.rates))
         return s
 
-    def compute_rates(self, *args):
-        pass
+    def setup(self, atom):
+        i, j = self.i, self.j
+        self.i = min(i, j)
+        self.j = max(i, j)
+        self.atom = atom
+        self.jLevel = atom.levels[self.j]
+        self.iLevel = atom.levels[self.i]
+        self.dE = self.jLevel.E_SI - self.iLevel.E_SI
+
+    def compute_rates(self, atmos, nstar, Cmat):
+        C = interp1d(self.temperature, self.rates, kind=3)(atmos.temperature)
+        Cup = C * atmos.ne * np.exp(-self.dE / (Const.KBOLTZMANN * atmos.temperature)) * np.sqrt(atmos.temperature)
+        Cmat[self.j, self.i, :] += Cup
+        Cmat[self.i, self.j, :] += Cup * nstar[self.i] / nstar[self.j]
+
 

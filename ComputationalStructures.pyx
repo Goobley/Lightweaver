@@ -1,4 +1,4 @@
-from AtomicModel import AtomicModel, LineType, ExplicitContinuum, HydrogenicContinuum
+from AtomicModel import AtomicModel, LineType, AtomicContinuum, AtomicLine, ExplicitContinuum, HydrogenicContinuum
 import Constants as Const
 
 from copy import deepcopy
@@ -9,10 +9,11 @@ from libc.stdlib cimport malloc, calloc, free
 
 ctypedef int bool_t
 ctypedef void Ng
+ctypedef void RLK_Line
 ctypedef void FixedTransition
 
 cdef extern from "../RhCoreData.h":
-    struct AtomicLine:
+    struct RhAtomicLine:
         bool_t polarizable
         bool_t PRD
 
@@ -53,9 +54,9 @@ cdef extern from "../RhCoreData.h":
         double** frac
         Ng* Ng_prd
         Atom* atom
-        AtomicLine** xrd
+        RhAtomicLine** xrd
     
-    struct AtomicContinuum:
+    struct RhAtomicContinuum:
         bool_t hydrogenic
         int i
         int j
@@ -103,8 +104,8 @@ cdef extern from "../RhCoreData.h":
         double** nstar
         double*  ntotal
         double** Gamma
-        AtomicLine *line
-        AtomicContinuum *continuum
+        RhAtomicLine *line
+        RhAtomicContinuum *continuum
         FixedTransition *ft
         Ng* Ng_n
         RhAccumulate* accumulate
@@ -204,8 +205,8 @@ cdef extern from "../RhCoreData.h":
         BOTTOM
 
     struct Geometry:
-        enum mass_scale scale
-        enum boundcond vboundary[2]
+        mass_scale scale
+        boundcond vboundary[2]
         int Ndep
         int Nrays
         double* height
@@ -249,14 +250,30 @@ cdef extern from "../RhCoreData.h":
         double* C_ul
         double** Gamma
         MolecularLine* mrt
-        struct Ng* Ng_nv
+        Ng* Ng_nv
         # rhthread* rhth
         RhAccumulate* rhAcc
 
+    struct ZeemanMultiplet:
+        int Ncomponent
+        int* q
+        double* shift
+        double* strength
+
+    enum type:
+        ATOMIC_LINE
+        ATOMIC_CONTINUUM
+        VIBRATION_ROTATION
+        MOLECULAR_ELECTRONIC
+
+    enum Hund:
+        CASE_A
+        CASE_B
+
     struct MolecularLine:
-        enum type type
-        enum Hund Hundi
-        enum Hund Hundj
+        type type
+        Hund Hundi
+        Hund Hundj
         bool_t symmetric
         bool_t Voigt
         bool_t polarizable
@@ -318,17 +335,21 @@ cdef extern from "../RhCoreData.h":
     struct Options:
         pass
 
+    union LineOrCont:
+        RhAtomicLine* line
+        RhAtomicContinuum* continuum
+
+    union MolLine:
+        MolecularLine* vrline
+
     struct AtomicTransition:
-        enum type type
-        union ptype:
-            AtomicLine* line
-            AtomicContinuum* continuum
+        type type
+        LineOrCont ptype
         Atom *atom
 
     struct MolTransition:
-        enum type type
-        union ptype:
-            MolecularLine *vrline
+        type type
+        MolLine ptype
         Molecule *molecule
 
     struct ActiveSet:
@@ -455,7 +476,7 @@ cdef init_atom(Atom* atom):
     atom.Ng_n = NULL
     atom.accumulate = NULL
 
-cdef init_atomic_line(AtomicLine* line):
+cdef init_atomic_line(RhAtomicLine* line):
     line.polarizable = False
     line.PRD = False
 
@@ -499,7 +520,7 @@ cdef init_atomic_line(AtomicLine* line):
     line.xrd = NULL
 
 
-cdef init_atomic_continuum(AtomicContinuum* cont):
+cdef init_atomic_continuum(RhAtomicContinuum* cont):
     cont.hydrogenic = True
     cont.i = 0
     cont.j = 0
@@ -571,7 +592,7 @@ cdef init_atmosphere(Atmosphere* atmos):
     atmos.B = NULL
     atmos.gamma_B = NULL
     atmos.chi_B = NULL
-    atmos.B_char = NULL
+    atmos.B_char = 0.0
     atmos.cos_gamma = NULL
     atmos.cos_2chi = NULL
     atmos.sin_2chi = NULL
@@ -639,13 +660,13 @@ cdef init_background(Background* bg):
     bg.sca = NULL
     bg.chip = NULL
 
-cdef init_depthdata(DepthData* d)
+cdef init_depthdata(DepthData* d):
     d.IDepth = NULL
     d.SDepth = NULL
     d.chiDepth = NULL
 
 cdef init_rhcontext(RhContext* ctx):
-    ctx.atmosphere = NULL
+    ctx.atmos = NULL
     ctx.geo = NULL
     ctx.spectrum = NULL
     ctx.depth = NULL
@@ -683,10 +704,10 @@ cdef init_spectrum(Spectrum* spect):
     spect.cprdh = NULL
 
 cdef class ComputationalAtomicContinuum:
-    cdef AtomicContinuum* cCont
+    cdef RhAtomicContinuum* cCont
 
     @staticmethod
-    cdef new(ComputationalAtom atom, cont, AtomicContinuum* cCont, options):
+    cdef new(ComputationalAtom atom, cont, RhAtomicContinuum* cCont, options):
         self = ComputationalAtomicContinuum()
         self.atomicModel = atom
         self.continuumModel = cont
@@ -734,14 +755,14 @@ cdef class ComputationalAtomicContinuum:
 
 
 cdef class ComputationalAtomicLine:
-    cdef AtomicLine* cLine
+    cdef RhAtomicLine* cLine
 
     # def __dealloc__(self):
     #     free(<void*> self.cLine.c_shift)
     #     free(<void*> self.cLine.c_fraction)
 
     @staticmethod
-    cdef new(ComputationalAtom atom, line, AtomicLine* cLine, options):
+    cdef new(ComputationalAtom atom, line, RhAtomicLine* cLine, options):
         self = ComputationalAtomicLine()
         self.atomicModel = atom
         self.lineModel = line
@@ -829,6 +850,18 @@ cdef class ComputationalAtomicLine:
 cdef class ComputationalAtom:
     cdef Atom cAtom
     cdef int Nthread
+    cdef object atomicModel
+    cdef object atmos
+    cdef object active
+    cdef object atomicTable
+    cdef object nstar
+    cdef object ntotal
+    cdef object n
+    cdef object g
+    cdef object E
+    cdef object vbroad
+    cdef object lines
+    cdef object continua
 
     def __dealloc__(self):
         for i in range(self.cAtom.Nline):
@@ -845,13 +878,13 @@ cdef class ComputationalAtom:
                 for i in range(self.Nthread):
                     free_accumulate(&self.cAtom.accumulate[i])
 
-    def __init__(cAtom, atom, atmos, active, atomicTable, options):
+    def __init__(self, atom, atmos, active, atomicTable, options):
         init_atom(&self.cAtom)
         self.atomicModel = atom
         self.atmos = atmos
         self.active = active
         self.atomicTable = atomicTable
-        self.Nthread = options.Nthread
+        self.Nthread = int(options['Nthread'])
 
         atomicTable[atom.name].atom = self
 
@@ -895,8 +928,8 @@ cdef class ComputationalAtom:
 
         cdef int Nline = len(atom.lines)
         self.cAtom.Nline = Nline
-        self.cAtom.line = <AtomicLine*> malloc(Nline * sizeof(AtomicLine))
-        cdef AtomicLine* cLine = NULL
+        self.cAtom.line = <RhAtomicLine*> malloc(Nline * sizeof(RhAtomicLine))
+        cdef RhAtomicLine* cLine = NULL
         self.lines = []
         for i, l in enumerate(atom.lines):
             cLine = &self.cAtom.line[i]
@@ -907,7 +940,7 @@ cdef class ComputationalAtom:
                 if len(l.xrd) > 0:
                     length = len(l.xrd)
                     self.cAtom.line[i].Nxrd = length
-                    self.cAtom.line[i].xrd = <AtomicLine**> malloc(length * sizeof(AtomicLine*))
+                    self.cAtom.line[i].xrd = <RhAtomicLine**> malloc(length * sizeof(RhAtomicLine*))
                     for x in l.xrd:
                         xIdx = atom.lines.index(x)
                         self.cAtom.line[i].xrd[i] = &self.cAtom.line[xIdx]
@@ -915,8 +948,8 @@ cdef class ComputationalAtom:
 
         cdef int Ncont = len(atom.continua)
         self.cAtom.Ncont = Ncont
-        self.cAtom.continuum = <AtomicContinuum*> malloc(Nline * sizeof(AtomicContinuum))
-        cdef AtomicContinuum* cCont = NULL
+        self.cAtom.continuum = <RhAtomicContinuum*> malloc(Nline * sizeof(RhAtomicContinuum))
+        cdef RhAtomicContinuum* cCont = NULL
         self.continua = []
         for i, l in enumerate(atom.lines):
             cCont = &self.cAtom.continuum[i]
@@ -948,7 +981,11 @@ cdef class ComputationalAtom:
             self.n = self.nstar
             self.cAtom.n = self.cAtom.nstar
 
-cdef ComputationalMolecule:
+        @property
+        def name(self):
+            return self.atomicModel.name
+
+cdef class ComputationalMolecule:
     cdef Molecule cMol
 
     def __init__(self, mol, atmos, pops, active, options):
@@ -993,7 +1030,7 @@ cdef class ComputationalAtmosphere:
         cdef int Nspace = atmos.depthScale.shape[0]
         self.cAtmos.Ndim = 1
         self.cAtmos.N = <int*> malloc(sizeof(int))
-        self.cAtmos[0] = Nspace
+        self.cAtmos.N[0] = Nspace
         self.geo.Ndep = Nspace
 
         self.cAtmos.gravity = atmos.gravity
@@ -1002,15 +1039,15 @@ cdef class ComputationalAtmosphere:
         cdef np.ndarray[np.double_t, ndim=1] ptr
         self.tau_ref = np.ascontiguousarray(atmos.tau_ref)
         ptr = np.ascontiguousarray(self.tau_ref)
-        self.cAtmos.tau_ref = <double*> &ptr[0]
+        self.cGeo.tau_ref = <double*> &ptr[0]
 
         self.cmass = np.ascontiguousarray(atmos.cmass)
         ptr = np.ascontiguousarray(self.cmass)
-        self.cAtmos.cmass = <double*> &ptr[0]
+        self.cGeo.cmass = <double*> &ptr[0]
 
         self.height = np.ascontiguousarray(atmos.height)
         ptr = np.ascontiguousarray(self.height)
-        self.cAtmos.height = <double*> &ptr[0]
+        self.cGeo.height = <double*> &ptr[0]
 
         self.temperature = np.ascontiguousarray(atmos.temperature)
         ptr = np.ascontiguousarray(self.temperature)
@@ -1020,17 +1057,13 @@ cdef class ComputationalAtmosphere:
         ptr = np.ascontiguousarray(self.ne)
         self.cAtmos.ne = <double*> &ptr[0]
 
-        self.height = np.ascontiguousarray(atmos.ne)
-        ptr = np.ascontiguousarray(self.height)
-        self.cAtmos.height = <double*> &ptr[0]
-        
         self.vturb = np.ascontiguousarray(atmos.vturb)
         ptr = np.ascontiguousarray(self.vturb)
         self.cAtmos.vturb = <double*> &ptr[0]
 
         self.v_los = np.ascontiguousarray(atmos.v_los)
         ptr = np.ascontiguousarray(self.v_los)
-        self.cGeo.v = <double*> &ptr[0]
+        self.cGeo.vel = <double*> &ptr[0]
 
         # Copy properties, set up atmosphere.
 
@@ -1076,8 +1109,8 @@ cdef class ComputationalAtmosphere:
 
         # Only supporting most basic BCs for now
         # TODO(cmo): Fix BC handling
-        self.cGeo.vboundary[TOP] = ZERO
-        self.cGeo.vboundary[BOTTOM] = THERMALIZED
+        self.cGeo.vboundary[int(TOP)] = ZERO
+        self.cGeo.vboundary[int(BOTTOM)] = THERMALIZED
 
         # Put atoms and molecules into the atmosphere
         cdef int Natom = len(self.cAtoms)
@@ -1107,17 +1140,103 @@ cdef class ComputationalAtmosphere:
         # Special case for H^-
         # TODO
 
-class ComputationalBackground:
+        @property
+        def activeAtoms(self):
+            return [a for a in self.cAtoms if a.active]
+
+cdef class ComputationalBackground:
     cdef Background cBg
 
     def __init__(self, ComputationalAtmosphere atomsphere, thing):
         init_background(&self.cBg)
 
-class ComputationalSpectrum:
+cdef class ComputationalSpectrum:
     cdef Spectrum cSpect
+    cdef int Nactiveatom
 
-    def __init__(self, activeAtoms, activeMols, extraWavelengths):
+    def __dealloc__(self):
+        pass
+        # Cleanup activeset
+
+    def __init__(self, radiativeSet, computationalAtoms, atomicTable, atmos):
         init_spectrum(&self.cSpect)
+
+        self.activeInfo = radiativeSet.compute_wavelength_grid()
+        activeAtoms = list(radiativeSet.activeAtoms)
+        activeAtoms = sorted(activeAtoms, key=lambda x: atomicTable[x].weight)
+
+        self.activeCompAtoms = atmos.activeAtoms
+        activeIdx = {atom.atomicModel: i for i, atom in enumerate(self.activeCompAtoms)}
+        if len(self.activeCompAtoms) != len(radiativeSet.activeAtoms):
+            raise ValueError('Have all atoms be converted to their computational counterparts?')
+
+        cdef int Nspect = self.activeInfo.wavelength.shape[0]
+        self.cSpect.Nspect = Nspect
+        self.wavelength = np.ascontiguousarray(self.activeInfo.wavelength)
+        cdef np.ndarray[np.double_t, ndim=1] ptr = np.ascontiguousarray(self.activeInfo.wavelength)
+        self.cSpect.wavelength = &ptr[0]
+
+
+        self.Nactiveatom = len(self.activeCompAtoms)
+        self.cSpect.aset = <ActiveSet*> malloc(Nspect * sizeof(ActiveSet))
+
+        self.transitions = self.activeInfo.transitions
+        self.compTransitions = []
+        for t in self.transitions:
+            atom = self.activeCompAtoms[activeIdx[t.atom]]
+            if isinstance(t, AtomicContinuum):
+                idx = atom.atomicModel.continua.index(t)
+                self.compTransitions.append(atom.continua[idx])
+            elif isinstance(t, AtomicLine):
+                idx = atom.atomicModel.lines.index(t)
+                self.compTransitions.append(atom.lines[idx])
+
+        cdef ActiveSet* aset
+        cdef int count = 0
+        cdef ComputationalAtomicLine cLine
+        cdef ComputationalAtomicContinuum cCont
+        for i in range(Nspect):
+            aset = &self.cSpect.aset[i]
+            init_activeset(aset)
+            aset.Nactiveatomrt = <int*> malloc(self.Nactiveatom * sizeof(int))
+            aset.art = <AtomicTransition**> malloc(self.Nactiveatom * sizeof(AtomicTransition*))
+
+            for nact in range(self.Nactiveatom):
+                aset.Nactiveatomrt[nact] = 0
+
+                for cont in self.activeInfo.continuaPerAtom[self.activeCompAtoms[nact].name][i]:
+                    aset.art[nact][aset.Nactiveatomrt[nact]].type = type.ATOMIC_CONTINUUM
+                    cCont = self.compTransitions[self.transitions.index(cont)]
+                    aset.art[nact][aset.Nactiveatomrt[nact]].ptype.continuum = cCont.cCont
+                    aset.Nactiveatomrt[nact] += 1
+
+                for line in self.activeInfo.linesPerAtom[self.activeCompAtoms[nact].name][i]:
+                    aset.art[nact][aset.Nactiveatomrt[nact]].type = type.ATOMIC_LINE
+                    cLine = self.compTransitions[self.transitions.index(line)]
+                    aset.art[nact][aset.Nactiveatomrt[nact]].ptype.line = cLine.cLine
+                    aset.Nactiveatomrt[nact] += 1
+
+        # Do a second pass for upper and lower levels
+        for i in range(Nspect):
+            aset = &self.cSpect.aset[i]
+
+            aset.Nlower = <int*> malloc(self.Nactiveatom * sizeof(int))
+            aset.Nupper = <int*> malloc(self.Nactiveatom * sizeof(int))
+            aset.upper_levels = <int**> malloc(self.Nactiveatom * sizeof(int*))
+            aset.lower_levels = <int**> malloc(self.Nactiveatom * sizeof(int*))
+
+            for nact in range(self.Nactiveatom):
+                lowerLevels = list(self.activeInfo.lowerLevels[self.activeCompAtoms[nact].name][i])
+                upperLevels = list(self.activeInfo.upperLevels[self.activeCompAtoms[nact].name][i])
+                aset.Nlower[nact] = int(len(lowerLevels))
+                aset.Nupper[nact] = int(len(upperLevels))
+                aset.upper_levels[nact] = <int*> malloc(aset.Nupper[nact] * sizeof(int))
+                for j, l in enumerate(upperLevels):
+                    aset.upper_levels[nact][j] = int(l)
+                aset.lower_levels[nact] = <int*> malloc(aset.Nlower[nact] * sizeof(int))
+                for j, l in enumerate(lowerLevels):
+                    aset.lower_levels[nact][j] = int(l)
+        
 
         # Collect the wavelength grid for all of the atoms and molecules
         # Sort and remove duplicates
@@ -1125,13 +1244,33 @@ class ComputationalSpectrum:
         # Recompute the wavelength/alpha grids for the continua
         # Fill the active set and set the upper/lower levels
 
-class Context:
-    cdef RhContext ctx
+    @property
+    def updateJ(self):
+        return self.cSpect.updateJ
 
-    def __init__(self, atoms, molecules, atmosphere, equilibriumPops, nRays, options):
+    @updateJ.setter
+    def updateJ(self, updateJ):
+        self.cSpect.updateJ = updateJ
+
+
+cdef class Context:
+    cdef RhContext ctx
+    cdef ComputationalAtmosphere cAtmos
+    cdef ComputationalSpectrum cSpect
+    cdef object radiativeSet
+    cdef object molecules
+    cdef object atmosphere
+    cdef object atomicTable
+    cdef object populations
+    cdef object nRays
+    cdef object options
+    cdef object cAtoms
+    cdef object cMolecules
+
+    def __init__(self, radiativeSet, molecules, atmosphere, equilibriumPops, nRays, options):
         init_rhcontext(&self.ctx)
 
-        self.atoms = atoms
+        self.radiativeSet = radiativeSet
         self.molecules = molecules
         self.atmosphere =  atmosphere
         self.atomicTable = equilibriumPops.atomicTable
@@ -1140,20 +1279,22 @@ class Context:
         self.options = options
 
         self.cAtoms = []
-        for atom in atoms:
-            self.cAtoms.append(ComputationalAtom(atom.atomicModel, atmosphere, atom.active, self.atomicTable, options))
+        for atom in radiativeSet.atoms:
+            self.cAtoms.append(ComputationalAtom(atom, atmosphere, atom in radiativeSet.activeAtoms, self.atomicTable, options))
 
         self.cMolecules = []
         for mol in molecules:
             self.cMolecules.append(ComputationalMolecule(mol.molecularModel, atmosphere, mol.active, options))
 
-        self.cAtmos = ComputationalAtmosphere(atmos, self.cAtoms, self.cMolecules, nRays)
+        self.cAtmos = ComputationalAtmosphere(atmosphere, self.cAtoms, self.cMolecules, nRays)
 
         self.ctx.atmos = &self.cAtmos.cAtmos
         self.ctx.geo = &self.cAtmos.cGeo
 
         # Spectrum stuff
         # TODO(cmo): Configure the Spectrum object once, so we can actually not mess around with the computational atoms for the spectrum stuff once done
+        self.cSpect = ComputationalSpectrum(radiativeSet, self.cAtoms, self.atomicTable, self.cAtmos)
+        self.ctx.spectrum = &self.cSpect.cSpect
 
         # Background stuff
 
