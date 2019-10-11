@@ -640,11 +640,11 @@ class Omega(CollisionalRates):
         self.jLevel = atom.levels[self.j]
         self.iLevel = atom.levels[self.i]
         self.C0 = Const.E_RYDBERG / np.sqrt(Const.M_ELECTRON) * np.pi * Const.RBOHR**2 * np.sqrt(8.0 / (np.pi * Const.KBOLTZMANN))
+        self.interpolator = interp1d(self.temperature, self.rates, kind=3, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
 
     def compute_rates(self, atmos, nstar, Cmat):
         # TODO(cmo): Remove the nstar argument -- replace with g_ij exp(-hv/kbT)
-        # NOTE(cmo): This is only linear
-        C = interp1d(self.temperature, self.rates, kind=3)(atmos.temperature)
+        C = self.interpolator(atmos.temperature)
         Cdown = self.C0 * atmos.ne * C / (self.jLevel.g * np.sqrt(atmos.temperature))
         Cmat[self.i, self.j, :] += Cdown
         Cmat[self.j, self.i, :] += Cdown * nstar[self.j] / nstar[self.i]
@@ -663,9 +663,10 @@ class CI(CollisionalRates):
         self.jLevel = atom.levels[self.j]
         self.iLevel = atom.levels[self.i]
         self.dE = self.jLevel.E_SI - self.iLevel.E_SI
+        self.interpolator = interp1d(self.temperature, self.rates, kind=3, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
 
     def compute_rates(self, atmos, nstar, Cmat):
-        C = interp1d(self.temperature, self.rates, kind=3)(atmos.temperature)
+        C = self.interpolator(atmos.temperature)
         Cup = C * atmos.ne * np.exp(-self.dE / (Const.KBOLTZMANN * atmos.temperature)) * np.sqrt(atmos.temperature)
         Cmat[self.j, self.i, :] += Cup
         Cmat[self.i, self.j, :] += Cup * nstar[self.i] / nstar[self.j]

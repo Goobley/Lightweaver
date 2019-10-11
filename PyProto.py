@@ -8,7 +8,10 @@ import Constants as Const
 from Atmosphere import *
 import matplotlib.pyplot as plt
 from scipy.linalg import solve
+from typing import Union
+from numba import njit
 
+# NOTE(cmo): Easiest way to get the Voigt out of scipy. No idea what the precision is
 def voigt_H(a, v):
     z = (v + 1j * a)
     return special.wofz(z).real
@@ -21,6 +24,7 @@ class InitialSolution(Enum):
     Lte = auto()
     Zero = auto()
 
+# NOTE(cmo): Uij, Vij, Vji defined as per RH paper. We relate these by the expressions given in Uitenbroek 2001
 @dataclass
 class UV:
     # Uij = 0
@@ -28,7 +32,7 @@ class UV:
     Vij: np.ndarray
     Vji: np.ndarray
 
-
+# NOTE(cmo): Is it a line? Is it a continuum? This represents both!
 class ComputationalTransition:
     def __init__(self, trans: Union[AtomicLine, AtomicContinuum], compAtom: 'ComputationalAtom', atmos: Atmosphere, spect: SpectrumConfiguration):
         self.transModel = trans
@@ -36,59 +40,72 @@ class ComputationalTransition:
         self.wavelength = trans.wavelength
         if isinstance(trans, AtomicLine):
             self.type = TransitionType.Line
+            self.Aji = trans.Aji
+            self.Bji = trans.Bji
+            self.Bij = trans.Bij
+            self.lambda0 = trans.lambda0
         else:
             self.type = TransitionType.Continuum
 
+        self.i = trans.i
+        self.j = trans.j
+
         tIdx = spect.transitions.index(trans)
+        # The index for the starting point of the transition-local wavelength array in the global wavelength array
         self.Nblue = spect.blueIdx[tIdx]
 
         self.atmos = atmos
 
+        # Compute the line profile, if we're a line
         self.compute_phi()
 
+        # Store the transitions where we're active
         self.active = np.zeros(len(spect.activeSet), np.bool)
         for i, s in enumerate(spect.activeSet):
             if trans in s:
                 self.active[i] = True
 
+        # "our" gij will be given to us by the Atom that owns us
         self.gij = None
-    @property
-    def j(self):
-        return self.transModel.j
+
+    # @property
+    # def j(self):
+    #     return self.transModel.j
 
     @property
     def jLevel(self):
         return self.transModel.jLevel
 
-    @property
-    def i(self):
-        return self.transModel.i
+    # @property
+    # def i(self):
+    #     return self.transModel.i
 
     @property
     def iLevel(self):
         return self.transModel.iLevel
 
-    @property
-    def Aji(self):
-        return self.transModel.Aji
+    # @property
+    # def Aji(self):
+    #     return self.transModel.Aji
 
-    @property
-    def Bji(self):
-        return self.transModel.Bji
+    # @property
+    # def Bji(self):
+    #     return self.transModel.Bji
 
-    @property
-    def Bij(self):
-        return self.transModel.Bij
+    # @property
+    # def Bij(self):
+    #     return self.transModel.Bij
 
     @property
     def alpha(self):
         return self.transModel.alpha
 
-    @property
-    def lambda0(self):
-        return self.transModel.lambda0
+    # @property
+    # def lambda0(self):
+    #     return self.transModel.lambda0
 
-    def wlambda(self, la: Optional[int]=None) -> np.ndarray:
+    # NOTE(cmo): Wavelength weights
+    def wlambda(self, la: Optional[int]=None) -> Union[float, np.ndarray]:
         if self.type == TransitionType.Line:
             dopplerWidth = Const.CLIGHT / self.lambda0
         else:
@@ -109,10 +126,11 @@ class ComputationalTransition:
 
         return dopplerWidth * wla
 
-    # A poorly named "lambda transition" i.e. the mapping between la in the global array and lt into the transition local wavelength array (where the local array is a contiguous subset of the global array)
+    # NOTE(cmo): A poorly named "lambda transition" i.e. the mapping between la in the global array and lt into the transition local wavelength array (where the local array is a contiguous subset of the global array)
     def lt(self, la: int) -> int:
         return la - self.Nblue
 
+    # NOTE(cmo): Computes the emission profile, and the associated integration weights. These are stored in self.phi and self.wphi respectively. Phi has dimensions[Nlambda, Nrays, Up/Down, Nspace], wphi is simply [Nspace] as it is integrated across the other dimensions of phi
     def compute_phi(self):
         if self.type == TransitionType.Continuum:
             return
@@ -144,13 +162,14 @@ class ComputationalTransition:
         self.wphi = 1.0 / wPhi
         self.phi = phi
 
+    # NOTE(cmo): Computes the U's and V's as specified in the RH paper, using the Uitenbroek 2001 expressions
     def uv(self, la, mu, toFrom) -> UV:
         lt = self.lt(la)
         # hc_4pil = 0.25 * Const.HC / np.pi / self.wavelength[lt]
         hc_4pi = 0.25 * Const.HC / np.pi
-        Vij = np.zeros(self.atmos.Nspace)
-        Vji = np.zeros(self.atmos.Nspace)
-        Uji = np.zeros(self.atmos.Nspace)
+        # Vij = np.zeros(self.atmos.Nspace)
+        # Vji = np.zeros(self.atmos.Nspace)
+        # Uji = np.zeros(self.atmos.Nspace)
 
         if self.type == TransitionType.Line:
             phi = self.phi[lt, mu, toFrom, :]
@@ -271,15 +290,21 @@ class ComputationalAtom:
                 # self.V[t.j, :] = self.gij[kr] * self.V[t.i, :]
             t.gij = self.gij[kr]
 
+    def zero_angle_dependent_vars(self):
+        self.eta.fill(0.0)
+        self.V.fill(0.0)
+        self.U.fill(0.0)
+        self.chi.fill(0.0)
 
     def compute_collisions(self):
         self.C = np.zeros_like(self.Gamma)
         for col in self.atomicModel.collisions:
             col.compute_rates(self.atmos, self.nstar, self.C)
-        # NOTE(cmo): RH sometimes returns C < 0 due to the spline interpolation. Want to see if it makes a difference (probably not) -- makes no noticeable difference to line shape
+        # NOTE(cmo): RH sometimes returns C < 0 due to the spline interpolation. Want to see if it makes a difference (probably not) -- makes no noticeable difference to line shape -- Han is going to correct this
         self.C[self.C < 0.0] = 0.0
         
 
+@njit
 def planck(temp, wav):
     hc_Tkla = Const.HC / (Const.KBOLTZMANN * Const.NM_TO_M * wav) / temp
     twohnu3_c2 = (2.0 * Const.HC) / (Const.NM_TO_M * wav)**3
@@ -314,6 +339,7 @@ class IPsi:
     I: np.ndarray
     PsiStar: np.ndarray
 
+@njit
 def w2(dtau):
     w = np.empty(2)
     if dtau < 5e-4:
@@ -328,38 +354,28 @@ def w2(dtau):
         w[1] = w[0] - dtau * expdt
     return w
 
-def piecewise_1d(atmos, mu, toFrom, wav, chi, S):
-    zmu = 0.5 / atmos.muz[mu]
-    z = atmos.height
+@njit
+def piecewise_1d_impl(muz, toFrom, Istart, z, chi, S):
+    Nspace = chi.shape[0]
+    zmu = 0.5 / muz
 
     if toFrom:
         dk = -1
-        kStart = atmos.Nspace - 1
+        kStart = Nspace - 1
         kEnd = 0
     else:
         dk = 1
         kStart = 0
-        kEnd = atmos.Nspace - 1
+        kEnd = Nspace - 1
 
     dtau_uw = zmu * (chi[kStart] + chi[kStart + dk]) * np.abs(z[kStart] - z[kStart + dk])
     dS_uw = (S[kStart] - S[kStart + dk]) / dtau_uw
 
-    if toFrom:
-        if atmos.lowerBc == BoundaryCondition.Zero:
-            Iupw = 0.0
-        elif atmos.lowerBc == BoundaryCondition.Thermalised:
-            Bnu = planck(atmos.temperature[-2:], wav)
-            Iupw = Bnu[1] - (Bnu[0] - Bnu[1]) / dtau_uw
-    else:
-        if atmos.upperBc == BoundaryCondition.Zero:
-            Iupw = 0.0
-        elif atmos.upperBc == BoundaryCondition.Thermalised:
-            Bnu = planck(atmos.temperature[:2], wav)
-            Iupw = Bnu[0] - (Bnu[1] - Bnu[0]) / dtau_uw
-    # Iupw = 0.0
-
-    I = np.zeros(atmos.Nspace)
-    Psi = np.zeros(atmos.Nspace)
+    Iupw = Istart
+    I = np.empty(Nspace)
+    Psi = np.empty(Nspace)
+    I[kStart] = Iupw
+    Psi[kStart] = 0.0
 
     for k in range(kStart + dk, kEnd + dk, dk):
         w = w2(dtau_uw)
@@ -378,9 +394,41 @@ def piecewise_1d(atmos, mu, toFrom, wav, chi, S):
         dS_uw = dS_dw
         dtau_uw = dtau_dw
 
+    return I, Psi
+
+def piecewise_1d(atmos, mu, toFrom, wav, chi, S):
+    zmu = 0.5 / atmos.muz[mu]
+    z = atmos.height
+
+    if toFrom:
+        dk = -1
+        kStart = atmos.Nspace - 1
+        kEnd = 0
+    else:
+        dk = 1
+        kStart = 0
+        kEnd = atmos.Nspace - 1
+
+    dtau_uw = zmu * (chi[kStart] + chi[kStart + dk]) * np.abs(z[kStart] - z[kStart + dk])
+
+    if toFrom:
+        if atmos.lowerBc == BoundaryCondition.Zero:
+            Iupw = 0.0
+        elif atmos.lowerBc == BoundaryCondition.Thermalised:
+            Bnu = planck(atmos.temperature[-2:], wav)
+            Iupw = Bnu[1] - (Bnu[0] - Bnu[1]) / dtau_uw
+    else:
+        if atmos.upperBc == BoundaryCondition.Zero:
+            Iupw = 0.0
+        elif atmos.upperBc == BoundaryCondition.Thermalised:
+            Bnu = planck(atmos.temperature[:2], wav)
+            Iupw = Bnu[0] - (Bnu[1] - Bnu[0]) / dtau_uw
+    # Iupw = 0.0
+    I, Psi = piecewise_1d_impl(atmos.muz[mu], toFrom, Iupw, z, chi, S)
     return IPsi(I, Psi/chi)
 
 
+# @profile
 def gamma_matrices(atmos: Atmosphere, spect: SpectrumConfiguration, activeAtoms: List[ComputationalAtom], background: Background):
     Nspace = atmos.Nspace
     Nrays = atmos.Nrays
@@ -406,7 +454,8 @@ def gamma_matrices(atmos: Atmosphere, spect: SpectrumConfiguration, activeAtoms:
                 for atom in activeAtoms:
                     # TODO(cmo): Check when things need to be zero'd
                     # NOTE(cmo): HACK HACK HACK vvvv
-                    atom.setup_wavelength(la)
+                    # atom.setup_wavelength(la)
+                    atom.zero_angle_dependent_vars()
                     for t in atom.trans:
                         if not t.active[la]:
                             continue
@@ -435,7 +484,7 @@ def gamma_matrices(atmos: Atmosphere, spect: SpectrumConfiguration, activeAtoms:
                 if np.any(ip.PsiStar * chi < 0) or np.any(ip.PsiStar * chi > 1.0):
                     print(la, wave)
                     print(ip.PsiStar)
-                    raise ValueError
+                    raise ValueError('Formal solver exploded!!')
 
                 for atom in activeAtoms:
                     Ieff = ip.I - ip.PsiStar * atom.eta
@@ -455,8 +504,17 @@ def gamma_matrices(atmos: Atmosphere, spect: SpectrumConfiguration, activeAtoms:
                         # NOTE(cmo): The sign in this second term differs from RH due to us accumulating atom.chi[j] -= chi, rather than +=
                         integrand = (uv.Vij * Ieff) - (ip.PsiStar * atom.chi[t.j] * atom.U[t.i])
                         atom.Gamma[t.j, t.i] += integrand * wlamu
+
+    for atom in activeAtoms:
+        for k in range(Nspace):
+            np.fill_diagonal(atom.Gamma[:,:,k], 0.0)
+            for i in range(atom.Nlevel):
+                GamDiag = np.sum(atom.Gamma[:, i, k])
+                atom.Gamma[i, i, k] = -GamDiag
+
     return Iplus
 
+# @profile
 def stat_equil(atmos, activeAtoms):
     Nspace = atmos.Nspace
     maxRelChange = 0.0
@@ -464,28 +522,24 @@ def stat_equil(atmos, activeAtoms):
         Nlevel = atom.Nlevel
         for k in range(Nspace):
             iEliminate = np.argmax(atom.n[:, k])
-            # iEliminate = 3
             Gamma = np.copy(atom.Gamma[:, :, k])
-
-            np.fill_diagonal(Gamma, 0.0)
-            for i in range(Nlevel):
-                GamDiag = np.sum(Gamma[:, i])
-                Gamma[i, i] = -GamDiag
 
             Gamma[iEliminate, :] = 1.0
             nk = np.zeros(Nlevel)
             nk[iEliminate] = atom.ntotal[k]
 
             nOld = np.copy(atom.n[:, k])
-            if k == 40:
-                print(Gamma)
-                print('\n---\n')
-                print(nk)
-                print('\n---\n')
+            # if k == 40:
+            #     print(Gamma)
+            #     print('\n---\n')
+            #     print(nk)
+            #     print('\n---\n')
+
             nNew = solve(Gamma, nk)
-            if k == 40:
-                print(nNew)
-                print('\n---\n')
+
+            # if k == 40:
+            #     print(nNew)
+            #     print('\n---\n')
 
             change = np.max(np.where(nNew != 0.0, np.abs(nNew - nOld) / nNew, 0.0))
             maxRelChange = max(maxRelChange, change)

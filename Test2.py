@@ -3,7 +3,7 @@ import numpy as np
 from Atmosphere import Atmosphere, ScaleType
 import Constants as Const
 from AtomicTable import AtomicTable
-from AllOfTheAtoms import H_6atom, CaIIatom, He_9atom, Featom
+from AllOfTheAtoms import H_6atom, CaIIatom, He_9atom, Featom, MgIIatom
 from AtomicSet import RadiativeSet
 from PyProto import ComputationalAtom, background, gamma_matrices, stat_equil
 import matplotlib.pyplot as plt
@@ -438,7 +438,7 @@ atmos.convert_scales(at)
 atmos.quadrature(5)
 aSet = RadiativeSet([CaIIatom()], [])
 aSet.set_active('Ca')
-spect = aSet.compute_wavelength_grid()
+spect = aSet.compute_wavelength_grid(np.linspace(150, 600, 500))
 
 bg = background(atmos, spect)
 # bg.chi[:] = 0.0
@@ -465,6 +465,3 @@ while delta > 1e-2 and it < 200:
     print(delta, it)
 # Iplus = gamma_matrices(atmos, spect, activeAtoms, bg)
 # delta = stat_equil(atmos, activeAtoms)
-# TODO(cmo): Collisions - tick.
-# TODO(cmo): Need a stat equil function
-# TODO(cmo): Need to remember to gather the outgoing intensity too! - maybe done?
