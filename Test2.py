@@ -438,7 +438,8 @@ atmos.convert_scales(at)
 atmos.quadrature(5)
 aSet = RadiativeSet([CaIIatom()], [])
 aSet.set_active('Ca')
-spect = aSet.compute_wavelength_grid(np.linspace(150, 600, 500))
+# spect = aSet.compute_wavelength_grid(np.linspace(150, 600, 500))
+spect = aSet.compute_wavelength_grid()
 
 bg = background(atmos, spect)
 # bg.chi[:] = 0.0
@@ -456,12 +457,12 @@ activeAtoms = [ComputationalAtom(a, atmos, at, spect) for a in aSet.activeAtoms]
 # plt.legend()
 # plt.show()
 
-delta = 1.0
-it = 0
-while delta > 1e-2 and it < 200:
-    it += 1
-    Iplus = gamma_matrices(atmos, spect, activeAtoms, bg)
-    delta = stat_equil(atmos, activeAtoms)
-    print(delta, it)
-# Iplus = gamma_matrices(atmos, spect, activeAtoms, bg)
+# delta = 1.0
+# it = 0
+# while delta > 1e-2 and it < 200:
+#     it += 1
+#     Iplus = gamma_matrices(atmos, spect, activeAtoms, bg)
+#     delta = stat_equil(atmos, activeAtoms)
+#     print(delta, it)
+Iplus = gamma_matrices(atmos, spect, activeAtoms, bg)
 # delta = stat_equil(atmos, activeAtoms)

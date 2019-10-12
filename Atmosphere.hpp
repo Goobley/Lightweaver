@@ -2,6 +2,12 @@
 #define ATMOSPHERE_HPP
 #include "CmoArray.hpp"
 
+enum RadiationBC
+{
+    ZERO,
+    THERMALISED
+};
+
 struct Atmosphere
 {
     F64View cmass;
@@ -19,7 +25,11 @@ struct Atmosphere
     int Nspace;
     int Nrays;
 
+    enum RadiationBC lowerBc;
+    enum RadiationBC upperBc;
+
     void print_tau() const;
+    void test_copy_constructor();
 };
 #else
 #endif

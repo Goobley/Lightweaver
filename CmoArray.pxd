@@ -10,14 +10,12 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         T operator()(size_t) const
         T& operator()(size_t)
         void fill(T)
-        void fill(const T&)
         size_t* shape()
         size_t shape(size_t)
 
     cdef cppclass Array1Own[T]:
         Array1Own(size_t)
         Array1Own(T, size_t)
-        Array1Own(Array1NonOwn)
         Array1Own(const Array1NonOwn&)
         Array1Own& operator=(const Array1NonOwn&)
         T operator[](size_t) const
@@ -25,7 +23,6 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         T operator()(size_t) const
         T& operator()(size_t)
         void fill(T)
-        void fill(const T&)
         size_t* shape()
         size_t shape(size_t)
 
@@ -38,14 +35,12 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         T& operator()(size_t, size_t)
         Array1NonOwn[T] operator()(size_t)
         void fill(T)
-        void fill(const T&)
         size_t* shape()
         size_t shape(size_t)
 
     cdef cppclass Array2Own[T]:
         Array2Own(size_t, size_t)
         Array2Own(T, size_t, size_t)
-        Array2Own(Array2NonOwn)
         Array2Own(const Array2NonOwn&)
         Array2Own& operator=(const Array2NonOwn&)
         T operator[](size_t) const
@@ -54,7 +49,6 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         T& operator()(size_t)
         Array1NonOwn[T] operator()(size_t)
         void fill(T)
-        void fill(const T&)
         size_t* shape()
         size_t shape(size_t)
 
@@ -68,14 +62,12 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         Array1NonOwn[T] operator()(size_t, size_t)
         Array2NonOwn[T] operator()(size_t)
         void fill(T)
-        void fill(const T&)
         size_t* shape()
         size_t shape(size_t)
 
     cdef cppclass Array3Own[T]:
         Array3Own(size_t, size_t, size_t)
         Array3Own(T, size_t, size_t, size_t)
-        Array3Own(Array3NonOwn)
         Array3Own(const Array3NonOwn&)
         Array3Own& operator=(const Array3NonOwn&)
         T operator[](size_t) const
@@ -85,7 +77,6 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         Array1NonOwn[T] operator()(size_t, size_t)
         Array2NonOwn[T] operator()(size_t)
         void fill(T)
-        void fill(const T&)
         size_t* shape()
         size_t shape(size_t)
 
@@ -100,14 +91,12 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         Array2NonOwn[T] operator()(size_t, size_t)
         Array3NonOwn[T] operator()(size_t)
         void fill(T)
-        void fill(const T&)
         size_t* shape()
         size_t shape(size_t)
 
     cdef cppclass Array4Own[T]:
         Array4Own(size_t, size_t, size_t, size_t)
         Array4Own(T, size_t, size_t, size_t, size_t)
-        Array4Own(Array4NonOwn)
         Array4Own(const Array4NonOwn&)
         Array4Own& operator=(const Array4NonOwn&)
         T operator[](size_t) const
@@ -118,7 +107,6 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         Array2NonOwn[T] operator()(size_t, size_t)
         Array3NonOwn[T] operator()(size_t)
         void fill(T)
-        void fill(const T&)
         size_t* shape()
         size_t shape(size_t)
 
@@ -134,14 +122,12 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         Array3NonOwn[T] operator()(size_t, size_t)
         Array4NonOwn[T] operator()(size_t)
         void fill(T)
-        void fill(const T&)
         size_t* shape()
         size_t shape(size_t)
 
     cdef cppclass Array5Own[T]:
         Array5Own(size_t, size_t, size_t, size_t, size_t)
         Array5Own(T, size_t, size_t, size_t, size_t, size_t)
-        Array5Own(Array5NonOwn)
         Array5Own(const Array5NonOwn&)
         Array5Own& operator=(const Array5NonOwn&)
         T operator[](size_t) const
@@ -153,7 +139,6 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         Array3NonOwn[T] operator()(size_t, size_t)
         Array4NonOwn[T] operator()(size_t)
         void fill(T)
-        void fill(const T&)
         size_t* shape()
         size_t shape(size_t)
 
