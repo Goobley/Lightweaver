@@ -3,19 +3,18 @@ from Falc80 import Falc80
 from AtomicTable import AtomicTable
 from CAtmosphere import LwContext
 from AtomicSet import RadiativeSet
-from AllOfTheAtoms import CaIIatom
+from AllOfTheAtoms import CaIIatom, MgIIatom
 from PyProto import background
 import time
-
 
 atmos = Falc80()
 at = AtomicTable()
 atmos.convert_scales(at)
 atmos.quadrature(5)
-aSet = RadiativeSet([CaIIatom()], [])
-aSet.set_active('Ca')
-# spect = aSet.compute_wavelength_grid(np.linspace(150, 600, 500))
-spect = aSet.compute_wavelength_grid()
+aSet = RadiativeSet([CaIIatom(), MgIIatom()], [])
+aSet.set_active('Ca', 'Mg')
+spect = aSet.compute_wavelength_grid(np.linspace(150, 600, 500))
+# spect = aSet.compute_wavelength_grid()
 
 np.seterr(invalid='raise', divide='raise')
 
@@ -26,6 +25,7 @@ ctx = LwContext(atmos, spect, activeAtoms, bg, at)
 # delta = ctx.stat_equil()
 # print("delta: %e"%delta)
 
+# input()
 start = time.time()
 delta = 1.0
 it = 0

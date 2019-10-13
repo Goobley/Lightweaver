@@ -7,6 +7,7 @@ from math import *
 import os
 import xdrlib
 import witt as this
+from numba import njit
 
 
 class dum: # Just a container for the PF
@@ -772,6 +773,7 @@ class witt:
 #
 # ----------------------------------------------------------------------------------------
 
+@njit(cache=True)
 def SEATON(FREQ0, XSECT, POWER, A, FREQ):
     return XSECT*(A+(1.-A)*(FREQ0/FREQ))* (FREQ0/FREQ)**(floor(2.*POWER+0.01)*0.5)
 
@@ -793,6 +795,7 @@ A0 = np.float64((
     0.19,0.21,0.24,0.28,0.38,0.53,0.76,0.96,1.08,1.09,1.09)).reshape((12,11))
 
 
+@njit(cache=True)
 def COULFF(TLOG, FREQLG, NZ):
     GAMLOG=10.39638-TLOG/1.15129+Z4LOG[NZ-1]
     IGAM=min(int(GAMLOG+7.),10)
@@ -815,6 +818,7 @@ A1 = np.float64((0.9916,1.105,1.101,1.101,1.102,1.0986))
 B1 = np.float64((2.719e3,-2.375e4,-9.863e3,-5.765e3,-3.909e3,-2.704e3))
 C1 = np.float64((-2.268e10,4.077e8,1.035e8,4.593e7,2.371e7,1.229e7))
 
+@njit(cache=True)
 def COULX(N, freq, Z):
     n=(N+1.0)**2
     
@@ -832,10 +836,11 @@ def COULX(N, freq, Z):
 
 # ----------------------------------------------------------------------------------------
 
+@njit(cache=True)
 def HOP( XNE,  XH1,  XH2,  FREQ,  FREQLG, T,  TLOG,  TKEV,  STIM,  EHVKT):
 
-    CONT = np.empty(8, dtype='float64')
-    BOLT = np.empty(8, dtype='float64')
+    CONT = np.empty(8)
+    BOLT = np.empty(8)
    
     FREQ3=(FREQ*1.E-10)**3
     CFREE=3.6919E-22/FREQ3
@@ -865,6 +870,7 @@ def HOP( XNE,  XH1,  XH2,  FREQ,  FREQLG, T,  TLOG,  TKEV,  STIM,  EHVKT):
 
 # ----------------------------------------------------------------------------------------
 
+@njit(cache=True)
 def HRAYOP(XH1,  FREQ):
 
     WAVE=min(FREQ,2.463e15)
@@ -877,6 +883,7 @@ def HRAYOP(XH1,  FREQ):
 
 # ----------------------------------------------------------------------------------------
 
+@njit(cache=True)
 def H2PLOP(XH1, XH2, FREQ, FREQLG, FREQ15, TKEV, STIM):
   
   if(FREQ > 3.28805E15):
@@ -891,6 +898,7 @@ def H2PLOP(XH1, XH2, FREQ, FREQLG, FREQ15, TKEV, STIM):
  
 # ----------------------------------------------------------------------------------------
 
+@njit(cache=True)
 def HMINOP( XH1,  XHMIN,  FREQ,  T, TKEV,  XNE,  EHVKT):
     
     FREQ1=FREQ*1.E-10
@@ -923,9 +931,10 @@ HEFREQ0 = np.float64((5.9452090e15,1.1528440e15,0.9803331e15,.8761076e15,
 CHI0 = np.float64((0.,19.819,20.615,20.964,21.217,22.718,22.920,23.006,
 		   23.073,23.086))
 
+@njit(cache=True)
 def HE1OP( XHE1,  XHE2,  XNE,  FREQ,  FREQLG, T,  TKEV,  TLOG,  EHVKT,  STIM):
   
-    TRANS = np.zeros(10, dtype='float64')
+    TRANS = np.zeros(10)
     BOLT=np.exp(-CHI0/TKEV)*G0*XHE1
   
     FREET=XNE*1.E-10*XHE2*1.E-10/sqrt(T)*1.E-10
@@ -954,15 +963,16 @@ def HE1OP( XHE1,  XHE2,  XNE,  FREQ,  FREQLG, T,  TKEV,  TLOG,  EHVKT,  STIM):
 
 # ----------------------------------------------------------------------------------------
 
+@njit(cache=True)
 def HE2OP(  XHE2,  XHE3,  XNE,  FREQ,  FREQLG, T,  TKEV,  TLOG,  EHVKT,  STIM):
     
     #
     #   REQUIRES FUNCTIONS COULX AND COULFF
     #   FREQUENCIES ARE 4X HYDROGEN,CHI ARE FOR ION POT=54.403
     #
-    CONT = np.empty(9, dtype='float64')
+    CONT = np.empty(9)
 
-    N12 = (np.arange(9, dtype='float64')+1.0)**2
+    N12 = (np.arange(9)+1.0)**2
     BOLT=np.exp(-(54.403-54.403/N12)/TKEV)*2.*N12*XHE2
   
     FREET=XNE*XHE3/sqrt(T)
@@ -989,6 +999,7 @@ def HE2OP(  XHE2,  XHE3,  XNE,  FREQ,  FREQLG, T,  TKEV,  TLOG,  EHVKT,  STIM):
 
 # ----------------------------------------------------------------------------------------
 
+@njit(cache=True)
 def HEMIOP( XHE1,  FREQ,  T,  XNE):
     A= 3.397E-26+(-5.216E-11+7.039E05/FREQ)/FREQ;
     B=-4.116E-22+( 1.067E-06+8.135E09/FREQ)/FREQ;
@@ -997,6 +1008,7 @@ def HEMIOP( XHE1,  FREQ,  T,  XNE):
 
 # ----------------------------------------------------------------------------------------
 
+@njit(cache=True)
 def HERAOP(XHE1, FREQ):
     WW=(2.997925E+03/min(FREQ*1.E-15,5.15))**2
     arg = 1.+(2.44E5+5.94E10/(WW-2.90E5))/WW
@@ -1025,6 +1037,7 @@ FREQMG = np.float64((1.9341452e15,1.8488510e15,1.1925797e15, 7.9804046e14,4.5772
 FLOG0 = np.float64((35.32123,35.19844,35.15334,34.71490,34.31318, 33.75728,33.65788,33.64994,33.43947))
 TLG0=np.float64((8.29405,8.51719,8.69951,8.85367, 8.98720,9.10498,9.21034))
 
+@njit(cache=True)
 def Mg1OP(FREQ,  FREQLG,  T,  TLOG):
     NT=min(6,int(floor(T/1000.))-3)
     if(NT<1): NT=1
@@ -1043,6 +1056,7 @@ def Mg1OP(FREQ,  FREQLG,  T,  TLOG):
 
 # ----------------------------------------------------------------------------------------
 
+@njit(cache=True)
 def C1OP( FREQ,  TKEV):
     
   # CROSS-SECTION TIMES THE PARTITION FUNCTION  
@@ -1060,6 +1074,7 @@ def C1OP( FREQ,  TKEV):
 
 # ----------------------------------------------------------------------------------------
 
+@njit(cache=True)
 def Al1OP(FREQ):
     if(FREQ > 1.443E15): return 2.1E-17*((1.443E15/FREQ)**3)*6.0
     else: return 0.0
@@ -1089,6 +1104,7 @@ FREQSI1 = np.float64((2.1413750e15,1.97231650e15,1.7879689e15,1.5152920e15,0.557
 FLOG1 = np.float64((35.45438,35.30022,35.21799,35.11986,34.95438, 33.95402,33.90947,33.80244,33.78835,33.76626, 33.70518))
 TLG1 = np.float64((8.29405,8.51719,8.69951,8.85367,8.98720,9.10498,9.21034,9.30565,9.39266))
 
+@njit(cache=True)
 def Si1OP(FREQ, FREQLG, T, TLOG):
     NT=min(8,int(floor(T/1000.))-3)
     if(NT<1): NT=1
@@ -1128,6 +1144,7 @@ WNO1 = np.float64((63500.,58500.,53500.,59500.,45000.,44500.,44500.,
                   29000.,27000.,54000.,27500.,24000.,47000.,23000.,
                    44000.,42000.,42000.,21000.,42000.,42000.))
 
+@njit(cache=True)
 def Fe1OP(FREQ, HKT):
     WAVENO=FREQ/2.99792458E10
     if(WAVENO < 21000.): return 0.0
@@ -1135,7 +1152,7 @@ def Fe1OP(FREQ, HKT):
     XXX=((WNO1+3000.-WAVENO)/WNO1/.1)
 
 
-    XSECT = np.zeros(48, dtype='float64')
+    XSECT = np.zeros(48)
     idx = np.where(WNO1 <WAVENO)[0]
     XSECT[idx] = 3.e-18/(1.+XXX[idx]**4)
 
@@ -1143,6 +1160,7 @@ def Fe1OP(FREQ, HKT):
     
 # ----------------------------------------------------------------------------------------
 
+@njit(cache=True)
 def COOLOP(XC1,XMg1,XAl1,XSi1,XFe1,STIM,FREQ,FREQLG,T,TLOG,TKEV,HKT):
     #     Si I, Mg I, Al I, C I, Fe I
     
@@ -1154,6 +1172,7 @@ def COOLOP(XC1,XMg1,XAl1,XSi1,XFe1,STIM,FREQ,FREQLG,T,TLOG,TKEV,HKT):
     
 # ----------------------------------------------------------------------------------------
 
+@njit(cache=True)
 def N1OP( FREQ,  TKEV):
 
     # CROSS-SECTION TIMES PARTITION FUNCTION
@@ -1172,12 +1191,14 @@ def N1OP( FREQ,  TKEV):
 
 # ----------------------------------------------------------------------------------------
 
+@njit(cache=True)
 def O1OP( FREQ):
     if(FREQ >= 3.28805E15): return 9.*SEATON(3.28805E15,2.94E-18,1.E0,2.66E0,FREQ)
     else: return 0.0
 
 # ----------------------------------------------------------------------------------------
 
+@njit(cache=True)
 def Mg2OP( FREQ,  TKEV):
 
   #    CROSS-SECTION TIMES PARTITION FUNCTION
@@ -1212,6 +1233,7 @@ FREQSI2 = np.float64((4.9965417e15,3.9466738e15,1.5736321e15,1.5171539e15,9.2378
 FLOG2 = np.float64((36.32984,36.14752,35.91165,34.99216,34.95561,34.45941,34.36234,34.27572,34.20161))
 TLG2 = np.float64((9.21034,9.39266,9.54681,9.68034,9.79813,9.90349))
 
+@njit(cache=True)
 def Si2OP( FREQ,  FREQLG,  T,  TLOG):
 
     NT=min(5,int(floor(T/2000.))-4)
@@ -1235,6 +1257,7 @@ def Si2OP( FREQ,  FREQLG,  T,  TLOG):
 
 # ----------------------------------------------------------------------------------------
 
+@njit(cache=True)
 def Ca2OP( FREQ,  TKEV):
     
     C1218=10.*exp(-1.697/TKEV)
@@ -1252,6 +1275,7 @@ def Ca2OP( FREQ,  TKEV):
 
 # ----------------------------------------------------------------------------------------
 
+@njit(cache=True)
 def LUKEOP( XN1,  XO1,  XMg2,  XSi2,  XCa2, STIM,  FREQ,  FREQLG,  T,  TLOG,  TKEV):
     
     #    N I, O I, Si II, Mg II, Ca II
@@ -1264,16 +1288,19 @@ def LUKEOP( XN1,  XO1,  XMg2,  XSi2,  XCa2, STIM,  FREQ,  FREQLG,  T,  TLOG,  TK
 
 # ----------------------------------------------------------------------------------------
 
+@njit(cache=True)
 def HOTOP():
     return 0.0 # dummy function, should fill this
 
 # ----------------------------------------------------------------------------------------
 
+@njit(cache=True)
 def ELECOP( XNE):
     return 0.6653E-24*XNE
 
 # ----------------------------------------------------------------------------------------
 
+@njit(cache=True)
 def H2RAOP(  XH1,  FREQ,  T,  TKEV,  TLOG):
 
   
@@ -1289,12 +1316,13 @@ def H2RAOP(  XH1,  FREQ,  T,  TKEV,  TLOG):
   
 # ----------------------------------------------------------------------------------------
 
+@njit(cache=True)
 def cop( T,  TKEV,  TK,  HKT,  TLOG, XNA,  XNE,  WLGRID, H1,  H2,  HMIN,  HE1,  HE2,
 	 HE3,  C1,  AL1,  SI1,  SI2,CA1,  CA2,  MG1,  MG2,  FE1, N1,  O1):
     
     nW = len(WLGRID)
-    OPACITY = np.zeros(nW, dtype='float64')
-    SCATTER = np.zeros(nW, dtype='float64')
+    OPACITY = np.zeros(nW)
+    SCATTER = np.zeros(nW)
     
     for iWL in range(nW):
         FREQ=2.997925E18/WLGRID[iWL]

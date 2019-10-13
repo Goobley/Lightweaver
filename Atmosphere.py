@@ -48,7 +48,7 @@ class Atmosphere:
 
         chi_c = np.zeros_like(self.depthScale)
         for k in range(self.depthScale.shape[0]):
-            chi_c[k] = eos.contOpacity(self.temperature[k], pgas[k], pe[k], [5000.0]) / Const.CM_TO_M
+            chi_c[k] = eos.contOpacity(self.temperature[k], pgas[k], pe[k], np.array([5000.0])) / Const.CM_TO_M
 
         self.pgas = pgas
         self.pe = pe
