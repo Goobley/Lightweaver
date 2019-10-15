@@ -16,6 +16,7 @@ struct Atmosphere
     F64View temperature;
     F64View ne;
     F64View vlos;
+    F64View2D vlosMu;
     F64View vturb;
     F64View nHtot;
     F64View muz;

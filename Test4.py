@@ -7,6 +7,14 @@ from AllOfTheAtoms import CaIIatom, MgIIatom
 from PyProto import background
 import time
 
+from dataclasses import dataclass
+
+@dataclass
+class NgOptions:
+    Norder: int = 2
+    Nperiod: int = 3
+    Ndelay: int = 12
+
 atmos = Falc80()
 at = AtomicTable()
 atmos.convert_scales(at)
@@ -20,7 +28,7 @@ np.seterr(invalid='raise', divide='raise')
 
 bg = background(atmos, spect)
 activeAtoms = [a for a in aSet.activeAtoms]
-ctx = LwContext(atmos, spect, activeAtoms, bg, at)
+ctx = LwContext(atmos, spect, activeAtoms, bg, at, ngOptions=NgOptions())
 # ctx.gamma_matrices_formal_sol()
 # delta = ctx.stat_equil()
 # print("delta: %e"%delta)

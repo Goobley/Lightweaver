@@ -4,6 +4,8 @@
 #include "Atmosphere.hpp"
 #include "CmoArray.hpp"
 #include "Constants.hpp"
+#include "Ng.hpp"
+#include <complex>
 
 typedef double f64;
 typedef Jasnah::Array1NonOwn<bool> BoolView;
@@ -26,6 +28,9 @@ enum TransitionType
     LINE,
     CONTINUUM
 };
+
+typedef std::complex<f64> (*WofZType)(std::complex<f64>);
+void print_complex(std::complex<f64> cmp, WofZType wofz);
 
 struct Transition
 {
@@ -104,6 +109,8 @@ struct Transition
             }
         }
     }
+
+    void compute_phi(const Atmosphere& atmos, F64View aDamp, F64View vBroad);
 };
 
 struct Atom
@@ -125,6 +132,8 @@ struct Atom
     F64View2D chi;
 
     std::vector<Transition*> trans;
+
+    Ng ng;
 
     int Nlevel;
     int Ntrans;
@@ -186,7 +195,9 @@ struct Context
     Background* background;
 };
 
+typedef void (*DgesvType)(int* n, int* nrhs, f64* a, int* lda, int* ipiv, f64* b, int* ldb, int* info);
 f64 gamma_matrices_formal_sol(Context ctx);
+void stat_eq(Atom* atom, DgesvType f);
 void planck_nu(long Nspace, double *T, double lambda, double *Bnu);
 void piecewise_linear_1d(Atmosphere* atmos, int mu, bool toObs, f64 wav, 
                          F64View chi, F64View S, F64View I, F64View Psi);

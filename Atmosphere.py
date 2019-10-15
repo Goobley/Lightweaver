@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import Sequence, TYPE_CHECKING, Optional
 import numpy as np
-import witt
+from witt import witt
 import Constants as Const
 from scipy.interpolate import interp1d
 from numpy.polynomial.legendre import leggauss
@@ -37,7 +37,7 @@ class Atmosphere:
 
     def convert_scales(self, atomicTable):
         # This is only temporary
-        eos = witt.witt()
+        eos = witt()
         rhoSI = Const.AMU * atomicTable.weightPerH * self.nHTot
         rho = Const.AMU * atomicTable.weightPerH * self.nHTot * Const.CM_TO_M**3 / Const.G_TO_KG
         pgas = np.zeros_like(self.depthScale)

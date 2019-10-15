@@ -2,19 +2,27 @@ import numpy as np
 from scipy import special
 from dataclasses import dataclass
 from enum import Enum, auto
-from AtomicModel import *
-from AtomicSet import *
+from typing import Optional, List
+from AtomicModel import AtomicModel, AtomicLine, AtomicContinuum
+from AtomicSet import RadiativeSet, SpectrumConfiguration
+from AtomicTable import AtomicTable
 import Constants as Const
-from Atmosphere import *
+from Atmosphere import Atmosphere, ScaleType
 import matplotlib.pyplot as plt
 from scipy.linalg import solve
 from typing import Union
 from numba import njit
+from witt import witt
 
 # NOTE(cmo): Easiest way to get the Voigt out of scipy. No idea what the precision is
 def voigt_H(a, v):
     z = (v + 1j * a)
     return special.wofz(z).real
+    
+# NOTE(cmo): The Voigt G (used in the psi profile for Full Stokes in RH), simply appears to be the complex part of the same function https://doi.org/10.1016/j.jqsrt.2006.08.011
+def voigt_G(a, v):
+    z = (v + 1j * a)
+    return special.wofz(z).complex
 
 class TransitionType(Enum):
     Line = auto()
@@ -319,7 +327,7 @@ class Background:
 def background(atmos: Atmosphere, spect: SpectrumConfiguration) -> Background:
     Nspace = atmos.Nspace
     Nspect = spect.wavelength.shape[0]
-    eos = witt.witt()
+    eos = witt()
     chi = np.zeros((Nspect, Nspace))
     eta = np.zeros((Nspect, Nspace))
     for k in range(Nspace):

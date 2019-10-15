@@ -1,12 +1,15 @@
 #include "JasPP.hpp"
 #include "Formal.hpp"
+#include "Faddeeva.hh"
 
 #include <cmath>
 #include <vector>
 #include <fenv.h>
+#include <iostream>
 
 // Public domain polyfill for feenableexcept on OS X
 // http://www-personal.umich.edu/~williams/archive/computation/fe-handling-example.c
+
 
 inline int feenableexcept(unsigned int excepts)
 {
@@ -46,6 +49,13 @@ inline int fedisableexcept(unsigned int excepts)
     return fesetenv(&fenv) ? -1 : old_excepts;
 }
 
+void print_complex(std::complex<f64> cmp, WofZType wofz)
+{
+    using Faddeeva::w;
+    std::cout << cmp << std::endl;
+    std::cout << w(cmp) << std::endl;
+}
+
 void planck_nu(long Nspace, double *T, double lambda, double *Bnu)
 {
     namespace C = Constants;
@@ -61,6 +71,54 @@ void planck_nu(long Nspace, double *T, double lambda, double *Bnu)
             Bnu[k] = twohnu3_c2 / (exp(hc_Tkla) - 1.0);
         else
             Bnu[k] = 0.0;
+    }
+}
+
+inline f64 voigt_H(f64 a, f64 v)
+{
+    using Faddeeva::w;
+    using namespace std::complex_literals;
+    auto z = (v + a*1i);
+    return w(z).real();
+}
+
+void Transition::compute_phi(const Atmosphere& atmos, F64View aDamp, F64View vBroad)
+{
+    namespace C = Constants;
+    if (type == TransitionType::CONTINUUM)
+        return;
+
+    constexpr f64 sign[] = {-1.0, 1.0};
+
+    // Why is there still no constexpr math in std? :'(
+    const f64 sqrtPi = sqrt(C::Pi);
+
+    wphi.fill(0.0);
+
+    for (int la = 0; la < wavelength.shape(0); ++la)
+    {
+        const f64 vBase = (wavelength(la) - lambda0) * C::CLight / lambda0;
+        const f64 wla = wlambda(la);
+        for (int mu = 0; mu < phi.shape(1); ++mu)
+        {
+            const f64 wlamu = wla * 0.5 * atmos.wmu(mu);
+            for (int toObs = 0; toObs < 2; ++toObs)
+            {
+                const f64 s = sign[toObs];
+                for (int k = 0; k < atmos.Nspace; ++k)
+                {
+                    const f64 vk = (vBase + s * atmos.vlosMu(mu, k)) / vBroad(k);
+                    const f64 p = voigt_H(aDamp(k), vk) / (sqrtPi * vBroad(k));
+                    phi(la, mu, toObs, k) = p;
+                    wphi(k) += p * wlamu;
+                }
+            }
+        }
+    }
+
+    for (int k = 0; k < wphi.shape(0); ++k)
+    {
+        wphi(k) = 1.0 / wphi(k);
     }
 }
 
@@ -198,6 +256,7 @@ void piecewise_linear_1d(Atmosphere* atmos, int mu, bool toObs, f64 wav,
 
     piecewise_linear_1d_impl(zmu, toObs, Iupw, height, chi, S, I, Psi);
 }
+
 
 f64 gamma_matrices_formal_sol(Context ctx)
 {
@@ -346,4 +405,44 @@ f64 gamma_matrices_formal_sol(Context ctx)
         }
     }
     return dJMax;
+}
+
+void stat_eq(Atom* atomIn, DgesvType solve)
+{
+    auto& atom = *atomIn;
+    int Nlevel = atom.Nlevel;
+    const int Nspace = atom.n.shape(1);
+
+    auto nk = F64Arr(Nlevel);
+    auto Gamma = F64Arr2D(Nlevel, Nlevel);
+
+    for (int k = 0; k < Nspace; ++k)
+    {
+        for (int i = 0; i < Nlevel; ++i)
+        {
+            nk(i) = atom.n(i, k);
+            for (int j = 0; j < Nlevel; ++j)
+                Gamma(i, j) = atom.Gamma(i, j, k);
+        }
+
+        int iEliminate = 0;
+        f64 nMax = 0.0;
+        for (int i = 0; i < Nlevel; ++i)
+            nMax = max_idx(nMax, nk(i), iEliminate, i);
+
+        for (int i = 0; i < Nlevel; ++i)
+        {
+            Gamma(iEliminate, i) = 1.0;
+            nk(i) = 0.0;
+        }
+        nk(iEliminate) = atom.nTotal(k);
+
+        solve_lin_eq(Gamma, nk);
+        // int one = 1;
+        // int* ipiv = (int*)malloc(Nlevel * sizeof(int));
+        // int info = 0;
+        // solve(&Nlevel, &one, Gamma.data.data(), &Nlevel, ipiv, nk.data.data(), &Nlevel, &info);
+        for (int i = 0; i < Nlevel; ++i)
+            atom.n(i,k) = nk(i);
+    }
 }

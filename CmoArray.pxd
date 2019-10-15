@@ -12,6 +12,10 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         void fill(T)
         size_t* shape()
         size_t shape(size_t)
+        Array2NonOwn[T] reshape(int, int)
+        Array3NonOwn[T] reshape(int, int, int)
+        Array4NonOwn[T] reshape(int, int, int, int)
+        Array5NonOwn[T] reshape(int, int, int, int, int)
 
     cdef cppclass Array1Own[T]:
         Array1Own(size_t)
@@ -25,6 +29,10 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         void fill(T)
         size_t* shape()
         size_t shape(size_t)
+        Array2NonOwn[T] reshape(int, int)
+        Array3NonOwn[T] reshape(int, int, int)
+        Array4NonOwn[T] reshape(int, int, int, int)
+        Array5NonOwn[T] reshape(int, int, int, int, int)
 
     cdef cppclass Array2NonOwn[T]:
         Array2NonOwn()
@@ -37,6 +45,11 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         void fill(T)
         size_t* shape()
         size_t shape(size_t)
+        Array1NonOwn[T] flatten()
+        Array1NonOwn[T] reshape(int)
+        Array3NonOwn[T] reshape(int, int, int)
+        Array4NonOwn[T] reshape(int, int, int, int)
+        Array5NonOwn[T] reshape(int, int, int, int, int)
 
     cdef cppclass Array2Own[T]:
         Array2Own(size_t, size_t)
@@ -51,6 +64,11 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         void fill(T)
         size_t* shape()
         size_t shape(size_t)
+        Array1NonOwn[T] flatten()
+        Array1NonOwn[T] reshape(int)
+        Array3NonOwn[T] reshape(int, int, int)
+        Array4NonOwn[T] reshape(int, int, int, int)
+        Array5NonOwn[T] reshape(int, int, int, int, int)
 
     cdef cppclass Array3NonOwn[T]:
         Array3NonOwn()
@@ -64,6 +82,11 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         void fill(T)
         size_t* shape()
         size_t shape(size_t)
+        Array1NonOwn[T] flatten()
+        Array1NonOwn[T] reshape(int)
+        Array2NonOwn[T] reshape(int, int)
+        Array4NonOwn[T] reshape(int, int, int, int)
+        Array5NonOwn[T] reshape(int, int, int, int, int)
 
     cdef cppclass Array3Own[T]:
         Array3Own(size_t, size_t, size_t)
@@ -79,6 +102,11 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         void fill(T)
         size_t* shape()
         size_t shape(size_t)
+        Array1NonOwn[T] flatten()
+        Array1NonOwn[T] reshape(int)
+        Array2NonOwn[T] reshape(int, int)
+        Array4NonOwn[T] reshape(int, int, int, int)
+        Array5NonOwn[T] reshape(int, int, int, int, int)
 
     cdef cppclass Array4NonOwn[T]:
         Array4NonOwn()
@@ -93,6 +121,11 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         void fill(T)
         size_t* shape()
         size_t shape(size_t)
+        Array1NonOwn[T] flatten()
+        Array1NonOwn[T] reshape(int)
+        Array2NonOwn[T] reshape(int, int)
+        Array3NonOwn[T] reshape(int, int, int)
+        Array5NonOwn[T] reshape(int, int, int, int, int)
 
     cdef cppclass Array4Own[T]:
         Array4Own(size_t, size_t, size_t, size_t)
@@ -109,6 +142,11 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         void fill(T)
         size_t* shape()
         size_t shape(size_t)
+        Array1NonOwn[T] flatten()
+        Array1NonOwn[T] reshape(int)
+        Array2NonOwn[T] reshape(int, int)
+        Array3NonOwn[T] reshape(int, int, int)
+        Array5NonOwn[T] reshape(int, int, int, int, int)
 
     cdef cppclass Array5NonOwn[T]:
         Array5NonOwn()
@@ -124,6 +162,11 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         void fill(T)
         size_t* shape()
         size_t shape(size_t)
+        Array1NonOwn[T] flatten()
+        Array1NonOwn[T] reshape(int)
+        Array2NonOwn[T] reshape(int, int)
+        Array3NonOwn[T] reshape(int, int, int)
+        Array4NonOwn[T] reshape(int, int, int, int)
 
     cdef cppclass Array5Own[T]:
         Array5Own(size_t, size_t, size_t, size_t, size_t)
@@ -141,6 +184,11 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         void fill(T)
         size_t* shape()
         size_t shape(size_t)
+        Array1NonOwn[T] flatten()
+        Array1NonOwn[T] reshape(int)
+        Array2NonOwn[T] reshape(int, int)
+        Array3NonOwn[T] reshape(int, int, int)
+        Array4NonOwn[T] reshape(int, int, int, int)
 
 ctypedef Array1NonOwn[double] F64View
 ctypedef Array1NonOwn[double] F64View1D
