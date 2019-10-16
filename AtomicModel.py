@@ -464,7 +464,7 @@ class VoigtLine(AtomicLine):
 
         cDop = self.lambda0_m / (4.0 * np.pi)
         aDamp = (self.gRad + Qelast) * cDop / vBroad
-        return aDamp
+        return aDamp, Qelast
 
 
 def get_oribital_number(orbit: str) -> int:

@@ -48,6 +48,8 @@ struct Transition
     F64View alpha;
     F64View4D phi;
     F64View wphi;
+    F64View Qelast;
+    F64View aDamp;
     BoolView active;
 
     // F64Arr wlambda() const
@@ -195,12 +197,17 @@ struct Context
     Background* background;
 };
 
-typedef void (*DgesvType)(int* n, int* nrhs, f64* a, int* lda, int* ipiv, f64* b, int* ldb, int* info);
 f64 gamma_matrices_formal_sol(Context ctx);
-void stat_eq(Atom* atom, DgesvType f);
+void stat_eq(Atom* atom);
 void planck_nu(long Nspace, double *T, double lambda, double *Bnu);
 void piecewise_linear_1d(Atmosphere* atmos, int mu, bool toObs, f64 wav, 
                          F64View chi, F64View S, F64View I, F64View Psi);
+
+namespace EscapeProbability
+{
+void gamma_matrices_escape_prob(Atom* a, Background& background, 
+                                const Atmosphere& atmos);
+}
 
 #else
 #endif
