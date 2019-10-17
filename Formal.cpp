@@ -257,18 +257,175 @@ void piecewise_linear_1d(Atmosphere* atmos, int mu, bool toObs, f64 wav,
     piecewise_linear_1d_impl(zmu, toObs, Iupw, height, chi, S, I, Psi);
 }
 
+namespace Bezier
+{
+inline double cent_deriv(double dsup, double dsdn, double chiup, double chic,
+                         double chidn) {
+  /* --- Derivative Fritsch & Butland (1984) --- */
+
+  double fim1, fi, alpha, wprime;
+
+  fim1 = (chic - chiup) / dsup;
+  fi = (chidn - chic) / dsdn;
+
+  if (fim1 * fi > 0) {
+    alpha = 0.333333333333333333333333 * (1.0 + dsdn / (dsdn + dsup));
+    wprime = (fim1 * fi) / ((1.0 - alpha) * fim1 + alpha * fi);
+  } else {
+    wprime = 0.0;
+  }
+  return wprime;
+}
+
+inline void Bezier3_coeffs(double dt, double *alpha, double *beta,
+                           double *gamma, double *theta, double *eps) {
+  /* ---
+
+     Integration coeffs. for cubic Bezier interpolants
+     Use Taylor expansion if dtau is small
+
+     --- */
+
+  double dt2 = dt * dt, dt3 = dt2 * dt, dt4;
+
+  if (dt >= 5.e-2) {
+    //
+    *eps = exp(-dt);
+
+    *alpha = (-6.0 + 6.0 * dt - 3.0 * dt2 + dt3 + 6.0 * eps[0]) / dt3;
+    dt3 = 1.0 / dt3;
+    *beta = (6.0 + (-6.0 - dt * (6.0 + dt * (3.0 + dt))) * eps[0]) * dt3;
+    *gamma = 3.0 * (6.0 + (-4.0 + dt) * dt - 2.0 * (3.0 + dt) * eps[0]) * dt3;
+    *theta = 3.0 * (eps[0] * (6.0 + dt2 + 4.0 * dt) + 2.0 * dt - 6.0) * dt3;
+  } else {
+    dt4 = dt2 * dt2;
+    *eps = 1.0 - dt + 0.5 * dt2 - dt3 / 6.0 + dt4 / 24.0;
+    //
+    *alpha = 0.25 * dt - 0.05 * dt2 + dt3 / 120.0 - dt4 / 840.0;
+    *beta = 0.25 * dt - 0.20 * dt2 + dt3 / 12.0 - dt4 / 42.0;
+    *gamma = 0.25 * dt - 0.10 * dt2 + dt3 * 0.025 - dt4 / 210.0;
+    *theta = 0.25 * dt - 0.15 * dt2 + dt3 * 0.05 - dt4 / 84.0;
+  }
+}
+}
+
 void piecewise_bezier3_1d_impl(f64 zmu, bool toObs, f64 Istart,
                                F64View height, F64View chi,
                                F64View S, F64View I, F64View Psi)
 {
-    // TODO(cmo)
+    const int Ndep = chi.shape(0);
+    bool computeOperator = Psi.shape(0) != 0;
 
+    /* --- Distinguish between rays going from BOTTOM to TOP
+            (to_obs == TRUE), and vice versa --      -------------- */
+
+    int dk = -1;
+    int k_start = Ndep - 1;
+    int k_end = 0;
+    if (!toObs)
+    {
+        dk = 1;
+        k_start = 0;
+        k_end = Ndep - 1;
+    }
+
+    /* --- Boundary conditions --                        -------------- */
+    f64 I_upw = Istart;
+
+    I(k_start) = I_upw;
+    if (computeOperator)
+        Psi(k_start) = 0.0;
+
+    int k = k_start + dk; 
+    f64 ds_uw = abs(height(k) - height(k-dk)) * zmu;
+    f64 ds_dw = abs(height(k+dk) - height(k)) * zmu;
+    f64 dx_uw = (chi(k) - chi(k-dk)) / ds_uw;
+    f64 dx_c = Bezier::cent_deriv(ds_uw, ds_dw, chi(k-dk), chi(k), chi(k+dk));
+    f64 c1 = max(chi(k) - (ds_uw / 3.0) * dx_c, 0.0);
+    f64 c2 = max(chi(k-dk) + (ds_uw / 3.0) * dx_uw, 0.0);
+    f64 dtau_uw = ds_uw * (chi(k) + chi(k-dk) + c1 + c2) * 0.25;
+    f64 dS_uw = (S(k) - S(k-dk)) / dtau_uw;
+
+    f64 ds_dw2 = 0.0;
+    auto dx_downwind = [&ds_dw, &ds_dw2, &chi, &k, dk]
+    {
+        return Bezier::cent_deriv(ds_dw, ds_dw2, chi(k), chi(k+dk), chi(k+2*dk));
+    };
+    f64 dtau_dw = 0.0;
+    auto dS_central = [&dtau_uw, &dtau_dw, &S, &k, dk]
+    {
+        return Bezier::cent_deriv(dtau_uw, dtau_dw, S(k-dk), S(k), S(k+dk));
+    };
+    for (; k != k_end - dk; k += dk)
+    {
+        // ds_dw = abs(height(k+dk) - height(k)) * zmu;
+        ds_dw2 = abs(height(k + 2*dk) - height(k + dk)) * zmu;
+        f64 dx_dw = dx_downwind();
+        c1 = max(chi(k) + (ds_dw / 3.0) * dx_c, 0.0);
+        c2 = max(chi(k+dk) - (ds_dw / 3.0) * dx_dw, 0.0);
+        dtau_dw = ds_dw * (chi(k) + chi(k+dk) +  c1 + c2) * 0.25;
+
+        f64 alpha, beta, gamma, theta, eps;
+        Bezier::Bezier3_coeffs(dtau_uw, &alpha, &beta, &gamma, &theta, &eps);
+
+        f64 dS_c = dS_central();
+
+        c1 = max(S(k) - (dtau_uw/3.0) * dS_c, 0.0);
+        c2 = max(S(k-dk) + (dtau_uw/3.0) * dS_uw, 0.0);
+
+        I(k) = I_upw * eps + alpha * S(k) + beta * S(k-dk) + gamma * c1 + theta * c2;
+        if (computeOperator)
+            Psi(k) = alpha + gamma;
+
+        I_upw = I(k);
+        ds_uw = ds_dw;
+        ds_dw = ds_dw2;
+        dx_uw = dx_c;
+        dx_c = dx_dw;
+        dtau_uw = dtau_dw;
+        dS_uw = dS_c;
+    }
+    // NOTE(cmo): Need to handle last 2 points here
+    k = k_end - dk;
+    ds_dw = abs(height(k+dk) - height(k)) * zmu;
+    f64 dx_dw = (chi(k+dk) - chi(k)) / ds_dw;
+    c1 = max(chi(k) + (ds_dw / 3.0) * dx_c, 0.0);
+    c2 = max(chi(k+dk) - (ds_dw / 3.0) * dx_dw, 0.0);
+    dtau_dw = ds_dw * (chi(k) + chi(k+dk) +  c1 + c2) * 0.25;
+
+    f64 alpha, beta, gamma, theta, eps;
+    Bezier::Bezier3_coeffs(dtau_uw, &alpha, &beta, &gamma, &theta, &eps);
+
+    f64 dS_c = dS_central();
+
+    c1 = max(S(k) - dtau_uw/3.0 * dS_c, 0.0);
+    c2 = max(S(k-dk) + dtau_uw/3.0 * dS_uw, 0.0);
+
+    I(k) = I_upw * eps + alpha * S(k) + beta * S(k-dk) + gamma * c1 + theta * c2;
+    if (computeOperator)
+        Psi(k) = alpha + gamma;
+
+    // Piecewise linear on end
+    k = k_end;
+    dtau_uw = 0.5 * zmu * (chi(k) + chi(k-dk)) * abs(height(k) - height(k-dk));
+    dS_uw = -(S(k) - S(k-dk)) / dtau_uw;
+    f64 w[2];
+    w2(dtau_uw, w);
+    I(k) = (1.0 - w[0]) * I_upw + w[0] * S(k) + w[1] * dS_uw;
+
+    if (computeOperator)
+    {
+        Psi(k) = w[0] - w[1] / dtau_uw;
+        for (int k = 0; k < Psi.shape(0); ++k)
+            Psi(k) /= chi(k);
+    }
 }
 
 void piecewise_bezier3_1d(Atmosphere* atmos, int mu, bool toObs, f64 wav, 
                          F64View chi, F64View S, F64View I, F64View Psi)
 {
-    f64 zmu = 0.5 / atmos->muz(mu);
+    // TODO(cmo): Figure out why this is 1.0 for Bezier solver. 
+    f64 zmu = 1.0 / atmos->muz(mu);
     auto height = atmos->height;
 
     int dk = -1;
@@ -384,7 +541,8 @@ f64 gamma_matrices_formal_sol(Context ctx)
                     S(k) = (etaTot(k) + background.eta(la, k)) / chiTot(k);
                 }
 
-                piecewise_linear_1d(&atmos, mu, toObs, spect.wavelength(la), chiTot, S, I, PsiStar);
+                // piecewise_linear_1d(&atmos, mu, toObs, spect.wavelength(la), chiTot, S, I, PsiStar);
+                piecewise_bezier3_1d(&atmos, mu, toObs, spect.wavelength(la), chiTot, S, I, PsiStar);
                 spect.I(la, mu) = I(0);
 
                 for (int k = 0; k < Nspace; ++k)

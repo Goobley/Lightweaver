@@ -16,6 +16,8 @@ class NgOptions:
     Ndelay: int = 12
 
 atmosZero = Falc80()
+# atmosPert = Falc80()
+# atmosPert.vlos[40] = 10000
 atmos = Falc80()
 vel = np.sin(np.linspace(0, 8*np.pi, atmos.vlos.shape[0])) * 2e4
 atmos.vlos = vel
@@ -24,6 +26,8 @@ atmos.convert_scales(at)
 atmos.quadrature(5)
 atmosZero.convert_scales(at)
 atmosZero.quadrature(5)
+# atmosPert.convert_scales(at)
+# atmosPert.quadrature(5)
 aSet = RadiativeSet([CaIIatom(), MgIIatom()], [])
 aSet.set_active('Ca', 'Mg')
 spect = aSet.compute_wavelength_grid(np.linspace(150, 600, 500))
@@ -35,7 +39,7 @@ bg = background(atmos, spect)
 activeAtoms = [a for a in aSet.activeAtoms]
 start = time.time()
 # TODO(cmo): This needs to take the radiativeSet, rather than simply activeAtoms
-ctx = LwContext(atmos, spect, activeAtoms, bg, at, ngOptions=NgOptions(), initSol=InitialSolution.EscapeProbability)
+ctx = LwContext(atmos, spect, activeAtoms, bg, at, ngOptions=NgOptions(), initSol=InitialSolution.Lte)
 # ctx.gamma_matrices_formal_sol()
 # delta = ctx.stat_equil()
 # print("delta: %e"%delta)
