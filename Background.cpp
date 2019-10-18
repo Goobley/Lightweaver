@@ -62,7 +62,7 @@ inline f64 linear(F64View xTable, F64View yTable, f64 x)
     return fx * yTable(j) + (1 - fx) * yTable(j+1);
 }
 
-inline double Gaunt_bf(double lambda, double n_eff, int charge) {
+double Gaunt_bf(double lambda, double n_eff, int charge) {
   /* --- M. J. Seaton (1960), Rep. Prog. Phys. 23, 313 -- ----------- */
 
     namespace C = Constants;

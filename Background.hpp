@@ -21,5 +21,6 @@ struct BackgroundData
 };
 
 void basic_background(BackgroundData* bd);
+double Gaunt_bf(double lambda, double n_eff, int charge);
 
 #endif
