@@ -202,3 +202,4 @@ ctypedef Array2Own[double] F64Arr2D
 ctypedef Array3Own[double] F64Arr3D
 ctypedef Array4Own[double] F64Arr4D
 ctypedef Array5Own[double] F64Arr5D
+ctypedef double f64

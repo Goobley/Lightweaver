@@ -217,6 +217,18 @@ class EquilibriumPopulations:
             else:
                 raise KeyError('Unknown key: %s' % name)
 
+    def __contains__(self, name: str) -> bool:
+        if name == 'H-':
+            return True
+        
+        if name in self.molecularTable.indices.keys():
+            return True
+
+        if name in self.atomicTable.indices.keys():
+            return True
+
+        return False
+
     def atomic_population(self, name: str) -> np.ndarray:
         name = name.upper()
         if len(name) == 1:

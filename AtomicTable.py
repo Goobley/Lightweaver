@@ -11,6 +11,7 @@ from numba import jit
 
 if TYPE_CHECKING:
    from ComputationalAtom import ComputationalAtom
+   from AtomicModel import AtomicModel
 
 AtomicWeights: OrderedDict = \
    OrderedDict([
@@ -40,6 +41,9 @@ AtomicWeights: OrderedDict = \
    ("NP", 237.000), ("PU", 244.000), ("AM", 243.000), ("CM", 247.000),
    ("BK", 247.000), ("CF", 251.000), ("ES", 254.000)])
 
+def atomic_weight_sort(atom):
+   name = atom.name.upper().ljust(2)
+   return AtomicWeights[name]
 
 # def weight_amu(name: str):
 #    name = name.upper()

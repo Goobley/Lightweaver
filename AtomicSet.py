@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from AtomicTable import atomic_weight_sort
 from AtomicModel import *
 from Molecule import Molecule
 from typing import List, Sequence, Set, Optional, Any, Union, Dict
@@ -23,21 +24,54 @@ class SpectrumConfiguration:
 @dataclass
 class RadiativeSet:
     atoms: List[AtomicModel]
-    molecules: List[Molecule]
-    activeAtoms: Set[AtomicModel] = field(default_factory=set)
-    detailedLteAtoms: Set[AtomicModel] = field(default_factory=set)
-    passiveAtoms: Set[AtomicModel] = field(init=False)
-    passiveMolecules: Set[Molecule] = field(init=False)
+    activeSet: Set[AtomicModel] = field(default_factory=set)
+    detailedLteSet: Set[AtomicModel] = field(default_factory=set)
+    passiveSet: Set[AtomicModel] = field(init=False)
 
     def __post_init__(self):
-        self.passiveAtoms = set(self.atoms)
-        self.passiveMolecules = set(self.molecules)
+        self.passiveSet = set(self.atoms)
         self.atomicNames = []
         for atom in self.atoms:
             self.atomicNames.append(atom.name)
 
         if len(self.atomicNames) > len(set(self.atomicNames)):
             raise ValueError('Multiple entries for an atom: %s' % self.atoms)
+
+    def __contains__(self, name: str) -> bool:
+        return name in self.atomicNames
+
+    def is_active(self, name: str) -> bool:
+        if name in self.atomicNames:
+            return self.atoms[self.atomicNames.index(name)] in self.activeSet
+        raise ValueError('Atom %s not present in RadiativeSet' % name)
+
+    def is_passive(self, name: str) -> bool:
+        if name in self.atomicNames:
+            return self.atoms[self.atomicNames.index(name)] in self.passiveSet
+        raise ValueError('Atom %s not present in RadiativeSet' % name)
+
+    def is_lte(self, name: str) -> bool:
+        if name in self.atomicNames:
+            return self.atoms[self.atomicNames.index(name)] in self.detailedLteSet
+        raise ValueError('Atom %s not present in RadiativeSet' % name)
+
+    @property
+    def activeAtoms(self) -> List[AtomicModel]:
+        activeAtoms : List[AtomicModel] = [a for a in self.activeSet]
+        activeAtoms = sorted(activeAtoms, key=atomic_weight_sort)
+        return activeAtoms
+
+    @property
+    def lteAtoms(self) -> List[AtomicModel]:
+        lteAtoms : List[AtomicModel] = [a for a in self.detailedLteSet]
+        lteAtoms = sorted(lteAtoms, key=atomic_weight_sort)
+        return lteAtoms
+
+    @property
+    def passiveAtoms(self) -> List[AtomicModel]:
+        passiveAtoms : List[AtomicModel] = [a for a in self.passiveSet]
+        passiveAtoms = sorted(passiveAtoms, key=atomic_weight_sort)
+        return passiveAtoms
 
     def __getitem__(self, name: str) -> AtomicModel:
         name = name.upper()
@@ -47,35 +81,35 @@ class RadiativeSet:
         return self.atoms[self.atomicNames.index(name)]
 
     def validate_sets(self):
-        if self.activeAtoms | self.passiveAtoms | self.detailedLteAtoms != set(self.atoms):
+        if self.activeSet | self.passiveSet | self.detailedLteSet != set(self.atoms):
             raise ValueError('Problem with distribution of Atoms inside AtomicSet')
     
     def set_active(self, *args: str):
         names = set(args)
         for atomName in names:
-            self.activeAtoms.add(self[atomName])
-            self.detailedLteAtoms.discard(self[atomName])
-            self.passiveAtoms.discard(self[atomName])
+            self.activeSet.add(self[atomName])
+            self.detailedLteSet.discard(self[atomName])
+            self.passiveSet.discard(self[atomName])
         self.validate_sets()
 
     def set_detailed_lte(self, *args: str):
         names = set(args)
         for atomName in names:
-            self.detailedLteAtoms.add(self[atomName])
-            self.activeAtoms.discard(self[atomName])
-            self.passiveAtoms.discard(self[atomName])
+            self.detailedLteSet.add(self[atomName])
+            self.activeSet.discard(self[atomName])
+            self.passiveSet.discard(self[atomName])
         self.validate_sets()
 
     def set_passive(self, *args: str):
         names = set(args)
         for atomName in names:
-            self.passiveAtoms.add(self[atomName])
-            self.activeAtoms.discard(self[atomName])
-            self.detailedLteAtoms.discard(self[atomName])
+            self.passiveSet.add(self[atomName])
+            self.activeSet.discard(self[atomName])
+            self.detailedLteSet.discard(self[atomName])
         self.validate_sets()
 
     def compute_wavelength_grid(self, extraWavelengths: Optional[np.ndarray]=None, lambdaReference=500.0) -> SpectrumConfiguration:
-        if len(self.activeAtoms) == 0 and len(self.detailedLteAtoms) == 0:
+        if len(self.activeSet) == 0 and len(self.detailedLteSet) == 0:
             raise ValueError('Need at least one atom active or in detailed LTE')
         grids = []
         if extraWavelengths is not None:
@@ -88,7 +122,7 @@ class RadiativeSet:
         upperLevels: Dict[str, List[Set[int]]] = {}
         lowerLevels: Dict[str, List[Set[int]]] = {}
 
-        for atom in self.activeAtoms:
+        for atom in self.activeSet:
             continuaPerAtom[atom.name] = []
             linesPerAtom[atom.name] = []
             lowerLevels[atom.name] = []
@@ -100,7 +134,7 @@ class RadiativeSet:
                 transitions.append(cont)
                 grids.append(cont.wavelength)
 
-        for atom in self.detailedLteAtoms:
+        for atom in self.detailedLteSet:
             for line in atom.lines:
                 grids.append(line.wavelength)
             for cont in atom.continua:
@@ -134,7 +168,7 @@ class RadiativeSet:
             activeLines.append([])
             activeContinua.append([])
             contributors.append([])
-            for atom in self.activeAtoms:
+            for atom in self.activeSet:
                 continuaPerAtom[atom.name].append([])
                 linesPerAtom[atom.name].append([])
                 upperLevels[atom.name].append(set())

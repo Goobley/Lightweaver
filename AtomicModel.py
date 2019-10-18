@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import List, Sequence, Optional
+from typing import List, Sequence, Optional, Any
 import re
 
 import numpy as np
@@ -58,6 +58,7 @@ class AtomicModel:
     # TODO(cmo):
     # i.e. a function will replace each atom with another with the same name, levels, lines, continua, collisions, but a different atomic table
     atomicTable: AtomicTable = field(default_factory=AtomicTable)
+    compModel: Optional[Any] = field(default=None)
 
     def __post_init__(self):
         for l in self.levels:
@@ -95,6 +96,18 @@ class AtomicModel:
 
     def __hash__(self):
         return hash(repr(self))
+
+    @property
+    def n(self) -> Optional[np.ndarray]:
+        if self.compModel is not None:
+            return self.compModel.n
+        return None
+
+    @property
+    def nStar(self) -> Optional[np.ndarray]:
+        if self.compModel is not None:
+            return self.compModel.nStar
+        return None
 
 @dataclass
 class AtomicLevel:
