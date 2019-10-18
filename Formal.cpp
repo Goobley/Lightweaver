@@ -158,10 +158,19 @@ inline void w3(f64 dtau, f64 *w) {
     }
 }
 
-void piecewise_linear_1d_impl(f64 zmu, bool toObs, f64 Istart, 
-                              F64View height, F64View chi, F64View S, 
-                              F64View I, F64View Psi)
+struct FormalData
 {
+    Atmosphere* atmos;
+    F64View chi;
+    F64View S;
+    F64View I;
+    F64View Psi;
+};
+
+void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
+{
+    JasUnpack((*fd), chi, S,  Psi, I, atmos);
+    const auto& height = atmos->height;
     const int Ndep = chi.shape(0);
     bool computeOperator = Psi.shape(0) != 0;
 
@@ -221,9 +230,9 @@ void piecewise_linear_1d_impl(f64 zmu, bool toObs, f64 Istart,
     }
 }
 
-void piecewise_linear_1d(Atmosphere* atmos, int mu, bool toObs, f64 wav, 
-                         F64View chi, F64View S, F64View I, F64View Psi)
+void piecewise_linear_1d(FormalData* fd, int mu, bool toObs, f64 wav)
 {
+    JasUnpack((*fd), atmos, I, chi);
     f64 zmu = 0.5 / atmos->muz(mu);
     auto height = atmos->height;
 
@@ -254,7 +263,7 @@ void piecewise_linear_1d(Atmosphere* atmos, int mu, bool toObs, f64 wav,
         Iupw = Bnu[0] - (Bnu[1] - Bnu[0]) / dtau_uw;
     }
 
-    piecewise_linear_1d_impl(zmu, toObs, Iupw, height, chi, S, I, Psi);
+    piecewise_linear_1d_impl(fd, zmu, toObs, Iupw);
 }
 
 namespace Bezier
@@ -309,10 +318,10 @@ inline void Bezier3_coeffs(double dt, double *alpha, double *beta,
 }
 }
 
-void piecewise_bezier3_1d_impl(f64 zmu, bool toObs, f64 Istart,
-                               F64View height, F64View chi,
-                               F64View S, F64View I, F64View Psi)
+void piecewise_bezier3_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
 {
+    JasUnpack((*fd), atmos, chi, S, I, Psi);
+    const auto& height = atmos->height;
     const int Ndep = chi.shape(0);
     bool computeOperator = Psi.shape(0) != 0;
 
@@ -421,9 +430,9 @@ void piecewise_bezier3_1d_impl(f64 zmu, bool toObs, f64 Istart,
     }
 }
 
-void piecewise_bezier3_1d(Atmosphere* atmos, int mu, bool toObs, f64 wav, 
-                         F64View chi, F64View S, F64View I, F64View Psi)
+void piecewise_bezier3_1d(FormalData* fd, int mu, bool toObs, f64 wav)
 {
+    JasUnpack((*fd), atmos, chi);
     // TODO(cmo): Figure out why this is 1.0 for Bezier solver. 
     f64 zmu = 1.0 / atmos->muz(mu);
     auto height = atmos->height;
@@ -455,7 +464,7 @@ void piecewise_bezier3_1d(Atmosphere* atmos, int mu, bool toObs, f64 wav,
         Iupw = Bnu[0] - (Bnu[1] - Bnu[0]) / dtau_uw;
     }
 
-    piecewise_bezier3_1d_impl(zmu, toObs, Iupw, height, chi, S, I, Psi);
+    piecewise_bezier3_1d_impl(fd, zmu, toObs, Iupw);
 }
 
 
@@ -480,6 +489,12 @@ f64 gamma_matrices_formal_sol(Context ctx)
     F64Arr PsiStar = F64Arr(Nspace);
     F64Arr Ieff = F64Arr(Nspace);
     F64Arr JDag = F64Arr(Nspace);
+    FormalData fd;
+    fd.atmos = &atmos;
+    fd.chi = chiTot;
+    fd.S = S;
+    fd.Psi = PsiStar;
+    fd.I = I;
 
     printf("%d, %d, %d\n", Nspace, Nrays, Nspect);
 
@@ -493,56 +508,73 @@ f64 gamma_matrices_formal_sol(Context ctx)
         for (int a = 0; a < activeAtoms.size(); ++a)
             activeAtoms[a]->setup_wavelength(la);
 
+        // NOTE(cmo): If we only have continua then opacity is angle independent
+        bool continuaOnly = true;
+        for (int a = 0; a < activeAtoms.size(); ++a)
+        {
+            auto& atom = *activeAtoms[a];
+            for (int kr = 0; kr < atom.Ntrans; ++kr)
+            {
+                auto& t = *atom.trans[kr];
+                if (!t.active(la))
+                    continue;
+                continuaOnly = continuaOnly && (t.type == CONTINUUM);
+            }
+        }
+
         for (int mu = 0; mu < Nrays; ++mu)
         {
             for (int toObsI = 0; toObsI < 2; toObsI += 1)
             {
                 bool toObs = (bool)toObsI;
                 // const f64 sign = If toObs Then 1.0 Else -1.0 End;
-                chiTot.fill(0.0);
-                etaTot.fill(0.0);
-
-                for (int a = 0; a < activeAtoms.size(); ++a)
+                if (!continuaOnly || (continuaOnly && (mu == 0 && toObsI == 0)))
                 {
-                    auto& atom = *activeAtoms[a];
-                    atom.zero_angle_dependent_vars();
-                    for (int kr = 0; kr < atom.Ntrans; ++kr)
+                    chiTot.fill(0.0);
+                    etaTot.fill(0.0);
+
+                    for (int a = 0; a < activeAtoms.size(); ++a)
                     {
-                        auto& t = *atom.trans[kr];
-                        if (!t.active(la))
-                            continue;
-                            
-                        // if (t.type == LINE)
-                        //     printf("Line: %d, %d\n", kr, la);
-
-                        t.uv(la, mu, toObs, Uji, Vij, Vji);
-
-                        for (int k = 0; k < Nspace; ++k)
+                        auto& atom = *activeAtoms[a];
+                        atom.zero_angle_dependent_vars();
+                        for (int kr = 0; kr < atom.Ntrans; ++kr)
                         {
-                            f64 chi = atom.n(t.i, k) * Vij(k) - atom.n(t.j, k) * Vji(k);
-                            f64 eta = atom.n(t.j, k) * Uji(k);
+                            auto& t = *atom.trans[kr];
+                            if (!t.active(la))
+                                continue;
+                                
+                            // if (t.type == LINE)
+                            //     printf("Line: %d, %d\n", kr, la);
 
-                            atom.chi(t.i, k) += chi;
-                            atom.chi(t.j, k) -= chi;
-                            atom.U(t.j, k) += Uji(k);
-                            atom.V(t.i, k) += Vij(k);
-                            atom.V(t.j, k) += Vji(k);
-                            chiTot(k) += chi;
-                            etaTot(k) += eta;
-                            atom.eta(k) += eta;
+                            t.uv(la, mu, toObs, Uji, Vij, Vji);
+
+                            for (int k = 0; k < Nspace; ++k)
+                            {
+                                f64 chi = atom.n(t.i, k) * Vij(k) - atom.n(t.j, k) * Vji(k);
+                                f64 eta = atom.n(t.j, k) * Uji(k);
+
+                                atom.chi(t.i, k) += chi;
+                                atom.chi(t.j, k) -= chi;
+                                atom.U(t.j, k) += Uji(k);
+                                atom.V(t.i, k) += Vij(k);
+                                atom.V(t.j, k) += Vji(k);
+                                chiTot(k) += chi;
+                                etaTot(k) += eta;
+                                atom.eta(k) += eta;
+                            }
                         }
                     }
-                }
-                // Do LTE atoms here
+                    // Do LTE atoms here
 
-                for (int k = 0; k < Nspace; ++k)
-                {
-                    chiTot(k) += background.chi(la, k);
-                    S(k) = (etaTot(k) + background.eta(la, k)) / chiTot(k);
+                    for (int k = 0; k < Nspace; ++k)
+                    {
+                        chiTot(k) += background.chi(la, k);
+                        S(k) = (etaTot(k) + background.eta(la, k)) / chiTot(k);
+                    }
                 }
 
-                // piecewise_linear_1d(&atmos, mu, toObs, spect.wavelength(la), chiTot, S, I, PsiStar);
-                piecewise_bezier3_1d(&atmos, mu, toObs, spect.wavelength(la), chiTot, S, I, PsiStar);
+                piecewise_bezier3_1d(&fd, mu, toObs, spect.wavelength(la));
+                // piecewise_linear_1d(&fd, mu, toObs, spect.wavelength(la));
                 spect.I(la, mu) = I(0);
 
                 for (int k = 0; k < Nspace; ++k)
