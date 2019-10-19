@@ -177,6 +177,12 @@ void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
     /* --- Distinguish between rays going from BOTTOM to TOP
             (to_obs == TRUE), and vice versa --      -------------- */
 
+    // NOTE(cmo): I admit, on some level, the directions of these derivatives (uw -
+    // dw) feels odd, but they're consistent with the RH implementation. The only
+    // change that would really occur if these were flipped would be I(k) = ... -
+    // w[1] * dS_uw, but really this is a holdover from when this was parabolic. May
+    // adjust, but not really planning on using thisFS
+
     int dk = -1;
     int k_start = Ndep - 1;
     int k_end = 0;
@@ -413,14 +419,19 @@ void piecewise_bezier3_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
     I(k) = I_upw * eps + alpha * S(k) + beta * S(k-dk) + gamma * c1 + theta * c2;
     if (computeOperator)
         Psi(k) = alpha + gamma;
+    I_upw = I(k);
 
     // Piecewise linear on end
     k = k_end;
     dtau_uw = 0.5 * zmu * (chi(k) + chi(k-dk)) * abs(height(k) - height(k-dk));
-    dS_uw = -(S(k) - S(k-dk)) / dtau_uw;
+    // NOTE(cmo): See note in the linear formal solver if wondering why -w[1] is
+    // used in I(k). Basically, the derivative (dS_uw) was taken in the other
+    // direction there. In some ways this is nicer, as the operator and I take
+    // the same form, but it doesn't really make any significant difference
+    dS_uw = (S(k) - S(k-dk)) / dtau_uw;
     f64 w[2];
     w2(dtau_uw, w);
-    I(k) = (1.0 - w[0]) * I_upw + w[0] * S(k) + w[1] * dS_uw;
+    I(k) = (1.0 - w[0]) * I_upw + w[0] * S(k) - w[1] * dS_uw;
 
     if (computeOperator)
     {
@@ -433,7 +444,8 @@ void piecewise_bezier3_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
 void piecewise_bezier3_1d(FormalData* fd, int mu, bool toObs, f64 wav)
 {
     JasUnpack((*fd), atmos, chi);
-    // TODO(cmo): Figure out why this is 1.0 for Bezier solver. 
+    // This is 1.0 here, as we are normally effectively rolling in the averaging
+    // factor for dtau, whereas it's explicit in this solver 
     f64 zmu = 1.0 / atmos->muz(mu);
     auto height = atmos->height;
 

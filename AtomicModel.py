@@ -97,6 +97,10 @@ class AtomicModel:
     def __hash__(self):
         return hash(repr(self))
 
+    def replace_atomic_table(self, table: AtomicTable):
+        self.atomicTable = table
+        self.__post_init__()
+
     @property
     def n(self) -> Optional[np.ndarray]:
         if self.compModel is not None:
@@ -653,7 +657,10 @@ class Omega(CollisionalRates):
         self.jLevel = atom.levels[self.j]
         self.iLevel = atom.levels[self.i]
         self.C0 = Const.E_RYDBERG / np.sqrt(Const.M_ELECTRON) * np.pi * Const.RBOHR**2 * np.sqrt(8.0 / (np.pi * Const.KBOLTZMANN))
-        self.interpolator = interp1d(self.temperature, self.rates, kind=3, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
+        if len(self.rates) <  3:
+            self.interpolator = interp1d(self.temperature, self.rates, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
+        else:
+            self.interpolator = interp1d(self.temperature, self.rates, kind=3, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
 
     def compute_rates(self, atmos, nstar, Cmat):
         # TODO(cmo): Remove the nstar argument -- replace with g_ij exp(-hv/kbT)
@@ -676,7 +683,10 @@ class CI(CollisionalRates):
         self.jLevel = atom.levels[self.j]
         self.iLevel = atom.levels[self.i]
         self.dE = self.jLevel.E_SI - self.iLevel.E_SI
-        self.interpolator = interp1d(self.temperature, self.rates, kind=3, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
+        if len(self.rates) <  3:
+            self.interpolator = interp1d(self.temperature, self.rates, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
+        else:
+            self.interpolator = interp1d(self.temperature, self.rates, kind=3, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
 
     def compute_rates(self, atmos, nstar, Cmat):
         C = self.interpolator(atmos.temperature)

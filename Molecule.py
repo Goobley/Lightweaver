@@ -169,6 +169,10 @@ class MolecularTable:
         name = name.upper()
         return self.molecules[self.indices[name]]
 
+    def __contains__(self, name: str) -> bool:
+        name = name.upper()
+        return name in self.indices.keys()
+
     def __len__(self) -> int:
         return len(self.molecules)
 
