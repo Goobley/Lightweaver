@@ -9,18 +9,28 @@
 
 typedef double f64;
 typedef Jasnah::Array1NonOwn<bool> BoolView;
+typedef Jasnah::Array1NonOwn<i32> I32View;
 
 struct Background
 {
     F64View2D chi;
     F64View2D eta;
+    F64View2D sca;
 };
 
 struct Spectrum
 {
     F64View wavelength;
     F64View2D I;
+    F64View3D Quv;
     F64View2D J;
+};
+
+struct ZeemanComponents
+{
+    I32View alpha;
+    F64View shift;
+    F64View strength;
 };
 
 enum TransitionType
@@ -48,6 +58,13 @@ struct Transition
     F64View alpha;
     F64View4D phi;
     F64View wphi;
+    bool polarised;
+    F64View4D phiQ;
+    F64View4D phiU;
+    F64View4D phiV;
+    F64View4D psiQ;
+    F64View4D psiU;
+    F64View4D psiV;
     F64View Qelast;
     F64View aDamp;
     BoolView active;
@@ -113,6 +130,7 @@ struct Transition
     }
 
     void compute_phi(const Atmosphere& atmos, F64View aDamp, F64View vBroad);
+    void compute_polarised_profiles(const Atmosphere& atmos, F64View aDamp, F64View vBroad, const ZeemanComponents& z);
 };
 
 struct Atom
@@ -198,6 +216,7 @@ struct Context
 };
 
 f64 gamma_matrices_formal_sol(Context ctx);
+f64 formal_sol_full_stokes(Context ctx);
 void stat_eq(Atom* atom);
 void planck_nu(long Nspace, double *T, double lambda, double *Bnu);
 void piecewise_linear_1d(Atmosphere* atmos, int mu, bool toObs, f64 wav, 

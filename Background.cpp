@@ -237,13 +237,13 @@ bool hydrogen_ff(const Atmosphere& atmos, f64 lambda, F64View2D hPops, F64View c
     namespace C = Constants;
     const f64 C0 = square(C::QElectron) / (4.0 * C::Pi * C::Epsilon0) / sqrt(C::MElectron);
     const f64 sigma = 4.0 / 3.0 * sqrt(2.0 * C::Pi / (3.0 * C::KBoltzmann)) * cube(C0) / C::HC;
-    const f64 nu3 = cube(lambda * C::NM_TO_M / C::CLight);
+    const f64 nu3 = cube((lambda * C::NM_TO_M) / C::CLight);
     const f64 hc_kla = (C::HC) / (C::KBoltzmann * C::NM_TO_M * lambda);
 
     auto np = hPops(hPops.shape(0)-1);
     for (int k = 0; k < atmos.Nspace; ++k)
     {
-        f64 stim = 1.0 * exp(-hc_kla / atmos.temperature(k));
+        f64 stim = 1.0 - exp(-hc_kla / atmos.temperature(k));
         f64 gff = Gaunt_ff(lambda, 1, atmos.temperature(k));
         chi(k) = sigma / sqrt(atmos.temperature(k)) * nu3 * atmos.ne(k) * np(k) * stim * gff;
     }

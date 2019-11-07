@@ -51,13 +51,17 @@ class Barklem:
                 raise BarklemCrossSectionError()
 
             # Find principal quantum numbers
-            try:
-                lowerNum = determinate(atom.levels[i])
-                upperNum = determinate(atom.levels[j])
-            except CompositeLevelError:
+            # try:
+            #     lowerNum = determinate(atom.levels[i])
+            #     upperNum = determinate(atom.levels[j])
+            # except CompositeLevelError:
+            #     raise BarklemCrossSectionError()
+            lowerNum = atom.levels[i].L
+            upperNum = atom.levels[j].L
+            if lowerNum is None or upperNum is None:
                 raise BarklemCrossSectionError()
 
-            nums = (lowerNum.L, upperNum.L)
+            nums = (lowerNum, upperNum)
 
             # Check is a Barklem case applies
             if nums == (SOrbit, POrbit) or nums == (POrbit, SOrbit):

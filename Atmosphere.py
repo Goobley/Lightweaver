@@ -25,6 +25,9 @@ class Atmosphere:
     vlos: np.ndarray
     vturb: np.ndarray
     hydrogenPops: np.ndarray
+    B: Optional[np.ndarray] = None
+    gammaB: Optional[np.ndarray] = None
+    chiB: Optional[np.ndarray] = None
     Nspace: int = field(init=False)
     Nrays: int = field(init=False)
     lowerBc: BoundaryCondition = field(default=BoundaryCondition.Thermalised)

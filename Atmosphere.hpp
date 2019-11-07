@@ -17,6 +17,12 @@ struct Atmosphere
     F64View ne;
     F64View vlos;
     F64View2D vlosMu;
+    F64View B;
+    F64View gammaB;
+    F64View chiB;
+    F64View2D cosGamma;
+    F64View2D cos2chi;
+    F64View2D sin2chi;
     F64View vturb;
     F64View nHtot;
     F64View muz;
@@ -31,6 +37,7 @@ struct Atmosphere
 
     void print_tau() const;
     void test_copy_constructor();
+    void update_projections();
 };
 #else
 #endif

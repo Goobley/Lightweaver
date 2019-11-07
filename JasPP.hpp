@@ -25,6 +25,10 @@
     auto& NAME3(OBJ.NAME3); auto& NAME4(OBJ.NAME4)
 #define JAS_UNPACK6(OBJ, NAME1, NAME2, NAME3, NAME4, NAME5) auto& NAME1(OBJ.NAME1); auto& NAME2(OBJ.NAME2); \
     auto& NAME3(OBJ.NAME3); auto& NAME4(OBJ.NAME4); auto& NAME5(OBJ.NAME5)
+#define JAS_UNPACK7(OBJ, NAME1, NAME2, NAME3, NAME4, NAME5, NAME6) auto& NAME1(OBJ.NAME1); auto& NAME2(OBJ.NAME2); \
+    auto& NAME3(OBJ.NAME3); auto& NAME4(OBJ.NAME4); auto& NAME5(OBJ.NAME5); auto& NAME6(OBJ.NAME6)
+#define JAS_UNPACK8(OBJ, NAME1, NAME2, NAME3, NAME4, NAME5, NAME6, NAME7) auto& NAME1(OBJ.NAME1); auto& NAME2(OBJ.NAME2); \
+    auto& NAME3(OBJ.NAME3); auto& NAME4(OBJ.NAME4); auto& NAME5(OBJ.NAME5); auto& NAME6(OBJ.NAME6); auto& NAME7(OBJ.NAME7)
 
 #define JAS_VA_NARGS_IMPL(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, N, ...) N
 #define JAS_VA_NARGS(...) JAS_VA_NARGS_IMPL(__VA_ARGS__, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
@@ -33,6 +37,32 @@
 #define JAS_UNPACK_IMPL2(Length, ...) JAS_UNPACK##Length(__VA_ARGS__)
 #define JAS_UNPACK_IMPL(Length, ...) JAS_UNPACK_IMPL2(Length, __VA_ARGS__)
 #define JasUnpack(...) JAS_UNPACK_IMPL(JAS_VA_NARGS(__VA_ARGS__), __VA_ARGS__)
+
+#define JAS_PACK1(_1)
+#define JAS_PACK2(OBJ, L1) OBJ.L1 = L1
+#define JAS_PACK3(OBJ, L1, L2) OBJ.L1 = L1; OBJ.L2 = L2
+#define JAS_PACK4(OBJ, L1, L2, L3) OBJ.L1 = L1; OBJ.L2 = L2; OBJ.L3 = L3
+#define JAS_PACK5(OBJ, L1, L2, L3, L4) OBJ.L1 = L1; OBJ.L2 = L2; OBJ.L3 = L3; OBJ.L4 = L4
+#define JAS_PACK6(OBJ, L1, L2, L3, L4, L5) OBJ.L1 = L1; OBJ.L2 = L2; OBJ.L3 = L3; OBJ.L4 = L4; OBJ.L5 = L5
+#define JAS_PACK7(OBJ, L1, L2, L3, L4, L5, L6) OBJ.L1 = L1; OBJ.L2 = L2; OBJ.L3 = L3; OBJ.L4 = L4; OBJ.L5 = L5; OBJ.L6 = L6
+#define JAS_PACK8(OBJ, L1, L2, L3, L4, L5, L6, L7) OBJ.L1 = L1; OBJ.L2 = L2; OBJ.L3 = L3; OBJ.L4 = L4; OBJ.L5 = L5; OBJ.L6 = L6; OBJ.L7 = L7
+
+#define JAS_PACK_IMPL2(Length, ...) JAS_PACK##Length(__VA_ARGS__)
+#define JAS_PACK_IMPL(Length, ...) JAS_PACK_IMPL2(Length, __VA_ARGS__)
+#define JasPack(...) JAS_PACK_IMPL(JAS_VA_NARGS(__VA_ARGS__), __VA_ARGS__)
+
+#define JAS_PACK_PTR1(_1)
+#define JAS_PACK_PTR2(OBJ, L1) OBJ.L1 = &L1
+#define JAS_PACK_PTR3(OBJ, L1, L2) OBJ.L1 = &L1; OBJ.L2 = &L2
+#define JAS_PACK_PTR4(OBJ, L1, L2, L3) OBJ.L1 = &L1; OBJ.L2 = &L2; OBJ.L3 = &L3
+#define JAS_PACK_PTR5(OBJ, L1, L2, L3, L4) OBJ.L1 = &L1; OBJ.L2 = &L2; OBJ.L3 = &L3; OBJ.L4 = &L4
+#define JAS_PACK_PTR6(OBJ, L1, L2, L3, L4, L5) OBJ.L1 = &L1; OBJ.L2 = &L2; OBJ.L3 = &L3; OBJ.L4 = &L4; OBJ.L5 = &L5
+#define JAS_PACK_PTR7(OBJ, L1, L2, L3, L4, L5, L6) OBJ.L1 = &L1; OBJ.L2 = &L2; OBJ.L3 = &L3; OBJ.L4 = &L4; OBJ.L5 = &L5; OBJ.L6 = &L6
+#define JAS_PACK_PTR8(OBJ, L1, L2, L3, L4, L5, L6, L7) OBJ.L1 = &L1; OBJ.L2 = &L2; OBJ.L3 = &L3; OBJ.L4 = &L4; OBJ.L5 = &L5; OBJ.L6 = &L6; OBJ.L7 = &L7
+
+#define JAS_PACK_PTR_IMPL2(Length, ...) JAS_PACK_PTR##Length(__VA_ARGS__)
+#define JAS_PACK_PTR_IMPL(Length, ...) JAS_PACK_PTR_IMPL2(Length, __VA_ARGS__)
+#define JasPackPtr(...) JAS_PACK_PTR_IMPL(JAS_VA_NARGS(__VA_ARGS__), __VA_ARGS__)
 
 #define InWhich(BODY, x, y)                     \
 [=](auto x)                                     \

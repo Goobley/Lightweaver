@@ -497,11 +497,12 @@ def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable, 
             # n -= correction
             # print(correction)
 
-            dnMax = np.nanmax(np.abs((n - prevN) / n))
+            # dnMax = np.nanmax(np.abs((n - prevN) / n))
+            dnMax = np.nanmax(np.abs((n / prevN) - 1.0))
             # print(dnMax)
-            if dnMax <= IterLimit:
-                maxIter = max(maxIter, nIter)
-                break
+            # if dnMax <= IterLimit:
+            #     maxIter = max(maxIter, nIter)
+            #     break
 
             nIter += 1
         if dnMax > IterLimit:

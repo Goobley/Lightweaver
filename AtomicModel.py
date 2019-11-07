@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import List, Sequence, Optional, Any
+from fractions import Fraction
+from typing import List, Sequence, Optional, Any, Iterator, cast
 import re
 
 import numpy as np
@@ -37,14 +38,6 @@ from Barklem import Barklem
 
 
 
-@dataclass
-class PrincipalQuantum:
-    S: float
-    L: int
-    J: float
-
-class CompositeLevelError(Exception):
-    pass
 
 @dataclass
 class AtomicModel:
@@ -119,17 +112,23 @@ class AtomicLevel:
     g: float
     label: str
     stage: int
-    noPol: bool = False
+    lsCoupling: bool = False
     atom: AtomicModel = field(init=False)
+    J: Optional[Fraction] = None
+    L: Optional[int] = None
+    S: Optional[Fraction] = None
 
     def setup(self, atom):
         self.atom = atom
-        try: 
-            self.qNo = determinate(self)
-        except Exception as e:
-            print(self.atom.name)
-            self.noPol = True
-            print('Unable to treat level with polarisation: %s' % e)
+        # try: 
+        #     self.qNo = determinate(self)
+        # except Exception as e:
+        #     print(self.atom.name)
+        #     self.noPol = True
+        #     print('Unable to treat level with polarisation: %s' % e)
+        if not any([x is None for x in [self.J, self.L, self.S]]):
+            if self.J <= self.L + self.S:
+                self.lsCoupling = True
             
 
     @property
@@ -137,7 +136,7 @@ class AtomicLevel:
         return self.E * Const.HC / Const.CM_TO_M
 
     def __repr__(self):
-        s = 'AtomicLevel(E=%f, g=%f, label="%s", stage=%d)' % (self.E, self.g, self.label, self.stage)
+        s = 'AtomicLevel(E=%f, g=%f, label="%s", stage=%d, J=%s, L=%s, S=%s)' % (self.E, self.g, self.label, self.stage, repr(self.J), repr(self.L), repr(self.S))
         return s
 
 
@@ -290,20 +289,34 @@ class AtomicLine:
     vdw: VdwApprox
     gRad: float
     stark: float
-    gLandeEff: float = 0.0
+    gLandeEff: Optional[float] = None
     atom: AtomicModel = field(init=False)
     jLevel: AtomicLevel = field(init=False)
     iLevel: AtomicLevel = field(init=False)
     wavelength: np.ndarray = field(init=False)
 
     def __repr__(self):
-        s = 'AtomicLine(j=%d, i=%d, f=%e, type=%s, Nlambda=%d, qCore=%f, qWing=%f, vdw=%s, gRad=%e, stark=%f, gLandeEff=%f)' % (
+        s = 'AtomicLine(j=%d, i=%d, f=%e, type=%s, Nlambda=%d, qCore=%f, qWing=%f, vdw=%s, gRad=%e, stark=%f' % (
                 self.j, self.i, self.f, repr(self.type), self.Nlambda, self.qCore, self.qWing, repr(self.vdw), 
-                self.gRad, self.stark, self.gLandeEff)
+                self.gRad, self.stark)
+        if self.gLandeEff is not None:
+            s += ', gLandeEff=%f' % self.gLandeEff
+        s += ')'
         return s
 
     def __hash__(self):
         return hash(repr(self))
+
+def fraction_range(start: Fraction, stop: Fraction, step: Fraction=Fraction(1,1)) -> Iterator[Fraction]:
+    while start < stop:
+        yield start
+        start += step
+
+@dataclass
+class ZeemanComponents:
+    alpha: np.ndarray
+    strength: np.ndarray
+    shift: np.ndarray
 
 @dataclass
 class VoigtLine(AtomicLine):
@@ -315,16 +328,26 @@ class VoigtLine(AtomicLine):
         self.jLevel: AtomicLevel = self.atom.levels[self.j]
         self.iLevel: AtomicLevel = self.atom.levels[self.i]
 
-        # Might need to init the vdw here
-        # we do.
-
         self.vdw.setup(self, atom.atomicTable)
 
     def __repr__(self):
-        s = 'VoigtLine(j=%d, i=%d, f=%e, type=%s, Nlambda=%d, qCore=%f, qWing=%f, vdw=%s, gRad=%e, stark=%f, gLandeEff=%f)' % (
+        s = 'VoigtLine(j=%d, i=%d, f=%e, type=%s, Nlambda=%d, qCore=%f, qWing=%f, vdw=%s, gRad=%e, stark=%f' % (
                 self.j, self.i, self.f, repr(self.type), self.Nlambda, self.qCore, self.qWing, repr(self.vdw), 
-                self.gRad, self.stark, self.gLandeEff)
+                self.gRad, self.stark)
+        if self.gLandeEff is not None:
+            s += ', gLandeEff=%f' % self.gLandeEff
+        s += ')'
         return s
+
+    def linear_stark_broaden(self, atmos):
+        # We don't need to read n from the label, we can use the fact that for H -- which is the only atom we have here, g=2n^2
+        nUpper = int(np.round(np.sqrt(0.5*self.jLevel.g)))
+        nLower = int(np.round(np.sqrt(0.5*self.iLevel.g)))
+
+        a1 = 0.642 if nUpper - nLower == 1 else 1.0
+        C = a1 * 0.6 * (nUpper**2 - nLower**2) * Const.CM_TO_M**2
+        GStark = C * atmos.ne**(2.0/3.0)
+        return GStark
 
     def stark_broaden(self, atmos):
         weight = self.atom.atomicTable[self.atom.name].weight
@@ -352,14 +375,17 @@ class VoigtLine(AtomicLine):
         cStark23 = 11.37 * (self.stark * C4)**(2.0/3.0)
 
         vRel = (C * atmos.temperature)**(1.0/6.0) * Cm
-        return cStark23 * vRel * atmos.ne
+        stark = cStark23 * vRel * atmos.ne
+        if self.atom.name.startswith('H'):
+            stark += self.linear_stark_broaden(atmos)
+        return stark
 
     def setup_xrd_wavelength(self):
         self.xrd = []
 
         # This is just a hack to keep the search happy
         self.wavelength = np.zeros(1)
-        # NOTE(cmo): This is currently disabled
+        # NOTE(cmo): This is currently disabled -- we're not gonna do XRD anyway
         if self.type == LineType.PRD and False:
 
             thisIdx = self.atom.lines.index(self)
@@ -406,10 +432,53 @@ class VoigtLine(AtomicLine):
         line[Nmid+1:] = self.lambda0 + qToLambda * self.q[1:]
         self.wavelength = line
 
-    def polarized_wavelength(self, bChar: Optional[float]=None) -> Sequence[float]:
+    def zeeman_components(self) -> Optional[ZeemanComponents]:
+        # Just do basic anomalous Zeeman splitting
+        if self.gLandeEff is not None:
+            alpha = np.array([-1, 0, 1], dtype=np.int32)
+            strength = np.ones(3)
+            shift = alpha * self.gLandeEff
+            return ZeemanComponents(alpha, strength, shift)
+        
+        # Do LS coupling
+        if self.iLevel.lsCoupling and self.jLevel.lsCoupling:
+            # Mypy... you're a pain sometimes... (even if you are technically correct)
+            Jl = cast(Fraction, self.iLevel.J)
+            Ll = cast(int, self.iLevel.L)
+            Sl = cast(Fraction, self.iLevel.S)
+            Ju = cast(Fraction, self.jLevel.J)
+            Lu = cast(int, self.jLevel.L)
+            Su = cast(Fraction, self.jLevel.S)
+
+            gLl = lande_factor(Jl, Ll, Sl)
+            gLu = lande_factor(Ju, Lu, Su)
+            alpha = []
+            strength = []
+            shift = []
+            norm = np.zeros(3)
+            
+            for ml in fraction_range(-Jl, Jl+1):
+                for mu in fraction_range(-Ju, Ju+1):
+                    if abs(ml - mu) <= 1.0:
+                        alpha.append(int(ml - mu))
+                        shift.append(gLl*ml - gLu*mu)
+                        strength.append(zeeman_strength(Ju, mu, Jl, ml))
+                        norm[alpha[-1]+1] += strength[-1]
+            alpha = np.array(alpha, dtype=np.int32)
+            strength = np.array(strength)
+            shift = np.array(shift)
+            strength /= norm[alpha + 1]
+
+            return ZeemanComponents(alpha, strength, shift)
+
+        return None
+
+
+
+    def polarised_wavelength(self, bChar: Optional[float]=None) -> Sequence[float]:
         ## NOTE(cmo): bChar in TESLA
-        if any([self.iLevel.noPol, self.jLevel.noPol]) or \
-           (self.gLandeEff == 0.0) and (self.jLevel.qNo.J - self.iLevel.qNo.J > 1.0):
+        if any([not self.iLevel.lsCoupling, not self.jLevel.lsCoupling]) or \
+           (self.gLandeEff is None):
             print("Can't treat line %d->%d with polarization" % (self.j, self.i))
             return self.wavelength
 
@@ -470,6 +539,10 @@ class VoigtLine(AtomicLine):
     def Bij(self) -> float:
         return self.jLevel.g / self.iLevel.g * self.Bji
 
+    @property
+    def polarisable(self) -> bool:
+        return (self.iLevel.lsCoupling and self.jLevel.lsCoupling) or (self.gLandeEff is not None)
+
     def damping(self, atmos, vBroad):
         aDamp = np.zeros(atmos.Nspace)
         Qelast = np.zeros(atmos.Nspace)
@@ -483,52 +556,56 @@ class VoigtLine(AtomicLine):
         aDamp = (self.gRad + Qelast) * cDop / vBroad
         return aDamp, Qelast
 
+def zeeman_strength(Ju: Fraction, Mu: Fraction, Jl: Fraction, Ml: Fraction) -> float:
+    alpha  = int(Ml - Mu)
+    dJ = int(Ju - Jl)
 
-def get_oribital_number(orbit: str) -> int:
-    orbits = ['S', 'P', 'D', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'O', 'Q', 'R', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-    return orbits.index(orbit)
-    
+    # These parameters are x2 those in del Toro Iniesta (p. 137), but we normalise after the fact, so it's fine
 
-def determinate(level: AtomicLevel) -> PrincipalQuantum:
-    endIdx = [level.label.upper().rfind(x) for x in ['E', 'O']]
-    maxIdx = max(endIdx)
-    if maxIdx == -1:
-        raise ValueError("Unable to determine parity of level %s" % (repr(level)))
-    label = level.label[:maxIdx+1].upper()
-    words: List[str] = label.split()
-
-    # _, multiplicity, orbit = parse('{}{:d}{!s}', words[-1])
-    match = re.match('[\S-]*(\d)(\S)[EO]$', words[-1])
-    if match is None:
-        raise ValueError('Unable to parse level label: %s' % level.label)
+    if dJ == 0: # jMin = ju = jl
+        if alpha == 0: # pi trainsitions
+            s = 2.0 * Mu**2
+        elif alpha == -1: # sigma_b transitions
+            s = (Ju + Mu) * (Ju - Mu + 1.0)
+        elif alpha == 1: # sigma_r transitions
+            s = (Ju - Mu) * (Ju + Mu + 1.0)
+    elif dJ == 1: # jMin = jl, Mi = Ml
+        if alpha == 0: # pi trainsitions
+            s = 2.0 * ((Jl + 1)**2 - Ml**2)
+        elif alpha == -1: # sigma_b transitions
+            s = (Jl + Ml + 1) * (Jl + Ml + 2.0)
+        elif alpha == 1: # sigma_r transitions
+            s = (Jl - Ml + 1.0) * (Jl - Ml + 2.0)
+    elif dJ == -1: # jMin = ju, Mi = Mu
+        if alpha == 0: # pi trainsitions
+            s = 2.0 * ((Ju + 1)**2 - Mu**2)
+        elif alpha == -1: # sigma_b transitions
+            s = (Ju - Mu + 1) * (Ju - Mu + 2.0)
+        elif alpha == 1: # sigma_r transitions
+            s = (Ju + Mu + 1.0) * (Ju + Mu + 2.0)
     else:
-        multiplicity = int(match.group(1))
-        orbit = match.group(2)
-    S = (multiplicity - 1) / 2.0
-    L = get_oribital_number(orbit)
-    J = (level.g - 1.0) / 2.0
+        raise ValueError('Invalid dJ: %d' % dJ)
 
-    if J > L + S:
-        raise CompositeLevelError('J (%f) > L (%d) + S (%f): %s' %(J, L, S, repr(level)))
+    return float(s)
 
-    return PrincipalQuantum(S=S, J=J, L=L)
-
-def lande(qNo: PrincipalQuantum):
-    if qNo.J == 0.0:
+def lande_factor(J: Fraction, L: int, S: Fraction) -> float:
+    if J == 0.0:
         return 0.0
-    return 1.5 + (qNo.S * (qNo.S + 1.0) - qNo.L * (qNo.L + 1)) / (2.0 * qNo.J * (qNo.J + 1.0))
+    return float(1.5 + (S * (S + 1.0) - L * (L + 1)) / (2.0 * J * (J + 1.0)))
 
 def effective_lande(line: AtomicLine):
-    if line.gLandeEff != 0.0:
+    if line.gLandeEff is not None:
         return line.gLandeEff
 
-    qL = line.iLevel.qNo
-    qU = line.jLevel.qNo
-    gL = lande(qL)
-    gU = lande(qU)
+    i = line.iLevel
+    j = line.jLevel
+    if any(x is None for x in [i.J, i.L, i.S, j.J, j.L, j.S]):
+        raise ValueError('Cannot compute gLandeEff as gLandeEff not set and some of J, L and S None for line %s'%repr(line))
+    gL = lande_factor(i.J, i.L, i.S) # type: ignore
+    gU = lande_factor(j.J, j.L, j.S) # type: ignore
 
     return 0.5 * (gU + gL) + \
-           0.25 * (gU - gL) * (qU.J * (qU.J + 1.0) - qL.J * (qL.J + 1.0))
+           0.25 * (gU - gL) * (j.J * (j.J + 1.0) - i.J * (i.J + 1.0)) # type: ignore
 
 
 @dataclass
@@ -695,3 +772,26 @@ class CI(CollisionalRates):
         Cmat[self.i, self.j, :] += Cup * nstar[self.i] / nstar[self.j]
 
 
+class CE(CollisionalRates):
+    def __repr__(self):
+        s = 'CE(j=%d, i=%d, temperature=%s, rates=%s)' % (self.j, self.i, repr(self.temperature), repr(self.rates))
+        return s
+
+    def setup(self, atom):
+        i, j = self.i, self.j
+        self.i = min(i, j)
+        self.j = max(i, j)
+        self.atom = atom
+        self.jLevel = atom.levels[self.j]
+        self.iLevel = atom.levels[self.i]
+        self.gij = self.iLevel.g / self.jLevel.g
+        if len(self.rates) <  3:
+            self.interpolator = interp1d(self.temperature, self.rates, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
+        else:
+            self.interpolator = interp1d(self.temperature, self.rates, kind=3, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
+
+    def compute_rates(self, atmos, nstar, Cmat):
+        C = self.interpolator(atmos.temperature)
+        Cdown = C * atmos.ne * self.gij * np.sqrt(atmos.temperature)
+        Cmat[self.i, self.j, :] += Cdown
+        Cmat[self.j, self.i, :] += Cdown * nstar[self.j] / nstar[self.i]

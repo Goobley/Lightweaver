@@ -49,6 +49,11 @@ struct Array1NonOwn
     Array1NonOwn&
     operator=(Array1NonOwn&& other) = default;
 
+    inline explicit operator bool() const
+    {
+        return dim0 != 0;
+    }
+
     void fill(T val)
     {
         for (int i = 0; i < dim0; ++i)
@@ -163,6 +168,11 @@ struct Array1Own
 
     Array1Own&
     operator=(Array1Own&& other) = default;
+
+    inline explicit operator bool() const
+    {
+        return dim0 != 0;
+    }
 
     void fill(T val)
     {
@@ -282,6 +292,11 @@ struct Array2NonOwn
         {
             data[i] = val;
         }
+    }
+
+    inline explicit operator bool() const
+    {
+        return dim[0] != 0;
     }
 
     inline const decltype(dim) shape() const
@@ -411,6 +426,11 @@ struct Array2Own
 
     Array2Own&
     operator=(Array2Own&& other) = default;
+
+    inline explicit operator bool() const
+    {
+        return dim[0] != 0;
+    }
 
     void fill(T val)
     {
@@ -544,6 +564,11 @@ struct Array3NonOwn
 
     Array3NonOwn&
     operator=(Array3NonOwn&& other) = default;
+
+    inline explicit operator bool() const
+    {
+        return dim[0] != 0;
+    }
 
     void fill(T val)
     {
@@ -695,6 +720,11 @@ struct Array3Own
     Array3Own&
     operator=(Array3Own&& other) = default;
 
+    inline explicit operator bool() const
+    {
+        return dim[0] != 0;
+    }
+
     void fill(T val)
     {
         for (int i = 0; i < dimProd[0] * dim[0]; ++i)
@@ -839,6 +869,11 @@ struct Array4NonOwn
 
     Array4NonOwn&
     operator=(Array4NonOwn&& other) = default;
+
+    inline explicit operator bool() const
+    {
+        return dim[0] != 0;
+    }
 
     void fill(T val)
     {
@@ -1003,6 +1038,11 @@ struct Array4Own
     Array4Own&
     operator=(Array4Own&& other) = default;
 
+    inline explicit operator bool() const
+    {
+        return dim[0] != 0;
+    }
+
     void fill(T val)
     {
         for (int i = 0; i < dimProd[0] * dim[0]; ++i)
@@ -1158,6 +1198,11 @@ struct Array5NonOwn
 
     Array5NonOwn&
     operator=(Array5NonOwn&& other) = default;
+
+    inline explicit operator bool() const
+    {
+        return dim[0] != 0;
+    }
 
     void fill(T val)
     {
@@ -1328,6 +1373,11 @@ struct Array5Own
 
     Array5Own&
     operator=(Array5Own&& other) = default;
+
+    inline explicit operator bool() const
+    {
+        return dim[0] != 0;
+    }
 
     void fill(T val)
     {
