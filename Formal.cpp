@@ -910,7 +910,7 @@ inline void prod(f32 a[4][4], f64 b[4], f64 c[4])
 }
 
 #define GLU_MAT 1
-#define JAIME_ORDER 1
+#define JAIME_ORDER 0
 void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs, f64 Istart[4], bool polarisedFrequency)
 {
     JasUnpack((*fd), atmos, chi, S, I);
