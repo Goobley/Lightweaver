@@ -69,6 +69,9 @@ struct Transition
     F64View aDamp;
     BoolView active;
 
+    F64View Rij;
+    F64View Rji;
+
     // F64Arr wlambda() const
     // {
     //     auto wla = F64Arr(wavelength.shape(0));
@@ -127,6 +130,12 @@ struct Transition
                 Uji(k) = hcl * Vji(k);
             }
         }
+    }
+
+    inline void zero_rates()
+    {
+        Rij.fill(0.0);
+        Rji.fill(0.0);
     }
 
     void compute_phi(const Atmosphere& atmos, F64View aDamp, F64View vBroad);
@@ -204,6 +213,12 @@ struct Atom
         V.fill(0.0);
         U.fill(0.0);
         chi.fill(0.0);
+    }
+
+    inline void zero_rates()
+    {
+        for (auto& t : trans)
+            t->zero_rates();
     }
 };
 

@@ -1386,6 +1386,8 @@ f64 intensity_core(IntensityCoreData& data, int la)
                         integrand = (Vij(k) * Ieff(k)) 
                                     - (PsiStar(k) * atom.chi(t.j, k) * atom.U(t.i, k));
                         atom.Gamma(t.j, t.i, k) += integrand * wlamu;
+                        t.Rij(k) += I(k) * Vij(k) * wlamu;
+                        t.Rji(k) += (Uji(k) + I(k) * Vij(k)) * wlamu;
                     }
                 }
             }
@@ -1574,6 +1576,11 @@ f64 gamma_matrices_formal_sol(Context ctx)
     JasPack(iCore, I, S, Ieff, PsiStar);
     
     printf("%d, %d, %d\n", Nspace, Nrays, Nspect);
+
+    for (auto& a : activeAtoms)
+    {
+        a->zero_rates();
+    }
 
     f64 dJMax = 0.0;
     for (int la = 0; la < Nspect; ++la)
