@@ -1,9 +1,11 @@
 #include "JasPP.hpp"
 #include "Formal.hpp"
 #include "Faddeeva.hh"
+#include "Background.hpp"
 
 #include <cmath>
 #include <vector>
+#include <utility>
 #include <fenv.h>
 #include <iostream>
 #include <x86intrin.h>
@@ -1189,11 +1191,11 @@ void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs,
 
 void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int mu, bool toObs, f64 wav, bool polarisedFrequency)
 {
-    // if (!polarisedFrequency)
-    // {
-    //     piecewise_bezier3_1d(&fd->fdIntens, mu, toObs, wav);
-    //     return;
-    // }
+    if (!polarisedFrequency)
+    {
+        piecewise_bezier3_1d(&fd->fdIntens, mu, toObs, wav);
+        return;
+    }
 
     JasUnpack((*fd), atmos, chi);
     // This is 1.0 here, as we are normally effectively rolling in the averaging
@@ -1225,6 +1227,7 @@ void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int mu, bool toObs, f64 w
     {
         f64 Bnu[2];
         planck_nu(2, &atmos->temperature(0), wav, Bnu);
+
         Iupw[0] = Bnu[0] - (Bnu[1] - Bnu[0]) / dtau_uw;
     }
 
@@ -1950,4 +1953,391 @@ void stat_eq(Atom* atomIn)
         for (int i = 0; i < Nlevel; ++i)
             atom.n(i,k) = nk(i);
     }
+}
+
+namespace PrdCores
+{
+    void total_depop_rate(const Transition* trans, const Atom& atom, F64View Pj)
+    {
+        const int Nspace = trans->Rij.shape(0);
+
+        for (int k = 0; k < Nspace; ++k)
+        {
+            Pj(k) = trans->Qelast(k);
+            for (int i = 0; i < atom.C.shape(0); ++i)
+                Pj(k) += atom.C(i, trans->j, k);
+
+            for (auto& t : atom.trans)
+            {
+                if (t->j == trans->j)
+                    Pj(k) += t->Rji(k);
+                if (t->i == trans->j)
+                    Pj(k) += t->Rij(k);
+            }
+        }
+    }
+
+    f64 prd_fs_update_rates(Context ctx, const std::vector<int>& prdLambdas)
+    {
+        JasUnpack(*ctx, atmos, spect, background);
+        JasUnpack(ctx, activeAtoms);
+
+        const int Nspace = atmos.Nspace;
+        const int Nrays = atmos.Nrays;
+
+        F64Arr chiTot = F64Arr(Nspace);
+        F64Arr etaTot = F64Arr(Nspace);
+        F64Arr S = F64Arr(Nspace);
+        F64Arr Uji = F64Arr(Nspace);
+        F64Arr Vij = F64Arr(Nspace);
+        F64Arr Vji = F64Arr(Nspace);
+        F64Arr I = F64Arr(Nspace);
+        F64Arr Ieff = F64Arr(Nspace);
+        F64Arr JDag = F64Arr(Nspace);
+        FormalData fd;
+        fd.atmos = &atmos;
+        fd.chi = chiTot;
+        fd.S = S;
+        fd.I = I;
+
+        printf("%d, %d\n", Nspace, Nrays);
+
+        for (auto& a : activeAtoms)
+        {
+            for (auto& t : a->trans)
+            {
+                if (t->rhoPrd)
+                {
+                    t->zero_rates();
+                }
+            }
+        }
+
+        f64 dJMax = 0.0;
+        for (auto la : prdLambdas)
+        {
+            JDag = spect.J(la);
+            F64View J = spect.J(la);
+            J.fill(0.0);
+
+            for (int a = 0; a < activeAtoms.size(); ++a)
+                activeAtoms[a]->setup_wavelength(la);
+
+            for (int mu = 0; mu < Nrays; ++mu)
+            {
+                for (int toObsI = 0; toObsI < 2; toObsI += 1)
+                {
+                    bool toObs = (bool)toObsI;
+
+                    chiTot.fill(0.0);
+                    etaTot.fill(0.0);
+
+                    for (int a = 0; a < activeAtoms.size(); ++a)
+                    {
+                        auto& atom = *activeAtoms[a];
+                        for (int kr = 0; kr < atom.Ntrans; ++kr)
+                        {
+                            auto& t = *atom.trans[kr];
+                            if (!t.active(la))
+                                continue;
+                                
+                            t.uv(la, mu, toObs, Uji, Vij, Vji);
+
+                            for (int k = 0; k < Nspace; ++k)
+                            {
+                                f64 chi = atom.n(t.i, k) * Vij(k) - atom.n(t.j, k) * Vji(k);
+                                f64 eta = atom.n(t.j, k) * Uji(k);
+
+                                chiTot(k) += chi;
+                                etaTot(k) += eta;
+                                atom.eta(k) += eta;
+                            }
+                        }
+                    }
+                    // Do LTE atoms here
+
+                    for (int k = 0; k < Nspace; ++k)
+                    {
+                        chiTot(k) += background.chi(la, k);
+                        S(k) = (etaTot(k) + background.eta(la, k) + background.sca(la, k) * JDag(k)) / chiTot(k);
+                    }
+
+                    piecewise_bezier3_1d(&fd, mu, toObs, spect.wavelength(la));
+                    spect.I(la, mu) = I(0);
+
+                    for (int k = 0; k < Nspace; ++k)
+                    {
+                        J(k) += 0.5 * atmos.wmu(mu) * I(k);
+                    }
+
+                    for (int a = 0; a < activeAtoms.size(); ++a)
+                    {
+                        auto& atom = *activeAtoms[a];
+                        for (int kr = 0; kr < atom.Ntrans; ++kr)
+                        {
+                            auto& t = *atom.trans[kr];
+                            if (!t.active(la) || !t.rhoPrd)
+                                continue;
+
+                            const f64 wmu = 0.5 * atmos.wmu(mu);
+                            t.uv(la, mu, toObs, Uji, Vij, Vji);
+
+                            for (int k = 0; k < Nspace; ++k)
+                            {
+                                const f64 wlamu = atom.wla(kr, k) * wmu;
+                                t.Rij(k) += I(k) * Vij(k) * wlamu;
+                                t.Rji(k) += (Uji(k) + I(k) * Vij(k)) * wlamu;
+                            }
+                        }
+                    }
+                }
+            }
+            for (int k = 0; k < Nspace; ++k)
+            {
+                f64 dJ = abs(1.0 - JDag(k) / J(k));
+                dJMax = max(dJ, dJMax);
+            }
+        }
+        return dJMax;
+    }
+
+    constexpr f64 PrdQWing = 4.0;
+    constexpr f64 PrdQCore = 4.0;
+    constexpr f64 PrdQSpread = 5.0;
+    constexpr f64 PrdDQ = 0.25;
+
+   /*
+    * Gouttebroze's fast approximation for
+    *  GII(q_abs, q_emit) = PII(q_abs, q_emit) / phi(q_emit)
+
+    * See: P. Gouttebroze, 1986, A&A 160, 195
+    *      H. Uitenbroek,  1989, A&A, 216, 310-314 (cross redistribution)
+    */
+
+    inline f64 G_zero(f64 x)
+    {
+        return 1.0 / (abs(x) + sqrt(square(x) + 1.273239545));
+    }
+
+    f64 GII(f64 adamp, f64 q_emit, f64 q_abs)
+    {
+        constexpr f64 waveratio = 1.0;
+        namespace C = Constants;
+        f64 gii, pcore, aq_emit, umin, epsilon, giiwing, u1, phicore, phiwing;
+
+        /* --- Symmetrize with respect to emission frequency --   --------- */
+
+        if (q_emit < 0.0) {
+            q_emit = -q_emit;
+            q_abs = -q_abs;
+        }
+        pcore = 0.0;
+        gii = 0.0;
+
+        /* --- Core region --                                     --------- */
+
+        if (q_emit < PrdQWing)
+        {
+            if ((q_abs < -PrdQWing) || (q_abs > q_emit + waveratio * PrdQSpread))
+                return gii;
+            if (abs(q_abs) <= q_emit)
+                gii = G_zero(q_emit);
+            else
+                gii = exp(square(q_emit) - square(q_abs)) * G_zero(q_abs);
+
+            if (q_emit >= PrdQCore) 
+            {
+                phicore = exp(-square(q_emit));
+                phiwing = adamp / (sqrt(C::Pi) * (square(adamp) + square(q_emit)));
+                pcore = phicore / (phicore + phiwing);
+            }
+        }
+        /* --- Wing region --                                     --------- */
+
+        if (q_emit >= PrdQCore)
+        {
+            aq_emit = waveratio * q_emit;
+            if (q_emit >= PrdQWing) 
+            {
+                if (abs(q_abs - aq_emit) > waveratio * PrdQSpread)
+                    return gii;
+                pcore = 0.0;
+            }
+            umin = abs((q_abs - aq_emit) / (1.0 + waveratio));
+            giiwing = (1.0 + waveratio) * (1.0 - 2.0 * umin * G_zero(umin)) * exp(-square(umin));
+
+            if (waveratio == 1.0)
+            {
+                epsilon = q_abs / aq_emit;
+                giiwing *= (2.75 - (2.5 - 0.75 * epsilon) * epsilon);
+            }
+            else
+            {
+                u1 = abs((q_abs - aq_emit) / (waveratio - 1.0));
+                giiwing -=
+                    abs(1.0 - waveratio) * (1.0 - 2.0 * u1 * G_zero(u1)) * exp(-square(u1));
+            }
+            /* --- Linear combination of core- and wing contributions ------- */
+
+            giiwing = giiwing / (2.0 * waveratio * sqrt(C::Pi));
+            gii = pcore * gii + (1.0 - pcore) * giiwing;
+        }
+        return gii;
+    }
+
+    void prd_angle_avg(Transition* t, F64View Pj, const Atom& atom, const Atmosphere& atmos, const Spectrum& spect)
+    {
+        auto& trans = *t;
+
+        namespace C = Constants;
+        const int Nlambda = trans.wavelength.shape(0);
+
+        bool initialiseGii = (!trans.gII) || (trans.gII(0,0,0) < 0.0);
+        constexpr int maxFineGrid = max(3 * PrdQWing, 2 * PrdQSpread) / PrdDQ + 1;
+        if (!trans.gII)
+            trans.gII = F64Arr3D(Nlambda, atmos.Nspace, maxFineGrid);
+
+
+        // Reset Rho
+        trans.rhoPrd.fill(1.0);
+
+        F64Arr Jk(Nlambda);
+        F64Arr qAbs(Nlambda);
+        F64Arr JFine(maxFineGrid);
+        F64Arr qp(maxFineGrid);
+        F64Arr wq(maxFineGrid);
+
+        for (int k = 0; k < atmos.Nspace; ++k)
+        {
+            f64 gamma = atom.n(trans.i, k) / atom.n(trans.j, k) * trans.Bij / Pj(k);
+            f64 Jbar = trans.Rij(k) / trans.Bij;
+
+            // Local mean intensity in doppler units
+            for (int la = 0; la < Nlambda; ++la)
+            {
+                Jk(la) = spect.J(la + trans.Nblue, k);
+                qAbs(la) = (trans.wavelength(la) - trans.lambda0) * C::CLight / (trans.lambda0 * atom.vBroad(k));
+            }
+
+            for (int la = 0; la < Nlambda; ++la)
+            {
+                f64 qEmit = qAbs(la);
+
+                int q0, qN;
+                if (abs(qEmit) < PrdQCore)
+                {
+                    q0 = -PrdQWing;
+                    qN = PrdQWing;
+                }
+                else if (abs(qEmit) < PrdQWing)
+                {
+                    if (qEmit > 0.0)
+                    {
+                        q0 = -PrdQWing;
+                        qN = qEmit + PrdQSpread;
+                    }
+                    else
+                    {
+                        q0 = qEmit - PrdQSpread;
+                        qN = PrdQWing;
+                    }
+                }
+                else
+                {
+                    q0 = qEmit - PrdQSpread;
+                    qN = qEmit + PrdQSpread;
+                }
+                int Np = int((f64)(qN - q0) / PrdDQ) + 1;
+                qp(0) = q0;
+                for (int lap = 1; lap < Np; ++lap)
+                    qp(lap) = qp(lap-1) + PrdDQ;
+
+                linear(qAbs, Jk, qp.slice(0, Np), JFine);
+
+                if (initialiseGii)
+                {
+                    wq.fill(PrdDQ);
+                    wq(0) = 5.0 / 12.0 * PrdDQ;
+                    wq(1) = 13.0 / 12.0 * PrdDQ;
+                    wq(Np - 1) = 5.0 / 12.0 * PrdDQ;
+                    wq(Np - 2) = 13.0 / 12.0 * PrdDQ;
+                    for (int lap = 0; lap < Np; ++lap)
+                        trans.gII(la, k, lap) = GII(trans.aDamp(k), qEmit, qp(lap)) * wq(lap);
+                }
+                F64View gII = trans.gII(la, k);
+
+                f64 gNorm = 0.0;
+                f64 scatInt = 0.0;
+                for (int lap = 0; lap < Np; ++lap)
+                {
+                    gNorm += gII(lap);
+                    scatInt += JFine(lap) * gII(lap);
+                }
+                trans.rhoPrd(la, k) += gamma * (scatInt / gNorm - Jbar);
+            }
+        }
+    }
+}
+
+f64 redistribute_prd_lines_angle_avg(Context ctx, int maxIter, f64 tol)
+{
+    struct PrdData
+    {
+        Transition* line;
+        const Atom& atom;
+        Ng ng;
+
+        PrdData(Transition* l, const Atom& a, Ng&& n) : line(l), atom(a), ng(n)
+        {}
+    };
+    JasUnpack(*ctx, atmos, spect);
+    JasUnpack(ctx, activeAtoms);
+    std::vector<PrdData> prdLines;
+    prdLines.reserve(10);
+    for (auto& a : activeAtoms)
+    {
+        for (auto& t : a->trans)
+        {
+            if (t->rhoPrd)
+            {
+                // t->zero_rates();
+                prdLines.emplace_back(PrdData(t, *a, Ng(0,0,0, t->rhoPrd.flatten())));
+            }
+        }
+    }
+
+    const int Nspect = spect.wavelength.shape(0);
+    std::vector<int> prdLambdas;
+    prdLambdas.reserve(Nspect);
+    for (int la = 0; la < Nspect; ++la)
+    {
+        bool prdLinePresent = false;
+        for (auto& p : prdLines)
+            prdLinePresent = (p.line->active(la) || prdLinePresent);
+        if (prdLinePresent)
+            prdLambdas.emplace_back(la);
+    }
+
+    int iter = 0;
+    f64 dRho = 0.0;
+    F64Arr Pj(atmos.Nspace);
+    while (iter < maxIter)
+    {
+        for (auto& p : prdLines)
+        {
+            PrdCores::total_depop_rate(p.line, p.atom, Pj);
+            PrdCores::prd_angle_avg(p.line, Pj, p.atom, atmos, spect);
+            p.ng.accelerate(p.line->rhoPrd.flatten());
+            dRho = max(dRho, p.ng.max_change());
+        }
+
+        PrdCores::prd_fs_update_rates(ctx, prdLambdas);
+
+        if (dRho < tol)
+            break;
+
+        ++iter;
+    }
+
+    return dRho;
 }

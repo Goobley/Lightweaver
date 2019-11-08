@@ -71,6 +71,8 @@ struct Transition
 
     F64View Rij;
     F64View Rji;
+    F64View2D rhoPrd;
+    F64Arr3D gII;
 
     // F64Arr wlambda() const
     // {
@@ -184,7 +186,8 @@ struct Atom
 
             auto g = gij(kr);
             auto w = wla(kr);
-            auto wlambda = t.wlambda(t.lt_idx(laIdx));
+            const int lt = t.lt_idx(laIdx);
+            auto wlambda = t.wlambda(lt);
             if (t.type == TransitionType::LINE)
             {
                 for (int k = 0; k < g.shape(0); ++k)
@@ -203,7 +206,13 @@ struct Atom
                     w(k) = wlambda_lambda * pi4_h;
                 }
             }
-            t.gij = g;
+
+            if (t.rhoPrd)
+                for (int k = 0; k < g.shape(0); ++k)
+                    g(k) *= t.rhoPrd(lt, k);
+
+            if (!t.gij)
+                t.gij = g;
         }
     }
 
@@ -232,6 +241,7 @@ struct Context
 
 f64 gamma_matrices_formal_sol(Context ctx);
 f64 formal_sol_full_stokes(Context ctx);
+f64 redistribute_prd_lines_angle_avg(Context ctx, int maxIter, f64 tol);
 void stat_eq(Atom* atom);
 void planck_nu(long Nspace, double *T, double lambda, double *Bnu);
 void piecewise_linear_1d(Atmosphere* atmos, int mu, bool toObs, f64 wav, 

@@ -19,7 +19,7 @@ static inline int hunt(F64View x, f64 val)
     return hunt(x.dim0, x.data, val);
 }
 
-inline void linear(F64View xTable, F64View yTable, F64View x, F64View y)
+void linear(F64View xTable, F64View yTable, F64View x, F64View y)
 {
     const int Ntable = xTable.shape(0);
     const int N = x.shape(0);
@@ -43,7 +43,7 @@ inline void linear(F64View xTable, F64View yTable, F64View x, F64View y)
     }
 }
 
-inline f64 linear(F64View xTable, F64View yTable, f64 x)
+f64 linear(F64View xTable, F64View yTable, f64 x)
 {
     const int Ntable = xTable.shape(0);
     bool ascend = xTable(1) > xTable(0);

@@ -70,9 +70,11 @@ it = 0
 for it in range(200):
     # it += 1
     dJ = ctx.gamma_matrices_formal_sol()
+    delta = ctx.stat_equil()
+    if it >= 1:
+        dRho = ctx.prd_redistribute()
     if dJ < 1e-2:
         break
-    delta = ctx.stat_equil()
 # print(ctx.activeAtoms[0].trans[4].phi[20,0,0,0])
 s = ctx.spect
 oldI = np.copy(s.I)

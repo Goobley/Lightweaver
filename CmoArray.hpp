@@ -96,6 +96,13 @@ struct Array1NonOwn
         return data[i0];
     }
 
+    Array1NonOwn<T> slice(int start, int end) const
+    {
+        assert(start >= 0 && start < dim0 && end <= dim0);
+
+        return Array1NonOwn(data+start, end-start);
+    }
+
     Array2NonOwn<T> reshape(int d0, int d1) const
     {
         if (d0 * d1 != dim0)
@@ -214,6 +221,13 @@ struct Array1Own
     {
         DO_BOUNDS_CHECK();
         return data[i0];
+    }
+
+    Array1NonOwn<T> slice(int start, int end)
+    {
+        assert(start >= 0 && start < dim0 && end <= dim0);
+
+        return Array1NonOwn(data.data()+start, end-start);
     }
 
     Array2NonOwn<T> reshape(int d0, int d1) const

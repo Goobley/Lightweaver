@@ -1,6 +1,7 @@
 #ifndef CMO_BACKGROUND_HPP
 #define CMO_BACKGROUND_HPP
 
+#include "Constants.hpp"
 #include "CmoArray.hpp"
 #include "Atmosphere.hpp"
 
@@ -20,6 +21,8 @@ struct BackgroundData
     Atmosphere* atmos;
 };
 
+void linear(F64View xTable, F64View yTable, F64View x, F64View y);
+f64 linear(F64View xTable, F64View yTable, f64 x);
 void basic_background(BackgroundData* bd);
 double Gaunt_bf(double lambda, double n_eff, int charge);
 
