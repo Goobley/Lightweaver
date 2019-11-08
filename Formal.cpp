@@ -1,18 +1,17 @@
-#include "JasPP.hpp"
 #include "Formal.hpp"
-#include "Faddeeva.hh"
 #include "Background.hpp"
+#include "Faddeeva.hh"
+#include "JasPP.hpp"
 
 #include <cmath>
-#include <vector>
-#include <utility>
 #include <fenv.h>
 #include <iostream>
+#include <utility>
+#include <vector>
 #include <x86intrin.h>
 
 // Public domain polyfill for feenableexcept on OS X
 // http://www-personal.umich.edu/~williams/archive/computation/fe-handling-example.c
-
 
 inline int feenableexcept(unsigned int excepts)
 {
@@ -21,14 +20,15 @@ inline int feenableexcept(unsigned int excepts)
     // previous masks
     unsigned int old_excepts;
 
-    if (fegetenv(&fenv)) {
+    if (fegetenv(&fenv))
+    {
         return -1;
     }
     old_excepts = fenv.__control & FE_ALL_EXCEPT;
 
     // unmask
     fenv.__control &= ~new_excepts;
-    fenv.__mxcsr   &= ~(new_excepts << 7);
+    fenv.__mxcsr &= ~(new_excepts << 7);
 
     return fesetenv(&fenv) ? -1 : old_excepts;
 }
@@ -40,14 +40,15 @@ inline int fedisableexcept(unsigned int excepts)
     // all previous masks
     unsigned int old_excepts;
 
-    if (fegetenv(&fenv)) {
+    if (fegetenv(&fenv))
+    {
         return -1;
     }
     old_excepts = fenv.__control & FE_ALL_EXCEPT;
 
     // mask
     fenv.__control |= new_excepts;
-    fenv.__mxcsr   |= new_excepts << 7;
+    fenv.__mxcsr |= new_excepts << 7;
 
     return fesetenv(&fenv) ? -1 : old_excepts;
 }
@@ -59,16 +60,17 @@ void print_complex(std::complex<f64> cmp, WofZType wofz)
     std::cout << w(cmp) << std::endl;
 }
 
-void planck_nu(long Nspace, double *T, double lambda, double *Bnu)
+void planck_nu(long Nspace, double* T, double lambda, double* Bnu)
 {
     namespace C = Constants;
-    constexpr f64 hc_k =  C::HC / (C::KBoltzmann * C::NM_TO_M);
+    constexpr f64 hc_k = C::HC / (C::KBoltzmann * C::NM_TO_M);
     const f64 hc_kla = hc_k / lambda;
     constexpr f64 twoh_c2 = (2.0 * C::HC) / cube(C::NM_TO_M);
     const f64 twohnu3_c2 = twoh_c2 / cube(lambda);
     constexpr f64 MAX_EXPONENT = 150.0;
 
-    for (int k = 0; k < Nspace; k++) {
+    for (int k = 0; k < Nspace; k++)
+    {
         f64 hc_Tkla = hc_kla / T[k];
         if (hc_Tkla <= MAX_EXPONENT)
             Bnu[k] = twohnu3_c2 / (exp(hc_Tkla) - 1.0);
@@ -81,7 +83,7 @@ inline f64 voigt_H(f64 a, f64 v)
 {
     using Faddeeva::w;
     using namespace std::complex_literals;
-    auto z = (v + a*1i);
+    auto z = (v + a * 1i);
     return w(z).real();
 }
 
@@ -89,7 +91,7 @@ inline std::complex<f64> voigt_HF(f64 a, f64 v)
 {
     using Faddeeva::w;
     using namespace std::complex_literals;
-    auto z = (v + a*1i);
+    auto z = (v + a * 1i);
     return w(z);
 }
 
@@ -99,7 +101,7 @@ void Transition::compute_phi(const Atmosphere& atmos, F64View aDamp, F64View vBr
     if (type == TransitionType::CONTINUUM)
         return;
 
-    constexpr f64 sign[] = {-1.0, 1.0};
+    constexpr f64 sign[] = { -1.0, 1.0 };
 
     // Why is there still no constexpr math in std? :'(
     const f64 sqrtPi = sqrt(C::Pi);
@@ -142,7 +144,7 @@ void Transition::compute_polarised_profiles(const Atmosphere& atmos, F64View aDa
     if (!polarised)
         return;
 
-    constexpr f64 sign[] = {-1.0, 1.0};
+    constexpr f64 sign[] = { -1.0, 1.0 };
 
     const f64 larmor = C::QElectron / (4.0 * C::Pi * C::MElectron) * (lambda0 * C::NM_TO_M);
     const f64 sqrtPi = sqrt(C::Pi);
@@ -189,21 +191,24 @@ void Transition::compute_polarised_profiles(const Atmosphere& atmos, F64View aDa
 
                         switch (z.alpha(nz))
                         {
-                            case -1:
-                            {
-                                phi_sb += z.strength(nz) * H;
-                                psi_sb += z.strength(nz) * F;
-                            } break;
-                            case 0:
-                            {
-                                phi_pi += z.strength(nz) * H;
-                                psi_pi += z.strength(nz) * F;
-                            } break;
-                            case 1:
-                            {
-                                phi_sr += z.strength(nz) * H;
-                                psi_sr += z.strength(nz) * F;
-                            } break;
+                        case -1:
+                        {
+                            phi_sb += z.strength(nz) * H;
+                            psi_sb += z.strength(nz) * F;
+                        }
+                        break;
+                        case 0:
+                        {
+                            phi_pi += z.strength(nz) * H;
+                            psi_pi += z.strength(nz) * F;
+                        }
+                        break;
+                        case 1:
+                        {
+                            phi_sr += z.strength(nz) * H;
+                            psi_sr += z.strength(nz) * F;
+                        }
+                        break;
                         }
                     }
                     f64 sin2_gamma = 1.0 - square(atmos.cosGamma(mu, k));
@@ -212,19 +217,19 @@ void Transition::compute_polarised_profiles(const Atmosphere& atmos, F64View aDa
                     f64 cos_gamma = atmos.cosGamma(mu, k);
 
                     f64 phi_sigma = phi_sr + phi_sb;
-                    f64 phi_delta = 0.5*phi_pi - 0.25*phi_sigma; 
-                    phi(la, mu, toObs, k) += (phi_delta * sin2_gamma + 0.5*phi_sigma) * sv(k);
+                    f64 phi_delta = 0.5 * phi_pi - 0.25 * phi_sigma;
+                    phi(la, mu, toObs, k) += (phi_delta * sin2_gamma + 0.5 * phi_sigma) * sv(k);
 
                     phiQ(la, mu, toObs, k) += s * phi_delta * sin2_gamma * cos_2chi * sv(k);
                     phiU(la, mu, toObs, k) += phi_delta * sin2_gamma * sin_2chi * sv(k);
-                    phiV(la, mu, toObs, k) += s * 0.5*(phi_sr - phi_sb) * cos_gamma * sv(k);
+                    phiV(la, mu, toObs, k) += s * 0.5 * (phi_sr - phi_sb) * cos_gamma * sv(k);
 
                     f64 psi_sigma = psi_sr + psi_sb;
-                    f64 psi_delta = 0.5*psi_pi - 0.25*psi_sigma;
+                    f64 psi_delta = 0.5 * psi_pi - 0.25 * psi_sigma;
 
                     psiQ(la, mu, toObs, k) += s * psi_delta * sin2_gamma * cos_2chi * sv(k);
                     psiU(la, mu, toObs, k) += psi_delta * sin2_gamma * sin_2chi * sv(k);
-                    psiV(la, mu, toObs, k) += s * 0.5*(psi_sr - psi_sb) * cos_gamma * sv(k);
+                    psiV(la, mu, toObs, k) += s * 0.5 * (psi_sr - psi_sb) * cos_gamma * sv(k);
 
                     wphi(k) += wlamu * phi(la, mu, toObs, k);
                 }
@@ -237,35 +242,46 @@ void Transition::compute_polarised_profiles(const Atmosphere& atmos, F64View aDa
     }
 }
 
-inline void w2(f64 dtau, f64 *w)
+inline void w2(f64 dtau, f64* w)
 {
     f64 expdt;
 
-    if (dtau < 5.0E-4) {
+    if (dtau < 5.0E-4)
+    {
         w[0] = dtau * (1.0 - 0.5 * dtau);
         w[1] = square(dtau) * (0.5 - dtau / 3.0);
-    } else if (dtau > 50.0) {
+    }
+    else if (dtau > 50.0)
+    {
         w[1] = w[0] = 1.0;
-    } else {
+    }
+    else
+    {
         expdt = exp(-dtau);
         w[0] = 1.0 - expdt;
         w[1] = w[0] - dtau * expdt;
     }
 }
 
-inline void w3(f64 dtau, f64 *w) {
+inline void w3(f64 dtau, f64* w)
+{
     f64 expdt, delta;
 
-    if (dtau < 5.0E-4) {
+    if (dtau < 5.0E-4)
+    {
         w[0] = dtau * (1.0 - 0.5 * dtau);
         delta = square(dtau);
         w[1] = delta * (0.5 - dtau / 3.0);
         delta *= dtau;
         w[2] = delta * (1.0 / 3.0 - 0.25 * dtau);
-    } else if (dtau > 50.0) {
+    }
+    else if (dtau > 50.0)
+    {
         w[1] = w[0] = 1.0;
         w[2] = 2.0;
-    } else {
+    }
+    else
+    {
         expdt = exp(-dtau);
         w[0] = 1.0 - expdt;
         w[1] = w[0] - dtau * expdt;
@@ -293,7 +309,7 @@ struct FormalDataStokes
 
 void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
 {
-    JasUnpack((*fd), chi, S,  Psi, I, atmos);
+    JasUnpack((*fd), chi, S, Psi, I, atmos);
     const auto& height = atmos->height;
     const int Ndep = chi.shape(0);
     bool computeOperator = Psi.shape(0) != 0;
@@ -316,8 +332,8 @@ void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
         k_start = 0;
         k_end = Ndep - 1;
     }
-    f64 dtau_uw = zmu * (chi(k_start) + chi(k_start + dk)) 
-                        * abs(height(k_start) - height(k_start + dk));
+    f64 dtau_uw = zmu * (chi(k_start) + chi(k_start + dk))
+        * abs(height(k_start) - height(k_start + dk));
     f64 dS_uw = (S(k_start) - S(k_start + dk)) / dtau_uw;
 
     /* --- Boundary conditions --                        -------------- */
@@ -330,7 +346,8 @@ void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
     /* --- Solve transfer along ray --                   -------------- */
 
     f64 w[2];
-    for (int k = k_start + dk; k != k_end; k += dk) {
+    for (int k = k_start + dk; k != k_end; k += dk)
+    {
         w2(dtau_uw, w);
 
         /* --- Piecewise linear here --               -------------- */
@@ -356,7 +373,6 @@ void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
         Psi(k_end) = w[0] - w[1] / dtau_uw;
         for (int k = 0; k < Psi.shape(0); ++k)
             Psi(k) /= chi(k);
-
     }
 }
 
@@ -375,15 +391,15 @@ void piecewise_linear_1d(FormalData* fd, int mu, bool toObs, f64 wav)
         kStart = 0;
         kEnd = atmos->Nspace - 1;
     }
-    f64 dtau_uw = zmu * (chi(kStart) + chi(kStart + dk)) 
-                        * abs(height(kStart) - height(kStart + dk));
+    f64 dtau_uw = zmu * (chi(kStart) + chi(kStart + dk))
+        * abs(height(kStart) - height(kStart + dk));
 
     f64 Iupw = 0.0;
     if (toObs && atmos->lowerBc == THERMALISED)
     {
         f64 Bnu[2];
         int Nspace = atmos->Nspace;
-        planck_nu(2, &atmos->temperature(Nspace-2), wav, Bnu);
+        planck_nu(2, &atmos->temperature(Nspace - 2), wav, Bnu);
         Iupw = Bnu[1] - (Bnu[0] - Bnu[1]) / dtau_uw;
     }
     else if (!toObs && atmos->upperBc == THERMALISED)
@@ -399,7 +415,8 @@ void piecewise_linear_1d(FormalData* fd, int mu, bool toObs, f64 wav)
 namespace Bezier
 {
 inline f64 cent_deriv(f64 dsup, f64 dsdn, f64 chiup, f64 chic,
-                         f64 chidn) {
+    f64 chidn)
+{
     /* --- Derivative Fritsch & Butland (1984) --- */
 
     double fim1, fi, alpha, wprime;
@@ -407,61 +424,68 @@ inline f64 cent_deriv(f64 dsup, f64 dsdn, f64 chiup, f64 chic,
     fim1 = (chic - chiup) / dsup;
     fi = (chidn - chic) / dsdn;
 
-    if (fim1 * fi > 0.0) {
+    if (fim1 * fi > 0.0)
+    {
         alpha = 1.0 / 3.0 * (1.0 + dsdn / (dsdn + dsup));
         wprime = (fim1 * fi) / ((1.0 - alpha) * fim1 + alpha * fi);
-    } else {
+    }
+    else
+    {
         wprime = 0.0;
     }
     return wprime;
 }
 
 inline void cent_deriv(f64 wprime[4][4], f64 dsup, f64 dsdn,
-                       f64 chiup[4][4], f64 chic[4][4],
-                       f64 chidn[4][4])
+    f64 chiup[4][4], f64 chic[4][4],
+    f64 chidn[4][4])
 {
-    for(int j = 0;  j<4;  j++)
-        for(int i = 0;  i < 4;  i++)
+    for (int j = 0; j < 4; j++)
+        for (int i = 0; i < 4; i++)
             wprime[j][i] = cent_deriv(dsup, dsdn, chiup[j][i], chic[j][i],
-                                      chidn[j][i]);
+                chidn[j][i]);
 }
 
 inline void cent_deriv(f64 wprime[4], f64 dsup, f64 dsdn,
-                       f64 chiup[4], f64 chic[4], f64 chidn[4])
+    f64 chiup[4], f64 chic[4], f64 chidn[4])
 {
-    for(int i = 0;  i < 4;  i++)
+    for (int i = 0; i < 4; i++)
         wprime[i] = cent_deriv(dsup, dsdn, chiup[i], chic[i], chidn[i]);
 }
 
 inline void Bezier3_coeffs(f64 dt, f64* alpha, f64* beta,
-                           f64* gamma, f64* eps, f64* edt) {
-  /* ---
+    f64* gamma, f64* eps, f64* edt)
+{
+    /* ---
 
      Integration coeffs. for cubic Bezier interpolants
      Use Taylor expansion if dtau is small
 
      --- */
 
-  double dt2 = dt * dt, dt3 = dt2 * dt, dt4;
+    double dt2 = dt * dt, dt3 = dt2 * dt, dt4;
 
-  if (dt >= 5.e-2) {
-    //
-    *edt = exp(-dt);
+    if (dt >= 5.e-2)
+    {
+        //
+        *edt = exp(-dt);
 
-    *alpha = (-6.0 + 6.0 * dt - 3.0 * dt2 + dt3 + 6.0 * edt[0]) / dt3;
-    dt3 = 1.0 / dt3;
-    *beta = (6.0 + (-6.0 - dt * (6.0 + dt * (3.0 + dt))) * edt[0]) * dt3;
-    *gamma = 3.0 * (6.0 + (-4.0 + dt) * dt - 2.0 * (3.0 + dt) * edt[0]) * dt3;
-    *eps = 3.0 * (edt[0] * (6.0 + dt2 + 4.0 * dt) + 2.0 * dt - 6.0) * dt3;
-  } else {
-    dt4 = dt2 * dt2;
-    *edt = 1.0 - dt + 0.5 * dt2 - dt3 / 6.0 + dt4 / 24.0;
-    //
-    *alpha = 0.25 * dt - 0.05 * dt2 + dt3 / 120.0 - dt4 / 840.0;
-    *beta = 0.25 * dt - 0.20 * dt2 + dt3 / 12.0 - dt4 / 42.0;
-    *gamma = 0.25 * dt - 0.10 * dt2 + dt3 * 0.025 - dt4 / 210.0;
-    *eps = 0.25 * dt - 0.15 * dt2 + dt3 * 0.05 - dt4 / 84.0;
-  }
+        *alpha = (-6.0 + 6.0 * dt - 3.0 * dt2 + dt3 + 6.0 * edt[0]) / dt3;
+        dt3 = 1.0 / dt3;
+        *beta = (6.0 + (-6.0 - dt * (6.0 + dt * (3.0 + dt))) * edt[0]) * dt3;
+        *gamma = 3.0 * (6.0 + (-4.0 + dt) * dt - 2.0 * (3.0 + dt) * edt[0]) * dt3;
+        *eps = 3.0 * (edt[0] * (6.0 + dt2 + 4.0 * dt) + 2.0 * dt - 6.0) * dt3;
+    }
+    else
+    {
+        dt4 = dt2 * dt2;
+        *edt = 1.0 - dt + 0.5 * dt2 - dt3 / 6.0 + dt4 / 24.0;
+        //
+        *alpha = 0.25 * dt - 0.05 * dt2 + dt3 / 120.0 - dt4 / 840.0;
+        *beta = 0.25 * dt - 0.20 * dt2 + dt3 / 12.0 - dt4 / 42.0;
+        *gamma = 0.25 * dt - 0.10 * dt2 + dt3 * 0.025 - dt4 / 210.0;
+        *eps = 0.25 * dt - 0.15 * dt2 + dt3 * 0.05 - dt4 / 84.0;
+    }
 }
 }
 
@@ -493,43 +517,41 @@ void piecewise_bezier3_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
     if (computeOperator)
         Psi(k_start) = 0.0;
 
-    int k = k_start + dk; 
-    f64 ds_uw = abs(height(k) - height(k-dk)) * zmu;
-    f64 ds_dw = abs(height(k+dk) - height(k)) * zmu;
-    f64 dx_uw = (chi(k) - chi(k-dk)) / ds_uw;
-    f64 dx_c = Bezier::cent_deriv(ds_uw, ds_dw, chi(k-dk), chi(k), chi(k+dk));
+    int k = k_start + dk;
+    f64 ds_uw = abs(height(k) - height(k - dk)) * zmu;
+    f64 ds_dw = abs(height(k + dk) - height(k)) * zmu;
+    f64 dx_uw = (chi(k) - chi(k - dk)) / ds_uw;
+    f64 dx_c = Bezier::cent_deriv(ds_uw, ds_dw, chi(k - dk), chi(k), chi(k + dk));
     f64 E = max(chi(k) - (ds_uw / 3.0) * dx_c, 0.0);
-    f64 F = max(chi(k-dk) + (ds_uw / 3.0) * dx_uw, 0.0);
-    f64 dtau_uw = ds_uw * (chi(k) + chi(k-dk) + E + F) * 0.25;
-    f64 dS_uw = (S(k) - S(k-dk)) / dtau_uw;
+    f64 F = max(chi(k - dk) + (ds_uw / 3.0) * dx_uw, 0.0);
+    f64 dtau_uw = ds_uw * (chi(k) + chi(k - dk) + E + F) * 0.25;
+    f64 dS_uw = (S(k) - S(k - dk)) / dtau_uw;
 
     f64 ds_dw2 = 0.0;
-    auto dx_downwind = [&ds_dw, &ds_dw2, &chi, &k, dk]
-    {
-        return Bezier::cent_deriv(ds_dw, ds_dw2, chi(k), chi(k+dk), chi(k+2*dk));
+    auto dx_downwind = [&ds_dw, &ds_dw2, &chi, &k, dk] {
+        return Bezier::cent_deriv(ds_dw, ds_dw2, chi(k), chi(k + dk), chi(k + 2 * dk));
     };
     f64 dtau_dw = 0.0;
-    auto dS_central = [&dtau_uw, &dtau_dw, &S, &k, dk]
-    {
-        return Bezier::cent_deriv(dtau_uw, dtau_dw, S(k-dk), S(k), S(k+dk));
+    auto dS_central = [&dtau_uw, &dtau_dw, &S, &k, dk] {
+        return Bezier::cent_deriv(dtau_uw, dtau_dw, S(k - dk), S(k), S(k + dk));
     };
     for (; k != k_end - dk; k += dk)
     {
-        ds_dw2 = abs(height(k + 2*dk) - height(k + dk)) * zmu;
+        ds_dw2 = abs(height(k + 2 * dk) - height(k + dk)) * zmu;
         f64 dx_dw = dx_downwind();
         E = max(chi(k) + (ds_dw / 3.0) * dx_c, 0.0);
-        F = max(chi(k+dk) - (ds_dw / 3.0) * dx_dw, 0.0);
-        dtau_dw = ds_dw * (chi(k) + chi(k+dk) + E + F) * 0.25;
+        F = max(chi(k + dk) - (ds_dw / 3.0) * dx_dw, 0.0);
+        dtau_dw = ds_dw * (chi(k) + chi(k + dk) + E + F) * 0.25;
 
         f64 alpha, beta, gamma, eps, edt;
         Bezier::Bezier3_coeffs(dtau_uw, &alpha, &beta, &gamma, &eps, &edt);
 
         f64 dS_c = dS_central();
 
-        E = max(S(k) - (dtau_uw/3.0) * dS_c, 0.0);
-        F = max(S(k-dk) + (dtau_uw/3.0) * dS_uw, 0.0);
+        E = max(S(k) - (dtau_uw / 3.0) * dS_c, 0.0);
+        F = max(S(k - dk) + (dtau_uw / 3.0) * dS_uw, 0.0);
 
-        I(k) = I_upw * edt + alpha * S(k) + beta * S(k-dk) + gamma * E + eps * F;
+        I(k) = I_upw * edt + alpha * S(k) + beta * S(k - dk) + gamma * E + eps * F;
         if (computeOperator)
             Psi(k) = alpha + gamma;
 
@@ -543,33 +565,33 @@ void piecewise_bezier3_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
     }
     // NOTE(cmo): Need to handle last 2 points here
     k = k_end - dk;
-    ds_dw = abs(height(k+dk) - height(k)) * zmu;
-    f64 dx_dw = (chi(k+dk) - chi(k)) / ds_dw;
+    ds_dw = abs(height(k + dk) - height(k)) * zmu;
+    f64 dx_dw = (chi(k + dk) - chi(k)) / ds_dw;
     E = max(chi(k) + (ds_dw / 3.0) * dx_c, 0.0);
-    F = max(chi(k+dk) - (ds_dw / 3.0) * dx_dw, 0.0);
-    dtau_dw = ds_dw * (chi(k) + chi(k+dk) + E + F) * 0.25;
+    F = max(chi(k + dk) - (ds_dw / 3.0) * dx_dw, 0.0);
+    dtau_dw = ds_dw * (chi(k) + chi(k + dk) + E + F) * 0.25;
 
     f64 alpha, beta, gamma, eps, edt;
     Bezier::Bezier3_coeffs(dtau_uw, &alpha, &beta, &gamma, &eps, &edt);
 
     f64 dS_c = dS_central();
 
-    E = max(S(k) - dtau_uw/3.0 * dS_c, 0.0);
-    F = max(S(k-dk) + dtau_uw/3.0 * dS_uw, 0.0);
+    E = max(S(k) - dtau_uw / 3.0 * dS_c, 0.0);
+    F = max(S(k - dk) + dtau_uw / 3.0 * dS_uw, 0.0);
 
-    I(k) = I_upw * edt + alpha * S(k) + beta * S(k-dk) + gamma * E + eps * F;
+    I(k) = I_upw * edt + alpha * S(k) + beta * S(k - dk) + gamma * E + eps * F;
     if (computeOperator)
         Psi(k) = alpha + gamma;
     I_upw = I(k);
 
     // Piecewise linear on end
     k = k_end;
-    dtau_uw = 0.5 * zmu * (chi(k) + chi(k-dk)) * abs(height(k) - height(k-dk));
+    dtau_uw = 0.5 * zmu * (chi(k) + chi(k - dk)) * abs(height(k) - height(k - dk));
     // NOTE(cmo): See note in the linear formal solver if wondering why -w[1] is
     // used in I(k). Basically, the derivative (dS_uw) was taken in the other
     // direction there. In some ways this is nicer, as the operator and I take
     // the same form, but it doesn't really make any significant difference
-    dS_uw = (S(k) - S(k-dk)) / dtau_uw;
+    dS_uw = (S(k) - S(k - dk)) / dtau_uw;
     f64 w[2];
     w2(dtau_uw, w);
     I(k) = (1.0 - w[0]) * I_upw + w[0] * S(k) - w[1] * dS_uw;
@@ -586,7 +608,7 @@ void piecewise_bezier3_1d(FormalData* fd, int mu, bool toObs, f64 wav)
 {
     JasUnpack((*fd), atmos, chi);
     // This is 1.0 here, as we are normally effectively rolling in the averaging
-    // factor for dtau, whereas it's explicit in this solver 
+    // factor for dtau, whereas it's explicit in this solver
     f64 zmu = 1.0 / atmos->muz(mu);
     auto height = atmos->height;
 
@@ -599,15 +621,15 @@ void piecewise_bezier3_1d(FormalData* fd, int mu, bool toObs, f64 wav)
         kStart = 0;
         kEnd = atmos->Nspace - 1;
     }
-    f64 dtau_uw = 0.5 * zmu * (chi(kStart) + chi(kStart + dk)) 
-                        * abs(height(kStart) - height(kStart + dk));
+    f64 dtau_uw = 0.5 * zmu * (chi(kStart) + chi(kStart + dk))
+        * abs(height(kStart) - height(kStart + dk));
 
     f64 Iupw = 0.0;
     if (toObs && atmos->lowerBc == THERMALISED)
     {
         f64 Bnu[2];
         int Nspace = atmos->Nspace;
-        planck_nu(2, &atmos->temperature(Nspace-2), wav, Bnu);
+        planck_nu(2, &atmos->temperature(Nspace - 2), wav, Bnu);
         Iupw = Bnu[1] - (Bnu[0] - Bnu[1]) / dtau_uw;
     }
     else if (!toObs && atmos->upperBc == THERMALISED)
@@ -634,18 +656,18 @@ void SIMD_MatInv(float* src)
         
         --                                            ------------------ */
     // NOTE(cmo): This can also be done equivalently for f64 with avx/avx2 on newer cpus
-    
+
     __m128 minor0, minor1, minor2, minor3;
     __m128 row0, row1, row2, row3;
     __m128 det, tmp1;
-    
+
     // -----------------------------------------------
-    tmp1 = _mm_loadh_pi(_mm_loadl_pi(tmp1, (__m64*)(src)), (__m64*)(src+ 4));
-    row1 = _mm_loadh_pi(_mm_loadl_pi(row1, (__m64*)(src+8)), (__m64*)(src+12));
+    tmp1 = _mm_loadh_pi(_mm_loadl_pi(tmp1, (__m64*)(src)), (__m64*)(src + 4));
+    row1 = _mm_loadh_pi(_mm_loadl_pi(row1, (__m64*)(src + 8)), (__m64*)(src + 12));
     row0 = _mm_shuffle_ps(tmp1, row1, 0x88);
     row1 = _mm_shuffle_ps(row1, tmp1, 0xDD);
-    tmp1 = _mm_loadh_pi(_mm_loadl_pi(tmp1, (__m64*)(src+ 2)), (__m64*)(src+ 6));
-    row3 = _mm_loadh_pi(_mm_loadl_pi(row3, (__m64*)(src+10)), (__m64*)(src+14));
+    tmp1 = _mm_loadh_pi(_mm_loadl_pi(tmp1, (__m64*)(src + 2)), (__m64*)(src + 6));
+    row3 = _mm_loadh_pi(_mm_loadl_pi(row3, (__m64*)(src + 10)), (__m64*)(src + 14));
     row2 = _mm_shuffle_ps(tmp1, row3, 0x88);
     row3 = _mm_shuffle_ps(row3, tmp1, 0xDD);
     // -----------------------------------------------
@@ -706,20 +728,20 @@ void SIMD_MatInv(float* src)
     det = _mm_add_ss(_mm_shuffle_ps(det, det, 0xB1), det);
     tmp1 = _mm_rcp_ss(det);
     det = _mm_sub_ss(_mm_add_ss(tmp1, tmp1),
-            _mm_mul_ss(det, _mm_mul_ss(tmp1, tmp1)));
+        _mm_mul_ss(det, _mm_mul_ss(tmp1, tmp1)));
     det = _mm_shuffle_ps(det, det, 0x00);
     minor0 = _mm_mul_ps(det, minor0);
     _mm_storel_pi((__m64*)(src), minor0);
-    _mm_storeh_pi((__m64*)(src+2), minor0);
+    _mm_storeh_pi((__m64*)(src + 2), minor0);
     minor1 = _mm_mul_ps(det, minor1);
-    _mm_storel_pi((__m64*)(src+4), minor1);
-    _mm_storeh_pi((__m64*)(src+6), minor1);
+    _mm_storel_pi((__m64*)(src + 4), minor1);
+    _mm_storeh_pi((__m64*)(src + 6), minor1);
     minor2 = _mm_mul_ps(det, minor2);
-    _mm_storel_pi((__m64*)(src+ 8), minor2);
-    _mm_storeh_pi((__m64*)(src+10), minor2);
+    _mm_storel_pi((__m64*)(src + 8), minor2);
+    _mm_storeh_pi((__m64*)(src + 10), minor2);
     minor3 = _mm_mul_ps(det, minor3);
-    _mm_storel_pi((__m64*)(src+12), minor3);
-    _mm_storeh_pi((__m64*)(src+14), minor3);
+    _mm_storel_pi((__m64*)(src + 12), minor3);
+    _mm_storeh_pi((__m64*)(src + 14), minor3);
 }
 
 bool gluInvertMatrix(const double m[16], double invOut[16])
@@ -727,117 +749,37 @@ bool gluInvertMatrix(const double m[16], double invOut[16])
     double inv[16], det;
     int i;
 
-    inv[0] = m[5]  * m[10] * m[15] - 
-             m[5]  * m[11] * m[14] - 
-             m[9]  * m[6]  * m[15] + 
-             m[9]  * m[7]  * m[14] +
-             m[13] * m[6]  * m[11] - 
-             m[13] * m[7]  * m[10];
+    inv[0] = m[5] * m[10] * m[15] - m[5] * m[11] * m[14] - m[9] * m[6] * m[15] + m[9] * m[7] * m[14] + m[13] * m[6] * m[11] - m[13] * m[7] * m[10];
 
-    inv[4] = -m[4]  * m[10] * m[15] + 
-              m[4]  * m[11] * m[14] + 
-              m[8]  * m[6]  * m[15] - 
-              m[8]  * m[7]  * m[14] - 
-              m[12] * m[6]  * m[11] + 
-              m[12] * m[7]  * m[10];
+    inv[4] = -m[4] * m[10] * m[15] + m[4] * m[11] * m[14] + m[8] * m[6] * m[15] - m[8] * m[7] * m[14] - m[12] * m[6] * m[11] + m[12] * m[7] * m[10];
 
-    inv[8] = m[4]  * m[9] * m[15] - 
-             m[4]  * m[11] * m[13] - 
-             m[8]  * m[5] * m[15] + 
-             m[8]  * m[7] * m[13] + 
-             m[12] * m[5] * m[11] - 
-             m[12] * m[7] * m[9];
+    inv[8] = m[4] * m[9] * m[15] - m[4] * m[11] * m[13] - m[8] * m[5] * m[15] + m[8] * m[7] * m[13] + m[12] * m[5] * m[11] - m[12] * m[7] * m[9];
 
-    inv[12] = -m[4]  * m[9] * m[14] + 
-               m[4]  * m[10] * m[13] +
-               m[8]  * m[5] * m[14] - 
-               m[8]  * m[6] * m[13] - 
-               m[12] * m[5] * m[10] + 
-               m[12] * m[6] * m[9];
+    inv[12] = -m[4] * m[9] * m[14] + m[4] * m[10] * m[13] + m[8] * m[5] * m[14] - m[8] * m[6] * m[13] - m[12] * m[5] * m[10] + m[12] * m[6] * m[9];
 
-    inv[1] = -m[1]  * m[10] * m[15] + 
-              m[1]  * m[11] * m[14] + 
-              m[9]  * m[2] * m[15] - 
-              m[9]  * m[3] * m[14] - 
-              m[13] * m[2] * m[11] + 
-              m[13] * m[3] * m[10];
+    inv[1] = -m[1] * m[10] * m[15] + m[1] * m[11] * m[14] + m[9] * m[2] * m[15] - m[9] * m[3] * m[14] - m[13] * m[2] * m[11] + m[13] * m[3] * m[10];
 
-    inv[5] = m[0]  * m[10] * m[15] - 
-             m[0]  * m[11] * m[14] - 
-             m[8]  * m[2] * m[15] + 
-             m[8]  * m[3] * m[14] + 
-             m[12] * m[2] * m[11] - 
-             m[12] * m[3] * m[10];
+    inv[5] = m[0] * m[10] * m[15] - m[0] * m[11] * m[14] - m[8] * m[2] * m[15] + m[8] * m[3] * m[14] + m[12] * m[2] * m[11] - m[12] * m[3] * m[10];
 
-    inv[9] = -m[0]  * m[9] * m[15] + 
-              m[0]  * m[11] * m[13] + 
-              m[8]  * m[1] * m[15] - 
-              m[8]  * m[3] * m[13] - 
-              m[12] * m[1] * m[11] + 
-              m[12] * m[3] * m[9];
+    inv[9] = -m[0] * m[9] * m[15] + m[0] * m[11] * m[13] + m[8] * m[1] * m[15] - m[8] * m[3] * m[13] - m[12] * m[1] * m[11] + m[12] * m[3] * m[9];
 
-    inv[13] = m[0]  * m[9] * m[14] - 
-              m[0]  * m[10] * m[13] - 
-              m[8]  * m[1] * m[14] + 
-              m[8]  * m[2] * m[13] + 
-              m[12] * m[1] * m[10] - 
-              m[12] * m[2] * m[9];
+    inv[13] = m[0] * m[9] * m[14] - m[0] * m[10] * m[13] - m[8] * m[1] * m[14] + m[8] * m[2] * m[13] + m[12] * m[1] * m[10] - m[12] * m[2] * m[9];
 
-    inv[2] = m[1]  * m[6] * m[15] - 
-             m[1]  * m[7] * m[14] - 
-             m[5]  * m[2] * m[15] + 
-             m[5]  * m[3] * m[14] + 
-             m[13] * m[2] * m[7] - 
-             m[13] * m[3] * m[6];
+    inv[2] = m[1] * m[6] * m[15] - m[1] * m[7] * m[14] - m[5] * m[2] * m[15] + m[5] * m[3] * m[14] + m[13] * m[2] * m[7] - m[13] * m[3] * m[6];
 
-    inv[6] = -m[0]  * m[6] * m[15] + 
-              m[0]  * m[7] * m[14] + 
-              m[4]  * m[2] * m[15] - 
-              m[4]  * m[3] * m[14] - 
-              m[12] * m[2] * m[7] + 
-              m[12] * m[3] * m[6];
+    inv[6] = -m[0] * m[6] * m[15] + m[0] * m[7] * m[14] + m[4] * m[2] * m[15] - m[4] * m[3] * m[14] - m[12] * m[2] * m[7] + m[12] * m[3] * m[6];
 
-    inv[10] = m[0]  * m[5] * m[15] - 
-              m[0]  * m[7] * m[13] - 
-              m[4]  * m[1] * m[15] + 
-              m[4]  * m[3] * m[13] + 
-              m[12] * m[1] * m[7] - 
-              m[12] * m[3] * m[5];
+    inv[10] = m[0] * m[5] * m[15] - m[0] * m[7] * m[13] - m[4] * m[1] * m[15] + m[4] * m[3] * m[13] + m[12] * m[1] * m[7] - m[12] * m[3] * m[5];
 
-    inv[14] = -m[0]  * m[5] * m[14] + 
-               m[0]  * m[6] * m[13] + 
-               m[4]  * m[1] * m[14] - 
-               m[4]  * m[2] * m[13] - 
-               m[12] * m[1] * m[6] + 
-               m[12] * m[2] * m[5];
+    inv[14] = -m[0] * m[5] * m[14] + m[0] * m[6] * m[13] + m[4] * m[1] * m[14] - m[4] * m[2] * m[13] - m[12] * m[1] * m[6] + m[12] * m[2] * m[5];
 
-    inv[3] = -m[1] * m[6] * m[11] + 
-              m[1] * m[7] * m[10] + 
-              m[5] * m[2] * m[11] - 
-              m[5] * m[3] * m[10] - 
-              m[9] * m[2] * m[7] + 
-              m[9] * m[3] * m[6];
+    inv[3] = -m[1] * m[6] * m[11] + m[1] * m[7] * m[10] + m[5] * m[2] * m[11] - m[5] * m[3] * m[10] - m[9] * m[2] * m[7] + m[9] * m[3] * m[6];
 
-    inv[7] = m[0] * m[6] * m[11] - 
-             m[0] * m[7] * m[10] - 
-             m[4] * m[2] * m[11] + 
-             m[4] * m[3] * m[10] + 
-             m[8] * m[2] * m[7] - 
-             m[8] * m[3] * m[6];
+    inv[7] = m[0] * m[6] * m[11] - m[0] * m[7] * m[10] - m[4] * m[2] * m[11] + m[4] * m[3] * m[10] + m[8] * m[2] * m[7] - m[8] * m[3] * m[6];
 
-    inv[11] = -m[0] * m[5] * m[11] + 
-               m[0] * m[7] * m[9] + 
-               m[4] * m[1] * m[11] - 
-               m[4] * m[3] * m[9] - 
-               m[8] * m[1] * m[7] + 
-               m[8] * m[3] * m[5];
+    inv[11] = -m[0] * m[5] * m[11] + m[0] * m[7] * m[9] + m[4] * m[1] * m[11] - m[4] * m[3] * m[9] - m[8] * m[1] * m[7] + m[8] * m[3] * m[5];
 
-    inv[15] = m[0] * m[5] * m[10] - 
-              m[0] * m[6] * m[9] - 
-              m[4] * m[1] * m[10] + 
-              m[4] * m[2] * m[9] + 
-              m[8] * m[1] * m[6] - 
-              m[8] * m[2] * m[5];
+    inv[15] = m[0] * m[5] * m[10] - m[0] * m[6] * m[9] - m[4] * m[1] * m[10] + m[4] * m[2] * m[9] + m[8] * m[1] * m[6] - m[8] * m[2] * m[5];
 
     det = m[0] * inv[0] + m[1] * inv[4] + m[2] * inv[8] + m[3] * inv[12];
 
@@ -867,7 +809,7 @@ void stokes_K(int k, const F64View2D& chi, f64 chiI, f64 K[4][4])
 
     for (int j = 0; j < 3; ++j)
     {
-        for (int i = j+1; i < 4; ++i)
+        for (int i = j + 1; i < 4; ++i)
         {
             K[j][i] /= chiI;
             K[i][j] = K[j][i];
@@ -919,13 +861,14 @@ void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs,
     const auto& height = atmos->height;
     const int Ndep = atmos->Nspace;
 
-    constexpr f64 id[4][4] = {{1.0, 0.0, 0.0, 0.0},
-                              {0.0, 1.0, 0.0, 0.0},
-                              {0.0, 0.0, 1.0, 0.0},
-                              {0.0, 0.0, 0.0, 1.0}};
+    // clang-format off
+    constexpr f64 id[4][4] = { { 1.0, 0.0, 0.0, 0.0 },
+                               { 0.0, 1.0, 0.0, 0.0 },
+                               { 0.0, 0.0, 1.0, 0.0 },
+                               { 0.0, 0.0, 0.0, 1.0 } };
+    // clang-format on
 
-    auto slice_s4 = [&S](int k, f64 slice[4])
-    {
+    auto slice_s4 = [&S](int k, f64 slice[4]) {
         for (int i = 0; i < 4; ++i)
         {
             slice[i] = S(i, k);
@@ -950,14 +893,14 @@ void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs,
     for (int n = 0; n < 4; ++n)
         I(n, k_start) = Istart[n];
 
-    int k = k_start + dk; 
-    f64 ds_uw = abs(height(k) - height(k-dk)) * zmu;
-    f64 ds_dw = abs(height(k+dk) - height(k)) * zmu;
-    f64 dx_uw = (chi(0, k) - chi(0, k-dk)) / ds_uw;
-    f64 dx_c = Bezier::cent_deriv(ds_uw, ds_dw, chi(0, k-dk), chi(0, k), chi(0, k+dk));
+    int k = k_start + dk;
+    f64 ds_uw = abs(height(k) - height(k - dk)) * zmu;
+    f64 ds_dw = abs(height(k + dk) - height(k)) * zmu;
+    f64 dx_uw = (chi(0, k) - chi(0, k - dk)) / ds_uw;
+    f64 dx_c = Bezier::cent_deriv(ds_uw, ds_dw, chi(0, k - dk), chi(0, k), chi(0, k + dk));
     f64 c1 = max(chi(0, k) - (ds_uw / 3.0) * dx_c, 0.0);
-    f64 c2 = max(chi(0, k-dk) + (ds_uw / 3.0) * dx_uw, 0.0);
-    f64 dtau_uw = ds_uw * (chi(0, k) + chi(0, k-dk) + c1 + c2) * 0.25;
+    f64 c2 = max(chi(0, k - dk) + (ds_uw / 3.0) * dx_uw, 0.0);
+    f64 dtau_uw = ds_uw * (chi(0, k) + chi(0, k - dk) + c1 + c2) * 0.25;
 
     f64 Ku[4][4], K0[4][4], Su[4], S0[4];
     f64 dKu[4][4], dK0[4][4], dSu[4], dS0[4];
@@ -977,9 +920,8 @@ void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs,
 
     f64 ds_dw2 = 0.0;
     f64 dtau_dw = 0.0;
-    auto dx_downwind = [&ds_dw, &ds_dw2, &chi, &k, dk]
-    {
-        return Bezier::cent_deriv(ds_dw, ds_dw2, chi(0, k), chi(0, k+dk), chi(0, k+2*dk));
+    auto dx_downwind = [&ds_dw, &ds_dw2, &chi, &k, dk] {
+        return Bezier::cent_deriv(ds_dw, ds_dw2, chi(0, k), chi(0, k + dk), chi(0, k + 2 * dk));
     };
 
     f64 Kd[4][4], A[4][4], Ma[4][4], Mb[4][4], Mc[4][4], V0[4], V1[4], Sd[4];
@@ -990,39 +932,38 @@ void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs,
 #endif
     for (; k != k_end - dk; k += dk)
     {
-        ds_dw2 = abs(height(k + 2*dk) - height(k + dk)) * zmu;
+        ds_dw2 = abs(height(k + 2 * dk) - height(k + dk)) * zmu;
         f64 dx_dw = dx_downwind();
         c1 = max(chi(0, k) + (ds_dw / 3.0) * dx_c, 0.0);
-        c2 = max(chi(0, k+dk) - (ds_dw / 3.0) * dx_dw, 0.0);
-        dtau_dw = ds_dw * (chi(0, k) + chi(0, k+dk) +  c1 + c2) * 0.25;
+        c2 = max(chi(0, k + dk) - (ds_dw / 3.0) * dx_dw, 0.0);
+        dtau_dw = ds_dw * (chi(0, k) + chi(0, k + dk) + c1 + c2) * 0.25;
 
         f64 alpha, beta, gamma, edt, eps;
         Bezier::Bezier3_coeffs(dtau_uw, &alpha, &beta, &gamma, &eps, &edt);
 
-        stokes_K(k+dk, chi, chi(0, k+dk), Kd);
+        stokes_K(k + dk, chi, chi(0, k + dk), Kd);
         // memset(Kd[0], 0, 16*sizeof(f64));
-        slice_s4(k+dk, Sd);
+        slice_s4(k + dk, Sd);
 
         Bezier::cent_deriv(dK0, dtau_uw, dtau_dw, Ku, K0, Kd);
         Bezier::cent_deriv(dS0, dtau_uw, dtau_dw, Su, S0, Sd);
 
         prod(Ku, Ku, Ma); // Ma = Ku @ Ku
-        prod(K0, K0, A);  // A = K0 @ K0
+        prod(K0, K0, A); // A = K0 @ K0
 
         // c1 = S0[0] - (dtau_uw/3.0) * dS0[0];
         // c2 = Su[0] + (dtau_uw/3.0) * dSu[0];
         // I(0, k) = I(0, k-dk) * edt + alpha * S0[0] + beta * Su[0] + gamma * c1 + eps * c2;
-
 
         for (int j = 0; j < 4; ++j)
         {
             for (int i = 0; i < 4; ++i)
             {
                 // A in paper (LHS of system)
-                Md[j][i] = id[j][i] + alpha * K0[j][i] - gamma * -(dtau_uw/3.0 * (A[j][i] + dK0[j][i] + K0[j][i]) + K0[j][i]);
+                Md[j][i] = id[j][i] + alpha * K0[j][i] - gamma * -(dtau_uw / 3.0 * (A[j][i] + dK0[j][i] + K0[j][i]) + K0[j][i]);
 
-                // Terms to be multiplied by I(:,k-dk) in B: (exp(-dtau) + beta*Ku + epsilon*\bar{f}_k) 
-                Ma[j][i] = edt * id[j][i] - beta * Ku[j][i] + eps * (dtau_uw/3.0 * (Ma[j][i] + dKu[j][i] + Ku[j][i]) - Ku[j][i]);
+                // Terms to be multiplied by I(:,k-dk) in B: (exp(-dtau) + beta*Ku + epsilon*\bar{f}_k)
+                Ma[j][i] = edt * id[j][i] - beta * Ku[j][i] + eps * (dtau_uw / 3.0 * (Ma[j][i] + dKu[j][i] + Ku[j][i]) - Ku[j][i]);
 
                 // Terms to be multiplied by S(:,k-dk) in B i.e. f_k
                 Mb[j][i] = beta * id[j][i] + eps * (id[j][i] - dtau_uw / 3.0 * Ku[j][i]);
@@ -1038,9 +979,9 @@ void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs,
         {
             V0[i] = 0.0;
             for (int j = 0; j < 4; ++j)
-                V0[i] += Ma[i][j] * I(j, k-dk) + Mb[i][j] * Su[j] + Mc[i][j] * S0[j];
+                V0[i] += Ma[i][j] * I(j, k - dk) + Mb[i][j] * Su[j] + Mc[i][j] * S0[j];
 
-            // NOTE(cmo): I think the direction on the original control points here was wrong
+                // NOTE(cmo): I think the direction on the original control points here was wrong
 #if JAIME_ORDER
             V0[i] += dtau_uw / 3.0 * (gamma * dS0[i] - eps * dSu[i]);
 #else
@@ -1059,13 +1000,13 @@ void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs,
         for (int i = 0; i < 4; ++i)
             I(i, k) = V1[i];
 
-        memcpy(Su, S0, 4*sizeof(f64));
-        memcpy(S0, Sd, 4*sizeof(f64));
-        memcpy(dSu, dS0, 4*sizeof(f64));
+        memcpy(Su, S0, 4 * sizeof(f64));
+        memcpy(S0, Sd, 4 * sizeof(f64));
+        memcpy(dSu, dS0, 4 * sizeof(f64));
 
-        memcpy(Ku[0], K0[0], 16*sizeof(f64));
-        memcpy(K0[0], Kd[0], 16*sizeof(f64));
-        memcpy(dKu[0], dK0[0], 16*sizeof(f64));
+        memcpy(Ku[0], K0[0], 16 * sizeof(f64));
+        memcpy(K0[0], Kd[0], 16 * sizeof(f64));
+        memcpy(dKu[0], dK0[0], 16 * sizeof(f64));
 
         dtau_uw = dtau_dw;
         ds_uw = ds_dw;
@@ -1075,23 +1016,23 @@ void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs,
     }
     // NOTE(cmo): Need to handle last 2 points here
     k = k_end - dk;
-    f64 dx_dw = (chi(0, k+dk) - chi(0, k)) / ds_dw;
+    f64 dx_dw = (chi(0, k + dk) - chi(0, k)) / ds_dw;
     c1 = max(chi(0, k) + (ds_dw / 3.0) * dx_c, 0.0);
-    c2 = max(chi(0, k+dk) - (ds_dw / 3.0) * dx_dw, 0.0);
-    dtau_dw = ds_dw * (chi(0, k) + chi(0, k+dk) +  c1 + c2) * 0.25;
+    c2 = max(chi(0, k + dk) - (ds_dw / 3.0) * dx_dw, 0.0);
+    dtau_dw = ds_dw * (chi(0, k) + chi(0, k + dk) + c1 + c2) * 0.25;
 
     f64 alpha, beta, gamma, edt, eps;
     Bezier::Bezier3_coeffs(dtau_uw, &alpha, &beta, &gamma, &eps, &edt);
 
-    stokes_K(k+dk, chi, chi(0, k+dk), Kd);
+    stokes_K(k + dk, chi, chi(0, k + dk), Kd);
     // memset(Kd[0], 0, 16*sizeof(f64));
-    slice_s4(k+dk, Sd);
+    slice_s4(k + dk, Sd);
 
     Bezier::cent_deriv(dK0, dtau_uw, dtau_dw, Ku, K0, Kd);
     Bezier::cent_deriv(dS0, dtau_uw, dtau_dw, Su, S0, Sd);
 
     prod(Ku, Ku, Ma); // Ma = Ku @ Ku
-    prod(K0, K0, A);  // A = K0 @ K0
+    prod(K0, K0, A); // A = K0 @ K0
 
     // c1 = max(S(0, k) - (dtau_uw/3.0) * dS0[0], 0.0);
     // c2 = max(S(0, k-dk) + (dtau_uw/3.0) * dSu[0], 0.0);
@@ -1102,10 +1043,10 @@ void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs,
         for (int i = 0; i < 4; ++i)
         {
             // A in paper (LHS of system)
-            Md[j][i] = id[j][i] + alpha * K0[j][i] - gamma * -(dtau_uw/3.0 * (A[j][i] + dK0[j][i] + K0[j][i]) + K0[j][i]);
+            Md[j][i] = id[j][i] + alpha * K0[j][i] - gamma * -(dtau_uw / 3.0 * (A[j][i] + dK0[j][i] + K0[j][i]) + K0[j][i]);
 
-            // Terms to be multiplied by I(:,k-dk) in B: (exp(-dtau) + beta + \bar{f}_k) 
-            Ma[j][i] = edt * id[j][i] - beta * Ku[j][i] + eps * (dtau_uw/3.0 * (Ma[j][i] + dKu[j][i] + Ku[j][i]) - Ku[j][i]);
+            // Terms to be multiplied by I(:,k-dk) in B: (exp(-dtau) + beta + \bar{f}_k)
+            Ma[j][i] = edt * id[j][i] - beta * Ku[j][i] + eps * (dtau_uw / 3.0 * (Ma[j][i] + dKu[j][i] + Ku[j][i]) - Ku[j][i]);
 
             // Terms to be multiplied by S(:,k-dk) in B i.e. f_k
             Mb[j][i] = beta * id[j][i] + eps * (id[j][i] - dtau_uw / 3.0 * Ku[j][i]);
@@ -1119,7 +1060,7 @@ void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs,
     {
         V0[i] = 0.0;
         for (int j = 0; j < 4; ++j)
-            V0[i] += Ma[i][j] * I(j, k-dk) + Mb[i][j] * Su[j] + Mc[i][j] * S0[j];
+            V0[i] += Ma[i][j] * I(j, k - dk) + Mb[i][j] * Su[j] + Mc[i][j] * S0[j];
 
 #if JAIME_ORDER
         V0[i] += dtau_uw / 3.0 * (gamma * dS0[i] - eps * dSu[i]);
@@ -1129,23 +1070,23 @@ void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs,
     }
 
 #if GLU_MAT
-        gluInvertMatrix(Md[0], Mdi[0]);
-        prod(Mdi, V0, V1);
+    gluInvertMatrix(Md[0], Mdi[0]);
+    prod(Mdi, V0, V1);
 #else
-        SIMD_MatInv(Md[0]);
-        prod(Md, V0, V1);
+    SIMD_MatInv(Md[0]);
+    prod(Md, V0, V1);
 #endif
 
     for (int i = 0; i < 4; ++i)
         I(i, k) = V1[i];
 
-    memcpy(Su, S0, 4*sizeof(f64));
-    memcpy(S0, Sd, 4*sizeof(f64));
-    memcpy(dSu, dS0, 4*sizeof(f64));
+    memcpy(Su, S0, 4 * sizeof(f64));
+    memcpy(S0, Sd, 4 * sizeof(f64));
+    memcpy(dSu, dS0, 4 * sizeof(f64));
 
-    memcpy(Ku[0], K0[0], 16*sizeof(f64));
-    memcpy(K0[0], Kd[0], 16*sizeof(f64));
-    memcpy(dKu[0], dK0[0], 16*sizeof(f64));
+    memcpy(Ku[0], K0[0], 16 * sizeof(f64));
+    memcpy(K0[0], Kd[0], 16 * sizeof(f64));
+    memcpy(dKu[0], dK0[0], 16 * sizeof(f64));
 
     dtau_uw = dtau_dw;
     ds_uw = ds_dw;
@@ -1155,12 +1096,12 @@ void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs,
 
     // Piecewise linear on end
     k = k_end;
-    dtau_uw = 0.5 * zmu * (chi(0, k) + chi(0, k-dk)) * abs(height(k) - height(k-dk));
+    dtau_uw = 0.5 * zmu * (chi(0, k) + chi(0, k - dk)) * abs(height(k) - height(k - dk));
 
     f64 w[2];
     w2(dtau_uw, w);
     for (int n = 0; n < 4; ++n)
-        V0[n] = w[0] * S(n,k) - w[1] * dSu[n];
+        V0[n] = w[0] * S(n, k) - w[1] * dSu[n];
 
     for (int n = 0; n < 4; ++n)
     {
@@ -1175,14 +1116,14 @@ void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs,
 
     for (int n = 0; n < 4; ++n)
         for (int m = 0; m < 4; ++m)
-            V0[n] += A[n][m] * I(m, k-dk);
+            V0[n] += A[n][m] * I(m, k - dk);
 
 #if GLU_MAT
-        gluInvertMatrix(Md[0], Mdi[0]);
-        prod(Mdi, V0, V1);
+    gluInvertMatrix(Md[0], Mdi[0]);
+    prod(Mdi, V0, V1);
 #else
-        SIMD_MatInv(Md[0]);
-        prod(Md, V0, V1);
+    SIMD_MatInv(Md[0]);
+    prod(Md, V0, V1);
 #endif
 
     for (int n = 0; n < 4; ++n)
@@ -1199,7 +1140,7 @@ void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int mu, bool toObs, f64 w
 
     JasUnpack((*fd), atmos, chi);
     // This is 1.0 here, as we are normally effectively rolling in the averaging
-    // factor for dtau, whereas it's explicit in this solver 
+    // factor for dtau, whereas it's explicit in this solver
     f64 zmu = 1.0 / atmos->muz(mu);
     auto height = atmos->height;
 
@@ -1212,15 +1153,15 @@ void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int mu, bool toObs, f64 w
         kStart = 0;
         kEnd = atmos->Nspace - 1;
     }
-    f64 dtau_uw = 0.5 * zmu * (chi(0, kStart) + chi(0, kStart + dk)) 
-                        * abs(height(kStart) - height(kStart + dk));
+    f64 dtau_uw = 0.5 * zmu * (chi(0, kStart) + chi(0, kStart + dk))
+        * abs(height(kStart) - height(kStart + dk));
 
-    f64 Iupw[4] = {0.0, 0.0, 0.0, 0.0};
+    f64 Iupw[4] = { 0.0, 0.0, 0.0, 0.0 };
     if (toObs && atmos->lowerBc == THERMALISED)
     {
         f64 Bnu[2];
         int Nspace = atmos->Nspace;
-        planck_nu(2, &atmos->temperature(Nspace-2), wav, Bnu);
+        planck_nu(2, &atmos->temperature(Nspace - 2), wav, Bnu);
         Iupw[0] = Bnu[1] - (Bnu[0] - Bnu[1]) / dtau_uw;
     }
     else if (!toObs && atmos->upperBc == THERMALISED)
@@ -1270,7 +1211,8 @@ struct StokesCoreData
     F64View2D S;
 };
 
-namespace GammaFsCores {
+namespace GammaFsCores
+{
 f64 intensity_core(IntensityCoreData& data, int la)
 {
     JasUnpack(*data, atmos, spect, fd, background, activeAtoms, JDag);
@@ -1321,7 +1263,7 @@ f64 intensity_core(IntensityCoreData& data, int la)
                         auto& t = *atom.trans[kr];
                         if (!t.active(la))
                             continue;
-                            
+
                         // if (t.type == LINE)
                         //     printf("Line: %d, %d\n", kr, la);
 
@@ -1382,12 +1324,12 @@ f64 intensity_core(IntensityCoreData& data, int la)
                     {
                         const f64 wlamu = atom.wla(kr, k) * wmu;
 
-                        f64 integrand = (Uji(k) + Vji(k) * Ieff(k)) 
-                                - (PsiStar(k) * atom.chi(t.i, k) * atom.U(t.j, k));
+                        f64 integrand = (Uji(k) + Vji(k) * Ieff(k))
+                            - (PsiStar(k) * atom.chi(t.i, k) * atom.U(t.j, k));
                         atom.Gamma(t.i, t.j, k) += integrand * wlamu;
 
-                        integrand = (Vij(k) * Ieff(k)) 
-                                    - (PsiStar(k) * atom.chi(t.j, k) * atom.U(t.i, k));
+                        integrand = (Vij(k) * Ieff(k))
+                            - (PsiStar(k) * atom.chi(t.j, k) * atom.U(t.i, k));
                         atom.Gamma(t.j, t.i, k) += integrand * wlamu;
                         t.Rij(k) += I(k) * Vij(k) * wlamu;
                         t.Rji(k) += (Uji(k) + I(k) * Vij(k)) * wlamu;
@@ -1457,7 +1399,7 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ)
                         auto& t = *atom.trans[kr];
                         if (!t.active(la))
                             continue;
-                            
+
                         t.uv(la, mu, toObs, Uji, Vij, Vji);
 
                         for (int k = 0; k < Nspace; ++k)
@@ -1577,7 +1519,7 @@ f64 gamma_matrices_formal_sol(Context ctx)
     JasPackPtr(iCore, atmos, spect, fd, background, activeAtoms, JDag);
     JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
     JasPack(iCore, I, S, Ieff, PsiStar);
-    
+
     printf("%d, %d, %d\n", Nspace, Nrays, Nspect);
 
     for (auto& a : activeAtoms)
@@ -1598,13 +1540,13 @@ f64 gamma_matrices_formal_sol(Context ctx)
         {
             for (int i = 0; i < atom.Nlevel; ++i)
             {
-                atom.Gamma(i,i,k) = 0.0;
+                atom.Gamma(i, i, k) = 0.0;
                 f64 gammaDiag = 0.0;
                 for (int j = 0; j < atom.Nlevel; ++j)
                 {
-                    gammaDiag += atom.Gamma(j,i,k);
+                    gammaDiag += atom.Gamma(j, i, k);
                 }
-                atom.Gamma(i,i,k) = -gammaDiag;
+                atom.Gamma(i, i, k) = -gammaDiag;
             }
         }
     }
@@ -1645,7 +1587,7 @@ f64 formal_sol_full_stokes(Context ctx)
     StokesCoreData core;
     JasPackPtr(core, atmos, spect, fd, background, activeAtoms, JDag);
     JasPack(core, chiTot, etaTot, Uji, Vij, Vji, I, S);
-    
+
     printf("%d, %d, %d\n", Nspace, Nrays, Nspect);
 
     f64 dJMax = 0.0;
@@ -1746,21 +1688,21 @@ f64 escape_formal_sol(const Atmosphere& atmos, f64 lambda, F64View chi, F64View 
     tauB(0) = 0.0;
     for (int k = 1; k < atmos.Nspace; ++k)
     {
-        f64 zz = abs(atmos.height(k-1) - atmos.height(k+1)) * 0.5;
-        tauB(k) += tauB(k-1) + chiB(k) * zz;
-        tau(k) += tau(k-1) + chi(k) * zz + tauB(k);
+        f64 zz = abs(atmos.height(k - 1) - atmos.height(k + 1)) * 0.5;
+        tauB(k) += tauB(k - 1) + chiB(k) * zz;
+        tau(k) += tau(k - 1) + chi(k) * zz + tauB(k);
     }
-    tau(0) = 0.5*tau(1);
-    tauB(0) = 0.5*tauB(1);
-    tau(atmos.Nspace-1) = 0.5*tau(atmos.Nspace-2);
-    tauB(atmos.Nspace-1) = 0.5*tauB(atmos.Nspace-2);
+    tau(0) = 0.5 * tau(1);
+    tauB(0) = 0.5 * tauB(1);
+    tau(atmos.Nspace - 1) = 0.5 * tau(atmos.Nspace - 2);
+    tauB(atmos.Nspace - 1) = 0.5 * tauB(atmos.Nspace - 2);
 
-    P(atmos.Nspace-1) = S(atmos.Nspace-1);
-    Q(atmos.Nspace-1) = 0.0;
-    Lambda(atmos.Nspace-1) = 1.0;
+    P(atmos.Nspace - 1) = S(atmos.Nspace - 1);
+    Q(atmos.Nspace - 1) = 0.0;
+    Lambda(atmos.Nspace - 1) = 1.0;
 
     f64 sum = 0.0;
-    for (int k = atmos.Nspace-2; k > 1; --k)
+    for (int k = atmos.Nspace - 2; k > 1; --k)
     {
         f64 t = tau(k);
         f64 tb = tauB(k);
@@ -1770,7 +1712,7 @@ f64 escape_formal_sol(const Atmosphere& atmos, f64 lambda, F64View chi, F64View 
         f64 ep = escape_probability(line, t, tb, alpha, &dp);
 
         Lambda(k) = 1.0 - 2.0 * ep;
-        f64 dx = 0.5 * log((tau(k+1) + tauB(k+1)) / (tau(k-1) + tauB(k-1)));
+        f64 dx = 0.5 * log((tau(k + 1) + tauB(k + 1)) / (tau(k - 1) + tauB(k - 1)));
         f64 h = -S(k) * dp * (tau(k) * dx);
         sum += h;
 
@@ -1785,8 +1727,8 @@ f64 escape_formal_sol(const Atmosphere& atmos, f64 lambda, F64View chi, F64View 
     return Iplus;
 }
 
-void gamma_matrices_escape_prob(Atom* a, Background& background, 
-                                const Atmosphere& atmos)
+void gamma_matrices_escape_prob(Atom* a, Background& background,
+    const Atmosphere& atmos)
 {
     // JasUnpack(*ctx, atmos, background);
     // JasUnpack(ctx, activeAtoms);
@@ -1811,7 +1753,6 @@ void gamma_matrices_escape_prob(Atom* a, Background& background,
     F64Arr Q(atmos.Nspace);
     F64Arr Lambda(atmos.Nspace);
 
-
     for (int kr = 0; kr < atom.Ntrans; ++kr)
     {
         auto& t = *atom.trans[kr];
@@ -1833,9 +1774,9 @@ void gamma_matrices_escape_prob(Atom* a, Background& background,
             for (int k = 0; k < atmos.Nspace; ++k)
             {
                 uv_mu_1(atom, t, lt, phi, Uji, Vij, Vji);
-                f64 x = atom.n(t.i,k) * Vij(k) - atom.n(t.j,k) * Vji(k);
+                f64 x = atom.n(t.i, k) * Vij(k) - atom.n(t.j, k) * Vji(k);
                 chi(k) = x;
-                f64 n = atom.n(t.j,k) * Uji(k);
+                f64 n = atom.n(t.j, k) * Uji(k);
                 S(k) = (n + etaB(k)) / (chi(k) + chiB(k));
             }
             // do FS
@@ -1845,7 +1786,7 @@ void gamma_matrices_escape_prob(Atom* a, Background& background,
             {
                 f64 Ieff = P(k) - S(k) * Lambda(k);
                 atom.Gamma(t.j, t.i, k) += t.Bij * Ieff;
-                atom.Gamma(t.i, t.j, k) += t.Aji * (1 - Lambda(k)) + t.Bji * Ieff; 
+                atom.Gamma(t.i, t.j, k) += t.Aji * (1 - Lambda(k)) + t.Bji * Ieff;
             }
         }
         else
@@ -1859,17 +1800,17 @@ void gamma_matrices_escape_prob(Atom* a, Background& background,
             {
                 wlaSum += t.wlambda(ltc);
 
-                if (t.wavelength(ltc) - prevWl < 10.0 
-                    && ltc != Nlambda-1)
+                if (t.wavelength(ltc) - prevWl < 10.0
+                    && ltc != Nlambda - 1)
                     continue;
 
                 prevWl = t.wavelength(ltc);
                 for (int k = 0; k < atmos.Nspace; ++k)
                 {
                     uv_mu_1(atom, t, lt, phi, Uji, Vij, Vji);
-                    f64 x = atom.n(t.i,k) * Vij(k) - atom.n(t.j,k) * Vji(k);
+                    f64 x = atom.n(t.i, k) * Vij(k) - atom.n(t.j, k) * Vji(k);
                     chi(k) = x;
-                    f64 n = atom.n(t.j,k) * Uji(k);
+                    f64 n = atom.n(t.j, k) * Uji(k);
                     S(k) = (n + etaB(k)) / (chi(k) + chiB(k));
                 }
                 escape_formal_sol(atmos, t.wavelength(ltc), chi, chiB, S, P, Q, Lambda, false);
@@ -1880,12 +1821,12 @@ void gamma_matrices_escape_prob(Atom* a, Background& background,
                 for (int k = 0; k < atmos.Nspace; ++k)
                 {
                     f64 Ieff = P(k) - S(k) * Lambda(k);
-                    f64 integrand = (Uji(k) + Vji(k) * Ieff) 
-                            - (Lambda(k) * Uji(k));
+                    f64 integrand = (Uji(k) + Vji(k) * Ieff)
+                        - (Lambda(k) * Uji(k));
                     atom.Gamma(t.i, t.j, k) += integrand * wlaSum;
 
-                    integrand = (Vij(k) * Ieff) 
-                                - (Lambda(k) * Uji(k));
+                    integrand = (Vij(k) * Ieff)
+                        - (Lambda(k) * Uji(k));
                     atom.Gamma(t.j, t.i, k) += integrand * wlaSum;
                 }
                 wlaSum = 0.0;
@@ -1896,13 +1837,13 @@ void gamma_matrices_escape_prob(Atom* a, Background& background,
     {
         for (int i = 0; i < atom.Nlevel; ++i)
         {
-            atom.Gamma(i,i,k) = 0.0;
+            atom.Gamma(i, i, k) = 0.0;
             f64 gammaDiag = 0.0;
             for (int j = 0; j < atom.Nlevel; ++j)
             {
-                gammaDiag += atom.Gamma(j,i,k);
+                gammaDiag += atom.Gamma(j, i, k);
             }
-            atom.Gamma(i,i,k) = -gammaDiag;
+            atom.Gamma(i, i, k) = -gammaDiag;
         }
     }
 
@@ -1951,162 +1892,162 @@ void stat_eq(Atom* atomIn)
         // int info = 0;
         // solve(&Nlevel, &one, Gamma.data.data(), &Nlevel, ipiv, nk.data.data(), &Nlevel, &info);
         for (int i = 0; i < Nlevel; ++i)
-            atom.n(i,k) = nk(i);
+            atom.n(i, k) = nk(i);
     }
 }
 
 namespace PrdCores
 {
-    void total_depop_rate(const Transition* trans, const Atom& atom, F64View Pj)
-    {
-        const int Nspace = trans->Rij.shape(0);
+void total_depop_rate(const Transition* trans, const Atom& atom, F64View Pj)
+{
+    const int Nspace = trans->Rij.shape(0);
 
+    for (int k = 0; k < Nspace; ++k)
+    {
+        Pj(k) = trans->Qelast(k);
+        for (int i = 0; i < atom.C.shape(0); ++i)
+            Pj(k) += atom.C(i, trans->j, k);
+
+        for (auto& t : atom.trans)
+        {
+            if (t->j == trans->j)
+                Pj(k) += t->Rji(k);
+            if (t->i == trans->j)
+                Pj(k) += t->Rij(k);
+        }
+    }
+}
+
+f64 prd_fs_update_rates(Context ctx, const std::vector<int>& prdLambdas)
+{
+    JasUnpack(*ctx, atmos, spect, background);
+    JasUnpack(ctx, activeAtoms);
+
+    const int Nspace = atmos.Nspace;
+    const int Nrays = atmos.Nrays;
+
+    F64Arr chiTot = F64Arr(Nspace);
+    F64Arr etaTot = F64Arr(Nspace);
+    F64Arr S = F64Arr(Nspace);
+    F64Arr Uji = F64Arr(Nspace);
+    F64Arr Vij = F64Arr(Nspace);
+    F64Arr Vji = F64Arr(Nspace);
+    F64Arr I = F64Arr(Nspace);
+    F64Arr Ieff = F64Arr(Nspace);
+    F64Arr JDag = F64Arr(Nspace);
+    FormalData fd;
+    fd.atmos = &atmos;
+    fd.chi = chiTot;
+    fd.S = S;
+    fd.I = I;
+
+    printf("%d, %d\n", Nspace, Nrays);
+
+    for (auto& a : activeAtoms)
+    {
+        for (auto& t : a->trans)
+        {
+            if (t->rhoPrd)
+            {
+                t->zero_rates();
+            }
+        }
+    }
+
+    f64 dJMax = 0.0;
+    for (auto la : prdLambdas)
+    {
+        JDag = spect.J(la);
+        F64View J = spect.J(la);
+        J.fill(0.0);
+
+        for (int a = 0; a < activeAtoms.size(); ++a)
+            activeAtoms[a]->setup_wavelength(la);
+
+        for (int mu = 0; mu < Nrays; ++mu)
+        {
+            for (int toObsI = 0; toObsI < 2; toObsI += 1)
+            {
+                bool toObs = (bool)toObsI;
+
+                chiTot.fill(0.0);
+                etaTot.fill(0.0);
+
+                for (int a = 0; a < activeAtoms.size(); ++a)
+                {
+                    auto& atom = *activeAtoms[a];
+                    for (int kr = 0; kr < atom.Ntrans; ++kr)
+                    {
+                        auto& t = *atom.trans[kr];
+                        if (!t.active(la))
+                            continue;
+
+                        t.uv(la, mu, toObs, Uji, Vij, Vji);
+
+                        for (int k = 0; k < Nspace; ++k)
+                        {
+                            f64 chi = atom.n(t.i, k) * Vij(k) - atom.n(t.j, k) * Vji(k);
+                            f64 eta = atom.n(t.j, k) * Uji(k);
+
+                            chiTot(k) += chi;
+                            etaTot(k) += eta;
+                            atom.eta(k) += eta;
+                        }
+                    }
+                }
+                // Do LTE atoms here
+
+                for (int k = 0; k < Nspace; ++k)
+                {
+                    chiTot(k) += background.chi(la, k);
+                    S(k) = (etaTot(k) + background.eta(la, k) + background.sca(la, k) * JDag(k)) / chiTot(k);
+                }
+
+                piecewise_bezier3_1d(&fd, mu, toObs, spect.wavelength(la));
+                spect.I(la, mu) = I(0);
+
+                for (int k = 0; k < Nspace; ++k)
+                {
+                    J(k) += 0.5 * atmos.wmu(mu) * I(k);
+                }
+
+                for (int a = 0; a < activeAtoms.size(); ++a)
+                {
+                    auto& atom = *activeAtoms[a];
+                    for (int kr = 0; kr < atom.Ntrans; ++kr)
+                    {
+                        auto& t = *atom.trans[kr];
+                        if (!t.active(la) || !t.rhoPrd)
+                            continue;
+
+                        const f64 wmu = 0.5 * atmos.wmu(mu);
+                        t.uv(la, mu, toObs, Uji, Vij, Vji);
+
+                        for (int k = 0; k < Nspace; ++k)
+                        {
+                            const f64 wlamu = atom.wla(kr, k) * wmu;
+                            t.Rij(k) += I(k) * Vij(k) * wlamu;
+                            t.Rji(k) += (Uji(k) + I(k) * Vij(k)) * wlamu;
+                        }
+                    }
+                }
+            }
+        }
         for (int k = 0; k < Nspace; ++k)
         {
-            Pj(k) = trans->Qelast(k);
-            for (int i = 0; i < atom.C.shape(0); ++i)
-                Pj(k) += atom.C(i, trans->j, k);
-
-            for (auto& t : atom.trans)
-            {
-                if (t->j == trans->j)
-                    Pj(k) += t->Rji(k);
-                if (t->i == trans->j)
-                    Pj(k) += t->Rij(k);
-            }
+            f64 dJ = abs(1.0 - JDag(k) / J(k));
+            dJMax = max(dJ, dJMax);
         }
     }
+    return dJMax;
+}
 
-    f64 prd_fs_update_rates(Context ctx, const std::vector<int>& prdLambdas)
-    {
-        JasUnpack(*ctx, atmos, spect, background);
-        JasUnpack(ctx, activeAtoms);
+constexpr f64 PrdQWing = 4.0;
+constexpr f64 PrdQCore = 4.0;
+constexpr f64 PrdQSpread = 5.0;
+constexpr f64 PrdDQ = 0.25;
 
-        const int Nspace = atmos.Nspace;
-        const int Nrays = atmos.Nrays;
-
-        F64Arr chiTot = F64Arr(Nspace);
-        F64Arr etaTot = F64Arr(Nspace);
-        F64Arr S = F64Arr(Nspace);
-        F64Arr Uji = F64Arr(Nspace);
-        F64Arr Vij = F64Arr(Nspace);
-        F64Arr Vji = F64Arr(Nspace);
-        F64Arr I = F64Arr(Nspace);
-        F64Arr Ieff = F64Arr(Nspace);
-        F64Arr JDag = F64Arr(Nspace);
-        FormalData fd;
-        fd.atmos = &atmos;
-        fd.chi = chiTot;
-        fd.S = S;
-        fd.I = I;
-
-        printf("%d, %d\n", Nspace, Nrays);
-
-        for (auto& a : activeAtoms)
-        {
-            for (auto& t : a->trans)
-            {
-                if (t->rhoPrd)
-                {
-                    t->zero_rates();
-                }
-            }
-        }
-
-        f64 dJMax = 0.0;
-        for (auto la : prdLambdas)
-        {
-            JDag = spect.J(la);
-            F64View J = spect.J(la);
-            J.fill(0.0);
-
-            for (int a = 0; a < activeAtoms.size(); ++a)
-                activeAtoms[a]->setup_wavelength(la);
-
-            for (int mu = 0; mu < Nrays; ++mu)
-            {
-                for (int toObsI = 0; toObsI < 2; toObsI += 1)
-                {
-                    bool toObs = (bool)toObsI;
-
-                    chiTot.fill(0.0);
-                    etaTot.fill(0.0);
-
-                    for (int a = 0; a < activeAtoms.size(); ++a)
-                    {
-                        auto& atom = *activeAtoms[a];
-                        for (int kr = 0; kr < atom.Ntrans; ++kr)
-                        {
-                            auto& t = *atom.trans[kr];
-                            if (!t.active(la))
-                                continue;
-                                
-                            t.uv(la, mu, toObs, Uji, Vij, Vji);
-
-                            for (int k = 0; k < Nspace; ++k)
-                            {
-                                f64 chi = atom.n(t.i, k) * Vij(k) - atom.n(t.j, k) * Vji(k);
-                                f64 eta = atom.n(t.j, k) * Uji(k);
-
-                                chiTot(k) += chi;
-                                etaTot(k) += eta;
-                                atom.eta(k) += eta;
-                            }
-                        }
-                    }
-                    // Do LTE atoms here
-
-                    for (int k = 0; k < Nspace; ++k)
-                    {
-                        chiTot(k) += background.chi(la, k);
-                        S(k) = (etaTot(k) + background.eta(la, k) + background.sca(la, k) * JDag(k)) / chiTot(k);
-                    }
-
-                    piecewise_bezier3_1d(&fd, mu, toObs, spect.wavelength(la));
-                    spect.I(la, mu) = I(0);
-
-                    for (int k = 0; k < Nspace; ++k)
-                    {
-                        J(k) += 0.5 * atmos.wmu(mu) * I(k);
-                    }
-
-                    for (int a = 0; a < activeAtoms.size(); ++a)
-                    {
-                        auto& atom = *activeAtoms[a];
-                        for (int kr = 0; kr < atom.Ntrans; ++kr)
-                        {
-                            auto& t = *atom.trans[kr];
-                            if (!t.active(la) || !t.rhoPrd)
-                                continue;
-
-                            const f64 wmu = 0.5 * atmos.wmu(mu);
-                            t.uv(la, mu, toObs, Uji, Vij, Vji);
-
-                            for (int k = 0; k < Nspace; ++k)
-                            {
-                                const f64 wlamu = atom.wla(kr, k) * wmu;
-                                t.Rij(k) += I(k) * Vij(k) * wlamu;
-                                t.Rji(k) += (Uji(k) + I(k) * Vij(k)) * wlamu;
-                            }
-                        }
-                    }
-                }
-            }
-            for (int k = 0; k < Nspace; ++k)
-            {
-                f64 dJ = abs(1.0 - JDag(k) / J(k));
-                dJMax = max(dJ, dJMax);
-            }
-        }
-        return dJMax;
-    }
-
-    constexpr f64 PrdQWing = 4.0;
-    constexpr f64 PrdQCore = 4.0;
-    constexpr f64 PrdQSpread = 5.0;
-    constexpr f64 PrdDQ = 0.25;
-
-   /*
+/*
     * Gouttebroze's fast approximation for
     *  GII(q_abs, q_emit) = PII(q_abs, q_emit) / phi(q_emit)
 
@@ -2114,169 +2055,168 @@ namespace PrdCores
     *      H. Uitenbroek,  1989, A&A, 216, 310-314 (cross redistribution)
     */
 
-    inline f64 G_zero(f64 x)
+inline f64 G_zero(f64 x)
+{
+    return 1.0 / (abs(x) + sqrt(square(x) + 1.273239545));
+}
+
+f64 GII(f64 adamp, f64 q_emit, f64 q_abs)
+{
+    constexpr f64 waveratio = 1.0;
+    namespace C = Constants;
+    f64 gii, pcore, aq_emit, umin, epsilon, giiwing, u1, phicore, phiwing;
+
+    /* --- Symmetrize with respect to emission frequency --   --------- */
+
+    if (q_emit < 0.0)
     {
-        return 1.0 / (abs(x) + sqrt(square(x) + 1.273239545));
+        q_emit = -q_emit;
+        q_abs = -q_abs;
     }
+    pcore = 0.0;
+    gii = 0.0;
 
-    f64 GII(f64 adamp, f64 q_emit, f64 q_abs)
+    /* --- Core region --                                     --------- */
+
+    if (q_emit < PrdQWing)
     {
-        constexpr f64 waveratio = 1.0;
-        namespace C = Constants;
-        f64 gii, pcore, aq_emit, umin, epsilon, giiwing, u1, phicore, phiwing;
-
-        /* --- Symmetrize with respect to emission frequency --   --------- */
-
-        if (q_emit < 0.0) {
-            q_emit = -q_emit;
-            q_abs = -q_abs;
-        }
-        pcore = 0.0;
-        gii = 0.0;
-
-        /* --- Core region --                                     --------- */
-
-        if (q_emit < PrdQWing)
-        {
-            if ((q_abs < -PrdQWing) || (q_abs > q_emit + waveratio * PrdQSpread))
-                return gii;
-            if (abs(q_abs) <= q_emit)
-                gii = G_zero(q_emit);
-            else
-                gii = exp(square(q_emit) - square(q_abs)) * G_zero(q_abs);
-
-            if (q_emit >= PrdQCore) 
-            {
-                phicore = exp(-square(q_emit));
-                phiwing = adamp / (sqrt(C::Pi) * (square(adamp) + square(q_emit)));
-                pcore = phicore / (phicore + phiwing);
-            }
-        }
-        /* --- Wing region --                                     --------- */
+        if ((q_abs < -PrdQWing) || (q_abs > q_emit + waveratio * PrdQSpread))
+            return gii;
+        if (abs(q_abs) <= q_emit)
+            gii = G_zero(q_emit);
+        else
+            gii = exp(square(q_emit) - square(q_abs)) * G_zero(q_abs);
 
         if (q_emit >= PrdQCore)
         {
-            aq_emit = waveratio * q_emit;
-            if (q_emit >= PrdQWing) 
-            {
-                if (abs(q_abs - aq_emit) > waveratio * PrdQSpread)
-                    return gii;
-                pcore = 0.0;
-            }
-            umin = abs((q_abs - aq_emit) / (1.0 + waveratio));
-            giiwing = (1.0 + waveratio) * (1.0 - 2.0 * umin * G_zero(umin)) * exp(-square(umin));
-
-            if (waveratio == 1.0)
-            {
-                epsilon = q_abs / aq_emit;
-                giiwing *= (2.75 - (2.5 - 0.75 * epsilon) * epsilon);
-            }
-            else
-            {
-                u1 = abs((q_abs - aq_emit) / (waveratio - 1.0));
-                giiwing -=
-                    abs(1.0 - waveratio) * (1.0 - 2.0 * u1 * G_zero(u1)) * exp(-square(u1));
-            }
-            /* --- Linear combination of core- and wing contributions ------- */
-
-            giiwing = giiwing / (2.0 * waveratio * sqrt(C::Pi));
-            gii = pcore * gii + (1.0 - pcore) * giiwing;
+            phicore = exp(-square(q_emit));
+            phiwing = adamp / (sqrt(C::Pi) * (square(adamp) + square(q_emit)));
+            pcore = phicore / (phicore + phiwing);
         }
-        return gii;
     }
+    /* --- Wing region --                                     --------- */
 
-    void prd_angle_avg(Transition* t, F64View Pj, const Atom& atom, const Atmosphere& atmos, const Spectrum& spect)
+    if (q_emit >= PrdQCore)
     {
-        auto& trans = *t;
-
-        namespace C = Constants;
-        const int Nlambda = trans.wavelength.shape(0);
-
-        bool initialiseGii = (!trans.gII) || (trans.gII(0,0,0) < 0.0);
-        constexpr int maxFineGrid = max(3 * PrdQWing, 2 * PrdQSpread) / PrdDQ + 1;
-        if (!trans.gII)
-            trans.gII = F64Arr3D(Nlambda, atmos.Nspace, maxFineGrid);
-
-
-        // Reset Rho
-        trans.rhoPrd.fill(1.0);
-
-        F64Arr Jk(Nlambda);
-        F64Arr qAbs(Nlambda);
-        F64Arr JFine(maxFineGrid);
-        F64Arr qp(maxFineGrid);
-        F64Arr wq(maxFineGrid);
-
-        for (int k = 0; k < atmos.Nspace; ++k)
+        aq_emit = waveratio * q_emit;
+        if (q_emit >= PrdQWing)
         {
-            f64 gamma = atom.n(trans.i, k) / atom.n(trans.j, k) * trans.Bij / Pj(k);
-            f64 Jbar = trans.Rij(k) / trans.Bij;
+            if (abs(q_abs - aq_emit) > waveratio * PrdQSpread)
+                return gii;
+            pcore = 0.0;
+        }
+        umin = abs((q_abs - aq_emit) / (1.0 + waveratio));
+        giiwing = (1.0 + waveratio) * (1.0 - 2.0 * umin * G_zero(umin)) * exp(-square(umin));
 
-            // Local mean intensity in doppler units
-            for (int la = 0; la < Nlambda; ++la)
+        if (waveratio == 1.0)
+        {
+            epsilon = q_abs / aq_emit;
+            giiwing *= (2.75 - (2.5 - 0.75 * epsilon) * epsilon);
+        }
+        else
+        {
+            u1 = abs((q_abs - aq_emit) / (waveratio - 1.0));
+            giiwing -= abs(1.0 - waveratio) * (1.0 - 2.0 * u1 * G_zero(u1)) * exp(-square(u1));
+        }
+        /* --- Linear combination of core- and wing contributions ------- */
+
+        giiwing = giiwing / (2.0 * waveratio * sqrt(C::Pi));
+        gii = pcore * gii + (1.0 - pcore) * giiwing;
+    }
+    return gii;
+}
+
+void prd_angle_avg(Transition* t, F64View Pj, const Atom& atom, const Atmosphere& atmos, const Spectrum& spect)
+{
+    auto& trans = *t;
+
+    namespace C = Constants;
+    const int Nlambda = trans.wavelength.shape(0);
+
+    bool initialiseGii = (!trans.gII) || (trans.gII(0, 0, 0) < 0.0);
+    constexpr int maxFineGrid = max(3 * PrdQWing, 2 * PrdQSpread) / PrdDQ + 1;
+    if (!trans.gII)
+        trans.gII = F64Arr3D(Nlambda, atmos.Nspace, maxFineGrid);
+
+    // Reset Rho
+    trans.rhoPrd.fill(1.0);
+
+    F64Arr Jk(Nlambda);
+    F64Arr qAbs(Nlambda);
+    F64Arr JFine(maxFineGrid);
+    F64Arr qp(maxFineGrid);
+    F64Arr wq(maxFineGrid);
+
+    for (int k = 0; k < atmos.Nspace; ++k)
+    {
+        f64 gamma = atom.n(trans.i, k) / atom.n(trans.j, k) * trans.Bij / Pj(k);
+        f64 Jbar = trans.Rij(k) / trans.Bij;
+
+        // Local mean intensity in doppler units
+        for (int la = 0; la < Nlambda; ++la)
+        {
+            Jk(la) = spect.J(la + trans.Nblue, k);
+            qAbs(la) = (trans.wavelength(la) - trans.lambda0) * C::CLight / (trans.lambda0 * atom.vBroad(k));
+        }
+
+        for (int la = 0; la < Nlambda; ++la)
+        {
+            f64 qEmit = qAbs(la);
+
+            int q0, qN;
+            if (abs(qEmit) < PrdQCore)
             {
-                Jk(la) = spect.J(la + trans.Nblue, k);
-                qAbs(la) = (trans.wavelength(la) - trans.lambda0) * C::CLight / (trans.lambda0 * atom.vBroad(k));
+                q0 = -PrdQWing;
+                qN = PrdQWing;
             }
-
-            for (int la = 0; la < Nlambda; ++la)
+            else if (abs(qEmit) < PrdQWing)
             {
-                f64 qEmit = qAbs(la);
-
-                int q0, qN;
-                if (abs(qEmit) < PrdQCore)
+                if (qEmit > 0.0)
                 {
                     q0 = -PrdQWing;
-                    qN = PrdQWing;
-                }
-                else if (abs(qEmit) < PrdQWing)
-                {
-                    if (qEmit > 0.0)
-                    {
-                        q0 = -PrdQWing;
-                        qN = qEmit + PrdQSpread;
-                    }
-                    else
-                    {
-                        q0 = qEmit - PrdQSpread;
-                        qN = PrdQWing;
-                    }
+                    qN = qEmit + PrdQSpread;
                 }
                 else
                 {
                     q0 = qEmit - PrdQSpread;
-                    qN = qEmit + PrdQSpread;
+                    qN = PrdQWing;
                 }
-                int Np = int((f64)(qN - q0) / PrdDQ) + 1;
-                qp(0) = q0;
-                for (int lap = 1; lap < Np; ++lap)
-                    qp(lap) = qp(lap-1) + PrdDQ;
-
-                linear(qAbs, Jk, qp.slice(0, Np), JFine);
-
-                if (initialiseGii)
-                {
-                    wq.fill(PrdDQ);
-                    wq(0) = 5.0 / 12.0 * PrdDQ;
-                    wq(1) = 13.0 / 12.0 * PrdDQ;
-                    wq(Np - 1) = 5.0 / 12.0 * PrdDQ;
-                    wq(Np - 2) = 13.0 / 12.0 * PrdDQ;
-                    for (int lap = 0; lap < Np; ++lap)
-                        trans.gII(la, k, lap) = GII(trans.aDamp(k), qEmit, qp(lap)) * wq(lap);
-                }
-                F64View gII = trans.gII(la, k);
-
-                f64 gNorm = 0.0;
-                f64 scatInt = 0.0;
-                for (int lap = 0; lap < Np; ++lap)
-                {
-                    gNorm += gII(lap);
-                    scatInt += JFine(lap) * gII(lap);
-                }
-                trans.rhoPrd(la, k) += gamma * (scatInt / gNorm - Jbar);
             }
+            else
+            {
+                q0 = qEmit - PrdQSpread;
+                qN = qEmit + PrdQSpread;
+            }
+            int Np = int((f64)(qN - q0) / PrdDQ) + 1;
+            qp(0) = q0;
+            for (int lap = 1; lap < Np; ++lap)
+                qp(lap) = qp(lap - 1) + PrdDQ;
+
+            linear(qAbs, Jk, qp.slice(0, Np), JFine);
+
+            if (initialiseGii)
+            {
+                wq.fill(PrdDQ);
+                wq(0) = 5.0 / 12.0 * PrdDQ;
+                wq(1) = 13.0 / 12.0 * PrdDQ;
+                wq(Np - 1) = 5.0 / 12.0 * PrdDQ;
+                wq(Np - 2) = 13.0 / 12.0 * PrdDQ;
+                for (int lap = 0; lap < Np; ++lap)
+                    trans.gII(la, k, lap) = GII(trans.aDamp(k), qEmit, qp(lap)) * wq(lap);
+            }
+            F64View gII = trans.gII(la, k);
+
+            f64 gNorm = 0.0;
+            f64 scatInt = 0.0;
+            for (int lap = 0; lap < Np; ++lap)
+            {
+                gNorm += gII(lap);
+                scatInt += JFine(lap) * gII(lap);
+            }
+            trans.rhoPrd(la, k) += gamma * (scatInt / gNorm - Jbar);
         }
     }
+}
 }
 
 f64 redistribute_prd_lines_angle_avg(Context ctx, int maxIter, f64 tol)
@@ -2287,8 +2227,12 @@ f64 redistribute_prd_lines_angle_avg(Context ctx, int maxIter, f64 tol)
         const Atom& atom;
         Ng ng;
 
-        PrdData(Transition* l, const Atom& a, Ng&& n) : line(l), atom(a), ng(n)
-        {}
+        PrdData(Transition* l, const Atom& a, Ng&& n)
+            : line(l)
+            , atom(a)
+            , ng(n)
+        {
+        }
     };
     JasUnpack(*ctx, atmos, spect);
     JasUnpack(ctx, activeAtoms);
@@ -2301,7 +2245,7 @@ f64 redistribute_prd_lines_angle_avg(Context ctx, int maxIter, f64 tol)
             if (t->rhoPrd)
             {
                 // t->zero_rates();
-                prdLines.emplace_back(PrdData(t, *a, Ng(0,0,0, t->rhoPrd.flatten())));
+                prdLines.emplace_back(PrdData(t, *a, Ng(0, 0, 0, t->rhoPrd.flatten())));
             }
         }
     }
