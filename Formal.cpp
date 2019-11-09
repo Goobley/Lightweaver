@@ -135,7 +135,8 @@ void Transition::compute_phi(const Atmosphere& atmos, F64View aDamp, F64View vBr
     }
 }
 
-void Transition::compute_polarised_profiles(const Atmosphere& atmos, F64View aDamp, F64View vBroad, const ZeemanComponents& z)
+void Transition::compute_polarised_profiles(
+    const Atmosphere& atmos, F64View aDamp, F64View vBroad, const ZeemanComponents& z)
 {
     namespace C = Constants;
     if (type == TransitionType::CONTINUUM)
@@ -187,7 +188,8 @@ void Transition::compute_polarised_profiles(const Atmosphere& atmos, F64View aDa
                     {
                         auto HF = voigt_HF(aDamp(k), vk - z.shift(nz) * vB(k));
                         auto H = HF.real();
-                        auto F = HF.imag(); // NOTE(cmo): Not sure if the 0.5 should be here -- don't think so. Think it's accounted for later.
+                        auto F = HF.imag(); // NOTE(cmo): Not sure if the 0.5 should be here -- don't think so. Think
+                            // it's accounted for later.
 
                         switch (z.alpha(nz))
                         {
@@ -332,8 +334,7 @@ void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
         k_start = 0;
         k_end = Ndep - 1;
     }
-    f64 dtau_uw = zmu * (chi(k_start) + chi(k_start + dk))
-        * abs(height(k_start) - height(k_start + dk));
+    f64 dtau_uw = zmu * (chi(k_start) + chi(k_start + dk)) * abs(height(k_start) - height(k_start + dk));
     f64 dS_uw = (S(k_start) - S(k_start + dk)) / dtau_uw;
 
     /* --- Boundary conditions --                        -------------- */
@@ -391,8 +392,7 @@ void piecewise_linear_1d(FormalData* fd, int mu, bool toObs, f64 wav)
         kStart = 0;
         kEnd = atmos->Nspace - 1;
     }
-    f64 dtau_uw = zmu * (chi(kStart) + chi(kStart + dk))
-        * abs(height(kStart) - height(kStart + dk));
+    f64 dtau_uw = zmu * (chi(kStart) + chi(kStart + dk)) * abs(height(kStart) - height(kStart + dk));
 
     f64 Iupw = 0.0;
     if (toObs && atmos->lowerBc == THERMALISED)
@@ -414,8 +414,7 @@ void piecewise_linear_1d(FormalData* fd, int mu, bool toObs, f64 wav)
 
 namespace Bezier
 {
-inline f64 cent_deriv(f64 dsup, f64 dsdn, f64 chiup, f64 chic,
-    f64 chidn)
+inline f64 cent_deriv(f64 dsup, f64 dsdn, f64 chiup, f64 chic, f64 chidn)
 {
     /* --- Derivative Fritsch & Butland (1984) --- */
 
@@ -436,25 +435,20 @@ inline f64 cent_deriv(f64 dsup, f64 dsdn, f64 chiup, f64 chic,
     return wprime;
 }
 
-inline void cent_deriv(f64 wprime[4][4], f64 dsup, f64 dsdn,
-    f64 chiup[4][4], f64 chic[4][4],
-    f64 chidn[4][4])
+inline void cent_deriv(f64 wprime[4][4], f64 dsup, f64 dsdn, f64 chiup[4][4], f64 chic[4][4], f64 chidn[4][4])
 {
     for (int j = 0; j < 4; j++)
         for (int i = 0; i < 4; i++)
-            wprime[j][i] = cent_deriv(dsup, dsdn, chiup[j][i], chic[j][i],
-                chidn[j][i]);
+            wprime[j][i] = cent_deriv(dsup, dsdn, chiup[j][i], chic[j][i], chidn[j][i]);
 }
 
-inline void cent_deriv(f64 wprime[4], f64 dsup, f64 dsdn,
-    f64 chiup[4], f64 chic[4], f64 chidn[4])
+inline void cent_deriv(f64 wprime[4], f64 dsup, f64 dsdn, f64 chiup[4], f64 chic[4], f64 chidn[4])
 {
     for (int i = 0; i < 4; i++)
         wprime[i] = cent_deriv(dsup, dsdn, chiup[i], chic[i], chidn[i]);
 }
 
-inline void Bezier3_coeffs(f64 dt, f64* alpha, f64* beta,
-    f64* gamma, f64* eps, f64* edt)
+inline void Bezier3_coeffs(f64 dt, f64* alpha, f64* beta, f64* gamma, f64* eps, f64* edt)
 {
     /* ---
 
@@ -532,9 +526,8 @@ void piecewise_bezier3_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
         return Bezier::cent_deriv(ds_dw, ds_dw2, chi(k), chi(k + dk), chi(k + 2 * dk));
     };
     f64 dtau_dw = 0.0;
-    auto dS_central = [&dtau_uw, &dtau_dw, &S, &k, dk] {
-        return Bezier::cent_deriv(dtau_uw, dtau_dw, S(k - dk), S(k), S(k + dk));
-    };
+    auto dS_central
+        = [&dtau_uw, &dtau_dw, &S, &k, dk] { return Bezier::cent_deriv(dtau_uw, dtau_dw, S(k - dk), S(k), S(k + dk)); };
     for (; k != k_end - dk; k += dk)
     {
         ds_dw2 = abs(height(k + 2 * dk) - height(k + dk)) * zmu;
@@ -621,8 +614,7 @@ void piecewise_bezier3_1d(FormalData* fd, int mu, bool toObs, f64 wav)
         kStart = 0;
         kEnd = atmos->Nspace - 1;
     }
-    f64 dtau_uw = 0.5 * zmu * (chi(kStart) + chi(kStart + dk))
-        * abs(height(kStart) - height(kStart + dk));
+    f64 dtau_uw = 0.5 * zmu * (chi(kStart) + chi(kStart + dk)) * abs(height(kStart) - height(kStart + dk));
 
     f64 Iupw = 0.0;
     if (toObs && atmos->lowerBc == THERMALISED)
@@ -644,16 +636,16 @@ void piecewise_bezier3_1d(FormalData* fd, int mu, bool toObs, f64 wav)
 
 void SIMD_MatInv(float* src)
 {
-    /* --- 
+    /* ---
 
         Very fast in-place 4x4 Matrix inversion using SIMD instrutions
         Only works with 32-bits floats. It uses Cramer's rule.
-        
+
         Provided by Intel
 
-        Requires SSE instructions but all x86 machines since 
+        Requires SSE instructions but all x86 machines since
         Pentium III have them.
-        
+
         --                                            ------------------ */
     // NOTE(cmo): This can also be done equivalently for f64 with avx/avx2 on newer cpus
 
@@ -727,8 +719,7 @@ void SIMD_MatInv(float* src)
     det = _mm_add_ps(_mm_shuffle_ps(det, det, 0x4E), det);
     det = _mm_add_ss(_mm_shuffle_ps(det, det, 0xB1), det);
     tmp1 = _mm_rcp_ss(det);
-    det = _mm_sub_ss(_mm_add_ss(tmp1, tmp1),
-        _mm_mul_ss(det, _mm_mul_ss(tmp1, tmp1)));
+    det = _mm_sub_ss(_mm_add_ss(tmp1, tmp1), _mm_mul_ss(det, _mm_mul_ss(tmp1, tmp1)));
     det = _mm_shuffle_ps(det, det, 0x00);
     minor0 = _mm_mul_ps(det, minor0);
     _mm_storel_pi((__m64*)(src), minor0);
@@ -749,37 +740,53 @@ bool gluInvertMatrix(const double m[16], double invOut[16])
     double inv[16], det;
     int i;
 
-    inv[0] = m[5] * m[10] * m[15] - m[5] * m[11] * m[14] - m[9] * m[6] * m[15] + m[9] * m[7] * m[14] + m[13] * m[6] * m[11] - m[13] * m[7] * m[10];
+    inv[0] = m[5] * m[10] * m[15] - m[5] * m[11] * m[14] - m[9] * m[6] * m[15] + m[9] * m[7] * m[14]
+        + m[13] * m[6] * m[11] - m[13] * m[7] * m[10];
 
-    inv[4] = -m[4] * m[10] * m[15] + m[4] * m[11] * m[14] + m[8] * m[6] * m[15] - m[8] * m[7] * m[14] - m[12] * m[6] * m[11] + m[12] * m[7] * m[10];
+    inv[4] = -m[4] * m[10] * m[15] + m[4] * m[11] * m[14] + m[8] * m[6] * m[15] - m[8] * m[7] * m[14]
+        - m[12] * m[6] * m[11] + m[12] * m[7] * m[10];
 
-    inv[8] = m[4] * m[9] * m[15] - m[4] * m[11] * m[13] - m[8] * m[5] * m[15] + m[8] * m[7] * m[13] + m[12] * m[5] * m[11] - m[12] * m[7] * m[9];
+    inv[8] = m[4] * m[9] * m[15] - m[4] * m[11] * m[13] - m[8] * m[5] * m[15] + m[8] * m[7] * m[13]
+        + m[12] * m[5] * m[11] - m[12] * m[7] * m[9];
 
-    inv[12] = -m[4] * m[9] * m[14] + m[4] * m[10] * m[13] + m[8] * m[5] * m[14] - m[8] * m[6] * m[13] - m[12] * m[5] * m[10] + m[12] * m[6] * m[9];
+    inv[12] = -m[4] * m[9] * m[14] + m[4] * m[10] * m[13] + m[8] * m[5] * m[14] - m[8] * m[6] * m[13]
+        - m[12] * m[5] * m[10] + m[12] * m[6] * m[9];
 
-    inv[1] = -m[1] * m[10] * m[15] + m[1] * m[11] * m[14] + m[9] * m[2] * m[15] - m[9] * m[3] * m[14] - m[13] * m[2] * m[11] + m[13] * m[3] * m[10];
+    inv[1] = -m[1] * m[10] * m[15] + m[1] * m[11] * m[14] + m[9] * m[2] * m[15] - m[9] * m[3] * m[14]
+        - m[13] * m[2] * m[11] + m[13] * m[3] * m[10];
 
-    inv[5] = m[0] * m[10] * m[15] - m[0] * m[11] * m[14] - m[8] * m[2] * m[15] + m[8] * m[3] * m[14] + m[12] * m[2] * m[11] - m[12] * m[3] * m[10];
+    inv[5] = m[0] * m[10] * m[15] - m[0] * m[11] * m[14] - m[8] * m[2] * m[15] + m[8] * m[3] * m[14]
+        + m[12] * m[2] * m[11] - m[12] * m[3] * m[10];
 
-    inv[9] = -m[0] * m[9] * m[15] + m[0] * m[11] * m[13] + m[8] * m[1] * m[15] - m[8] * m[3] * m[13] - m[12] * m[1] * m[11] + m[12] * m[3] * m[9];
+    inv[9] = -m[0] * m[9] * m[15] + m[0] * m[11] * m[13] + m[8] * m[1] * m[15] - m[8] * m[3] * m[13]
+        - m[12] * m[1] * m[11] + m[12] * m[3] * m[9];
 
-    inv[13] = m[0] * m[9] * m[14] - m[0] * m[10] * m[13] - m[8] * m[1] * m[14] + m[8] * m[2] * m[13] + m[12] * m[1] * m[10] - m[12] * m[2] * m[9];
+    inv[13] = m[0] * m[9] * m[14] - m[0] * m[10] * m[13] - m[8] * m[1] * m[14] + m[8] * m[2] * m[13]
+        + m[12] * m[1] * m[10] - m[12] * m[2] * m[9];
 
-    inv[2] = m[1] * m[6] * m[15] - m[1] * m[7] * m[14] - m[5] * m[2] * m[15] + m[5] * m[3] * m[14] + m[13] * m[2] * m[7] - m[13] * m[3] * m[6];
+    inv[2] = m[1] * m[6] * m[15] - m[1] * m[7] * m[14] - m[5] * m[2] * m[15] + m[5] * m[3] * m[14] + m[13] * m[2] * m[7]
+        - m[13] * m[3] * m[6];
 
-    inv[6] = -m[0] * m[6] * m[15] + m[0] * m[7] * m[14] + m[4] * m[2] * m[15] - m[4] * m[3] * m[14] - m[12] * m[2] * m[7] + m[12] * m[3] * m[6];
+    inv[6] = -m[0] * m[6] * m[15] + m[0] * m[7] * m[14] + m[4] * m[2] * m[15] - m[4] * m[3] * m[14]
+        - m[12] * m[2] * m[7] + m[12] * m[3] * m[6];
 
-    inv[10] = m[0] * m[5] * m[15] - m[0] * m[7] * m[13] - m[4] * m[1] * m[15] + m[4] * m[3] * m[13] + m[12] * m[1] * m[7] - m[12] * m[3] * m[5];
+    inv[10] = m[0] * m[5] * m[15] - m[0] * m[7] * m[13] - m[4] * m[1] * m[15] + m[4] * m[3] * m[13]
+        + m[12] * m[1] * m[7] - m[12] * m[3] * m[5];
 
-    inv[14] = -m[0] * m[5] * m[14] + m[0] * m[6] * m[13] + m[4] * m[1] * m[14] - m[4] * m[2] * m[13] - m[12] * m[1] * m[6] + m[12] * m[2] * m[5];
+    inv[14] = -m[0] * m[5] * m[14] + m[0] * m[6] * m[13] + m[4] * m[1] * m[14] - m[4] * m[2] * m[13]
+        - m[12] * m[1] * m[6] + m[12] * m[2] * m[5];
 
-    inv[3] = -m[1] * m[6] * m[11] + m[1] * m[7] * m[10] + m[5] * m[2] * m[11] - m[5] * m[3] * m[10] - m[9] * m[2] * m[7] + m[9] * m[3] * m[6];
+    inv[3] = -m[1] * m[6] * m[11] + m[1] * m[7] * m[10] + m[5] * m[2] * m[11] - m[5] * m[3] * m[10] - m[9] * m[2] * m[7]
+        + m[9] * m[3] * m[6];
 
-    inv[7] = m[0] * m[6] * m[11] - m[0] * m[7] * m[10] - m[4] * m[2] * m[11] + m[4] * m[3] * m[10] + m[8] * m[2] * m[7] - m[8] * m[3] * m[6];
+    inv[7] = m[0] * m[6] * m[11] - m[0] * m[7] * m[10] - m[4] * m[2] * m[11] + m[4] * m[3] * m[10] + m[8] * m[2] * m[7]
+        - m[8] * m[3] * m[6];
 
-    inv[11] = -m[0] * m[5] * m[11] + m[0] * m[7] * m[9] + m[4] * m[1] * m[11] - m[4] * m[3] * m[9] - m[8] * m[1] * m[7] + m[8] * m[3] * m[5];
+    inv[11] = -m[0] * m[5] * m[11] + m[0] * m[7] * m[9] + m[4] * m[1] * m[11] - m[4] * m[3] * m[9] - m[8] * m[1] * m[7]
+        + m[8] * m[3] * m[5];
 
-    inv[15] = m[0] * m[5] * m[10] - m[0] * m[6] * m[9] - m[4] * m[1] * m[10] + m[4] * m[2] * m[9] + m[8] * m[1] * m[6] - m[8] * m[2] * m[5];
+    inv[15] = m[0] * m[5] * m[10] - m[0] * m[6] * m[9] - m[4] * m[1] * m[10] + m[4] * m[2] * m[9] + m[8] * m[1] * m[6]
+        - m[8] * m[2] * m[5];
 
     det = m[0] * inv[0] + m[1] * inv[4] + m[2] * inv[8] + m[3] * inv[12];
 
@@ -960,10 +967,12 @@ void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs,
             for (int i = 0; i < 4; ++i)
             {
                 // A in paper (LHS of system)
-                Md[j][i] = id[j][i] + alpha * K0[j][i] - gamma * -(dtau_uw / 3.0 * (A[j][i] + dK0[j][i] + K0[j][i]) + K0[j][i]);
+                Md[j][i] = id[j][i] + alpha * K0[j][i]
+                    - gamma * -(dtau_uw / 3.0 * (A[j][i] + dK0[j][i] + K0[j][i]) + K0[j][i]);
 
                 // Terms to be multiplied by I(:,k-dk) in B: (exp(-dtau) + beta*Ku + epsilon*\bar{f}_k)
-                Ma[j][i] = edt * id[j][i] - beta * Ku[j][i] + eps * (dtau_uw / 3.0 * (Ma[j][i] + dKu[j][i] + Ku[j][i]) - Ku[j][i]);
+                Ma[j][i] = edt * id[j][i] - beta * Ku[j][i]
+                    + eps * (dtau_uw / 3.0 * (Ma[j][i] + dKu[j][i] + Ku[j][i]) - Ku[j][i]);
 
                 // Terms to be multiplied by S(:,k-dk) in B i.e. f_k
                 Mb[j][i] = beta * id[j][i] + eps * (id[j][i] - dtau_uw / 3.0 * Ku[j][i]);
@@ -1043,10 +1052,12 @@ void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs,
         for (int i = 0; i < 4; ++i)
         {
             // A in paper (LHS of system)
-            Md[j][i] = id[j][i] + alpha * K0[j][i] - gamma * -(dtau_uw / 3.0 * (A[j][i] + dK0[j][i] + K0[j][i]) + K0[j][i]);
+            Md[j][i]
+                = id[j][i] + alpha * K0[j][i] - gamma * -(dtau_uw / 3.0 * (A[j][i] + dK0[j][i] + K0[j][i]) + K0[j][i]);
 
             // Terms to be multiplied by I(:,k-dk) in B: (exp(-dtau) + beta + \bar{f}_k)
-            Ma[j][i] = edt * id[j][i] - beta * Ku[j][i] + eps * (dtau_uw / 3.0 * (Ma[j][i] + dKu[j][i] + Ku[j][i]) - Ku[j][i]);
+            Ma[j][i] = edt * id[j][i] - beta * Ku[j][i]
+                + eps * (dtau_uw / 3.0 * (Ma[j][i] + dKu[j][i] + Ku[j][i]) - Ku[j][i]);
 
             // Terms to be multiplied by S(:,k-dk) in B i.e. f_k
             Mb[j][i] = beta * id[j][i] + eps * (id[j][i] - dtau_uw / 3.0 * Ku[j][i]);
@@ -1153,8 +1164,7 @@ void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int mu, bool toObs, f64 w
         kStart = 0;
         kEnd = atmos->Nspace - 1;
     }
-    f64 dtau_uw = 0.5 * zmu * (chi(0, kStart) + chi(0, kStart + dk))
-        * abs(height(kStart) - height(kStart + dk));
+    f64 dtau_uw = 0.5 * zmu * (chi(0, kStart) + chi(0, kStart + dk)) * abs(height(kStart) - height(kStart + dk));
 
     f64 Iupw[4] = { 0.0, 0.0, 0.0, 0.0 };
     if (toObs && atmos->lowerBc == THERMALISED)
@@ -1324,12 +1334,10 @@ f64 intensity_core(IntensityCoreData& data, int la)
                     {
                         const f64 wlamu = atom.wla(kr, k) * wmu;
 
-                        f64 integrand = (Uji(k) + Vji(k) * Ieff(k))
-                            - (PsiStar(k) * atom.chi(t.i, k) * atom.U(t.j, k));
+                        f64 integrand = (Uji(k) + Vji(k) * Ieff(k)) - (PsiStar(k) * atom.chi(t.i, k) * atom.U(t.j, k));
                         atom.Gamma(t.i, t.j, k) += integrand * wlamu;
 
-                        integrand = (Vij(k) * Ieff(k))
-                            - (PsiStar(k) * atom.chi(t.j, k) * atom.U(t.i, k));
+                        integrand = (Vij(k) * Ieff(k)) - (PsiStar(k) * atom.chi(t.j, k) * atom.U(t.i, k));
                         atom.Gamma(t.j, t.i, k) += integrand * wlamu;
                         t.Rij(k) += I(k) * Vij(k) * wlamu;
                         t.Rji(k) += (Uji(k) + I(k) * Vij(k)) * wlamu;
@@ -1410,7 +1418,8 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ)
                             chiTot(0, k) += chi;
                             etaTot(0, k) += eta;
 
-// NOTE(cmo): Even with this stuff commented out and B set to 0, it still yeilds the same incorrect result. Must be something wrong with the FS as this should be identical to no-pol case.
+// NOTE(cmo): Even with this stuff commented out and B set to 0, it still yeilds the same incorrect result. Must be
+// something wrong with the FS as this should be identical to no-pol case.
 #if 1
                             if (t.type == TransitionType::LINE && t.polarised)
                             {
@@ -1459,7 +1468,8 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ)
             spect.Quv(1, la, mu) = I(2, 0);
             spect.Quv(2, la, mu) = I(3, 0);
 #else
-            // NOTE(cmo): Checking with the normal FS and just using the first row of ezach of the matrices does indeed produce the correct result
+            // NOTE(cmo): Checking with the normal FS and just using the first row of ezach of the matrices does indeed
+            // produce the correct result
             piecewise_bezier3_1d(&fd.fdIntens, mu, toObs, spect.wavelength(la));
             spect.I(la, mu) = I(0, 0);
             spect.Quv(0, la, mu) = 0.0;
@@ -1488,7 +1498,7 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ)
 }
 }
 
-f64 gamma_matrices_formal_sol(Context ctx)
+f64 gamma_matrices_formal_sol(Context& ctx)
 {
     // feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
     JasUnpack(*ctx, atmos, spect, background);
@@ -1553,7 +1563,7 @@ f64 gamma_matrices_formal_sol(Context ctx)
     return dJMax;
 }
 
-f64 formal_sol_full_stokes(Context ctx)
+f64 formal_sol_full_stokes(Context& ctx)
 {
     // feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
     JasUnpack(*ctx, atmos, spect, background);
@@ -1677,7 +1687,8 @@ f64 escape_probability(bool line, f64 tau, f64 tauC, f64 alpha, f64* dq)
     return q;
 }
 
-f64 escape_formal_sol(const Atmosphere& atmos, f64 lambda, F64View chi, F64View chiB, F64View S, F64View P, F64View Q, F64View Lambda, bool line)
+f64 escape_formal_sol(const Atmosphere& atmos, f64 lambda, F64View chi, F64View chiB, F64View S, F64View P, F64View Q,
+    F64View Lambda, bool line)
 {
     namespace C = Constants;
     // NOTE(cmo): This is a Feautrier style method, i.e. P = I+ + I-, Q = I+ - I-
@@ -1727,8 +1738,7 @@ f64 escape_formal_sol(const Atmosphere& atmos, f64 lambda, F64View chi, F64View 
     return Iplus;
 }
 
-void gamma_matrices_escape_prob(Atom* a, Background& background,
-    const Atmosphere& atmos)
+void gamma_matrices_escape_prob(Atom* a, Background& background, const Atmosphere& atmos)
 {
     // JasUnpack(*ctx, atmos, background);
     // JasUnpack(ctx, activeAtoms);
@@ -1800,8 +1810,7 @@ void gamma_matrices_escape_prob(Atom* a, Background& background,
             {
                 wlaSum += t.wlambda(ltc);
 
-                if (t.wavelength(ltc) - prevWl < 10.0
-                    && ltc != Nlambda - 1)
+                if (t.wavelength(ltc) - prevWl < 10.0 && ltc != Nlambda - 1)
                     continue;
 
                 prevWl = t.wavelength(ltc);
@@ -1821,12 +1830,10 @@ void gamma_matrices_escape_prob(Atom* a, Background& background,
                 for (int k = 0; k < atmos.Nspace; ++k)
                 {
                     f64 Ieff = P(k) - S(k) * Lambda(k);
-                    f64 integrand = (Uji(k) + Vji(k) * Ieff)
-                        - (Lambda(k) * Uji(k));
+                    f64 integrand = (Uji(k) + Vji(k) * Ieff) - (Lambda(k) * Uji(k));
                     atom.Gamma(t.i, t.j, k) += integrand * wlaSum;
 
-                    integrand = (Vij(k) * Ieff)
-                        - (Lambda(k) * Uji(k));
+                    integrand = (Vij(k) * Ieff) - (Lambda(k) * Uji(k));
                     atom.Gamma(t.j, t.i, k) += integrand * wlaSum;
                 }
                 wlaSum = 0.0;
@@ -1918,7 +1925,7 @@ void total_depop_rate(const Transition* trans, const Atom& atom, F64View Pj)
     }
 }
 
-f64 prd_fs_update_rates(Context ctx, const std::vector<int>& prdLambdas)
+f64 prd_fs_update_rates(Context& ctx, const std::vector<int>& prdLambdas)
 {
     JasUnpack(*ctx, atmos, spect, background);
     JasUnpack(ctx, activeAtoms);
@@ -2219,7 +2226,7 @@ void prd_angle_avg(Transition* t, F64View Pj, const Atom& atom, const Atmosphere
 }
 }
 
-f64 redistribute_prd_lines_angle_avg(Context ctx, int maxIter, f64 tol)
+f64 redistribute_prd_lines_angle_avg(Context& ctx, int maxIter, f64 tol)
 {
     struct PrdData
     {
@@ -2228,11 +2235,8 @@ f64 redistribute_prd_lines_angle_avg(Context ctx, int maxIter, f64 tol)
         Ng ng;
 
         PrdData(Transition* l, const Atom& a, Ng&& n)
-            : line(l)
-            , atom(a)
-            , ng(n)
-        {
-        }
+            : line(l), atom(a), ng(n)
+        {}
     };
     JasUnpack(*ctx, atmos, spect);
     JasUnpack(ctx, activeAtoms);
@@ -2275,7 +2279,7 @@ f64 redistribute_prd_lines_angle_avg(Context ctx, int maxIter, f64 tol)
             dRho = max(dRho, p.ng.max_change());
         }
 
-        PrdCores::prd_fs_update_rates(ctx, prdLambdas);
+        PrdCores::prd_fs_update_rates(ctx, spect.prdIdxs);
 
         if (dRho < tol)
             break;
@@ -2284,4 +2288,54 @@ f64 redistribute_prd_lines_angle_avg(Context ctx, int maxIter, f64 tol)
     }
 
     return dRho;
+}
+
+void prd_bookkeeping(Context& ctx)
+{
+    struct PrdData
+    {
+        Transition* line;
+        const Atom& atom;
+
+        PrdData(Transition* l, const Atom& a)
+            : line(l), atom(a)
+        {}
+    };
+    JasUnpack(*ctx, atmos, spect);
+    JasUnpack(ctx, activeAtoms);
+    std::vector<PrdData> prdLines;
+    prdLines.reserve(10);
+    for (auto& a : activeAtoms)
+    {
+        for (auto& t : a->trans)
+        {
+            if (t->rhoPrd)
+            {
+                prdLines.emplace_back(PrdData(t, *a));
+            }
+        }
+    }
+
+    if (prdLines.size() == 0)
+        return;
+
+    const int Nspect = spect.wavelength.shape(0);
+    auto& prdLambdas = spect.prdIdxs;
+    prdLambdas.clear();
+    prdLambdas.reserve(Nspect);
+    for (int la = 0; la < Nspect; ++la)
+    {
+        bool prdLinePresent = false;
+        for (auto& p : prdLines)
+            prdLinePresent = (p.line->active(la) || prdLinePresent);
+        if (prdLinePresent)
+            prdLambdas.emplace_back(la);
+    }
+
+    // Gather PrdCoeffs (idxs and fracs) into spect.prdCoeffs
+    // Consider, instead of doing a binary search, starting at the line index, and then
+    // moving up or down the wavelength array dependent on the doppler shift factor
+    // being > 1.0/ < 1.0
+
+    
 }

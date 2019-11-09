@@ -11,6 +11,15 @@ typedef double f64;
 typedef Jasnah::Array1NonOwn<bool> BoolView;
 typedef Jasnah::Array1NonOwn<i32> I32View;
 
+namespace Prd
+{
+    struct InterpCoeffs
+    {
+        f64 frac;
+        int idx;
+    };
+    typedef Jasnah::Array4Own<std::vector<InterpCoeffs>> CoeffVec;
+}
 struct Background
 {
     F64View2D chi;
@@ -24,6 +33,8 @@ struct Spectrum
     F64View2D I;
     F64View3D Quv;
     F64View2D J;
+    std::vector<int> prdIdxs;
+    Prd::CoeffVec prdCoeffs;
 };
 
 struct ZeemanComponents
