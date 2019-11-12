@@ -9,16 +9,29 @@
 
 typedef double f64;
 typedef Jasnah::Array1NonOwn<bool> BoolView;
+typedef Jasnah::Array1Own<u8> BoolArr; //  Avoid the dreaded vector<bool>
 typedef Jasnah::Array1NonOwn<i32> I32View;
+typedef Jasnah::Array1Own<i32> I32Arr;
 
 namespace Prd
 {
-    struct InterpCoeffs
+    struct RhoInterpCoeffs
+    {
+        int i0;
+        int i1;
+        f64 frac;
+        RhoInterpCoeffs() : i0(0), i1(0), frac(0.0) {}
+        RhoInterpCoeffs(int idx0, int idx1, f64 f) : i0(idx0), i1(idx1), frac(f) {}
+    };
+    struct JInterpCoeffs
     {
         f64 frac;
         int idx;
+        JInterpCoeffs() : frac(0.0), idx(0) {}
+        JInterpCoeffs(int i, f64 f) : frac(f), idx(i) {}
     };
-    typedef Jasnah::Array4Own<std::vector<InterpCoeffs>> CoeffVec;
+    typedef Jasnah::Array4Own<RhoInterpCoeffs> RhoCoeffVec;
+    typedef Jasnah::Array4Own<std::vector<JInterpCoeffs>> JCoeffVec;
 }
 struct Background
 {
@@ -33,8 +46,14 @@ struct Spectrum
     F64View2D I;
     F64View3D Quv;
     F64View2D J;
+    BoolArr prdActive;
     std::vector<int> prdIdxs;
-    Prd::CoeffVec prdCoeffs;
+    BoolArr hPrdActive;
+    std::vector<int> hPrdIdxs;
+    I32Arr la_to_prdLa;
+    I32Arr la_to_hPrdLa;
+    Prd::JCoeffVec JCoeffs;
+    F64Arr2D JRest;
 };
 
 struct ZeemanComponents
@@ -84,6 +103,7 @@ struct Transition
     F64View Rji;
     F64View2D rhoPrd;
     F64Arr3D gII;
+    Prd::RhoCoeffVec hPrdCoeffs;
 
     // F64Arr wlambda() const
     // {
@@ -128,6 +148,20 @@ struct Transition
             {
                 Vij(k) = hc_4pi * Bij * p(k);
                 Vji(k) = gij(k) * Vij(k);
+            }
+            // NOTE(cmo): Do the HPRD linear interpolation on rho here
+            // As we make Uji, Vij, and Vji explicit, there shouldn't be any need for direct access to gij
+            if (hPrdCoeffs)
+            {
+                for (int k = 0; k < Vij.shape(0); ++k)
+                {
+                    const auto& coeffs = hPrdCoeffs(lt, mu, toObs, k);
+                    f64 rho = (1.0 - coeffs.frac) * rhoPrd(coeffs.i0, k) + coeffs.frac * rhoPrd(coeffs.i1, k);
+                    Vji(k) *= rho;
+                }
+            }
+            for (int k = 0; k < Vij.shape(0); ++k)
+            {
                 Uji(k) = Aji / Bji * Vji(k);
             }
         }
@@ -218,7 +252,10 @@ struct Atom
                 }
             }
 
-            if (t.rhoPrd)
+            // NOTE(cmo): We have to do a linear interpolation on rhoPrd in the
+            // case of hybrid PRD, so we can't pre-multiply here in that
+            // instance.
+            if (t.rhoPrd && !t.hPrdCoeffs)
                 for (int k = 0; k < g.shape(0); ++k)
                     g(k) *= t.rhoPrd(lt, k);
 
@@ -250,13 +287,14 @@ struct Context
     Background* background;
 };
 
-f64 gamma_matrices_formal_sol(Context ctx);
-f64 formal_sol_full_stokes(Context ctx);
-f64 redistribute_prd_lines_angle_avg(Context ctx, int maxIter, f64 tol);
+f64 gamma_matrices_formal_sol(Context& ctx);
+f64 formal_sol_full_stokes(Context& ctx);
+f64 redistribute_prd_lines(Context& ctx, int maxIter, f64 tol);
 void stat_eq(Atom* atom);
 void planck_nu(long Nspace, double *T, double lambda, double *Bnu);
 void piecewise_linear_1d(Atmosphere* atmos, int mu, bool toObs, f64 wav, 
                          F64View chi, F64View S, F64View I, F64View Psi);
+void configure_hprd_coeffs(Context& ctx);
 
 namespace EscapeProbability
 {

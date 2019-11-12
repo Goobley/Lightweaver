@@ -67,6 +67,7 @@ ctx = LwContext(atmos, spect, aSet, eqPops, at, ngOptions=NgOptions(0,0,0))
 delta = 1.0
 dJ = 1.0
 it = 0
+ctx.configure_hprd_coeffs()
 for it in range(200):
     # it += 1
     dJ = ctx.gamma_matrices_formal_sol()

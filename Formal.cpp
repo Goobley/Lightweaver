@@ -8,6 +8,7 @@
 #include <iostream>
 #include <utility>
 #include <vector>
+#include <algorithm>
 #include <x86intrin.h>
 
 // Public domain polyfill for feenableexcept on OS X
@@ -1313,6 +1314,28 @@ f64 intensity_core(IntensityCoreData& data, int la)
                 J(k) += 0.5 * atmos.wmu(mu) * I(k);
             }
 
+            if (spect.JRest && spect.hPrdActive && spect.hPrdActive(la))
+            // if (spect.JRest)
+            {
+#if 0
+                // NOTE(cmo): We know that the entries in prdIdxs are unique and sorted, so lower_bound should just work as a binary search.
+                auto it = std::lower_bound(spect.prdIdxs.begin(), spect.prdIdxs.end(), la);
+                int prdLa = it - spect.prdIdxs.begin();
+#else
+                // int prdLa = spect.la_to_prdLa(la);
+                // int prdLa = la;
+                int prdLa = spect.la_to_hPrdLa(la);
+#endif
+                for (int k = 0; k < Nspace; ++k)
+                {
+                    auto& coeffs = spect.JCoeffs(prdLa, mu, toObs, k);
+                    for (auto& c : coeffs)
+                    {
+                        spect.JRest(c.idx, k) += 0.5 * atmos.wmu(mu) * c.frac * I(k);
+                    }
+                }
+            }
+
             for (int a = 0; a < activeAtoms.size(); ++a)
             {
                 auto& atom = *activeAtoms[a];
@@ -1531,6 +1554,9 @@ f64 gamma_matrices_formal_sol(Context& ctx)
     JasPack(iCore, I, S, Ieff, PsiStar);
 
     printf("%d, %d, %d\n", Nspace, Nrays, Nspect);
+
+    if (spect.JRest)
+        spect.JRest.fill(0.0);
 
     for (auto& a : activeAtoms)
     {
@@ -1960,6 +1986,9 @@ f64 prd_fs_update_rates(Context& ctx, const std::vector<int>& prdLambdas)
             }
         }
     }
+    if (spect.JRest)
+        // Need to empty, but only for the prdWavelengths -- rh1.5D just empties it everywhere, that'll probably be fine
+        spect.JRest.fill(0.0);
 
     f64 dJMax = 0.0;
     for (auto la : prdLambdas)
@@ -2016,6 +2045,29 @@ f64 prd_fs_update_rates(Context& ctx, const std::vector<int>& prdLambdas)
                 for (int k = 0; k < Nspace; ++k)
                 {
                     J(k) += 0.5 * atmos.wmu(mu) * I(k);
+                }
+
+                // if (spect.JRest && spect.prdActive && spect.prdActive(la))
+                // if (spect.JRest)
+                if (spect.JRest && spect.hPrdActive && spect.hPrdActive(la))
+                {
+#if 0
+                    // NOTE(cmo): We know that the entries in prdIdxs are unique and sorted, so lower_bound should just work as a binary search.
+                    auto it = std::lower_bound(spect.prdIdxs.begin(), spect.prdIdxs.end(), la);
+                    int prdLa = it - spect.prdIdxs.begin();
+#else
+                    // int prdLa = spect.la_to_prdLa(la);
+                    // int prdLa = la;
+                    int prdLa = spect.la_to_hPrdLa(la);
+#endif
+                    for (int k = 0; k < Nspace; ++k)
+                    {
+                        auto& coeffs = spect.JCoeffs(prdLa, mu, toObs, k);
+                        for (auto& c : coeffs)
+                        {
+                            spect.JRest(c.idx, k) += 0.5 * atmos.wmu(mu) * c.frac * I(k);
+                        }
+                    }
                 }
 
                 for (int a = 0; a < activeAtoms.size(); ++a)
@@ -2133,7 +2185,7 @@ f64 GII(f64 adamp, f64 q_emit, f64 q_abs)
     return gii;
 }
 
-void prd_angle_avg(Transition* t, F64View Pj, const Atom& atom, const Atmosphere& atmos, const Spectrum& spect)
+void prd_scatter(Transition* t, F64View Pj, const Atom& atom, const Atmosphere& atmos, const Spectrum& spect)
 {
     auto& trans = *t;
 
@@ -2159,10 +2211,26 @@ void prd_angle_avg(Transition* t, F64View Pj, const Atom& atom, const Atmosphere
         f64 gamma = atom.n(trans.i, k) / atom.n(trans.j, k) * trans.Bij / Pj(k);
         f64 Jbar = trans.Rij(k) / trans.Bij;
 
+        if (spect.JRest)
+        {
+            for (int la = 0; la < Nlambda; ++la)
+            {
+                // int prdLa = spect.la_to_prdLa(la + trans.Nblue);
+                int prdLa = spect.la_to_hPrdLa(la + trans.Nblue);
+                Jk(la) = spect.JRest(prdLa, k);
+                // Jk(la) = spect.JRest(la + trans.Nblue, k);
+            }
+        }
+        else
+        {
+            for (int la = 0; la < Nlambda; ++la)
+            {
+                Jk(la) = spect.J(la + trans.Nblue, k);
+            }
+        }
         // Local mean intensity in doppler units
         for (int la = 0; la < Nlambda; ++la)
         {
-            Jk(la) = spect.J(la + trans.Nblue, k);
             qAbs(la) = (trans.wavelength(la) - trans.lambda0) * C::CLight / (trans.lambda0 * atom.vBroad(k));
         }
 
@@ -2226,7 +2294,7 @@ void prd_angle_avg(Transition* t, F64View Pj, const Atom& atom, const Atmosphere
 }
 }
 
-f64 redistribute_prd_lines_angle_avg(Context& ctx, int maxIter, f64 tol)
+f64 redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
 {
     struct PrdData
     {
@@ -2255,15 +2323,19 @@ f64 redistribute_prd_lines_angle_avg(Context& ctx, int maxIter, f64 tol)
     }
 
     const int Nspect = spect.wavelength.shape(0);
-    std::vector<int> prdLambdas;
-    prdLambdas.reserve(Nspect);
-    for (int la = 0; la < Nspect; ++la)
+    // TODO(cmo): I don't really like this bit not auto-updating
+    if (spect.prdIdxs.size() == 0)
     {
-        bool prdLinePresent = false;
-        for (auto& p : prdLines)
-            prdLinePresent = (p.line->active(la) || prdLinePresent);
-        if (prdLinePresent)
-            prdLambdas.emplace_back(la);
+        auto& prdLambdas = spect.prdIdxs;
+        prdLambdas.reserve(Nspect);
+        for (int la = 0; la < Nspect; ++la)
+        {
+            bool prdLinePresent = false;
+            for (auto& p : prdLines)
+                prdLinePresent = (p.line->active(la) || prdLinePresent);
+            if (prdLinePresent)
+                prdLambdas.emplace_back(la);
+        }
     }
 
     int iter = 0;
@@ -2274,7 +2346,7 @@ f64 redistribute_prd_lines_angle_avg(Context& ctx, int maxIter, f64 tol)
         for (auto& p : prdLines)
         {
             PrdCores::total_depop_rate(p.line, p.atom, Pj);
-            PrdCores::prd_angle_avg(p.line, Pj, p.atom, atmos, spect);
+            PrdCores::prd_scatter(p.line, Pj, p.atom, atmos, spect);
             p.ng.accelerate(p.line->rhoPrd.flatten());
             dRho = max(dRho, p.ng.max_change());
         }
@@ -2290,8 +2362,9 @@ f64 redistribute_prd_lines_angle_avg(Context& ctx, int maxIter, f64 tol)
     return dRho;
 }
 
-void prd_bookkeeping(Context& ctx)
+void configure_hprd_coeffs(Context& ctx)
 {
+    namespace C = Constants;
     struct PrdData
     {
         Transition* line;
@@ -2320,6 +2393,8 @@ void prd_bookkeeping(Context& ctx)
         return;
 
     const int Nspect = spect.wavelength.shape(0);
+    spect.prdActive = BoolArr(false, Nspect);
+    spect.la_to_prdLa = I32Arr(0, Nspect);
     auto& prdLambdas = spect.prdIdxs;
     prdLambdas.clear();
     prdLambdas.reserve(Nspect);
@@ -2329,13 +2404,223 @@ void prd_bookkeeping(Context& ctx)
         for (auto& p : prdLines)
             prdLinePresent = (p.line->active(la) || prdLinePresent);
         if (prdLinePresent)
+        {
             prdLambdas.emplace_back(la);
+            spect.prdActive(la) = true;
+            spect.la_to_prdLa(la) = prdLambdas.size()-1;
+        }
     }
 
-    // Gather PrdCoeffs (idxs and fracs) into spect.prdCoeffs
-    // Consider, instead of doing a binary search, starting at the line index, and then
-    // moving up or down the wavelength array dependent on the doppler shift factor
-    // being > 1.0/ < 1.0
+    // spect.JRest = spect.J;
+    // TODO(cmo): Can we just shrink this down to just the PRD wavelengths?
+    spect.JRest = F64Arr2D(0.0, spect.wavelength.shape(0), atmos.Nspace);
+    spect.JCoeffs = Prd::JCoeffVec(spect.wavelength.shape(0), atmos.Nrays, 2, atmos.Nspace);
+    constexpr f64 sign[] = {-1.0, 1.0};
 
-    
+    // NOTE(cmo): We can't simply store the prd wavelengths and then only
+    // compute JRest from those. JRest can be only prdIdxs long, but we need to
+    // compute all of the contributors to each of these prdIdx.
+    // NOTE(cmo): This might be overcomplicating the problem. STiC is happy to
+    // only compute these terms for the prd idxs. But I worry if a high Doppler
+    // shift were to brind intensity into the prdLine region. I don't think it's
+    // massively likely, but 500km/s is 0.8nm @ 500nm, and I don't want the line
+    // wings missing Jbar that they should have.
+    // NOTE(cmo): Okay, I need to think about this one some more (note that in
+    // its current state, something is exploding, but that's neither here nor
+    // there in realm of design). Currently when we compute the udpated the J
+    // for use internal to the prd_scatter function, we only loop over the prd
+    // wavelengths. Therefore it wouldn't be consistent to add in contributions
+    // from outside that range. We would therefore have to extend the wavelength
+    // range over which the FS was being calculated to continue using this wider
+    // definition. I don't know if that's worthwhile, especially as, for the
+    // most part, PRD is making lines narrower rather than wider. i.e.
+    // conecentrating the intensity towards the core, which is where this method
+    // will be fine anyway. This is already an approximation, so it's probably
+    // best not to overcomplicate it
+    for (int idx = 0; idx < spect.wavelength.shape(0); ++idx)
+    {
+        for (int mu = 0; mu < atmos.Nrays; ++mu)
+        {
+            for (int toObs = 0; toObs <= 1; ++toObs)
+            {
+                for (int k = 0; k < atmos.Nspace; ++k)
+                {
+                    auto coeffVec = spect.JCoeffs(idx, mu, toObs);
+                    const f64 s = sign[toObs];
+
+                    const f64 fac = 1.0 + atmos.vlosMu(mu, k) * s / C::CLight;
+                    int prevIndex = max(idx-1, 0);
+                    int nextIndex = min(idx+1, (int)spect.wavelength.shape(0)-1);
+                    // NOTE(cmo): I'm going to make the assumption that one of
+                    // these would have to be in a PRD for this region to
+                    // overlap with a prd line. If this isn't the case, then the
+                    // quadrature has gone wrong or the doppler shift is insane
+                    // and this won't work anyway.
+                    const f64 prevLambda = spect.wavelength(prevIndex) * fac;
+                    const f64 lambdaRest = spect.wavelength(idx) * fac;
+                    const f64 nextLambda = spect.wavelength(nextIndex) * fac;
+
+                    int i = std::upper_bound(spect.wavelength.data, 
+                                            spect.wavelength.data + spect.wavelength.shape(0),
+                                            prevLambda) - 1 - spect.wavelength.data;
+                    bool prdRegion = false;
+                    for (; spect.wavelength(i) < nextLambda; ++i)
+                    {
+                        if (spect.prdActive(i))
+                        {
+                            prdRegion = true;
+                            break;
+                        }
+                    }
+                    if (!prdRegion)
+                        continue;
+
+                    bool doLowerHalf = true, doUpperHalf = true;
+                    // These will only be equal on the ends. And we can't be at both ends at the same time.
+                    if (prevIndex == idx)
+                    {
+                        doLowerHalf = false;
+                        for (int i = 0; i < spect.wavelength.shape(0); ++i)
+                        {
+                            if (spect.wavelength(i) <= lambdaRest && spect.prdActive(i))
+                                coeffVec(k).emplace_back(Prd::JInterpCoeffs{i, 1.0});
+                            else
+                                break;
+                        }
+                    }
+                    else if (nextIndex == idx)
+                    {
+                        // NOTE(cmo): By doing this part here, there's a strong likelihood that the
+                        // indices for the final point will not be monotonic, but the cost of this is
+                        // probably siginificantly lower than sorting all of the arrays
+                        doUpperHalf = false;
+                        for (int i = spect.wavelength.shape(0)-1; i >= 0; --i)
+                        {
+                            if (spect.wavelength(i) > lambdaRest && spect.prdActive(i))
+                                coeffVec(k).emplace_back(Prd::JInterpCoeffs{i, 1.0});
+                            else
+                                break;
+                        }
+                    }
+
+                    i  = idx;
+                    // NOTE(cmo): If the shift is s.t. spect.wavelength(idx) > prevLambda, then we need to roll back 
+                    for (; spect.wavelength(i) > prevLambda && i >= 0; --i);
+
+
+                    // NOTE(cmo): Upper bound goes all the way to the top, but we will break out early when possible.
+                    for (; i < spect.wavelength.shape(0); ++i)
+                    {
+                        const f64 lambdaI = spect.wavelength(i);
+                        // NOTE(cmo): Early termination condition
+                        if (lambdaI > nextLambda)
+                            break;
+
+                        // NOTE(cmo): Don't do these if this is an edge case and was previously handled with constant extrapolation
+                        if (doLowerHalf && spect.prdActive(i) && lambdaI > prevLambda && lambdaI <= lambdaRest)
+                        {
+                            const f64 frac = (lambdaI - prevLambda) / (lambdaRest - prevLambda);
+                            coeffVec(k).emplace_back(Prd::JInterpCoeffs{i, frac});
+                        }
+                        else if (doUpperHalf && spect.prdActive(i) && lambdaI > lambdaRest && lambdaI < nextLambda)
+                        {
+                            const f64 frac = (lambdaI - lambdaRest) / (nextLambda - lambdaRest);
+                            coeffVec(k).emplace_back(Prd::JInterpCoeffs{i, 1.0 - frac});
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    spect.hPrdIdxs.reserve(spect.wavelength.shape(0));
+    spect.la_to_hPrdLa = I32Arr(0, spect.wavelength.shape(0));
+    spect.hPrdActive = BoolArr(false, spect.wavelength.shape(0));
+    auto& hPrdCoeffIdxs = spect.hPrdIdxs;
+    auto& la_to_hPrdLa = spect.la_to_hPrdLa;
+    auto& hPrdActive = spect.hPrdActive;
+    for (int idx = 0; idx < spect.wavelength.shape(0); ++idx)
+    {
+        for (int mu = 0; mu < atmos.Nrays; ++mu)
+        {
+            for (int toObs = 0; toObs <= 1; ++toObs)
+            {
+                for (int k = 0; k < atmos.Nspace; ++k)
+                {
+                    if (spect.JCoeffs(idx, mu, toObs, k).size() > 0)
+                    {
+                        hPrdCoeffIdxs.emplace_back(idx);
+                        hPrdActive(idx) = true;
+                        la_to_hPrdLa(idx) = hPrdCoeffIdxs.size()-1;
+                        // Nothing to see here...
+                        goto idxJump;
+                    }
+                }
+            }
+        }
+idxJump:
+        continue;
+    }
+
+    // NOTE(cmo): I think in general that the space taken up by the empty
+    // vectors may be sufficient that it's worth doing this duplication and
+    // reallocation
+    Prd::JCoeffVec trimmedCoeffs(hPrdCoeffIdxs.size(), atmos.Nrays, 2, atmos.Nspace);
+    for (int squish = 0; squish < hPrdCoeffIdxs.size(); ++squish)
+    {
+        int idx = hPrdCoeffIdxs[squish];
+        for (int mu = 0; mu < atmos.Nrays; ++mu)
+        {
+            for (int toObs = 0; toObs <= 1; ++toObs)
+            {
+                for (int k = 0; k < atmos.Nspace; ++k)
+                {
+                    trimmedCoeffs(squish, mu, toObs, k) = spect.JCoeffs(idx, mu, toObs, k);
+                }
+            }
+        }
+    }
+    spect.JCoeffs = trimmedCoeffs;
+
+
+    for (auto& p : prdLines)
+    {
+        auto& wavelength = p.line->wavelength;
+        p.line->hPrdCoeffs = Prd::RhoCoeffVec(wavelength.shape(0), atmos.Nrays, 2, atmos.Nspace);
+        auto& coeffs = p.line->hPrdCoeffs;
+        for (int lt = 0; lt < wavelength.shape(0); ++lt)
+        {
+            for (int mu = 0; mu < atmos.Nrays; ++mu)
+            {
+                for (int toObs = 0; toObs <= 1; ++toObs)
+                {
+                    for (int k = 0; k < atmos.Nspace; ++k)
+                    {
+                        const f64 s = sign[toObs];
+                        const f64 lambdaRest = wavelength(lt) * (1.0 + atmos.vlosMu(mu, k) * s / C::CLight);
+                        auto& c = coeffs(lt, mu, toObs, k);
+                        if (lambdaRest <= wavelength(0))
+                        {
+                            c.frac = 0.0;
+                            c.i0 = 0;
+                            c.i1 = 1;
+                        }
+                        else if (lambdaRest >= wavelength(wavelength.shape(0)-1))
+                        {
+                            c.frac = 1.0;
+                            c.i0 = wavelength.shape(0) - 2;
+                            c.i1 = wavelength.shape(0) - 1;
+                        }
+                        else
+                        {
+                            auto it = std::upper_bound(wavelength.data, wavelength.data + wavelength.shape(0), lambdaRest) - 1;
+                            c.frac = (lambdaRest - *it) / (*(it+1) - *it);
+                            c.i0 = it - wavelength.data;
+                            c.i1 = c.i0 + 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
