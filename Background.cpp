@@ -127,7 +127,7 @@ struct SplineInterpolator
         }
 
         M(N-1) = 0.0;
-        for (int j = N - 1; j >= 0; --j)
+        for (int j = N - 2; j >= 0; --j)
         {
             M(j) = M(j) * M(j+1) + u(j);
         }

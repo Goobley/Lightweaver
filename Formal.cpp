@@ -1315,21 +1315,12 @@ f64 intensity_core(IntensityCoreData& data, int la)
             }
 
             if (spect.JRest && spect.hPrdActive && spect.hPrdActive(la))
-            // if (spect.JRest)
             {
-#if 0
-                // NOTE(cmo): We know that the entries in prdIdxs are unique and sorted, so lower_bound should just work as a binary search.
-                auto it = std::lower_bound(spect.prdIdxs.begin(), spect.prdIdxs.end(), la);
-                int prdLa = it - spect.prdIdxs.begin();
-#else
-                // int prdLa = spect.la_to_prdLa(la);
-                // int prdLa = la;
-                int prdLa = spect.la_to_hPrdLa(la);
-#endif
+                int hPrdLa = spect.la_to_hPrdLa(la);
                 for (int k = 0; k < Nspace; ++k)
                 {
-                    auto& coeffs = spect.JCoeffs(prdLa, mu, toObs, k);
-                    for (auto& c : coeffs)
+                    const auto& coeffs = spect.JCoeffs(hPrdLa, mu, toObs, k);
+                    for (const auto& c : coeffs)
                     {
                         spect.JRest(c.idx, k) += 0.5 * atmos.wmu(mu) * c.frac * I(k);
                     }
@@ -1723,7 +1714,7 @@ f64 escape_formal_sol(const Atmosphere& atmos, f64 lambda, F64View chi, F64View 
 
     tau(0) = 0.0;
     tauB(0) = 0.0;
-    for (int k = 1; k < atmos.Nspace; ++k)
+    for (int k = 1; k < atmos.Nspace-1; ++k)
     {
         f64 zz = abs(atmos.height(k - 1) - atmos.height(k + 1)) * 0.5;
         tauB(k) += tauB(k - 1) + chiB(k) * zz;
@@ -1731,8 +1722,8 @@ f64 escape_formal_sol(const Atmosphere& atmos, f64 lambda, F64View chi, F64View 
     }
     tau(0) = 0.5 * tau(1);
     tauB(0) = 0.5 * tauB(1);
-    tau(atmos.Nspace - 1) = 0.5 * tau(atmos.Nspace - 2);
-    tauB(atmos.Nspace - 1) = 0.5 * tauB(atmos.Nspace - 2);
+    tau(atmos.Nspace - 1) = 2.0 * tau(atmos.Nspace - 2);
+    tauB(atmos.Nspace - 1) = 2.0 * tauB(atmos.Nspace - 2);
 
     P(atmos.Nspace - 1) = S(atmos.Nspace - 1);
     Q(atmos.Nspace - 1) = 0.0;
@@ -1951,155 +1942,6 @@ void total_depop_rate(const Transition* trans, const Atom& atom, F64View Pj)
     }
 }
 
-f64 prd_fs_update_rates(Context& ctx, const std::vector<int>& prdLambdas)
-{
-    JasUnpack(*ctx, atmos, spect, background);
-    JasUnpack(ctx, activeAtoms);
-
-    const int Nspace = atmos.Nspace;
-    const int Nrays = atmos.Nrays;
-
-    F64Arr chiTot = F64Arr(Nspace);
-    F64Arr etaTot = F64Arr(Nspace);
-    F64Arr S = F64Arr(Nspace);
-    F64Arr Uji = F64Arr(Nspace);
-    F64Arr Vij = F64Arr(Nspace);
-    F64Arr Vji = F64Arr(Nspace);
-    F64Arr I = F64Arr(Nspace);
-    F64Arr Ieff = F64Arr(Nspace);
-    F64Arr JDag = F64Arr(Nspace);
-    FormalData fd;
-    fd.atmos = &atmos;
-    fd.chi = chiTot;
-    fd.S = S;
-    fd.I = I;
-
-    printf("%d, %d\n", Nspace, Nrays);
-
-    for (auto& a : activeAtoms)
-    {
-        for (auto& t : a->trans)
-        {
-            if (t->rhoPrd)
-            {
-                t->zero_rates();
-            }
-        }
-    }
-    if (spect.JRest)
-        // Need to empty, but only for the prdWavelengths -- rh1.5D just empties it everywhere, that'll probably be fine
-        spect.JRest.fill(0.0);
-
-    f64 dJMax = 0.0;
-    for (auto la : prdLambdas)
-    {
-        JDag = spect.J(la);
-        F64View J = spect.J(la);
-        J.fill(0.0);
-
-        for (int a = 0; a < activeAtoms.size(); ++a)
-            activeAtoms[a]->setup_wavelength(la);
-
-        for (int mu = 0; mu < Nrays; ++mu)
-        {
-            for (int toObsI = 0; toObsI < 2; toObsI += 1)
-            {
-                bool toObs = (bool)toObsI;
-
-                chiTot.fill(0.0);
-                etaTot.fill(0.0);
-
-                for (int a = 0; a < activeAtoms.size(); ++a)
-                {
-                    auto& atom = *activeAtoms[a];
-                    for (int kr = 0; kr < atom.Ntrans; ++kr)
-                    {
-                        auto& t = *atom.trans[kr];
-                        if (!t.active(la))
-                            continue;
-
-                        t.uv(la, mu, toObs, Uji, Vij, Vji);
-
-                        for (int k = 0; k < Nspace; ++k)
-                        {
-                            f64 chi = atom.n(t.i, k) * Vij(k) - atom.n(t.j, k) * Vji(k);
-                            f64 eta = atom.n(t.j, k) * Uji(k);
-
-                            chiTot(k) += chi;
-                            etaTot(k) += eta;
-                            atom.eta(k) += eta;
-                        }
-                    }
-                }
-                // Do LTE atoms here
-
-                for (int k = 0; k < Nspace; ++k)
-                {
-                    chiTot(k) += background.chi(la, k);
-                    S(k) = (etaTot(k) + background.eta(la, k) + background.sca(la, k) * JDag(k)) / chiTot(k);
-                }
-
-                piecewise_bezier3_1d(&fd, mu, toObs, spect.wavelength(la));
-                spect.I(la, mu) = I(0);
-
-                for (int k = 0; k < Nspace; ++k)
-                {
-                    J(k) += 0.5 * atmos.wmu(mu) * I(k);
-                }
-
-                // if (spect.JRest && spect.prdActive && spect.prdActive(la))
-                // if (spect.JRest)
-                if (spect.JRest && spect.hPrdActive && spect.hPrdActive(la))
-                {
-#if 0
-                    // NOTE(cmo): We know that the entries in prdIdxs are unique and sorted, so lower_bound should just work as a binary search.
-                    auto it = std::lower_bound(spect.prdIdxs.begin(), spect.prdIdxs.end(), la);
-                    int prdLa = it - spect.prdIdxs.begin();
-#else
-                    // int prdLa = spect.la_to_prdLa(la);
-                    // int prdLa = la;
-                    int prdLa = spect.la_to_hPrdLa(la);
-#endif
-                    for (int k = 0; k < Nspace; ++k)
-                    {
-                        auto& coeffs = spect.JCoeffs(prdLa, mu, toObs, k);
-                        for (auto& c : coeffs)
-                        {
-                            spect.JRest(c.idx, k) += 0.5 * atmos.wmu(mu) * c.frac * I(k);
-                        }
-                    }
-                }
-
-                for (int a = 0; a < activeAtoms.size(); ++a)
-                {
-                    auto& atom = *activeAtoms[a];
-                    for (int kr = 0; kr < atom.Ntrans; ++kr)
-                    {
-                        auto& t = *atom.trans[kr];
-                        if (!t.active(la) || !t.rhoPrd)
-                            continue;
-
-                        const f64 wmu = 0.5 * atmos.wmu(mu);
-                        t.uv(la, mu, toObs, Uji, Vij, Vji);
-
-                        for (int k = 0; k < Nspace; ++k)
-                        {
-                            const f64 wlamu = atom.wla(kr, k) * wmu;
-                            t.Rij(k) += I(k) * Vij(k) * wlamu;
-                            t.Rji(k) += (Uji(k) + I(k) * Vij(k)) * wlamu;
-                        }
-                    }
-                }
-            }
-        }
-        for (int k = 0; k < Nspace; ++k)
-        {
-            f64 dJ = abs(1.0 - JDag(k) / J(k));
-            dJMax = max(dJ, dJMax);
-        }
-    }
-    return dJMax;
-}
 
 constexpr f64 PrdQWing = 4.0;
 constexpr f64 PrdQCore = 4.0;
@@ -2215,8 +2057,7 @@ void prd_scatter(Transition* t, F64View Pj, const Atom& atom, const Atmosphere& 
         {
             for (int la = 0; la < Nlambda; ++la)
             {
-                // int prdLa = spect.la_to_prdLa(la + trans.Nblue);
-                int prdLa = spect.la_to_hPrdLa(la + trans.Nblue);
+                int prdLa = spect.la_to_prdLa(la + trans.Nblue);
                 Jk(la) = spect.JRest(prdLa, k);
                 // Jk(la) = spect.JRest(la + trans.Nblue, k);
             }
@@ -2294,6 +2135,154 @@ void prd_scatter(Transition* t, F64View Pj, const Atom& atom, const Atmosphere& 
 }
 }
 
+f64 formal_sol_update_rates(Context& ctx, I32View wavelengthIdxs)
+{
+    JasUnpack(*ctx, atmos, spect, background);
+    JasUnpack(ctx, activeAtoms);
+
+    const int Nspace = atmos.Nspace;
+    const int Nrays = atmos.Nrays;
+
+    F64Arr chiTot = F64Arr(Nspace);
+    F64Arr etaTot = F64Arr(Nspace);
+    F64Arr S = F64Arr(Nspace);
+    F64Arr Uji = F64Arr(Nspace);
+    F64Arr Vij = F64Arr(Nspace);
+    F64Arr Vji = F64Arr(Nspace);
+    F64Arr I = F64Arr(Nspace);
+    F64Arr Ieff = F64Arr(Nspace);
+    F64Arr JDag = F64Arr(Nspace);
+    FormalData fd;
+    fd.atmos = &atmos;
+    fd.chi = chiTot;
+    fd.S = S;
+    fd.I = I;
+
+    printf("%d, %d\n", Nspace, Nrays);
+
+    for (auto& a : activeAtoms)
+    {
+        for (auto& t : a->trans)
+        {
+            if (t->rhoPrd)
+            {
+                t->zero_rates();
+            }
+        }
+    }
+    if (spect.JRest)
+        spect.JRest.fill(0.0);
+
+    f64 dJMax = 0.0;
+
+    for (int i = 0; i < wavelengthIdxs.shape(0); ++i)
+    {
+        const f64 la = wavelengthIdxs(i);
+        JDag = spect.J(la);
+        F64View J = spect.J(la);
+        J.fill(0.0);
+
+        for (int a = 0; a < activeAtoms.size(); ++a)
+            activeAtoms[a]->setup_wavelength(la);
+
+        for (int mu = 0; mu < Nrays; ++mu)
+        {
+            for (int toObsI = 0; toObsI < 2; toObsI += 1)
+            {
+                bool toObs = (bool)toObsI;
+
+                chiTot.fill(0.0);
+                etaTot.fill(0.0);
+
+                for (int a = 0; a < activeAtoms.size(); ++a)
+                {
+                    auto& atom = *activeAtoms[a];
+                    for (int kr = 0; kr < atom.Ntrans; ++kr)
+                    {
+                        auto& t = *atom.trans[kr];
+                        if (!t.active(la))
+                            continue;
+
+                        t.uv(la, mu, toObs, Uji, Vij, Vji);
+
+                        for (int k = 0; k < Nspace; ++k)
+                        {
+                            f64 chi = atom.n(t.i, k) * Vij(k) - atom.n(t.j, k) * Vji(k);
+                            f64 eta = atom.n(t.j, k) * Uji(k);
+
+                            chiTot(k) += chi;
+                            etaTot(k) += eta;
+                            atom.eta(k) += eta;
+                        }
+                    }
+                }
+                // Do LTE atoms here
+
+                for (int k = 0; k < Nspace; ++k)
+                {
+                    chiTot(k) += background.chi(la, k);
+                    S(k) = (etaTot(k) + background.eta(la, k) + background.sca(la, k) * JDag(k)) / chiTot(k);
+                }
+
+                piecewise_bezier3_1d(&fd, mu, toObs, spect.wavelength(la));
+                spect.I(la, mu) = I(0);
+
+                for (int k = 0; k < Nspace; ++k)
+                {
+                    J(k) += 0.5 * atmos.wmu(mu) * I(k);
+                }
+
+                if (spect.JRest && spect.hPrdActive && spect.hPrdActive(la))
+                {
+                    int hPrdLa = spect.la_to_hPrdLa(la);
+                    for (int k = 0; k < Nspace; ++k)
+                    {
+                        const auto& coeffs = spect.JCoeffs(hPrdLa, mu, toObs, k);
+                        for (const auto& c : coeffs)
+                        {
+                            spect.JRest(c.idx, k) += 0.5 * atmos.wmu(mu) * c.frac * I(k);
+                        }
+                    }
+                }
+
+                for (int a = 0; a < activeAtoms.size(); ++a)
+                {
+                    auto& atom = *activeAtoms[a];
+                    for (int kr = 0; kr < atom.Ntrans; ++kr)
+                    {
+                        auto& t = *atom.trans[kr];
+                        if (!t.active(la) || !t.rhoPrd)
+                            continue;
+
+                        const f64 wmu = 0.5 * atmos.wmu(mu);
+                        t.uv(la, mu, toObs, Uji, Vij, Vji);
+
+                        for (int k = 0; k < Nspace; ++k)
+                        {
+                            const f64 wlamu = atom.wla(kr, k) * wmu;
+                            t.Rij(k) += I(k) * Vij(k) * wlamu;
+                            t.Rji(k) += (Uji(k) + I(k) * Vij(k)) * wlamu;
+                        }
+                    }
+                }
+            }
+        }
+        for (int k = 0; k < Nspace; ++k)
+        {
+            f64 dJ = abs(1.0 - JDag(k) / J(k));
+            dJMax = max(dJ, dJMax);
+        }
+    }
+    return dJMax;
+}
+
+f64 formal_sol_update_rates(Context& ctx, const std::vector<int>& wavelengthIdxs)
+{
+    // TODO(cmo): Really need to fix the const-correctness on these arrays, if possible.
+    I32View wavelengthView(const_cast<int*>(wavelengthIdxs.data()), wavelengthIdxs.size());
+    return formal_sol_update_rates(ctx, wavelengthView);
+}
+
 f64 redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
 {
     struct PrdData
@@ -2323,19 +2312,20 @@ f64 redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
     }
 
     const int Nspect = spect.wavelength.shape(0);
-    // TODO(cmo): I don't really like this bit not auto-updating
-    if (spect.prdIdxs.size() == 0)
+    auto& idxsForFs = spect.hPrdIdxs;
+    std::vector<int> prdIdxs;
+    if (spect.hPrdIdxs.size() == 0)
     {
-        auto& prdLambdas = spect.prdIdxs;
-        prdLambdas.reserve(Nspect);
+        prdIdxs.reserve(Nspect);
         for (int la = 0; la < Nspect; ++la)
         {
             bool prdLinePresent = false;
             for (auto& p : prdLines)
                 prdLinePresent = (p.line->active(la) || prdLinePresent);
             if (prdLinePresent)
-                prdLambdas.emplace_back(la);
+                prdIdxs.emplace_back(la);
         }
+        idxsForFs = prdIdxs;
     }
 
     int iter = 0;
@@ -2351,7 +2341,7 @@ f64 redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
             dRho = max(dRho, p.ng.max_change());
         }
 
-        PrdCores::prd_fs_update_rates(ctx, spect.prdIdxs);
+        formal_sol_update_rates(ctx, idxsForFs);
 
         if (dRho < tol)
             break;
@@ -2411,11 +2401,6 @@ void configure_hprd_coeffs(Context& ctx)
         }
     }
 
-    // spect.JRest = spect.J;
-    // TODO(cmo): Can we just shrink this down to just the PRD wavelengths?
-    spect.JRest = F64Arr2D(0.0, spect.wavelength.shape(0), atmos.Nspace);
-    spect.JCoeffs = Prd::JCoeffVec(spect.wavelength.shape(0), atmos.Nrays, 2, atmos.Nspace);
-    constexpr f64 sign[] = {-1.0, 1.0};
 
     // NOTE(cmo): We can't simply store the prd wavelengths and then only
     // compute JRest from those. JRest can be only prdIdxs long, but we need to
@@ -2437,7 +2422,59 @@ void configure_hprd_coeffs(Context& ctx)
     // conecentrating the intensity towards the core, which is where this method
     // will be fine anyway. This is already an approximation, so it's probably
     // best not to overcomplicate it
-    for (int idx = 0; idx < spect.wavelength.shape(0); ++idx)
+
+    auto check_lambda_scatter_into_prd_region = [&](int la)
+    {
+        constexpr f64 sign[] = {-1.0, 1.0};
+        for (int mu = 0; mu < atmos.Nrays; ++mu)
+        {
+            for (int toObs = 0; toObs <= 1; ++toObs)
+            {
+                for (int k = 0; k < atmos.Nspace; ++k)
+                {
+                    const f64 s = sign[toObs];
+                    const f64 fac = 1.0 + atmos.vlosMu(mu, k) * s / C::CLight;
+                    int prevIndex = max(la-1, 0);
+                    int nextIndex = min(la+1, (int)spect.wavelength.shape(0)-1);
+                    const f64 prevLambda = spect.wavelength(prevIndex) * fac;
+                    const f64 nextLambda = spect.wavelength(nextIndex) * fac;
+
+                    int i = la;
+                    for (; spect.wavelength(i) > prevLambda && i >= 0; --i);
+                    for (; i < spect.wavelength.shape(0); ++i)
+                    {
+                        const f64 lambdaI = spect.wavelength(i);
+                        if (spect.prdActive(i))
+                            return true;
+                        else if (lambdaI > nextLambda)
+                            break;
+                    }
+                }
+            }
+        }
+        return false;
+    };
+
+    auto& hPrdIdxs = spect.hPrdIdxs;
+    hPrdIdxs.clear();
+    hPrdIdxs.reserve(Nspect);
+    spect.la_to_hPrdLa = I32Arr(0, Nspect);
+    spect.hPrdActive = BoolArr(false, Nspect);
+    for (int la = 0; la < Nspect; ++la)
+    {
+        if (check_lambda_scatter_into_prd_region(la))
+        {
+            hPrdIdxs.emplace_back(la);
+            spect.hPrdActive(la) = true;
+            spect.la_to_hPrdLa(la) = hPrdIdxs.size()-1;
+        }
+    }
+
+    spect.JRest = F64Arr2D(0.0, prdLambdas.size(), atmos.Nspace);
+    spect.JCoeffs = Prd::JCoeffVec(hPrdIdxs.size(), atmos.Nrays, 2, atmos.Nspace);
+    constexpr f64 sign[] = {-1.0, 1.0};
+
+    for (auto idx : hPrdIdxs)
     {
         for (int mu = 0; mu < atmos.Nrays; ++mu)
         {
@@ -2445,71 +2482,55 @@ void configure_hprd_coeffs(Context& ctx)
             {
                 for (int k = 0; k < atmos.Nspace; ++k)
                 {
-                    auto coeffVec = spect.JCoeffs(idx, mu, toObs);
+                    int hPrdLa = spect.la_to_hPrdLa(idx);
+                    auto coeffVec = spect.JCoeffs(hPrdLa, mu, toObs);
                     const f64 s = sign[toObs];
 
                     const f64 fac = 1.0 + atmos.vlosMu(mu, k) * s / C::CLight;
                     int prevIndex = max(idx-1, 0);
-                    int nextIndex = min(idx+1, (int)spect.wavelength.shape(0)-1);
-                    // NOTE(cmo): I'm going to make the assumption that one of
-                    // these would have to be in a PRD for this region to
-                    // overlap with a prd line. If this isn't the case, then the
-                    // quadrature has gone wrong or the doppler shift is insane
-                    // and this won't work anyway.
+                    int nextIndex = min(idx+1, Nspect-1);
                     const f64 prevLambda = spect.wavelength(prevIndex) * fac;
                     const f64 lambdaRest = spect.wavelength(idx) * fac;
                     const f64 nextLambda = spect.wavelength(nextIndex) * fac;
-
-                    int i = std::upper_bound(spect.wavelength.data, 
-                                            spect.wavelength.data + spect.wavelength.shape(0),
-                                            prevLambda) - 1 - spect.wavelength.data;
-                    bool prdRegion = false;
-                    for (; spect.wavelength(i) < nextLambda; ++i)
-                    {
-                        if (spect.prdActive(i))
-                        {
-                            prdRegion = true;
-                            break;
-                        }
-                    }
-                    if (!prdRegion)
-                        continue;
-
                     bool doLowerHalf = true, doUpperHalf = true;
                     // These will only be equal on the ends. And we can't be at both ends at the same time.
                     if (prevIndex == idx)
                     {
                         doLowerHalf = false;
-                        for (int i = 0; i < spect.wavelength.shape(0); ++i)
+                        for (int i = 0; i < Nspect; ++i)
                         {
                             if (spect.wavelength(i) <= lambdaRest && spect.prdActive(i))
-                                coeffVec(k).emplace_back(Prd::JInterpCoeffs{i, 1.0});
+                                coeffVec(k).emplace_back(Prd::JInterpCoeffs{spect.la_to_prdLa(i), 1.0});
                             else
                                 break;
                         }
                     }
                     else if (nextIndex == idx)
                     {
-                        // NOTE(cmo): By doing this part here, there's a strong likelihood that the
-                        // indices for the final point will not be monotonic, but the cost of this is
-                        // probably siginificantly lower than sorting all of the arrays
+                        // NOTE(cmo): By doing this part here, there's a strong
+                        // likelihood that the indices for the final point will
+                        // not be monotonic, but the cost of this is probably
+                        // siginificantly lower than sorting all of the arrays,
+                        // especially as it is likely that this case won't be
+                        // used as I don't expect a PRD line right on the edge
+                        // of the wavelength window in most scenarios
                         doUpperHalf = false;
-                        for (int i = spect.wavelength.shape(0)-1; i >= 0; --i)
+                        for (int i = Nspect-1; i >= 0; --i)
                         {
                             if (spect.wavelength(i) > lambdaRest && spect.prdActive(i))
-                                coeffVec(k).emplace_back(Prd::JInterpCoeffs{i, 1.0});
+                                coeffVec(k).emplace_back(Prd::JInterpCoeffs{spect.la_to_prdLa(i), 1.0});
                             else
                                 break;
                         }
                     }
 
-                    i  = idx;
+                    int i  = idx;
                     // NOTE(cmo): If the shift is s.t. spect.wavelength(idx) > prevLambda, then we need to roll back 
                     for (; spect.wavelength(i) > prevLambda && i >= 0; --i);
 
 
                     // NOTE(cmo): Upper bound goes all the way to the top, but we will break out early when possible.
-                    for (; i < spect.wavelength.shape(0); ++i)
+                    for (; i < Nspect; ++i)
                     {
                         const f64 lambdaI = spect.wavelength(i);
                         // NOTE(cmo): Early termination condition
@@ -2520,68 +2541,18 @@ void configure_hprd_coeffs(Context& ctx)
                         if (doLowerHalf && spect.prdActive(i) && lambdaI > prevLambda && lambdaI <= lambdaRest)
                         {
                             const f64 frac = (lambdaI - prevLambda) / (lambdaRest - prevLambda);
-                            coeffVec(k).emplace_back(Prd::JInterpCoeffs{i, frac});
+                            coeffVec(k).emplace_back(Prd::JInterpCoeffs{spect.la_to_prdLa(i), frac});
                         }
                         else if (doUpperHalf && spect.prdActive(i) && lambdaI > lambdaRest && lambdaI < nextLambda)
                         {
                             const f64 frac = (lambdaI - lambdaRest) / (nextLambda - lambdaRest);
-                            coeffVec(k).emplace_back(Prd::JInterpCoeffs{i, 1.0 - frac});
+                            coeffVec(k).emplace_back(Prd::JInterpCoeffs{spect.la_to_prdLa(i), 1.0 - frac});
                         }
                     }
                 }
             }
         }
     }
-
-    spect.hPrdIdxs.reserve(spect.wavelength.shape(0));
-    spect.la_to_hPrdLa = I32Arr(0, spect.wavelength.shape(0));
-    spect.hPrdActive = BoolArr(false, spect.wavelength.shape(0));
-    auto& hPrdCoeffIdxs = spect.hPrdIdxs;
-    auto& la_to_hPrdLa = spect.la_to_hPrdLa;
-    auto& hPrdActive = spect.hPrdActive;
-    for (int idx = 0; idx < spect.wavelength.shape(0); ++idx)
-    {
-        for (int mu = 0; mu < atmos.Nrays; ++mu)
-        {
-            for (int toObs = 0; toObs <= 1; ++toObs)
-            {
-                for (int k = 0; k < atmos.Nspace; ++k)
-                {
-                    if (spect.JCoeffs(idx, mu, toObs, k).size() > 0)
-                    {
-                        hPrdCoeffIdxs.emplace_back(idx);
-                        hPrdActive(idx) = true;
-                        la_to_hPrdLa(idx) = hPrdCoeffIdxs.size()-1;
-                        // Nothing to see here...
-                        goto idxJump;
-                    }
-                }
-            }
-        }
-idxJump:
-        continue;
-    }
-
-    // NOTE(cmo): I think in general that the space taken up by the empty
-    // vectors may be sufficient that it's worth doing this duplication and
-    // reallocation
-    Prd::JCoeffVec trimmedCoeffs(hPrdCoeffIdxs.size(), atmos.Nrays, 2, atmos.Nspace);
-    for (int squish = 0; squish < hPrdCoeffIdxs.size(); ++squish)
-    {
-        int idx = hPrdCoeffIdxs[squish];
-        for (int mu = 0; mu < atmos.Nrays; ++mu)
-        {
-            for (int toObs = 0; toObs <= 1; ++toObs)
-            {
-                for (int k = 0; k < atmos.Nspace; ++k)
-                {
-                    trimmedCoeffs(squish, mu, toObs, k) = spect.JCoeffs(idx, mu, toObs, k);
-                }
-            }
-        }
-    }
-    spect.JCoeffs = trimmedCoeffs;
-
 
     for (auto& p : prdLines)
     {
