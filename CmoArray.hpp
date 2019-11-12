@@ -1,6 +1,7 @@
 #ifndef CMO_ARRAY_HPP
 #define CMO_ARRAY_HPP
 
+#include <cstdint>
 #include <vector>
 #include <array>
 #include <cstdio>
@@ -9,6 +10,11 @@
 
 namespace Jasnah
 {
+// NOTE(cmo): The standards commitee are very emphatic now that indices and
+// lengths of arrays should be signed. This makes sense when differencing etc.
+// and it looks like std2 will actually follow this convention. We may as well
+// get on board now.
+typedef int64_t i64;
 #ifdef CMO_ARRAY_BOUNDS_CHECK
     #define DO_BOUNDS_CHECK() assert((i0 >= 0) && (i0 < dim0))
     #define DO_BOUNDS_CHECK_M1()
@@ -31,16 +37,17 @@ template <typename T>
 struct Array1NonOwn
 {
     T* data;
-    size_t Ndim;
-    size_t dim0;
+    i64 Ndim;
+    i64 dim0;
     Array1NonOwn() : data(nullptr), Ndim(1), dim0(0)
     {}
-    Array1NonOwn(T* data_, size_t dim) : data(data_), Ndim(1), dim0(dim)
+    Array1NonOwn(T* data_, i64 dim) : data(data_), Ndim(1), dim0(dim)
+    {}
+    Array1NonOwn(std::vector<T>* vec) : data(vec->data()), Ndim(1), dim0(vec->size())
     {}
     Array1NonOwn(const Array1NonOwn& other) = default;
     Array1NonOwn(Array1NonOwn&& other) = default;
-    Array1NonOwn(Array1Own<T>& other) : Ndim(other.Ndim), dim0(other.dim0), 
-                                              data(other.data.data())
+    Array1NonOwn(Array1Own<T>& other) : data(other.data.data()), Ndim(other.Ndim), dim0(other.dim0)
     {}
 
     Array1NonOwn&
@@ -56,89 +63,132 @@ struct Array1NonOwn
 
     void fill(T val)
     {
-        for (int i = 0; i < dim0; ++i)
+        for (i64 i = 0; i < dim0; ++i)
         {
             data[i] = val;
         }
     }
 
-    inline const size_t* shape() const
+    inline const i64* shape() const
     {
         return &dim0;
     }
-    inline size_t shape(int i) const
+    inline i64 shape(int i) const
     {
-        if (i >= Ndim)
-        {
-            printf("oh no.\n");
-            assert(false);
-        }
+        assert(i >= 0 && i < Ndim);
         return dim0;
     }
 
-    inline T& operator[](size_t i)
+    inline T& operator[](i64 i)
     {
         return data[i];
     }
-    inline T operator[](size_t i) const
+    inline T operator[](i64 i) const
     {
         return data[i];
     }
 
-    inline T& operator()(size_t i0)
+    inline T& operator()(i64 i0)
     {
         DO_BOUNDS_CHECK();
         return data[i0];
     }
-    inline T operator()(size_t i0) const
+    inline T operator()(i64 i0) const
     {
         DO_BOUNDS_CHECK();
         return data[i0];
     }
 
-    Array1NonOwn<T> slice(int start, int end) const
+    Array1NonOwn<T> slice(i64 start, i64 end)
     {
         assert(start >= 0 && start < dim0 && end <= dim0);
 
         return Array1NonOwn(data+start, end-start);
     }
 
-    Array2NonOwn<T> reshape(int d0, int d1) const
+    Array1NonOwn<const T> slice(i64 start, i64 end) const
+    {
+        assert(start >= 0 && start < dim0 && end <= dim0);
+
+        return Array1NonOwn(data+start, end-start);
+    }
+
+    Array2NonOwn<T> reshape(i64 d0, i64 d1)
     {
         if (d0 * d1 != dim0)
         {
             printf("Cannot reshape array [%d] to [%d x %d]\n", dim0, d0, d1);
-            assert(false);
+            assert(d0 * d1 == dim0);
         }
         return Array2NonOwn(data, d0, d1);
     }
 
-    Array3NonOwn<T> reshape(int d0, int d1, int d2) const
+    Array2NonOwn<const T> reshape(i64 d0, i64 d1) const
+    {
+        if (d0 * d1 != dim0)
+        {
+            printf("Cannot reshape array [%d] to [%d x %d]\n", dim0, d0, d1);
+            assert(d0 * d1 == dim0);
+        }
+        return Array2NonOwn(data, d0, d1);
+    }
+
+    Array3NonOwn<T> reshape(i64 d0, i64 d1, i64 d2)
     {
         if (d0 * d1 * d2 != dim0)
         {
             printf("Cannot reshape array [%d] to [%d x %d x %d]\n", dim0, d0, d1, d2);
-            assert(false);
+            assert(d0 * d1 * d2 == dim0);
         }
         return Array3NonOwn(data, d0, d1, d2);
     }
 
-    Array4NonOwn<T> reshape(int d0, int d1, int d2, int d3) const
+    Array3NonOwn<const T> reshape(i64 d0, i64 d1, i64 d2) const
+    {
+        if (d0 * d1 * d2 != dim0)
+        {
+            printf("Cannot reshape array [%d] to [%d x %d x %d]\n", dim0, d0, d1, d2);
+            assert(d0 * d1 * d2 == dim0);
+        }
+        return Array3NonOwn(data, d0, d1, d2);
+    }
+
+    Array4NonOwn<T> reshape(i64 d0, i64 d1, i64 d2, i64 d3)
     {
         if (d0 * d1 * d2 * d3 != dim0)
         {
             printf("Cannot reshape array [%d] to [%d x %d x %d x %d]\n", dim0, d0, d1, d2, d3);
-            assert(false);
+            assert(d0 * d1 * d2 * d3 == dim0);
         }
         return Array4NonOwn(data, d0, d1, d2, d3);
     }
 
-    Array5NonOwn<T> reshape(int d0, int d1, int d2, int d3, int d4) const
+    Array4NonOwn<const T> reshape(i64 d0, i64 d1, i64 d2, i64 d3) const
+    {
+        if (d0 * d1 * d2 * d3 != dim0)
+        {
+            printf("Cannot reshape array [%d] to [%d x %d x %d x %d]\n", dim0, d0, d1, d2, d3);
+            assert(d0 * d1 * d2 * d3 == dim0);
+        }
+        return Array4NonOwn(data, d0, d1, d2, d3);
+    }
+
+    Array5NonOwn<T> reshape(i64 d0, i64 d1, i64 d2, i64 d3, i64 d4)
     {
         if (d0 * d1 * d2 * d3 * d4 != dim0)
         {
             printf("Cannot reshape array [%d] to [%d x %d x %d x %d x %d]\n", dim0, d0, d1, d2, d3, d4);
-            assert(false);
+            assert(d0 * d1 * d2 * d3 * d4 == dim0);
+        }
+        return Array5NonOwn(data, d0, d1, d2, d3, d4);
+    }
+
+    Array5NonOwn<const T> reshape(i64 d0, i64 d1, i64 d2, i64 d3, i64 d4) const
+    {
+        if (d0 * d1 * d2 * d3 * d4 != dim0)
+        {
+            printf("Cannot reshape array [%d] to [%d x %d x %d x %d x %d]\n", dim0, d0, d1, d2, d3, d4);
+            assert(d0 * d1 * d2 * d3 * d4 == dim0);
         }
         return Array5NonOwn(data, d0, d1, d2, d3, d4);
     }
@@ -149,15 +199,15 @@ template <typename T>
 struct Array1Own
 {
     std::vector<T> data;
-    size_t Ndim;
-    size_t dim0;
+    i64 Ndim;
+    i64 dim0;
     Array1Own() : data(), Ndim(1), dim0(0)
     {}
-    Array1Own(size_t size) : data(size), Ndim(1), dim0(size)
+    Array1Own(i64 size) : data(size), Ndim(1), dim0(size)
     {}
-    Array1Own(T val, size_t size) : data(size, val), Ndim(1), dim0(size)
+    Array1Own(T val, i64 size) : data(size, val), Ndim(1), dim0(size)
     {}
-    Array1Own(const Array1NonOwn<T>& other) : Ndim(other.Ndim), dim0(other.dim0), data(other.data, other.data + other.dim0)
+    Array1Own(const Array1NonOwn<T>& other) : data(other.data, other.data + other.dim0), Ndim(other.Ndim), dim0(other.dim0)
     {}
     Array1Own(const Array1Own& other) = default;
     Array1Own(Array1Own&& other) = default;
@@ -183,91 +233,134 @@ struct Array1Own
 
     void fill(T val)
     {
-        for (int i = 0; i < dim0; ++i)
+        for (i64 i = 0; i < dim0; ++i)
         {
             data[i] = val;
         }
     }
 
-    inline const size_t* shape() const
+    inline const i64* shape() const
     {
         return &dim0;
     }
-    inline size_t shape(int i) const
+    inline i64 shape(int i) const
     {
-        if (i >= Ndim)
-        {
-            printf("oh no.\n");
-            assert(false);
-        }
+        assert(i >= 0 && i < Ndim);
         return dim0;
     }
 
-    inline T& operator[](size_t i)
+    inline T& operator[](i64 i)
     {
         return data[i];
     }
-    inline T operator[](size_t i) const
+    inline T operator[](i64 i) const
     {
         return data[i];
     }
 
-    inline T& operator()(size_t i0)
+    inline T& operator()(i64 i0)
     {
         DO_BOUNDS_CHECK();
         return data[i0];
     }
-    inline T operator()(size_t i0) const
+    inline T operator()(i64 i0) const
     {
         DO_BOUNDS_CHECK();
         return data[i0];
     }
 
-    Array1NonOwn<T> slice(int start, int end)
+    Array1NonOwn<T> slice(i64 start, i64 end)
     {
         assert(start >= 0 && start < dim0 && end <= dim0);
 
         return Array1NonOwn(data.data()+start, end-start);
     }
 
-    Array2NonOwn<T> reshape(int d0, int d1) const
+    Array1NonOwn<const T> slice(i64 start, i64 end) const
+    {
+        assert(start >= 0 && start < dim0 && end <= dim0);
+
+        return Array1NonOwn(data.data()+start, end-start);
+    }
+
+    Array2NonOwn<T> reshape(i64 d0, i64 d1)
     {
         if (d0 * d1 != dim0)
         {
             printf("Cannot reshape array [%d] to [%d x %d]\n", dim0, d0, d1);
-            assert(false);
+            assert(d0 * d1 == dim0);
         }
-        return Array2NonOwn(data, d0, d1);
+        return Array2NonOwn(data.data(), d0, d1);
     }
 
-    Array3NonOwn<T> reshape(int d0, int d1, int d2) const
+    Array2NonOwn<const T> reshape(i64 d0, i64 d1) const
+    {
+        if (d0 * d1 != dim0)
+        {
+            printf("Cannot reshape array [%d] to [%d x %d]\n", dim0, d0, d1);
+            assert(d0 * d1 == dim0);
+        }
+        return Array2NonOwn(data.data(), d0, d1);
+    }
+
+    Array3NonOwn<T> reshape(i64 d0, i64 d1, i64 d2)
     {
         if (d0 * d1 * d2 != dim0)
         {
             printf("Cannot reshape array [%d] to [%d x %d x %d]\n", dim0, d0, d1, d2);
-            assert(false);
+            assert(d0 * d1 * d2 == dim0);
         }
-        return Array3NonOwn(data, d0, d1, d2);
+        return Array3NonOwn(data.data(), d0, d1, d2);
     }
 
-    Array4NonOwn<T> reshape(int d0, int d1, int d2, int d3) const
+    Array3NonOwn<const T> reshape(i64 d0, i64 d1, i64 d2) const
+    {
+        if (d0 * d1 * d2 != dim0)
+        {
+            printf("Cannot reshape array [%d] to [%d x %d x %d]\n", dim0, d0, d1, d2);
+            assert(d0 * d1 * d2 == dim0);
+        }
+        return Array3NonOwn(data.data(), d0, d1, d2);
+    }
+
+    Array4NonOwn<T> reshape(i64 d0, i64 d1, i64 d2, i64 d3)
     {
         if (d0 * d1 * d2 * d3 != dim0)
         {
             printf("Cannot reshape array [%d] to [%d x %d x %d x %d]\n", dim0, d0, d1, d2, d3);
-            assert(false);
+            assert(d0 * d1 * d2 * d3 == dim0);
         }
-        return Array4NonOwn(data, d0, d1, d2, d3);
+        return Array4NonOwn(data.data(), d0, d1, d2, d3);
     }
 
-    Array5NonOwn<T> reshape(int d0, int d1, int d2, int d3, int d4) const
+    Array4NonOwn<const T> reshape(i64 d0, i64 d1, i64 d2, i64 d3) const
+    {
+        if (d0 * d1 * d2 * d3 != dim0)
+        {
+            printf("Cannot reshape array [%d] to [%d x %d x %d x %d]\n", dim0, d0, d1, d2, d3);
+            assert(d0 * d1 * d2 * d3 == dim0);
+        }
+        return Array4NonOwn(data.data(), d0, d1, d2, d3);
+    }
+
+    Array5NonOwn<T> reshape(i64 d0, i64 d1, i64 d2, i64 d3, i64 d4)
     {
         if (d0 * d1 * d2 * d3 * d4 != dim0)
         {
             printf("Cannot reshape array [%d] to [%d x %d x %d x %d x %d]\n", dim0, d0, d1, d2, d3, d4);
-            assert(false);
+            assert(d0 * d1 * d2 * d3 * d4 == dim0);
         }
-        return Array5NonOwn(data, d0, d1, d2, d3, d4);
+        return Array5NonOwn(data.data(), d0, d1, d2, d3, d4);
+    }
+
+    Array5NonOwn<const T> reshape(i64 d0, i64 d1, i64 d2, i64 d3, i64 d4) const
+    {
+        if (d0 * d1 * d2 * d3 * d4 != dim0)
+        {
+            printf("Cannot reshape array [%d] to [%d x %d x %d x %d x %d]\n", dim0, d0, d1, d2, d3, d4);
+            assert(d0 * d1 * d2 * d3 * d4 == dim0);
+        }
+        return Array5NonOwn(data.data(), d0, d1, d2, d3, d4);
     }
 };
 
@@ -282,16 +375,15 @@ template <typename T>
 struct Array2NonOwn
 {
     T* data;
-    size_t Ndim;
-    std::array<size_t, 2> dim;
+    i64 Ndim;
+    std::array<i64, 2> dim;
     Array2NonOwn() : data(nullptr), Ndim(2), dim{}
     {}
-    Array2NonOwn(T* data_, size_t dim0, size_t dim1) : data(data_), Ndim(2), dim{dim0, dim1}
+    Array2NonOwn(T* data_, i64 dim0, i64 dim1) : data(data_), Ndim(2), dim{dim0, dim1}
     {}
     Array2NonOwn(const Array2NonOwn& other) = default;
     Array2NonOwn(Array2NonOwn&& other) = default;
-    Array2NonOwn(Array2Own<T>& other) : Ndim(other.Ndim), dim(other.dim), 
-                                              data(other.data.data())
+    Array2NonOwn(Array2Own<T>& other) : data(other.data.data()), Ndim(other.Ndim), dim(other.dim)
     {}
 
     Array2NonOwn&
@@ -302,7 +394,7 @@ struct Array2NonOwn
 
     void fill(T val)
     {
-        for (int i = 0; i < dim[0]*dim[1]; ++i)
+        for (i64 i = 0; i < dim[0]*dim[1]; ++i)
         {
             data[i] = val;
         }
@@ -317,92 +409,129 @@ struct Array2NonOwn
     {
         return dim;
     }
-    inline size_t shape(int i) const
+    inline i64 shape(int i) const
     {
-        if (i >= Ndim)
-        {
-            printf("oh no.\n");
-            assert(false);
-        }
+        assert(i >= 0 && i < Ndim);
         return dim[i];
     }
 
-    inline T& operator[](size_t i)
+    inline T& operator[](i64 i)
     {
         return data[i];
     }
-    inline T operator[](size_t i) const
+    inline T operator[](i64 i) const
     {
         return data[i];
     }
 
-    inline T& operator()(size_t i0, size_t i1)
+    inline T& operator()(i64 i0, i64 i1)
     {
         DO_BOUNDS_CHECK();
         return data[i0*dim[1] + i1];
     }
-    inline T operator()(size_t i0, size_t i1) const
+    inline T operator()(i64 i0, i64 i1) const
     {
         DO_BOUNDS_CHECK();
         return data[i0*dim[1] + i1];
     }
-    const T* const_slice(size_t i0) const
+    const T* const_slice(i64 i0) const
     {
         DO_BOUNDS_CHECK_M1();
         return &data[i0*dim[1]];
     }
 
-    Array1NonOwn<T> operator()(size_t i0)
+    Array1NonOwn<T> operator()(i64 i0)
     {
         return Array1NonOwn<T>(&data[i0*dim[1]], dim[1]);
     }
 
-    Array1NonOwn<const T> operator()(size_t i0) const
+    Array1NonOwn<const T> operator()(i64 i0) const
     {
         return Array1NonOwn<const T>(const_slice(i0), dim[1]);
     }
 
-    Array1NonOwn<T> flatten() const
+    Array1NonOwn<const T> flatten() const
     {
         return Array1NonOwn(data, dim[0]*dim[1]);
     }
 
-    Array1NonOwn<T> reshape(int d0) const
+    Array1NonOwn<T> flatten()
+    {
+        return Array1NonOwn(data, dim[0]*dim[1]);
+    }
+
+    Array1NonOwn<T> reshape(i64 d0)
     {
         if (d0 != dim[0] * dim[1])
         {
             printf("Cannot reshape array [%d x %d] to [%d]\n", dim[0], dim[1], d0);
-            assert(false);
+            assert(d0 == dim[0] * dim[1]);
+        }
+        return Array1NonOwn(data, d0);
+    }
+    Array1NonOwn<const T> reshape(i64 d0) const
+    {
+        if (d0 != dim[0] * dim[1])
+        {
+            printf("Cannot reshape array [%d x %d] to [%d]\n", dim[0], dim[1], d0);
+            assert(d0 == dim[0] * dim[1]);
         }
         return Array1NonOwn(data, d0);
     }
 
-    Array3NonOwn<T> reshape(int d0, int d1, int d2) const
+    Array3NonOwn<T> reshape(i64 d0, i64 d1, i64 d2)
     {
         if (d0 * d1 * d2 != dim[0] * dim[1])
         {
             printf("Cannot reshape array [%d x %d] to [%d x %d x %d]\n", dim[0], dim[1], d0, d1, d2);
-            assert(false);
+            assert(d0 * d1 * d2 == dim[0] * dim[1]);
+        }
+        return Array3NonOwn(data, d0, d1, d2);
+    }
+    Array3NonOwn<const T> reshape(i64 d0, i64 d1, i64 d2) const
+    {
+        if (d0 * d1 * d2 != dim[0] * dim[1])
+        {
+            printf("Cannot reshape array [%d x %d] to [%d x %d x %d]\n", dim[0], dim[1], d0, d1, d2);
+            assert(d0 * d1 * d2 == dim[0] * dim[1]);
         }
         return Array3NonOwn(data, d0, d1, d2);
     }
 
-    Array4NonOwn<T> reshape(int d0, int d1, int d2, int d3) const
+    Array4NonOwn<T> reshape(i64 d0, i64 d1, i64 d2, i64 d3)
     {
         if (d0 * d1 * d2 * d3 != dim[0] * dim[1])
         {
             printf("Cannot reshape array [%d x %d] to [%d x %d x %d x %d]\n", dim[0], dim[1], d0, d1, d2, d3);
-            assert(false);
+            assert(d0 * d1 * d2 * d3 == dim[0] * dim[1]);
+        }
+        return Array4NonOwn(data, d0, d1, d2, d3);
+    }
+    Array4NonOwn<const T> reshape(i64 d0, i64 d1, i64 d2, i64 d3) const
+    {
+        if (d0 * d1 * d2 * d3 != dim[0] * dim[1])
+        {
+            printf("Cannot reshape array [%d x %d] to [%d x %d x %d x %d]\n", dim[0], dim[1], d0, d1, d2, d3);
+            assert(d0 * d1 * d2 * d3 == dim[0] * dim[1]);
         }
         return Array4NonOwn(data, d0, d1, d2, d3);
     }
 
-    Array5NonOwn<T> reshape(int d0, int d1, int d2, int d3, int d4) const
+    Array5NonOwn<T> reshape(i64 d0, i64 d1, i64 d2, i64 d3, i64 d4)
     {
         if (d0 * d1 * d2 * d3 * d4 != dim[0] * dim[1])
         {
             printf("Cannot reshape array [%d x %d] to [%d x %d x %d x %d x %d]\n", dim[0], dim[1], d0, d1, d2, d3, d4);
-            assert(false);
+            assert(d0 * d1 * d2 * d3 * d4 == dim[0] * dim[1]);
+        }
+        return Array5NonOwn(data, d0, d1, d2, d3, d4);
+    }
+    Array5NonOwn<const T> reshape(i64 d0, i64 d1, i64 d2, i64 d3, i64 d4) const
+    {
+        if (d0 * d1 * d2 * d3 * d4 != dim[0] * dim[1])
+        {
+            printf("Cannot reshape array [%d x %d] to [%d x %d x %d x %d x %d]\n", dim[0], dim[1], d0, d1, d2, d3, d4);
+            assert(d0 * d1 * d2 * d3 * d4 == dim[0] * dim[1]);
         }
         return Array5NonOwn(data, d0, d1, d2, d3, d4);
     }
@@ -412,15 +541,15 @@ template <typename T>
 struct Array2Own
 {
     std::vector<T> data;
-    size_t Ndim;
-    std::array<size_t, 2> dim;
+    i64 Ndim;
+    std::array<i64, 2> dim;
     Array2Own() : data(), Ndim(2), dim{}
     {}
-    Array2Own(size_t size1, size_t size2) : data(size1*size2), Ndim(2), dim{size1, size2}
+    Array2Own(i64 size1, i64 size2) : data(size1*size2), Ndim(2), dim{size1, size2}
     {}
-    Array2Own(T val, size_t size1, size_t size2) : data(size1*size2, val), Ndim(2), dim{size1, size2}
+    Array2Own(T val, i64 size1, i64 size2) : data(size1*size2, val), Ndim(2), dim{size1, size2}
     {}
-    Array2Own(const Array2NonOwn<T>& other) : Ndim(other.Ndim), dim(other.dim), data(other.data, other.data+other.dim0)
+    Array2Own(const Array2NonOwn<T>& other) : data(other.data, other.data+other.dim0), Ndim(other.Ndim), dim(other.dim)
     {}
     Array2Own(const Array2Own& other) = default;
     Array2Own(Array2Own&& other) = default;
@@ -448,7 +577,7 @@ struct Array2Own
 
     void fill(T val)
     {
-        for (int i = 0; i < dim[0]*dim[1]; ++i)
+        for (i64 i = 0; i < dim[0]*dim[1]; ++i)
         {
             data[i] = val;
         }
@@ -458,92 +587,129 @@ struct Array2Own
     {
         return dim;
     }
-    inline size_t shape(int i) const
+    inline i64 shape(int i) const
     {
-        if (i >= Ndim)
-        {
-            printf("oh no.\n");
-            assert(false);
-        }
+        assert(i >= 0 && i < Ndim);
         return dim[i];
     }
 
-    inline T& operator[](size_t i)
+    inline T& operator[](i64 i)
     {
         return data[i];
     }
-    inline T operator[](size_t i) const
+    inline T operator[](i64 i) const
     {
         return data[i];
     }
 
-    inline T& operator()(size_t i0, size_t i1)
+    inline T& operator()(i64 i0, i64 i1)
     {
         DO_BOUNDS_CHECK();
         return data[i0*dim[1] + i1];
     }
-    inline T operator()(size_t i0, size_t i1) const
+    inline T operator()(i64 i0, i64 i1) const
     {
         DO_BOUNDS_CHECK();
         return data[i0*dim[1] + i1];
     }
-    const T* const_slice(size_t i0) const
+    const T* const_slice(i64 i0) const
     {
         DO_BOUNDS_CHECK_M1();
         return &data[i0*dim[1]];
     }
 
-    Array1NonOwn<T> operator()(size_t i0)
+    Array1NonOwn<T> operator()(i64 i0)
     {
         return Array1NonOwn<T>(&data[i0*dim[1]], dim[1]);
     }
 
-    Array1NonOwn<const T> operator()(size_t i0) const
+    Array1NonOwn<const T> operator()(i64 i0) const
     {
         return Array1NonOwn<const T>(const_slice(i0), dim[1]);
     }
 
-    Array1NonOwn<T> flatten() const
+    Array1NonOwn<const T> flatten() const
     {
         return Array1NonOwn(data.data(), dim[0]*dim[1]);
     }
 
-    Array1NonOwn<T> reshape(int d0) const
+    Array1NonOwn<T> flatten()
+    {
+        return Array1NonOwn(data.data(), dim[0]*dim[1]);
+    }
+
+    Array1NonOwn<T> reshape(i64 d0)
     {
         if (d0 != dim[0] * dim[1])
         {
             printf("Cannot reshape array [%d x %d] to [%d]\n", dim[0], dim[1], d0);
-            assert(false);
+            assert(d0 == dim[0] * dim[1]);
+        }
+        return Array1NonOwn(data.data(), d0);
+    }
+    Array1NonOwn<const T> reshape(i64 d0) const
+    {
+        if (d0 != dim[0] * dim[1])
+        {
+            printf("Cannot reshape array [%d x %d] to [%d]\n", dim[0], dim[1], d0);
+            assert(d0 == dim[0] * dim[1]);
         }
         return Array1NonOwn(data.data(), d0);
     }
 
-    Array3NonOwn<T> reshape(int d0, int d1, int d2) const
+    Array3NonOwn<T> reshape(i64 d0, i64 d1, i64 d2)
     {
         if (d0 * d1 * d2 != dim[0] * dim[1])
         {
             printf("Cannot reshape array [%d x %d] to [%d x %d x %d]\n", dim[0], dim[1], d0, d1, d2);
-            assert(false);
+            assert(d0 * d1 * d2 == dim[0] * dim[1]);
+        }
+        return Array3NonOwn(data.data(), d0, d1, d2);
+    }
+    Array3NonOwn<const T> reshape(i64 d0, i64 d1, i64 d2) const
+    {
+        if (d0 * d1 * d2 != dim[0] * dim[1])
+        {
+            printf("Cannot reshape array [%d x %d] to [%d x %d x %d]\n", dim[0], dim[1], d0, d1, d2);
+            assert(d0 * d1 * d2 == dim[0] * dim[1]);
         }
         return Array3NonOwn(data.data(), d0, d1, d2);
     }
 
-    Array4NonOwn<T> reshape(int d0, int d1, int d2, int d3) const
+    Array4NonOwn<T> reshape(i64 d0, i64 d1, i64 d2, i64 d3)
     {
         if (d0 * d1 * d2 * d3 != dim[0] * dim[1])
         {
             printf("Cannot reshape array [%d x %d] to [%d x %d x %d x %d]\n", dim[0], dim[1], d0, d1, d2, d3);
-            assert(false);
+            assert(d0 * d1 * d2 * d3 == dim[0] * dim[1]);
+        }
+        return Array4NonOwn(data.data(), d0, d1, d2, d3);
+    }
+    Array4NonOwn<const T> reshape(i64 d0, i64 d1, i64 d2, i64 d3) const
+    {
+        if (d0 * d1 * d2 * d3 != dim[0] * dim[1])
+        {
+            printf("Cannot reshape array [%d x %d] to [%d x %d x %d x %d]\n", dim[0], dim[1], d0, d1, d2, d3);
+            assert(d0 * d1 * d2 * d3 == dim[0] * dim[1]);
         }
         return Array4NonOwn(data.data(), d0, d1, d2, d3);
     }
 
-    Array5NonOwn<T> reshape(int d0, int d1, int d2, int d3, int d4) const
+    Array5NonOwn<T> reshape(i64 d0, i64 d1, i64 d2, i64 d3, i64 d4)
     {
         if (d0 * d1 * d2 * d3 * d4 != dim[0] * dim[1])
         {
             printf("Cannot reshape array [%d x %d] to [%d x %d x %d x %d x %d]\n", dim[0], dim[1], d0, d1, d2, d3, d4);
-            assert(false);
+            assert(d0 * d1 * d2 * d3 * d4 == dim[0] * dim[1]);
+        }
+        return Array5NonOwn(data.data(), d0, d1, d2, d3, d4);
+    }
+    Array5NonOwn<const T> reshape(i64 d0, i64 d1, i64 d2, i64 d3, i64 d4) const
+    {
+        if (d0 * d1 * d2 * d3 * d4 != dim[0] * dim[1])
+        {
+            printf("Cannot reshape array [%d x %d] to [%d x %d x %d x %d x %d]\n", dim[0], dim[1], d0, d1, d2, d3, d4);
+            assert(d0 * d1 * d2 * d3 * d4 == dim[0] * dim[1]);
         }
         return Array5NonOwn(data.data(), d0, d1, d2, d3, d4);
     }
@@ -560,17 +726,16 @@ template <typename T>
 struct Array3NonOwn
 {
     T* data;
-    size_t Ndim;
-    std::array<size_t, 3> dim;
-    std::array<size_t, 2> dimProd;
+    i64 Ndim;
+    std::array<i64, 3> dim;
+    std::array<i64, 2> dimProd;
     Array3NonOwn() : data(nullptr), Ndim(3), dim{0}, dimProd{0}
     {}
-    Array3NonOwn(T* data_, size_t dim0, size_t dim1, size_t dim2) : data(data_), Ndim(3), dim{dim0, dim1, dim2}, dimProd{dim1*dim2, dim2}
+    Array3NonOwn(T* data_, i64 dim0, i64 dim1, i64 dim2) : data(data_), Ndim(3), dim{dim0, dim1, dim2}, dimProd{dim1*dim2, dim2}
     {}
     Array3NonOwn(const Array3NonOwn& other) = default;
     Array3NonOwn(Array3NonOwn&& other) = default;
-    Array3NonOwn(Array3Own<T>& other) : Ndim(other.Ndim), dim(other.dim), 
-                                        dimProd(other.dimProd), data(other.data.data())
+    Array3NonOwn(Array3Own<T>& other) : data(other.data.data()), Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
     {}
 
     Array3NonOwn&
@@ -586,7 +751,7 @@ struct Array3NonOwn
 
     void fill(T val)
     {
-        for (int i = 0; i < dimProd[0] * dim[0]; ++i)
+        for (i64 i = 0; i < dimProd[0] * dim[0]; ++i)
         {
             data[i] = val;
         }
@@ -596,103 +761,139 @@ struct Array3NonOwn
     {
         return dim;
     }
-    inline size_t shape(int i) const
+    inline i64 shape(int i) const
     {
-        if (i >= Ndim)
-        {
-            printf("oh no.\n");
-            assert(false);
-        }
+        assert (i >= 0 && i < Ndim);
         return dim[i];
     }
 
-    inline T& operator[](size_t i)
+    inline T& operator[](i64 i)
     {
         return data[i];
     }
-    inline T operator[](size_t i) const
+    inline T operator[](i64 i) const
     {
         return data[i];
     }
 
-    inline T& operator()(size_t i0, size_t i1, size_t i2)
+    inline T& operator()(i64 i0, i64 i1, i64 i2)
     {
         DO_BOUNDS_CHECK();
         return data[i0*dimProd[0] + i1*dimProd[1] + i2];
     }
-    inline T operator()(size_t i0, size_t i1, size_t i2) const
+    inline T operator()(i64 i0, i64 i1, i64 i2) const
     {
         DO_BOUNDS_CHECK();
         return data[i0*dimProd[0] + i1*dimProd[1] + i2];
     }
 
-    const T* const_slice(size_t i0, size_t i1) const
+    const T* const_slice(i64 i0, i64 i1) const
     {
         DO_BOUNDS_CHECK_M1();
         return &data[i0*dimProd[0] + i1*dimProd[1]];
     }
 
-    Array2NonOwn<T> operator()(size_t i0)
+    Array2NonOwn<T> operator()(i64 i0)
     {
         return Array2NonOwn<T>(&(*this)(i0, 0, 0), dim[1], dim[2]);
     }
 
-    Array2NonOwn<const T> operator()(size_t i0) const
+    Array2NonOwn<const T> operator()(i64 i0) const
     {
         return Array2NonOwn<const T>(const_slice(i0, 0), dim[1], dim[2]);
     }
 
-    Array1NonOwn<T> operator()(size_t i0, size_t i1)
+    Array1NonOwn<T> operator()(i64 i0, i64 i1)
     {
         return Array1NonOwn<T>(&(*this)(i0, i1, 0), dim[2]);
     }
 
-    Array1NonOwn<const T> operator()(size_t i0, size_t i1) const
+    Array1NonOwn<const T> operator()(i64 i0, i64 i1) const
     {
         return Array1NonOwn<const T>(const_slice(i0, i1), dim[2]);
     }
 
-    Array1NonOwn<T> flatten() const
+    Array1NonOwn<T> flatten()
+    {
+        return Array1NonOwn(data, dim[0]*dim[1]*dim[2]);
+    }
+    Array1NonOwn<const T> flatten() const
     {
         return Array1NonOwn(data, dim[0]*dim[1]*dim[2]);
     }
 
-    Array1NonOwn<T> reshape(int d0) const
+    Array1NonOwn<T> reshape(i64 d0)
     {
         if (d0 != dimProd[0] * dim[0])
         {
             printf("Cannot reshape array [%d x %d x %d] to [%d]\n", dim[0], dim[1], dim[2], d0);
-            assert(false);
+            assert(d0 == dimProd[0] * dim[0]);
+        }
+        return Array1NonOwn(data, d0);
+    }
+    Array1NonOwn<const T> reshape(i64 d0) const
+    {
+        if (d0 != dimProd[0] * dim[0])
+        {
+            printf("Cannot reshape array [%d x %d x %d] to [%d]\n", dim[0], dim[1], dim[2], d0);
+            assert(d0 == dimProd[0] * dim[0]);
         }
         return Array1NonOwn(data, d0);
     }
 
-    Array2NonOwn<T> reshape(int d0, int d1) const
+    Array2NonOwn<T> reshape(i64 d0, i64 d1)
     {
         if (d0 * d1 != dim[0] * dim[1] * dim[2])
         {
             printf("Cannot reshape array [%d x %d x %d] to [%d x %d]\n", dim[0], dim[1], dim[2], d0, d1);
-            assert(false);
+            assert(d0 * d1 == dimProd[0] * dim[0]);
+        }
+        return Array2NonOwn(data, d0, d1);
+    }
+    Array2NonOwn<const T> reshape(i64 d0, i64 d1) const
+    {
+        if (d0 * d1 != dim[0] * dim[1] * dim[2])
+        {
+            printf("Cannot reshape array [%d x %d x %d] to [%d x %d]\n", dim[0], dim[1], dim[2], d0, d1);
+            assert(d0 * d1 == dimProd[0] * dim[0]);
         }
         return Array2NonOwn(data, d0, d1);
     }
 
-    Array4NonOwn<T> reshape(int d0, int d1, int d2, int d3) const
+    Array4NonOwn<T> reshape(i64 d0, i64 d1, i64 d2, i64 d3)
     {
         if (d0 * d1 * d2 * d3 != dim[0] * dim[1] * dim[2])
         {
             printf("Cannot reshape array [%d x %d x %d] to [%d x %d x %d x %d]\n", dim[0], dim[1], dim[2], d0, d1, d2, d3);
-            assert(false);
+            assert(d0 * d1 * d2 * d3 == dimProd[0] * dim[0]);
+        }
+        return Array4NonOwn(data, d0, d1, d2, d3);
+    }
+    Array4NonOwn<const T> reshape(i64 d0, i64 d1, i64 d2, i64 d3) const
+    {
+        if (d0 * d1 * d2 * d3 != dim[0] * dim[1] * dim[2])
+        {
+            printf("Cannot reshape array [%d x %d x %d] to [%d x %d x %d x %d]\n", dim[0], dim[1], dim[2], d0, d1, d2, d3);
+            assert(d0 * d1 * d2 * d3 == dimProd[0] * dim[0]);
         }
         return Array4NonOwn(data, d0, d1, d2, d3);
     }
 
-    Array5NonOwn<T> reshape(int d0, int d1, int d2, int d3, int d4) const
+    Array5NonOwn<T> reshape(i64 d0, i64 d1, i64 d2, i64 d3, i64 d4)
     {
         if (d0 * d1 * d2 * d3 * d4 != dim[0] * dim[1] * dim[2])
         {
             printf("Cannot reshape array [%d x %d x %d] to [%d x %d x %d x %d x %d]\n", dim[0], dim[1], dim[2], d0, d1, d2, d3, d4);
-            assert(false);
+            assert(d0 * d1 * d2 * d3 * d4 == dimProd[0] * dim[0]);
+        }
+        return Array5NonOwn(data, d0, d1, d2, d3, d4);
+    }
+    Array5NonOwn<const T> reshape(i64 d0, i64 d1, i64 d2, i64 d3, i64 d4) const
+    {
+        if (d0 * d1 * d2 * d3 * d4 != dim[0] * dim[1] * dim[2])
+        {
+            printf("Cannot reshape array [%d x %d x %d] to [%d x %d x %d x %d x %d]\n", dim[0], dim[1], dim[2], d0, d1, d2, d3, d4);
+            assert(d0 * d1 * d2 * d3 * d4 == dimProd[0] * dim[0]);
         }
         return Array5NonOwn(data, d0, d1, d2, d3, d4);
     }
@@ -702,17 +903,17 @@ template <typename T>
 struct Array3Own
 {
     std::vector<T> data;
-    size_t Ndim;
-    std::array<size_t, 3> dim;
-    std::array<size_t, 2> dimProd;
+    i64 Ndim;
+    std::array<i64, 3> dim;
+    std::array<i64, 2> dimProd;
     Array3Own() : data(), Ndim(3), dim{}, dimProd{}
     {}
-    Array3Own(size_t dim0, size_t dim1, size_t dim2) : data(dim0*dim1*dim2), Ndim(3), dim{dim0, dim1, dim2}, dimProd{dim1*dim2, dim2}
+    Array3Own(i64 dim0, i64 dim1, i64 dim2) : data(dim0*dim1*dim2), Ndim(3), dim{dim0, dim1, dim2}, dimProd{dim1*dim2, dim2}
     {}
-    Array3Own(T val, size_t dim0, size_t dim1, size_t dim2) : data(dim0*dim1*dim2, val), Ndim(3), dim{dim0, dim1, dim2}, dimProd{dim1*dim2, dim2}
+    Array3Own(T val, i64 dim0, i64 dim1, i64 dim2) : data(dim0*dim1*dim2, val), Ndim(3), dim{dim0, dim1, dim2}, dimProd{dim1*dim2, dim2}
     {}
-    Array3Own(const Array3NonOwn<T>& other) : Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd), 
-                                              data(other.data, other.data+other.dim[0]*other.dim[1]*other.dim[2])
+    Array3Own(const Array3NonOwn<T>& other) : data(other.data, other.data+other.dim[0]*other.dim[1]*other.dim[2]),
+                                              Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
     {}
     Array3Own(const Array3Own& other) = default;
     Array3Own(Array3Own&& other) = default;
@@ -741,7 +942,7 @@ struct Array3Own
 
     void fill(T val)
     {
-        for (int i = 0; i < dimProd[0] * dim[0]; ++i)
+        for (i64 i = 0; i < dimProd[0] * dim[0]; ++i)
         {
             data[i] = val;
         }
@@ -751,103 +952,139 @@ struct Array3Own
     {
         return dim;
     }
-    inline size_t shape(int i) const
+    inline i64 shape(int i) const
     {
-        if (i >= Ndim)
-        {
-            printf("oh no.\n");
-            assert(false);
-        }
+        assert (i >= 0 && i < Ndim);
         return dim[i];
     }
 
-    inline T& operator[](size_t i)
+    inline T& operator[](i64 i)
     {
         return data[i];
     }
-    inline T operator[](size_t i) const
+    inline T operator[](i64 i) const
     {
         return data[i];
     }
 
-    inline T& operator()(size_t i0, size_t i1, size_t i2)
+    inline T& operator()(i64 i0, i64 i1, i64 i2)
     {
         DO_BOUNDS_CHECK();
         return data[i0*dimProd[0] + i1*dimProd[1] + i2];
     }
-    inline T operator()(size_t i0, size_t i1, size_t i2) const
+    inline T operator()(i64 i0, i64 i1, i64 i2) const
     {
         DO_BOUNDS_CHECK();
         return data[i0*dimProd[0] + i1*dimProd[1] + i2];
     }
 
-    const T* const_slice(size_t i0, size_t i1) const
+    const T* const_slice(i64 i0, i64 i1) const
     {
         DO_BOUNDS_CHECK_M1();
         return &data[i0*dimProd[0] + i1*dimProd[1]];
     }
 
-    Array2NonOwn<T> operator()(size_t i0)
+    Array2NonOwn<T> operator()(i64 i0)
     {
         return Array2NonOwn<T>(&(*this)(i0, 0, 0), dim[1], dim[2]);
     }
 
-    Array2NonOwn<const T> operator()(size_t i0) const
+    Array2NonOwn<const T> operator()(i64 i0) const
     {
         return Array2NonOwn<const T>(const_slice(i0, 0), dim[1], dim[2]);
     }
 
-    Array1NonOwn<T> operator()(size_t i0, size_t i1)
+    Array1NonOwn<T> operator()(i64 i0, i64 i1)
     {
         return Array1NonOwn<T>(&(*this)(i0, i1, 0), dim[2]);
     }
 
-    Array1NonOwn<const T> operator()(size_t i0, size_t i1) const
+    Array1NonOwn<const T> operator()(i64 i0, i64 i1) const
     {
         return Array1NonOwn<const T>(const_slice(i0, i1), dim[2]);
     }
 
-    Array1NonOwn<T> flatten() const
+    Array1NonOwn<T> flatten()
+    {
+        return Array1NonOwn(data.data(), dim[0]*dim[1]*dim[2]);
+    }
+    Array1NonOwn<const T> flatten() const
     {
         return Array1NonOwn(data.data(), dim[0]*dim[1]*dim[2]);
     }
 
-    Array1NonOwn<T> reshape(int d0) const
+    Array1NonOwn<T> reshape(i64 d0)
     {
         if (d0 != dimProd[0] * dim[0])
         {
             printf("Cannot reshape array [%d x %d x %d] to [%d]\n", dim[0], dim[1], dim[2], d0);
-            assert(false);
+            assert(d0 == dimProd[0] * dim[0]);
+        }
+        return Array1NonOwn(data.data(), d0);
+    }
+    Array1NonOwn<const T> reshape(i64 d0) const
+    {
+        if (d0 != dimProd[0] * dim[0])
+        {
+            printf("Cannot reshape array [%d x %d x %d] to [%d]\n", dim[0], dim[1], dim[2], d0);
+            assert(d0 == dimProd[0] * dim[0]);
         }
         return Array1NonOwn(data.data(), d0);
     }
 
-    Array2NonOwn<T> reshape(int d0, int d1) const
+    Array2NonOwn<T> reshape(i64 d0, i64 d1)
     {
         if (d0 * d1 != dim[0] * dim[1] * dim[2])
         {
             printf("Cannot reshape array [%d x %d x %d] to [%d x %d]\n", dim[0], dim[1], dim[2], d0, d1);
-            assert(false);
+            assert(d0 * d1 == dimProd[0] * dim[0]);
+        }
+        return Array2NonOwn(data.data(), d0, d1);
+    }
+    Array2NonOwn<const T> reshape(i64 d0, i64 d1) const
+    {
+        if (d0 * d1 != dim[0] * dim[1] * dim[2])
+        {
+            printf("Cannot reshape array [%d x %d x %d] to [%d x %d]\n", dim[0], dim[1], dim[2], d0, d1);
+            assert(d0 * d1 == dimProd[0] * dim[0]);
         }
         return Array2NonOwn(data.data(), d0, d1);
     }
 
-    Array4NonOwn<T> reshape(int d0, int d1, int d2, int d3) const
+    Array4NonOwn<T> reshape(i64 d0, i64 d1, i64 d2, i64 d3)
     {
         if (d0 * d1 * d2 * d3 != dim[0] * dim[1] * dim[2])
         {
             printf("Cannot reshape array [%d x %d x %d] to [%d x %d x %d x %d]\n", dim[0], dim[1], dim[2], d0, d1, d2, d3);
-            assert(false);
+            assert(d0 * d1 * d2 * d3 == dimProd[0] * dim[0]);
+        }
+        return Array4NonOwn(data.data(), d0, d1, d2, d3);
+    }
+    Array4NonOwn<const T> reshape(i64 d0, i64 d1, i64 d2, i64 d3) const
+    {
+        if (d0 * d1 * d2 * d3 != dim[0] * dim[1] * dim[2])
+        {
+            printf("Cannot reshape array [%d x %d x %d] to [%d x %d x %d x %d]\n", dim[0], dim[1], dim[2], d0, d1, d2, d3);
+            assert(d0 * d1 * d2 * d3 == dimProd[0] * dim[0]);
         }
         return Array4NonOwn(data.data(), d0, d1, d2, d3);
     }
 
-    Array5NonOwn<T> reshape(int d0, int d1, int d2, int d3, int d4) const
+    Array5NonOwn<T> reshape(i64 d0, i64 d1, i64 d2, i64 d3, i64 d4)
     {
         if (d0 * d1 * d2 * d3 * d4 != dim[0] * dim[1] * dim[2])
         {
             printf("Cannot reshape array [%d x %d x %d] to [%d x %d x %d x %d x %d]\n", dim[0], dim[1], dim[2], d0, d1, d2, d3, d4);
-            assert(false);
+            assert(d0 * d1 * d2 * d3 * d4 == dimProd[0] * dim[0]);
+        }
+        return Array5NonOwn(data.data(), d0, d1, d2, d3, d4);
+    }
+    Array5NonOwn<const T> reshape(i64 d0, i64 d1, i64 d2, i64 d3, i64 d4) const
+    {
+        if (d0 * d1 * d2 * d3 * d4 != dim[0] * dim[1] * dim[2])
+        {
+            printf("Cannot reshape array [%d x %d x %d] to [%d x %d x %d x %d x %d]\n", dim[0], dim[1], dim[2], d0, d1, d2, d3, d4);
+            assert(d0 * d1 * d2 * d3 * d4 == dimProd[0] * dim[0]);
         }
         return Array5NonOwn(data.data(), d0, d1, d2, d3, d4);
     }
@@ -864,18 +1101,17 @@ template <typename T>
 struct Array4NonOwn
 {
     T* data;
-    size_t Ndim;
-    std::array<size_t, 4> dim;
-    std::array<size_t, 3> dimProd;
+    i64 Ndim;
+    std::array<i64, 4> dim;
+    std::array<i64, 3> dimProd;
     Array4NonOwn() : data(nullptr), Ndim(4), dim{0}, dimProd{0}
     {}
-    Array4NonOwn(T* data_, size_t dim0, size_t dim1, size_t dim2, size_t dim3) : data(data_), Ndim(4), dim{dim0, dim1, dim2, dim3}, 
+    Array4NonOwn(T* data_, i64 dim0, i64 dim1, i64 dim2, i64 dim3) : data(data_), Ndim(4), dim{dim0, dim1, dim2, dim3}, 
                                                                                  dimProd{dim1*dim2*dim3, dim2*dim3, dim3}
     {}
     Array4NonOwn(const Array4NonOwn& other) = default;
     Array4NonOwn(Array4NonOwn&& other) = default;
-    Array4NonOwn(Array4Own<T>& other) : Ndim(other.Ndim), dim(other.dim), 
-                                        dimProd(other.dimProd), data(other.data.data())
+    Array4NonOwn(Array4Own<T>& other) : data(other.data.data()), Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
     {}
 
     Array4NonOwn&
@@ -891,7 +1127,7 @@ struct Array4NonOwn
 
     void fill(T val)
     {
-        for (int i = 0; i < dimProd[0] * dim[0]; ++i)
+        for (i64 i = 0; i < dimProd[0] * dim[0]; ++i)
         {
             data[i] = val;
         }
@@ -901,114 +1137,150 @@ struct Array4NonOwn
     {
         return dim;
     }
-    inline size_t shape(int i) const
+    inline i64 shape(int i) const
     {
-        if (i >= Ndim)
-        {
-            printf("oh no.\n");
-            assert(false);
-        }
+        assert(i >= 0 && i < Ndim);
         return dim[i];
     }
 
-    inline T& operator[](size_t i)
+    inline T& operator[](i64 i)
     {
         return data[i];
     }
-    inline T operator[](size_t i) const
+    inline T operator[](i64 i) const
     {
         return data[i];
     }
 
-    inline T& operator()(size_t i0, size_t i1, size_t i2, size_t i3)
+    inline T& operator()(i64 i0, i64 i1, i64 i2, i64 i3)
     {
         DO_BOUNDS_CHECK();
         return data[i0*dimProd[0] + i1*dimProd[1] + i2*dimProd[2] + i3];
     }
 
-    inline T operator()(size_t i0, size_t i1, size_t i2, size_t i3) const
+    inline T operator()(i64 i0, i64 i1, i64 i2, i64 i3) const
     {
         DO_BOUNDS_CHECK();
         return data[i0*dimProd[0] + i1*dimProd[1] + i2*dimProd[2] + i3];
     }
 
-    const T* const_slice(size_t i0, size_t i1, size_t i2) const
+    const T* const_slice(i64 i0, i64 i1, i64 i2) const
     {
         DO_BOUNDS_CHECK_M1();
         return &data[i0*dimProd[0] + i1*dimProd[1] + i2*dimProd[2]];
     }
 
-    Array3NonOwn<T> operator()(size_t i0)
+    Array3NonOwn<T> operator()(i64 i0)
     {
         return Array3NonOwn<T>(&(*this)(i0, 0, 0, 0), dim[1], dim[2], dim[3]);
     }
 
-    Array3NonOwn<const T> operator()(size_t i0) const
+    Array3NonOwn<const T> operator()(i64 i0) const
     {
         return Array3NonOwn<T>(const_slice(i0, 0, 0), dim[1], dim[2], dim[3]);
     }
 
-    Array2NonOwn<T> operator()(size_t i0, size_t i1)
+    Array2NonOwn<T> operator()(i64 i0, i64 i1)
     {
         return Array2NonOwn<T>(&(*this)(i0, i1, 0, 0), dim[2], dim[3]);
     }
 
-    Array2NonOwn<const T> operator()(size_t i0, size_t i1) const
+    Array2NonOwn<const T> operator()(i64 i0, i64 i1) const
     {
         return Array2NonOwn<T>(const_slice(i0, i1, 0), dim[2], dim[3]);
     }
 
-    Array1NonOwn<T> operator()(size_t i0, size_t i1, size_t i2)
+    Array1NonOwn<T> operator()(i64 i0, i64 i1, i64 i2)
     {
         return Array1NonOwn<T>(&(*this)(i0, i1, i2, 0), dim[3]);
     }
 
-    Array1NonOwn<const T> operator()(size_t i0, size_t i1, size_t i2) const
+    Array1NonOwn<const T> operator()(i64 i0, i64 i1, i64 i2) const
     {
         return Array1NonOwn<const T>(const_slice(i0, i1, i2), dim[3]);
     }
 
-    Array1NonOwn<T> flatten() const
+    Array1NonOwn<T> flatten()
+    {
+        return Array1NonOwn(data, dimProd[0] * dim[0]);
+    }
+    Array1NonOwn<const T> flatten() const
     {
         return Array1NonOwn(data, dimProd[0] * dim[0]);
     }
 
-    Array1NonOwn<T> reshape(int d0) const
+    Array1NonOwn<T> reshape(i64 d0)
     {
         if (d0 != dimProd[0] * dim[0])
         {
             printf("Cannot reshape array [%d x %d x %d x %d] to [%d]\n", dim[0], dim[1], dim[2], dim[3], d0);
-            assert(false);
+            assert(d0 == dimProd[0] * dim[0]);
+        }
+        return Array1NonOwn(data, d0);
+    }
+    Array1NonOwn<const T> reshape(i64 d0) const
+    {
+        if (d0 != dimProd[0] * dim[0])
+        {
+            printf("Cannot reshape array [%d x %d x %d x %d] to [%d]\n", dim[0], dim[1], dim[2], dim[3], d0);
+            assert(d0 == dimProd[0] * dim[0]);
         }
         return Array1NonOwn(data, d0);
     }
 
-    Array2NonOwn<T> reshape(int d0, int d1) const
+    Array2NonOwn<T> reshape(i64 d0, i64 d1)
     {
         if (d0 * d1 != dimProd[0] * dim[0])
         {
             printf("Cannot reshape array [%d x %d x %d x %d] to [%d x %d]\n", dim[0], dim[1], dim[2], dim[3], d0, d1);
-            assert(false);
+            assert(d0 * d1 == dimProd[0] * dim[0]);
+        }
+        return Array2NonOwn(data, d0, d1);
+    }
+    Array2NonOwn<const T> reshape(i64 d0, i64 d1) const
+    {
+        if (d0 * d1 != dimProd[0] * dim[0])
+        {
+            printf("Cannot reshape array [%d x %d x %d x %d] to [%d x %d]\n", dim[0], dim[1], dim[2], dim[3], d0, d1);
+            assert(d0 * d1 == dimProd[0] * dim[0]);
         }
         return Array2NonOwn(data, d0, d1);
     }
 
-    Array3NonOwn<T> reshape(int d0, int d1, int d2) const
+    Array3NonOwn<T> reshape(i64 d0, i64 d1, i64 d2)
     {
         if (d0 * d1 * d2 != dimProd[0] * dim[0])
         {
             printf("Cannot reshape array [%d x %d x %d x %d] to [%d x %d x %d]\n", dim[0], dim[1], dim[2], dim[3], d0, d1, d2);
-            assert(false);
+            assert(d0 * d1 * d2 == dimProd[0] * dim[0]);
+        }
+        return Array3NonOwn(data, d0, d1, d2);
+    }
+    Array3NonOwn<const T> reshape(i64 d0, i64 d1, i64 d2) const
+    {
+        if (d0 * d1 * d2 != dimProd[0] * dim[0])
+        {
+            printf("Cannot reshape array [%d x %d x %d x %d] to [%d x %d x %d]\n", dim[0], dim[1], dim[2], dim[3], d0, d1, d2);
+            assert(d0 * d1 * d2 == dimProd[0] * dim[0]);
         }
         return Array3NonOwn(data, d0, d1, d2);
     }
 
-    Array5NonOwn<T> reshape(int d0, int d1, int d2, int d3, int d4) const
+    Array5NonOwn<T> reshape(i64 d0, i64 d1, i64 d2, i64 d3, i64 d4)
     {
         if (d0 * d1 * d2 * d3 * d4 != dimProd[0] * dim[0])
         {
             printf("Cannot reshape array [%d x %d x %d x %d] to [%d x %d x %d x %d x %d]\n", dim[0], dim[1], dim[2], dim[3], d0, d1, d2, d3, d4);
-            assert(false);
+            assert(d0 * d1 * d2 * d3 * d4 == dimProd[0] * dim[0]);
+        }
+        return Array5NonOwn(data, d0, d1, d2, d3, d4);
+    }
+    Array5NonOwn<const T> reshape(i64 d0, i64 d1, i64 d2, i64 d3, i64 d4) const
+    {
+        if (d0 * d1 * d2 * d3 * d4 != dimProd[0] * dim[0])
+        {
+            printf("Cannot reshape array [%d x %d x %d x %d] to [%d x %d x %d x %d x %d]\n", dim[0], dim[1], dim[2], dim[3], d0, d1, d2, d3, d4);
+            assert(d0 * d1 * d2 * d3 * d4 == dimProd[0] * dim[0]);
         }
         return Array5NonOwn(data, d0, d1, d2, d3, d4);
     }
@@ -1018,15 +1290,15 @@ template <typename T>
 struct Array4Own
 {
     std::vector<T> data;
-    size_t Ndim;
-    std::array<size_t, 4> dim;
-    std::array<size_t, 3> dimProd;
+    i64 Ndim;
+    std::array<i64, 4> dim;
+    std::array<i64, 3> dimProd;
     Array4Own() : data(), Ndim(4), dim{}, dimProd{}
     {}
-    Array4Own(size_t dim0, size_t dim1, size_t dim2, size_t dim3) : data(dim0*dim1*dim2*dim3), Ndim(4), dim{dim0, dim1, dim2, dim3},
+    Array4Own(i64 dim0, i64 dim1, i64 dim2, i64 dim3) : data(dim0*dim1*dim2*dim3), Ndim(4), dim{dim0, dim1, dim2, dim3},
                                                                     dimProd{dim1*dim2*dim3, dim2*dim3, dim3}
     {}
-    Array4Own(T val, size_t dim0, size_t dim1, size_t dim2, size_t dim3) : data(dim0*dim1*dim2*dim3, val), Ndim(4), dim{dim0, dim1, dim2, dim3}, 
+    Array4Own(T val, i64 dim0, i64 dim1, i64 dim2, i64 dim3) : data(dim0*dim1*dim2*dim3, val), Ndim(4), dim{dim0, dim1, dim2, dim3}, 
                                                                               dimProd{dim1*dim2*dim3, dim2*dim3, dim3}
     {}
     Array4Own(const Array4NonOwn<T>& other) : data(other.data, other.data+other.dim0*other.dim1*other.dim2*other.dim3), 
@@ -1059,7 +1331,7 @@ struct Array4Own
 
     void fill(T val)
     {
-        for (int i = 0; i < dimProd[0] * dim[0]; ++i)
+        for (i64 i = 0; i < dimProd[0] * dim[0]; ++i)
         {
             data[i] = val;
         }
@@ -1069,114 +1341,150 @@ struct Array4Own
     {
         return dim;
     }
-    inline size_t shape(int i) const
+    inline i64 shape(int i) const
     {
-        if (i >= Ndim)
-        {
-            printf("oh no.\n");
-            assert(false);
-        }
+        assert(i >= 0 && i < Ndim);
         return dim[i];
     }
 
-    inline T& operator[](size_t i)
+    inline T& operator[](i64 i)
     {
         return data[i];
     }
-    inline T operator[](size_t i) const
+    inline T operator[](i64 i) const
     {
         return data[i];
     }
 
-    inline T& operator()(size_t i0, size_t i1, size_t i2, size_t i3)
+    inline T& operator()(i64 i0, i64 i1, i64 i2, i64 i3)
     {
         DO_BOUNDS_CHECK();
         return data[i0*dimProd[0] + i1*dimProd[1] + i2*dimProd[2] + i3];
     }
 
-    inline T operator()(size_t i0, size_t i1, size_t i2, size_t i3) const
+    inline T operator()(i64 i0, i64 i1, i64 i2, i64 i3) const
     {
         DO_BOUNDS_CHECK();
         return data[i0*dimProd[0] + i1*dimProd[1] + i2*dimProd[2] + i3];
     }
 
-    const T* const_slice(size_t i0, size_t i1, size_t i2) const
+    const T* const_slice(i64 i0, i64 i1, i64 i2) const
     {
         DO_BOUNDS_CHECK_M1();
         return &data[i0*dimProd[0] + i1*dimProd[1] + i2*dimProd[2]];
     }
 
-    Array3NonOwn<T> operator()(size_t i0)
+    Array3NonOwn<T> operator()(i64 i0)
     {
         return Array3NonOwn<T>(&(*this)(i0, 0, 0, 0), dim[1], dim[2], dim[3]);
     }
 
-    Array3NonOwn<const T> operator()(size_t i0) const
+    Array3NonOwn<const T> operator()(i64 i0) const
     {
         return Array3NonOwn<T>(const_slice(i0, 0, 0), dim[1], dim[2], dim[3]);
     }
 
-    Array2NonOwn<T> operator()(size_t i0, size_t i1)
+    Array2NonOwn<T> operator()(i64 i0, i64 i1)
     {
         return Array2NonOwn<T>(&(*this)(i0, i1, 0, 0), dim[2], dim[3]);
     }
 
-    Array2NonOwn<const T> operator()(size_t i0, size_t i1) const
+    Array2NonOwn<const T> operator()(i64 i0, i64 i1) const
     {
         return Array2NonOwn<T>(const_slice(i0, i1, 0), dim[2], dim[3]);
     }
 
-    Array1NonOwn<T> operator()(size_t i0, size_t i1, size_t i2)
+    Array1NonOwn<T> operator()(i64 i0, i64 i1, i64 i2)
     {
         return Array1NonOwn<T>(&(*this)(i0, i1, i2, 0), dim[3]);
     }
 
-    Array1NonOwn<const T> operator()(size_t i0, size_t i1, size_t i2) const
+    Array1NonOwn<const T> operator()(i64 i0, i64 i1, i64 i2) const
     {
         return Array1NonOwn<const T>(const_slice(i0, i1, i2), dim[3]);
     }
 
-    Array1NonOwn<T> flatten() const
+    Array1NonOwn<T> flatten()
+    {
+        return Array1NonOwn(data.data(), dimProd[0] * dim[0]);
+    }
+    Array1NonOwn<const T> flatten() const
     {
         return Array1NonOwn(data.data(), dimProd[0] * dim[0]);
     }
 
-    Array1NonOwn<T> reshape(int d0) const
+    Array1NonOwn<T> reshape(i64 d0)
     {
         if (d0 != dimProd[0] * dim[0])
         {
             printf("Cannot reshape array [%d x %d x %d x %d] to [%d]\n", dim[0], dim[1], dim[2], dim[3], d0);
-            assert(false);
+            assert(d0 == dimProd[0] * dim[0]);
+        }
+        return Array1NonOwn(data.data(), d0);
+    }
+    Array1NonOwn<const T> reshape(i64 d0) const
+    {
+        if (d0 != dimProd[0] * dim[0])
+        {
+            printf("Cannot reshape array [%d x %d x %d x %d] to [%d]\n", dim[0], dim[1], dim[2], dim[3], d0);
+            assert(d0 == dimProd[0] * dim[0]);
         }
         return Array1NonOwn(data.data(), d0);
     }
 
-    Array2NonOwn<T> reshape(int d0, int d1) const
+    Array2NonOwn<T> reshape(i64 d0, i64 d1)
     {
         if (d0 * d1 != dimProd[0] * dim[0])
         {
             printf("Cannot reshape array [%d x %d x %d x %d] to [%d x %d]\n", dim[0], dim[1], dim[2], dim[3], d0, d1);
-            assert(false);
+            assert(d0 * d1 == dimProd[0] * dim[0]);
+        }
+        return Array2NonOwn(data.data(), d0, d1);
+    }
+    Array2NonOwn<const T> reshape(i64 d0, i64 d1) const
+    {
+        if (d0 * d1 != dimProd[0] * dim[0])
+        {
+            printf("Cannot reshape array [%d x %d x %d x %d] to [%d x %d]\n", dim[0], dim[1], dim[2], dim[3], d0, d1);
+            assert(d0 * d1 == dimProd[0] * dim[0]);
         }
         return Array2NonOwn(data.data(), d0, d1);
     }
 
-    Array3NonOwn<T> reshape(int d0, int d1, int d2) const
+    Array3NonOwn<T> reshape(i64 d0, i64 d1, i64 d2)
     {
         if (d0 * d1 * d2 != dimProd[0] * dim[0])
         {
             printf("Cannot reshape array [%d x %d x %d x %d] to [%d x %d x %d]\n", dim[0], dim[1], dim[2], dim[3], d0, d1, d2);
-            assert(false);
+            assert(d0 * d1 * d2 == dimProd[0] * dim[0]);
+        }
+        return Array3NonOwn(data.data(), d0, d1, d2);
+    }
+    Array3NonOwn<const T> reshape(i64 d0, i64 d1, i64 d2) const
+    {
+        if (d0 * d1 * d2 != dimProd[0] * dim[0])
+        {
+            printf("Cannot reshape array [%d x %d x %d x %d] to [%d x %d x %d]\n", dim[0], dim[1], dim[2], dim[3], d0, d1, d2);
+            assert(d0 * d1 * d2 == dimProd[0] * dim[0]);
         }
         return Array3NonOwn(data.data(), d0, d1, d2);
     }
 
-    Array5NonOwn<T> reshape(int d0, int d1, int d2, int d3, int d4) const
+    Array5NonOwn<T> reshape(i64 d0, i64 d1, i64 d2, i64 d3, i64 d4)
     {
         if (d0 * d1 * d2 * d3 * d4 != dimProd[0] * dim[0])
         {
             printf("Cannot reshape array [%d x %d x %d x %d] to [%d x %d x %d x %d x %d]\n", dim[0], dim[1], dim[2], dim[3], d0, d1, d2, d3, d4);
-            assert(false);
+            assert(d0 * d1 * d2 * d3 * d4 == dimProd[0] * dim[0]);
+        }
+        return Array5NonOwn(data.data(), d0, d1, d2, d3, d4);
+    }
+    Array5NonOwn<const T> reshape(i64 d0, i64 d1, i64 d2, i64 d3, i64 d4) const
+    {
+        if (d0 * d1 * d2 * d3 * d4 != dimProd[0] * dim[0])
+        {
+            printf("Cannot reshape array [%d x %d x %d x %d] to [%d x %d x %d x %d x %d]\n", dim[0], dim[1], dim[2], dim[3], d0, d1, d2, d3, d4);
+            assert(d0 * d1 * d2 * d3 * d4 == dimProd[0] * dim[0]);
         }
         return Array5NonOwn(data.data(), d0, d1, d2, d3, d4);
     }
@@ -1193,18 +1501,17 @@ template <typename T>
 struct Array5NonOwn
 {
     T* data;
-    size_t Ndim;
-    std::array<size_t, 5> dim;
-    std::array<size_t, 4> dimProd;
+    i64 Ndim;
+    std::array<i64, 5> dim;
+    std::array<i64, 4> dimProd;
     Array5NonOwn() : data(nullptr), Ndim(5), dim{0}, dimProd{0}
     {}
-    Array5NonOwn(T* data_, size_t dim0, size_t dim1, size_t dim2, size_t dim3, size_t dim4) : data(data_), Ndim(5), dim{dim0,dim1,dim2,dim3,dim4}, 
+    Array5NonOwn(T* data_, i64 dim0, i64 dim1, i64 dim2, i64 dim3, i64 dim4) : data(data_), Ndim(5), dim{dim0,dim1,dim2,dim3,dim4}, 
                                                                                               dimProd{dim1*dim2*dim3*dim4, dim2*dim3*dim4, dim3*dim4, dim4}
     {}
     Array5NonOwn(const Array5NonOwn& other) = default;
     Array5NonOwn(Array5NonOwn&& other) = default;
-    Array5NonOwn(Array5Own<T>& other) : Ndim(other.Ndim), dim(other.dim), 
-                                        dimProd(other.dimProd), data(other.data.data())
+    Array5NonOwn(Array5Own<T>& other) : data(other.data.data()), Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
     {}
 
     Array5NonOwn&
@@ -1220,132 +1527,168 @@ struct Array5NonOwn
 
     void fill(T val)
     {
-        for (int i = 0; i < dimProd[0] * dim[0]; ++i)
+        for (i64 i = 0; i < dimProd[0] * dim[0]; ++i)
         {
             data[i] = val;
         }
     }
 
-    inline const size_t* shape() const
+    inline const i64* shape() const
     {
         return dim;
     }
-    inline size_t shape(int i) const
+    inline i64 shape(int i) const
     {
-        if (i >= Ndim)
-        {
-            printf("oh no.\n");
-            assert(false);
-        }
+        assert(i >= 0 && i < Ndim);
         return dim[i];
     }
 
-    inline T& operator[](size_t i)
+    inline T& operator[](i64 i)
     {
         return data[i];
     }
-    inline T operator[](size_t i) const
+    inline T operator[](i64 i) const
     {
         return data[i];
     }
 
-    inline T& operator()(size_t i0, size_t i1, size_t i2, size_t i3, size_t i4)
+    inline T& operator()(i64 i0, i64 i1, i64 i2, i64 i3, i64 i4)
     {
         DO_BOUNDS_CHECK();
         return data[i0*dimProd[0] + i1*dimProd[1] + i2*dimProd[2] + i3*dimProd[3] + i4];
     }
-    inline T operator()(size_t i0, size_t i1, size_t i2, size_t i3, size_t i4) const
+    inline T operator()(i64 i0, i64 i1, i64 i2, i64 i3, i64 i4) const
     {
         DO_BOUNDS_CHECK();
         return data[i0*dimProd[0] + i1*dimProd[1] + i2*dimProd[2] + i3*dimProd[3] + i4];
     }
 
-    const T* const_slice(size_t i0, size_t i1, size_t i2, size_t i3) const
+    const T* const_slice(i64 i0, i64 i1, i64 i2, i64 i3) const
     {
         DO_BOUNDS_CHECK_M1();
         return &data[i0*dimProd[0] + i1*dimProd[1] + i2*dimProd[2] + i3*dimProd[3]];
     }
 
-    Array4NonOwn<T> operator()(size_t i0)
+    Array4NonOwn<T> operator()(i64 i0)
     {
         return Array4NonOwn<T>(&(*this)(i0, 0, 0, 0, 0), dim[1], dim[2], dim[3], dim[4]);
     }
-    Array4NonOwn<const T> operator()(size_t i0) const
+    Array4NonOwn<const T> operator()(i64 i0) const
     {
         return Array4NonOwn<const T>(const_slice(i0, 0, 0, 0), dim[1], dim[2], dim[3], dim[4]);
     }
 
-    Array3NonOwn<T> operator()(size_t i0, size_t i1)
+    Array3NonOwn<T> operator()(i64 i0, i64 i1)
     {
         return Array3NonOwn<T>(&(*this)(i0, i1, 0, 0, 0), dim[2], dim[3], dim[4]);
     }
 
-    Array3NonOwn<const T> operator()(size_t i0, size_t i1) const
+    Array3NonOwn<const T> operator()(i64 i0, i64 i1) const
     {
         return Array3NonOwn<const T>(const_slice(i0, i1, 0, 0), dim[2], dim[3], dim[4]);
     }
 
-    Array2NonOwn<T> operator()(size_t i0, size_t i1, size_t i2)
+    Array2NonOwn<T> operator()(i64 i0, i64 i1, i64 i2)
     {
         return Array2NonOwn<T>(&(*this)(i0, i1, i2, 0, 0), dim[3], dim[4]);
     }
 
-    Array2NonOwn<const T> operator()(size_t i0, size_t i1, size_t i2) const
+    Array2NonOwn<const T> operator()(i64 i0, i64 i1, i64 i2) const
     {
         return Array2NonOwn<const T>(const_slice(i0, i1, i2, 0), dim[3], dim[4]);
     }
 
-    Array1NonOwn<T> operator()(size_t i0, size_t i1, size_t i2, size_t i3)
+    Array1NonOwn<T> operator()(i64 i0, i64 i1, i64 i2, i64 i3)
     {
         return Array1NonOwn<T>(&(*this)(i0, i1, i2, i3, 0), dim[4]);
     }
 
-    Array1NonOwn<const T> operator()(size_t i0, size_t i1, size_t i2, size_t i3) const
+    Array1NonOwn<const T> operator()(i64 i0, i64 i1, i64 i2, i64 i3) const
     {
         return Array1NonOwn<const T>(const_slice(i0, i1, i2, i3), dim[4]);
     }
 
-    Array1NonOwn<T> flatten() const
+    Array1NonOwn<T> flatten()
+    {
+        return Array1NonOwn(data, dimProd[0] * dim[0]);
+    }
+    Array1NonOwn<const T> flatten() const
     {
         return Array1NonOwn(data, dimProd[0] * dim[0]);
     }
 
-    Array1NonOwn<T> reshape(int d0) const
+    Array1NonOwn<T> reshape(i64 d0)
     {
         if (d0 != dimProd[0] * dim[0])
         {
             printf("Cannot reshape array [%d x %d x %d x %d x %d] to [%d]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0);
-            assert(false);
+            assert(d0 == dimProd[0] * dim[0]);
+        }
+        return Array1NonOwn(data, d0);
+    }
+    Array1NonOwn<const T> reshape(i64 d0) const
+    {
+        if (d0 != dimProd[0] * dim[0])
+        {
+            printf("Cannot reshape array [%d x %d x %d x %d x %d] to [%d]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0);
+            assert(d0 == dimProd[0] * dim[0]);
         }
         return Array1NonOwn(data, d0);
     }
 
-    Array2NonOwn<T> reshape(int d0, int d1) const
+    Array2NonOwn<T> reshape(i64 d0, i64 d1)
     {
         if (d0 * d1 != dimProd[0] * dim[0])
         {
             printf("Cannot reshape array [%d x %d x %d x %d x %d] to [%d x %d]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1);
-            assert(false);
+            assert(d0 * d1 == dimProd[0] * dim[0]);
+        }
+        return Array2NonOwn(data, d0, d1);
+    }
+    Array2NonOwn<const T> reshape(i64 d0, i64 d1) const
+    {
+        if (d0 * d1 != dimProd[0] * dim[0])
+        {
+            printf("Cannot reshape array [%d x %d x %d x %d x %d] to [%d x %d]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1);
+            assert(d0 * d1 == dimProd[0] * dim[0]);
         }
         return Array2NonOwn(data, d0, d1);
     }
 
-    Array3NonOwn<T> reshape(int d0, int d1, int d2) const
+    Array3NonOwn<T> reshape(i64 d0, i64 d1, i64 d2)
     {
         if (d0 * d1 * d2 != dimProd[0] * dim[0])
         {
             printf("Cannot reshape array [%d x %d x %d x %d x %d] to [%d x %d x %d]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1, d2);
-            assert(false);
+            assert(d0 * d1 * d2 == dimProd[0] * dim[0]);
+        }
+        return Array3NonOwn(data, d0, d1, d2);
+    }
+    Array3NonOwn<const T> reshape(i64 d0, i64 d1, i64 d2) const
+    {
+        if (d0 * d1 * d2 != dimProd[0] * dim[0])
+        {
+            printf("Cannot reshape array [%d x %d x %d x %d x %d] to [%d x %d x %d]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1, d2);
+            assert(d0 * d1 * d2 == dimProd[0] * dim[0]);
         }
         return Array3NonOwn(data, d0, d1, d2);
     }
 
-    Array4NonOwn<T> reshape(int d0, int d1, int d2, int d3) const
+    Array4NonOwn<T> reshape(i64 d0, i64 d1, i64 d2, i64 d3)
     {
         if (d0 * d1 * d2 * d3 != dimProd[0] * dim[0])
         {
             printf("Cannot reshape array [%d x %d x %d x %d x %d] to [%d x %d x %d x %d]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1, d2, d3);
-            assert(false);
+            assert(d0 * d1 * d2 * d3 == dimProd[0] * dim[0]);
+        }
+        return Array4NonOwn(data, d0, d1, d2, d3);
+    }
+    Array4NonOwn<const T> reshape(i64 d0, i64 d1, i64 d2, i64 d3) const
+    {
+        if (d0 * d1 * d2 * d3 != dimProd[0] * dim[0])
+        {
+            printf("Cannot reshape array [%d x %d x %d x %d x %d] to [%d x %d x %d x %d]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1, d2, d3);
+            assert(d0 * d1 * d2 * d3 == dimProd[0] * dim[0]);
         }
         return Array4NonOwn(data, d0, d1, d2, d3);
     }
@@ -1355,15 +1698,15 @@ template <typename T>
 struct Array5Own
 {
     std::vector<T> data;
-    size_t Ndim;
-    std::array<size_t, 5> dim;
-    std::array<size_t, 4> dimProd;
+    i64 Ndim;
+    std::array<i64, 5> dim;
+    std::array<i64, 4> dimProd;
     Array5Own() : data(), Ndim(5), dim{}, dimProd{}
     {}
-    Array5Own(size_t d0, size_t d1, size_t d2, size_t d3, size_t d4) : data(d0*d1*d2*d3*d4), Ndim(5), dim{d0,d1,d2,d3,d4}, 
+    Array5Own(i64 d0, i64 d1, i64 d2, i64 d3, i64 d4) : data(d0*d1*d2*d3*d4), Ndim(5), dim{d0,d1,d2,d3,d4}, 
                                                                        dimProd{d1*d2*d3*d4, d2*d3*d4, d3*d4, d4}
     {}
-    Array5Own(T val, size_t d0, size_t d1, size_t d2, size_t d3, size_t d4) : data(d0*d1*d2*d3*d4, val), Ndim(5), dim{d0,d1,d2,d3,d4}, 
+    Array5Own(T val, i64 d0, i64 d1, i64 d2, i64 d3, i64 d4) : data(d0*d1*d2*d3*d4, val), Ndim(5), dim{d0,d1,d2,d3,d4}, 
                                                                               dimProd{d1*d2*d3*d4, d2*d3*d4, d3*d4, d4}
     {}
     Array5Own(const Array5NonOwn<T>& other) : data(other.data, other.data+other.dim[0]*other.dimProd[0]), Ndim(other.Ndim), 
@@ -1395,132 +1738,168 @@ struct Array5Own
 
     void fill(T val)
     {
-        for (int i = 0; i < dimProd[0] * dim[0]; ++i)
+        for (i64 i = 0; i < dimProd[0] * dim[0]; ++i)
         {
             data[i] = val;
         }
     }
 
-    inline const size_t* shape() const
+    inline const i64* shape() const
     {
         return dim;
     }
-    inline size_t shape(int i) const
+    inline i64 shape(int i) const
     {
-        if (i >= Ndim)
-        {
-            printf("oh no.\n");
-            assert(false);
-        }
+        assert(i >= 0 && i < Ndim);
         return dim[i];
     }
 
-    inline T& operator[](size_t i)
+    inline T& operator[](i64 i)
     {
         return data[i];
     }
-    inline T operator[](size_t i) const
+    inline T operator[](i64 i) const
     {
         return data[i];
     }
 
-    inline T& operator()(size_t i0, size_t i1, size_t i2, size_t i3, size_t i4)
+    inline T& operator()(i64 i0, i64 i1, i64 i2, i64 i3, i64 i4)
     {
         DO_BOUNDS_CHECK();
         return data[i0*dimProd[0] + i1*dimProd[1] + i2*dimProd[2] + i3*dimProd[3] + i4];
     }
-    inline T operator()(size_t i0, size_t i1, size_t i2, size_t i3, size_t i4) const
+    inline T operator()(i64 i0, i64 i1, i64 i2, i64 i3, i64 i4) const
     {
         DO_BOUNDS_CHECK();
         return data[i0*dimProd[0] + i1*dimProd[1] + i2*dimProd[2] + i3*dimProd[3] + i4];
     }
 
-    const T* const_slice(size_t i0, size_t i1, size_t i2, size_t i3) const
+    const T* const_slice(i64 i0, i64 i1, i64 i2, i64 i3) const
     {
         DO_BOUNDS_CHECK_M1();
         return &data[i0*dimProd[0] + i1*dimProd[1] + i2*dimProd[2] + i3*dimProd[3]];
     }
 
-    Array4NonOwn<T> operator()(size_t i0)
+    Array4NonOwn<T> operator()(i64 i0)
     {
         return Array4NonOwn<T>(&(*this)(i0, 0, 0, 0, 0), dim[1], dim[2], dim[3], dim[4]);
     }
-    Array4NonOwn<const T> operator()(size_t i0) const
+    Array4NonOwn<const T> operator()(i64 i0) const
     {
         return Array4NonOwn<const T>(const_slice(i0, 0, 0, 0), dim[1], dim[2], dim[3], dim[4]);
     }
 
-    Array3NonOwn<T> operator()(size_t i0, size_t i1)
+    Array3NonOwn<T> operator()(i64 i0, i64 i1)
     {
         return Array3NonOwn<T>(&(*this)(i0, i1, 0, 0, 0), dim[2], dim[3], dim[4]);
     }
 
-    Array3NonOwn<const T> operator()(size_t i0, size_t i1) const
+    Array3NonOwn<const T> operator()(i64 i0, i64 i1) const
     {
         return Array3NonOwn<const T>(const_slice(i0, i1, 0, 0), dim[2], dim[3], dim[4]);
     }
 
-    Array2NonOwn<T> operator()(size_t i0, size_t i1, size_t i2)
+    Array2NonOwn<T> operator()(i64 i0, i64 i1, i64 i2)
     {
         return Array2NonOwn<T>(&(*this)(i0, i1, i2, 0, 0), dim[3], dim[4]);
     }
 
-    Array2NonOwn<const T> operator()(size_t i0, size_t i1, size_t i2) const
+    Array2NonOwn<const T> operator()(i64 i0, i64 i1, i64 i2) const
     {
         return Array2NonOwn<const T>(const_slice(i0, i1, i2, 0), dim[3], dim[4]);
     }
 
-    Array1NonOwn<T> operator()(size_t i0, size_t i1, size_t i2, size_t i3)
+    Array1NonOwn<T> operator()(i64 i0, i64 i1, i64 i2, i64 i3)
     {
         return Array1NonOwn<T>(&(*this)(i0, i1, i2, i3, 0), dim[4]);
     }
 
-    Array1NonOwn<const T> operator()(size_t i0, size_t i1, size_t i2, size_t i3) const
+    Array1NonOwn<const T> operator()(i64 i0, i64 i1, i64 i2, i64 i3) const
     {
         return Array1NonOwn<const T>(const_slice(i0, i1, i2, i3), dim[4]);
     }
 
-    Array1NonOwn<T> flatten() const
+    Array1NonOwn<T> flatten()
+    {
+        return Array1NonOwn(data.data(), dimProd[0] * dim[0]);
+    }
+    Array1NonOwn<const T> flatten() const
     {
         return Array1NonOwn(data.data(), dimProd[0] * dim[0]);
     }
 
-    Array1NonOwn<T> reshape(int d0) const
+    Array1NonOwn<T> reshape(i64 d0)
     {
         if (d0 != dimProd[0] * dim[0])
         {
             printf("Cannot reshape array [%d x %d x %d x %d x %d] to [%d]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0);
-            assert(false);
+            assert(d0 == dimProd[0] * dim[0]);
+        }
+        return Array1NonOwn(data.data(), d0);
+    }
+    Array1NonOwn<const T> reshape(i64 d0) const
+    {
+        if (d0 != dimProd[0] * dim[0])
+        {
+            printf("Cannot reshape array [%d x %d x %d x %d x %d] to [%d]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0);
+            assert(d0 == dimProd[0] * dim[0]);
         }
         return Array1NonOwn(data.data(), d0);
     }
 
-    Array2NonOwn<T> reshape(int d0, int d1) const
+    Array2NonOwn<T> reshape(i64 d0, i64 d1)
     {
         if (d0 * d1 != dimProd[0] * dim[0])
         {
             printf("Cannot reshape array [%d x %d x %d x %d x %d] to [%d x %d]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1);
-            assert(false);
+            assert(d0 * d1 == dimProd[0] * dim[0]);
+        }
+        return Array2NonOwn(data.data(), d0, d1);
+    }
+    Array2NonOwn<const T> reshape(i64 d0, i64 d1) const
+    {
+        if (d0 * d1 != dimProd[0] * dim[0])
+        {
+            printf("Cannot reshape array [%d x %d x %d x %d x %d] to [%d x %d]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1);
+            assert(d0 * d1 == dimProd[0] * dim[0]);
         }
         return Array2NonOwn(data.data(), d0, d1);
     }
 
-    Array3NonOwn<T> reshape(int d0, int d1, int d2) const
+    Array3NonOwn<T> reshape(i64 d0, i64 d1, i64 d2)
     {
         if (d0 * d1 * d2 != dimProd[0] * dim[0])
         {
             printf("Cannot reshape array [%d x %d x %d x %d x %d] to [%d x %d x %d]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1, d2);
-            assert(false);
+            assert(d0 * d1 * d2 == dimProd[0] * dim[0]);
+        }
+        return Array3NonOwn(data.data(), d0, d1, d2);
+    }
+    Array3NonOwn<const T> reshape(i64 d0, i64 d1, i64 d2) const
+    {
+        if (d0 * d1 * d2 != dimProd[0] * dim[0])
+        {
+            printf("Cannot reshape array [%d x %d x %d x %d x %d] to [%d x %d x %d]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1, d2);
+            assert(d0 * d1 * d2 == dimProd[0] * dim[0]);
         }
         return Array3NonOwn(data.data(), d0, d1, d2);
     }
 
-    Array4NonOwn<T> reshape(int d0, int d1, int d2, int d3) const
+    Array4NonOwn<T> reshape(i64 d0, i64 d1, i64 d2, i64 d3)
     {
         if (d0 * d1 * d2 * d3 != dimProd[0] * dim[0])
         {
             printf("Cannot reshape array [%d x %d x %d x %d x %d] to [%d x %d x %d x %d]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1, d2, d3);
-            assert(false);
+            assert(d0 * d1 * d2 * d3 == dimProd[0] * dim[0]);
+        }
+        return Array4NonOwn(data.data(), d0, d1, d2, d3);
+    }
+    Array4NonOwn<const T> reshape(i64 d0, i64 d1, i64 d2, i64 d3) const
+    {
+        if (d0 * d1 * d2 * d3 != dimProd[0] * dim[0])
+        {
+            printf("Cannot reshape array [%d x %d x %d x %d x %d] to [%d x %d x %d x %d]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1, d2, d3);
+            assert(d0 * d1 * d2 * d3 == dimProd[0] * dim[0]);
         }
         return Array4NonOwn(data.data(), d0, d1, d2, d3);
     }
