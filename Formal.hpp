@@ -7,7 +7,6 @@
 #include "Ng.hpp"
 #include <complex>
 
-typedef double f64;
 typedef Jasnah::Array1NonOwn<bool> BoolView;
 typedef Jasnah::Array1Own<u8> BoolArr; //  Avoid the dreaded vector<bool>
 typedef Jasnah::Array1NonOwn<i32> I32View;

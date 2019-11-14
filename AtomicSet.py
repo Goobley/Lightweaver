@@ -25,7 +25,7 @@ class SpectrumConfiguration:
     upperLevels: Dict[str, List[Set[int]]]
 
 
-def lte_pops(atomicModel, atmos, nTotal, debye=False):
+def lte_pops(atomicModel, atmos, nTotal, debye=True):
     Nlevel = len(atomicModel.levels)
     c1 = (Const.HPLANCK / (2.0 * np.pi * Const.M_ELECTRON)) * (Const.HPLANCK / Const.KBOLTZMANN)
 
@@ -500,9 +500,9 @@ def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable, 
             # dnMax = np.nanmax(np.abs((n - prevN) / n))
             dnMax = np.nanmax(np.abs((n / prevN) - 1.0))
             # print(dnMax)
-            # if dnMax <= IterLimit:
-            #     maxIter = max(maxIter, nIter)
-            #     break
+            if dnMax <= IterLimit:
+                maxIter = max(maxIter, nIter)
+                break
 
             nIter += 1
         if dnMax > IterLimit:

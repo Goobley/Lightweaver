@@ -24,6 +24,6 @@ struct BackgroundData
 void linear(F64View xTable, F64View yTable, F64View x, F64View y);
 f64 linear(F64View xTable, F64View yTable, f64 x);
 void basic_background(BackgroundData* bd);
-double Gaunt_bf(double lambda, double n_eff, int charge);
+f64 Gaunt_bf(f64 lambda, f64 n_eff, int charge);
 
 #endif

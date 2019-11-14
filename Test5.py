@@ -30,7 +30,6 @@ at = AtomicTable()
 atmos.convert_scales(at)
 atmos.quadrature(5)
 
-# NOTE(cmo): adding FeAtom seems to make us explode... Need to fix
 aSet = RadiativeSet([H_6_atom(), C_atom(), O_atom(), Si_atom(), Al_atom(), CaII_atom(), Fe_atom(), He_9_atom(), MgII_atom(), N_atom(), Na_atom(), S_atom()], set([]))
 aSet.set_active('Ca', 'Mg', 'H')
 spect = aSet.compute_wavelength_grid(np.linspace(150, 600, 500))
@@ -66,15 +65,16 @@ eqPops['H-'][:] = np.array([4.67794609e+02, 5.47693681e+02, 6.55528291e+02, 8.65
 ctx = LwContext(atmos, spect, aSet, eqPops, at, ngOptions=NgOptions(0,0,0))
 delta = 1.0
 dJ = 1.0
+dRho = 1.0
 it = 0
-ctx.configure_hprd_coeffs()
+# ctx.configure_hprd_coeffs()
 for it in range(200):
     # it += 1
     dJ = ctx.gamma_matrices_formal_sol()
     delta = ctx.stat_equil()
-    if it >= 1:
-        dRho = ctx.prd_redistribute()
-    if dJ < 1e-2:
+    # if it >= 1:
+    #     dRho = ctx.prd_redistribute()
+    if dJ < 1e-2 and delta < 1e-2:
         break
 # print(ctx.activeAtoms[0].trans[4].phi[20,0,0,0])
 s = ctx.spect
@@ -85,7 +85,7 @@ oldI = np.copy(s.I)
 # plt.plot(s.wavelength, s.I[:, -1])
 # plt.ylim(0.95, 1.05)
 # plt.show()
-# dJStokes = ctx.single_stokes_fs()
+dJStokes = ctx.single_stokes_fs()
 # print(ctx.activeAtoms[0].trans[4].phi[20,0,0,0])
 end = time.time()
 print('%e s' % (end-start))

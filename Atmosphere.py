@@ -36,7 +36,6 @@ class Atmosphere:
     def __post_init__(self):
         self.Nspace = self.depthScale.shape[0]
         self.nHTot = np.sum(self.hydrogenPops, axis=0)
-        self.B = None
 
     def convert_scales(self, atomicTable):
         # This is only temporary

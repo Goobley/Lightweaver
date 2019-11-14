@@ -12,9 +12,4 @@ setup(name="CAtmosphere", ext_modules=cythonize([
     include_dirs=[np.get_include()],
     extra_compile_args=["-std=c++17", "-Wno-sign-compare", "-march=native", "-mavx2", "-funroll-loops"],
     language="c++"
-), 
-Extension(
-    "witt_cmo",
-    ["witt_cmo.pyx"],
-    include_dirs=[np.get_include()]
 )], language_level=3))
