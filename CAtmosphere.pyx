@@ -323,8 +323,8 @@ cdef class LwBackground:
         self.bd.scatt = f64_view_2(self.sca)
 
         basic_background(&self.bd)
-        # self.rayleigh_scattering()
-        # self.bf_opacities()
+        self.rayleigh_scattering()
+        self.bf_opacities()
 
         cdef int la, k
         for la in range(Nlambda):
@@ -368,6 +368,7 @@ cdef class LwBackground:
 
     cpdef bf_opacities(self):
         atoms = self.radSet.passiveAtoms
+        print([a.name for a in atoms])
         if len(atoms) == 0:
             return
 
@@ -379,21 +380,23 @@ cdef class LwBackground:
 
         cdef f64[:, ::1] alpha = np.zeros((self.wavelength.shape[0], len(continua)))
         cdef int i, la, k, Z
-        cdef f64 nEff, gbf_0, wav
+        cdef f64 nEff, gbf_0, wav, edge
         # TODO(cmo): Check if differences between continuum types actuually matter for us
         for i, c in enumerate(continua):
-            if c.atom.name.strip() == 'H':
-                Z = c.jLevel.stage
-                nEff = Z * np.sqrt(Const.E_RYDBERG / (c.jLevel.E_SI - c.iLevel.E_SI))
-                # gbf_0 = Gaunt_bf(c.lambda0, nEff, Z)
-                for la in range(self.wavelength.shape[0]):
-                    wav = self.wavelength[la]
-                    if wav >= c.wavelength[0] and wav <= c.wavelength[-1]:
-                        alpha[la, i] = sigma0 * (self.wavelength[la] / c.lambda0)**3 * nEff * Gaunt_bf(self.wavelength[la], nEff, Z)
-            else:
-                interpolator = interp1d(c.wavelength, c.alpha, bounds_error=False, fill_value=0.0)
-                alphaLa = interpolator(self.wavelength)
-                for la in range(self.wavelength.shape[0]):
+            # if c.atom.name.strip() == 'H':
+            #     Z = c.jLevel.stage
+            #     nEff = Z * np.sqrt(Const.E_RYDBERG / (c.jLevel.E_SI - c.iLevel.E_SI))
+            #     # gbf_0 = Gaunt_bf(c.lambda0, nEff, Z)
+            #     for la in range(self.wavelength.shape[0]):
+            #         wav = self.wavelength[la]
+            #         if wav >= c.wavelength[0] and wav <= c.wavelength[-1]:
+            #             alpha[la, i] = sigma0 * (self.wavelength[la] / c.lambda0)**3 * nEff * Gaunt_bf(self.wavelength[la], nEff, Z)
+            # else:
+            edge = c.lambdaEdge
+            interpolator = interp1d(c.wavelength, c.alpha, bounds_error=False, fill_value=0.0, kind=3)
+            alphaLa = interpolator(self.wavelength)
+            for la in range(self.wavelength.shape[0]):
+                if self.wavelength[la] < edge:
                     alpha[la, i] = alphaLa[la]
 
         cdef f64[:, ::1] expla = np.zeros((self.wavelength.shape[0], self.atmos.Nspace))
@@ -435,10 +438,10 @@ cdef class RayleighScatterer:
 
     def __init__(self, atmos, atom, pops):
         if len(atom.lines) == 0:
-            lines = False
+            self.lines = False
             return
 
-        lines = True
+        self.lines = True
         cdef f64 lambdaLimit = 1e6
         cdef f64 lambdaRed
         for l in atom.lines:
@@ -456,7 +459,7 @@ cdef class RayleighScatterer:
         self.sigmaE = 8.0 * np.pi / 3.0 * (C.Q_ELECTRON / (np.sqrt(4.0 * np.pi * C.EPSILON_0) * (np.sqrt(C.M_ELECTRON) * C.CLIGHT)))**4
 
     cpdef scatter(self, f64 wavelength, f64[::1] sca):
-        if wavelength > self.lambdaLimit:
+        if wavelength <= self.lambdaLimit:
             return False
         if not self.lines:
             return False
@@ -805,10 +808,11 @@ cdef class LwAtom:
         self.atom.C = f64_view_3(self.C)
 
         # TODO(cmo): Rewrite this to reuse an n and nStar from eqPops
-        self.nStar = np.zeros((self.Nlevel, atmos.Nspace))
+        # self.nStar = np.zeros((self.Nlevel, atmos.Nspace))
+        self.nStar = modelPops.nStar
         self.atom.nStar = f64_view_2(self.nStar)
 
-        self.lte_pops()
+        # self.lte_pops()
         self.n = np.copy(self.nStar)
         self.atom.n = f64_view_2(self.n)
         modelPops.pops = np.asarray(self.n)
@@ -899,19 +903,19 @@ cdef class LwAtom:
     def trans(self):
         return self.trans
 
-    cpdef lte_pops(self, debye=False):
+    cpdef lte_pops(self, debeye=True):
         cdef f64 c1 = (Const.HPLANCK / (2.0 * np.pi * Const.M_ELECTRON)) * (Const.HPLANCK / Const.KBOLTZMANN)
         cdef c2 = 0.0
         cdef int i, Z
-        if debye:
+        if debeye:
             c2 = np.sqrt(8.0 * np.pi / Const.KBOLTZMANN) * (Const.Q_ELECTRON**2 / (4.0 * np.pi * Const.EPSILON_0))**1.5
-            nDebye = np.zeros(self.Nlevel)
+            nDebeye = np.zeros(self.Nlevel)
             for i in range(1, self.Nlevel):
                 stage = self.atomicModel.levels[i].stage
                 Z = stage
                 for m in range(1, stage - self.atomicModel.levels[0].stage + 1):
+                    nDebeye[i] += Z
                     Z += 1
-                    nDebye[i] += Z
         dEion = c2 * np.sqrt(self.atmos.ne / self.atmos.temperature)
         cNe_T = 0.5  * self.atmos.ne * (c1 / self.atmos.temperature)**1.5
         total = np.ones(self.atmos.Nspace)
@@ -924,15 +928,16 @@ cdef class LwAtom:
             dE = self.atomicModel.levels[i].E_SI - ground.E_SI
             gi0 = self.atomicModel.levels[i].g / ground.g
             dZ = self.atomicModel.levels[i].stage - ground.stage
-            if debye:
-                dE_kT = (dE - nDebye[i] * dEion) / (Const.KBOLTZMANN * self.atmos.temperature)
+            if debeye:
+                dE_kT = (dE - nDebeye[i] * dEion) / (Const.KBOLTZMANN * self.atmos.temperature)
             else:
                 dE_kT = dE / (Const.KBOLTZMANN * self.atmos.temperature)
 
             nst = gi0 * np.exp(-dE_kT)
             nStar[i, :] = nst
-            for m in range(1, dZ + 1):
-                nStar[i, :] /= cNe_T
+            nStar[i, :] /= cNe_T**dZ
+            # for m in range(1, dZ + 1):
+            #     nStar[i, :] /= cNe_T
             total +=  nStar[i]
 
         nStar[0] = self.nTotal / total

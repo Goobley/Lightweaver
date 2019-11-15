@@ -25,20 +25,23 @@ class SpectrumConfiguration:
     upperLevels: Dict[str, List[Set[int]]]
 
 
-def lte_pops(atomicModel, atmos, nTotal, debye=True):
+def lte_pops(atomicModel, atmos, nTotal, debeye=True):
     Nlevel = len(atomicModel.levels)
     c1 = (Const.HPLANCK / (2.0 * np.pi * Const.M_ELECTRON)) * (Const.HPLANCK / Const.KBOLTZMANN)
 
     c2 = 0.0
-    if debye:
+    if debeye:
         c2 = np.sqrt(8.0 * np.pi / Const.KBOLTZMANN) * (Const.Q_ELECTRON**2 / (4.0 * np.pi * Const.EPSILON_0))**1.5
-        nDebye = np.zeros(Nlevel)
+        nDebeye = np.zeros(Nlevel)
         for i in range(1, Nlevel):
             stage = atomicModel.levels[i].stage
             Z = stage
             for m in range(1, stage - atomicModel.levels[0].stage + 1):
+                nDebeye[i] += Z
                 Z += 1
-                nDebye[i] += Z
+    # print(atomicModel.name)
+    # print([l.stage for l in atomicModel.levels])
+    # print(nDebye)
 
     dEion = c2 * np.sqrt(atmos.ne / atmos.temperature)
     cNe_T = 0.5 * atmos.ne * (c1 / atmos.temperature)**1.5
@@ -50,15 +53,16 @@ def lte_pops(atomicModel, atmos, nTotal, debye=True):
         dE = atomicModel.levels[i].E_SI - ground.E_SI
         gi0 = atomicModel.levels[i].g / ground.g
         dZ = atomicModel.levels[i].stage - ground.stage
-        if debye:
-            dE_kT = (dE - nDebye[i] * dEion) / (Const.KBOLTZMANN * atmos.temperature)
+        if debeye:
+            dE_kT = (dE - nDebeye[i] * dEion) / (Const.KBOLTZMANN * atmos.temperature)
         else:
             dE_kT = dE / (Const.KBOLTZMANN * atmos.temperature)
 
         nst = gi0 * np.exp(-dE_kT)
         nStar[i, :] = nst
-        for m in range(1, dZ + 1):
-            nStar[i, :] /= cNe_T
+        nStar[i, :] /= cNe_T**dZ
+        # for m in range(1, dZ + 1):
+        #     nStar[i, :] /= cNe_T
         total += nStar[i]
 
     nStar[0] = nTotal / total
@@ -138,7 +142,8 @@ class AtomicModelPops:
             return self.nStar
 
     def fjk(self, atmos, k):
-        Nstage: int = (self.model.levels[-1].stage - self.model.levels[0].stage) + 1
+        # Nstage: int = (self.model.levels[-1].stage - self.model.levels[0].stage) + 1
+        Nstage: int = self.model.levels[-1].stage + 1
 
         fjk = np.zeros(Nstage)
         dfjk = np.zeros(Nstage)
@@ -151,7 +156,8 @@ class AtomicModelPops:
         return fjk, dfjk
 
     def fj(self, atmos):
-        Nstage: int = (self.model.levels[-1].stage - self.model.levels[0].stage) + 1
+        # Nstage: int = (self.model.levels[-1].stage - self.model.levels[0].stage) + 1
+        Nstage: int = self.model.levels[-1].stage + 1
         Nspace: int = atmos.depthScale.shape[0]
 
         fj = np.zeros((Nstage, Nspace))
@@ -303,7 +309,7 @@ class RadiativeSet:
         atomicPops = []
         for a in sorted(self.atoms, key=atomic_weight_sort):
             nTotal = a.atomicTable[a.name].abundance * atmos.nHTot
-            nStar = lte_pops(a, atmos, nTotal, debye=True)
+            nStar = lte_pops(a, atmos, nTotal, debeye=True)
             atomicPops.append(AtomicModelPops(a, nStar, nTotal))
 
         table = AtomicPopsTable(atomicPops)
@@ -403,6 +409,7 @@ def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable, 
     nuclei = sorted(nuclei, key=atomic_weight_sort)
     if not nuclei[0].name.startswith('H'):
         raise ValueError('H not list of nuclei -- check H2 molecule')
+    print([n.name for n in nuclei])
 
     nuclIndex = [[nuclei.index(ele) for ele in mol.elements] for mol in molecules]
 
@@ -434,9 +441,9 @@ def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable, 
             fjk, dfjk = nuclei[i].fjk(atmos, k)
             fn0[i] = fjk[0]
 
-            PhiHmin = 0.25 * (CI / atmos.temperature[k])**1.5 \
-                        * np.exp(Const.E_ION_HMIN / (Const.KBOLTZMANN * atmos.temperature[k]))
-            fHmin = atmos.ne[k] * fn0[0] * PhiHmin
+        PhiHmin = 0.25 * (CI / atmos.temperature[k])**1.5 \
+                    * np.exp(Const.E_ION_HMIN / (Const.KBOLTZMANN * atmos.temperature[k]))
+        fHmin = atmos.ne[k] * fn0[0] * PhiHmin
 
 
         # Eq constant for each molecule at this location
@@ -447,7 +454,7 @@ def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable, 
         # n[:Nnuclei] = a[:Nnuclei]
         # n[Nnuclei:] = 0.0
         n[:] = a[:]
-        # print('a', a[Nnuclei])
+        # print('a', a)
 
         nIter = 1
         NmaxIter = 50
@@ -498,7 +505,7 @@ def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable, 
             # print(correction)
 
             # dnMax = np.nanmax(np.abs((n - prevN) / n))
-            dnMax = np.nanmax(np.abs((n / prevN) - 1.0))
+            dnMax = np.nanmax(np.abs(1.0 - prevN / n))
             # print(dnMax)
             if dnMax <= IterLimit:
                 maxIter = max(maxIter, nIter)

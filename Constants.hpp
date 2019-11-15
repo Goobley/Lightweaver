@@ -35,7 +35,7 @@ constexpr double Pi = 3.14159265358979323846264338327950288;
 // ln(10)
 constexpr double Log10 = 2.30258509299404568401799145468436421;
 // Ionization energy Hmin in [J]
-constexpr double E_ION_HMIN = 0.74*EV;
+constexpr double E_ION_HMIN = 0.754*EV;
 
 constexpr double NM_TO_M = 1.0E-09;
 constexpr double CM_TO_M = 1.0E-02;

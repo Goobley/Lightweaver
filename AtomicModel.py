@@ -651,11 +651,15 @@ class ExplicitContinuum(AtomicContinuum):
         return s
 
     def compute_alpha(self, wavelength) -> np.ndarray:
-        return interp1d(self.wavelength, self.alpha)(wavelength)
+        return interp1d(self.wavelength, self.alpha, kind=3)(wavelength)
 
     @property
     def lambda0(self) -> float:
         return self.lambda0_m / Const.NM_TO_M
+
+    @property
+    def lambdaEdge(self) -> float:
+        return self.lambda0
 
     @property
     def lambda0_m(self) -> float:
@@ -695,6 +699,10 @@ class HydrogenicContinuum(AtomicContinuum):
     @property
     def lambda0(self) -> float:
         return self.lambda0_m / Const.NM_TO_M
+
+    @property
+    def lambdaEdge(self) -> float:
+        return self.lambda0
 
     @property
     def lambda0_m(self) -> float:
