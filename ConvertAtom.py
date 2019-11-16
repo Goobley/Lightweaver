@@ -122,6 +122,7 @@ def conv_atom(inFile):
 
 
     lines = []
+    lineNLambdas = []
     for n in range(Nline):
         line = getNextLine(data)
         line = line.split()
@@ -166,6 +167,7 @@ def conv_atom(inFile):
             raise ValueError('Unknown vdw type %s' % vdw)
 
         lines.append(VoigtLine(j=j, i=i, f=f, type=lineType, Nlambda=Nlambda, qCore=qCore, qWing=qWing, vdw=vdwApprox, gRad=gRad, stark=stark, gLandeEff=gLande))
+        lineNLambdas.append(Nlambda)
 
 
     continua: List[AtomicContinuum] = []
@@ -238,6 +240,8 @@ def conv_atom(inFile):
             print(Fore.YELLOW + "Ignoring unknown collisional string %s" % line[0].upper() + Style.RESET_ALL)
 
     atom = AtomicModel(name=ID, levels=levels, lines=lines, continua=continua, collisions=collisions)
+    for i, l in enumerate(atom.lines):
+        l.Nlambda = lineNLambdas[i]
     return repr(atom)
 
 colorama.init()

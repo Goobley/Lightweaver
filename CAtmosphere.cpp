@@ -1413,7 +1413,7 @@ typedef Jasnah::Array1NonOwn<__pyx_t_5numpy_int32_t>  __pyx_t_11CAtmosphere_I32V
  */
 typedef Jasnah::Array1NonOwn<bool>  __pyx_t_11CAtmosphere_BoolView;
 
-/* "CAtmosphere.pyx":906
+/* "CAtmosphere.pyx":909
  *         return self.trans
  * 
  *     cpdef lte_pops(self, debeye=True):             # <<<<<<<<<<<<<<
@@ -1484,7 +1484,7 @@ struct __pyx_obj_11CAtmosphere_LwBackground {
 };
 
 
-/* "CAtmosphere.pyx":430
+/* "CAtmosphere.pyx":432
  *                     self.eta[la, k] += twohnu3_c2 * gijk * alpha[la, i] * n[cj, k]
  * 
  * cdef class RayleighScatterer:             # <<<<<<<<<<<<<<
@@ -1504,7 +1504,7 @@ struct __pyx_obj_11CAtmosphere_RayleighScatterer {
 };
 
 
-/* "CAtmosphere.pyx":489
+/* "CAtmosphere.pyx":491
  *         return True
  * 
  * cdef class LwTransition:             # <<<<<<<<<<<<<<
@@ -1537,7 +1537,7 @@ struct __pyx_obj_11CAtmosphere_LwTransition {
 };
 
 
-/* "CAtmosphere.pyx":741
+/* "CAtmosphere.pyx":744
  *             return 'Continuum'
  * 
  * cdef class LwZeemanComponents:             # <<<<<<<<<<<<<<
@@ -1553,7 +1553,7 @@ struct __pyx_obj_11CAtmosphere_LwZeemanComponents {
 };
 
 
-/* "CAtmosphere.pyx":756
+/* "CAtmosphere.pyx":759
  *         self.zc.strength = f64_view(self.strength)
  * 
  * cdef class LwAtom:             # <<<<<<<<<<<<<<
@@ -1583,7 +1583,7 @@ struct __pyx_obj_11CAtmosphere_LwAtom {
 };
 
 
-/* "CAtmosphere.pyx":955
+/* "CAtmosphere.pyx":958
  *         C[C < 0.0] = 0.0
  * 
  * cdef class LwSpectrum:             # <<<<<<<<<<<<<<
@@ -1600,7 +1600,7 @@ struct __pyx_obj_11CAtmosphere_LwSpectrum {
 };
 
 
-/* "CAtmosphere.pyx":993
+/* "CAtmosphere.pyx":996
  * 
  * 
  * cdef class LwContext:             # <<<<<<<<<<<<<<
@@ -1619,7 +1619,7 @@ struct __pyx_obj_11CAtmosphere_LwContext {
 };
 
 
-/* "CAtmosphere.pyx":1113
+/* "CAtmosphere.pyx":1116
  *     print(type(a))
  * 
  * cdef class Blah:             # <<<<<<<<<<<<<<
@@ -1727,7 +1727,7 @@ struct __pyx_vtabstruct_11CAtmosphere_LwBackground {
 static struct __pyx_vtabstruct_11CAtmosphere_LwBackground *__pyx_vtabptr_11CAtmosphere_LwBackground;
 
 
-/* "CAtmosphere.pyx":430
+/* "CAtmosphere.pyx":432
  *                     self.eta[la, k] += twohnu3_c2 * gijk * alpha[la, i] * n[cj, k]
  * 
  * cdef class RayleighScatterer:             # <<<<<<<<<<<<<<
@@ -1741,7 +1741,7 @@ struct __pyx_vtabstruct_11CAtmosphere_RayleighScatterer {
 static struct __pyx_vtabstruct_11CAtmosphere_RayleighScatterer *__pyx_vtabptr_11CAtmosphere_RayleighScatterer;
 
 
-/* "CAtmosphere.pyx":489
+/* "CAtmosphere.pyx":491
  *         return True
  * 
  * cdef class LwTransition:             # <<<<<<<<<<<<<<
@@ -1756,7 +1756,7 @@ struct __pyx_vtabstruct_11CAtmosphere_LwTransition {
 static struct __pyx_vtabstruct_11CAtmosphere_LwTransition *__pyx_vtabptr_11CAtmosphere_LwTransition;
 
 
-/* "CAtmosphere.pyx":756
+/* "CAtmosphere.pyx":759
  *         self.zc.strength = f64_view(self.strength)
  * 
  * cdef class LwAtom:             # <<<<<<<<<<<<<<
@@ -2965,7 +2965,6 @@ static const char __pyx_k_dict[] = "__dict__";
 static const char __pyx_k_enum[] = "enum";
 static const char __pyx_k_fill[] = "fill";
 static const char __pyx_k_int8[] = "int8";
-static const char __pyx_k_kind[] = "kind";
 static const char __pyx_k_main[] = "__main__";
 static const char __pyx_k_mode[] = "mode";
 static const char __pyx_k_name[] = "name";
@@ -3075,6 +3074,7 @@ static const char __pyx_k_TypeError[] = "TypeError";
 static const char __pyx_k_activeSet[] = "activeSet";
 static const char __pyx_k_enumerate[] = "enumerate";
 static const char __pyx_k_metaclass[] = "__metaclass__";
+static const char __pyx_k_minLambda[] = "minLambda";
 static const char __pyx_k_ngOptions[] = "ngOptions";
 static const char __pyx_k_pyx_state[] = "__pyx_state";
 static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
@@ -3090,7 +3090,6 @@ static const char __pyx_k_atmosphere[] = "atmosphere";
 static const char __pyx_k_atomicPops[] = "atomicPops";
 static const char __pyx_k_background[] = "background";
 static const char __pyx_k_collisions[] = "collisions";
-static const char __pyx_k_fill_value[] = "fill_value";
 static const char __pyx_k_lambdaEdge[] = "lambdaEdge";
 static const char __pyx_k_pyx_result[] = "__pyx_result";
 static const char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
@@ -3114,12 +3113,12 @@ static const char __pyx_k_LwBackground[] = "LwBackground";
 static const char __pyx_k_LwTransition[] = "LwTransition";
 static const char __pyx_k_RuntimeError[] = "RuntimeError";
 static const char __pyx_k_bf_opacities[] = "bf_opacities";
-static const char __pyx_k_bounds_error[] = "bounds_error";
 static const char __pyx_k_passiveAtoms[] = "passiveAtoms";
 static const char __pyx_k_pyx_checksum[] = "__pyx_checksum";
 static const char __pyx_k_s_delta_6_4e[] = "    %s delta = %6.4e";
 static const char __pyx_k_setup_stokes[] = "setup_stokes";
 static const char __pyx_k_stringsource[] = "stringsource";
+static const char __pyx_k_compute_alpha[] = "compute_alpha";
 static const char __pyx_k_compute_rates[] = "compute_rates";
 static const char __pyx_k_pyx_getbuffer[] = "__pyx_getbuffer";
 static const char __pyx_k_reduce_cython[] = "__reduce_cython__";
@@ -3306,7 +3305,6 @@ static PyObject *__pyx_n_s_bf_opacities;
 static PyObject *__pyx_n_s_blah;
 static PyObject *__pyx_n_s_blueIdx;
 static PyObject *__pyx_n_s_bool;
-static PyObject *__pyx_n_s_bounds_error;
 static PyObject *__pyx_n_s_c;
 static PyObject *__pyx_n_u_c;
 static PyObject *__pyx_n_s_cAtmos;
@@ -3316,6 +3314,7 @@ static PyObject *__pyx_n_s_cline_in_traceback;
 static PyObject *__pyx_n_s_cmass;
 static PyObject *__pyx_n_s_collisions;
 static PyObject *__pyx_n_s_compAtom;
+static PyObject *__pyx_n_s_compute_alpha;
 static PyObject *__pyx_n_s_compute_collisions;
 static PyObject *__pyx_n_s_compute_phi;
 static PyObject *__pyx_n_s_compute_polarised_profiles;
@@ -3340,7 +3339,6 @@ static PyObject *__pyx_n_s_error;
 static PyObject *__pyx_n_s_exp;
 static PyObject *__pyx_n_u_f;
 static PyObject *__pyx_n_s_fill;
-static PyObject *__pyx_n_s_fill_value;
 static PyObject *__pyx_n_s_flags;
 static PyObject *__pyx_n_s_format;
 static PyObject *__pyx_n_s_fortran;
@@ -3363,7 +3361,6 @@ static PyObject *__pyx_n_s_itemsize;
 static PyObject *__pyx_kp_s_itemsize_0_for_cython_array;
 static PyObject *__pyx_n_s_j;
 static PyObject *__pyx_n_s_jLevel;
-static PyObject *__pyx_n_s_kind;
 static PyObject *__pyx_n_s_la;
 static PyObject *__pyx_n_s_lambda0;
 static PyObject *__pyx_n_s_lambdaEdge;
@@ -3375,6 +3372,7 @@ static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_maxIter;
 static PyObject *__pyx_n_s_memview;
 static PyObject *__pyx_n_s_metaclass;
+static PyObject *__pyx_n_s_minLambda;
 static PyObject *__pyx_n_s_mode;
 static PyObject *__pyx_n_s_model;
 static PyObject *__pyx_n_s_module;
@@ -6430,7 +6428,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwBackground_bf_opacities(struct __pyx_
   int __pyx_v_la;
   int __pyx_v_k;
   __pyx_t_8CmoArray_f64 __pyx_v_edge;
-  PyObject *__pyx_v_interpolator = NULL;
+  __pyx_t_8CmoArray_f64 __pyx_v_lambdaMin;
   PyObject *__pyx_v_alphaLa = NULL;
   __Pyx_memviewslice __pyx_v_expla = { 0, 0, { 0 }, { 0 }, { 0 } };
   __pyx_t_8CmoArray_f64 __pyx_v_hc_k;
@@ -6460,27 +6458,27 @@ static PyObject *__pyx_f_11CAtmosphere_12LwBackground_bf_opacities(struct __pyx_
   PyObject *__pyx_t_13 = NULL;
   __Pyx_memviewslice __pyx_t_14 = { 0, 0, { 0 }, { 0 }, { 0 } };
   int __pyx_t_15;
-  Py_ssize_t __pyx_t_16;
-  int __pyx_t_17;
+  PyObject *__pyx_t_16 = NULL;
+  PyObject *__pyx_t_17 = NULL;
   Py_ssize_t __pyx_t_18;
   int __pyx_t_19;
   Py_ssize_t __pyx_t_20;
-  Py_ssize_t __pyx_t_21;
-  Py_ssize_t __pyx_t_22;
-  long __pyx_t_23;
-  long __pyx_t_24;
+  int __pyx_t_21;
+  int __pyx_t_22;
+  Py_ssize_t __pyx_t_23;
+  Py_ssize_t __pyx_t_24;
   Py_ssize_t __pyx_t_25;
-  __pyx_t_8CmoArray_f64 __pyx_t_26;
-  Py_ssize_t __pyx_t_27;
-  Py_ssize_t __pyx_t_28;
+  Py_ssize_t __pyx_t_26;
+  long __pyx_t_27;
+  long __pyx_t_28;
   Py_ssize_t __pyx_t_29;
-  Py_ssize_t __pyx_t_30;
+  __pyx_t_8CmoArray_f64 __pyx_t_30;
   Py_ssize_t __pyx_t_31;
-  int __pyx_t_32;
+  Py_ssize_t __pyx_t_32;
   Py_ssize_t __pyx_t_33;
   Py_ssize_t __pyx_t_34;
   Py_ssize_t __pyx_t_35;
-  Py_ssize_t __pyx_t_36;
+  int __pyx_t_36;
   Py_ssize_t __pyx_t_37;
   Py_ssize_t __pyx_t_38;
   Py_ssize_t __pyx_t_39;
@@ -6495,6 +6493,10 @@ static PyObject *__pyx_f_11CAtmosphere_12LwBackground_bf_opacities(struct __pyx_
   Py_ssize_t __pyx_t_48;
   Py_ssize_t __pyx_t_49;
   Py_ssize_t __pyx_t_50;
+  Py_ssize_t __pyx_t_51;
+  Py_ssize_t __pyx_t_52;
+  Py_ssize_t __pyx_t_53;
+  Py_ssize_t __pyx_t_54;
   __Pyx_RefNannySetupContext("bf_opacities", 0);
   /* Check if called by wrapper */
   if (unlikely(__pyx_skip_dispatch)) ;
@@ -6892,7 +6894,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwBackground_bf_opacities(struct __pyx_
  * 
  *         cdef f64[:, ::1] alpha = np.zeros((self.wavelength.shape[0], len(continua)))             # <<<<<<<<<<<<<<
  *         cdef int i, la, k, Z
- *         cdef f64 nEff, gbf_0, wav, edge
+ *         cdef f64 nEff, gbf_0, wav, edge, lambdaMin
  */
   __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 381, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -6936,7 +6938,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwBackground_bf_opacities(struct __pyx_
   __pyx_t_14.data = NULL;
 
   /* "CAtmosphere.pyx":385
- *         cdef f64 nEff, gbf_0, wav, edge
+ *         cdef f64 nEff, gbf_0, wav, edge, lambdaMin
  *         # TODO(cmo): Check if differences between continuum types actuually matter for us
  *         for i, c in enumerate(continua):             # <<<<<<<<<<<<<<
  *             # if c.atom.name.strip() == 'H':
@@ -6961,8 +6963,8 @@ static PyObject *__pyx_f_11CAtmosphere_12LwBackground_bf_opacities(struct __pyx_
  *             #             alpha[la, i] = sigma0 * (self.wavelength[la] / c.lambda0)**3 * nEff * Gaunt_bf(self.wavelength[la], nEff, Z)
  *             # else:
  *             edge = c.lambdaEdge             # <<<<<<<<<<<<<<
- *             interpolator = interp1d(c.wavelength, c.alpha, bounds_error=False, fill_value=0.0, kind=3)
- *             alphaLa = interpolator(self.wavelength)
+ *             lambdaMin = c.minLambda
+ *             # interpolator = interp1d(c.wavelength, c.alpha, bounds_error=False, fill_value=0.0, kind=1)
  */
     __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_c, __pyx_n_s_lambdaEdge); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 395, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
@@ -6973,133 +6975,153 @@ static PyObject *__pyx_f_11CAtmosphere_12LwBackground_bf_opacities(struct __pyx_
     /* "CAtmosphere.pyx":396
  *             # else:
  *             edge = c.lambdaEdge
- *             interpolator = interp1d(c.wavelength, c.alpha, bounds_error=False, fill_value=0.0, kind=3)             # <<<<<<<<<<<<<<
- *             alphaLa = interpolator(self.wavelength)
- *             for la in range(self.wavelength.shape[0]):
+ *             lambdaMin = c.minLambda             # <<<<<<<<<<<<<<
+ *             # interpolator = interp1d(c.wavelength, c.alpha, bounds_error=False, fill_value=0.0, kind=1)
+ *             # alphaLa = interpolator(self.wavelength)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_interp1d); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 396, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_c, __pyx_n_s_minLambda); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 396, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_v_c, __pyx_n_s_wavelength); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 396, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_13);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_c, __pyx_n_s_alpha); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 396, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 396, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __Pyx_GIVEREF(__pyx_t_13);
-    PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_13);
-    __Pyx_GIVEREF(__pyx_t_3);
-    PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_t_3);
-    __pyx_t_13 = 0;
-    __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 396, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_bounds_error, Py_False) < 0) __PYX_ERR(0, 396, __pyx_L1_error)
-    if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_fill_value, __pyx_float_0_0) < 0) __PYX_ERR(0, 396, __pyx_L1_error)
-    if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_kind, __pyx_int_3) < 0) __PYX_ERR(0, 396, __pyx_L1_error)
-    __pyx_t_13 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 396, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_13);
+    __pyx_t_9 = __pyx_PyFloat_AsDouble(__pyx_t_4); if (unlikely((__pyx_t_9 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 396, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_XDECREF_SET(__pyx_v_interpolator, __pyx_t_13);
-    __pyx_t_13 = 0;
+    __pyx_v_lambdaMin = __pyx_t_9;
 
-    /* "CAtmosphere.pyx":397
- *             edge = c.lambdaEdge
- *             interpolator = interp1d(c.wavelength, c.alpha, bounds_error=False, fill_value=0.0, kind=3)
- *             alphaLa = interpolator(self.wavelength)             # <<<<<<<<<<<<<<
+    /* "CAtmosphere.pyx":399
+ *             # interpolator = interp1d(c.wavelength, c.alpha, bounds_error=False, fill_value=0.0, kind=1)
+ *             # alphaLa = interpolator(self.wavelength)
+ *             alphaLa = c.compute_alpha(np.asarray(self.wavelength))             # <<<<<<<<<<<<<<
  *             for la in range(self.wavelength.shape[0]):
- *                 if self.wavelength[la] < edge:
+ *                 if self.wavelength[la] <= edge and self.wavelength[la] >= lambdaMin:
  */
-    if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 397, __pyx_L1_error)}
-    __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_self->wavelength, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 397, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_INCREF(__pyx_v_interpolator);
-    __pyx_t_2 = __pyx_v_interpolator; __pyx_t_4 = NULL;
-    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
-      __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_2);
-      if (likely(__pyx_t_4)) {
-        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
-        __Pyx_INCREF(__pyx_t_4);
+    __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_v_c, __pyx_n_s_compute_alpha); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 399, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_13);
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 399, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_t_16 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 399, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_16);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 399, __pyx_L1_error)}
+    __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->wavelength, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 399, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_t_17 = NULL;
+    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_16))) {
+      __pyx_t_17 = PyMethod_GET_SELF(__pyx_t_16);
+      if (likely(__pyx_t_17)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_16);
+        __Pyx_INCREF(__pyx_t_17);
         __Pyx_INCREF(function);
-        __Pyx_DECREF_SET(__pyx_t_2, function);
+        __Pyx_DECREF_SET(__pyx_t_16, function);
       }
     }
-    __pyx_t_13 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_4, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3);
-    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 397, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_13);
+    __pyx_t_3 = (__pyx_t_17) ? __Pyx_PyObject_Call2Args(__pyx_t_16, __pyx_t_17, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_16, __pyx_t_2);
+    __Pyx_XDECREF(__pyx_t_17); __pyx_t_17 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __Pyx_XDECREF_SET(__pyx_v_alphaLa, __pyx_t_13);
-    __pyx_t_13 = 0;
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 399, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
+    __pyx_t_16 = NULL;
+    if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_13))) {
+      __pyx_t_16 = PyMethod_GET_SELF(__pyx_t_13);
+      if (likely(__pyx_t_16)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_13);
+        __Pyx_INCREF(__pyx_t_16);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_13, function);
+      }
+    }
+    __pyx_t_4 = (__pyx_t_16) ? __Pyx_PyObject_Call2Args(__pyx_t_13, __pyx_t_16, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_13, __pyx_t_3);
+    __Pyx_XDECREF(__pyx_t_16); __pyx_t_16 = 0;
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 399, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+    __Pyx_XDECREF_SET(__pyx_v_alphaLa, __pyx_t_4);
+    __pyx_t_4 = 0;
 
-    /* "CAtmosphere.pyx":398
- *             interpolator = interp1d(c.wavelength, c.alpha, bounds_error=False, fill_value=0.0, kind=3)
- *             alphaLa = interpolator(self.wavelength)
+    /* "CAtmosphere.pyx":400
+ *             # alphaLa = interpolator(self.wavelength)
+ *             alphaLa = c.compute_alpha(np.asarray(self.wavelength))
  *             for la in range(self.wavelength.shape[0]):             # <<<<<<<<<<<<<<
- *                 if self.wavelength[la] < edge:
+ *                 if self.wavelength[la] <= edge and self.wavelength[la] >= lambdaMin:
  *                     alpha[la, i] = alphaLa[la]
  */
-    if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 398, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 400, __pyx_L1_error)}
     __pyx_t_10 = (__pyx_v_self->wavelength.shape[0]);
-    __pyx_t_16 = __pyx_t_10;
-    for (__pyx_t_17 = 0; __pyx_t_17 < __pyx_t_16; __pyx_t_17+=1) {
-      __pyx_v_la = __pyx_t_17;
+    __pyx_t_18 = __pyx_t_10;
+    for (__pyx_t_19 = 0; __pyx_t_19 < __pyx_t_18; __pyx_t_19+=1) {
+      __pyx_v_la = __pyx_t_19;
 
-      /* "CAtmosphere.pyx":399
- *             alphaLa = interpolator(self.wavelength)
+      /* "CAtmosphere.pyx":401
+ *             alphaLa = c.compute_alpha(np.asarray(self.wavelength))
  *             for la in range(self.wavelength.shape[0]):
- *                 if self.wavelength[la] < edge:             # <<<<<<<<<<<<<<
+ *                 if self.wavelength[la] <= edge and self.wavelength[la] >= lambdaMin:             # <<<<<<<<<<<<<<
  *                     alpha[la, i] = alphaLa[la]
  * 
  */
-      if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 399, __pyx_L1_error)}
-      __pyx_t_18 = __pyx_v_la;
-      __pyx_t_19 = -1;
-      if (__pyx_t_18 < 0) {
-        __pyx_t_18 += __pyx_v_self->wavelength.shape[0];
-        if (unlikely(__pyx_t_18 < 0)) __pyx_t_19 = 0;
-      } else if (unlikely(__pyx_t_18 >= __pyx_v_self->wavelength.shape[0])) __pyx_t_19 = 0;
-      if (unlikely(__pyx_t_19 != -1)) {
-        __Pyx_RaiseBufferIndexError(__pyx_t_19);
-        __PYX_ERR(0, 399, __pyx_L1_error)
+      if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 401, __pyx_L1_error)}
+      __pyx_t_20 = __pyx_v_la;
+      __pyx_t_21 = -1;
+      if (__pyx_t_20 < 0) {
+        __pyx_t_20 += __pyx_v_self->wavelength.shape[0];
+        if (unlikely(__pyx_t_20 < 0)) __pyx_t_21 = 0;
+      } else if (unlikely(__pyx_t_20 >= __pyx_v_self->wavelength.shape[0])) __pyx_t_21 = 0;
+      if (unlikely(__pyx_t_21 != -1)) {
+        __Pyx_RaiseBufferIndexError(__pyx_t_21);
+        __PYX_ERR(0, 401, __pyx_L1_error)
       }
-      __pyx_t_7 = (((*((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ ((char *) (((__pyx_t_8CmoArray_f64 *) __pyx_v_self->wavelength.data) + __pyx_t_18)) ))) < __pyx_v_edge) != 0);
+      __pyx_t_22 = (((*((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ ((char *) (((__pyx_t_8CmoArray_f64 *) __pyx_v_self->wavelength.data) + __pyx_t_20)) ))) <= __pyx_v_edge) != 0);
+      if (__pyx_t_22) {
+      } else {
+        __pyx_t_7 = __pyx_t_22;
+        goto __pyx_L19_bool_binop_done;
+      }
+      if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 401, __pyx_L1_error)}
+      __pyx_t_23 = __pyx_v_la;
+      __pyx_t_21 = -1;
+      if (__pyx_t_23 < 0) {
+        __pyx_t_23 += __pyx_v_self->wavelength.shape[0];
+        if (unlikely(__pyx_t_23 < 0)) __pyx_t_21 = 0;
+      } else if (unlikely(__pyx_t_23 >= __pyx_v_self->wavelength.shape[0])) __pyx_t_21 = 0;
+      if (unlikely(__pyx_t_21 != -1)) {
+        __Pyx_RaiseBufferIndexError(__pyx_t_21);
+        __PYX_ERR(0, 401, __pyx_L1_error)
+      }
+      __pyx_t_22 = (((*((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ ((char *) (((__pyx_t_8CmoArray_f64 *) __pyx_v_self->wavelength.data) + __pyx_t_23)) ))) >= __pyx_v_lambdaMin) != 0);
+      __pyx_t_7 = __pyx_t_22;
+      __pyx_L19_bool_binop_done:;
       if (__pyx_t_7) {
 
-        /* "CAtmosphere.pyx":400
+        /* "CAtmosphere.pyx":402
  *             for la in range(self.wavelength.shape[0]):
- *                 if self.wavelength[la] < edge:
+ *                 if self.wavelength[la] <= edge and self.wavelength[la] >= lambdaMin:
  *                     alpha[la, i] = alphaLa[la]             # <<<<<<<<<<<<<<
  * 
  *         cdef f64[:, ::1] expla = np.zeros((self.wavelength.shape[0], self.atmos.Nspace))
  */
-        __pyx_t_13 = __Pyx_GetItemInt(__pyx_v_alphaLa, __pyx_v_la, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 400, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_13);
-        __pyx_t_9 = __pyx_PyFloat_AsDouble(__pyx_t_13); if (unlikely((__pyx_t_9 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 400, __pyx_L1_error)
-        __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-        __pyx_t_20 = __pyx_v_la;
-        __pyx_t_21 = __pyx_v_i;
-        __pyx_t_19 = -1;
-        if (__pyx_t_20 < 0) {
-          __pyx_t_20 += __pyx_v_alpha.shape[0];
-          if (unlikely(__pyx_t_20 < 0)) __pyx_t_19 = 0;
-        } else if (unlikely(__pyx_t_20 >= __pyx_v_alpha.shape[0])) __pyx_t_19 = 0;
-        if (__pyx_t_21 < 0) {
-          __pyx_t_21 += __pyx_v_alpha.shape[1];
-          if (unlikely(__pyx_t_21 < 0)) __pyx_t_19 = 1;
-        } else if (unlikely(__pyx_t_21 >= __pyx_v_alpha.shape[1])) __pyx_t_19 = 1;
-        if (unlikely(__pyx_t_19 != -1)) {
-          __Pyx_RaiseBufferIndexError(__pyx_t_19);
-          __PYX_ERR(0, 400, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_GetItemInt(__pyx_v_alphaLa, __pyx_v_la, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 402, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_4);
+        __pyx_t_9 = __pyx_PyFloat_AsDouble(__pyx_t_4); if (unlikely((__pyx_t_9 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 402, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+        __pyx_t_24 = __pyx_v_la;
+        __pyx_t_25 = __pyx_v_i;
+        __pyx_t_21 = -1;
+        if (__pyx_t_24 < 0) {
+          __pyx_t_24 += __pyx_v_alpha.shape[0];
+          if (unlikely(__pyx_t_24 < 0)) __pyx_t_21 = 0;
+        } else if (unlikely(__pyx_t_24 >= __pyx_v_alpha.shape[0])) __pyx_t_21 = 0;
+        if (__pyx_t_25 < 0) {
+          __pyx_t_25 += __pyx_v_alpha.shape[1];
+          if (unlikely(__pyx_t_25 < 0)) __pyx_t_21 = 1;
+        } else if (unlikely(__pyx_t_25 >= __pyx_v_alpha.shape[1])) __pyx_t_21 = 1;
+        if (unlikely(__pyx_t_21 != -1)) {
+          __Pyx_RaiseBufferIndexError(__pyx_t_21);
+          __PYX_ERR(0, 402, __pyx_L1_error)
         }
-        *((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_alpha.data + __pyx_t_20 * __pyx_v_alpha.strides[0]) )) + __pyx_t_21)) )) = __pyx_t_9;
+        *((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_alpha.data + __pyx_t_24 * __pyx_v_alpha.strides[0]) )) + __pyx_t_25)) )) = __pyx_t_9;
 
-        /* "CAtmosphere.pyx":399
- *             alphaLa = interpolator(self.wavelength)
+        /* "CAtmosphere.pyx":401
+ *             alphaLa = c.compute_alpha(np.asarray(self.wavelength))
  *             for la in range(self.wavelength.shape[0]):
- *                 if self.wavelength[la] < edge:             # <<<<<<<<<<<<<<
+ *                 if self.wavelength[la] <= edge and self.wavelength[la] >= lambdaMin:             # <<<<<<<<<<<<<<
  *                     alpha[la, i] = alphaLa[la]
  * 
  */
@@ -7107,7 +7129,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwBackground_bf_opacities(struct __pyx_
     }
 
     /* "CAtmosphere.pyx":385
- *         cdef f64 nEff, gbf_0, wav, edge
+ *         cdef f64 nEff, gbf_0, wav, edge, lambdaMin
  *         # TODO(cmo): Check if differences between continuum types actuually matter for us
  *         for i, c in enumerate(continua):             # <<<<<<<<<<<<<<
  *             # if c.atom.name.strip() == 'H':
@@ -7116,172 +7138,172 @@ static PyObject *__pyx_f_11CAtmosphere_12LwBackground_bf_opacities(struct __pyx_
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "CAtmosphere.pyx":402
+  /* "CAtmosphere.pyx":404
  *                     alpha[la, i] = alphaLa[la]
  * 
  *         cdef f64[:, ::1] expla = np.zeros((self.wavelength.shape[0], self.atmos.Nspace))             # <<<<<<<<<<<<<<
  *         cdef f64 hc_k = Const.HC / (Const.KBOLTZMANN * Const.NM_TO_M)
  *         cdef f64 twohc = (2.0 * Const.HC) / Const.NM_TO_M**3
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_13, __pyx_n_s_np); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 402, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_13);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_13, __pyx_n_s_zeros); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 402, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-  if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 402, __pyx_L1_error)}
-  __pyx_t_13 = PyInt_FromSsize_t((__pyx_v_self->wavelength.shape[0])); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 402, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_13);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->atmos), __pyx_n_s_Nspace); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 402, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 402, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 404, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_GIVEREF(__pyx_t_13);
-  PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_13);
+  __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_zeros); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 404, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_13);
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 404, __pyx_L1_error)}
+  __pyx_t_4 = PyInt_FromSsize_t((__pyx_v_self->wavelength.shape[0])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 404, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->atmos), __pyx_n_s_Nspace); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 404, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_16 = PyTuple_New(2); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 404, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_16);
+  __Pyx_GIVEREF(__pyx_t_4);
+  PyTuple_SET_ITEM(__pyx_t_16, 0, __pyx_t_4);
   __Pyx_GIVEREF(__pyx_t_3);
-  PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_t_3);
-  __pyx_t_13 = 0;
+  PyTuple_SET_ITEM(__pyx_t_16, 1, __pyx_t_3);
+  __pyx_t_4 = 0;
   __pyx_t_3 = 0;
   __pyx_t_3 = NULL;
-  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
-    __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_13))) {
+    __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_13);
     if (likely(__pyx_t_3)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_13);
       __Pyx_INCREF(__pyx_t_3);
       __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_2, function);
+      __Pyx_DECREF_SET(__pyx_t_13, function);
     }
   }
-  __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_4);
+  __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_13, __pyx_t_3, __pyx_t_16) : __Pyx_PyObject_CallOneArg(__pyx_t_13, __pyx_t_16);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 402, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 404, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_14 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_14.memview)) __PYX_ERR(0, 402, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+  __pyx_t_14 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_14.memview)) __PYX_ERR(0, 404, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_expla = __pyx_t_14;
   __pyx_t_14.memview = NULL;
   __pyx_t_14.data = NULL;
 
-  /* "CAtmosphere.pyx":403
+  /* "CAtmosphere.pyx":405
  * 
  *         cdef f64[:, ::1] expla = np.zeros((self.wavelength.shape[0], self.atmos.Nspace))
  *         cdef f64 hc_k = Const.HC / (Const.KBOLTZMANN * Const.NM_TO_M)             # <<<<<<<<<<<<<<
  *         cdef f64 twohc = (2.0 * Const.HC) / Const.NM_TO_M**3
  *         cdef f64 hc_kla
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_Const); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 403, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_Const); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 405, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_HC); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 403, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_HC); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 405, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_13);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_Const); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 403, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_Const); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 405, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_KBOLTZMANN); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 403, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_16 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_KBOLTZMANN); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 405, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_16);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_Const); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 403, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_Const); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 405, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_NM_TO_M); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 403, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_NM_TO_M); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 405, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyNumber_Multiply(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 403, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_Multiply(__pyx_t_16, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 405, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyNumber_Divide(__pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 403, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyNumber_Divide(__pyx_t_13, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 405, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_9 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_9 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 403, __pyx_L1_error)
+  __pyx_t_9 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_9 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 405, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_hc_k = __pyx_t_9;
 
-  /* "CAtmosphere.pyx":404
+  /* "CAtmosphere.pyx":406
  *         cdef f64[:, ::1] expla = np.zeros((self.wavelength.shape[0], self.atmos.Nspace))
  *         cdef f64 hc_k = Const.HC / (Const.KBOLTZMANN * Const.NM_TO_M)
  *         cdef f64 twohc = (2.0 * Const.HC) / Const.NM_TO_M**3             # <<<<<<<<<<<<<<
  *         cdef f64 hc_kla
  *         for la in range(self.wavelength.shape[0]):
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_Const); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 404, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_Const); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 406, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_HC); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 404, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_HC); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 406, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyNumber_Multiply(__pyx_float_2_0, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 404, __pyx_L1_error)
+  __pyx_t_3 = PyNumber_Multiply(__pyx_float_2_0, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 406, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_Const); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 404, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_Const); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 406, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_NM_TO_M); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 404, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_NM_TO_M); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 406, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_13);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyNumber_Power(__pyx_t_2, __pyx_int_3, Py_None); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 404, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_Power(__pyx_t_13, __pyx_int_3, Py_None); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 406, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyNumber_Divide(__pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 404, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+  __pyx_t_13 = __Pyx_PyNumber_Divide(__pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 406, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_13);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_9 = __pyx_PyFloat_AsDouble(__pyx_t_2); if (unlikely((__pyx_t_9 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 404, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_9 = __pyx_PyFloat_AsDouble(__pyx_t_13); if (unlikely((__pyx_t_9 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 406, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
   __pyx_v_twohc = __pyx_t_9;
 
-  /* "CAtmosphere.pyx":406
+  /* "CAtmosphere.pyx":408
  *         cdef f64 twohc = (2.0 * Const.HC) / Const.NM_TO_M**3
  *         cdef f64 hc_kla
  *         for la in range(self.wavelength.shape[0]):             # <<<<<<<<<<<<<<
  *             hc_kla = hc_k / self.wavelength[la]
  *             for k in range(self.atmos.Nspace):
  */
-  if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 406, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 408, __pyx_L1_error)}
   __pyx_t_5 = (__pyx_v_self->wavelength.shape[0]);
   __pyx_t_10 = __pyx_t_5;
   for (__pyx_t_15 = 0; __pyx_t_15 < __pyx_t_10; __pyx_t_15+=1) {
     __pyx_v_la = __pyx_t_15;
 
-    /* "CAtmosphere.pyx":407
+    /* "CAtmosphere.pyx":409
  *         cdef f64 hc_kla
  *         for la in range(self.wavelength.shape[0]):
  *             hc_kla = hc_k / self.wavelength[la]             # <<<<<<<<<<<<<<
  *             for k in range(self.atmos.Nspace):
  *                 expla[la, k] = exp(-hc_kla / self.atmos.temperature[k])
  */
-    if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 407, __pyx_L1_error)}
-    __pyx_t_22 = __pyx_v_la;
-    __pyx_t_17 = -1;
-    if (__pyx_t_22 < 0) {
-      __pyx_t_22 += __pyx_v_self->wavelength.shape[0];
-      if (unlikely(__pyx_t_22 < 0)) __pyx_t_17 = 0;
-    } else if (unlikely(__pyx_t_22 >= __pyx_v_self->wavelength.shape[0])) __pyx_t_17 = 0;
-    if (unlikely(__pyx_t_17 != -1)) {
-      __Pyx_RaiseBufferIndexError(__pyx_t_17);
-      __PYX_ERR(0, 407, __pyx_L1_error)
+    if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 409, __pyx_L1_error)}
+    __pyx_t_26 = __pyx_v_la;
+    __pyx_t_19 = -1;
+    if (__pyx_t_26 < 0) {
+      __pyx_t_26 += __pyx_v_self->wavelength.shape[0];
+      if (unlikely(__pyx_t_26 < 0)) __pyx_t_19 = 0;
+    } else if (unlikely(__pyx_t_26 >= __pyx_v_self->wavelength.shape[0])) __pyx_t_19 = 0;
+    if (unlikely(__pyx_t_19 != -1)) {
+      __Pyx_RaiseBufferIndexError(__pyx_t_19);
+      __PYX_ERR(0, 409, __pyx_L1_error)
     }
-    __pyx_t_9 = (*((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ ((char *) (((__pyx_t_8CmoArray_f64 *) __pyx_v_self->wavelength.data) + __pyx_t_22)) )));
+    __pyx_t_9 = (*((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ ((char *) (((__pyx_t_8CmoArray_f64 *) __pyx_v_self->wavelength.data) + __pyx_t_26)) )));
     if (unlikely(__pyx_t_9 == 0)) {
       PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 407, __pyx_L1_error)
+      __PYX_ERR(0, 409, __pyx_L1_error)
     }
     __pyx_v_hc_kla = (__pyx_v_hc_k / __pyx_t_9);
 
-    /* "CAtmosphere.pyx":408
+    /* "CAtmosphere.pyx":410
  *         for la in range(self.wavelength.shape[0]):
  *             hc_kla = hc_k / self.wavelength[la]
  *             for k in range(self.atmos.Nspace):             # <<<<<<<<<<<<<<
  *                 expla[la, k] = exp(-hc_kla / self.atmos.temperature[k])
  * 
  */
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->atmos), __pyx_n_s_Nspace); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 408, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_23 = __Pyx_PyInt_As_long(__pyx_t_2); if (unlikely((__pyx_t_23 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 408, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_24 = __pyx_t_23;
-    for (__pyx_t_17 = 0; __pyx_t_17 < __pyx_t_24; __pyx_t_17+=1) {
-      __pyx_v_k = __pyx_t_17;
+    __pyx_t_13 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->atmos), __pyx_n_s_Nspace); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 410, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_13);
+    __pyx_t_27 = __Pyx_PyInt_As_long(__pyx_t_13); if (unlikely((__pyx_t_27 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 410, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+    __pyx_t_28 = __pyx_t_27;
+    for (__pyx_t_19 = 0; __pyx_t_19 < __pyx_t_28; __pyx_t_19+=1) {
+      __pyx_v_k = __pyx_t_19;
 
-      /* "CAtmosphere.pyx":409
+      /* "CAtmosphere.pyx":411
  *             hc_kla = hc_k / self.wavelength[la]
  *             for k in range(self.atmos.Nspace):
  *                 expla[la, k] = exp(-hc_kla / self.atmos.temperature[k])             # <<<<<<<<<<<<<<
@@ -7289,42 +7311,42 @@ static PyObject *__pyx_f_11CAtmosphere_12LwBackground_bf_opacities(struct __pyx_
  *         cdef f64 twohnu3_c2
  */
       __pyx_t_9 = (-__pyx_v_hc_kla);
-      if (unlikely(!__pyx_v_self->atmos->temperature.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 409, __pyx_L1_error)}
-      __pyx_t_25 = __pyx_v_k;
-      __pyx_t_19 = -1;
-      if (__pyx_t_25 < 0) {
-        __pyx_t_25 += __pyx_v_self->atmos->temperature.shape[0];
-        if (unlikely(__pyx_t_25 < 0)) __pyx_t_19 = 0;
-      } else if (unlikely(__pyx_t_25 >= __pyx_v_self->atmos->temperature.shape[0])) __pyx_t_19 = 0;
-      if (unlikely(__pyx_t_19 != -1)) {
-        __Pyx_RaiseBufferIndexError(__pyx_t_19);
-        __PYX_ERR(0, 409, __pyx_L1_error)
+      if (unlikely(!__pyx_v_self->atmos->temperature.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 411, __pyx_L1_error)}
+      __pyx_t_29 = __pyx_v_k;
+      __pyx_t_21 = -1;
+      if (__pyx_t_29 < 0) {
+        __pyx_t_29 += __pyx_v_self->atmos->temperature.shape[0];
+        if (unlikely(__pyx_t_29 < 0)) __pyx_t_21 = 0;
+      } else if (unlikely(__pyx_t_29 >= __pyx_v_self->atmos->temperature.shape[0])) __pyx_t_21 = 0;
+      if (unlikely(__pyx_t_21 != -1)) {
+        __Pyx_RaiseBufferIndexError(__pyx_t_21);
+        __PYX_ERR(0, 411, __pyx_L1_error)
       }
-      __pyx_t_26 = (*((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ ((char *) (((__pyx_t_8CmoArray_f64 *) __pyx_v_self->atmos->temperature.data) + __pyx_t_25)) )));
-      if (unlikely(__pyx_t_26 == 0)) {
+      __pyx_t_30 = (*((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ ((char *) (((__pyx_t_8CmoArray_f64 *) __pyx_v_self->atmos->temperature.data) + __pyx_t_29)) )));
+      if (unlikely(__pyx_t_30 == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 409, __pyx_L1_error)
+        __PYX_ERR(0, 411, __pyx_L1_error)
       }
-      __pyx_t_27 = __pyx_v_la;
-      __pyx_t_28 = __pyx_v_k;
-      __pyx_t_19 = -1;
-      if (__pyx_t_27 < 0) {
-        __pyx_t_27 += __pyx_v_expla.shape[0];
-        if (unlikely(__pyx_t_27 < 0)) __pyx_t_19 = 0;
-      } else if (unlikely(__pyx_t_27 >= __pyx_v_expla.shape[0])) __pyx_t_19 = 0;
-      if (__pyx_t_28 < 0) {
-        __pyx_t_28 += __pyx_v_expla.shape[1];
-        if (unlikely(__pyx_t_28 < 0)) __pyx_t_19 = 1;
-      } else if (unlikely(__pyx_t_28 >= __pyx_v_expla.shape[1])) __pyx_t_19 = 1;
-      if (unlikely(__pyx_t_19 != -1)) {
-        __Pyx_RaiseBufferIndexError(__pyx_t_19);
-        __PYX_ERR(0, 409, __pyx_L1_error)
+      __pyx_t_31 = __pyx_v_la;
+      __pyx_t_32 = __pyx_v_k;
+      __pyx_t_21 = -1;
+      if (__pyx_t_31 < 0) {
+        __pyx_t_31 += __pyx_v_expla.shape[0];
+        if (unlikely(__pyx_t_31 < 0)) __pyx_t_21 = 0;
+      } else if (unlikely(__pyx_t_31 >= __pyx_v_expla.shape[0])) __pyx_t_21 = 0;
+      if (__pyx_t_32 < 0) {
+        __pyx_t_32 += __pyx_v_expla.shape[1];
+        if (unlikely(__pyx_t_32 < 0)) __pyx_t_21 = 1;
+      } else if (unlikely(__pyx_t_32 >= __pyx_v_expla.shape[1])) __pyx_t_21 = 1;
+      if (unlikely(__pyx_t_21 != -1)) {
+        __Pyx_RaiseBufferIndexError(__pyx_t_21);
+        __PYX_ERR(0, 411, __pyx_L1_error)
       }
-      *((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_expla.data + __pyx_t_27 * __pyx_v_expla.strides[0]) )) + __pyx_t_28)) )) = exp((__pyx_t_9 / __pyx_t_26));
+      *((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_expla.data + __pyx_t_31 * __pyx_v_expla.strides[0]) )) + __pyx_t_32)) )) = exp((__pyx_t_9 / __pyx_t_30));
     }
   }
 
-  /* "CAtmosphere.pyx":417
+  /* "CAtmosphere.pyx":419
  *         cdef f64[:,::1] nStar
  *         cdef f64[:,::1] n
  *         for i, c in enumerate(continua):             # <<<<<<<<<<<<<<
@@ -7332,13 +7354,13 @@ static PyObject *__pyx_f_11CAtmosphere_12LwBackground_bf_opacities(struct __pyx_
  *             n = self.eqPops.atomicPops[c.atom.name].n
  */
   __pyx_t_15 = 0;
-  __pyx_t_2 = __pyx_v_continua; __Pyx_INCREF(__pyx_t_2); __pyx_t_5 = 0;
+  __pyx_t_13 = __pyx_v_continua; __Pyx_INCREF(__pyx_t_13); __pyx_t_5 = 0;
   for (;;) {
-    if (__pyx_t_5 >= PyList_GET_SIZE(__pyx_t_2)) break;
+    if (__pyx_t_5 >= PyList_GET_SIZE(__pyx_t_13)) break;
     #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-    __pyx_t_1 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_5); __Pyx_INCREF(__pyx_t_1); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 417, __pyx_L1_error)
+    __pyx_t_1 = PyList_GET_ITEM(__pyx_t_13, __pyx_t_5); __Pyx_INCREF(__pyx_t_1); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 419, __pyx_L1_error)
     #else
-    __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 417, __pyx_L1_error)
+    __pyx_t_1 = PySequence_ITEM(__pyx_t_13, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 419, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     #endif
     __Pyx_XDECREF_SET(__pyx_v_c, __pyx_t_1);
@@ -7346,329 +7368,329 @@ static PyObject *__pyx_f_11CAtmosphere_12LwBackground_bf_opacities(struct __pyx_
     __pyx_v_i = __pyx_t_15;
     __pyx_t_15 = (__pyx_t_15 + 1);
 
-    /* "CAtmosphere.pyx":418
+    /* "CAtmosphere.pyx":420
  *         cdef f64[:,::1] n
  *         for i, c in enumerate(continua):
  *             nStar = self.eqPops.atomicPops[c.atom.name].nStar             # <<<<<<<<<<<<<<
  *             n = self.eqPops.atomicPops[c.atom.name].n
  * 
  */
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->eqPops, __pyx_n_s_atomicPops); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 418, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->eqPops, __pyx_n_s_atomicPops); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 420, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_c, __pyx_n_s_atom); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 418, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_c, __pyx_n_s_atom); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 420, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_name); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 418, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_16 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_name); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 420, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_16);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyObject_GetItem(__pyx_t_1, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 418, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetItem(__pyx_t_1, __pyx_t_16); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 420, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_nStar); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 418, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
+    __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
+    __pyx_t_16 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_nStar); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 420, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_16);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_14 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_14.memview)) __PYX_ERR(0, 418, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __pyx_t_14 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_16, PyBUF_WRITABLE); if (unlikely(!__pyx_t_14.memview)) __PYX_ERR(0, 420, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
     __PYX_XDEC_MEMVIEW(&__pyx_v_nStar, 1);
     __pyx_v_nStar = __pyx_t_14;
     __pyx_t_14.memview = NULL;
     __pyx_t_14.data = NULL;
 
-    /* "CAtmosphere.pyx":419
+    /* "CAtmosphere.pyx":421
  *         for i, c in enumerate(continua):
  *             nStar = self.eqPops.atomicPops[c.atom.name].nStar
  *             n = self.eqPops.atomicPops[c.atom.name].n             # <<<<<<<<<<<<<<
  * 
  *             ci = c.i
  */
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->eqPops, __pyx_n_s_atomicPops); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 419, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_c, __pyx_n_s_atom); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 419, __pyx_L1_error)
+    __pyx_t_16 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->eqPops, __pyx_n_s_atomicPops); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 421, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_16);
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_c, __pyx_n_s_atom); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 421, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_name); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 419, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_name); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 421, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyObject_GetItem(__pyx_t_4, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 419, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetItem(__pyx_t_16, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 421, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_n); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 419, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_n); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 421, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_14 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_14.memview)) __PYX_ERR(0, 419, __pyx_L1_error)
+    __pyx_t_14 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_14.memview)) __PYX_ERR(0, 421, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __PYX_XDEC_MEMVIEW(&__pyx_v_n, 1);
     __pyx_v_n = __pyx_t_14;
     __pyx_t_14.memview = NULL;
     __pyx_t_14.data = NULL;
 
-    /* "CAtmosphere.pyx":421
+    /* "CAtmosphere.pyx":423
  *             n = self.eqPops.atomicPops[c.atom.name].n
  * 
  *             ci = c.i             # <<<<<<<<<<<<<<
  *             cj = c.j
  *             for la in range(self.wavelength.shape[0]):
  */
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_c, __pyx_n_s_i); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 421, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_c, __pyx_n_s_i); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 423, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_17 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_17 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 421, __pyx_L1_error)
+    __pyx_t_19 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_19 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 423, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_v_ci = __pyx_t_17;
+    __pyx_v_ci = __pyx_t_19;
 
-    /* "CAtmosphere.pyx":422
+    /* "CAtmosphere.pyx":424
  * 
  *             ci = c.i
  *             cj = c.j             # <<<<<<<<<<<<<<
  *             for la in range(self.wavelength.shape[0]):
  *                 twohnu3_c2 = twohc / self.wavelength[la]**3
  */
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_c, __pyx_n_s_j); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 422, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_c, __pyx_n_s_j); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 424, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_17 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_17 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 422, __pyx_L1_error)
+    __pyx_t_19 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_19 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 424, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_v_cj = __pyx_t_17;
+    __pyx_v_cj = __pyx_t_19;
 
-    /* "CAtmosphere.pyx":423
+    /* "CAtmosphere.pyx":425
  *             ci = c.i
  *             cj = c.j
  *             for la in range(self.wavelength.shape[0]):             # <<<<<<<<<<<<<<
  *                 twohnu3_c2 = twohc / self.wavelength[la]**3
  *                 for k in range(self.atmos.Nspace):
  */
-    if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 423, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 425, __pyx_L1_error)}
     __pyx_t_10 = (__pyx_v_self->wavelength.shape[0]);
-    __pyx_t_16 = __pyx_t_10;
-    for (__pyx_t_17 = 0; __pyx_t_17 < __pyx_t_16; __pyx_t_17+=1) {
-      __pyx_v_la = __pyx_t_17;
+    __pyx_t_18 = __pyx_t_10;
+    for (__pyx_t_19 = 0; __pyx_t_19 < __pyx_t_18; __pyx_t_19+=1) {
+      __pyx_v_la = __pyx_t_19;
 
-      /* "CAtmosphere.pyx":424
+      /* "CAtmosphere.pyx":426
  *             cj = c.j
  *             for la in range(self.wavelength.shape[0]):
  *                 twohnu3_c2 = twohc / self.wavelength[la]**3             # <<<<<<<<<<<<<<
  *                 for k in range(self.atmos.Nspace):
  *                     gijk = nStar[ci, k] / nStar[cj, k] * expla[la, k]
  */
-      if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 424, __pyx_L1_error)}
-      __pyx_t_29 = __pyx_v_la;
-      __pyx_t_19 = -1;
-      if (__pyx_t_29 < 0) {
-        __pyx_t_29 += __pyx_v_self->wavelength.shape[0];
-        if (unlikely(__pyx_t_29 < 0)) __pyx_t_19 = 0;
-      } else if (unlikely(__pyx_t_29 >= __pyx_v_self->wavelength.shape[0])) __pyx_t_19 = 0;
-      if (unlikely(__pyx_t_19 != -1)) {
-        __Pyx_RaiseBufferIndexError(__pyx_t_19);
-        __PYX_ERR(0, 424, __pyx_L1_error)
+      if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 426, __pyx_L1_error)}
+      __pyx_t_33 = __pyx_v_la;
+      __pyx_t_21 = -1;
+      if (__pyx_t_33 < 0) {
+        __pyx_t_33 += __pyx_v_self->wavelength.shape[0];
+        if (unlikely(__pyx_t_33 < 0)) __pyx_t_21 = 0;
+      } else if (unlikely(__pyx_t_33 >= __pyx_v_self->wavelength.shape[0])) __pyx_t_21 = 0;
+      if (unlikely(__pyx_t_21 != -1)) {
+        __Pyx_RaiseBufferIndexError(__pyx_t_21);
+        __PYX_ERR(0, 426, __pyx_L1_error)
       }
-      __pyx_t_26 = pow((*((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ ((char *) (((__pyx_t_8CmoArray_f64 *) __pyx_v_self->wavelength.data) + __pyx_t_29)) ))), 3.0);
-      if (unlikely(__pyx_t_26 == 0)) {
+      __pyx_t_30 = pow((*((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ ((char *) (((__pyx_t_8CmoArray_f64 *) __pyx_v_self->wavelength.data) + __pyx_t_33)) ))), 3.0);
+      if (unlikely(__pyx_t_30 == 0)) {
         PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-        __PYX_ERR(0, 424, __pyx_L1_error)
+        __PYX_ERR(0, 426, __pyx_L1_error)
       }
-      __pyx_v_twohnu3_c2 = (__pyx_v_twohc / __pyx_t_26);
+      __pyx_v_twohnu3_c2 = (__pyx_v_twohc / __pyx_t_30);
 
-      /* "CAtmosphere.pyx":425
+      /* "CAtmosphere.pyx":427
  *             for la in range(self.wavelength.shape[0]):
  *                 twohnu3_c2 = twohc / self.wavelength[la]**3
  *                 for k in range(self.atmos.Nspace):             # <<<<<<<<<<<<<<
  *                     gijk = nStar[ci, k] / nStar[cj, k] * expla[la, k]
  *                     self.chi[la, k] += alpha[la, i] * (1.0 - expla[la, k]) * n[ci, k]
  */
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->atmos), __pyx_n_s_Nspace); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 425, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->atmos), __pyx_n_s_Nspace); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 427, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_23 = __Pyx_PyInt_As_long(__pyx_t_1); if (unlikely((__pyx_t_23 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 425, __pyx_L1_error)
+      __pyx_t_27 = __Pyx_PyInt_As_long(__pyx_t_1); if (unlikely((__pyx_t_27 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 427, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __pyx_t_24 = __pyx_t_23;
-      for (__pyx_t_19 = 0; __pyx_t_19 < __pyx_t_24; __pyx_t_19+=1) {
-        __pyx_v_k = __pyx_t_19;
+      __pyx_t_28 = __pyx_t_27;
+      for (__pyx_t_21 = 0; __pyx_t_21 < __pyx_t_28; __pyx_t_21+=1) {
+        __pyx_v_k = __pyx_t_21;
 
-        /* "CAtmosphere.pyx":426
+        /* "CAtmosphere.pyx":428
  *                 twohnu3_c2 = twohc / self.wavelength[la]**3
  *                 for k in range(self.atmos.Nspace):
  *                     gijk = nStar[ci, k] / nStar[cj, k] * expla[la, k]             # <<<<<<<<<<<<<<
  *                     self.chi[la, k] += alpha[la, i] * (1.0 - expla[la, k]) * n[ci, k]
  *                     self.eta[la, k] += twohnu3_c2 * gijk * alpha[la, i] * n[cj, k]
  */
-        __pyx_t_30 = __pyx_v_ci;
-        __pyx_t_31 = __pyx_v_k;
-        __pyx_t_32 = -1;
-        if (__pyx_t_30 < 0) {
-          __pyx_t_30 += __pyx_v_nStar.shape[0];
-          if (unlikely(__pyx_t_30 < 0)) __pyx_t_32 = 0;
-        } else if (unlikely(__pyx_t_30 >= __pyx_v_nStar.shape[0])) __pyx_t_32 = 0;
-        if (__pyx_t_31 < 0) {
-          __pyx_t_31 += __pyx_v_nStar.shape[1];
-          if (unlikely(__pyx_t_31 < 0)) __pyx_t_32 = 1;
-        } else if (unlikely(__pyx_t_31 >= __pyx_v_nStar.shape[1])) __pyx_t_32 = 1;
-        if (unlikely(__pyx_t_32 != -1)) {
-          __Pyx_RaiseBufferIndexError(__pyx_t_32);
-          __PYX_ERR(0, 426, __pyx_L1_error)
-        }
-        __pyx_t_26 = (*((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_nStar.data + __pyx_t_30 * __pyx_v_nStar.strides[0]) )) + __pyx_t_31)) )));
-        __pyx_t_33 = __pyx_v_cj;
-        __pyx_t_34 = __pyx_v_k;
-        __pyx_t_32 = -1;
-        if (__pyx_t_33 < 0) {
-          __pyx_t_33 += __pyx_v_nStar.shape[0];
-          if (unlikely(__pyx_t_33 < 0)) __pyx_t_32 = 0;
-        } else if (unlikely(__pyx_t_33 >= __pyx_v_nStar.shape[0])) __pyx_t_32 = 0;
+        __pyx_t_34 = __pyx_v_ci;
+        __pyx_t_35 = __pyx_v_k;
+        __pyx_t_36 = -1;
         if (__pyx_t_34 < 0) {
-          __pyx_t_34 += __pyx_v_nStar.shape[1];
-          if (unlikely(__pyx_t_34 < 0)) __pyx_t_32 = 1;
-        } else if (unlikely(__pyx_t_34 >= __pyx_v_nStar.shape[1])) __pyx_t_32 = 1;
-        if (unlikely(__pyx_t_32 != -1)) {
-          __Pyx_RaiseBufferIndexError(__pyx_t_32);
-          __PYX_ERR(0, 426, __pyx_L1_error)
+          __pyx_t_34 += __pyx_v_nStar.shape[0];
+          if (unlikely(__pyx_t_34 < 0)) __pyx_t_36 = 0;
+        } else if (unlikely(__pyx_t_34 >= __pyx_v_nStar.shape[0])) __pyx_t_36 = 0;
+        if (__pyx_t_35 < 0) {
+          __pyx_t_35 += __pyx_v_nStar.shape[1];
+          if (unlikely(__pyx_t_35 < 0)) __pyx_t_36 = 1;
+        } else if (unlikely(__pyx_t_35 >= __pyx_v_nStar.shape[1])) __pyx_t_36 = 1;
+        if (unlikely(__pyx_t_36 != -1)) {
+          __Pyx_RaiseBufferIndexError(__pyx_t_36);
+          __PYX_ERR(0, 428, __pyx_L1_error)
         }
-        __pyx_t_9 = (*((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_nStar.data + __pyx_t_33 * __pyx_v_nStar.strides[0]) )) + __pyx_t_34)) )));
+        __pyx_t_30 = (*((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_nStar.data + __pyx_t_34 * __pyx_v_nStar.strides[0]) )) + __pyx_t_35)) )));
+        __pyx_t_37 = __pyx_v_cj;
+        __pyx_t_38 = __pyx_v_k;
+        __pyx_t_36 = -1;
+        if (__pyx_t_37 < 0) {
+          __pyx_t_37 += __pyx_v_nStar.shape[0];
+          if (unlikely(__pyx_t_37 < 0)) __pyx_t_36 = 0;
+        } else if (unlikely(__pyx_t_37 >= __pyx_v_nStar.shape[0])) __pyx_t_36 = 0;
+        if (__pyx_t_38 < 0) {
+          __pyx_t_38 += __pyx_v_nStar.shape[1];
+          if (unlikely(__pyx_t_38 < 0)) __pyx_t_36 = 1;
+        } else if (unlikely(__pyx_t_38 >= __pyx_v_nStar.shape[1])) __pyx_t_36 = 1;
+        if (unlikely(__pyx_t_36 != -1)) {
+          __Pyx_RaiseBufferIndexError(__pyx_t_36);
+          __PYX_ERR(0, 428, __pyx_L1_error)
+        }
+        __pyx_t_9 = (*((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_nStar.data + __pyx_t_37 * __pyx_v_nStar.strides[0]) )) + __pyx_t_38)) )));
         if (unlikely(__pyx_t_9 == 0)) {
           PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-          __PYX_ERR(0, 426, __pyx_L1_error)
+          __PYX_ERR(0, 428, __pyx_L1_error)
         }
-        __pyx_t_35 = __pyx_v_la;
-        __pyx_t_36 = __pyx_v_k;
-        __pyx_t_32 = -1;
-        if (__pyx_t_35 < 0) {
-          __pyx_t_35 += __pyx_v_expla.shape[0];
-          if (unlikely(__pyx_t_35 < 0)) __pyx_t_32 = 0;
-        } else if (unlikely(__pyx_t_35 >= __pyx_v_expla.shape[0])) __pyx_t_32 = 0;
-        if (__pyx_t_36 < 0) {
-          __pyx_t_36 += __pyx_v_expla.shape[1];
-          if (unlikely(__pyx_t_36 < 0)) __pyx_t_32 = 1;
-        } else if (unlikely(__pyx_t_36 >= __pyx_v_expla.shape[1])) __pyx_t_32 = 1;
-        if (unlikely(__pyx_t_32 != -1)) {
-          __Pyx_RaiseBufferIndexError(__pyx_t_32);
-          __PYX_ERR(0, 426, __pyx_L1_error)
+        __pyx_t_39 = __pyx_v_la;
+        __pyx_t_40 = __pyx_v_k;
+        __pyx_t_36 = -1;
+        if (__pyx_t_39 < 0) {
+          __pyx_t_39 += __pyx_v_expla.shape[0];
+          if (unlikely(__pyx_t_39 < 0)) __pyx_t_36 = 0;
+        } else if (unlikely(__pyx_t_39 >= __pyx_v_expla.shape[0])) __pyx_t_36 = 0;
+        if (__pyx_t_40 < 0) {
+          __pyx_t_40 += __pyx_v_expla.shape[1];
+          if (unlikely(__pyx_t_40 < 0)) __pyx_t_36 = 1;
+        } else if (unlikely(__pyx_t_40 >= __pyx_v_expla.shape[1])) __pyx_t_36 = 1;
+        if (unlikely(__pyx_t_36 != -1)) {
+          __Pyx_RaiseBufferIndexError(__pyx_t_36);
+          __PYX_ERR(0, 428, __pyx_L1_error)
         }
-        __pyx_v_gijk = ((__pyx_t_26 / __pyx_t_9) * (*((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_expla.data + __pyx_t_35 * __pyx_v_expla.strides[0]) )) + __pyx_t_36)) ))));
+        __pyx_v_gijk = ((__pyx_t_30 / __pyx_t_9) * (*((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_expla.data + __pyx_t_39 * __pyx_v_expla.strides[0]) )) + __pyx_t_40)) ))));
 
-        /* "CAtmosphere.pyx":427
+        /* "CAtmosphere.pyx":429
  *                 for k in range(self.atmos.Nspace):
  *                     gijk = nStar[ci, k] / nStar[cj, k] * expla[la, k]
  *                     self.chi[la, k] += alpha[la, i] * (1.0 - expla[la, k]) * n[ci, k]             # <<<<<<<<<<<<<<
  *                     self.eta[la, k] += twohnu3_c2 * gijk * alpha[la, i] * n[cj, k]
  * 
  */
-        __pyx_t_37 = __pyx_v_la;
-        __pyx_t_38 = __pyx_v_i;
-        __pyx_t_32 = -1;
-        if (__pyx_t_37 < 0) {
-          __pyx_t_37 += __pyx_v_alpha.shape[0];
-          if (unlikely(__pyx_t_37 < 0)) __pyx_t_32 = 0;
-        } else if (unlikely(__pyx_t_37 >= __pyx_v_alpha.shape[0])) __pyx_t_32 = 0;
-        if (__pyx_t_38 < 0) {
-          __pyx_t_38 += __pyx_v_alpha.shape[1];
-          if (unlikely(__pyx_t_38 < 0)) __pyx_t_32 = 1;
-        } else if (unlikely(__pyx_t_38 >= __pyx_v_alpha.shape[1])) __pyx_t_32 = 1;
-        if (unlikely(__pyx_t_32 != -1)) {
-          __Pyx_RaiseBufferIndexError(__pyx_t_32);
-          __PYX_ERR(0, 427, __pyx_L1_error)
-        }
-        __pyx_t_39 = __pyx_v_la;
-        __pyx_t_40 = __pyx_v_k;
-        __pyx_t_32 = -1;
-        if (__pyx_t_39 < 0) {
-          __pyx_t_39 += __pyx_v_expla.shape[0];
-          if (unlikely(__pyx_t_39 < 0)) __pyx_t_32 = 0;
-        } else if (unlikely(__pyx_t_39 >= __pyx_v_expla.shape[0])) __pyx_t_32 = 0;
-        if (__pyx_t_40 < 0) {
-          __pyx_t_40 += __pyx_v_expla.shape[1];
-          if (unlikely(__pyx_t_40 < 0)) __pyx_t_32 = 1;
-        } else if (unlikely(__pyx_t_40 >= __pyx_v_expla.shape[1])) __pyx_t_32 = 1;
-        if (unlikely(__pyx_t_32 != -1)) {
-          __Pyx_RaiseBufferIndexError(__pyx_t_32);
-          __PYX_ERR(0, 427, __pyx_L1_error)
-        }
-        __pyx_t_41 = __pyx_v_ci;
-        __pyx_t_42 = __pyx_v_k;
-        __pyx_t_32 = -1;
+        __pyx_t_41 = __pyx_v_la;
+        __pyx_t_42 = __pyx_v_i;
+        __pyx_t_36 = -1;
         if (__pyx_t_41 < 0) {
-          __pyx_t_41 += __pyx_v_n.shape[0];
-          if (unlikely(__pyx_t_41 < 0)) __pyx_t_32 = 0;
-        } else if (unlikely(__pyx_t_41 >= __pyx_v_n.shape[0])) __pyx_t_32 = 0;
+          __pyx_t_41 += __pyx_v_alpha.shape[0];
+          if (unlikely(__pyx_t_41 < 0)) __pyx_t_36 = 0;
+        } else if (unlikely(__pyx_t_41 >= __pyx_v_alpha.shape[0])) __pyx_t_36 = 0;
         if (__pyx_t_42 < 0) {
-          __pyx_t_42 += __pyx_v_n.shape[1];
-          if (unlikely(__pyx_t_42 < 0)) __pyx_t_32 = 1;
-        } else if (unlikely(__pyx_t_42 >= __pyx_v_n.shape[1])) __pyx_t_32 = 1;
-        if (unlikely(__pyx_t_32 != -1)) {
-          __Pyx_RaiseBufferIndexError(__pyx_t_32);
-          __PYX_ERR(0, 427, __pyx_L1_error)
+          __pyx_t_42 += __pyx_v_alpha.shape[1];
+          if (unlikely(__pyx_t_42 < 0)) __pyx_t_36 = 1;
+        } else if (unlikely(__pyx_t_42 >= __pyx_v_alpha.shape[1])) __pyx_t_36 = 1;
+        if (unlikely(__pyx_t_36 != -1)) {
+          __Pyx_RaiseBufferIndexError(__pyx_t_36);
+          __PYX_ERR(0, 429, __pyx_L1_error)
         }
-        if (unlikely(!__pyx_v_self->chi.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 427, __pyx_L1_error)}
         __pyx_t_43 = __pyx_v_la;
         __pyx_t_44 = __pyx_v_k;
-        __pyx_t_32 = -1;
+        __pyx_t_36 = -1;
         if (__pyx_t_43 < 0) {
-          __pyx_t_43 += __pyx_v_self->chi.shape[0];
-          if (unlikely(__pyx_t_43 < 0)) __pyx_t_32 = 0;
-        } else if (unlikely(__pyx_t_43 >= __pyx_v_self->chi.shape[0])) __pyx_t_32 = 0;
+          __pyx_t_43 += __pyx_v_expla.shape[0];
+          if (unlikely(__pyx_t_43 < 0)) __pyx_t_36 = 0;
+        } else if (unlikely(__pyx_t_43 >= __pyx_v_expla.shape[0])) __pyx_t_36 = 0;
         if (__pyx_t_44 < 0) {
-          __pyx_t_44 += __pyx_v_self->chi.shape[1];
-          if (unlikely(__pyx_t_44 < 0)) __pyx_t_32 = 1;
-        } else if (unlikely(__pyx_t_44 >= __pyx_v_self->chi.shape[1])) __pyx_t_32 = 1;
-        if (unlikely(__pyx_t_32 != -1)) {
-          __Pyx_RaiseBufferIndexError(__pyx_t_32);
-          __PYX_ERR(0, 427, __pyx_L1_error)
+          __pyx_t_44 += __pyx_v_expla.shape[1];
+          if (unlikely(__pyx_t_44 < 0)) __pyx_t_36 = 1;
+        } else if (unlikely(__pyx_t_44 >= __pyx_v_expla.shape[1])) __pyx_t_36 = 1;
+        if (unlikely(__pyx_t_36 != -1)) {
+          __Pyx_RaiseBufferIndexError(__pyx_t_36);
+          __PYX_ERR(0, 429, __pyx_L1_error)
         }
-        *((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_self->chi.data + __pyx_t_43 * __pyx_v_self->chi.strides[0]) )) + __pyx_t_44)) )) += (((*((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_alpha.data + __pyx_t_37 * __pyx_v_alpha.strides[0]) )) + __pyx_t_38)) ))) * (1.0 - (*((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_expla.data + __pyx_t_39 * __pyx_v_expla.strides[0]) )) + __pyx_t_40)) ))))) * (*((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_n.data + __pyx_t_41 * __pyx_v_n.strides[0]) )) + __pyx_t_42)) ))));
+        __pyx_t_45 = __pyx_v_ci;
+        __pyx_t_46 = __pyx_v_k;
+        __pyx_t_36 = -1;
+        if (__pyx_t_45 < 0) {
+          __pyx_t_45 += __pyx_v_n.shape[0];
+          if (unlikely(__pyx_t_45 < 0)) __pyx_t_36 = 0;
+        } else if (unlikely(__pyx_t_45 >= __pyx_v_n.shape[0])) __pyx_t_36 = 0;
+        if (__pyx_t_46 < 0) {
+          __pyx_t_46 += __pyx_v_n.shape[1];
+          if (unlikely(__pyx_t_46 < 0)) __pyx_t_36 = 1;
+        } else if (unlikely(__pyx_t_46 >= __pyx_v_n.shape[1])) __pyx_t_36 = 1;
+        if (unlikely(__pyx_t_36 != -1)) {
+          __Pyx_RaiseBufferIndexError(__pyx_t_36);
+          __PYX_ERR(0, 429, __pyx_L1_error)
+        }
+        if (unlikely(!__pyx_v_self->chi.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 429, __pyx_L1_error)}
+        __pyx_t_47 = __pyx_v_la;
+        __pyx_t_48 = __pyx_v_k;
+        __pyx_t_36 = -1;
+        if (__pyx_t_47 < 0) {
+          __pyx_t_47 += __pyx_v_self->chi.shape[0];
+          if (unlikely(__pyx_t_47 < 0)) __pyx_t_36 = 0;
+        } else if (unlikely(__pyx_t_47 >= __pyx_v_self->chi.shape[0])) __pyx_t_36 = 0;
+        if (__pyx_t_48 < 0) {
+          __pyx_t_48 += __pyx_v_self->chi.shape[1];
+          if (unlikely(__pyx_t_48 < 0)) __pyx_t_36 = 1;
+        } else if (unlikely(__pyx_t_48 >= __pyx_v_self->chi.shape[1])) __pyx_t_36 = 1;
+        if (unlikely(__pyx_t_36 != -1)) {
+          __Pyx_RaiseBufferIndexError(__pyx_t_36);
+          __PYX_ERR(0, 429, __pyx_L1_error)
+        }
+        *((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_self->chi.data + __pyx_t_47 * __pyx_v_self->chi.strides[0]) )) + __pyx_t_48)) )) += (((*((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_alpha.data + __pyx_t_41 * __pyx_v_alpha.strides[0]) )) + __pyx_t_42)) ))) * (1.0 - (*((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_expla.data + __pyx_t_43 * __pyx_v_expla.strides[0]) )) + __pyx_t_44)) ))))) * (*((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_n.data + __pyx_t_45 * __pyx_v_n.strides[0]) )) + __pyx_t_46)) ))));
 
-        /* "CAtmosphere.pyx":428
+        /* "CAtmosphere.pyx":430
  *                     gijk = nStar[ci, k] / nStar[cj, k] * expla[la, k]
  *                     self.chi[la, k] += alpha[la, i] * (1.0 - expla[la, k]) * n[ci, k]
  *                     self.eta[la, k] += twohnu3_c2 * gijk * alpha[la, i] * n[cj, k]             # <<<<<<<<<<<<<<
  * 
  * cdef class RayleighScatterer:
  */
-        __pyx_t_45 = __pyx_v_la;
-        __pyx_t_46 = __pyx_v_i;
-        __pyx_t_32 = -1;
-        if (__pyx_t_45 < 0) {
-          __pyx_t_45 += __pyx_v_alpha.shape[0];
-          if (unlikely(__pyx_t_45 < 0)) __pyx_t_32 = 0;
-        } else if (unlikely(__pyx_t_45 >= __pyx_v_alpha.shape[0])) __pyx_t_32 = 0;
-        if (__pyx_t_46 < 0) {
-          __pyx_t_46 += __pyx_v_alpha.shape[1];
-          if (unlikely(__pyx_t_46 < 0)) __pyx_t_32 = 1;
-        } else if (unlikely(__pyx_t_46 >= __pyx_v_alpha.shape[1])) __pyx_t_32 = 1;
-        if (unlikely(__pyx_t_32 != -1)) {
-          __Pyx_RaiseBufferIndexError(__pyx_t_32);
-          __PYX_ERR(0, 428, __pyx_L1_error)
-        }
-        __pyx_t_47 = __pyx_v_cj;
-        __pyx_t_48 = __pyx_v_k;
-        __pyx_t_32 = -1;
-        if (__pyx_t_47 < 0) {
-          __pyx_t_47 += __pyx_v_n.shape[0];
-          if (unlikely(__pyx_t_47 < 0)) __pyx_t_32 = 0;
-        } else if (unlikely(__pyx_t_47 >= __pyx_v_n.shape[0])) __pyx_t_32 = 0;
-        if (__pyx_t_48 < 0) {
-          __pyx_t_48 += __pyx_v_n.shape[1];
-          if (unlikely(__pyx_t_48 < 0)) __pyx_t_32 = 1;
-        } else if (unlikely(__pyx_t_48 >= __pyx_v_n.shape[1])) __pyx_t_32 = 1;
-        if (unlikely(__pyx_t_32 != -1)) {
-          __Pyx_RaiseBufferIndexError(__pyx_t_32);
-          __PYX_ERR(0, 428, __pyx_L1_error)
-        }
-        if (unlikely(!__pyx_v_self->eta.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 428, __pyx_L1_error)}
         __pyx_t_49 = __pyx_v_la;
-        __pyx_t_50 = __pyx_v_k;
-        __pyx_t_32 = -1;
+        __pyx_t_50 = __pyx_v_i;
+        __pyx_t_36 = -1;
         if (__pyx_t_49 < 0) {
-          __pyx_t_49 += __pyx_v_self->eta.shape[0];
-          if (unlikely(__pyx_t_49 < 0)) __pyx_t_32 = 0;
-        } else if (unlikely(__pyx_t_49 >= __pyx_v_self->eta.shape[0])) __pyx_t_32 = 0;
+          __pyx_t_49 += __pyx_v_alpha.shape[0];
+          if (unlikely(__pyx_t_49 < 0)) __pyx_t_36 = 0;
+        } else if (unlikely(__pyx_t_49 >= __pyx_v_alpha.shape[0])) __pyx_t_36 = 0;
         if (__pyx_t_50 < 0) {
-          __pyx_t_50 += __pyx_v_self->eta.shape[1];
-          if (unlikely(__pyx_t_50 < 0)) __pyx_t_32 = 1;
-        } else if (unlikely(__pyx_t_50 >= __pyx_v_self->eta.shape[1])) __pyx_t_32 = 1;
-        if (unlikely(__pyx_t_32 != -1)) {
-          __Pyx_RaiseBufferIndexError(__pyx_t_32);
-          __PYX_ERR(0, 428, __pyx_L1_error)
+          __pyx_t_50 += __pyx_v_alpha.shape[1];
+          if (unlikely(__pyx_t_50 < 0)) __pyx_t_36 = 1;
+        } else if (unlikely(__pyx_t_50 >= __pyx_v_alpha.shape[1])) __pyx_t_36 = 1;
+        if (unlikely(__pyx_t_36 != -1)) {
+          __Pyx_RaiseBufferIndexError(__pyx_t_36);
+          __PYX_ERR(0, 430, __pyx_L1_error)
         }
-        *((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_self->eta.data + __pyx_t_49 * __pyx_v_self->eta.strides[0]) )) + __pyx_t_50)) )) += (((__pyx_v_twohnu3_c2 * __pyx_v_gijk) * (*((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_alpha.data + __pyx_t_45 * __pyx_v_alpha.strides[0]) )) + __pyx_t_46)) )))) * (*((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_n.data + __pyx_t_47 * __pyx_v_n.strides[0]) )) + __pyx_t_48)) ))));
+        __pyx_t_51 = __pyx_v_cj;
+        __pyx_t_52 = __pyx_v_k;
+        __pyx_t_36 = -1;
+        if (__pyx_t_51 < 0) {
+          __pyx_t_51 += __pyx_v_n.shape[0];
+          if (unlikely(__pyx_t_51 < 0)) __pyx_t_36 = 0;
+        } else if (unlikely(__pyx_t_51 >= __pyx_v_n.shape[0])) __pyx_t_36 = 0;
+        if (__pyx_t_52 < 0) {
+          __pyx_t_52 += __pyx_v_n.shape[1];
+          if (unlikely(__pyx_t_52 < 0)) __pyx_t_36 = 1;
+        } else if (unlikely(__pyx_t_52 >= __pyx_v_n.shape[1])) __pyx_t_36 = 1;
+        if (unlikely(__pyx_t_36 != -1)) {
+          __Pyx_RaiseBufferIndexError(__pyx_t_36);
+          __PYX_ERR(0, 430, __pyx_L1_error)
+        }
+        if (unlikely(!__pyx_v_self->eta.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 430, __pyx_L1_error)}
+        __pyx_t_53 = __pyx_v_la;
+        __pyx_t_54 = __pyx_v_k;
+        __pyx_t_36 = -1;
+        if (__pyx_t_53 < 0) {
+          __pyx_t_53 += __pyx_v_self->eta.shape[0];
+          if (unlikely(__pyx_t_53 < 0)) __pyx_t_36 = 0;
+        } else if (unlikely(__pyx_t_53 >= __pyx_v_self->eta.shape[0])) __pyx_t_36 = 0;
+        if (__pyx_t_54 < 0) {
+          __pyx_t_54 += __pyx_v_self->eta.shape[1];
+          if (unlikely(__pyx_t_54 < 0)) __pyx_t_36 = 1;
+        } else if (unlikely(__pyx_t_54 >= __pyx_v_self->eta.shape[1])) __pyx_t_36 = 1;
+        if (unlikely(__pyx_t_36 != -1)) {
+          __Pyx_RaiseBufferIndexError(__pyx_t_36);
+          __PYX_ERR(0, 430, __pyx_L1_error)
+        }
+        *((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_self->eta.data + __pyx_t_53 * __pyx_v_self->eta.strides[0]) )) + __pyx_t_54)) )) += (((__pyx_v_twohnu3_c2 * __pyx_v_gijk) * (*((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_alpha.data + __pyx_t_49 * __pyx_v_alpha.strides[0]) )) + __pyx_t_50)) )))) * (*((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_n.data + __pyx_t_51 * __pyx_v_n.strides[0]) )) + __pyx_t_52)) ))));
       }
     }
 
-    /* "CAtmosphere.pyx":417
+    /* "CAtmosphere.pyx":419
  *         cdef f64[:,::1] nStar
  *         cdef f64[:,::1] n
  *         for i, c in enumerate(continua):             # <<<<<<<<<<<<<<
@@ -7676,7 +7698,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwBackground_bf_opacities(struct __pyx_
  *             n = self.eqPops.atomicPops[c.atom.name].n
  */
   }
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
 
   /* "CAtmosphere.pyx":369
  *                         self.sca[la, k] += sca[k]
@@ -7696,6 +7718,8 @@ static PyObject *__pyx_f_11CAtmosphere_12LwBackground_bf_opacities(struct __pyx_
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_13);
   __PYX_XDEC_MEMVIEW(&__pyx_t_14, 1);
+  __Pyx_XDECREF(__pyx_t_16);
+  __Pyx_XDECREF(__pyx_t_17);
   __Pyx_AddTraceback("CAtmosphere.LwBackground.bf_opacities", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
@@ -7704,7 +7728,6 @@ static PyObject *__pyx_f_11CAtmosphere_12LwBackground_bf_opacities(struct __pyx_
   __Pyx_XDECREF(__pyx_v_a);
   __Pyx_XDECREF(__pyx_v_c);
   __PYX_XDEC_MEMVIEW(&__pyx_v_alpha, 1);
-  __Pyx_XDECREF(__pyx_v_interpolator);
   __Pyx_XDECREF(__pyx_v_alphaLa);
   __PYX_XDEC_MEMVIEW(&__pyx_v_expla, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_v_nStar, 1);
@@ -7858,7 +7881,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwBackground_8__setstate_cython__(CYTH
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":439
+/* "CAtmosphere.pyx":441
  *     cdef bool_t lines
  * 
  *     def __init__(self, atmos, atom, pops):             # <<<<<<<<<<<<<<
@@ -7900,17 +7923,17 @@ static int __pyx_pw_11CAtmosphere_17RayleighScatterer_1__init__(PyObject *__pyx_
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_atom)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, 1); __PYX_ERR(0, 439, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, 1); __PYX_ERR(0, 441, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_pops)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, 2); __PYX_ERR(0, 439, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, 2); __PYX_ERR(0, 441, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 439, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 441, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
       goto __pyx_L5_argtuple_error;
@@ -7925,7 +7948,7 @@ static int __pyx_pw_11CAtmosphere_17RayleighScatterer_1__init__(PyObject *__pyx_
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 439, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 441, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("CAtmosphere.RayleighScatterer.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -7961,21 +7984,21 @@ static int __pyx_pf_11CAtmosphere_17RayleighScatterer___init__(struct __pyx_obj_
   PyObject *__pyx_t_14 = NULL;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "CAtmosphere.pyx":440
+  /* "CAtmosphere.pyx":442
  * 
  *     def __init__(self, atmos, atom, pops):
  *         if len(atom.lines) == 0:             # <<<<<<<<<<<<<<
  *             self.lines = False
  *             return
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_atom, __pyx_n_s_lines); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 440, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_atom, __pyx_n_s_lines); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 442, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyObject_Length(__pyx_t_1); if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(0, 440, __pyx_L1_error)
+  __pyx_t_2 = PyObject_Length(__pyx_t_1); if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(0, 442, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_3 = ((__pyx_t_2 == 0) != 0);
   if (__pyx_t_3) {
 
-    /* "CAtmosphere.pyx":441
+    /* "CAtmosphere.pyx":443
  *     def __init__(self, atmos, atom, pops):
  *         if len(atom.lines) == 0:
  *             self.lines = False             # <<<<<<<<<<<<<<
@@ -7984,7 +8007,7 @@ static int __pyx_pf_11CAtmosphere_17RayleighScatterer___init__(struct __pyx_obj_
  */
     __pyx_v_self->lines = 0;
 
-    /* "CAtmosphere.pyx":442
+    /* "CAtmosphere.pyx":444
  *         if len(atom.lines) == 0:
  *             self.lines = False
  *             return             # <<<<<<<<<<<<<<
@@ -7994,7 +8017,7 @@ static int __pyx_pf_11CAtmosphere_17RayleighScatterer___init__(struct __pyx_obj_
     __pyx_r = 0;
     goto __pyx_L0;
 
-    /* "CAtmosphere.pyx":440
+    /* "CAtmosphere.pyx":442
  * 
  *     def __init__(self, atmos, atom, pops):
  *         if len(atom.lines) == 0:             # <<<<<<<<<<<<<<
@@ -8003,7 +8026,7 @@ static int __pyx_pf_11CAtmosphere_17RayleighScatterer___init__(struct __pyx_obj_
  */
   }
 
-  /* "CAtmosphere.pyx":444
+  /* "CAtmosphere.pyx":446
  *             return
  * 
  *         self.lines = True             # <<<<<<<<<<<<<<
@@ -8012,7 +8035,7 @@ static int __pyx_pf_11CAtmosphere_17RayleighScatterer___init__(struct __pyx_obj_
  */
   __pyx_v_self->lines = 1;
 
-  /* "CAtmosphere.pyx":445
+  /* "CAtmosphere.pyx":447
  * 
  *         self.lines = True
  *         cdef f64 lambdaLimit = 1e6             # <<<<<<<<<<<<<<
@@ -8021,22 +8044,22 @@ static int __pyx_pf_11CAtmosphere_17RayleighScatterer___init__(struct __pyx_obj_
  */
   __pyx_v_lambdaLimit = 1e6;
 
-  /* "CAtmosphere.pyx":447
+  /* "CAtmosphere.pyx":449
  *         cdef f64 lambdaLimit = 1e6
  *         cdef f64 lambdaRed
  *         for l in atom.lines:             # <<<<<<<<<<<<<<
  *             if l.i == 0:
  *                 lambdaRed = l.wavelength[-1]
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_atom, __pyx_n_s_lines); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 447, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_atom, __pyx_n_s_lines); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 449, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (likely(PyList_CheckExact(__pyx_t_1)) || PyTuple_CheckExact(__pyx_t_1)) {
     __pyx_t_4 = __pyx_t_1; __Pyx_INCREF(__pyx_t_4); __pyx_t_2 = 0;
     __pyx_t_5 = NULL;
   } else {
-    __pyx_t_2 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 447, __pyx_L1_error)
+    __pyx_t_2 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 449, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_5 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 447, __pyx_L1_error)
+    __pyx_t_5 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 449, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   for (;;) {
@@ -8044,17 +8067,17 @@ static int __pyx_pf_11CAtmosphere_17RayleighScatterer___init__(struct __pyx_obj_
       if (likely(PyList_CheckExact(__pyx_t_4))) {
         if (__pyx_t_2 >= PyList_GET_SIZE(__pyx_t_4)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_1 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_2); __Pyx_INCREF(__pyx_t_1); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(0, 447, __pyx_L1_error)
+        __pyx_t_1 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_2); __Pyx_INCREF(__pyx_t_1); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(0, 449, __pyx_L1_error)
         #else
-        __pyx_t_1 = PySequence_ITEM(__pyx_t_4, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 447, __pyx_L1_error)
+        __pyx_t_1 = PySequence_ITEM(__pyx_t_4, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 449, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         #endif
       } else {
         if (__pyx_t_2 >= PyTuple_GET_SIZE(__pyx_t_4)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_2); __Pyx_INCREF(__pyx_t_1); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(0, 447, __pyx_L1_error)
+        __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_2); __Pyx_INCREF(__pyx_t_1); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(0, 449, __pyx_L1_error)
         #else
-        __pyx_t_1 = PySequence_ITEM(__pyx_t_4, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 447, __pyx_L1_error)
+        __pyx_t_1 = PySequence_ITEM(__pyx_t_4, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 449, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         #endif
       }
@@ -8064,7 +8087,7 @@ static int __pyx_pf_11CAtmosphere_17RayleighScatterer___init__(struct __pyx_obj_
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 447, __pyx_L1_error)
+          else __PYX_ERR(0, 449, __pyx_L1_error)
         }
         break;
       }
@@ -8073,39 +8096,39 @@ static int __pyx_pf_11CAtmosphere_17RayleighScatterer___init__(struct __pyx_obj_
     __Pyx_XDECREF_SET(__pyx_v_l, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "CAtmosphere.pyx":448
+    /* "CAtmosphere.pyx":450
  *         cdef f64 lambdaRed
  *         for l in atom.lines:
  *             if l.i == 0:             # <<<<<<<<<<<<<<
  *                 lambdaRed = l.wavelength[-1]
  *                 lambdaLimit = min(lambdaLimit, lambdaRed)
  */
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_l, __pyx_n_s_i); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 448, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_l, __pyx_n_s_i); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 450, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_6 = __Pyx_PyInt_EqObjC(__pyx_t_1, __pyx_int_0, 0, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 448, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyInt_EqObjC(__pyx_t_1, __pyx_int_0, 0, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 450, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 448, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 450, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     if (__pyx_t_3) {
 
-      /* "CAtmosphere.pyx":449
+      /* "CAtmosphere.pyx":451
  *         for l in atom.lines:
  *             if l.i == 0:
  *                 lambdaRed = l.wavelength[-1]             # <<<<<<<<<<<<<<
  *                 lambdaLimit = min(lambdaLimit, lambdaRed)
  * 
  */
-      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_l, __pyx_n_s_wavelength); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 449, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_l, __pyx_n_s_wavelength); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 451, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_6, -1L, long, 1, __Pyx_PyInt_From_long, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 449, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_6, -1L, long, 1, __Pyx_PyInt_From_long, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 451, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 449, __pyx_L1_error)
+      __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 451, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __pyx_v_lambdaRed = __pyx_t_7;
 
-      /* "CAtmosphere.pyx":450
+      /* "CAtmosphere.pyx":452
  *             if l.i == 0:
  *                 lambdaRed = l.wavelength[-1]
  *                 lambdaLimit = min(lambdaLimit, lambdaRed)             # <<<<<<<<<<<<<<
@@ -8121,7 +8144,7 @@ static int __pyx_pf_11CAtmosphere_17RayleighScatterer___init__(struct __pyx_obj_
       }
       __pyx_v_lambdaLimit = __pyx_t_9;
 
-      /* "CAtmosphere.pyx":448
+      /* "CAtmosphere.pyx":450
  *         cdef f64 lambdaRed
  *         for l in atom.lines:
  *             if l.i == 0:             # <<<<<<<<<<<<<<
@@ -8130,7 +8153,7 @@ static int __pyx_pf_11CAtmosphere_17RayleighScatterer___init__(struct __pyx_obj_
  */
     }
 
-    /* "CAtmosphere.pyx":447
+    /* "CAtmosphere.pyx":449
  *         cdef f64 lambdaLimit = 1e6
  *         cdef f64 lambdaRed
  *         for l in atom.lines:             # <<<<<<<<<<<<<<
@@ -8140,7 +8163,7 @@ static int __pyx_pf_11CAtmosphere_17RayleighScatterer___init__(struct __pyx_obj_
   }
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "CAtmosphere.pyx":452
+  /* "CAtmosphere.pyx":454
  *                 lambdaLimit = min(lambdaLimit, lambdaRed)
  * 
  *         self.lambdaLimit = lambdaLimit             # <<<<<<<<<<<<<<
@@ -8149,7 +8172,7 @@ static int __pyx_pf_11CAtmosphere_17RayleighScatterer___init__(struct __pyx_obj_
  */
   __pyx_v_self->lambdaLimit = __pyx_v_lambdaLimit;
 
-  /* "CAtmosphere.pyx":453
+  /* "CAtmosphere.pyx":455
  * 
  *         self.lambdaLimit = lambdaLimit
  *         self.atom = atom             # <<<<<<<<<<<<<<
@@ -8162,14 +8185,14 @@ static int __pyx_pf_11CAtmosphere_17RayleighScatterer___init__(struct __pyx_obj_
   __Pyx_DECREF(__pyx_v_self->atom);
   __pyx_v_self->atom = __pyx_v_atom;
 
-  /* "CAtmosphere.pyx":454
+  /* "CAtmosphere.pyx":456
  *         self.lambdaLimit = lambdaLimit
  *         self.atom = atom
  *         self.atmos = atmos             # <<<<<<<<<<<<<<
  *         self.pops = pops
  * 
  */
-  if (!(likely(((__pyx_v_atmos) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_atmos, __pyx_ptype_11CAtmosphere_LwAtmosphere))))) __PYX_ERR(0, 454, __pyx_L1_error)
+  if (!(likely(((__pyx_v_atmos) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_atmos, __pyx_ptype_11CAtmosphere_LwAtmosphere))))) __PYX_ERR(0, 456, __pyx_L1_error)
   __pyx_t_4 = __pyx_v_atmos;
   __Pyx_INCREF(__pyx_t_4);
   __Pyx_GIVEREF(__pyx_t_4);
@@ -8178,116 +8201,116 @@ static int __pyx_pf_11CAtmosphere_17RayleighScatterer___init__(struct __pyx_obj_
   __pyx_v_self->atmos = ((struct __pyx_obj_11CAtmosphere_LwAtmosphere *)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "CAtmosphere.pyx":455
+  /* "CAtmosphere.pyx":457
  *         self.atom = atom
  *         self.atmos = atmos
  *         self.pops = pops             # <<<<<<<<<<<<<<
  * 
  *         C = Const
  */
-  __pyx_t_10 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_v_pops, PyBUF_WRITABLE); if (unlikely(!__pyx_t_10.memview)) __PYX_ERR(0, 455, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_v_pops, PyBUF_WRITABLE); if (unlikely(!__pyx_t_10.memview)) __PYX_ERR(0, 457, __pyx_L1_error)
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->pops, 0);
   __pyx_v_self->pops = __pyx_t_10;
   __pyx_t_10.memview = NULL;
   __pyx_t_10.data = NULL;
 
-  /* "CAtmosphere.pyx":457
+  /* "CAtmosphere.pyx":459
  *         self.pops = pops
  * 
  *         C = Const             # <<<<<<<<<<<<<<
  *         self.C = 2.0 * np.pi * (C.Q_ELECTRON / C.EPSILON_0) * C.Q_ELECTRON / C.M_ELECTRON / C.CLIGHT
  *         self.sigmaE = 8.0 * np.pi / 3.0 * (C.Q_ELECTRON / (np.sqrt(4.0 * np.pi * C.EPSILON_0) * (np.sqrt(C.M_ELECTRON) * C.CLIGHT)))**4
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_Const); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 457, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_Const); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 459, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_v_C = __pyx_t_4;
   __pyx_t_4 = 0;
 
-  /* "CAtmosphere.pyx":458
+  /* "CAtmosphere.pyx":460
  * 
  *         C = Const
  *         self.C = 2.0 * np.pi * (C.Q_ELECTRON / C.EPSILON_0) * C.Q_ELECTRON / C.M_ELECTRON / C.CLIGHT             # <<<<<<<<<<<<<<
  *         self.sigmaE = 8.0 * np.pi / 3.0 * (C.Q_ELECTRON / (np.sqrt(4.0 * np.pi * C.EPSILON_0) * (np.sqrt(C.M_ELECTRON) * C.CLIGHT)))**4
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 458, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 460, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_pi); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 458, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_pi); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 460, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyNumber_Multiply(__pyx_float_2_0, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 458, __pyx_L1_error)
+  __pyx_t_4 = PyNumber_Multiply(__pyx_float_2_0, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 460, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_C, __pyx_n_s_Q_ELECTRON); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 458, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_C, __pyx_n_s_Q_ELECTRON); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 460, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_C, __pyx_n_s_EPSILON_0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 458, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_C, __pyx_n_s_EPSILON_0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 460, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_11 = __Pyx_PyNumber_Divide(__pyx_t_1, __pyx_t_6); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 458, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyNumber_Divide(__pyx_t_1, __pyx_t_6); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 460, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_6 = PyNumber_Multiply(__pyx_t_4, __pyx_t_11); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 458, __pyx_L1_error)
+  __pyx_t_6 = PyNumber_Multiply(__pyx_t_4, __pyx_t_11); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 460, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_C, __pyx_n_s_Q_ELECTRON); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 458, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_C, __pyx_n_s_Q_ELECTRON); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 460, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
-  __pyx_t_4 = PyNumber_Multiply(__pyx_t_6, __pyx_t_11); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 458, __pyx_L1_error)
+  __pyx_t_4 = PyNumber_Multiply(__pyx_t_6, __pyx_t_11); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 460, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_C, __pyx_n_s_M_ELECTRON); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 458, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_C, __pyx_n_s_M_ELECTRON); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 460, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
-  __pyx_t_6 = __Pyx_PyNumber_Divide(__pyx_t_4, __pyx_t_11); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 458, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyNumber_Divide(__pyx_t_4, __pyx_t_11); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 460, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_C, __pyx_n_s_CLIGHT); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 458, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_C, __pyx_n_s_CLIGHT); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 460, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
-  __pyx_t_4 = __Pyx_PyNumber_Divide(__pyx_t_6, __pyx_t_11); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 458, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyNumber_Divide(__pyx_t_6, __pyx_t_11); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 460, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-  __pyx_t_9 = __pyx_PyFloat_AsDouble(__pyx_t_4); if (unlikely((__pyx_t_9 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 458, __pyx_L1_error)
+  __pyx_t_9 = __pyx_PyFloat_AsDouble(__pyx_t_4); if (unlikely((__pyx_t_9 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 460, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_v_self->C = __pyx_t_9;
 
-  /* "CAtmosphere.pyx":459
+  /* "CAtmosphere.pyx":461
  *         C = Const
  *         self.C = 2.0 * np.pi * (C.Q_ELECTRON / C.EPSILON_0) * C.Q_ELECTRON / C.M_ELECTRON / C.CLIGHT
  *         self.sigmaE = 8.0 * np.pi / 3.0 * (C.Q_ELECTRON / (np.sqrt(4.0 * np.pi * C.EPSILON_0) * (np.sqrt(C.M_ELECTRON) * C.CLIGHT)))**4             # <<<<<<<<<<<<<<
  * 
  *     cpdef scatter(self, f64 wavelength, f64[::1] sca):
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_pi); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_pi); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyNumber_Multiply(__pyx_float_8_0, __pyx_t_11); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __pyx_t_4 = PyNumber_Multiply(__pyx_float_8_0, __pyx_t_11); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-  __pyx_t_11 = __Pyx_PyFloat_TrueDivideObjC(__pyx_t_4, __pyx_float_3_0, 3.0, 0, 0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyFloat_TrueDivideObjC(__pyx_t_4, __pyx_float_3_0, 3.0, 0, 0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_C, __pyx_n_s_Q_ELECTRON); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_C, __pyx_n_s_Q_ELECTRON); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_sqrt); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_sqrt); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_12);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_pi); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_pi); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_13);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyNumber_Multiply(__pyx_float_4_0, __pyx_t_13); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_Multiply(__pyx_float_4_0, __pyx_t_13); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-  __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_v_C, __pyx_n_s_EPSILON_0); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_v_C, __pyx_n_s_EPSILON_0); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_13);
-  __pyx_t_14 = PyNumber_Multiply(__pyx_t_1, __pyx_t_13); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __pyx_t_14 = PyNumber_Multiply(__pyx_t_1, __pyx_t_13); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_14);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
@@ -8304,15 +8327,15 @@ static int __pyx_pf_11CAtmosphere_17RayleighScatterer___init__(struct __pyx_obj_
   __pyx_t_6 = (__pyx_t_13) ? __Pyx_PyObject_Call2Args(__pyx_t_12, __pyx_t_13, __pyx_t_14) : __Pyx_PyObject_CallOneArg(__pyx_t_12, __pyx_t_14);
   __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
   __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-  if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 459, __pyx_L1_error)
+  if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_14, __pyx_n_s_np); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_14, __pyx_n_s_np); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_14);
-  __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_14, __pyx_n_s_sqrt); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_14, __pyx_n_s_sqrt); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_13);
   __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-  __pyx_t_14 = __Pyx_PyObject_GetAttrStr(__pyx_v_C, __pyx_n_s_M_ELECTRON); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __pyx_t_14 = __Pyx_PyObject_GetAttrStr(__pyx_v_C, __pyx_n_s_M_ELECTRON); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_14);
   __pyx_t_1 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_13))) {
@@ -8327,35 +8350,35 @@ static int __pyx_pf_11CAtmosphere_17RayleighScatterer___init__(struct __pyx_obj_
   __pyx_t_12 = (__pyx_t_1) ? __Pyx_PyObject_Call2Args(__pyx_t_13, __pyx_t_1, __pyx_t_14) : __Pyx_PyObject_CallOneArg(__pyx_t_13, __pyx_t_14);
   __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-  if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 459, __pyx_L1_error)
+  if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_12);
   __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-  __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_v_C, __pyx_n_s_CLIGHT); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_v_C, __pyx_n_s_CLIGHT); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_13);
-  __pyx_t_14 = PyNumber_Multiply(__pyx_t_12, __pyx_t_13); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __pyx_t_14 = PyNumber_Multiply(__pyx_t_12, __pyx_t_13); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_14);
   __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
   __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-  __pyx_t_13 = PyNumber_Multiply(__pyx_t_6, __pyx_t_14); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __pyx_t_13 = PyNumber_Multiply(__pyx_t_6, __pyx_t_14); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_13);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-  __pyx_t_14 = __Pyx_PyNumber_Divide(__pyx_t_4, __pyx_t_13); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __pyx_t_14 = __Pyx_PyNumber_Divide(__pyx_t_4, __pyx_t_13); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_14);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-  __pyx_t_13 = PyNumber_Power(__pyx_t_14, __pyx_int_4, Py_None); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __pyx_t_13 = PyNumber_Power(__pyx_t_14, __pyx_int_4, Py_None); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_13);
   __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-  __pyx_t_14 = PyNumber_Multiply(__pyx_t_11, __pyx_t_13); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __pyx_t_14 = PyNumber_Multiply(__pyx_t_11, __pyx_t_13); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_14);
   __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
   __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-  __pyx_t_9 = __pyx_PyFloat_AsDouble(__pyx_t_14); if (unlikely((__pyx_t_9 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 459, __pyx_L1_error)
+  __pyx_t_9 = __pyx_PyFloat_AsDouble(__pyx_t_14); if (unlikely((__pyx_t_9 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
   __pyx_v_self->sigmaE = __pyx_t_9;
 
-  /* "CAtmosphere.pyx":439
+  /* "CAtmosphere.pyx":441
  *     cdef bool_t lines
  * 
  *     def __init__(self, atmos, atom, pops):             # <<<<<<<<<<<<<<
@@ -8384,7 +8407,7 @@ static int __pyx_pf_11CAtmosphere_17RayleighScatterer___init__(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":461
+/* "CAtmosphere.pyx":463
  *         self.sigmaE = 8.0 * np.pi / 3.0 * (C.Q_ELECTRON / (np.sqrt(4.0 * np.pi * C.EPSILON_0) * (np.sqrt(C.M_ELECTRON) * C.CLIGHT)))**4
  * 
  *     cpdef scatter(self, f64 wavelength, f64[::1] sca):             # <<<<<<<<<<<<<<
@@ -8432,14 +8455,14 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_scatter); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 461, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_scatter); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 463, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_11CAtmosphere_17RayleighScatterer_3scatter)) {
         __Pyx_XDECREF(__pyx_r);
-        __pyx_t_3 = PyFloat_FromDouble(__pyx_v_wavelength); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 461, __pyx_L1_error)
+        __pyx_t_3 = PyFloat_FromDouble(__pyx_v_wavelength); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 463, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
-        if (unlikely(!__pyx_v_sca.memview)) { __Pyx_RaiseUnboundLocalError("sca"); __PYX_ERR(0, 461, __pyx_L1_error) }
-        __pyx_t_4 = __pyx_memoryview_fromslice(__pyx_v_sca, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 461, __pyx_L1_error)
+        if (unlikely(!__pyx_v_sca.memview)) { __Pyx_RaiseUnboundLocalError("sca"); __PYX_ERR(0, 463, __pyx_L1_error) }
+        __pyx_t_4 = __pyx_memoryview_fromslice(__pyx_v_sca, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 463, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_5 = __pyx_t_1; __pyx_t_6 = NULL;
@@ -8457,7 +8480,7 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
         #if CYTHON_FAST_PYCALL
         if (PyFunction_Check(__pyx_t_5)) {
           PyObject *__pyx_temp[3] = {__pyx_t_6, __pyx_t_3, __pyx_t_4};
-          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 461, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 463, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -8467,7 +8490,7 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
         #if CYTHON_FAST_PYCCALL
         if (__Pyx_PyFastCFunction_Check(__pyx_t_5)) {
           PyObject *__pyx_temp[3] = {__pyx_t_6, __pyx_t_3, __pyx_t_4};
-          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 461, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 463, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -8475,7 +8498,7 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
         } else
         #endif
         {
-          __pyx_t_8 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 461, __pyx_L1_error)
+          __pyx_t_8 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 463, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_8);
           if (__pyx_t_6) {
             __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_6); __pyx_t_6 = NULL;
@@ -8486,7 +8509,7 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
           PyTuple_SET_ITEM(__pyx_t_8, 1+__pyx_t_7, __pyx_t_4);
           __pyx_t_3 = 0;
           __pyx_t_4 = 0;
-          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_8, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 461, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_8, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 463, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
         }
@@ -8509,7 +8532,7 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
     #endif
   }
 
-  /* "CAtmosphere.pyx":462
+  /* "CAtmosphere.pyx":464
  * 
  *     cpdef scatter(self, f64 wavelength, f64[::1] sca):
  *         if wavelength <= self.lambdaLimit:             # <<<<<<<<<<<<<<
@@ -8519,7 +8542,7 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
   __pyx_t_9 = ((__pyx_v_wavelength <= __pyx_v_self->lambdaLimit) != 0);
   if (__pyx_t_9) {
 
-    /* "CAtmosphere.pyx":463
+    /* "CAtmosphere.pyx":465
  *     cpdef scatter(self, f64 wavelength, f64[::1] sca):
  *         if wavelength <= self.lambdaLimit:
  *             return False             # <<<<<<<<<<<<<<
@@ -8531,7 +8554,7 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
     __pyx_r = Py_False;
     goto __pyx_L0;
 
-    /* "CAtmosphere.pyx":462
+    /* "CAtmosphere.pyx":464
  * 
  *     cpdef scatter(self, f64 wavelength, f64[::1] sca):
  *         if wavelength <= self.lambdaLimit:             # <<<<<<<<<<<<<<
@@ -8540,7 +8563,7 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
  */
   }
 
-  /* "CAtmosphere.pyx":464
+  /* "CAtmosphere.pyx":466
  *         if wavelength <= self.lambdaLimit:
  *             return False
  *         if not self.lines:             # <<<<<<<<<<<<<<
@@ -8550,7 +8573,7 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
   __pyx_t_9 = ((!(__pyx_v_self->lines != 0)) != 0);
   if (__pyx_t_9) {
 
-    /* "CAtmosphere.pyx":465
+    /* "CAtmosphere.pyx":467
  *             return False
  *         if not self.lines:
  *             return False             # <<<<<<<<<<<<<<
@@ -8562,7 +8585,7 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
     __pyx_r = Py_False;
     goto __pyx_L0;
 
-    /* "CAtmosphere.pyx":464
+    /* "CAtmosphere.pyx":466
  *         if wavelength <= self.lambdaLimit:
  *             return False
  *         if not self.lines:             # <<<<<<<<<<<<<<
@@ -8571,7 +8594,7 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
  */
   }
 
-  /* "CAtmosphere.pyx":467
+  /* "CAtmosphere.pyx":469
  *             return False
  * 
  *         cdef f64 fomega = 0.0             # <<<<<<<<<<<<<<
@@ -8580,41 +8603,41 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
  */
   __pyx_v_fomega = 0.0;
 
-  /* "CAtmosphere.pyx":468
+  /* "CAtmosphere.pyx":470
  * 
  *         cdef f64 fomega = 0.0
  *         cdef f64 g0 = self.atom.levels[0].g             # <<<<<<<<<<<<<<
  *         cdef f64 lambdaRed
  *         cdef f64 f
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atom, __pyx_n_s_levels); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 468, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atom, __pyx_n_s_levels); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 470, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 468, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 470, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_g); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 468, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_g); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 470, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_10 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_10 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 468, __pyx_L1_error)
+  __pyx_t_10 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_10 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 470, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_g0 = __pyx_t_10;
 
-  /* "CAtmosphere.pyx":471
+  /* "CAtmosphere.pyx":473
  *         cdef f64 lambdaRed
  *         cdef f64 f
  *         for l in self.atom.lines:             # <<<<<<<<<<<<<<
  *             if l.i != 0:
  *                 continue
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atom, __pyx_n_s_lines); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 471, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atom, __pyx_n_s_lines); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 473, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (likely(PyList_CheckExact(__pyx_t_1)) || PyTuple_CheckExact(__pyx_t_1)) {
     __pyx_t_2 = __pyx_t_1; __Pyx_INCREF(__pyx_t_2); __pyx_t_11 = 0;
     __pyx_t_12 = NULL;
   } else {
-    __pyx_t_11 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 471, __pyx_L1_error)
+    __pyx_t_11 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 473, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_12 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 471, __pyx_L1_error)
+    __pyx_t_12 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 473, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   for (;;) {
@@ -8622,17 +8645,17 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
       if (likely(PyList_CheckExact(__pyx_t_2))) {
         if (__pyx_t_11 >= PyList_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_1 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_11); __Pyx_INCREF(__pyx_t_1); __pyx_t_11++; if (unlikely(0 < 0)) __PYX_ERR(0, 471, __pyx_L1_error)
+        __pyx_t_1 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_11); __Pyx_INCREF(__pyx_t_1); __pyx_t_11++; if (unlikely(0 < 0)) __PYX_ERR(0, 473, __pyx_L1_error)
         #else
-        __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_11); __pyx_t_11++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 471, __pyx_L1_error)
+        __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_11); __pyx_t_11++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 473, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         #endif
       } else {
         if (__pyx_t_11 >= PyTuple_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_11); __Pyx_INCREF(__pyx_t_1); __pyx_t_11++; if (unlikely(0 < 0)) __PYX_ERR(0, 471, __pyx_L1_error)
+        __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_11); __Pyx_INCREF(__pyx_t_1); __pyx_t_11++; if (unlikely(0 < 0)) __PYX_ERR(0, 473, __pyx_L1_error)
         #else
-        __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_11); __pyx_t_11++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 471, __pyx_L1_error)
+        __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_11); __pyx_t_11++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 473, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         #endif
       }
@@ -8642,7 +8665,7 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 471, __pyx_L1_error)
+          else __PYX_ERR(0, 473, __pyx_L1_error)
         }
         break;
       }
@@ -8651,23 +8674,23 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
     __Pyx_XDECREF_SET(__pyx_v_l, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "CAtmosphere.pyx":472
+    /* "CAtmosphere.pyx":474
  *         cdef f64 f
  *         for l in self.atom.lines:
  *             if l.i != 0:             # <<<<<<<<<<<<<<
  *                 continue
  * 
  */
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_l, __pyx_n_s_i); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 472, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_l, __pyx_n_s_i); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 474, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_5 = __Pyx_PyInt_NeObjC(__pyx_t_1, __pyx_int_0, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 472, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_NeObjC(__pyx_t_1, __pyx_int_0, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 474, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_9 < 0)) __PYX_ERR(0, 472, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_9 < 0)) __PYX_ERR(0, 474, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     if (__pyx_t_9) {
 
-      /* "CAtmosphere.pyx":473
+      /* "CAtmosphere.pyx":475
  *         for l in self.atom.lines:
  *             if l.i != 0:
  *                 continue             # <<<<<<<<<<<<<<
@@ -8676,7 +8699,7 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
  */
       goto __pyx_L5_continue;
 
-      /* "CAtmosphere.pyx":472
+      /* "CAtmosphere.pyx":474
  *         cdef f64 f
  *         for l in self.atom.lines:
  *             if l.i != 0:             # <<<<<<<<<<<<<<
@@ -8685,23 +8708,23 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
  */
     }
 
-    /* "CAtmosphere.pyx":475
+    /* "CAtmosphere.pyx":477
  *                 continue
  * 
  *             lambdaRed = l.wavelength[-1]             # <<<<<<<<<<<<<<
  *             if wavelength > lambdaRed:
  *                 lambda2 = 1.0 / ((wavelength / l.lambda0)**2 - 1.0)
  */
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_l, __pyx_n_s_wavelength); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 475, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_l, __pyx_n_s_wavelength); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 477, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_5, -1L, long, 1, __Pyx_PyInt_From_long, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 475, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_5, -1L, long, 1, __Pyx_PyInt_From_long, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 477, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_10 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_10 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 475, __pyx_L1_error)
+    __pyx_t_10 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_10 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 477, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_v_lambdaRed = __pyx_t_10;
 
-    /* "CAtmosphere.pyx":476
+    /* "CAtmosphere.pyx":478
  * 
  *             lambdaRed = l.wavelength[-1]
  *             if wavelength > lambdaRed:             # <<<<<<<<<<<<<<
@@ -8711,111 +8734,111 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
     __pyx_t_9 = ((__pyx_v_wavelength > __pyx_v_lambdaRed) != 0);
     if (__pyx_t_9) {
 
-      /* "CAtmosphere.pyx":477
+      /* "CAtmosphere.pyx":479
  *             lambdaRed = l.wavelength[-1]
  *             if wavelength > lambdaRed:
  *                 lambda2 = 1.0 / ((wavelength / l.lambda0)**2 - 1.0)             # <<<<<<<<<<<<<<
  *                 f = l.Aji * (l.jLevel.g / g0) * (l.lambda0 * Const.NM_TO_M)**2 / self.C
  *                 fomega += f * lambda2**2
  */
-      __pyx_t_1 = PyFloat_FromDouble(__pyx_v_wavelength); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 477, __pyx_L1_error)
+      __pyx_t_1 = PyFloat_FromDouble(__pyx_v_wavelength); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 479, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_l, __pyx_n_s_lambda0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 477, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_l, __pyx_n_s_lambda0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 479, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_8 = __Pyx_PyNumber_Divide(__pyx_t_1, __pyx_t_5); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 477, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyNumber_Divide(__pyx_t_1, __pyx_t_5); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 479, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __pyx_t_5 = PyNumber_Power(__pyx_t_8, __pyx_int_2, Py_None); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 477, __pyx_L1_error)
+      __pyx_t_5 = PyNumber_Power(__pyx_t_8, __pyx_int_2, Py_None); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 479, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-      __pyx_t_8 = __Pyx_PyFloat_SubtractObjC(__pyx_t_5, __pyx_float_1_0, 1.0, 0, 0); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 477, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyFloat_SubtractObjC(__pyx_t_5, __pyx_float_1_0, 1.0, 0, 0); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 479, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __pyx_t_5 = __Pyx_PyFloat_TrueDivideCObj(__pyx_float_1_0, __pyx_t_8, 1.0, 0, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 477, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_PyFloat_TrueDivideCObj(__pyx_float_1_0, __pyx_t_8, 1.0, 0, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 479, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
       __Pyx_XDECREF_SET(__pyx_v_lambda2, __pyx_t_5);
       __pyx_t_5 = 0;
 
-      /* "CAtmosphere.pyx":478
+      /* "CAtmosphere.pyx":480
  *             if wavelength > lambdaRed:
  *                 lambda2 = 1.0 / ((wavelength / l.lambda0)**2 - 1.0)
  *                 f = l.Aji * (l.jLevel.g / g0) * (l.lambda0 * Const.NM_TO_M)**2 / self.C             # <<<<<<<<<<<<<<
  *                 fomega += f * lambda2**2
  * 
  */
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_l, __pyx_n_s_Aji); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 478, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_l, __pyx_n_s_Aji); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 480, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_v_l, __pyx_n_s_jLevel); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 478, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_v_l, __pyx_n_s_jLevel); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 480, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_g); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 478, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_g); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 480, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-      __pyx_t_8 = PyFloat_FromDouble(__pyx_v_g0); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 478, __pyx_L1_error)
+      __pyx_t_8 = PyFloat_FromDouble(__pyx_v_g0); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 480, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
-      __pyx_t_4 = __Pyx_PyNumber_Divide(__pyx_t_1, __pyx_t_8); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 478, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyNumber_Divide(__pyx_t_1, __pyx_t_8); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 480, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-      __pyx_t_8 = PyNumber_Multiply(__pyx_t_5, __pyx_t_4); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 478, __pyx_L1_error)
+      __pyx_t_8 = PyNumber_Multiply(__pyx_t_5, __pyx_t_4); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 480, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_l, __pyx_n_s_lambda0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 478, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_l, __pyx_n_s_lambda0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 480, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_Const); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 478, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_Const); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 480, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_NM_TO_M); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 478, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_NM_TO_M); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 480, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __pyx_t_5 = PyNumber_Multiply(__pyx_t_4, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 478, __pyx_L1_error)
+      __pyx_t_5 = PyNumber_Multiply(__pyx_t_4, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 480, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __pyx_t_1 = PyNumber_Power(__pyx_t_5, __pyx_int_2, Py_None); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 478, __pyx_L1_error)
+      __pyx_t_1 = PyNumber_Power(__pyx_t_5, __pyx_int_2, Py_None); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 480, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __pyx_t_5 = PyNumber_Multiply(__pyx_t_8, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 478, __pyx_L1_error)
+      __pyx_t_5 = PyNumber_Multiply(__pyx_t_8, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 480, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->C); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 478, __pyx_L1_error)
+      __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->C); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 480, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_8 = __Pyx_PyNumber_Divide(__pyx_t_5, __pyx_t_1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 478, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyNumber_Divide(__pyx_t_5, __pyx_t_1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 480, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __pyx_t_10 = __pyx_PyFloat_AsDouble(__pyx_t_8); if (unlikely((__pyx_t_10 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 478, __pyx_L1_error)
+      __pyx_t_10 = __pyx_PyFloat_AsDouble(__pyx_t_8); if (unlikely((__pyx_t_10 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 480, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
       __pyx_v_f = __pyx_t_10;
 
-      /* "CAtmosphere.pyx":479
+      /* "CAtmosphere.pyx":481
  *                 lambda2 = 1.0 / ((wavelength / l.lambda0)**2 - 1.0)
  *                 f = l.Aji * (l.jLevel.g / g0) * (l.lambda0 * Const.NM_TO_M)**2 / self.C
  *                 fomega += f * lambda2**2             # <<<<<<<<<<<<<<
  * 
  *         cdef f64 sigmaRayleigh = self.sigmaE * fomega
  */
-      __pyx_t_8 = PyFloat_FromDouble(__pyx_v_fomega); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 479, __pyx_L1_error)
+      __pyx_t_8 = PyFloat_FromDouble(__pyx_v_fomega); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 481, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
-      __pyx_t_1 = PyFloat_FromDouble(__pyx_v_f); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 479, __pyx_L1_error)
+      __pyx_t_1 = PyFloat_FromDouble(__pyx_v_f); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 481, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_5 = PyNumber_Power(__pyx_v_lambda2, __pyx_int_2, Py_None); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 479, __pyx_L1_error)
+      __pyx_t_5 = PyNumber_Power(__pyx_v_lambda2, __pyx_int_2, Py_None); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 481, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_4 = PyNumber_Multiply(__pyx_t_1, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 479, __pyx_L1_error)
+      __pyx_t_4 = PyNumber_Multiply(__pyx_t_1, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 481, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __pyx_t_5 = PyNumber_InPlaceAdd(__pyx_t_8, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 479, __pyx_L1_error)
+      __pyx_t_5 = PyNumber_InPlaceAdd(__pyx_t_8, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 481, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_10 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_10 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 479, __pyx_L1_error)
+      __pyx_t_10 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_10 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 481, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __pyx_v_fomega = __pyx_t_10;
 
-      /* "CAtmosphere.pyx":476
+      /* "CAtmosphere.pyx":478
  * 
  *             lambdaRed = l.wavelength[-1]
  *             if wavelength > lambdaRed:             # <<<<<<<<<<<<<<
@@ -8824,7 +8847,7 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
  */
     }
 
-    /* "CAtmosphere.pyx":471
+    /* "CAtmosphere.pyx":473
  *         cdef f64 lambdaRed
  *         cdef f64 f
  *         for l in self.atom.lines:             # <<<<<<<<<<<<<<
@@ -8835,7 +8858,7 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "CAtmosphere.pyx":481
+  /* "CAtmosphere.pyx":483
  *                 fomega += f * lambda2**2
  * 
  *         cdef f64 sigmaRayleigh = self.sigmaE * fomega             # <<<<<<<<<<<<<<
@@ -8844,29 +8867,29 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
  */
   __pyx_v_sigmaRayleigh = (__pyx_v_self->sigmaE * __pyx_v_fomega);
 
-  /* "CAtmosphere.pyx":484
+  /* "CAtmosphere.pyx":486
  * 
  *         cdef int k
  *         for k in range(self.atmos.Nspace):             # <<<<<<<<<<<<<<
  *             sca[k] = sigmaRayleigh * self.pops[0, k]
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->atmos), __pyx_n_s_Nspace); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 484, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->atmos), __pyx_n_s_Nspace); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 486, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_13 = __Pyx_PyInt_As_long(__pyx_t_2); if (unlikely((__pyx_t_13 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 484, __pyx_L1_error)
+  __pyx_t_13 = __Pyx_PyInt_As_long(__pyx_t_2); if (unlikely((__pyx_t_13 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 486, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_14 = __pyx_t_13;
   for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_14; __pyx_t_7+=1) {
     __pyx_v_k = __pyx_t_7;
 
-    /* "CAtmosphere.pyx":485
+    /* "CAtmosphere.pyx":487
  *         cdef int k
  *         for k in range(self.atmos.Nspace):
  *             sca[k] = sigmaRayleigh * self.pops[0, k]             # <<<<<<<<<<<<<<
  * 
  *         return True
  */
-    if (unlikely(!__pyx_v_self->pops.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 485, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->pops.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 487, __pyx_L1_error)}
     __pyx_t_15 = 0;
     __pyx_t_16 = __pyx_v_k;
     __pyx_t_17 = -1;
@@ -8880,7 +8903,7 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
     } else if (unlikely(__pyx_t_16 >= __pyx_v_self->pops.shape[1])) __pyx_t_17 = 1;
     if (unlikely(__pyx_t_17 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_17);
-      __PYX_ERR(0, 485, __pyx_L1_error)
+      __PYX_ERR(0, 487, __pyx_L1_error)
     }
     __pyx_t_18 = __pyx_v_k;
     __pyx_t_17 = -1;
@@ -8890,12 +8913,12 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
     } else if (unlikely(__pyx_t_18 >= __pyx_v_sca.shape[0])) __pyx_t_17 = 0;
     if (unlikely(__pyx_t_17 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_17);
-      __PYX_ERR(0, 485, __pyx_L1_error)
+      __PYX_ERR(0, 487, __pyx_L1_error)
     }
     *((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ ((char *) (((__pyx_t_8CmoArray_f64 *) __pyx_v_sca.data) + __pyx_t_18)) )) = (__pyx_v_sigmaRayleigh * (*((__pyx_t_8CmoArray_f64 *) ( /* dim=1 */ ((char *) (((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ (__pyx_v_self->pops.data + __pyx_t_15 * __pyx_v_self->pops.strides[0]) )) + __pyx_t_16)) ))));
   }
 
-  /* "CAtmosphere.pyx":487
+  /* "CAtmosphere.pyx":489
  *             sca[k] = sigmaRayleigh * self.pops[0, k]
  * 
  *         return True             # <<<<<<<<<<<<<<
@@ -8907,7 +8930,7 @@ static PyObject *__pyx_f_11CAtmosphere_17RayleighScatterer_scatter(struct __pyx_
   __pyx_r = Py_True;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":461
+  /* "CAtmosphere.pyx":463
  *         self.sigmaE = 8.0 * np.pi / 3.0 * (C.Q_ELECTRON / (np.sqrt(4.0 * np.pi * C.EPSILON_0) * (np.sqrt(C.M_ELECTRON) * C.CLIGHT)))**4
  * 
  *     cpdef scatter(self, f64 wavelength, f64[::1] sca):             # <<<<<<<<<<<<<<
@@ -8965,11 +8988,11 @@ static PyObject *__pyx_pw_11CAtmosphere_17RayleighScatterer_3scatter(PyObject *_
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_sca)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("scatter", 1, 2, 2, 1); __PYX_ERR(0, 461, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("scatter", 1, 2, 2, 1); __PYX_ERR(0, 463, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "scatter") < 0)) __PYX_ERR(0, 461, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "scatter") < 0)) __PYX_ERR(0, 463, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -8977,12 +9000,12 @@ static PyObject *__pyx_pw_11CAtmosphere_17RayleighScatterer_3scatter(PyObject *_
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
-    __pyx_v_wavelength = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_wavelength == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 461, __pyx_L3_error)
-    __pyx_v_sca = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_sca.memview)) __PYX_ERR(0, 461, __pyx_L3_error)
+    __pyx_v_wavelength = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_wavelength == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 463, __pyx_L3_error)
+    __pyx_v_sca = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_sca.memview)) __PYX_ERR(0, 463, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("scatter", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 461, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("scatter", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 463, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("CAtmosphere.RayleighScatterer.scatter", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -9001,8 +9024,8 @@ static PyObject *__pyx_pf_11CAtmosphere_17RayleighScatterer_2scatter(struct __py
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("scatter", 0);
   __Pyx_XDECREF(__pyx_r);
-  if (unlikely(!__pyx_v_sca.memview)) { __Pyx_RaiseUnboundLocalError("sca"); __PYX_ERR(0, 461, __pyx_L1_error) }
-  __pyx_t_1 = __pyx_f_11CAtmosphere_17RayleighScatterer_scatter(__pyx_v_self, __pyx_v_wavelength, __pyx_v_sca, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 461, __pyx_L1_error)
+  if (unlikely(!__pyx_v_sca.memview)) { __Pyx_RaiseUnboundLocalError("sca"); __PYX_ERR(0, 463, __pyx_L1_error) }
+  __pyx_t_1 = __pyx_f_11CAtmosphere_17RayleighScatterer_scatter(__pyx_v_self, __pyx_v_wavelength, __pyx_v_sca, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 463, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -9353,7 +9376,7 @@ static PyObject *__pyx_pf_11CAtmosphere_17RayleighScatterer_6__setstate_cython__
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":511
+/* "CAtmosphere.pyx":513
  *     cdef object atom
  * 
  *     def __init__(self, trans, compAtom, atmos, spect):             # <<<<<<<<<<<<<<
@@ -9398,23 +9421,23 @@ static int __pyx_pw_11CAtmosphere_12LwTransition_1__init__(PyObject *__pyx_v_sel
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_compAtom)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 4, 4, 1); __PYX_ERR(0, 511, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 4, 4, 1); __PYX_ERR(0, 513, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_atmos)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 4, 4, 2); __PYX_ERR(0, 511, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 4, 4, 2); __PYX_ERR(0, 513, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_spect)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 4, 4, 3); __PYX_ERR(0, 511, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 4, 4, 3); __PYX_ERR(0, 513, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 511, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 513, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 4) {
       goto __pyx_L5_argtuple_error;
@@ -9431,7 +9454,7 @@ static int __pyx_pw_11CAtmosphere_12LwTransition_1__init__(PyObject *__pyx_v_sel
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 511, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 513, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("CAtmosphere.LwTransition.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -9471,7 +9494,7 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
   Py_ssize_t __pyx_t_19;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "CAtmosphere.pyx":512
+  /* "CAtmosphere.pyx":514
  * 
  *     def __init__(self, trans, compAtom, atmos, spect):
  *         self.transModel = trans             # <<<<<<<<<<<<<<
@@ -9484,7 +9507,7 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
   __Pyx_DECREF(__pyx_v_self->transModel);
   __pyx_v_self->transModel = __pyx_v_trans;
 
-  /* "CAtmosphere.pyx":513
+  /* "CAtmosphere.pyx":515
  *     def __init__(self, trans, compAtom, atmos, spect):
  *         self.transModel = trans
  *         self.atom = compAtom             # <<<<<<<<<<<<<<
@@ -9497,7 +9520,7 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
   __Pyx_DECREF(__pyx_v_self->atom);
   __pyx_v_self->atom = __pyx_v_compAtom;
 
-  /* "CAtmosphere.pyx":514
+  /* "CAtmosphere.pyx":516
  *         self.transModel = trans
  *         self.atom = compAtom
  *         self.atmos = atmos             # <<<<<<<<<<<<<<
@@ -9510,59 +9533,59 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
   __Pyx_DECREF(__pyx_v_self->atmos);
   __pyx_v_self->atmos = __pyx_v_atmos;
 
-  /* "CAtmosphere.pyx":515
+  /* "CAtmosphere.pyx":517
  *         self.atom = compAtom
  *         self.atmos = atmos
  *         self.wavelength = trans.wavelength             # <<<<<<<<<<<<<<
  *         self.trans.wavelength = f64_view(self.wavelength)
  *         self.trans.i = trans.i
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_trans, __pyx_n_s_wavelength); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 515, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_trans, __pyx_n_s_wavelength); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 517, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 515, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 517, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->wavelength, 0);
   __pyx_v_self->wavelength = __pyx_t_2;
   __pyx_t_2.memview = NULL;
   __pyx_t_2.data = NULL;
 
-  /* "CAtmosphere.pyx":516
+  /* "CAtmosphere.pyx":518
  *         self.atmos = atmos
  *         self.wavelength = trans.wavelength
  *         self.trans.wavelength = f64_view(self.wavelength)             # <<<<<<<<<<<<<<
  *         self.trans.i = trans.i
  *         self.trans.j = trans.j
  */
-  if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 516, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 518, __pyx_L1_error)}
   __pyx_v_self->trans.wavelength = __pyx_f_14CmoArrayHelper_f64_view(__pyx_v_self->wavelength);
 
-  /* "CAtmosphere.pyx":517
+  /* "CAtmosphere.pyx":519
  *         self.wavelength = trans.wavelength
  *         self.trans.wavelength = f64_view(self.wavelength)
  *         self.trans.i = trans.i             # <<<<<<<<<<<<<<
  *         self.trans.j = trans.j
  *         self.trans.polarised = False
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_trans, __pyx_n_s_i); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 517, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_trans, __pyx_n_s_i); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 519, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 517, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 519, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->trans.i = __pyx_t_3;
 
-  /* "CAtmosphere.pyx":518
+  /* "CAtmosphere.pyx":520
  *         self.trans.wavelength = f64_view(self.wavelength)
  *         self.trans.i = trans.i
  *         self.trans.j = trans.j             # <<<<<<<<<<<<<<
  *         self.trans.polarised = False
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_trans, __pyx_n_s_j); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 518, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_trans, __pyx_n_s_j); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 520, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 518, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 520, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->trans.j = __pyx_t_3;
 
-  /* "CAtmosphere.pyx":519
+  /* "CAtmosphere.pyx":521
  *         self.trans.i = trans.i
  *         self.trans.j = trans.j
  *         self.trans.polarised = False             # <<<<<<<<<<<<<<
@@ -9571,16 +9594,16 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
  */
   __pyx_v_self->trans.polarised = 0;
 
-  /* "CAtmosphere.pyx":521
+  /* "CAtmosphere.pyx":523
  *         self.trans.polarised = False
  * 
  *         cdef int tIdx = spect.transitions.index(trans)             # <<<<<<<<<<<<<<
  *         self.trans.Nblue = spect.blueIdx[tIdx]
  * 
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_spect, __pyx_n_s_transitions); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 521, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_spect, __pyx_n_s_transitions); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 523, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_index); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 521, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_index); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 523, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_t_4 = NULL;
@@ -9595,44 +9618,44 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
   }
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_4, __pyx_v_trans) : __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_v_trans);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 521, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 523, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 521, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 523, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_tIdx = __pyx_t_3;
 
-  /* "CAtmosphere.pyx":522
+  /* "CAtmosphere.pyx":524
  * 
  *         cdef int tIdx = spect.transitions.index(trans)
  *         self.trans.Nblue = spect.blueIdx[tIdx]             # <<<<<<<<<<<<<<
  * 
  *         if isinstance(trans, AtomicLine):
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_spect, __pyx_n_s_blueIdx); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 522, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_spect, __pyx_n_s_blueIdx); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 524, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_5 = __Pyx_GetItemInt(__pyx_t_1, __pyx_v_tIdx, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 522, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_GetItemInt(__pyx_t_1, __pyx_v_tIdx, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 524, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_5); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 522, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_5); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 524, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_v_self->trans.Nblue = __pyx_t_3;
 
-  /* "CAtmosphere.pyx":524
+  /* "CAtmosphere.pyx":526
  *         self.trans.Nblue = spect.blueIdx[tIdx]
  * 
  *         if isinstance(trans, AtomicLine):             # <<<<<<<<<<<<<<
  *             self.trans.type = LINE
  *             self.trans.Aji = trans.Aji
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_AtomicLine); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 524, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_AtomicLine); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 526, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_6 = PyObject_IsInstance(__pyx_v_trans, __pyx_t_5); if (unlikely(__pyx_t_6 == ((int)-1))) __PYX_ERR(0, 524, __pyx_L1_error)
+  __pyx_t_6 = PyObject_IsInstance(__pyx_v_trans, __pyx_t_5); if (unlikely(__pyx_t_6 == ((int)-1))) __PYX_ERR(0, 526, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_t_7 = (__pyx_t_6 != 0);
   if (__pyx_t_7) {
 
-    /* "CAtmosphere.pyx":525
+    /* "CAtmosphere.pyx":527
  * 
  *         if isinstance(trans, AtomicLine):
  *             self.trans.type = LINE             # <<<<<<<<<<<<<<
@@ -9641,93 +9664,93 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
  */
     __pyx_v_self->trans.type = LINE;
 
-    /* "CAtmosphere.pyx":526
+    /* "CAtmosphere.pyx":528
  *         if isinstance(trans, AtomicLine):
  *             self.trans.type = LINE
  *             self.trans.Aji = trans.Aji             # <<<<<<<<<<<<<<
  *             self.trans.Bji = trans.Bji
  *             self.trans.Bij = trans.Bij
  */
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_trans, __pyx_n_s_Aji); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 526, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_trans, __pyx_n_s_Aji); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 528, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_8 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_8 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 526, __pyx_L1_error)
+    __pyx_t_8 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_8 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 528, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_v_self->trans.Aji = __pyx_t_8;
 
-    /* "CAtmosphere.pyx":527
+    /* "CAtmosphere.pyx":529
  *             self.trans.type = LINE
  *             self.trans.Aji = trans.Aji
  *             self.trans.Bji = trans.Bji             # <<<<<<<<<<<<<<
  *             self.trans.Bij = trans.Bij
  *             self.trans.lambda0 = trans.lambda0
  */
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_trans, __pyx_n_s_Bji); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 527, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_trans, __pyx_n_s_Bji); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 529, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_8 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_8 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 527, __pyx_L1_error)
+    __pyx_t_8 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_8 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 529, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_v_self->trans.Bji = __pyx_t_8;
 
-    /* "CAtmosphere.pyx":528
+    /* "CAtmosphere.pyx":530
  *             self.trans.Aji = trans.Aji
  *             self.trans.Bji = trans.Bji
  *             self.trans.Bij = trans.Bij             # <<<<<<<<<<<<<<
  *             self.trans.lambda0 = trans.lambda0
  *             self.trans.dopplerWidth = Const.CLIGHT / self.trans.lambda0
  */
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_trans, __pyx_n_s_Bij); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 528, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_trans, __pyx_n_s_Bij); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 530, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_8 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_8 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 528, __pyx_L1_error)
+    __pyx_t_8 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_8 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 530, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_v_self->trans.Bij = __pyx_t_8;
 
-    /* "CAtmosphere.pyx":529
+    /* "CAtmosphere.pyx":531
  *             self.trans.Bji = trans.Bji
  *             self.trans.Bij = trans.Bij
  *             self.trans.lambda0 = trans.lambda0             # <<<<<<<<<<<<<<
  *             self.trans.dopplerWidth = Const.CLIGHT / self.trans.lambda0
  *             self.Qelast = np.zeros(self.atmos.Nspace)
  */
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_trans, __pyx_n_s_lambda0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 529, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_trans, __pyx_n_s_lambda0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 531, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_8 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_8 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 529, __pyx_L1_error)
+    __pyx_t_8 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_8 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 531, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_v_self->trans.lambda0 = __pyx_t_8;
 
-    /* "CAtmosphere.pyx":530
+    /* "CAtmosphere.pyx":532
  *             self.trans.Bij = trans.Bij
  *             self.trans.lambda0 = trans.lambda0
  *             self.trans.dopplerWidth = Const.CLIGHT / self.trans.lambda0             # <<<<<<<<<<<<<<
  *             self.Qelast = np.zeros(self.atmos.Nspace)
  *             self.aDamp = np.zeros(self.atmos.Nspace)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_Const); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 530, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_Const); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 532, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_CLIGHT); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 530, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_CLIGHT); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 532, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_5 = PyFloat_FromDouble(__pyx_v_self->trans.lambda0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 530, __pyx_L1_error)
+    __pyx_t_5 = PyFloat_FromDouble(__pyx_v_self->trans.lambda0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 532, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_4 = __Pyx_PyNumber_Divide(__pyx_t_1, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 530, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyNumber_Divide(__pyx_t_1, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 532, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_8 = __pyx_PyFloat_AsDouble(__pyx_t_4); if (unlikely((__pyx_t_8 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 530, __pyx_L1_error)
+    __pyx_t_8 = __pyx_PyFloat_AsDouble(__pyx_t_4); if (unlikely((__pyx_t_8 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 532, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __pyx_v_self->trans.dopplerWidth = __pyx_t_8;
 
-    /* "CAtmosphere.pyx":531
+    /* "CAtmosphere.pyx":533
  *             self.trans.lambda0 = trans.lambda0
  *             self.trans.dopplerWidth = Const.CLIGHT / self.trans.lambda0
  *             self.Qelast = np.zeros(self.atmos.Nspace)             # <<<<<<<<<<<<<<
  *             self.aDamp = np.zeros(self.atmos.Nspace)
  *             self.trans.Qelast = f64_view(self.Qelast)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 531, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 533, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_zeros); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 531, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_zeros); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 533, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 531, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 533, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_9 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_1))) {
@@ -9742,29 +9765,29 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
     __pyx_t_4 = (__pyx_t_9) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_9, __pyx_t_5) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_5);
     __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 531, __pyx_L1_error)
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 533, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 531, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 533, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __PYX_XDEC_MEMVIEW(&__pyx_v_self->Qelast, 0);
     __pyx_v_self->Qelast = __pyx_t_2;
     __pyx_t_2.memview = NULL;
     __pyx_t_2.data = NULL;
 
-    /* "CAtmosphere.pyx":532
+    /* "CAtmosphere.pyx":534
  *             self.trans.dopplerWidth = Const.CLIGHT / self.trans.lambda0
  *             self.Qelast = np.zeros(self.atmos.Nspace)
  *             self.aDamp = np.zeros(self.atmos.Nspace)             # <<<<<<<<<<<<<<
  *             self.trans.Qelast = f64_view(self.Qelast)
  *             self.trans.aDamp = f64_view(self.aDamp)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 532, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 534, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_zeros); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 532, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_zeros); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 534, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 532, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 534, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __pyx_t_9 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_5))) {
@@ -9779,55 +9802,55 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
     __pyx_t_4 = (__pyx_t_9) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_9, __pyx_t_1) : __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_1);
     __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 532, __pyx_L1_error)
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 534, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 532, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 534, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __PYX_XDEC_MEMVIEW(&__pyx_v_self->aDamp, 0);
     __pyx_v_self->aDamp = __pyx_t_2;
     __pyx_t_2.memview = NULL;
     __pyx_t_2.data = NULL;
 
-    /* "CAtmosphere.pyx":533
+    /* "CAtmosphere.pyx":535
  *             self.Qelast = np.zeros(self.atmos.Nspace)
  *             self.aDamp = np.zeros(self.atmos.Nspace)
  *             self.trans.Qelast = f64_view(self.Qelast)             # <<<<<<<<<<<<<<
  *             self.trans.aDamp = f64_view(self.aDamp)
  *             self.phi = np.zeros((self.transModel.Nlambda, self.atmos.Nrays, 2, self.atmos.Nspace))
  */
-    if (unlikely(!__pyx_v_self->Qelast.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 533, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->Qelast.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 535, __pyx_L1_error)}
     __pyx_v_self->trans.Qelast = __pyx_f_14CmoArrayHelper_f64_view(__pyx_v_self->Qelast);
 
-    /* "CAtmosphere.pyx":534
+    /* "CAtmosphere.pyx":536
  *             self.aDamp = np.zeros(self.atmos.Nspace)
  *             self.trans.Qelast = f64_view(self.Qelast)
  *             self.trans.aDamp = f64_view(self.aDamp)             # <<<<<<<<<<<<<<
  *             self.phi = np.zeros((self.transModel.Nlambda, self.atmos.Nrays, 2, self.atmos.Nspace))
  *             self.wphi = np.zeros(self.atmos.Nspace)
  */
-    if (unlikely(!__pyx_v_self->aDamp.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 534, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->aDamp.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 536, __pyx_L1_error)}
     __pyx_v_self->trans.aDamp = __pyx_f_14CmoArrayHelper_f64_view(__pyx_v_self->aDamp);
 
-    /* "CAtmosphere.pyx":535
+    /* "CAtmosphere.pyx":537
  *             self.trans.Qelast = f64_view(self.Qelast)
  *             self.trans.aDamp = f64_view(self.aDamp)
  *             self.phi = np.zeros((self.transModel.Nlambda, self.atmos.Nrays, 2, self.atmos.Nspace))             # <<<<<<<<<<<<<<
  *             self.wphi = np.zeros(self.atmos.Nspace)
  *             self.trans.phi = f64_view_4(self.phi)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 535, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 537, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_zeros); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 535, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_zeros); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 537, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->transModel, __pyx_n_s_Nlambda); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 535, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->transModel, __pyx_n_s_Nlambda); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 537, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_Nrays); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 535, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_Nrays); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 537, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_9);
-    __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 535, __pyx_L1_error)
+    __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 537, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_10);
-    __pyx_t_11 = PyTuple_New(4); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 535, __pyx_L1_error)
+    __pyx_t_11 = PyTuple_New(4); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 537, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
     __Pyx_GIVEREF(__pyx_t_5);
     PyTuple_SET_ITEM(__pyx_t_11, 0, __pyx_t_5);
@@ -9854,29 +9877,29 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
     __pyx_t_4 = (__pyx_t_10) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_10, __pyx_t_11) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_11);
     __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 535, __pyx_L1_error)
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 537, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_d_d_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 535, __pyx_L1_error)
+    __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_d_d_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 537, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __PYX_XDEC_MEMVIEW(&__pyx_v_self->phi, 0);
     __pyx_v_self->phi = __pyx_t_12;
     __pyx_t_12.memview = NULL;
     __pyx_t_12.data = NULL;
 
-    /* "CAtmosphere.pyx":536
+    /* "CAtmosphere.pyx":538
  *             self.trans.aDamp = f64_view(self.aDamp)
  *             self.phi = np.zeros((self.transModel.Nlambda, self.atmos.Nrays, 2, self.atmos.Nspace))
  *             self.wphi = np.zeros(self.atmos.Nspace)             # <<<<<<<<<<<<<<
  *             self.trans.phi = f64_view_4(self.phi)
  *             self.trans.wphi = f64_view(self.wphi)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 536, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 538, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_zeros); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 536, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_zeros); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 538, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 536, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 538, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __pyx_t_10 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_11))) {
@@ -9891,85 +9914,85 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
     __pyx_t_4 = (__pyx_t_10) ? __Pyx_PyObject_Call2Args(__pyx_t_11, __pyx_t_10, __pyx_t_1) : __Pyx_PyObject_CallOneArg(__pyx_t_11, __pyx_t_1);
     __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 536, __pyx_L1_error)
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 538, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-    __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 536, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 538, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __PYX_XDEC_MEMVIEW(&__pyx_v_self->wphi, 0);
     __pyx_v_self->wphi = __pyx_t_2;
     __pyx_t_2.memview = NULL;
     __pyx_t_2.data = NULL;
 
-    /* "CAtmosphere.pyx":537
+    /* "CAtmosphere.pyx":539
  *             self.phi = np.zeros((self.transModel.Nlambda, self.atmos.Nrays, 2, self.atmos.Nspace))
  *             self.wphi = np.zeros(self.atmos.Nspace)
  *             self.trans.phi = f64_view_4(self.phi)             # <<<<<<<<<<<<<<
  *             self.trans.wphi = f64_view(self.wphi)
  *             self.compute_phi()
  */
-    if (unlikely(!__pyx_v_self->phi.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 537, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->phi.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 539, __pyx_L1_error)}
     __pyx_v_self->trans.phi = __pyx_f_14CmoArrayHelper_f64_view_4(__pyx_v_self->phi);
 
-    /* "CAtmosphere.pyx":538
+    /* "CAtmosphere.pyx":540
  *             self.wphi = np.zeros(self.atmos.Nspace)
  *             self.trans.phi = f64_view_4(self.phi)
  *             self.trans.wphi = f64_view(self.wphi)             # <<<<<<<<<<<<<<
  *             self.compute_phi()
  *             if trans.type == LineType.PRD:
  */
-    if (unlikely(!__pyx_v_self->wphi.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 538, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->wphi.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 540, __pyx_L1_error)}
     __pyx_v_self->trans.wphi = __pyx_f_14CmoArrayHelper_f64_view(__pyx_v_self->wphi);
 
-    /* "CAtmosphere.pyx":539
+    /* "CAtmosphere.pyx":541
  *             self.trans.phi = f64_view_4(self.phi)
  *             self.trans.wphi = f64_view(self.wphi)
  *             self.compute_phi()             # <<<<<<<<<<<<<<
  *             if trans.type == LineType.PRD:
  *                 self.rhoPrd = np.ones((self.transModel.Nlambda, self.atmos.Nspace))
  */
-    __pyx_t_4 = ((struct __pyx_vtabstruct_11CAtmosphere_LwTransition *)__pyx_v_self->__pyx_vtab)->compute_phi(__pyx_v_self, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 539, __pyx_L1_error)
+    __pyx_t_4 = ((struct __pyx_vtabstruct_11CAtmosphere_LwTransition *)__pyx_v_self->__pyx_vtab)->compute_phi(__pyx_v_self, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 541, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "CAtmosphere.pyx":540
+    /* "CAtmosphere.pyx":542
  *             self.trans.wphi = f64_view(self.wphi)
  *             self.compute_phi()
  *             if trans.type == LineType.PRD:             # <<<<<<<<<<<<<<
  *                 self.rhoPrd = np.ones((self.transModel.Nlambda, self.atmos.Nspace))
  *                 self.trans.rhoPrd = f64_view_2(self.rhoPrd)
  */
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_trans, __pyx_n_s_type); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 540, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_trans, __pyx_n_s_type); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 542, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_n_s_LineType); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 540, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_n_s_LineType); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 542, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_n_s_PRD); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 540, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_n_s_PRD); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 542, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-    __pyx_t_11 = PyObject_RichCompare(__pyx_t_4, __pyx_t_1, Py_EQ); __Pyx_XGOTREF(__pyx_t_11); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 540, __pyx_L1_error)
+    __pyx_t_11 = PyObject_RichCompare(__pyx_t_4, __pyx_t_1, Py_EQ); __Pyx_XGOTREF(__pyx_t_11); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 542, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_11); if (unlikely(__pyx_t_7 < 0)) __PYX_ERR(0, 540, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_11); if (unlikely(__pyx_t_7 < 0)) __PYX_ERR(0, 542, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
     if (__pyx_t_7) {
 
-      /* "CAtmosphere.pyx":541
+      /* "CAtmosphere.pyx":543
  *             self.compute_phi()
  *             if trans.type == LineType.PRD:
  *                 self.rhoPrd = np.ones((self.transModel.Nlambda, self.atmos.Nspace))             # <<<<<<<<<<<<<<
  *                 self.trans.rhoPrd = f64_view_2(self.rhoPrd)
  *         else:
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 541, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 543, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_ones); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 541, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_ones); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 543, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->transModel, __pyx_n_s_Nlambda); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 541, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->transModel, __pyx_n_s_Nlambda); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 543, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 541, __pyx_L1_error)
+      __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 543, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_10);
-      __pyx_t_9 = PyTuple_New(2); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 541, __pyx_L1_error)
+      __pyx_t_9 = PyTuple_New(2); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 543, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_9);
       __Pyx_GIVEREF(__pyx_t_1);
       PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_1);
@@ -9990,27 +10013,27 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
       __pyx_t_11 = (__pyx_t_10) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_10, __pyx_t_9) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_9);
       __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-      if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 541, __pyx_L1_error)
+      if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 543, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_11);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_13 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_11, PyBUF_WRITABLE); if (unlikely(!__pyx_t_13.memview)) __PYX_ERR(0, 541, __pyx_L1_error)
+      __pyx_t_13 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_11, PyBUF_WRITABLE); if (unlikely(!__pyx_t_13.memview)) __PYX_ERR(0, 543, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
       __PYX_XDEC_MEMVIEW(&__pyx_v_self->rhoPrd, 0);
       __pyx_v_self->rhoPrd = __pyx_t_13;
       __pyx_t_13.memview = NULL;
       __pyx_t_13.data = NULL;
 
-      /* "CAtmosphere.pyx":542
+      /* "CAtmosphere.pyx":544
  *             if trans.type == LineType.PRD:
  *                 self.rhoPrd = np.ones((self.transModel.Nlambda, self.atmos.Nspace))
  *                 self.trans.rhoPrd = f64_view_2(self.rhoPrd)             # <<<<<<<<<<<<<<
  *         else:
  *             self.trans.type = CONTINUUM
  */
-      if (unlikely(!__pyx_v_self->rhoPrd.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 542, __pyx_L1_error)}
+      if (unlikely(!__pyx_v_self->rhoPrd.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 544, __pyx_L1_error)}
       __pyx_v_self->trans.rhoPrd = __pyx_f_14CmoArrayHelper_f64_view_2(__pyx_v_self->rhoPrd);
 
-      /* "CAtmosphere.pyx":540
+      /* "CAtmosphere.pyx":542
  *             self.trans.wphi = f64_view(self.wphi)
  *             self.compute_phi()
  *             if trans.type == LineType.PRD:             # <<<<<<<<<<<<<<
@@ -10019,7 +10042,7 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
  */
     }
 
-    /* "CAtmosphere.pyx":524
+    /* "CAtmosphere.pyx":526
  *         self.trans.Nblue = spect.blueIdx[tIdx]
  * 
  *         if isinstance(trans, AtomicLine):             # <<<<<<<<<<<<<<
@@ -10029,7 +10052,7 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
     goto __pyx_L3;
   }
 
-  /* "CAtmosphere.pyx":544
+  /* "CAtmosphere.pyx":546
  *                 self.trans.rhoPrd = f64_view_2(self.rhoPrd)
  *         else:
  *             self.trans.type = CONTINUUM             # <<<<<<<<<<<<<<
@@ -10039,64 +10062,77 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
   /*else*/ {
     __pyx_v_self->trans.type = CONTINUUM;
 
-    /* "CAtmosphere.pyx":545
+    /* "CAtmosphere.pyx":547
  *         else:
  *             self.trans.type = CONTINUUM
  *             self.alpha = trans.alpha             # <<<<<<<<<<<<<<
  *             self.trans.alpha = f64_view(self.alpha)
  *             self.trans.dopplerWidth = 1.0
  */
-    __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_trans, __pyx_n_s_alpha); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 545, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_trans, __pyx_n_s_alpha); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 547, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
-    __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_11, PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 545, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_11, PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 547, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
     __PYX_XDEC_MEMVIEW(&__pyx_v_self->alpha, 0);
     __pyx_v_self->alpha = __pyx_t_2;
     __pyx_t_2.memview = NULL;
     __pyx_t_2.data = NULL;
 
-    /* "CAtmosphere.pyx":546
+    /* "CAtmosphere.pyx":548
  *             self.trans.type = CONTINUUM
  *             self.alpha = trans.alpha
  *             self.trans.alpha = f64_view(self.alpha)             # <<<<<<<<<<<<<<
  *             self.trans.dopplerWidth = 1.0
- * 
+ *             self.trans.lambda0 = trans.lambda0
  */
-    if (unlikely(!__pyx_v_self->alpha.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 546, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->alpha.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 548, __pyx_L1_error)}
     __pyx_v_self->trans.alpha = __pyx_f_14CmoArrayHelper_f64_view(__pyx_v_self->alpha);
 
-    /* "CAtmosphere.pyx":547
+    /* "CAtmosphere.pyx":549
  *             self.alpha = trans.alpha
  *             self.trans.alpha = f64_view(self.alpha)
  *             self.trans.dopplerWidth = 1.0             # <<<<<<<<<<<<<<
+ *             self.trans.lambda0 = trans.lambda0
+ * 
+ */
+    __pyx_v_self->trans.dopplerWidth = 1.0;
+
+    /* "CAtmosphere.pyx":550
+ *             self.trans.alpha = f64_view(self.alpha)
+ *             self.trans.dopplerWidth = 1.0
+ *             self.trans.lambda0 = trans.lambda0             # <<<<<<<<<<<<<<
  * 
  *         self.active = np.zeros(len(spect.activeSet), np.int8)
  */
-    __pyx_v_self->trans.dopplerWidth = 1.0;
+    __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_trans, __pyx_n_s_lambda0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 550, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_11);
+    __pyx_t_8 = __pyx_PyFloat_AsDouble(__pyx_t_11); if (unlikely((__pyx_t_8 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 550, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+    __pyx_v_self->trans.lambda0 = __pyx_t_8;
   }
   __pyx_L3:;
 
-  /* "CAtmosphere.pyx":549
- *             self.trans.dopplerWidth = 1.0
+  /* "CAtmosphere.pyx":552
+ *             self.trans.lambda0 = trans.lambda0
  * 
  *         self.active = np.zeros(len(spect.activeSet), np.int8)             # <<<<<<<<<<<<<<
  *         cdef int i
  *         for i, s in enumerate(spect.activeSet):
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 549, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 552, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_zeros); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 549, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_zeros); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 552, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_spect, __pyx_n_s_activeSet); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 549, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_spect, __pyx_n_s_activeSet); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 552, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_14 = PyObject_Length(__pyx_t_4); if (unlikely(__pyx_t_14 == ((Py_ssize_t)-1))) __PYX_ERR(0, 549, __pyx_L1_error)
+  __pyx_t_14 = PyObject_Length(__pyx_t_4); if (unlikely(__pyx_t_14 == ((Py_ssize_t)-1))) __PYX_ERR(0, 552, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyInt_FromSsize_t(__pyx_t_14); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 549, __pyx_L1_error)
+  __pyx_t_4 = PyInt_FromSsize_t(__pyx_t_14); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 552, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_n_s_np); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 549, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_n_s_np); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 552, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_n_s_int8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 549, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_n_s_int8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 552, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
   __pyx_t_10 = NULL;
@@ -10114,7 +10150,7 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_9)) {
     PyObject *__pyx_temp[3] = {__pyx_t_10, __pyx_t_4, __pyx_t_1};
-    __pyx_t_11 = __Pyx_PyFunction_FastCall(__pyx_t_9, __pyx_temp+1-__pyx_t_3, 2+__pyx_t_3); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 549, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_PyFunction_FastCall(__pyx_t_9, __pyx_temp+1-__pyx_t_3, 2+__pyx_t_3); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 552, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
     __Pyx_GOTREF(__pyx_t_11);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -10124,7 +10160,7 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_9)) {
     PyObject *__pyx_temp[3] = {__pyx_t_10, __pyx_t_4, __pyx_t_1};
-    __pyx_t_11 = __Pyx_PyCFunction_FastCall(__pyx_t_9, __pyx_temp+1-__pyx_t_3, 2+__pyx_t_3); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 549, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_PyCFunction_FastCall(__pyx_t_9, __pyx_temp+1-__pyx_t_3, 2+__pyx_t_3); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 552, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
     __Pyx_GOTREF(__pyx_t_11);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -10132,7 +10168,7 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
   } else
   #endif
   {
-    __pyx_t_5 = PyTuple_New(2+__pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 549, __pyx_L1_error)
+    __pyx_t_5 = PyTuple_New(2+__pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 552, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     if (__pyx_t_10) {
       __Pyx_GIVEREF(__pyx_t_10); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_10); __pyx_t_10 = NULL;
@@ -10143,19 +10179,19 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
     PyTuple_SET_ITEM(__pyx_t_5, 1+__pyx_t_3, __pyx_t_1);
     __pyx_t_4 = 0;
     __pyx_t_1 = 0;
-    __pyx_t_11 = __Pyx_PyObject_Call(__pyx_t_9, __pyx_t_5, NULL); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 549, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_PyObject_Call(__pyx_t_9, __pyx_t_5, NULL); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 552, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-  __pyx_t_15 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_11CAtmosphere_i8(__pyx_t_11, PyBUF_WRITABLE); if (unlikely(!__pyx_t_15.memview)) __PYX_ERR(0, 549, __pyx_L1_error)
+  __pyx_t_15 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_11CAtmosphere_i8(__pyx_t_11, PyBUF_WRITABLE); if (unlikely(!__pyx_t_15.memview)) __PYX_ERR(0, 552, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->active, 0);
   __pyx_v_self->active = __pyx_t_15;
   __pyx_t_15.memview = NULL;
   __pyx_t_15.data = NULL;
 
-  /* "CAtmosphere.pyx":551
+  /* "CAtmosphere.pyx":554
  *         self.active = np.zeros(len(spect.activeSet), np.int8)
  *         cdef int i
  *         for i, s in enumerate(spect.activeSet):             # <<<<<<<<<<<<<<
@@ -10163,15 +10199,15 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
  *                 self.active[i] = 1 # sosumi
  */
   __pyx_t_3 = 0;
-  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_spect, __pyx_n_s_activeSet); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 551, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_spect, __pyx_n_s_activeSet); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 554, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
   if (likely(PyList_CheckExact(__pyx_t_11)) || PyTuple_CheckExact(__pyx_t_11)) {
     __pyx_t_9 = __pyx_t_11; __Pyx_INCREF(__pyx_t_9); __pyx_t_14 = 0;
     __pyx_t_16 = NULL;
   } else {
-    __pyx_t_14 = -1; __pyx_t_9 = PyObject_GetIter(__pyx_t_11); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 551, __pyx_L1_error)
+    __pyx_t_14 = -1; __pyx_t_9 = PyObject_GetIter(__pyx_t_11); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 554, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_9);
-    __pyx_t_16 = Py_TYPE(__pyx_t_9)->tp_iternext; if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 551, __pyx_L1_error)
+    __pyx_t_16 = Py_TYPE(__pyx_t_9)->tp_iternext; if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 554, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
   for (;;) {
@@ -10179,17 +10215,17 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
       if (likely(PyList_CheckExact(__pyx_t_9))) {
         if (__pyx_t_14 >= PyList_GET_SIZE(__pyx_t_9)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_11 = PyList_GET_ITEM(__pyx_t_9, __pyx_t_14); __Pyx_INCREF(__pyx_t_11); __pyx_t_14++; if (unlikely(0 < 0)) __PYX_ERR(0, 551, __pyx_L1_error)
+        __pyx_t_11 = PyList_GET_ITEM(__pyx_t_9, __pyx_t_14); __Pyx_INCREF(__pyx_t_11); __pyx_t_14++; if (unlikely(0 < 0)) __PYX_ERR(0, 554, __pyx_L1_error)
         #else
-        __pyx_t_11 = PySequence_ITEM(__pyx_t_9, __pyx_t_14); __pyx_t_14++; if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 551, __pyx_L1_error)
+        __pyx_t_11 = PySequence_ITEM(__pyx_t_9, __pyx_t_14); __pyx_t_14++; if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 554, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_11);
         #endif
       } else {
         if (__pyx_t_14 >= PyTuple_GET_SIZE(__pyx_t_9)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_11 = PyTuple_GET_ITEM(__pyx_t_9, __pyx_t_14); __Pyx_INCREF(__pyx_t_11); __pyx_t_14++; if (unlikely(0 < 0)) __PYX_ERR(0, 551, __pyx_L1_error)
+        __pyx_t_11 = PyTuple_GET_ITEM(__pyx_t_9, __pyx_t_14); __Pyx_INCREF(__pyx_t_11); __pyx_t_14++; if (unlikely(0 < 0)) __PYX_ERR(0, 554, __pyx_L1_error)
         #else
-        __pyx_t_11 = PySequence_ITEM(__pyx_t_9, __pyx_t_14); __pyx_t_14++; if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 551, __pyx_L1_error)
+        __pyx_t_11 = PySequence_ITEM(__pyx_t_9, __pyx_t_14); __pyx_t_14++; if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 554, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_11);
         #endif
       }
@@ -10199,7 +10235,7 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 551, __pyx_L1_error)
+          else __PYX_ERR(0, 554, __pyx_L1_error)
         }
         break;
       }
@@ -10210,25 +10246,25 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
     __pyx_v_i = __pyx_t_3;
     __pyx_t_3 = (__pyx_t_3 + 1);
 
-    /* "CAtmosphere.pyx":552
+    /* "CAtmosphere.pyx":555
  *         cdef int i
  *         for i, s in enumerate(spect.activeSet):
  *             if trans in s:             # <<<<<<<<<<<<<<
  *                 self.active[i] = 1 # sosumi
  *         self.trans.active = BoolView(<bool_t*>&self.active[0], self.active.shape[0])
  */
-    __pyx_t_7 = (__Pyx_PySequence_ContainsTF(__pyx_v_trans, __pyx_v_s, Py_EQ)); if (unlikely(__pyx_t_7 < 0)) __PYX_ERR(0, 552, __pyx_L1_error)
+    __pyx_t_7 = (__Pyx_PySequence_ContainsTF(__pyx_v_trans, __pyx_v_s, Py_EQ)); if (unlikely(__pyx_t_7 < 0)) __PYX_ERR(0, 555, __pyx_L1_error)
     __pyx_t_6 = (__pyx_t_7 != 0);
     if (__pyx_t_6) {
 
-      /* "CAtmosphere.pyx":553
+      /* "CAtmosphere.pyx":556
  *         for i, s in enumerate(spect.activeSet):
  *             if trans in s:
  *                 self.active[i] = 1 # sosumi             # <<<<<<<<<<<<<<
  *         self.trans.active = BoolView(<bool_t*>&self.active[0], self.active.shape[0])
  * 
  */
-      if (unlikely(!__pyx_v_self->active.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 553, __pyx_L1_error)}
+      if (unlikely(!__pyx_v_self->active.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 556, __pyx_L1_error)}
       __pyx_t_17 = __pyx_v_i;
       __pyx_t_18 = -1;
       if (__pyx_t_17 < 0) {
@@ -10237,11 +10273,11 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
       } else if (unlikely(__pyx_t_17 >= __pyx_v_self->active.shape[0])) __pyx_t_18 = 0;
       if (unlikely(__pyx_t_18 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_18);
-        __PYX_ERR(0, 553, __pyx_L1_error)
+        __PYX_ERR(0, 556, __pyx_L1_error)
       }
       *((__pyx_t_11CAtmosphere_i8 *) ( /* dim=0 */ ((char *) (((__pyx_t_11CAtmosphere_i8 *) __pyx_v_self->active.data) + __pyx_t_17)) )) = 1;
 
-      /* "CAtmosphere.pyx":552
+      /* "CAtmosphere.pyx":555
  *         cdef int i
  *         for i, s in enumerate(spect.activeSet):
  *             if trans in s:             # <<<<<<<<<<<<<<
@@ -10250,7 +10286,7 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
  */
     }
 
-    /* "CAtmosphere.pyx":551
+    /* "CAtmosphere.pyx":554
  *         self.active = np.zeros(len(spect.activeSet), np.int8)
  *         cdef int i
  *         for i, s in enumerate(spect.activeSet):             # <<<<<<<<<<<<<<
@@ -10260,14 +10296,14 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
   }
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-  /* "CAtmosphere.pyx":554
+  /* "CAtmosphere.pyx":557
  *             if trans in s:
  *                 self.active[i] = 1 # sosumi
  *         self.trans.active = BoolView(<bool_t*>&self.active[0], self.active.shape[0])             # <<<<<<<<<<<<<<
  * 
  *         self.Rij = np.zeros(self.atmos.Nspace)
  */
-  if (unlikely(!__pyx_v_self->active.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 554, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->active.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 557, __pyx_L1_error)}
   __pyx_t_19 = 0;
   __pyx_t_3 = -1;
   if (__pyx_t_19 < 0) {
@@ -10276,24 +10312,24 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
   } else if (unlikely(__pyx_t_19 >= __pyx_v_self->active.shape[0])) __pyx_t_3 = 0;
   if (unlikely(__pyx_t_3 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_3);
-    __PYX_ERR(0, 554, __pyx_L1_error)
+    __PYX_ERR(0, 557, __pyx_L1_error)
   }
-  if (unlikely(!__pyx_v_self->active.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 554, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->active.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 557, __pyx_L1_error)}
   __pyx_v_self->trans.active = __pyx_t_11CAtmosphere_BoolView(((bool *)(&(*((__pyx_t_11CAtmosphere_i8 *) ( /* dim=0 */ ((char *) (((__pyx_t_11CAtmosphere_i8 *) __pyx_v_self->active.data) + __pyx_t_19)) ))))), (__pyx_v_self->active.shape[0]));
 
-  /* "CAtmosphere.pyx":556
+  /* "CAtmosphere.pyx":559
  *         self.trans.active = BoolView(<bool_t*>&self.active[0], self.active.shape[0])
  * 
  *         self.Rij = np.zeros(self.atmos.Nspace)             # <<<<<<<<<<<<<<
  *         self.Rji = np.zeros(self.atmos.Nspace)
  *         self.trans.Rij = f64_view(self.Rij)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_n_s_np); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 556, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_n_s_np); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 559, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_n_s_zeros); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 556, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_n_s_zeros); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 559, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 556, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 559, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
   __pyx_t_1 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_5))) {
@@ -10308,29 +10344,29 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
   __pyx_t_9 = (__pyx_t_1) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_1, __pyx_t_11) : __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_11);
   __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-  if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 556, __pyx_L1_error)
+  if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 559, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_9, PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 556, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_9, PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 559, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->Rij, 0);
   __pyx_v_self->Rij = __pyx_t_2;
   __pyx_t_2.memview = NULL;
   __pyx_t_2.data = NULL;
 
-  /* "CAtmosphere.pyx":557
+  /* "CAtmosphere.pyx":560
  * 
  *         self.Rij = np.zeros(self.atmos.Nspace)
  *         self.Rji = np.zeros(self.atmos.Nspace)             # <<<<<<<<<<<<<<
  *         self.trans.Rij = f64_view(self.Rij)
  *         self.trans.Rji = f64_view(self.Rji)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 557, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 560, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_zeros); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 557, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_zeros); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 560, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 557, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 560, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __pyx_t_1 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_11))) {
@@ -10345,37 +10381,37 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
   __pyx_t_9 = (__pyx_t_1) ? __Pyx_PyObject_Call2Args(__pyx_t_11, __pyx_t_1, __pyx_t_5) : __Pyx_PyObject_CallOneArg(__pyx_t_11, __pyx_t_5);
   __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 557, __pyx_L1_error)
+  if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 560, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-  __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_9, PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 557, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_9, PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 560, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->Rji, 0);
   __pyx_v_self->Rji = __pyx_t_2;
   __pyx_t_2.memview = NULL;
   __pyx_t_2.data = NULL;
 
-  /* "CAtmosphere.pyx":558
+  /* "CAtmosphere.pyx":561
  *         self.Rij = np.zeros(self.atmos.Nspace)
  *         self.Rji = np.zeros(self.atmos.Nspace)
  *         self.trans.Rij = f64_view(self.Rij)             # <<<<<<<<<<<<<<
  *         self.trans.Rji = f64_view(self.Rji)
  * 
  */
-  if (unlikely(!__pyx_v_self->Rij.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 558, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->Rij.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 561, __pyx_L1_error)}
   __pyx_v_self->trans.Rij = __pyx_f_14CmoArrayHelper_f64_view(__pyx_v_self->Rij);
 
-  /* "CAtmosphere.pyx":559
+  /* "CAtmosphere.pyx":562
  *         self.Rji = np.zeros(self.atmos.Nspace)
  *         self.trans.Rij = f64_view(self.Rij)
  *         self.trans.Rji = f64_view(self.Rji)             # <<<<<<<<<<<<<<
  * 
  *     cpdef compute_phi(self):
  */
-  if (unlikely(!__pyx_v_self->Rji.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 559, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->Rji.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 562, __pyx_L1_error)}
   __pyx_v_self->trans.Rji = __pyx_f_14CmoArrayHelper_f64_view(__pyx_v_self->Rji);
 
-  /* "CAtmosphere.pyx":511
+  /* "CAtmosphere.pyx":513
  *     cdef object atom
  * 
  *     def __init__(self, trans, compAtom, atmos, spect):             # <<<<<<<<<<<<<<
@@ -10405,7 +10441,7 @@ static int __pyx_pf_11CAtmosphere_12LwTransition___init__(struct __pyx_obj_11CAt
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":561
+/* "CAtmosphere.pyx":564
  *         self.trans.Rji = f64_view(self.Rji)
  * 
  *     cpdef compute_phi(self):             # <<<<<<<<<<<<<<
@@ -10465,7 +10501,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_phi(struct __pyx_o
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_compute_phi); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 561, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_compute_phi); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 564, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_11CAtmosphere_12LwTransition_3compute_phi)) {
         __Pyx_XDECREF(__pyx_r);
@@ -10482,7 +10518,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_phi(struct __pyx_o
         }
         __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 561, __pyx_L1_error)
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 564, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         __pyx_r = __pyx_t_2;
@@ -10503,20 +10539,20 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_phi(struct __pyx_o
     #endif
   }
 
-  /* "CAtmosphere.pyx":562
+  /* "CAtmosphere.pyx":565
  * 
  *     cpdef compute_phi(self):
  *         if self.type == 'Continuum':             # <<<<<<<<<<<<<<
  *             return
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_type); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 562, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_type); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 565, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_5 = (__Pyx_PyUnicode_Equals(__pyx_t_1, __pyx_n_u_Continuum, Py_EQ)); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 562, __pyx_L1_error)
+  __pyx_t_5 = (__Pyx_PyUnicode_Equals(__pyx_t_1, __pyx_n_u_Continuum, Py_EQ)); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 565, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_5) {
 
-    /* "CAtmosphere.pyx":563
+    /* "CAtmosphere.pyx":566
  *     cpdef compute_phi(self):
  *         if self.type == 'Continuum':
  *             return             # <<<<<<<<<<<<<<
@@ -10527,7 +10563,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_phi(struct __pyx_o
     __pyx_r = Py_None; __Pyx_INCREF(Py_None);
     goto __pyx_L0;
 
-    /* "CAtmosphere.pyx":562
+    /* "CAtmosphere.pyx":565
  * 
  *     cpdef compute_phi(self):
  *         if self.type == 'Continuum':             # <<<<<<<<<<<<<<
@@ -10536,30 +10572,30 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_phi(struct __pyx_o
  */
   }
 
-  /* "CAtmosphere.pyx":569
+  /* "CAtmosphere.pyx":572
  *             np.ndarray[np.double_t, ndim=1] aDamp
  * 
  *         cdef LwAtom atom = self.atom             # <<<<<<<<<<<<<<
  *         aDamp, Qelast = self.transModel.damping(self.atmos, atom.vBroad)
  * 
  */
-  if (!(likely(((__pyx_v_self->atom) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_self->atom, __pyx_ptype_11CAtmosphere_LwAtom))))) __PYX_ERR(0, 569, __pyx_L1_error)
+  if (!(likely(((__pyx_v_self->atom) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_self->atom, __pyx_ptype_11CAtmosphere_LwAtom))))) __PYX_ERR(0, 572, __pyx_L1_error)
   __pyx_t_1 = __pyx_v_self->atom;
   __Pyx_INCREF(__pyx_t_1);
   __pyx_v_atom = ((struct __pyx_obj_11CAtmosphere_LwAtom *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "CAtmosphere.pyx":570
+  /* "CAtmosphere.pyx":573
  * 
  *         cdef LwAtom atom = self.atom
  *         aDamp, Qelast = self.transModel.damping(self.atmos, atom.vBroad)             # <<<<<<<<<<<<<<
  * 
  *         cdef Atmosphere* atmos = atom.atom.atmos
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->transModel, __pyx_n_s_damping); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 570, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->transModel, __pyx_n_s_damping); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 573, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (unlikely(!__pyx_v_atom->vBroad.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 570, __pyx_L1_error)}
-  __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_atom->vBroad, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 570, __pyx_L1_error)
+  if (unlikely(!__pyx_v_atom->vBroad.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 573, __pyx_L1_error)}
+  __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_atom->vBroad, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 573, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_4 = NULL;
   __pyx_t_6 = 0;
@@ -10576,7 +10612,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_phi(struct __pyx_o
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_v_self->atmos, __pyx_t_3};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 570, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 573, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -10585,14 +10621,14 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_phi(struct __pyx_o
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_v_self->atmos, __pyx_t_3};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 570, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 573, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   } else
   #endif
   {
-    __pyx_t_7 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 570, __pyx_L1_error)
+    __pyx_t_7 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 573, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -10603,7 +10639,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_phi(struct __pyx_o
     __Pyx_GIVEREF(__pyx_t_3);
     PyTuple_SET_ITEM(__pyx_t_7, 1+__pyx_t_6, __pyx_t_3);
     __pyx_t_3 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_7, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 570, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_7, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 573, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   }
@@ -10614,7 +10650,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_phi(struct __pyx_o
     if (unlikely(size != 2)) {
       if (size > 2) __Pyx_RaiseTooManyValuesError(2);
       else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-      __PYX_ERR(0, 570, __pyx_L1_error)
+      __PYX_ERR(0, 573, __pyx_L1_error)
     }
     #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
     if (likely(PyTuple_CheckExact(sequence))) {
@@ -10627,15 +10663,15 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_phi(struct __pyx_o
     __Pyx_INCREF(__pyx_t_2);
     __Pyx_INCREF(__pyx_t_7);
     #else
-    __pyx_t_2 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 570, __pyx_L1_error)
+    __pyx_t_2 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 573, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_7 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 570, __pyx_L1_error)
+    __pyx_t_7 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 573, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     #endif
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   } else {
     Py_ssize_t index = -1;
-    __pyx_t_3 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 570, __pyx_L1_error)
+    __pyx_t_3 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 573, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_t_8 = Py_TYPE(__pyx_t_3)->tp_iternext;
@@ -10643,7 +10679,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_phi(struct __pyx_o
     __Pyx_GOTREF(__pyx_t_2);
     index = 1; __pyx_t_7 = __pyx_t_8(__pyx_t_3); if (unlikely(!__pyx_t_7)) goto __pyx_L4_unpacking_failed;
     __Pyx_GOTREF(__pyx_t_7);
-    if (__Pyx_IternextUnpackEndCheck(__pyx_t_8(__pyx_t_3), 2) < 0) __PYX_ERR(0, 570, __pyx_L1_error)
+    if (__Pyx_IternextUnpackEndCheck(__pyx_t_8(__pyx_t_3), 2) < 0) __PYX_ERR(0, 573, __pyx_L1_error)
     __pyx_t_8 = NULL;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     goto __pyx_L5_unpacking_done;
@@ -10651,11 +10687,11 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_phi(struct __pyx_o
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_t_8 = NULL;
     if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-    __PYX_ERR(0, 570, __pyx_L1_error)
+    __PYX_ERR(0, 573, __pyx_L1_error)
     __pyx_L5_unpacking_done:;
   }
-  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 570, __pyx_L1_error)
-  if (!(likely(((__pyx_t_7) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_7, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 570, __pyx_L1_error)
+  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 573, __pyx_L1_error)
+  if (!(likely(((__pyx_t_7) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_7, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 573, __pyx_L1_error)
   __pyx_t_9 = ((PyArrayObject *)__pyx_t_2);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
@@ -10672,7 +10708,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_phi(struct __pyx_o
       __pyx_t_10 = __pyx_t_11 = __pyx_t_12 = 0;
     }
     __pyx_pybuffernd_aDamp.diminfo[0].strides = __pyx_pybuffernd_aDamp.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_aDamp.diminfo[0].shape = __pyx_pybuffernd_aDamp.rcbuffer->pybuffer.shape[0];
-    if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 570, __pyx_L1_error)
+    if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 573, __pyx_L1_error)
   }
   __pyx_t_9 = 0;
   __pyx_v_aDamp = ((PyArrayObject *)__pyx_t_2);
@@ -10693,13 +10729,13 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_phi(struct __pyx_o
       __pyx_t_12 = __pyx_t_11 = __pyx_t_10 = 0;
     }
     __pyx_pybuffernd_Qelast.diminfo[0].strides = __pyx_pybuffernd_Qelast.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_Qelast.diminfo[0].shape = __pyx_pybuffernd_Qelast.rcbuffer->pybuffer.shape[0];
-    if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 570, __pyx_L1_error)
+    if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 573, __pyx_L1_error)
   }
   __pyx_t_13 = 0;
   __pyx_v_Qelast = ((PyArrayObject *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "CAtmosphere.pyx":572
+  /* "CAtmosphere.pyx":575
  *         aDamp, Qelast = self.transModel.damping(self.atmos, atom.vBroad)
  * 
  *         cdef Atmosphere* atmos = atom.atom.atmos             # <<<<<<<<<<<<<<
@@ -10709,7 +10745,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_phi(struct __pyx_o
   __pyx_t_14 = __pyx_v_atom->atom.atmos;
   __pyx_v_atmos = __pyx_t_14;
 
-  /* "CAtmosphere.pyx":574
+  /* "CAtmosphere.pyx":577
  *         cdef Atmosphere* atmos = atom.atom.atmos
  *         cdef int i
  *         for i in range(Qelast.shape[0]):             # <<<<<<<<<<<<<<
@@ -10721,7 +10757,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_phi(struct __pyx_o
   for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_16; __pyx_t_6+=1) {
     __pyx_v_i = __pyx_t_6;
 
-    /* "CAtmosphere.pyx":575
+    /* "CAtmosphere.pyx":578
  *         cdef int i
  *         for i in range(Qelast.shape[0]):
  *             self.Qelast[i] = Qelast[i]             # <<<<<<<<<<<<<<
@@ -10736,9 +10772,9 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_phi(struct __pyx_o
     } else if (unlikely(__pyx_t_17 >= __pyx_pybuffernd_Qelast.diminfo[0].shape)) __pyx_t_18 = 0;
     if (unlikely(__pyx_t_18 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_18);
-      __PYX_ERR(0, 575, __pyx_L1_error)
+      __PYX_ERR(0, 578, __pyx_L1_error)
     }
-    if (unlikely(!__pyx_v_self->Qelast.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 575, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->Qelast.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 578, __pyx_L1_error)}
     __pyx_t_19 = __pyx_v_i;
     __pyx_t_18 = -1;
     if (__pyx_t_19 < 0) {
@@ -10747,11 +10783,11 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_phi(struct __pyx_o
     } else if (unlikely(__pyx_t_19 >= __pyx_v_self->Qelast.shape[0])) __pyx_t_18 = 0;
     if (unlikely(__pyx_t_18 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_18);
-      __PYX_ERR(0, 575, __pyx_L1_error)
+      __PYX_ERR(0, 578, __pyx_L1_error)
     }
     *((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ ((char *) (((__pyx_t_8CmoArray_f64 *) __pyx_v_self->Qelast.data) + __pyx_t_19)) )) = (*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_double_t *, __pyx_pybuffernd_Qelast.rcbuffer->pybuffer.buf, __pyx_t_17, __pyx_pybuffernd_Qelast.diminfo[0].strides));
 
-    /* "CAtmosphere.pyx":576
+    /* "CAtmosphere.pyx":579
  *         for i in range(Qelast.shape[0]):
  *             self.Qelast[i] = Qelast[i]
  *             self.aDamp[i] = aDamp[i]             # <<<<<<<<<<<<<<
@@ -10766,9 +10802,9 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_phi(struct __pyx_o
     } else if (unlikely(__pyx_t_20 >= __pyx_pybuffernd_aDamp.diminfo[0].shape)) __pyx_t_18 = 0;
     if (unlikely(__pyx_t_18 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_18);
-      __PYX_ERR(0, 576, __pyx_L1_error)
+      __PYX_ERR(0, 579, __pyx_L1_error)
     }
-    if (unlikely(!__pyx_v_self->aDamp.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 576, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->aDamp.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 579, __pyx_L1_error)}
     __pyx_t_21 = __pyx_v_i;
     __pyx_t_18 = -1;
     if (__pyx_t_21 < 0) {
@@ -10777,12 +10813,12 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_phi(struct __pyx_o
     } else if (unlikely(__pyx_t_21 >= __pyx_v_self->aDamp.shape[0])) __pyx_t_18 = 0;
     if (unlikely(__pyx_t_18 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_18);
-      __PYX_ERR(0, 576, __pyx_L1_error)
+      __PYX_ERR(0, 579, __pyx_L1_error)
     }
     *((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ ((char *) (((__pyx_t_8CmoArray_f64 *) __pyx_v_self->aDamp.data) + __pyx_t_21)) )) = (*__Pyx_BufPtrStrided1d(__pyx_t_5numpy_double_t *, __pyx_pybuffernd_aDamp.rcbuffer->pybuffer.buf, __pyx_t_20, __pyx_pybuffernd_aDamp.diminfo[0].strides));
   }
 
-  /* "CAtmosphere.pyx":578
+  /* "CAtmosphere.pyx":581
  *             self.aDamp[i] = aDamp[i]
  * 
  *         self.trans.compute_phi(atmos[0], self.trans.aDamp, atom.atom.vBroad)             # <<<<<<<<<<<<<<
@@ -10791,7 +10827,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_phi(struct __pyx_o
  */
   __pyx_v_self->trans.compute_phi((__pyx_v_atmos[0]), __pyx_v_self->trans.aDamp, __pyx_v_atom->atom.vBroad);
 
-  /* "CAtmosphere.pyx":561
+  /* "CAtmosphere.pyx":564
  *         self.trans.Rji = f64_view(self.Rji)
  * 
  *     cpdef compute_phi(self):             # <<<<<<<<<<<<<<
@@ -10849,7 +10885,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_2compute_phi(struct __pyx
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("compute_phi", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_11CAtmosphere_12LwTransition_compute_phi(__pyx_v_self, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 561, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_11CAtmosphere_12LwTransition_compute_phi(__pyx_v_self, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 564, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -10866,7 +10902,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_2compute_phi(struct __pyx
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":580
+/* "CAtmosphere.pyx":583
  *         self.trans.compute_phi(atmos[0], self.trans.aDamp, atom.atom.vBroad)
  * 
  *     cpdef compute_polarised_profiles(self):             # <<<<<<<<<<<<<<
@@ -10922,7 +10958,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_compute_polarised_profiles); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 580, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_compute_polarised_profiles); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 583, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_11CAtmosphere_12LwTransition_5compute_polarised_profiles)) {
         __Pyx_XDECREF(__pyx_r);
@@ -10939,7 +10975,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
         }
         __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 580, __pyx_L1_error)
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 583, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         __pyx_r = __pyx_t_2;
@@ -10960,20 +10996,20 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
     #endif
   }
 
-  /* "CAtmosphere.pyx":581
+  /* "CAtmosphere.pyx":584
  * 
  *     cpdef compute_polarised_profiles(self):
  *         if self.type == 'Continuum':             # <<<<<<<<<<<<<<
  *             return
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_type); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 581, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_type); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 584, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_5 = (__Pyx_PyUnicode_Equals(__pyx_t_1, __pyx_n_u_Continuum, Py_EQ)); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 581, __pyx_L1_error)
+  __pyx_t_5 = (__Pyx_PyUnicode_Equals(__pyx_t_1, __pyx_n_u_Continuum, Py_EQ)); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 584, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_5) {
 
-    /* "CAtmosphere.pyx":582
+    /* "CAtmosphere.pyx":585
  *     cpdef compute_polarised_profiles(self):
  *         if self.type == 'Continuum':
  *             return             # <<<<<<<<<<<<<<
@@ -10984,7 +11020,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
     __pyx_r = Py_None; __Pyx_INCREF(Py_None);
     goto __pyx_L0;
 
-    /* "CAtmosphere.pyx":581
+    /* "CAtmosphere.pyx":584
  * 
  *     cpdef compute_polarised_profiles(self):
  *         if self.type == 'Continuum':             # <<<<<<<<<<<<<<
@@ -10993,21 +11029,21 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
  */
   }
 
-  /* "CAtmosphere.pyx":584
+  /* "CAtmosphere.pyx":587
  *             return
  * 
  *         if not self.transModel.polarisable:             # <<<<<<<<<<<<<<
  *             return
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->transModel, __pyx_n_s_polarisable); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 584, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->transModel, __pyx_n_s_polarisable); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 587, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 584, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 587, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_6 = ((!__pyx_t_5) != 0);
   if (__pyx_t_6) {
 
-    /* "CAtmosphere.pyx":585
+    /* "CAtmosphere.pyx":588
  * 
  *         if not self.transModel.polarisable:
  *             return             # <<<<<<<<<<<<<<
@@ -11018,7 +11054,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
     __pyx_r = Py_None; __Pyx_INCREF(Py_None);
     goto __pyx_L0;
 
-    /* "CAtmosphere.pyx":584
+    /* "CAtmosphere.pyx":587
  *             return
  * 
  *         if not self.transModel.polarisable:             # <<<<<<<<<<<<<<
@@ -11027,46 +11063,46 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
  */
   }
 
-  /* "CAtmosphere.pyx":587
+  /* "CAtmosphere.pyx":590
  *             return
  * 
  *         cdef int Nlambda = self.transModel.Nlambda             # <<<<<<<<<<<<<<
  *         cdef int Nrays = self.atmos.Nrays
  *         cdef int Nspace = self.atmos.Nspace
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->transModel, __pyx_n_s_Nlambda); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 587, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->transModel, __pyx_n_s_Nlambda); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 590, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 587, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 590, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_Nlambda = __pyx_t_7;
 
-  /* "CAtmosphere.pyx":588
+  /* "CAtmosphere.pyx":591
  * 
  *         cdef int Nlambda = self.transModel.Nlambda
  *         cdef int Nrays = self.atmos.Nrays             # <<<<<<<<<<<<<<
  *         cdef int Nspace = self.atmos.Nspace
  *         try:
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_Nrays); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 588, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_Nrays); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 591, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 588, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 591, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_Nrays = __pyx_t_7;
 
-  /* "CAtmosphere.pyx":589
+  /* "CAtmosphere.pyx":592
  *         cdef int Nlambda = self.transModel.Nlambda
  *         cdef int Nrays = self.atmos.Nrays
  *         cdef int Nspace = self.atmos.Nspace             # <<<<<<<<<<<<<<
  *         try:
  *             self.phiQ
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 589, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 592, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 589, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 592, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_Nspace = __pyx_t_7;
 
-  /* "CAtmosphere.pyx":590
+  /* "CAtmosphere.pyx":593
  *         cdef int Nrays = self.atmos.Nrays
  *         cdef int Nspace = self.atmos.Nspace
  *         try:             # <<<<<<<<<<<<<<
@@ -11082,17 +11118,17 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
     __Pyx_XGOTREF(__pyx_t_10);
     /*try:*/ {
 
-      /* "CAtmosphere.pyx":591
+      /* "CAtmosphere.pyx":594
  *         cdef int Nspace = self.atmos.Nspace
  *         try:
  *             self.phiQ             # <<<<<<<<<<<<<<
  *         except AttributeError:
  *             self.phiQ = np.zeros((Nlambda, Nrays, 2, Nspace))
  */
-      if (unlikely(!__pyx_v_self->phiQ.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 591, __pyx_L5_error)}
+      if (unlikely(!__pyx_v_self->phiQ.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 594, __pyx_L5_error)}
       (void)(__pyx_v_self->phiQ);
 
-      /* "CAtmosphere.pyx":590
+      /* "CAtmosphere.pyx":593
  *         cdef int Nrays = self.atmos.Nrays
  *         cdef int Nspace = self.atmos.Nspace
  *         try:             # <<<<<<<<<<<<<<
@@ -11110,7 +11146,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "CAtmosphere.pyx":592
+    /* "CAtmosphere.pyx":595
  *         try:
  *             self.phiQ
  *         except AttributeError:             # <<<<<<<<<<<<<<
@@ -11120,30 +11156,30 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
     __pyx_t_7 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_AttributeError);
     if (__pyx_t_7) {
       __Pyx_AddTraceback("CAtmosphere.LwTransition.compute_polarised_profiles", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_2, &__pyx_t_3) < 0) __PYX_ERR(0, 592, __pyx_L7_except_error)
+      if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_2, &__pyx_t_3) < 0) __PYX_ERR(0, 595, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_GOTREF(__pyx_t_3);
 
-      /* "CAtmosphere.pyx":593
+      /* "CAtmosphere.pyx":596
  *             self.phiQ
  *         except AttributeError:
  *             self.phiQ = np.zeros((Nlambda, Nrays, 2, Nspace))             # <<<<<<<<<<<<<<
  *             self.phiU = np.zeros((Nlambda, Nrays, 2, Nspace))
  *             self.phiV = np.zeros((Nlambda, Nrays, 2, Nspace))
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_n_s_np); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 593, __pyx_L7_except_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_n_s_np); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 596, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_11);
-      __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_n_s_zeros); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 593, __pyx_L7_except_error)
+      __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_n_s_zeros); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 596, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_12);
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-      __pyx_t_11 = __Pyx_PyInt_From_int(__pyx_v_Nlambda); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 593, __pyx_L7_except_error)
+      __pyx_t_11 = __Pyx_PyInt_From_int(__pyx_v_Nlambda); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 596, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_11);
-      __pyx_t_13 = __Pyx_PyInt_From_int(__pyx_v_Nrays); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 593, __pyx_L7_except_error)
+      __pyx_t_13 = __Pyx_PyInt_From_int(__pyx_v_Nrays); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 596, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_13);
-      __pyx_t_14 = __Pyx_PyInt_From_int(__pyx_v_Nspace); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 593, __pyx_L7_except_error)
+      __pyx_t_14 = __Pyx_PyInt_From_int(__pyx_v_Nspace); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 596, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_14);
-      __pyx_t_15 = PyTuple_New(4); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 593, __pyx_L7_except_error)
+      __pyx_t_15 = PyTuple_New(4); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 596, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_15);
       __Pyx_GIVEREF(__pyx_t_11);
       PyTuple_SET_ITEM(__pyx_t_15, 0, __pyx_t_11);
@@ -11170,35 +11206,35 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
       __pyx_t_4 = (__pyx_t_14) ? __Pyx_PyObject_Call2Args(__pyx_t_12, __pyx_t_14, __pyx_t_15) : __Pyx_PyObject_CallOneArg(__pyx_t_12, __pyx_t_15);
       __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
       __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 593, __pyx_L7_except_error)
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 596, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-      __pyx_t_16 = __Pyx_PyObject_to_MemoryviewSlice_d_d_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_16.memview)) __PYX_ERR(0, 593, __pyx_L7_except_error)
+      __pyx_t_16 = __Pyx_PyObject_to_MemoryviewSlice_d_d_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_16.memview)) __PYX_ERR(0, 596, __pyx_L7_except_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __PYX_XDEC_MEMVIEW(&__pyx_v_self->phiQ, 0);
       __pyx_v_self->phiQ = __pyx_t_16;
       __pyx_t_16.memview = NULL;
       __pyx_t_16.data = NULL;
 
-      /* "CAtmosphere.pyx":594
+      /* "CAtmosphere.pyx":597
  *         except AttributeError:
  *             self.phiQ = np.zeros((Nlambda, Nrays, 2, Nspace))
  *             self.phiU = np.zeros((Nlambda, Nrays, 2, Nspace))             # <<<<<<<<<<<<<<
  *             self.phiV = np.zeros((Nlambda, Nrays, 2, Nspace))
  *             self.psiQ = np.zeros((Nlambda, Nrays, 2, Nspace))
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_n_s_np); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 594, __pyx_L7_except_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_n_s_np); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 597, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_12);
-      __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_n_s_zeros); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 594, __pyx_L7_except_error)
+      __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_n_s_zeros); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 597, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_15);
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-      __pyx_t_12 = __Pyx_PyInt_From_int(__pyx_v_Nlambda); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 594, __pyx_L7_except_error)
+      __pyx_t_12 = __Pyx_PyInt_From_int(__pyx_v_Nlambda); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 597, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_12);
-      __pyx_t_14 = __Pyx_PyInt_From_int(__pyx_v_Nrays); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 594, __pyx_L7_except_error)
+      __pyx_t_14 = __Pyx_PyInt_From_int(__pyx_v_Nrays); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 597, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_14);
-      __pyx_t_13 = __Pyx_PyInt_From_int(__pyx_v_Nspace); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 594, __pyx_L7_except_error)
+      __pyx_t_13 = __Pyx_PyInt_From_int(__pyx_v_Nspace); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 597, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_13);
-      __pyx_t_11 = PyTuple_New(4); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 594, __pyx_L7_except_error)
+      __pyx_t_11 = PyTuple_New(4); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 597, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_11);
       __Pyx_GIVEREF(__pyx_t_12);
       PyTuple_SET_ITEM(__pyx_t_11, 0, __pyx_t_12);
@@ -11225,35 +11261,35 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
       __pyx_t_4 = (__pyx_t_13) ? __Pyx_PyObject_Call2Args(__pyx_t_15, __pyx_t_13, __pyx_t_11) : __Pyx_PyObject_CallOneArg(__pyx_t_15, __pyx_t_11);
       __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 594, __pyx_L7_except_error)
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 597, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-      __pyx_t_16 = __Pyx_PyObject_to_MemoryviewSlice_d_d_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_16.memview)) __PYX_ERR(0, 594, __pyx_L7_except_error)
+      __pyx_t_16 = __Pyx_PyObject_to_MemoryviewSlice_d_d_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_16.memview)) __PYX_ERR(0, 597, __pyx_L7_except_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __PYX_XDEC_MEMVIEW(&__pyx_v_self->phiU, 0);
       __pyx_v_self->phiU = __pyx_t_16;
       __pyx_t_16.memview = NULL;
       __pyx_t_16.data = NULL;
 
-      /* "CAtmosphere.pyx":595
+      /* "CAtmosphere.pyx":598
  *             self.phiQ = np.zeros((Nlambda, Nrays, 2, Nspace))
  *             self.phiU = np.zeros((Nlambda, Nrays, 2, Nspace))
  *             self.phiV = np.zeros((Nlambda, Nrays, 2, Nspace))             # <<<<<<<<<<<<<<
  *             self.psiQ = np.zeros((Nlambda, Nrays, 2, Nspace))
  *             self.psiU = np.zeros((Nlambda, Nrays, 2, Nspace))
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_15, __pyx_n_s_np); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 595, __pyx_L7_except_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_15, __pyx_n_s_np); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 598, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_15);
-      __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_15, __pyx_n_s_zeros); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 595, __pyx_L7_except_error)
+      __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_15, __pyx_n_s_zeros); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 598, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_11);
       __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-      __pyx_t_15 = __Pyx_PyInt_From_int(__pyx_v_Nlambda); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 595, __pyx_L7_except_error)
+      __pyx_t_15 = __Pyx_PyInt_From_int(__pyx_v_Nlambda); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 598, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_15);
-      __pyx_t_13 = __Pyx_PyInt_From_int(__pyx_v_Nrays); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 595, __pyx_L7_except_error)
+      __pyx_t_13 = __Pyx_PyInt_From_int(__pyx_v_Nrays); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 598, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_13);
-      __pyx_t_14 = __Pyx_PyInt_From_int(__pyx_v_Nspace); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 595, __pyx_L7_except_error)
+      __pyx_t_14 = __Pyx_PyInt_From_int(__pyx_v_Nspace); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 598, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_14);
-      __pyx_t_12 = PyTuple_New(4); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 595, __pyx_L7_except_error)
+      __pyx_t_12 = PyTuple_New(4); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 598, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_12);
       __Pyx_GIVEREF(__pyx_t_15);
       PyTuple_SET_ITEM(__pyx_t_12, 0, __pyx_t_15);
@@ -11280,35 +11316,35 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
       __pyx_t_4 = (__pyx_t_14) ? __Pyx_PyObject_Call2Args(__pyx_t_11, __pyx_t_14, __pyx_t_12) : __Pyx_PyObject_CallOneArg(__pyx_t_11, __pyx_t_12);
       __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 595, __pyx_L7_except_error)
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 598, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-      __pyx_t_16 = __Pyx_PyObject_to_MemoryviewSlice_d_d_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_16.memview)) __PYX_ERR(0, 595, __pyx_L7_except_error)
+      __pyx_t_16 = __Pyx_PyObject_to_MemoryviewSlice_d_d_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_16.memview)) __PYX_ERR(0, 598, __pyx_L7_except_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __PYX_XDEC_MEMVIEW(&__pyx_v_self->phiV, 0);
       __pyx_v_self->phiV = __pyx_t_16;
       __pyx_t_16.memview = NULL;
       __pyx_t_16.data = NULL;
 
-      /* "CAtmosphere.pyx":596
+      /* "CAtmosphere.pyx":599
  *             self.phiU = np.zeros((Nlambda, Nrays, 2, Nspace))
  *             self.phiV = np.zeros((Nlambda, Nrays, 2, Nspace))
  *             self.psiQ = np.zeros((Nlambda, Nrays, 2, Nspace))             # <<<<<<<<<<<<<<
  *             self.psiU = np.zeros((Nlambda, Nrays, 2, Nspace))
  *             self.psiV = np.zeros((Nlambda, Nrays, 2, Nspace))
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_n_s_np); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 596, __pyx_L7_except_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_n_s_np); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 599, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_11);
-      __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_n_s_zeros); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 596, __pyx_L7_except_error)
+      __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_n_s_zeros); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 599, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_12);
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-      __pyx_t_11 = __Pyx_PyInt_From_int(__pyx_v_Nlambda); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 596, __pyx_L7_except_error)
+      __pyx_t_11 = __Pyx_PyInt_From_int(__pyx_v_Nlambda); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 599, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_11);
-      __pyx_t_14 = __Pyx_PyInt_From_int(__pyx_v_Nrays); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 596, __pyx_L7_except_error)
+      __pyx_t_14 = __Pyx_PyInt_From_int(__pyx_v_Nrays); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 599, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_14);
-      __pyx_t_13 = __Pyx_PyInt_From_int(__pyx_v_Nspace); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 596, __pyx_L7_except_error)
+      __pyx_t_13 = __Pyx_PyInt_From_int(__pyx_v_Nspace); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 599, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_13);
-      __pyx_t_15 = PyTuple_New(4); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 596, __pyx_L7_except_error)
+      __pyx_t_15 = PyTuple_New(4); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 599, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_15);
       __Pyx_GIVEREF(__pyx_t_11);
       PyTuple_SET_ITEM(__pyx_t_15, 0, __pyx_t_11);
@@ -11335,35 +11371,35 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
       __pyx_t_4 = (__pyx_t_13) ? __Pyx_PyObject_Call2Args(__pyx_t_12, __pyx_t_13, __pyx_t_15) : __Pyx_PyObject_CallOneArg(__pyx_t_12, __pyx_t_15);
       __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
       __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 596, __pyx_L7_except_error)
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 599, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-      __pyx_t_16 = __Pyx_PyObject_to_MemoryviewSlice_d_d_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_16.memview)) __PYX_ERR(0, 596, __pyx_L7_except_error)
+      __pyx_t_16 = __Pyx_PyObject_to_MemoryviewSlice_d_d_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_16.memview)) __PYX_ERR(0, 599, __pyx_L7_except_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __PYX_XDEC_MEMVIEW(&__pyx_v_self->psiQ, 0);
       __pyx_v_self->psiQ = __pyx_t_16;
       __pyx_t_16.memview = NULL;
       __pyx_t_16.data = NULL;
 
-      /* "CAtmosphere.pyx":597
+      /* "CAtmosphere.pyx":600
  *             self.phiV = np.zeros((Nlambda, Nrays, 2, Nspace))
  *             self.psiQ = np.zeros((Nlambda, Nrays, 2, Nspace))
  *             self.psiU = np.zeros((Nlambda, Nrays, 2, Nspace))             # <<<<<<<<<<<<<<
  *             self.psiV = np.zeros((Nlambda, Nrays, 2, Nspace))
  *             self.trans.phiQ = f64_view_4(self.phiQ)
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_n_s_np); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 597, __pyx_L7_except_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_n_s_np); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 600, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_12);
-      __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_n_s_zeros); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 597, __pyx_L7_except_error)
+      __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_n_s_zeros); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 600, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_15);
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-      __pyx_t_12 = __Pyx_PyInt_From_int(__pyx_v_Nlambda); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 597, __pyx_L7_except_error)
+      __pyx_t_12 = __Pyx_PyInt_From_int(__pyx_v_Nlambda); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 600, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_12);
-      __pyx_t_13 = __Pyx_PyInt_From_int(__pyx_v_Nrays); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 597, __pyx_L7_except_error)
+      __pyx_t_13 = __Pyx_PyInt_From_int(__pyx_v_Nrays); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 600, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_13);
-      __pyx_t_14 = __Pyx_PyInt_From_int(__pyx_v_Nspace); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 597, __pyx_L7_except_error)
+      __pyx_t_14 = __Pyx_PyInt_From_int(__pyx_v_Nspace); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 600, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_14);
-      __pyx_t_11 = PyTuple_New(4); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 597, __pyx_L7_except_error)
+      __pyx_t_11 = PyTuple_New(4); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 600, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_11);
       __Pyx_GIVEREF(__pyx_t_12);
       PyTuple_SET_ITEM(__pyx_t_11, 0, __pyx_t_12);
@@ -11390,35 +11426,35 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
       __pyx_t_4 = (__pyx_t_14) ? __Pyx_PyObject_Call2Args(__pyx_t_15, __pyx_t_14, __pyx_t_11) : __Pyx_PyObject_CallOneArg(__pyx_t_15, __pyx_t_11);
       __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 597, __pyx_L7_except_error)
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 600, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-      __pyx_t_16 = __Pyx_PyObject_to_MemoryviewSlice_d_d_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_16.memview)) __PYX_ERR(0, 597, __pyx_L7_except_error)
+      __pyx_t_16 = __Pyx_PyObject_to_MemoryviewSlice_d_d_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_16.memview)) __PYX_ERR(0, 600, __pyx_L7_except_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __PYX_XDEC_MEMVIEW(&__pyx_v_self->psiU, 0);
       __pyx_v_self->psiU = __pyx_t_16;
       __pyx_t_16.memview = NULL;
       __pyx_t_16.data = NULL;
 
-      /* "CAtmosphere.pyx":598
+      /* "CAtmosphere.pyx":601
  *             self.psiQ = np.zeros((Nlambda, Nrays, 2, Nspace))
  *             self.psiU = np.zeros((Nlambda, Nrays, 2, Nspace))
  *             self.psiV = np.zeros((Nlambda, Nrays, 2, Nspace))             # <<<<<<<<<<<<<<
  *             self.trans.phiQ = f64_view_4(self.phiQ)
  *             self.trans.phiU = f64_view_4(self.phiU)
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_15, __pyx_n_s_np); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 598, __pyx_L7_except_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_15, __pyx_n_s_np); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 601, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_15);
-      __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_15, __pyx_n_s_zeros); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 598, __pyx_L7_except_error)
+      __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_15, __pyx_n_s_zeros); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 601, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_11);
       __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-      __pyx_t_15 = __Pyx_PyInt_From_int(__pyx_v_Nlambda); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 598, __pyx_L7_except_error)
+      __pyx_t_15 = __Pyx_PyInt_From_int(__pyx_v_Nlambda); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 601, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_15);
-      __pyx_t_14 = __Pyx_PyInt_From_int(__pyx_v_Nrays); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 598, __pyx_L7_except_error)
+      __pyx_t_14 = __Pyx_PyInt_From_int(__pyx_v_Nrays); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 601, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_14);
-      __pyx_t_13 = __Pyx_PyInt_From_int(__pyx_v_Nspace); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 598, __pyx_L7_except_error)
+      __pyx_t_13 = __Pyx_PyInt_From_int(__pyx_v_Nspace); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 601, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_13);
-      __pyx_t_12 = PyTuple_New(4); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 598, __pyx_L7_except_error)
+      __pyx_t_12 = PyTuple_New(4); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 601, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_12);
       __Pyx_GIVEREF(__pyx_t_15);
       PyTuple_SET_ITEM(__pyx_t_12, 0, __pyx_t_15);
@@ -11445,74 +11481,74 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
       __pyx_t_4 = (__pyx_t_13) ? __Pyx_PyObject_Call2Args(__pyx_t_11, __pyx_t_13, __pyx_t_12) : __Pyx_PyObject_CallOneArg(__pyx_t_11, __pyx_t_12);
       __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 598, __pyx_L7_except_error)
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 601, __pyx_L7_except_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-      __pyx_t_16 = __Pyx_PyObject_to_MemoryviewSlice_d_d_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_16.memview)) __PYX_ERR(0, 598, __pyx_L7_except_error)
+      __pyx_t_16 = __Pyx_PyObject_to_MemoryviewSlice_d_d_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_16.memview)) __PYX_ERR(0, 601, __pyx_L7_except_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __PYX_XDEC_MEMVIEW(&__pyx_v_self->psiV, 0);
       __pyx_v_self->psiV = __pyx_t_16;
       __pyx_t_16.memview = NULL;
       __pyx_t_16.data = NULL;
 
-      /* "CAtmosphere.pyx":599
+      /* "CAtmosphere.pyx":602
  *             self.psiU = np.zeros((Nlambda, Nrays, 2, Nspace))
  *             self.psiV = np.zeros((Nlambda, Nrays, 2, Nspace))
  *             self.trans.phiQ = f64_view_4(self.phiQ)             # <<<<<<<<<<<<<<
  *             self.trans.phiU = f64_view_4(self.phiU)
  *             self.trans.phiV = f64_view_4(self.phiV)
  */
-      if (unlikely(!__pyx_v_self->phiQ.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 599, __pyx_L7_except_error)}
+      if (unlikely(!__pyx_v_self->phiQ.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 602, __pyx_L7_except_error)}
       __pyx_v_self->trans.phiQ = __pyx_f_14CmoArrayHelper_f64_view_4(__pyx_v_self->phiQ);
 
-      /* "CAtmosphere.pyx":600
+      /* "CAtmosphere.pyx":603
  *             self.psiV = np.zeros((Nlambda, Nrays, 2, Nspace))
  *             self.trans.phiQ = f64_view_4(self.phiQ)
  *             self.trans.phiU = f64_view_4(self.phiU)             # <<<<<<<<<<<<<<
  *             self.trans.phiV = f64_view_4(self.phiV)
  *             self.trans.psiQ = f64_view_4(self.psiQ)
  */
-      if (unlikely(!__pyx_v_self->phiU.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 600, __pyx_L7_except_error)}
+      if (unlikely(!__pyx_v_self->phiU.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 603, __pyx_L7_except_error)}
       __pyx_v_self->trans.phiU = __pyx_f_14CmoArrayHelper_f64_view_4(__pyx_v_self->phiU);
 
-      /* "CAtmosphere.pyx":601
+      /* "CAtmosphere.pyx":604
  *             self.trans.phiQ = f64_view_4(self.phiQ)
  *             self.trans.phiU = f64_view_4(self.phiU)
  *             self.trans.phiV = f64_view_4(self.phiV)             # <<<<<<<<<<<<<<
  *             self.trans.psiQ = f64_view_4(self.psiQ)
  *             self.trans.psiU = f64_view_4(self.psiU)
  */
-      if (unlikely(!__pyx_v_self->phiV.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 601, __pyx_L7_except_error)}
+      if (unlikely(!__pyx_v_self->phiV.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 604, __pyx_L7_except_error)}
       __pyx_v_self->trans.phiV = __pyx_f_14CmoArrayHelper_f64_view_4(__pyx_v_self->phiV);
 
-      /* "CAtmosphere.pyx":602
+      /* "CAtmosphere.pyx":605
  *             self.trans.phiU = f64_view_4(self.phiU)
  *             self.trans.phiV = f64_view_4(self.phiV)
  *             self.trans.psiQ = f64_view_4(self.psiQ)             # <<<<<<<<<<<<<<
  *             self.trans.psiU = f64_view_4(self.psiU)
  *             self.trans.psiV = f64_view_4(self.psiV)
  */
-      if (unlikely(!__pyx_v_self->psiQ.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 602, __pyx_L7_except_error)}
+      if (unlikely(!__pyx_v_self->psiQ.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 605, __pyx_L7_except_error)}
       __pyx_v_self->trans.psiQ = __pyx_f_14CmoArrayHelper_f64_view_4(__pyx_v_self->psiQ);
 
-      /* "CAtmosphere.pyx":603
+      /* "CAtmosphere.pyx":606
  *             self.trans.phiV = f64_view_4(self.phiV)
  *             self.trans.psiQ = f64_view_4(self.psiQ)
  *             self.trans.psiU = f64_view_4(self.psiU)             # <<<<<<<<<<<<<<
  *             self.trans.psiV = f64_view_4(self.psiV)
  * 
  */
-      if (unlikely(!__pyx_v_self->psiU.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 603, __pyx_L7_except_error)}
+      if (unlikely(!__pyx_v_self->psiU.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 606, __pyx_L7_except_error)}
       __pyx_v_self->trans.psiU = __pyx_f_14CmoArrayHelper_f64_view_4(__pyx_v_self->psiU);
 
-      /* "CAtmosphere.pyx":604
+      /* "CAtmosphere.pyx":607
  *             self.trans.psiQ = f64_view_4(self.psiQ)
  *             self.trans.psiU = f64_view_4(self.psiU)
  *             self.trans.psiV = f64_view_4(self.psiV)             # <<<<<<<<<<<<<<
  * 
  *         self.trans.polarised = True
  */
-      if (unlikely(!__pyx_v_self->psiV.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 604, __pyx_L7_except_error)}
+      if (unlikely(!__pyx_v_self->psiV.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 607, __pyx_L7_except_error)}
       __pyx_v_self->trans.psiV = __pyx_f_14CmoArrayHelper_f64_view_4(__pyx_v_self->psiV);
       __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -11522,7 +11558,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
     goto __pyx_L7_except_error;
     __pyx_L7_except_error:;
 
-    /* "CAtmosphere.pyx":590
+    /* "CAtmosphere.pyx":593
  *         cdef int Nrays = self.atmos.Nrays
  *         cdef int Nspace = self.atmos.Nspace
  *         try:             # <<<<<<<<<<<<<<
@@ -11542,7 +11578,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
     __pyx_L10_try_end:;
   }
 
-  /* "CAtmosphere.pyx":606
+  /* "CAtmosphere.pyx":609
  *             self.trans.psiV = f64_view_4(self.psiV)
  * 
  *         self.trans.polarised = True             # <<<<<<<<<<<<<<
@@ -11551,30 +11587,30 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
  */
   __pyx_v_self->trans.polarised = 1;
 
-  /* "CAtmosphere.pyx":608
+  /* "CAtmosphere.pyx":611
  *         self.trans.polarised = True
  * 
  *         cdef LwAtom atom = self.atom             # <<<<<<<<<<<<<<
  *         aDamp, Qelast = self.transModel.damping(self.atmos, atom.vBroad)
  * 
  */
-  if (!(likely(((__pyx_v_self->atom) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_self->atom, __pyx_ptype_11CAtmosphere_LwAtom))))) __PYX_ERR(0, 608, __pyx_L1_error)
+  if (!(likely(((__pyx_v_self->atom) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_self->atom, __pyx_ptype_11CAtmosphere_LwAtom))))) __PYX_ERR(0, 611, __pyx_L1_error)
   __pyx_t_3 = __pyx_v_self->atom;
   __Pyx_INCREF(__pyx_t_3);
   __pyx_v_atom = ((struct __pyx_obj_11CAtmosphere_LwAtom *)__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "CAtmosphere.pyx":609
+  /* "CAtmosphere.pyx":612
  * 
  *         cdef LwAtom atom = self.atom
  *         aDamp, Qelast = self.transModel.damping(self.atmos, atom.vBroad)             # <<<<<<<<<<<<<<
  * 
  *         cdef Atmosphere* atmos = atom.atom.atmos
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->transModel, __pyx_n_s_damping); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 609, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->transModel, __pyx_n_s_damping); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 612, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (unlikely(!__pyx_v_atom->vBroad.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 609, __pyx_L1_error)}
-  __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_atom->vBroad, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 609, __pyx_L1_error)
+  if (unlikely(!__pyx_v_atom->vBroad.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 612, __pyx_L1_error)}
+  __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_atom->vBroad, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 612, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_4 = NULL;
   __pyx_t_7 = 0;
@@ -11591,7 +11627,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_v_self->atmos, __pyx_t_1};
-    __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 609, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 612, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -11600,14 +11636,14 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_v_self->atmos, __pyx_t_1};
-    __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 609, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 612, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   } else
   #endif
   {
-    __pyx_t_11 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 609, __pyx_L1_error)
+    __pyx_t_11 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 612, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_11, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -11618,7 +11654,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
     __Pyx_GIVEREF(__pyx_t_1);
     PyTuple_SET_ITEM(__pyx_t_11, 1+__pyx_t_7, __pyx_t_1);
     __pyx_t_1 = 0;
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_11, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 609, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_11, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 612, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
   }
@@ -11629,7 +11665,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
     if (unlikely(size != 2)) {
       if (size > 2) __Pyx_RaiseTooManyValuesError(2);
       else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-      __PYX_ERR(0, 609, __pyx_L1_error)
+      __PYX_ERR(0, 612, __pyx_L1_error)
     }
     #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
     if (likely(PyTuple_CheckExact(sequence))) {
@@ -11642,15 +11678,15 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
     __Pyx_INCREF(__pyx_t_2);
     __Pyx_INCREF(__pyx_t_11);
     #else
-    __pyx_t_2 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 609, __pyx_L1_error)
+    __pyx_t_2 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 612, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_11 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 609, __pyx_L1_error)
+    __pyx_t_11 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 612, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
     #endif
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   } else {
     Py_ssize_t index = -1;
-    __pyx_t_1 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 609, __pyx_L1_error)
+    __pyx_t_1 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 612, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_t_17 = Py_TYPE(__pyx_t_1)->tp_iternext;
@@ -11658,7 +11694,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
     __Pyx_GOTREF(__pyx_t_2);
     index = 1; __pyx_t_11 = __pyx_t_17(__pyx_t_1); if (unlikely(!__pyx_t_11)) goto __pyx_L13_unpacking_failed;
     __Pyx_GOTREF(__pyx_t_11);
-    if (__Pyx_IternextUnpackEndCheck(__pyx_t_17(__pyx_t_1), 2) < 0) __PYX_ERR(0, 609, __pyx_L1_error)
+    if (__Pyx_IternextUnpackEndCheck(__pyx_t_17(__pyx_t_1), 2) < 0) __PYX_ERR(0, 612, __pyx_L1_error)
     __pyx_t_17 = NULL;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     goto __pyx_L14_unpacking_done;
@@ -11666,7 +11702,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_t_17 = NULL;
     if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-    __PYX_ERR(0, 609, __pyx_L1_error)
+    __PYX_ERR(0, 612, __pyx_L1_error)
     __pyx_L14_unpacking_done:;
   }
   __pyx_v_aDamp = __pyx_t_2;
@@ -11674,7 +11710,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
   __pyx_v_Qelast = __pyx_t_11;
   __pyx_t_11 = 0;
 
-  /* "CAtmosphere.pyx":611
+  /* "CAtmosphere.pyx":614
  *         aDamp, Qelast = self.transModel.damping(self.atmos, atom.vBroad)
  * 
  *         cdef Atmosphere* atmos = atom.atom.atmos             # <<<<<<<<<<<<<<
@@ -11684,36 +11720,36 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
   __pyx_t_18 = __pyx_v_atom->atom.atmos;
   __pyx_v_atmos = __pyx_t_18;
 
-  /* "CAtmosphere.pyx":613
+  /* "CAtmosphere.pyx":616
  *         cdef Atmosphere* atmos = atom.atom.atmos
  *         cdef int i
  *         for i in range(Qelast.shape[0]):             # <<<<<<<<<<<<<<
  *             self.Qelast[i] = Qelast[i]
  *             self.aDamp[i] = aDamp[i]
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_Qelast, __pyx_n_s_shape); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 613, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_Qelast, __pyx_n_s_shape); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 616, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_11 = __Pyx_GetItemInt(__pyx_t_3, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 613, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_GetItemInt(__pyx_t_3, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 616, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_19 = __Pyx_PyInt_As_long(__pyx_t_11); if (unlikely((__pyx_t_19 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 613, __pyx_L1_error)
+  __pyx_t_19 = __Pyx_PyInt_As_long(__pyx_t_11); if (unlikely((__pyx_t_19 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 616, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
   __pyx_t_20 = __pyx_t_19;
   for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_20; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "CAtmosphere.pyx":614
+    /* "CAtmosphere.pyx":617
  *         cdef int i
  *         for i in range(Qelast.shape[0]):
  *             self.Qelast[i] = Qelast[i]             # <<<<<<<<<<<<<<
  *             self.aDamp[i] = aDamp[i]
  * 
  */
-    __pyx_t_11 = __Pyx_GetItemInt(__pyx_v_Qelast, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 614, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_GetItemInt(__pyx_v_Qelast, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 617, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
-    __pyx_t_21 = __pyx_PyFloat_AsDouble(__pyx_t_11); if (unlikely((__pyx_t_21 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 614, __pyx_L1_error)
+    __pyx_t_21 = __pyx_PyFloat_AsDouble(__pyx_t_11); if (unlikely((__pyx_t_21 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 617, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-    if (unlikely(!__pyx_v_self->Qelast.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 614, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->Qelast.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 617, __pyx_L1_error)}
     __pyx_t_22 = __pyx_v_i;
     __pyx_t_23 = -1;
     if (__pyx_t_22 < 0) {
@@ -11722,22 +11758,22 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
     } else if (unlikely(__pyx_t_22 >= __pyx_v_self->Qelast.shape[0])) __pyx_t_23 = 0;
     if (unlikely(__pyx_t_23 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_23);
-      __PYX_ERR(0, 614, __pyx_L1_error)
+      __PYX_ERR(0, 617, __pyx_L1_error)
     }
     *((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ ((char *) (((__pyx_t_8CmoArray_f64 *) __pyx_v_self->Qelast.data) + __pyx_t_22)) )) = __pyx_t_21;
 
-    /* "CAtmosphere.pyx":615
+    /* "CAtmosphere.pyx":618
  *         for i in range(Qelast.shape[0]):
  *             self.Qelast[i] = Qelast[i]
  *             self.aDamp[i] = aDamp[i]             # <<<<<<<<<<<<<<
  * 
  *         z = self.transModel.zeeman_components()
  */
-    __pyx_t_11 = __Pyx_GetItemInt(__pyx_v_aDamp, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 615, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_GetItemInt(__pyx_v_aDamp, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 618, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
-    __pyx_t_21 = __pyx_PyFloat_AsDouble(__pyx_t_11); if (unlikely((__pyx_t_21 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 615, __pyx_L1_error)
+    __pyx_t_21 = __pyx_PyFloat_AsDouble(__pyx_t_11); if (unlikely((__pyx_t_21 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 618, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-    if (unlikely(!__pyx_v_self->aDamp.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 615, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->aDamp.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 618, __pyx_L1_error)}
     __pyx_t_24 = __pyx_v_i;
     __pyx_t_23 = -1;
     if (__pyx_t_24 < 0) {
@@ -11746,19 +11782,19 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
     } else if (unlikely(__pyx_t_24 >= __pyx_v_self->aDamp.shape[0])) __pyx_t_23 = 0;
     if (unlikely(__pyx_t_23 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_23);
-      __PYX_ERR(0, 615, __pyx_L1_error)
+      __PYX_ERR(0, 618, __pyx_L1_error)
     }
     *((__pyx_t_8CmoArray_f64 *) ( /* dim=0 */ ((char *) (((__pyx_t_8CmoArray_f64 *) __pyx_v_self->aDamp.data) + __pyx_t_24)) )) = __pyx_t_21;
   }
 
-  /* "CAtmosphere.pyx":617
+  /* "CAtmosphere.pyx":620
  *             self.aDamp[i] = aDamp[i]
  * 
  *         z = self.transModel.zeeman_components()             # <<<<<<<<<<<<<<
  *         cdef LwZeemanComponents zc = LwZeemanComponents(z)
  * 
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->transModel, __pyx_n_s_zeeman_components); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 617, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->transModel, __pyx_n_s_zeeman_components); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 620, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_2 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
@@ -11772,25 +11808,25 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
   }
   __pyx_t_11 = (__pyx_t_2) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 617, __pyx_L1_error)
+  if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 620, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_z = __pyx_t_11;
   __pyx_t_11 = 0;
 
-  /* "CAtmosphere.pyx":618
+  /* "CAtmosphere.pyx":621
  * 
  *         z = self.transModel.zeeman_components()
  *         cdef LwZeemanComponents zc = LwZeemanComponents(z)             # <<<<<<<<<<<<<<
  * 
  *         self.trans.compute_polarised_profiles(atmos[0], self.trans.aDamp, atom.atom.vBroad, zc.zc)
  */
-  __pyx_t_11 = __Pyx_PyObject_CallOneArg(((PyObject *)__pyx_ptype_11CAtmosphere_LwZeemanComponents), __pyx_v_z); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 618, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyObject_CallOneArg(((PyObject *)__pyx_ptype_11CAtmosphere_LwZeemanComponents), __pyx_v_z); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 621, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
   __pyx_v_zc = ((struct __pyx_obj_11CAtmosphere_LwZeemanComponents *)__pyx_t_11);
   __pyx_t_11 = 0;
 
-  /* "CAtmosphere.pyx":620
+  /* "CAtmosphere.pyx":623
  *         cdef LwZeemanComponents zc = LwZeemanComponents(z)
  * 
  *         self.trans.compute_polarised_profiles(atmos[0], self.trans.aDamp, atom.atom.vBroad, zc.zc)             # <<<<<<<<<<<<<<
@@ -11799,7 +11835,7 @@ static PyObject *__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles
  */
   __pyx_v_self->trans.compute_polarised_profiles((__pyx_v_atmos[0]), __pyx_v_self->trans.aDamp, __pyx_v_atom->atom.vBroad, __pyx_v_zc->zc);
 
-  /* "CAtmosphere.pyx":580
+  /* "CAtmosphere.pyx":583
  *         self.trans.compute_phi(atmos[0], self.trans.aDamp, atom.atom.vBroad)
  * 
  *     cpdef compute_polarised_profiles(self):             # <<<<<<<<<<<<<<
@@ -11853,7 +11889,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4compute_polarised_profil
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("compute_polarised_profiles", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles(__pyx_v_self, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 580, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles(__pyx_v_self, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 583, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -11870,7 +11906,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4compute_polarised_profil
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":622
+/* "CAtmosphere.pyx":625
  *         self.trans.compute_polarised_profiles(atmos[0], self.trans.aDamp, atom.atom.vBroad, zc.zc)
  * 
  *     def uv(self, int la, int mu, bool_t toObs, f64[::1] Uji not None, f64[::1] Vij not None, f64[::1] Vji not None):             # <<<<<<<<<<<<<<
@@ -11921,35 +11957,35 @@ static PyObject *__pyx_pw_11CAtmosphere_12LwTransition_7uv(PyObject *__pyx_v_sel
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mu)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("uv", 1, 6, 6, 1); __PYX_ERR(0, 622, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("uv", 1, 6, 6, 1); __PYX_ERR(0, 625, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_toObs)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("uv", 1, 6, 6, 2); __PYX_ERR(0, 622, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("uv", 1, 6, 6, 2); __PYX_ERR(0, 625, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_Uji)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("uv", 1, 6, 6, 3); __PYX_ERR(0, 622, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("uv", 1, 6, 6, 3); __PYX_ERR(0, 625, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
         if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_Vij)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("uv", 1, 6, 6, 4); __PYX_ERR(0, 622, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("uv", 1, 6, 6, 4); __PYX_ERR(0, 625, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  5:
         if (likely((values[5] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_Vji)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("uv", 1, 6, 6, 5); __PYX_ERR(0, 622, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("uv", 1, 6, 6, 5); __PYX_ERR(0, 625, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "uv") < 0)) __PYX_ERR(0, 622, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "uv") < 0)) __PYX_ERR(0, 625, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 6) {
       goto __pyx_L5_argtuple_error;
@@ -11961,29 +11997,29 @@ static PyObject *__pyx_pw_11CAtmosphere_12LwTransition_7uv(PyObject *__pyx_v_sel
       values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
       values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
     }
-    __pyx_v_la = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_la == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 622, __pyx_L3_error)
-    __pyx_v_mu = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_mu == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 622, __pyx_L3_error)
-    __pyx_v_toObs = __Pyx_PyObject_IsTrue(values[2]); if (unlikely((__pyx_v_toObs == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(0, 622, __pyx_L3_error)
-    __pyx_v_Uji = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(values[3], PyBUF_WRITABLE); if (unlikely(!__pyx_v_Uji.memview)) __PYX_ERR(0, 622, __pyx_L3_error)
-    __pyx_v_Vij = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(values[4], PyBUF_WRITABLE); if (unlikely(!__pyx_v_Vij.memview)) __PYX_ERR(0, 622, __pyx_L3_error)
-    __pyx_v_Vji = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(values[5], PyBUF_WRITABLE); if (unlikely(!__pyx_v_Vji.memview)) __PYX_ERR(0, 622, __pyx_L3_error)
+    __pyx_v_la = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_la == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 625, __pyx_L3_error)
+    __pyx_v_mu = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_mu == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 625, __pyx_L3_error)
+    __pyx_v_toObs = __Pyx_PyObject_IsTrue(values[2]); if (unlikely((__pyx_v_toObs == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(0, 625, __pyx_L3_error)
+    __pyx_v_Uji = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(values[3], PyBUF_WRITABLE); if (unlikely(!__pyx_v_Uji.memview)) __PYX_ERR(0, 625, __pyx_L3_error)
+    __pyx_v_Vij = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(values[4], PyBUF_WRITABLE); if (unlikely(!__pyx_v_Vij.memview)) __PYX_ERR(0, 625, __pyx_L3_error)
+    __pyx_v_Vji = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(values[5], PyBUF_WRITABLE); if (unlikely(!__pyx_v_Vji.memview)) __PYX_ERR(0, 625, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("uv", 1, 6, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 622, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("uv", 1, 6, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 625, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("CAtmosphere.LwTransition.uv", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
   if (unlikely(((PyObject *)__pyx_v_Uji.memview) == Py_None)) {
-    PyErr_Format(PyExc_TypeError, "Argument '%.200s' must not be None", "Uji"); __PYX_ERR(0, 622, __pyx_L1_error)
+    PyErr_Format(PyExc_TypeError, "Argument '%.200s' must not be None", "Uji"); __PYX_ERR(0, 625, __pyx_L1_error)
   }
   if (unlikely(((PyObject *)__pyx_v_Vij.memview) == Py_None)) {
-    PyErr_Format(PyExc_TypeError, "Argument '%.200s' must not be None", "Vij"); __PYX_ERR(0, 622, __pyx_L1_error)
+    PyErr_Format(PyExc_TypeError, "Argument '%.200s' must not be None", "Vij"); __PYX_ERR(0, 625, __pyx_L1_error)
   }
   if (unlikely(((PyObject *)__pyx_v_Vji.memview) == Py_None)) {
-    PyErr_Format(PyExc_TypeError, "Argument '%.200s' must not be None", "Vji"); __PYX_ERR(0, 622, __pyx_L1_error)
+    PyErr_Format(PyExc_TypeError, "Argument '%.200s' must not be None", "Vji"); __PYX_ERR(0, 625, __pyx_L1_error)
   }
   __pyx_r = __pyx_pf_11CAtmosphere_12LwTransition_6uv(((struct __pyx_obj_11CAtmosphere_LwTransition *)__pyx_v_self), __pyx_v_la, __pyx_v_mu, __pyx_v_toObs, __pyx_v_Uji, __pyx_v_Vij, __pyx_v_Vji);
 
@@ -12005,7 +12041,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6uv(struct __pyx_obj_11CA
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("uv", 0);
 
-  /* "CAtmosphere.pyx":623
+  /* "CAtmosphere.pyx":626
  * 
  *     def uv(self, int la, int mu, bool_t toObs, f64[::1] Uji not None, f64[::1] Vij not None, f64[::1] Vji not None):
  *         cdef bint obs = toObs             # <<<<<<<<<<<<<<
@@ -12014,7 +12050,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6uv(struct __pyx_obj_11CA
  */
   __pyx_v_obs = __pyx_v_toObs;
 
-  /* "CAtmosphere.pyx":624
+  /* "CAtmosphere.pyx":627
  *     def uv(self, int la, int mu, bool_t toObs, f64[::1] Uji not None, f64[::1] Vij not None, f64[::1] Vji not None):
  *         cdef bint obs = toObs
  *         cdef F64View cUji = f64_view(Uji)             # <<<<<<<<<<<<<<
@@ -12023,7 +12059,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6uv(struct __pyx_obj_11CA
  */
   __pyx_v_cUji = __pyx_f_14CmoArrayHelper_f64_view(__pyx_v_Uji);
 
-  /* "CAtmosphere.pyx":625
+  /* "CAtmosphere.pyx":628
  *         cdef bint obs = toObs
  *         cdef F64View cUji = f64_view(Uji)
  *         cdef F64View cVij = f64_view(Vij)             # <<<<<<<<<<<<<<
@@ -12032,7 +12068,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6uv(struct __pyx_obj_11CA
  */
   __pyx_v_cVij = __pyx_f_14CmoArrayHelper_f64_view(__pyx_v_Vij);
 
-  /* "CAtmosphere.pyx":626
+  /* "CAtmosphere.pyx":629
  *         cdef F64View cUji = f64_view(Uji)
  *         cdef F64View cVij = f64_view(Vij)
  *         cdef F64View cVji = f64_view(Vji)             # <<<<<<<<<<<<<<
@@ -12041,7 +12077,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6uv(struct __pyx_obj_11CA
  */
   __pyx_v_cVji = __pyx_f_14CmoArrayHelper_f64_view(__pyx_v_Vji);
 
-  /* "CAtmosphere.pyx":628
+  /* "CAtmosphere.pyx":631
  *         cdef F64View cVji = f64_view(Vji)
  * 
  *         self.trans.uv(la, mu, obs, cUji, cVij, cVji)             # <<<<<<<<<<<<<<
@@ -12050,7 +12086,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6uv(struct __pyx_obj_11CA
  */
   __pyx_v_self->trans.uv(__pyx_v_la, __pyx_v_mu, __pyx_v_obs, __pyx_v_cUji, __pyx_v_cVij, __pyx_v_cVji);
 
-  /* "CAtmosphere.pyx":622
+  /* "CAtmosphere.pyx":625
  *         self.trans.compute_polarised_profiles(atmos[0], self.trans.aDamp, atom.atom.vBroad, zc.zc)
  * 
  *     def uv(self, int la, int mu, bool_t toObs, f64[::1] Uji not None, f64[::1] Vij not None, f64[::1] Vji not None):             # <<<<<<<<<<<<<<
@@ -12068,7 +12104,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6uv(struct __pyx_obj_11CA
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":631
+/* "CAtmosphere.pyx":634
  * 
  *     @property
  *     def jLevel(self):             # <<<<<<<<<<<<<<
@@ -12095,7 +12131,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6jLevel___get__(struct __
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":632
+  /* "CAtmosphere.pyx":635
  *     @property
  *     def jLevel(self):
  *         return self.transModel.jLevel             # <<<<<<<<<<<<<<
@@ -12103,13 +12139,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6jLevel___get__(struct __
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->transModel, __pyx_n_s_jLevel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 632, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->transModel, __pyx_n_s_jLevel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 635, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":631
+  /* "CAtmosphere.pyx":634
  * 
  *     @property
  *     def jLevel(self):             # <<<<<<<<<<<<<<
@@ -12128,7 +12164,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6jLevel___get__(struct __
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":635
+/* "CAtmosphere.pyx":638
  * 
  *     @property
  *     def iLevel(self):             # <<<<<<<<<<<<<<
@@ -12155,7 +12191,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6iLevel___get__(struct __
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":636
+  /* "CAtmosphere.pyx":639
  *     @property
  *     def iLevel(self):
  *         return self.transModel.iLevel             # <<<<<<<<<<<<<<
@@ -12163,13 +12199,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6iLevel___get__(struct __
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->transModel, __pyx_n_s_iLevel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 636, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->transModel, __pyx_n_s_iLevel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 639, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":635
+  /* "CAtmosphere.pyx":638
  * 
  *     @property
  *     def iLevel(self):             # <<<<<<<<<<<<<<
@@ -12188,7 +12224,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6iLevel___get__(struct __
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":639
+/* "CAtmosphere.pyx":642
  * 
  *     @property
  *     def j(self):             # <<<<<<<<<<<<<<
@@ -12215,7 +12251,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_1j___get__(struct __pyx_o
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":640
+  /* "CAtmosphere.pyx":643
  *     @property
  *     def j(self):
  *         return self.transModel.j             # <<<<<<<<<<<<<<
@@ -12223,13 +12259,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_1j___get__(struct __pyx_o
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->transModel, __pyx_n_s_j); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 640, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->transModel, __pyx_n_s_j); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 643, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":639
+  /* "CAtmosphere.pyx":642
  * 
  *     @property
  *     def j(self):             # <<<<<<<<<<<<<<
@@ -12248,7 +12284,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_1j___get__(struct __pyx_o
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":643
+/* "CAtmosphere.pyx":646
  * 
  *     @property
  *     def i(self):             # <<<<<<<<<<<<<<
@@ -12275,7 +12311,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_1i___get__(struct __pyx_o
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":644
+  /* "CAtmosphere.pyx":647
  *     @property
  *     def i(self):
  *         return self.transModel.i             # <<<<<<<<<<<<<<
@@ -12283,13 +12319,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_1i___get__(struct __pyx_o
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->transModel, __pyx_n_s_i); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 644, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->transModel, __pyx_n_s_i); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 647, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":643
+  /* "CAtmosphere.pyx":646
  * 
  *     @property
  *     def i(self):             # <<<<<<<<<<<<<<
@@ -12308,7 +12344,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_1i___get__(struct __pyx_o
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":647
+/* "CAtmosphere.pyx":650
  * 
  *     @property
  *     def Aji(self):             # <<<<<<<<<<<<<<
@@ -12335,7 +12371,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_3Aji___get__(struct __pyx
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":648
+  /* "CAtmosphere.pyx":651
  *     @property
  *     def Aji(self):
  *         return self.trans.Aji             # <<<<<<<<<<<<<<
@@ -12343,13 +12379,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_3Aji___get__(struct __pyx
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->trans.Aji); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 648, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->trans.Aji); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 651, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":647
+  /* "CAtmosphere.pyx":650
  * 
  *     @property
  *     def Aji(self):             # <<<<<<<<<<<<<<
@@ -12368,7 +12404,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_3Aji___get__(struct __pyx
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":651
+/* "CAtmosphere.pyx":654
  * 
  *     @property
  *     def Bji(self):             # <<<<<<<<<<<<<<
@@ -12395,7 +12431,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_3Bji___get__(struct __pyx
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":652
+  /* "CAtmosphere.pyx":655
  *     @property
  *     def Bji(self):
  *         return self.trans.Bji             # <<<<<<<<<<<<<<
@@ -12403,13 +12439,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_3Bji___get__(struct __pyx
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->trans.Bji); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 652, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->trans.Bji); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 655, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":651
+  /* "CAtmosphere.pyx":654
  * 
  *     @property
  *     def Bji(self):             # <<<<<<<<<<<<<<
@@ -12428,7 +12464,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_3Bji___get__(struct __pyx
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":655
+/* "CAtmosphere.pyx":658
  * 
  *     @property
  *     def Bij(self):             # <<<<<<<<<<<<<<
@@ -12455,7 +12491,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_3Bij___get__(struct __pyx
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":656
+  /* "CAtmosphere.pyx":659
  *     @property
  *     def Bij(self):
  *         return self.trans.Bij             # <<<<<<<<<<<<<<
@@ -12463,13 +12499,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_3Bij___get__(struct __pyx
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->trans.Bij); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 656, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->trans.Bij); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 659, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":655
+  /* "CAtmosphere.pyx":658
  * 
  *     @property
  *     def Bij(self):             # <<<<<<<<<<<<<<
@@ -12488,7 +12524,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_3Bij___get__(struct __pyx
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":659
+/* "CAtmosphere.pyx":662
  * 
  *     @property
  *     def Nblue(self):             # <<<<<<<<<<<<<<
@@ -12515,7 +12551,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_5Nblue___get__(struct __p
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":660
+  /* "CAtmosphere.pyx":663
  *     @property
  *     def Nblue(self):
  *         return self.trans.Nblue             # <<<<<<<<<<<<<<
@@ -12523,13 +12559,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_5Nblue___get__(struct __p
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->trans.Nblue); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 660, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->trans.Nblue); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 663, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":659
+  /* "CAtmosphere.pyx":662
  * 
  *     @property
  *     def Nblue(self):             # <<<<<<<<<<<<<<
@@ -12548,7 +12584,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_5Nblue___get__(struct __p
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":663
+/* "CAtmosphere.pyx":666
  * 
  *     @property
  *     def dopplerWidth(self):             # <<<<<<<<<<<<<<
@@ -12575,7 +12611,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_12dopplerWidth___get__(st
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":664
+  /* "CAtmosphere.pyx":667
  *     @property
  *     def dopplerWidth(self):
  *         return self.trans.dopplerWidth             # <<<<<<<<<<<<<<
@@ -12583,13 +12619,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_12dopplerWidth___get__(st
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->trans.dopplerWidth); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 664, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->trans.dopplerWidth); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 667, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":663
+  /* "CAtmosphere.pyx":666
  * 
  *     @property
  *     def dopplerWidth(self):             # <<<<<<<<<<<<<<
@@ -12608,7 +12644,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_12dopplerWidth___get__(st
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":667
+/* "CAtmosphere.pyx":670
  * 
  *     @property
  *     def lambda0(self):             # <<<<<<<<<<<<<<
@@ -12635,7 +12671,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_7lambda0___get__(struct _
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":668
+  /* "CAtmosphere.pyx":671
  *     @property
  *     def lambda0(self):
  *         return self.trans.lambda0             # <<<<<<<<<<<<<<
@@ -12643,13 +12679,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_7lambda0___get__(struct _
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->trans.lambda0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 668, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->trans.lambda0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 671, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":667
+  /* "CAtmosphere.pyx":670
  * 
  *     @property
  *     def lambda0(self):             # <<<<<<<<<<<<<<
@@ -12668,7 +12704,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_7lambda0___get__(struct _
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":671
+/* "CAtmosphere.pyx":674
  * 
  *     @property
  *     def wphi(self):             # <<<<<<<<<<<<<<
@@ -12698,7 +12734,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4wphi___get__(struct __py
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":672
+  /* "CAtmosphere.pyx":675
  *     @property
  *     def wphi(self):
  *         return np.asarray(self.wphi)             # <<<<<<<<<<<<<<
@@ -12706,13 +12742,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4wphi___get__(struct __py
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 672, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 675, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 672, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 675, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->wphi.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 672, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->wphi, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 672, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->wphi.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 675, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->wphi, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 675, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -12727,14 +12763,14 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4wphi___get__(struct __py
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 672, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 675, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":671
+  /* "CAtmosphere.pyx":674
  * 
  *     @property
  *     def wphi(self):             # <<<<<<<<<<<<<<
@@ -12756,7 +12792,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4wphi___get__(struct __py
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":675
+/* "CAtmosphere.pyx":678
  * 
  *     @property
  *     def phi(self):             # <<<<<<<<<<<<<<
@@ -12786,7 +12822,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_3phi___get__(struct __pyx
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":676
+  /* "CAtmosphere.pyx":679
  *     @property
  *     def phi(self):
  *         return np.asarray(self.phi)             # <<<<<<<<<<<<<<
@@ -12794,13 +12830,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_3phi___get__(struct __pyx
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 676, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 679, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 676, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 679, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->phi.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 676, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->phi, 4, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 676, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->phi.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 679, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->phi, 4, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 679, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -12815,14 +12851,14 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_3phi___get__(struct __pyx
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 676, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 679, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":675
+  /* "CAtmosphere.pyx":678
  * 
  *     @property
  *     def phi(self):             # <<<<<<<<<<<<<<
@@ -12844,7 +12880,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_3phi___get__(struct __pyx
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":679
+/* "CAtmosphere.pyx":682
  * 
  *     @property
  *     def phiQ(self):             # <<<<<<<<<<<<<<
@@ -12874,7 +12910,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4phiQ___get__(struct __py
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":680
+  /* "CAtmosphere.pyx":683
  *     @property
  *     def phiQ(self):
  *         return np.asarray(self.phiQ)             # <<<<<<<<<<<<<<
@@ -12882,13 +12918,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4phiQ___get__(struct __py
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 680, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 683, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 680, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 683, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->phiQ.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 680, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->phiQ, 4, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 680, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->phiQ.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 683, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->phiQ, 4, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 683, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -12903,14 +12939,14 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4phiQ___get__(struct __py
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 680, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 683, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":679
+  /* "CAtmosphere.pyx":682
  * 
  *     @property
  *     def phiQ(self):             # <<<<<<<<<<<<<<
@@ -12932,7 +12968,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4phiQ___get__(struct __py
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":683
+/* "CAtmosphere.pyx":686
  * 
  *     @property
  *     def phiU(self):             # <<<<<<<<<<<<<<
@@ -12962,7 +12998,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4phiU___get__(struct __py
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":684
+  /* "CAtmosphere.pyx":687
  *     @property
  *     def phiU(self):
  *         return np.asarray(self.phiU)             # <<<<<<<<<<<<<<
@@ -12970,13 +13006,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4phiU___get__(struct __py
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 684, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 687, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 684, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 687, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->phiU.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 684, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->phiU, 4, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 684, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->phiU.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 687, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->phiU, 4, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 687, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -12991,14 +13027,14 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4phiU___get__(struct __py
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 684, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 687, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":683
+  /* "CAtmosphere.pyx":686
  * 
  *     @property
  *     def phiU(self):             # <<<<<<<<<<<<<<
@@ -13020,7 +13056,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4phiU___get__(struct __py
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":687
+/* "CAtmosphere.pyx":690
  * 
  *     @property
  *     def phiV(self):             # <<<<<<<<<<<<<<
@@ -13050,7 +13086,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4phiV___get__(struct __py
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":688
+  /* "CAtmosphere.pyx":691
  *     @property
  *     def phiV(self):
  *         return np.asarray(self.phiV)             # <<<<<<<<<<<<<<
@@ -13058,13 +13094,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4phiV___get__(struct __py
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 688, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 691, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 688, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 691, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->phiV.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 688, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->phiV, 4, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 688, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->phiV.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 691, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->phiV, 4, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 691, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -13079,14 +13115,14 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4phiV___get__(struct __py
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 688, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 691, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":687
+  /* "CAtmosphere.pyx":690
  * 
  *     @property
  *     def phiV(self):             # <<<<<<<<<<<<<<
@@ -13108,7 +13144,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4phiV___get__(struct __py
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":691
+/* "CAtmosphere.pyx":694
  * 
  *     @property
  *     def psiQ(self):             # <<<<<<<<<<<<<<
@@ -13138,7 +13174,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4psiQ___get__(struct __py
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":692
+  /* "CAtmosphere.pyx":695
  *     @property
  *     def psiQ(self):
  *         return np.asarray(self.psiQ)             # <<<<<<<<<<<<<<
@@ -13146,13 +13182,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4psiQ___get__(struct __py
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 692, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 695, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 692, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 695, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->psiQ.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 692, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->psiQ, 4, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 692, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->psiQ.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 695, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->psiQ, 4, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 695, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -13167,14 +13203,14 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4psiQ___get__(struct __py
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 692, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 695, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":691
+  /* "CAtmosphere.pyx":694
  * 
  *     @property
  *     def psiQ(self):             # <<<<<<<<<<<<<<
@@ -13196,7 +13232,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4psiQ___get__(struct __py
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":695
+/* "CAtmosphere.pyx":698
  * 
  *     @property
  *     def psiU(self):             # <<<<<<<<<<<<<<
@@ -13226,7 +13262,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4psiU___get__(struct __py
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":696
+  /* "CAtmosphere.pyx":699
  *     @property
  *     def psiU(self):
  *         return np.asarray(self.psiU)             # <<<<<<<<<<<<<<
@@ -13234,13 +13270,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4psiU___get__(struct __py
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 696, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 699, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 696, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 699, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->psiU.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 696, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->psiU, 4, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 696, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->psiU.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 699, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->psiU, 4, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 699, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -13255,14 +13291,14 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4psiU___get__(struct __py
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 696, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 699, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":695
+  /* "CAtmosphere.pyx":698
  * 
  *     @property
  *     def psiU(self):             # <<<<<<<<<<<<<<
@@ -13284,7 +13320,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4psiU___get__(struct __py
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":699
+/* "CAtmosphere.pyx":702
  * 
  *     @property
  *     def psiV(self):             # <<<<<<<<<<<<<<
@@ -13314,7 +13350,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4psiV___get__(struct __py
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":700
+  /* "CAtmosphere.pyx":703
  *     @property
  *     def psiV(self):
  *         return np.asarray(self.psiV)             # <<<<<<<<<<<<<<
@@ -13322,13 +13358,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4psiV___get__(struct __py
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 700, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 703, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 700, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 703, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->psiV.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 700, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->psiV, 4, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 700, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->psiV.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 703, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->psiV, 4, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 703, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -13343,14 +13379,14 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4psiV___get__(struct __py
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 700, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 703, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":699
+  /* "CAtmosphere.pyx":702
  * 
  *     @property
  *     def psiV(self):             # <<<<<<<<<<<<<<
@@ -13372,7 +13408,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4psiV___get__(struct __py
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":703
+/* "CAtmosphere.pyx":706
  * 
  *     @property
  *     def Rij(self):             # <<<<<<<<<<<<<<
@@ -13402,7 +13438,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_3Rij___get__(struct __pyx
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":704
+  /* "CAtmosphere.pyx":707
  *     @property
  *     def Rij(self):
  *         return np.asarray(self.Rij)             # <<<<<<<<<<<<<<
@@ -13410,13 +13446,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_3Rij___get__(struct __pyx
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 704, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 707, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 704, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 707, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->Rij.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 704, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->Rij, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 704, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->Rij.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 707, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->Rij, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 707, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -13431,14 +13467,14 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_3Rij___get__(struct __pyx
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 704, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 707, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":703
+  /* "CAtmosphere.pyx":706
  * 
  *     @property
  *     def Rij(self):             # <<<<<<<<<<<<<<
@@ -13460,7 +13496,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_3Rij___get__(struct __pyx
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":707
+/* "CAtmosphere.pyx":710
  * 
  *     @property
  *     def Rji(self):             # <<<<<<<<<<<<<<
@@ -13490,7 +13526,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_3Rji___get__(struct __pyx
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":708
+  /* "CAtmosphere.pyx":711
  *     @property
  *     def Rji(self):
  *         return np.asarray(self.Rji)             # <<<<<<<<<<<<<<
@@ -13498,13 +13534,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_3Rji___get__(struct __pyx
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 708, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 711, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 708, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 711, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->Rji.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 708, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->Rji, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 708, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->Rji.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 711, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->Rji, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 711, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -13519,14 +13555,14 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_3Rji___get__(struct __pyx
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 708, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 711, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":707
+  /* "CAtmosphere.pyx":710
  * 
  *     @property
  *     def Rji(self):             # <<<<<<<<<<<<<<
@@ -13548,7 +13584,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_3Rji___get__(struct __pyx
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":711
+/* "CAtmosphere.pyx":714
  * 
  *     @property
  *     def rhoPrd(self):             # <<<<<<<<<<<<<<
@@ -13578,7 +13614,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6rhoPrd___get__(struct __
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":712
+  /* "CAtmosphere.pyx":715
  *     @property
  *     def rhoPrd(self):
  *         return np.asarray(self.rhoPrd)             # <<<<<<<<<<<<<<
@@ -13586,13 +13622,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6rhoPrd___get__(struct __
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 712, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 715, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 712, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 715, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->rhoPrd.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 712, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->rhoPrd, 2, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 712, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->rhoPrd.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 715, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->rhoPrd, 2, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 715, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -13607,14 +13643,14 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6rhoPrd___get__(struct __
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 712, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 715, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":711
+  /* "CAtmosphere.pyx":714
  * 
  *     @property
  *     def rhoPrd(self):             # <<<<<<<<<<<<<<
@@ -13636,7 +13672,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6rhoPrd___get__(struct __
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":715
+/* "CAtmosphere.pyx":718
  * 
  *     @property
  *     def alpha(self):             # <<<<<<<<<<<<<<
@@ -13666,7 +13702,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_5alpha___get__(struct __p
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":716
+  /* "CAtmosphere.pyx":719
  *     @property
  *     def alpha(self):
  *         return np.asarray(self.alpha)             # <<<<<<<<<<<<<<
@@ -13674,13 +13710,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_5alpha___get__(struct __p
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 716, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 719, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 716, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 719, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->alpha.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 716, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->alpha, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 716, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->alpha.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 719, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->alpha, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 719, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -13695,14 +13731,14 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_5alpha___get__(struct __p
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 716, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 719, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":715
+  /* "CAtmosphere.pyx":718
  * 
  *     @property
  *     def alpha(self):             # <<<<<<<<<<<<<<
@@ -13724,7 +13760,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_5alpha___get__(struct __p
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":719
+/* "CAtmosphere.pyx":722
  * 
  *     @property
  *     def wavelength(self):             # <<<<<<<<<<<<<<
@@ -13754,7 +13790,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_10wavelength___get__(stru
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":720
+  /* "CAtmosphere.pyx":723
  *     @property
  *     def wavelength(self):
  *         return np.asarray(self.wavelength)             # <<<<<<<<<<<<<<
@@ -13762,13 +13798,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_10wavelength___get__(stru
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 720, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 723, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 720, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 723, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 720, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->wavelength, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 720, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 723, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->wavelength, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 723, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -13783,14 +13819,14 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_10wavelength___get__(stru
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 720, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 723, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":719
+  /* "CAtmosphere.pyx":722
  * 
  *     @property
  *     def wavelength(self):             # <<<<<<<<<<<<<<
@@ -13812,7 +13848,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_10wavelength___get__(stru
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":723
+/* "CAtmosphere.pyx":726
  * 
  *     @property
  *     def active(self):             # <<<<<<<<<<<<<<
@@ -13843,7 +13879,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6active___get__(struct __
   PyObject *__pyx_t_5 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":724
+  /* "CAtmosphere.pyx":727
  *     @property
  *     def active(self):
  *         return np.asarray(self.active).astype(np.bool)             # <<<<<<<<<<<<<<
@@ -13851,13 +13887,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6active___get__(struct __
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 724, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 727, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_asarray); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 724, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_asarray); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 727, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_v_self->active.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 724, __pyx_L1_error)}
-  __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_self->active, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_11CAtmosphere_i8, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_11CAtmosphere_i8, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 724, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->active.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 727, __pyx_L1_error)}
+  __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_self->active, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_11CAtmosphere_i8, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_11CAtmosphere_i8, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 727, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -13872,15 +13908,15 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6active___get__(struct __
   __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 724, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 727, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_astype); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 724, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_astype); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 727, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 724, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 727, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_bool); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 724, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_bool); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 727, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = NULL;
@@ -13896,14 +13932,14 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6active___get__(struct __
   __pyx_t_1 = (__pyx_t_2) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_2, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3);
   __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 724, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 727, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":723
+  /* "CAtmosphere.pyx":726
  * 
  *     @property
  *     def active(self):             # <<<<<<<<<<<<<<
@@ -13926,7 +13962,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6active___get__(struct __
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":727
+/* "CAtmosphere.pyx":730
  * 
  *     @property
  *     def Qelast(self):             # <<<<<<<<<<<<<<
@@ -13956,7 +13992,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6Qelast___get__(struct __
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":728
+  /* "CAtmosphere.pyx":731
  *     @property
  *     def Qelast(self):
  *         return np.asarray(self.Qelast)             # <<<<<<<<<<<<<<
@@ -13964,13 +14000,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6Qelast___get__(struct __
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 728, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 731, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 728, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 731, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->Qelast.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 728, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->Qelast, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 728, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->Qelast.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 731, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->Qelast, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 731, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -13985,14 +14021,14 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6Qelast___get__(struct __
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 728, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 731, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":727
+  /* "CAtmosphere.pyx":730
  * 
  *     @property
  *     def Qelast(self):             # <<<<<<<<<<<<<<
@@ -14014,7 +14050,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_6Qelast___get__(struct __
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":731
+/* "CAtmosphere.pyx":734
  * 
  *     @property
  *     def aDamp(self):             # <<<<<<<<<<<<<<
@@ -14044,7 +14080,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_5aDamp___get__(struct __p
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":732
+  /* "CAtmosphere.pyx":735
  *     @property
  *     def aDamp(self):
  *         return np.asarray(self.aDamp)             # <<<<<<<<<<<<<<
@@ -14052,13 +14088,13 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_5aDamp___get__(struct __p
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 732, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 735, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 732, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 735, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->aDamp.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 732, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->aDamp, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 732, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->aDamp.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 735, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->aDamp, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 735, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -14073,14 +14109,14 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_5aDamp___get__(struct __p
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 732, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 735, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":731
+  /* "CAtmosphere.pyx":734
  * 
  *     @property
  *     def aDamp(self):             # <<<<<<<<<<<<<<
@@ -14102,7 +14138,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_5aDamp___get__(struct __p
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":735
+/* "CAtmosphere.pyx":738
  * 
  *     @property
  *     def type(self):             # <<<<<<<<<<<<<<
@@ -14129,7 +14165,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4type___get__(struct __py
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":736
+  /* "CAtmosphere.pyx":739
  *     @property
  *     def type(self):
  *         if self.trans.type == LINE:             # <<<<<<<<<<<<<<
@@ -14139,7 +14175,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4type___get__(struct __py
   __pyx_t_1 = ((__pyx_v_self->trans.type == LINE) != 0);
   if (__pyx_t_1) {
 
-    /* "CAtmosphere.pyx":737
+    /* "CAtmosphere.pyx":740
  *     def type(self):
  *         if self.trans.type == LINE:
  *             return 'Line'             # <<<<<<<<<<<<<<
@@ -14151,7 +14187,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4type___get__(struct __py
     __pyx_r = __pyx_n_u_Line;
     goto __pyx_L0;
 
-    /* "CAtmosphere.pyx":736
+    /* "CAtmosphere.pyx":739
  *     @property
  *     def type(self):
  *         if self.trans.type == LINE:             # <<<<<<<<<<<<<<
@@ -14160,7 +14196,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4type___get__(struct __py
  */
   }
 
-  /* "CAtmosphere.pyx":739
+  /* "CAtmosphere.pyx":742
  *             return 'Line'
  *         else:
  *             return 'Continuum'             # <<<<<<<<<<<<<<
@@ -14174,7 +14210,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_4type___get__(struct __py
     goto __pyx_L0;
   }
 
-  /* "CAtmosphere.pyx":735
+  /* "CAtmosphere.pyx":738
  * 
  *     @property
  *     def type(self):             # <<<<<<<<<<<<<<
@@ -14296,7 +14332,7 @@ static PyObject *__pyx_pf_11CAtmosphere_12LwTransition_10__setstate_cython__(CYT
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":747
+/* "CAtmosphere.pyx":750
  *     cdef f64[::1] strength
  * 
  *     def __init__(self, z):             # <<<<<<<<<<<<<<
@@ -14330,7 +14366,7 @@ static int __pyx_pw_11CAtmosphere_18LwZeemanComponents_1__init__(PyObject *__pyx
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 747, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 750, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
       goto __pyx_L5_argtuple_error;
@@ -14341,7 +14377,7 @@ static int __pyx_pw_11CAtmosphere_18LwZeemanComponents_1__init__(PyObject *__pyx
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 747, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 750, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("CAtmosphere.LwZeemanComponents.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -14364,62 +14400,62 @@ static int __pyx_pf_11CAtmosphere_18LwZeemanComponents___init__(struct __pyx_obj
   int __pyx_t_5;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "CAtmosphere.pyx":748
+  /* "CAtmosphere.pyx":751
  * 
  *     def __init__(self, z):
  *         self.alpha = z.alpha             # <<<<<<<<<<<<<<
  *         self.shift = z.shift
  *         self.strength = z.strength
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_z, __pyx_n_s_alpha); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 748, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_z, __pyx_n_s_alpha); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 751, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_5numpy_int32_t(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 748, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_5numpy_int32_t(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 751, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->alpha, 0);
   __pyx_v_self->alpha = __pyx_t_2;
   __pyx_t_2.memview = NULL;
   __pyx_t_2.data = NULL;
 
-  /* "CAtmosphere.pyx":749
+  /* "CAtmosphere.pyx":752
  *     def __init__(self, z):
  *         self.alpha = z.alpha
  *         self.shift = z.shift             # <<<<<<<<<<<<<<
  *         self.strength = z.strength
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_z, __pyx_n_s_shift); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 749, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_z, __pyx_n_s_shift); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 752, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_3.memview)) __PYX_ERR(0, 749, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_3.memview)) __PYX_ERR(0, 752, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->shift, 0);
   __pyx_v_self->shift = __pyx_t_3;
   __pyx_t_3.memview = NULL;
   __pyx_t_3.data = NULL;
 
-  /* "CAtmosphere.pyx":750
+  /* "CAtmosphere.pyx":753
  *         self.alpha = z.alpha
  *         self.shift = z.shift
  *         self.strength = z.strength             # <<<<<<<<<<<<<<
  * 
  *         self.zc.alpha = I32View(&self.alpha[0], self.alpha.shape[0])
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_z, __pyx_n_s_strength); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 750, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_z, __pyx_n_s_strength); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 753, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_3.memview)) __PYX_ERR(0, 750, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_3.memview)) __PYX_ERR(0, 753, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->strength, 0);
   __pyx_v_self->strength = __pyx_t_3;
   __pyx_t_3.memview = NULL;
   __pyx_t_3.data = NULL;
 
-  /* "CAtmosphere.pyx":752
+  /* "CAtmosphere.pyx":755
  *         self.strength = z.strength
  * 
  *         self.zc.alpha = I32View(&self.alpha[0], self.alpha.shape[0])             # <<<<<<<<<<<<<<
  *         self.zc.shift = f64_view(self.shift)
  *         self.zc.strength = f64_view(self.strength)
  */
-  if (unlikely(!__pyx_v_self->alpha.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 752, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->alpha.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 755, __pyx_L1_error)}
   __pyx_t_4 = 0;
   __pyx_t_5 = -1;
   if (__pyx_t_4 < 0) {
@@ -14428,32 +14464,32 @@ static int __pyx_pf_11CAtmosphere_18LwZeemanComponents___init__(struct __pyx_obj
   } else if (unlikely(__pyx_t_4 >= __pyx_v_self->alpha.shape[0])) __pyx_t_5 = 0;
   if (unlikely(__pyx_t_5 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_5);
-    __PYX_ERR(0, 752, __pyx_L1_error)
+    __PYX_ERR(0, 755, __pyx_L1_error)
   }
-  if (unlikely(!__pyx_v_self->alpha.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 752, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->alpha.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 755, __pyx_L1_error)}
   __pyx_v_self->zc.alpha = __pyx_t_11CAtmosphere_I32View((&(*((__pyx_t_5numpy_int32_t *) ( /* dim=0 */ ((char *) (((__pyx_t_5numpy_int32_t *) __pyx_v_self->alpha.data) + __pyx_t_4)) )))), (__pyx_v_self->alpha.shape[0]));
 
-  /* "CAtmosphere.pyx":753
+  /* "CAtmosphere.pyx":756
  * 
  *         self.zc.alpha = I32View(&self.alpha[0], self.alpha.shape[0])
  *         self.zc.shift = f64_view(self.shift)             # <<<<<<<<<<<<<<
  *         self.zc.strength = f64_view(self.strength)
  * 
  */
-  if (unlikely(!__pyx_v_self->shift.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 753, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->shift.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 756, __pyx_L1_error)}
   __pyx_v_self->zc.shift = __pyx_f_14CmoArrayHelper_f64_view(__pyx_v_self->shift);
 
-  /* "CAtmosphere.pyx":754
+  /* "CAtmosphere.pyx":757
  *         self.zc.alpha = I32View(&self.alpha[0], self.alpha.shape[0])
  *         self.zc.shift = f64_view(self.shift)
  *         self.zc.strength = f64_view(self.strength)             # <<<<<<<<<<<<<<
  * 
  * cdef class LwAtom:
  */
-  if (unlikely(!__pyx_v_self->strength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 754, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->strength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 757, __pyx_L1_error)}
   __pyx_v_self->zc.strength = __pyx_f_14CmoArrayHelper_f64_view(__pyx_v_self->strength);
 
-  /* "CAtmosphere.pyx":747
+  /* "CAtmosphere.pyx":750
  *     cdef f64[::1] strength
  * 
  *     def __init__(self, z):             # <<<<<<<<<<<<<<
@@ -14582,7 +14618,7 @@ static PyObject *__pyx_pf_11CAtmosphere_18LwZeemanComponents_4__setstate_cython_
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":775
+/* "CAtmosphere.pyx":778
  *     cdef list trans
  * 
  *     def __init__(self, atom, cAtmos, atmos, eqPops, spect, background, initSol=None, ngOptions=None):             # <<<<<<<<<<<<<<
@@ -14641,31 +14677,31 @@ static int __pyx_pw_11CAtmosphere_6LwAtom_1__init__(PyObject *__pyx_v_self, PyOb
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_cAtmos)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 0, 6, 8, 1); __PYX_ERR(0, 775, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 0, 6, 8, 1); __PYX_ERR(0, 778, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_atmos)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 0, 6, 8, 2); __PYX_ERR(0, 775, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 0, 6, 8, 2); __PYX_ERR(0, 778, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_eqPops)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 0, 6, 8, 3); __PYX_ERR(0, 775, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 0, 6, 8, 3); __PYX_ERR(0, 778, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
         if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_spect)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 0, 6, 8, 4); __PYX_ERR(0, 775, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 0, 6, 8, 4); __PYX_ERR(0, 778, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  5:
         if (likely((values[5] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_background)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 0, 6, 8, 5); __PYX_ERR(0, 775, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 0, 6, 8, 5); __PYX_ERR(0, 778, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  6:
@@ -14681,7 +14717,7 @@ static int __pyx_pw_11CAtmosphere_6LwAtom_1__init__(PyObject *__pyx_v_self, PyOb
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 775, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 778, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -14710,7 +14746,7 @@ static int __pyx_pw_11CAtmosphere_6LwAtom_1__init__(PyObject *__pyx_v_self, PyOb
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 0, 6, 8, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 775, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 0, 6, 8, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 778, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("CAtmosphere.LwAtom.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -14781,7 +14817,7 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
   __pyx_pybuffernd_C.data = NULL;
   __pyx_pybuffernd_C.rcbuffer = &__pyx_pybuffer_C;
 
-  /* "CAtmosphere.pyx":776
+  /* "CAtmosphere.pyx":779
  * 
  *     def __init__(self, atom, cAtmos, atmos, eqPops, spect, background, initSol=None, ngOptions=None):
  *         self.atomicModel = atom             # <<<<<<<<<<<<<<
@@ -14794,7 +14830,7 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
   __Pyx_DECREF(__pyx_v_self->atomicModel);
   __pyx_v_self->atomicModel = __pyx_v_atom;
 
-  /* "CAtmosphere.pyx":777
+  /* "CAtmosphere.pyx":780
  *     def __init__(self, atom, cAtmos, atmos, eqPops, spect, background, initSol=None, ngOptions=None):
  *         self.atomicModel = atom
  *         self.atmos = atmos             # <<<<<<<<<<<<<<
@@ -14807,20 +14843,20 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
   __Pyx_DECREF(__pyx_v_self->atmos);
   __pyx_v_self->atmos = __pyx_v_atmos;
 
-  /* "CAtmosphere.pyx":778
+  /* "CAtmosphere.pyx":781
  *         self.atomicModel = atom
  *         self.atmos = atmos
  *         cdef LwAtmosphere a = cAtmos             # <<<<<<<<<<<<<<
  *         self.atom.atmos = &a.atmos
  *         modelPops = eqPops.atomicPops[atom.name]
  */
-  if (!(likely(((__pyx_v_cAtmos) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_cAtmos, __pyx_ptype_11CAtmosphere_LwAtmosphere))))) __PYX_ERR(0, 778, __pyx_L1_error)
+  if (!(likely(((__pyx_v_cAtmos) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_cAtmos, __pyx_ptype_11CAtmosphere_LwAtmosphere))))) __PYX_ERR(0, 781, __pyx_L1_error)
   __pyx_t_1 = __pyx_v_cAtmos;
   __Pyx_INCREF(__pyx_t_1);
   __pyx_v_a = ((struct __pyx_obj_11CAtmosphere_LwAtmosphere *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "CAtmosphere.pyx":779
+  /* "CAtmosphere.pyx":782
  *         self.atmos = atmos
  *         cdef LwAtmosphere a = cAtmos
  *         self.atom.atmos = &a.atmos             # <<<<<<<<<<<<<<
@@ -14829,34 +14865,34 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
  */
   __pyx_v_self->atom.atmos = (&__pyx_v_a->atmos);
 
-  /* "CAtmosphere.pyx":780
+  /* "CAtmosphere.pyx":783
  *         cdef LwAtmosphere a = cAtmos
  *         self.atom.atmos = &a.atmos
  *         modelPops = eqPops.atomicPops[atom.name]             # <<<<<<<<<<<<<<
  *         self.atomicTable = modelPops.model.atomicTable
  *         vTherm = 2.0 * Const.KBOLTZMANN / (Const.AMU * modelPops.weight)
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_eqPops, __pyx_n_s_atomicPops); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 780, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_eqPops, __pyx_n_s_atomicPops); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 783, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_atom, __pyx_n_s_name); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 780, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_atom, __pyx_n_s_name); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 783, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetItem(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 780, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetItem(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 783, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_modelPops = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "CAtmosphere.pyx":781
+  /* "CAtmosphere.pyx":784
  *         self.atom.atmos = &a.atmos
  *         modelPops = eqPops.atomicPops[atom.name]
  *         self.atomicTable = modelPops.model.atomicTable             # <<<<<<<<<<<<<<
  *         vTherm = 2.0 * Const.KBOLTZMANN / (Const.AMU * modelPops.weight)
  *         self.vBroad = np.sqrt(vTherm * atmos.temperature + atmos.vturb**2)
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_modelPops, __pyx_n_s_model); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 781, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_modelPops, __pyx_n_s_model); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 784, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_atomicTable); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 781, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_atomicTable); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 784, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_GIVEREF(__pyx_t_2);
@@ -14865,62 +14901,62 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
   __pyx_v_self->atomicTable = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "CAtmosphere.pyx":782
+  /* "CAtmosphere.pyx":785
  *         modelPops = eqPops.atomicPops[atom.name]
  *         self.atomicTable = modelPops.model.atomicTable
  *         vTherm = 2.0 * Const.KBOLTZMANN / (Const.AMU * modelPops.weight)             # <<<<<<<<<<<<<<
  *         self.vBroad = np.sqrt(vTherm * atmos.temperature + atmos.vturb**2)
  *         self.atom.vBroad = f64_view(self.vBroad)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_Const); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 782, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_Const); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 785, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_KBOLTZMANN); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 782, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_KBOLTZMANN); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 785, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PyNumber_Multiply(__pyx_float_2_0, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 782, __pyx_L1_error)
+  __pyx_t_2 = PyNumber_Multiply(__pyx_float_2_0, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 785, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_Const); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 782, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_Const); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 785, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_AMU); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 782, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_AMU); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 785, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_modelPops, __pyx_n_s_weight); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 782, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_modelPops, __pyx_n_s_weight); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 785, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = PyNumber_Multiply(__pyx_t_1, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 782, __pyx_L1_error)
+  __pyx_t_4 = PyNumber_Multiply(__pyx_t_1, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 785, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyNumber_Divide(__pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 782, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyNumber_Divide(__pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 785, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_v_vTherm = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "CAtmosphere.pyx":783
+  /* "CAtmosphere.pyx":786
  *         self.atomicTable = modelPops.model.atomicTable
  *         vTherm = 2.0 * Const.KBOLTZMANN / (Const.AMU * modelPops.weight)
  *         self.vBroad = np.sqrt(vTherm * atmos.temperature + atmos.vturb**2)             # <<<<<<<<<<<<<<
  *         self.atom.vBroad = f64_view(self.vBroad)
  *         self.nTotal = modelPops.nTotal
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 783, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 786, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_sqrt); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 783, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_sqrt); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 786, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_atmos, __pyx_n_s_temperature); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 783, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_atmos, __pyx_n_s_temperature); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 786, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_1 = PyNumber_Multiply(__pyx_v_vTherm, __pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 783, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_Multiply(__pyx_v_vTherm, __pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 786, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_atmos, __pyx_n_s_vturb); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 783, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_atmos, __pyx_n_s_vturb); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 786, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = PyNumber_Power(__pyx_t_4, __pyx_int_2, Py_None); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 783, __pyx_L1_error)
+  __pyx_t_5 = PyNumber_Power(__pyx_t_4, __pyx_int_2, Py_None); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 786, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyNumber_Add(__pyx_t_1, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 783, __pyx_L1_error)
+  __pyx_t_4 = PyNumber_Add(__pyx_t_1, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 786, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
@@ -14937,60 +14973,60 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
   __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 783, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 786, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_3, PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 783, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_3, PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 786, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->vBroad, 0);
   __pyx_v_self->vBroad = __pyx_t_6;
   __pyx_t_6.memview = NULL;
   __pyx_t_6.data = NULL;
 
-  /* "CAtmosphere.pyx":784
+  /* "CAtmosphere.pyx":787
  *         vTherm = 2.0 * Const.KBOLTZMANN / (Const.AMU * modelPops.weight)
  *         self.vBroad = np.sqrt(vTherm * atmos.temperature + atmos.vturb**2)
  *         self.atom.vBroad = f64_view(self.vBroad)             # <<<<<<<<<<<<<<
  *         self.nTotal = modelPops.nTotal
  *         self.atom.nTotal = f64_view(self.nTotal)
  */
-  if (unlikely(!__pyx_v_self->vBroad.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 784, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->vBroad.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 787, __pyx_L1_error)}
   __pyx_v_self->atom.vBroad = __pyx_f_14CmoArrayHelper_f64_view(__pyx_v_self->vBroad);
 
-  /* "CAtmosphere.pyx":785
+  /* "CAtmosphere.pyx":788
  *         self.vBroad = np.sqrt(vTherm * atmos.temperature + atmos.vturb**2)
  *         self.atom.vBroad = f64_view(self.vBroad)
  *         self.nTotal = modelPops.nTotal             # <<<<<<<<<<<<<<
  *         self.atom.nTotal = f64_view(self.nTotal)
  * 
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_modelPops, __pyx_n_s_nTotal); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 785, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_modelPops, __pyx_n_s_nTotal); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 788, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_3, PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 785, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_3, PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 788, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->nTotal, 0);
   __pyx_v_self->nTotal = __pyx_t_6;
   __pyx_t_6.memview = NULL;
   __pyx_t_6.data = NULL;
 
-  /* "CAtmosphere.pyx":786
+  /* "CAtmosphere.pyx":789
  *         self.atom.vBroad = f64_view(self.vBroad)
  *         self.nTotal = modelPops.nTotal
  *         self.atom.nTotal = f64_view(self.nTotal)             # <<<<<<<<<<<<<<
  * 
  *         self.trans = []
  */
-  if (unlikely(!__pyx_v_self->nTotal.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 786, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->nTotal.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 789, __pyx_L1_error)}
   __pyx_v_self->atom.nTotal = __pyx_f_14CmoArrayHelper_f64_view(__pyx_v_self->nTotal);
 
-  /* "CAtmosphere.pyx":788
+  /* "CAtmosphere.pyx":791
  *         self.atom.nTotal = f64_view(self.nTotal)
  * 
  *         self.trans = []             # <<<<<<<<<<<<<<
  *         for l in atom.lines:
  *             self.trans.append(LwTransition(l, self, atmos, spect))
  */
-  __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 788, __pyx_L1_error)
+  __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 791, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_3);
   __Pyx_GOTREF(__pyx_v_self->trans);
@@ -14998,22 +15034,22 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
   __pyx_v_self->trans = ((PyObject*)__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "CAtmosphere.pyx":789
+  /* "CAtmosphere.pyx":792
  * 
  *         self.trans = []
  *         for l in atom.lines:             # <<<<<<<<<<<<<<
  *             self.trans.append(LwTransition(l, self, atmos, spect))
  * 
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_atom, __pyx_n_s_lines); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 789, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_atom, __pyx_n_s_lines); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 792, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   if (likely(PyList_CheckExact(__pyx_t_3)) || PyTuple_CheckExact(__pyx_t_3)) {
     __pyx_t_2 = __pyx_t_3; __Pyx_INCREF(__pyx_t_2); __pyx_t_7 = 0;
     __pyx_t_8 = NULL;
   } else {
-    __pyx_t_7 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 789, __pyx_L1_error)
+    __pyx_t_7 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 792, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_8 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 789, __pyx_L1_error)
+    __pyx_t_8 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 792, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   for (;;) {
@@ -15021,17 +15057,17 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
       if (likely(PyList_CheckExact(__pyx_t_2))) {
         if (__pyx_t_7 >= PyList_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_3 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_7); __Pyx_INCREF(__pyx_t_3); __pyx_t_7++; if (unlikely(0 < 0)) __PYX_ERR(0, 789, __pyx_L1_error)
+        __pyx_t_3 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_7); __Pyx_INCREF(__pyx_t_3); __pyx_t_7++; if (unlikely(0 < 0)) __PYX_ERR(0, 792, __pyx_L1_error)
         #else
-        __pyx_t_3 = PySequence_ITEM(__pyx_t_2, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 789, __pyx_L1_error)
+        __pyx_t_3 = PySequence_ITEM(__pyx_t_2, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 792, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         #endif
       } else {
         if (__pyx_t_7 >= PyTuple_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_7); __Pyx_INCREF(__pyx_t_3); __pyx_t_7++; if (unlikely(0 < 0)) __PYX_ERR(0, 789, __pyx_L1_error)
+        __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_7); __Pyx_INCREF(__pyx_t_3); __pyx_t_7++; if (unlikely(0 < 0)) __PYX_ERR(0, 792, __pyx_L1_error)
         #else
-        __pyx_t_3 = PySequence_ITEM(__pyx_t_2, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 789, __pyx_L1_error)
+        __pyx_t_3 = PySequence_ITEM(__pyx_t_2, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 792, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         #endif
       }
@@ -15041,7 +15077,7 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 789, __pyx_L1_error)
+          else __PYX_ERR(0, 792, __pyx_L1_error)
         }
         break;
       }
@@ -15050,7 +15086,7 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
     __Pyx_XDECREF_SET(__pyx_v_l, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "CAtmosphere.pyx":790
+    /* "CAtmosphere.pyx":793
  *         self.trans = []
  *         for l in atom.lines:
  *             self.trans.append(LwTransition(l, self, atmos, spect))             # <<<<<<<<<<<<<<
@@ -15059,9 +15095,9 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
  */
     if (unlikely(__pyx_v_self->trans == Py_None)) {
       PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "append");
-      __PYX_ERR(0, 790, __pyx_L1_error)
+      __PYX_ERR(0, 793, __pyx_L1_error)
     }
-    __pyx_t_3 = PyTuple_New(4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 790, __pyx_L1_error)
+    __pyx_t_3 = PyTuple_New(4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 793, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_INCREF(__pyx_v_l);
     __Pyx_GIVEREF(__pyx_v_l);
@@ -15075,13 +15111,13 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
     __Pyx_INCREF(__pyx_v_spect);
     __Pyx_GIVEREF(__pyx_v_spect);
     PyTuple_SET_ITEM(__pyx_t_3, 3, __pyx_v_spect);
-    __pyx_t_4 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_11CAtmosphere_LwTransition), __pyx_t_3, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 790, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_11CAtmosphere_LwTransition), __pyx_t_3, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 793, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_self->trans, __pyx_t_4); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(0, 790, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_self->trans, __pyx_t_4); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(0, 793, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "CAtmosphere.pyx":789
+    /* "CAtmosphere.pyx":792
  * 
  *         self.trans = []
  *         for l in atom.lines:             # <<<<<<<<<<<<<<
@@ -15091,22 +15127,22 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "CAtmosphere.pyx":792
+  /* "CAtmosphere.pyx":795
  *             self.trans.append(LwTransition(l, self, atmos, spect))
  * 
  *         for c in atom.continua:             # <<<<<<<<<<<<<<
  *             self.trans.append(LwTransition(c, self, atmos, spect))
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_atom, __pyx_n_s_continua); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 792, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_atom, __pyx_n_s_continua); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 795, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (likely(PyList_CheckExact(__pyx_t_2)) || PyTuple_CheckExact(__pyx_t_2)) {
     __pyx_t_4 = __pyx_t_2; __Pyx_INCREF(__pyx_t_4); __pyx_t_7 = 0;
     __pyx_t_8 = NULL;
   } else {
-    __pyx_t_7 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 792, __pyx_L1_error)
+    __pyx_t_7 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 795, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_8 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 792, __pyx_L1_error)
+    __pyx_t_8 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 795, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   for (;;) {
@@ -15114,17 +15150,17 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
       if (likely(PyList_CheckExact(__pyx_t_4))) {
         if (__pyx_t_7 >= PyList_GET_SIZE(__pyx_t_4)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_2 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_7); __Pyx_INCREF(__pyx_t_2); __pyx_t_7++; if (unlikely(0 < 0)) __PYX_ERR(0, 792, __pyx_L1_error)
+        __pyx_t_2 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_7); __Pyx_INCREF(__pyx_t_2); __pyx_t_7++; if (unlikely(0 < 0)) __PYX_ERR(0, 795, __pyx_L1_error)
         #else
-        __pyx_t_2 = PySequence_ITEM(__pyx_t_4, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 792, __pyx_L1_error)
+        __pyx_t_2 = PySequence_ITEM(__pyx_t_4, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 795, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         #endif
       } else {
         if (__pyx_t_7 >= PyTuple_GET_SIZE(__pyx_t_4)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_2 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_7); __Pyx_INCREF(__pyx_t_2); __pyx_t_7++; if (unlikely(0 < 0)) __PYX_ERR(0, 792, __pyx_L1_error)
+        __pyx_t_2 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_7); __Pyx_INCREF(__pyx_t_2); __pyx_t_7++; if (unlikely(0 < 0)) __PYX_ERR(0, 795, __pyx_L1_error)
         #else
-        __pyx_t_2 = PySequence_ITEM(__pyx_t_4, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 792, __pyx_L1_error)
+        __pyx_t_2 = PySequence_ITEM(__pyx_t_4, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 795, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         #endif
       }
@@ -15134,7 +15170,7 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 792, __pyx_L1_error)
+          else __PYX_ERR(0, 795, __pyx_L1_error)
         }
         break;
       }
@@ -15143,7 +15179,7 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
     __Pyx_XDECREF_SET(__pyx_v_c, __pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "CAtmosphere.pyx":793
+    /* "CAtmosphere.pyx":796
  * 
  *         for c in atom.continua:
  *             self.trans.append(LwTransition(c, self, atmos, spect))             # <<<<<<<<<<<<<<
@@ -15152,9 +15188,9 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
  */
     if (unlikely(__pyx_v_self->trans == Py_None)) {
       PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "append");
-      __PYX_ERR(0, 793, __pyx_L1_error)
+      __PYX_ERR(0, 796, __pyx_L1_error)
     }
-    __pyx_t_2 = PyTuple_New(4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 793, __pyx_L1_error)
+    __pyx_t_2 = PyTuple_New(4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 796, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_INCREF(__pyx_v_c);
     __Pyx_GIVEREF(__pyx_v_c);
@@ -15168,13 +15204,13 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
     __Pyx_INCREF(__pyx_v_spect);
     __Pyx_GIVEREF(__pyx_v_spect);
     PyTuple_SET_ITEM(__pyx_t_2, 3, __pyx_v_spect);
-    __pyx_t_3 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_11CAtmosphere_LwTransition), __pyx_t_2, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 793, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_11CAtmosphere_LwTransition), __pyx_t_2, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 796, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_self->trans, __pyx_t_3); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(0, 793, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_self->trans, __pyx_t_3); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(0, 796, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-    /* "CAtmosphere.pyx":792
+    /* "CAtmosphere.pyx":795
  *             self.trans.append(LwTransition(l, self, atmos, spect))
  * 
  *         for c in atom.continua:             # <<<<<<<<<<<<<<
@@ -15184,7 +15220,7 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
   }
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "CAtmosphere.pyx":796
+  /* "CAtmosphere.pyx":799
  * 
  *         cdef LwTransition lt
  *         for lt in self.trans:             # <<<<<<<<<<<<<<
@@ -15193,22 +15229,22 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
  */
   if (unlikely(__pyx_v_self->trans == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-    __PYX_ERR(0, 796, __pyx_L1_error)
+    __PYX_ERR(0, 799, __pyx_L1_error)
   }
   __pyx_t_4 = __pyx_v_self->trans; __Pyx_INCREF(__pyx_t_4); __pyx_t_7 = 0;
   for (;;) {
     if (__pyx_t_7 >= PyList_GET_SIZE(__pyx_t_4)) break;
     #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-    __pyx_t_3 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_7); __Pyx_INCREF(__pyx_t_3); __pyx_t_7++; if (unlikely(0 < 0)) __PYX_ERR(0, 796, __pyx_L1_error)
+    __pyx_t_3 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_7); __Pyx_INCREF(__pyx_t_3); __pyx_t_7++; if (unlikely(0 < 0)) __PYX_ERR(0, 799, __pyx_L1_error)
     #else
-    __pyx_t_3 = PySequence_ITEM(__pyx_t_4, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 796, __pyx_L1_error)
+    __pyx_t_3 = PySequence_ITEM(__pyx_t_4, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 799, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     #endif
-    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_11CAtmosphere_LwTransition))))) __PYX_ERR(0, 796, __pyx_L1_error)
+    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_11CAtmosphere_LwTransition))))) __PYX_ERR(0, 799, __pyx_L1_error)
     __Pyx_XDECREF_SET(__pyx_v_lt, ((struct __pyx_obj_11CAtmosphere_LwTransition *)__pyx_t_3));
     __pyx_t_3 = 0;
 
-    /* "CAtmosphere.pyx":797
+    /* "CAtmosphere.pyx":800
  *         cdef LwTransition lt
  *         for lt in self.trans:
  *             self.atom.trans.push_back(&lt.trans)             # <<<<<<<<<<<<<<
@@ -15219,10 +15255,10 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
       __pyx_v_self->atom.trans.push_back((&__pyx_v_lt->trans));
     } catch(...) {
       __Pyx_CppExn2PyErr();
-      __PYX_ERR(0, 797, __pyx_L1_error)
+      __PYX_ERR(0, 800, __pyx_L1_error)
     }
 
-    /* "CAtmosphere.pyx":796
+    /* "CAtmosphere.pyx":799
  * 
  *         cdef LwTransition lt
  *         for lt in self.trans:             # <<<<<<<<<<<<<<
@@ -15232,20 +15268,20 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
   }
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "CAtmosphere.pyx":799
+  /* "CAtmosphere.pyx":802
  *             self.atom.trans.push_back(&lt.trans)
  * 
  *         cdef int Nlevel = len(atom.levels)             # <<<<<<<<<<<<<<
  *         cdef int Ntrans = len(self.trans)
  *         self.atom.Nlevel = Nlevel
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_atom, __pyx_n_s_levels); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 799, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_atom, __pyx_n_s_levels); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 802, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_7 = PyObject_Length(__pyx_t_4); if (unlikely(__pyx_t_7 == ((Py_ssize_t)-1))) __PYX_ERR(0, 799, __pyx_L1_error)
+  __pyx_t_7 = PyObject_Length(__pyx_t_4); if (unlikely(__pyx_t_7 == ((Py_ssize_t)-1))) __PYX_ERR(0, 802, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_v_Nlevel = __pyx_t_7;
 
-  /* "CAtmosphere.pyx":800
+  /* "CAtmosphere.pyx":803
  * 
  *         cdef int Nlevel = len(atom.levels)
  *         cdef int Ntrans = len(self.trans)             # <<<<<<<<<<<<<<
@@ -15256,13 +15292,13 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
   __Pyx_INCREF(__pyx_t_4);
   if (unlikely(__pyx_t_4 == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "object of type 'NoneType' has no len()");
-    __PYX_ERR(0, 800, __pyx_L1_error)
+    __PYX_ERR(0, 803, __pyx_L1_error)
   }
-  __pyx_t_7 = PyList_GET_SIZE(__pyx_t_4); if (unlikely(__pyx_t_7 == ((Py_ssize_t)-1))) __PYX_ERR(0, 800, __pyx_L1_error)
+  __pyx_t_7 = PyList_GET_SIZE(__pyx_t_4); if (unlikely(__pyx_t_7 == ((Py_ssize_t)-1))) __PYX_ERR(0, 803, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_v_Ntrans = __pyx_t_7;
 
-  /* "CAtmosphere.pyx":801
+  /* "CAtmosphere.pyx":804
  *         cdef int Nlevel = len(atom.levels)
  *         cdef int Ntrans = len(self.trans)
  *         self.atom.Nlevel = Nlevel             # <<<<<<<<<<<<<<
@@ -15271,7 +15307,7 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
  */
   __pyx_v_self->atom.Nlevel = __pyx_v_Nlevel;
 
-  /* "CAtmosphere.pyx":802
+  /* "CAtmosphere.pyx":805
  *         cdef int Ntrans = len(self.trans)
  *         self.atom.Nlevel = Nlevel
  *         self.atom.Ntrans = Ntrans             # <<<<<<<<<<<<<<
@@ -15280,25 +15316,25 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
  */
   __pyx_v_self->atom.Ntrans = __pyx_v_Ntrans;
 
-  /* "CAtmosphere.pyx":804
+  /* "CAtmosphere.pyx":807
  *         self.atom.Ntrans = Ntrans
  * 
  *         self.Gamma = np.zeros((Nlevel, Nlevel, a.Nspace))             # <<<<<<<<<<<<<<
  *         self.atom.Gamma = f64_view_3(self.Gamma)
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 804, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 807, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 804, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 807, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_Nlevel); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 804, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_Nlevel); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 807, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_Nlevel); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 804, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_Nlevel); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 807, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_a), __pyx_n_s_Nspace); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 804, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_a), __pyx_n_s_Nspace); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 807, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_10 = PyTuple_New(3); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 804, __pyx_L1_error)
+  __pyx_t_10 = PyTuple_New(3); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 807, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __Pyx_GIVEREF(__pyx_t_3);
   PyTuple_SET_ITEM(__pyx_t_10, 0, __pyx_t_3);
@@ -15322,45 +15358,45 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
   __pyx_t_4 = (__pyx_t_1) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_1, __pyx_t_10) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_10);
   __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 804, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 807, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 804, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 807, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->Gamma, 0);
   __pyx_v_self->Gamma = __pyx_t_11;
   __pyx_t_11.memview = NULL;
   __pyx_t_11.data = NULL;
 
-  /* "CAtmosphere.pyx":805
+  /* "CAtmosphere.pyx":808
  * 
  *         self.Gamma = np.zeros((Nlevel, Nlevel, a.Nspace))
  *         self.atom.Gamma = f64_view_3(self.Gamma)             # <<<<<<<<<<<<<<
  * 
  *         self.C = np.zeros((Nlevel, Nlevel, atmos.Nspace))
  */
-  if (unlikely(!__pyx_v_self->Gamma.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 805, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->Gamma.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 808, __pyx_L1_error)}
   __pyx_v_self->atom.Gamma = __pyx_f_14CmoArrayHelper_f64_view_3(__pyx_v_self->Gamma);
 
-  /* "CAtmosphere.pyx":807
+  /* "CAtmosphere.pyx":810
  *         self.atom.Gamma = f64_view_3(self.Gamma)
  * 
  *         self.C = np.zeros((Nlevel, Nlevel, atmos.Nspace))             # <<<<<<<<<<<<<<
  *         self.atom.C = f64_view_3(self.C)
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 807, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 810, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_zeros); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 807, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_zeros); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 810, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_Nlevel); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 807, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_Nlevel); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 810, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_Nlevel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 807, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_Nlevel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 810, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 807, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 810, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_3 = PyTuple_New(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 807, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 810, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_2);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_2);
@@ -15384,66 +15420,66 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
   __pyx_t_4 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_10, __pyx_t_5, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_10, __pyx_t_3);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 807, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 810, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-  __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 807, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 810, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->C, 0);
   __pyx_v_self->C = __pyx_t_11;
   __pyx_t_11.memview = NULL;
   __pyx_t_11.data = NULL;
 
-  /* "CAtmosphere.pyx":808
+  /* "CAtmosphere.pyx":811
  * 
  *         self.C = np.zeros((Nlevel, Nlevel, atmos.Nspace))
  *         self.atom.C = f64_view_3(self.C)             # <<<<<<<<<<<<<<
  * 
  *         # TODO(cmo): Rewrite this to reuse an n and nStar from eqPops
  */
-  if (unlikely(!__pyx_v_self->C.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 808, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->C.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 811, __pyx_L1_error)}
   __pyx_v_self->atom.C = __pyx_f_14CmoArrayHelper_f64_view_3(__pyx_v_self->C);
 
-  /* "CAtmosphere.pyx":812
+  /* "CAtmosphere.pyx":815
  *         # TODO(cmo): Rewrite this to reuse an n and nStar from eqPops
  *         # self.nStar = np.zeros((self.Nlevel, atmos.Nspace))
  *         self.nStar = modelPops.nStar             # <<<<<<<<<<<<<<
  *         self.atom.nStar = f64_view_2(self.nStar)
  * 
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_modelPops, __pyx_n_s_nStar); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 812, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_modelPops, __pyx_n_s_nStar); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 815, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 812, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 815, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->nStar, 0);
   __pyx_v_self->nStar = __pyx_t_12;
   __pyx_t_12.memview = NULL;
   __pyx_t_12.data = NULL;
 
-  /* "CAtmosphere.pyx":813
+  /* "CAtmosphere.pyx":816
  *         # self.nStar = np.zeros((self.Nlevel, atmos.Nspace))
  *         self.nStar = modelPops.nStar
  *         self.atom.nStar = f64_view_2(self.nStar)             # <<<<<<<<<<<<<<
  * 
  *         # self.lte_pops()
  */
-  if (unlikely(!__pyx_v_self->nStar.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 813, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->nStar.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 816, __pyx_L1_error)}
   __pyx_v_self->atom.nStar = __pyx_f_14CmoArrayHelper_f64_view_2(__pyx_v_self->nStar);
 
-  /* "CAtmosphere.pyx":816
+  /* "CAtmosphere.pyx":819
  * 
  *         # self.lte_pops()
  *         self.n = np.copy(self.nStar)             # <<<<<<<<<<<<<<
  *         self.atom.n = f64_view_2(self.n)
  *         modelPops.pops = np.asarray(self.n)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_n_s_np); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 816, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_n_s_np); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 819, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_n_s_copy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 816, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_n_s_copy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 819, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-  if (unlikely(!__pyx_v_self->nStar.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 816, __pyx_L1_error)}
-  __pyx_t_10 = __pyx_memoryview_fromslice(__pyx_v_self->nStar, 2, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 816, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->nStar.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 819, __pyx_L1_error)}
+  __pyx_t_10 = __pyx_memoryview_fromslice(__pyx_v_self->nStar, 2, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 819, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -15458,40 +15494,40 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
   __pyx_t_4 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_5, __pyx_t_10) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_10);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 816, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 819, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 816, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 819, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->n, 0);
   __pyx_v_self->n = __pyx_t_12;
   __pyx_t_12.memview = NULL;
   __pyx_t_12.data = NULL;
 
-  /* "CAtmosphere.pyx":817
+  /* "CAtmosphere.pyx":820
  *         # self.lte_pops()
  *         self.n = np.copy(self.nStar)
  *         self.atom.n = f64_view_2(self.n)             # <<<<<<<<<<<<<<
  *         modelPops.pops = np.asarray(self.n)
  * 
  */
-  if (unlikely(!__pyx_v_self->n.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 817, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->n.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 820, __pyx_L1_error)}
   __pyx_v_self->atom.n = __pyx_f_14CmoArrayHelper_f64_view_2(__pyx_v_self->n);
 
-  /* "CAtmosphere.pyx":818
+  /* "CAtmosphere.pyx":821
  *         self.n = np.copy(self.nStar)
  *         self.atom.n = f64_view_2(self.n)
  *         modelPops.pops = np.asarray(self.n)             # <<<<<<<<<<<<<<
  * 
  *         self.eta = np.zeros(atmos.Nspace)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 818, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 821, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_asarray); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 818, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_asarray); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 821, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_v_self->n.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 818, __pyx_L1_error)}
-  __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_self->n, 2, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 818, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->n.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 821, __pyx_L1_error)}
+  __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_self->n, 2, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 821, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_10))) {
@@ -15506,25 +15542,25 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
   __pyx_t_4 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_10, __pyx_t_5, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_10, __pyx_t_3);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 818, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 821, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_modelPops, __pyx_n_s_pops, __pyx_t_4) < 0) __PYX_ERR(0, 818, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_modelPops, __pyx_n_s_pops, __pyx_t_4) < 0) __PYX_ERR(0, 821, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "CAtmosphere.pyx":820
+  /* "CAtmosphere.pyx":823
  *         modelPops.pops = np.asarray(self.n)
  * 
  *         self.eta = np.zeros(atmos.Nspace)             # <<<<<<<<<<<<<<
  *         self.atom.eta = f64_view(self.eta)
  *         self.gij = np.zeros((Ntrans, atmos.Nspace))
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_n_s_np); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 820, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_n_s_np); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 823, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_n_s_zeros); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 820, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_n_s_zeros); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 823, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_v_atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 820, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_v_atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 823, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -15539,43 +15575,43 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
   __pyx_t_4 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_5, __pyx_t_10) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_10);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 820, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 823, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 820, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 823, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->eta, 0);
   __pyx_v_self->eta = __pyx_t_6;
   __pyx_t_6.memview = NULL;
   __pyx_t_6.data = NULL;
 
-  /* "CAtmosphere.pyx":821
+  /* "CAtmosphere.pyx":824
  * 
  *         self.eta = np.zeros(atmos.Nspace)
  *         self.atom.eta = f64_view(self.eta)             # <<<<<<<<<<<<<<
  *         self.gij = np.zeros((Ntrans, atmos.Nspace))
  *         self.atom.gij = f64_view_2(self.gij)
  */
-  if (unlikely(!__pyx_v_self->eta.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 821, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->eta.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 824, __pyx_L1_error)}
   __pyx_v_self->atom.eta = __pyx_f_14CmoArrayHelper_f64_view(__pyx_v_self->eta);
 
-  /* "CAtmosphere.pyx":822
+  /* "CAtmosphere.pyx":825
  *         self.eta = np.zeros(atmos.Nspace)
  *         self.atom.eta = f64_view(self.eta)
  *         self.gij = np.zeros((Ntrans, atmos.Nspace))             # <<<<<<<<<<<<<<
  *         self.atom.gij = f64_view_2(self.gij)
  *         self.wla = np.zeros((Ntrans, atmos.Nspace))
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 822, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 825, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 822, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 825, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_Ntrans); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 822, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_Ntrans); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 825, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 822, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 825, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 822, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 825, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_3);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_3);
@@ -15596,43 +15632,43 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
   __pyx_t_4 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_10, __pyx_t_5, __pyx_t_1) : __Pyx_PyObject_CallOneArg(__pyx_t_10, __pyx_t_1);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 822, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 825, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-  __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 822, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 825, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->gij, 0);
   __pyx_v_self->gij = __pyx_t_12;
   __pyx_t_12.memview = NULL;
   __pyx_t_12.data = NULL;
 
-  /* "CAtmosphere.pyx":823
+  /* "CAtmosphere.pyx":826
  *         self.atom.eta = f64_view(self.eta)
  *         self.gij = np.zeros((Ntrans, atmos.Nspace))
  *         self.atom.gij = f64_view_2(self.gij)             # <<<<<<<<<<<<<<
  *         self.wla = np.zeros((Ntrans, atmos.Nspace))
  *         self.atom.wla = f64_view_2(self.wla)
  */
-  if (unlikely(!__pyx_v_self->gij.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 823, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->gij.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 826, __pyx_L1_error)}
   __pyx_v_self->atom.gij = __pyx_f_14CmoArrayHelper_f64_view_2(__pyx_v_self->gij);
 
-  /* "CAtmosphere.pyx":824
+  /* "CAtmosphere.pyx":827
  *         self.gij = np.zeros((Ntrans, atmos.Nspace))
  *         self.atom.gij = f64_view_2(self.gij)
  *         self.wla = np.zeros((Ntrans, atmos.Nspace))             # <<<<<<<<<<<<<<
  *         self.atom.wla = f64_view_2(self.wla)
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_n_s_np); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 824, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_n_s_np); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 827, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_n_s_zeros); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 824, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_n_s_zeros); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 827, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-  __pyx_t_10 = __Pyx_PyInt_From_int(__pyx_v_Ntrans); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 824, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyInt_From_int(__pyx_v_Ntrans); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 827, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 824, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 827, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 824, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 827, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_10);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_10);
@@ -15653,43 +15689,43 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
   __pyx_t_4 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_5, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_3);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 824, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 827, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 824, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 827, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->wla, 0);
   __pyx_v_self->wla = __pyx_t_12;
   __pyx_t_12.memview = NULL;
   __pyx_t_12.data = NULL;
 
-  /* "CAtmosphere.pyx":825
+  /* "CAtmosphere.pyx":828
  *         self.atom.gij = f64_view_2(self.gij)
  *         self.wla = np.zeros((Ntrans, atmos.Nspace))
  *         self.atom.wla = f64_view_2(self.wla)             # <<<<<<<<<<<<<<
  * 
  *         self.V = np.zeros((Nlevel, atmos.Nspace))
  */
-  if (unlikely(!__pyx_v_self->wla.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 825, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->wla.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 828, __pyx_L1_error)}
   __pyx_v_self->atom.wla = __pyx_f_14CmoArrayHelper_f64_view_2(__pyx_v_self->wla);
 
-  /* "CAtmosphere.pyx":827
+  /* "CAtmosphere.pyx":830
  *         self.atom.wla = f64_view_2(self.wla)
  * 
  *         self.V = np.zeros((Nlevel, atmos.Nspace))             # <<<<<<<<<<<<<<
  *         self.atom.V = f64_view_2(self.V)
  *         self.U = np.zeros((Nlevel, atmos.Nspace))
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 827, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 830, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_zeros); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 827, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_zeros); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 830, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_Nlevel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 827, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_Nlevel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 830, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 827, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 830, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_10 = PyTuple_New(2); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 827, __pyx_L1_error)
+  __pyx_t_10 = PyTuple_New(2); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 830, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_10, 0, __pyx_t_1);
@@ -15710,43 +15746,43 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
   __pyx_t_4 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_5, __pyx_t_10) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_10);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 827, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 830, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 827, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 830, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->V, 0);
   __pyx_v_self->V = __pyx_t_12;
   __pyx_t_12.memview = NULL;
   __pyx_t_12.data = NULL;
 
-  /* "CAtmosphere.pyx":828
+  /* "CAtmosphere.pyx":831
  * 
  *         self.V = np.zeros((Nlevel, atmos.Nspace))
  *         self.atom.V = f64_view_2(self.V)             # <<<<<<<<<<<<<<
  *         self.U = np.zeros((Nlevel, atmos.Nspace))
  *         self.atom.U = f64_view_2(self.U)
  */
-  if (unlikely(!__pyx_v_self->V.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 828, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->V.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 831, __pyx_L1_error)}
   __pyx_v_self->atom.V = __pyx_f_14CmoArrayHelper_f64_view_2(__pyx_v_self->V);
 
-  /* "CAtmosphere.pyx":829
+  /* "CAtmosphere.pyx":832
  *         self.V = np.zeros((Nlevel, atmos.Nspace))
  *         self.atom.V = f64_view_2(self.V)
  *         self.U = np.zeros((Nlevel, atmos.Nspace))             # <<<<<<<<<<<<<<
  *         self.atom.U = f64_view_2(self.U)
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 829, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 832, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 829, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 832, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_Nlevel); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 829, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_Nlevel); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 832, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 829, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 832, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 829, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 832, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_3);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_3);
@@ -15767,43 +15803,43 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
   __pyx_t_4 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_10, __pyx_t_5, __pyx_t_1) : __Pyx_PyObject_CallOneArg(__pyx_t_10, __pyx_t_1);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 829, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 832, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-  __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 829, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 832, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->U, 0);
   __pyx_v_self->U = __pyx_t_12;
   __pyx_t_12.memview = NULL;
   __pyx_t_12.data = NULL;
 
-  /* "CAtmosphere.pyx":830
+  /* "CAtmosphere.pyx":833
  *         self.atom.V = f64_view_2(self.V)
  *         self.U = np.zeros((Nlevel, atmos.Nspace))
  *         self.atom.U = f64_view_2(self.U)             # <<<<<<<<<<<<<<
  * 
  *         self.chi = np.zeros((Nlevel, atmos.Nspace))
  */
-  if (unlikely(!__pyx_v_self->U.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 830, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->U.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 833, __pyx_L1_error)}
   __pyx_v_self->atom.U = __pyx_f_14CmoArrayHelper_f64_view_2(__pyx_v_self->U);
 
-  /* "CAtmosphere.pyx":832
+  /* "CAtmosphere.pyx":835
  *         self.atom.U = f64_view_2(self.U)
  * 
  *         self.chi = np.zeros((Nlevel, atmos.Nspace))             # <<<<<<<<<<<<<<
  *         self.atom.chi = f64_view_2(self.chi)
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_n_s_np); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 832, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_n_s_np); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 835, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_n_s_zeros); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 832, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_n_s_zeros); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 835, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-  __pyx_t_10 = __Pyx_PyInt_From_int(__pyx_v_Nlevel); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 832, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyInt_From_int(__pyx_v_Nlevel); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 835, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 832, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 835, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 832, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 835, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_10);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_10);
@@ -15824,27 +15860,27 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
   __pyx_t_4 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_5, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_3);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 832, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 835, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 832, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 835, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->chi, 0);
   __pyx_v_self->chi = __pyx_t_12;
   __pyx_t_12.memview = NULL;
   __pyx_t_12.data = NULL;
 
-  /* "CAtmosphere.pyx":833
+  /* "CAtmosphere.pyx":836
  * 
  *         self.chi = np.zeros((Nlevel, atmos.Nspace))
  *         self.atom.chi = f64_view_2(self.chi)             # <<<<<<<<<<<<<<
  * 
  *         if initSol is None:
  */
-  if (unlikely(!__pyx_v_self->chi.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 833, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->chi.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 836, __pyx_L1_error)}
   __pyx_v_self->atom.chi = __pyx_f_14CmoArrayHelper_f64_view_2(__pyx_v_self->chi);
 
-  /* "CAtmosphere.pyx":835
+  /* "CAtmosphere.pyx":838
  *         self.atom.chi = f64_view_2(self.chi)
  * 
  *         if initSol is None:             # <<<<<<<<<<<<<<
@@ -15855,22 +15891,22 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
   __pyx_t_14 = (__pyx_t_13 != 0);
   if (__pyx_t_14) {
 
-    /* "CAtmosphere.pyx":836
+    /* "CAtmosphere.pyx":839
  * 
  *         if initSol is None:
  *             initSol = InitialSolution.EscapeProbability             # <<<<<<<<<<<<<<
  * 
  *         if initSol == InitialSolution.Zero:
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_InitialSolution); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 836, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_InitialSolution); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 839, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_EscapeProbability); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 836, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_EscapeProbability); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 839, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF_SET(__pyx_v_initSol, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "CAtmosphere.pyx":835
+    /* "CAtmosphere.pyx":838
  *         self.atom.chi = f64_view_2(self.chi)
  * 
  *         if initSol is None:             # <<<<<<<<<<<<<<
@@ -15879,38 +15915,38 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
  */
   }
 
-  /* "CAtmosphere.pyx":838
+  /* "CAtmosphere.pyx":841
  *             initSol = InitialSolution.EscapeProbability
  * 
  *         if initSol == InitialSolution.Zero:             # <<<<<<<<<<<<<<
  *             raise ValueError('Zero radiation InitialSolution not currently supported')
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_InitialSolution); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 838, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_InitialSolution); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 841, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_Zero); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 838, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_Zero); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 841, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyObject_RichCompare(__pyx_v_initSol, __pyx_t_4, Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 838, __pyx_L1_error)
+  __pyx_t_1 = PyObject_RichCompare(__pyx_v_initSol, __pyx_t_4, Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 841, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 838, __pyx_L1_error)
+  __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 841, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (unlikely(__pyx_t_14)) {
 
-    /* "CAtmosphere.pyx":839
+    /* "CAtmosphere.pyx":842
  * 
  *         if initSol == InitialSolution.Zero:
  *             raise ValueError('Zero radiation InitialSolution not currently supported')             # <<<<<<<<<<<<<<
  * 
  *         cdef np.ndarray[np.double_t, ndim=3] Gamma
  */
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__10, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 839, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__10, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 842, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 839, __pyx_L1_error)
+    __PYX_ERR(0, 842, __pyx_L1_error)
 
-    /* "CAtmosphere.pyx":838
+    /* "CAtmosphere.pyx":841
  *             initSol = InitialSolution.EscapeProbability
  * 
  *         if initSol == InitialSolution.Zero:             # <<<<<<<<<<<<<<
@@ -15919,45 +15955,45 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
  */
   }
 
-  /* "CAtmosphere.pyx":844
+  /* "CAtmosphere.pyx":847
  *         cdef np.ndarray[np.double_t, ndim=3] C
  *         cdef f64 delta
  *         cdef LwBackground bg = background             # <<<<<<<<<<<<<<
  * 
  *         if initSol == InitialSolution.EscapeProbability:
  */
-  if (!(likely(((__pyx_v_background) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_background, __pyx_ptype_11CAtmosphere_LwBackground))))) __PYX_ERR(0, 844, __pyx_L1_error)
+  if (!(likely(((__pyx_v_background) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_background, __pyx_ptype_11CAtmosphere_LwBackground))))) __PYX_ERR(0, 847, __pyx_L1_error)
   __pyx_t_1 = __pyx_v_background;
   __Pyx_INCREF(__pyx_t_1);
   __pyx_v_bg = ((struct __pyx_obj_11CAtmosphere_LwBackground *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "CAtmosphere.pyx":846
+  /* "CAtmosphere.pyx":849
  *         cdef LwBackground bg = background
  * 
  *         if initSol == InitialSolution.EscapeProbability:             # <<<<<<<<<<<<<<
  *             self.compute_collisions()
  *             Gamma = np.asarray(self.Gamma)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_InitialSolution); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 846, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_InitialSolution); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 849, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_EscapeProbability); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 846, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_EscapeProbability); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 849, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyObject_RichCompare(__pyx_v_initSol, __pyx_t_4, Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 846, __pyx_L1_error)
+  __pyx_t_1 = PyObject_RichCompare(__pyx_v_initSol, __pyx_t_4, Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 849, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 846, __pyx_L1_error)
+  __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 849, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_14) {
 
-    /* "CAtmosphere.pyx":847
+    /* "CAtmosphere.pyx":850
  * 
  *         if initSol == InitialSolution.EscapeProbability:
  *             self.compute_collisions()             # <<<<<<<<<<<<<<
  *             Gamma = np.asarray(self.Gamma)
  *             C = np.asarray(self.C)
  */
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_compute_collisions); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 847, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_compute_collisions); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 850, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_3 = NULL;
     if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
@@ -15971,25 +16007,25 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
     }
     __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3) : __Pyx_PyObject_CallNoArg(__pyx_t_4);
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 847, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 850, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "CAtmosphere.pyx":848
+    /* "CAtmosphere.pyx":851
  *         if initSol == InitialSolution.EscapeProbability:
  *             self.compute_collisions()
  *             Gamma = np.asarray(self.Gamma)             # <<<<<<<<<<<<<<
  *             C = np.asarray(self.C)
  * 
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 848, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 851, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 848, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 851, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_v_self->Gamma.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 848, __pyx_L1_error)}
-    __pyx_t_4 = __pyx_memoryview_fromslice(__pyx_v_self->Gamma, 3, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 848, __pyx_L1_error)
+    if (unlikely(!__pyx_v_self->Gamma.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 851, __pyx_L1_error)}
+    __pyx_t_4 = __pyx_memoryview_fromslice(__pyx_v_self->Gamma, 3, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 851, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_5 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -16004,10 +16040,10 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
     __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4);
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 848, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 851, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 848, __pyx_L1_error)
+    if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 851, __pyx_L1_error)
     __pyx_t_15 = ((PyArrayObject *)__pyx_t_1);
     {
       __Pyx_BufFmt_StackElem __pyx_stack[1];
@@ -16024,26 +16060,26 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
         __pyx_t_17 = __pyx_t_18 = __pyx_t_19 = 0;
       }
       __pyx_pybuffernd_Gamma.diminfo[0].strides = __pyx_pybuffernd_Gamma.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_Gamma.diminfo[0].shape = __pyx_pybuffernd_Gamma.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_Gamma.diminfo[1].strides = __pyx_pybuffernd_Gamma.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_Gamma.diminfo[1].shape = __pyx_pybuffernd_Gamma.rcbuffer->pybuffer.shape[1]; __pyx_pybuffernd_Gamma.diminfo[2].strides = __pyx_pybuffernd_Gamma.rcbuffer->pybuffer.strides[2]; __pyx_pybuffernd_Gamma.diminfo[2].shape = __pyx_pybuffernd_Gamma.rcbuffer->pybuffer.shape[2];
-      if (unlikely(__pyx_t_16 < 0)) __PYX_ERR(0, 848, __pyx_L1_error)
+      if (unlikely(__pyx_t_16 < 0)) __PYX_ERR(0, 851, __pyx_L1_error)
     }
     __pyx_t_15 = 0;
     __pyx_v_Gamma = ((PyArrayObject *)__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "CAtmosphere.pyx":849
+    /* "CAtmosphere.pyx":852
  *             self.compute_collisions()
  *             Gamma = np.asarray(self.Gamma)
  *             C = np.asarray(self.C)             # <<<<<<<<<<<<<<
  * 
  *             self.atom.ng = Ng(0,0,0, self.atom.n.flatten())
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 849, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 852, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_asarray); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 849, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_asarray); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 852, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_v_self->C.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 849, __pyx_L1_error)}
-    __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_self->C, 3, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 849, __pyx_L1_error)
+    if (unlikely(!__pyx_v_self->C.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 852, __pyx_L1_error)}
+    __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_self->C, 3, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 852, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_5 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -16058,10 +16094,10 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
     __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3);
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 849, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 852, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 849, __pyx_L1_error)
+    if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 852, __pyx_L1_error)
     __pyx_t_20 = ((PyArrayObject *)__pyx_t_1);
     {
       __Pyx_BufFmt_StackElem __pyx_stack[1];
@@ -16078,13 +16114,13 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
         __pyx_t_19 = __pyx_t_18 = __pyx_t_17 = 0;
       }
       __pyx_pybuffernd_C.diminfo[0].strides = __pyx_pybuffernd_C.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_C.diminfo[0].shape = __pyx_pybuffernd_C.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_C.diminfo[1].strides = __pyx_pybuffernd_C.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_C.diminfo[1].shape = __pyx_pybuffernd_C.rcbuffer->pybuffer.shape[1]; __pyx_pybuffernd_C.diminfo[2].strides = __pyx_pybuffernd_C.rcbuffer->pybuffer.strides[2]; __pyx_pybuffernd_C.diminfo[2].shape = __pyx_pybuffernd_C.rcbuffer->pybuffer.shape[2];
-      if (unlikely(__pyx_t_16 < 0)) __PYX_ERR(0, 849, __pyx_L1_error)
+      if (unlikely(__pyx_t_16 < 0)) __PYX_ERR(0, 852, __pyx_L1_error)
     }
     __pyx_t_20 = 0;
     __pyx_v_C = ((PyArrayObject *)__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "CAtmosphere.pyx":851
+    /* "CAtmosphere.pyx":854
  *             C = np.asarray(self.C)
  * 
  *             self.atom.ng = Ng(0,0,0, self.atom.n.flatten())             # <<<<<<<<<<<<<<
@@ -16093,16 +16129,16 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
  */
     __pyx_v_self->atom.ng = Ng(0, 0, 0, __pyx_v_self->atom.n.flatten());
 
-    /* "CAtmosphere.pyx":852
+    /* "CAtmosphere.pyx":855
  * 
  *             self.atom.ng = Ng(0,0,0, self.atom.n.flatten())
  *             start = time.time()             # <<<<<<<<<<<<<<
  *             for it in range(100):
  *                 Gamma.fill(0.0)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_time); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 852, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_time); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 855, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_time); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 852, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_time); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 855, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __pyx_t_4 = NULL;
@@ -16117,13 +16153,13 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
     }
     __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 852, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 855, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_v_start = __pyx_t_1;
     __pyx_t_1 = 0;
 
-    /* "CAtmosphere.pyx":853
+    /* "CAtmosphere.pyx":856
  *             self.atom.ng = Ng(0,0,0, self.atom.n.flatten())
  *             start = time.time()
  *             for it in range(100):             # <<<<<<<<<<<<<<
@@ -16133,14 +16169,14 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
     for (__pyx_t_21 = 0; __pyx_t_21 < 0x64; __pyx_t_21+=1) {
       __pyx_v_it = __pyx_t_21;
 
-      /* "CAtmosphere.pyx":854
+      /* "CAtmosphere.pyx":857
  *             start = time.time()
  *             for it in range(100):
  *                 Gamma.fill(0.0)             # <<<<<<<<<<<<<<
  *                 Gamma += C
  *                 gamma_matrices_escape_prob(&self.atom, bg.background, a.atmos)
  */
-      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_Gamma), __pyx_n_s_fill); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 854, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_Gamma), __pyx_n_s_fill); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 857, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __pyx_t_4 = NULL;
       if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
@@ -16154,21 +16190,21 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
       }
       __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_float_0_0) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_float_0_0);
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 854, __pyx_L1_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 857, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-      /* "CAtmosphere.pyx":855
+      /* "CAtmosphere.pyx":858
  *             for it in range(100):
  *                 Gamma.fill(0.0)
  *                 Gamma += C             # <<<<<<<<<<<<<<
  *                 gamma_matrices_escape_prob(&self.atom, bg.background, a.atmos)
  *                 stat_eq(&self.atom)
  */
-      __pyx_t_1 = PyNumber_InPlaceAdd(((PyObject *)__pyx_v_Gamma), ((PyObject *)__pyx_v_C)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 855, __pyx_L1_error)
+      __pyx_t_1 = PyNumber_InPlaceAdd(((PyObject *)__pyx_v_Gamma), ((PyObject *)__pyx_v_C)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 858, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 855, __pyx_L1_error)
+      if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 858, __pyx_L1_error)
       __pyx_t_15 = ((PyArrayObject *)__pyx_t_1);
       {
         __Pyx_BufFmt_StackElem __pyx_stack[1];
@@ -16185,13 +16221,13 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
           __pyx_t_17 = __pyx_t_18 = __pyx_t_19 = 0;
         }
         __pyx_pybuffernd_Gamma.diminfo[0].strides = __pyx_pybuffernd_Gamma.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_Gamma.diminfo[0].shape = __pyx_pybuffernd_Gamma.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_Gamma.diminfo[1].strides = __pyx_pybuffernd_Gamma.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_Gamma.diminfo[1].shape = __pyx_pybuffernd_Gamma.rcbuffer->pybuffer.shape[1]; __pyx_pybuffernd_Gamma.diminfo[2].strides = __pyx_pybuffernd_Gamma.rcbuffer->pybuffer.strides[2]; __pyx_pybuffernd_Gamma.diminfo[2].shape = __pyx_pybuffernd_Gamma.rcbuffer->pybuffer.shape[2];
-        if (unlikely(__pyx_t_16 < 0)) __PYX_ERR(0, 855, __pyx_L1_error)
+        if (unlikely(__pyx_t_16 < 0)) __PYX_ERR(0, 858, __pyx_L1_error)
       }
       __pyx_t_15 = 0;
       __Pyx_DECREF_SET(__pyx_v_Gamma, ((PyArrayObject *)__pyx_t_1));
       __pyx_t_1 = 0;
 
-      /* "CAtmosphere.pyx":856
+      /* "CAtmosphere.pyx":859
  *                 Gamma.fill(0.0)
  *                 Gamma += C
  *                 gamma_matrices_escape_prob(&self.atom, bg.background, a.atmos)             # <<<<<<<<<<<<<<
@@ -16200,7 +16236,7 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
  */
       EscapeProbability::gamma_matrices_escape_prob((&__pyx_v_self->atom), __pyx_v_bg->background, __pyx_v_a->atmos);
 
-      /* "CAtmosphere.pyx":857
+      /* "CAtmosphere.pyx":860
  *                 Gamma += C
  *                 gamma_matrices_escape_prob(&self.atom, bg.background, a.atmos)
  *                 stat_eq(&self.atom)             # <<<<<<<<<<<<<<
@@ -16209,7 +16245,7 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
  */
       stat_eq((&__pyx_v_self->atom));
 
-      /* "CAtmosphere.pyx":858
+      /* "CAtmosphere.pyx":861
  *                 gamma_matrices_escape_prob(&self.atom, bg.background, a.atmos)
  *                 stat_eq(&self.atom)
  *                 self.atom.ng.accelerate(self.atom.n.flatten())             # <<<<<<<<<<<<<<
@@ -16218,7 +16254,7 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
  */
       (void)(__pyx_v_self->atom.ng.accelerate(__pyx_v_self->atom.n.flatten()));
 
-      /* "CAtmosphere.pyx":859
+      /* "CAtmosphere.pyx":862
  *                 stat_eq(&self.atom)
  *                 self.atom.ng.accelerate(self.atom.n.flatten())
  *                 delta = self.atom.ng.max_change()             # <<<<<<<<<<<<<<
@@ -16227,7 +16263,7 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
  */
       __pyx_v_delta = __pyx_v_self->atom.ng.max_change();
 
-      /* "CAtmosphere.pyx":860
+      /* "CAtmosphere.pyx":863
  *                 self.atom.ng.accelerate(self.atom.n.flatten())
  *                 delta = self.atom.ng.max_change()
  *                 if delta < 1e-2:             # <<<<<<<<<<<<<<
@@ -16237,16 +16273,16 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
       __pyx_t_14 = ((__pyx_v_delta < 1e-2) != 0);
       if (__pyx_t_14) {
 
-        /* "CAtmosphere.pyx":861
+        /* "CAtmosphere.pyx":864
  *                 delta = self.atom.ng.max_change()
  *                 if delta < 1e-2:
  *                     end = time.time()             # <<<<<<<<<<<<<<
  *                     print('Converged: %s, %d\nTime: %f' % (self.atomicModel.name, it, end-start))
  *                     break
  */
-        __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_time); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 861, __pyx_L1_error)
+        __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_time); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 864, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
-        __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_time); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 861, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_time); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 864, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         __pyx_t_3 = NULL;
@@ -16261,20 +16297,20 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
         }
         __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3) : __Pyx_PyObject_CallNoArg(__pyx_t_4);
         __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 861, __pyx_L1_error)
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 864, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         __pyx_v_end = __pyx_t_1;
         __pyx_t_1 = 0;
 
-        /* "CAtmosphere.pyx":862
+        /* "CAtmosphere.pyx":865
  *                 if delta < 1e-2:
  *                     end = time.time()
  *                     print('Converged: %s, %d\nTime: %f' % (self.atomicModel.name, it, end-start))             # <<<<<<<<<<<<<<
  *                     break
  *             else:
  */
-        __pyx_t_1 = PyTuple_New(6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 862, __pyx_L1_error)
+        __pyx_t_1 = PyTuple_New(6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 865, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         __pyx_t_7 = 0;
         __pyx_t_22 = 127;
@@ -16282,9 +16318,9 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
         __pyx_t_7 += 11;
         __Pyx_GIVEREF(__pyx_kp_u_Converged);
         PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_kp_u_Converged);
-        __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atomicModel, __pyx_n_s_name); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 862, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atomicModel, __pyx_n_s_name); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 865, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_3 = __Pyx_PyObject_FormatSimpleAndDecref(PyObject_Unicode(__pyx_t_4), __pyx_empty_unicode); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 862, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyObject_FormatSimpleAndDecref(PyObject_Unicode(__pyx_t_4), __pyx_empty_unicode); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 865, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         __pyx_t_22 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_3) > __pyx_t_22) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_3) : __pyx_t_22;
@@ -16296,7 +16332,7 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
         __pyx_t_7 += 2;
         __Pyx_GIVEREF(__pyx_kp_u__11);
         PyTuple_SET_ITEM(__pyx_t_1, 2, __pyx_kp_u__11);
-        __pyx_t_3 = __Pyx_PyUnicode_From_long(__pyx_v_it, 0, ' ', 'd'); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 862, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyUnicode_From_long(__pyx_v_it, 0, ' ', 'd'); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 865, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         __pyx_t_7 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_3);
         __Pyx_GIVEREF(__pyx_t_3);
@@ -16306,9 +16342,9 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
         __pyx_t_7 += 7;
         __Pyx_GIVEREF(__pyx_kp_u_Time);
         PyTuple_SET_ITEM(__pyx_t_1, 4, __pyx_kp_u_Time);
-        __pyx_t_3 = PyNumber_Subtract(__pyx_v_end, __pyx_v_start); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 862, __pyx_L1_error)
+        __pyx_t_3 = PyNumber_Subtract(__pyx_v_end, __pyx_v_start); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 865, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
-        __pyx_t_4 = __Pyx_PyObject_Format(__pyx_t_3, __pyx_n_u_f); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 862, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyObject_Format(__pyx_t_3, __pyx_n_u_f); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 865, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         __pyx_t_22 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_4) > __pyx_t_22) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_4) : __pyx_t_22;
@@ -16316,15 +16352,15 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
         __Pyx_GIVEREF(__pyx_t_4);
         PyTuple_SET_ITEM(__pyx_t_1, 5, __pyx_t_4);
         __pyx_t_4 = 0;
-        __pyx_t_4 = __Pyx_PyUnicode_Join(__pyx_t_1, 6, __pyx_t_7, __pyx_t_22); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 862, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyUnicode_Join(__pyx_t_1, 6, __pyx_t_7, __pyx_t_22); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 865, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-        __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 862, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 865, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-        /* "CAtmosphere.pyx":863
+        /* "CAtmosphere.pyx":866
  *                     end = time.time()
  *                     print('Converged: %s, %d\nTime: %f' % (self.atomicModel.name, it, end-start))
  *                     break             # <<<<<<<<<<<<<<
@@ -16333,7 +16369,7 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
  */
         goto __pyx_L13_break;
 
-        /* "CAtmosphere.pyx":860
+        /* "CAtmosphere.pyx":863
  *                 self.atom.ng.accelerate(self.atom.n.flatten())
  *                 delta = self.atom.ng.max_change()
  *                 if delta < 1e-2:             # <<<<<<<<<<<<<<
@@ -16344,37 +16380,37 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
     }
     /*else*/ {
 
-      /* "CAtmosphere.pyx":865
+      /* "CAtmosphere.pyx":868
  *                     break
  *             else:
  *                 print('Escape probability didn\'t converge for %s, setting LTE populations' % self.atomicModel.name)             # <<<<<<<<<<<<<<
  *                 n = np.asarray(self.n)
  *                 n[:] = np.asarray(self.nStar)
  */
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atomicModel, __pyx_n_s_name); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 865, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atomicModel, __pyx_n_s_name); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 868, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_4 = __Pyx_PyUnicode_FormatSafe(__pyx_kp_u_Escape_probability_didn_t_conver, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 865, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyUnicode_FormatSafe(__pyx_kp_u_Escape_probability_didn_t_conver, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 868, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 865, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 868, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-      /* "CAtmosphere.pyx":866
+      /* "CAtmosphere.pyx":869
  *             else:
  *                 print('Escape probability didn\'t converge for %s, setting LTE populations' % self.atomicModel.name)
  *                 n = np.asarray(self.n)             # <<<<<<<<<<<<<<
  *                 n[:] = np.asarray(self.nStar)
  * 
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 866, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 869, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 866, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 869, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      if (unlikely(!__pyx_v_self->n.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 866, __pyx_L1_error)}
-      __pyx_t_4 = __pyx_memoryview_fromslice(__pyx_v_self->n, 2, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 866, __pyx_L1_error)
+      if (unlikely(!__pyx_v_self->n.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 869, __pyx_L1_error)}
+      __pyx_t_4 = __pyx_memoryview_fromslice(__pyx_v_self->n, 2, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 869, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __pyx_t_5 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -16389,26 +16425,26 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
       __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4);
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 866, __pyx_L1_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 869, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __pyx_v_n = __pyx_t_1;
       __pyx_t_1 = 0;
 
-      /* "CAtmosphere.pyx":867
+      /* "CAtmosphere.pyx":870
  *                 print('Escape probability didn\'t converge for %s, setting LTE populations' % self.atomicModel.name)
  *                 n = np.asarray(self.n)
  *                 n[:] = np.asarray(self.nStar)             # <<<<<<<<<<<<<<
  * 
  *         if ngOptions is not None:
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 867, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 870, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_asarray); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 867, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_asarray); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 870, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      if (unlikely(!__pyx_v_self->nStar.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 867, __pyx_L1_error)}
-      __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_self->nStar, 2, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 867, __pyx_L1_error)
+      if (unlikely(!__pyx_v_self->nStar.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 870, __pyx_L1_error)}
+      __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_self->nStar, 2, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 870, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __pyx_t_5 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -16423,15 +16459,15 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
       __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3);
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 867, __pyx_L1_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 870, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      if (__Pyx_PyObject_SetSlice(__pyx_v_n, __pyx_t_1, 0, 0, NULL, NULL, &__pyx_slice__12, 0, 0, 1) < 0) __PYX_ERR(0, 867, __pyx_L1_error)
+      if (__Pyx_PyObject_SetSlice(__pyx_v_n, __pyx_t_1, 0, 0, NULL, NULL, &__pyx_slice__12, 0, 0, 1) < 0) __PYX_ERR(0, 870, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     }
     __pyx_L13_break:;
 
-    /* "CAtmosphere.pyx":846
+    /* "CAtmosphere.pyx":849
  *         cdef LwBackground bg = background
  * 
  *         if initSol == InitialSolution.EscapeProbability:             # <<<<<<<<<<<<<<
@@ -16440,7 +16476,7 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
  */
   }
 
-  /* "CAtmosphere.pyx":869
+  /* "CAtmosphere.pyx":872
  *                 n[:] = np.asarray(self.nStar)
  * 
  *         if ngOptions is not None:             # <<<<<<<<<<<<<<
@@ -16451,28 +16487,28 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
   __pyx_t_13 = (__pyx_t_14 != 0);
   if (__pyx_t_13) {
 
-    /* "CAtmosphere.pyx":870
+    /* "CAtmosphere.pyx":873
  * 
  *         if ngOptions is not None:
  *             self.atom.ng = Ng(ngOptions.Norder, ngOptions.Nperiod, ngOptions.Ndelay, self.atom.n.flatten())             # <<<<<<<<<<<<<<
  *         else:
  *             self.atom.ng = Ng(0,0,0, self.atom.n.flatten())
  */
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_ngOptions, __pyx_n_s_Norder); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 870, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_ngOptions, __pyx_n_s_Norder); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 873, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_16 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_16 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 870, __pyx_L1_error)
+    __pyx_t_16 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_16 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 873, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_ngOptions, __pyx_n_s_Nperiod); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 870, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_ngOptions, __pyx_n_s_Nperiod); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 873, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_23 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_23 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 870, __pyx_L1_error)
+    __pyx_t_23 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_23 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 873, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_ngOptions, __pyx_n_s_Ndelay); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 870, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_ngOptions, __pyx_n_s_Ndelay); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 873, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_24 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_24 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 870, __pyx_L1_error)
+    __pyx_t_24 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_24 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 873, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_v_self->atom.ng = Ng(__pyx_t_16, __pyx_t_23, __pyx_t_24, __pyx_v_self->atom.n.flatten());
 
-    /* "CAtmosphere.pyx":869
+    /* "CAtmosphere.pyx":872
  *                 n[:] = np.asarray(self.nStar)
  * 
  *         if ngOptions is not None:             # <<<<<<<<<<<<<<
@@ -16482,7 +16518,7 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
     goto __pyx_L15;
   }
 
-  /* "CAtmosphere.pyx":872
+  /* "CAtmosphere.pyx":875
  *             self.atom.ng = Ng(ngOptions.Norder, ngOptions.Nperiod, ngOptions.Ndelay, self.atom.n.flatten())
  *         else:
  *             self.atom.ng = Ng(0,0,0, self.atom.n.flatten())             # <<<<<<<<<<<<<<
@@ -16494,7 +16530,7 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
   }
   __pyx_L15:;
 
-  /* "CAtmosphere.pyx":775
+  /* "CAtmosphere.pyx":778
  *     cdef list trans
  * 
  *     def __init__(self, atom, cAtmos, atmos, eqPops, spect, background, initSol=None, ngOptions=None):             # <<<<<<<<<<<<<<
@@ -16546,7 +16582,7 @@ static int __pyx_pf_11CAtmosphere_6LwAtom___init__(struct __pyx_obj_11CAtmospher
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":875
+/* "CAtmosphere.pyx":878
  * 
  *     @property
  *     def Nlevel(self):             # <<<<<<<<<<<<<<
@@ -16573,7 +16609,7 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_6Nlevel___get__(struct __pyx_obj
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":876
+  /* "CAtmosphere.pyx":879
  *     @property
  *     def Nlevel(self):
  *         return self.atom.Nlevel             # <<<<<<<<<<<<<<
@@ -16581,13 +16617,13 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_6Nlevel___get__(struct __pyx_obj
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->atom.Nlevel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 876, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->atom.Nlevel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 879, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":875
+  /* "CAtmosphere.pyx":878
  * 
  *     @property
  *     def Nlevel(self):             # <<<<<<<<<<<<<<
@@ -16606,7 +16642,7 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_6Nlevel___get__(struct __pyx_obj
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":879
+/* "CAtmosphere.pyx":882
  * 
  *     @property
  *     def Ntrans(self):             # <<<<<<<<<<<<<<
@@ -16633,7 +16669,7 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_6Ntrans___get__(struct __pyx_obj
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":880
+  /* "CAtmosphere.pyx":883
  *     @property
  *     def Ntrans(self):
  *         return self.atom.Ntrans             # <<<<<<<<<<<<<<
@@ -16641,13 +16677,13 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_6Ntrans___get__(struct __pyx_obj
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->atom.Ntrans); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 880, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->atom.Ntrans); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 883, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":879
+  /* "CAtmosphere.pyx":882
  * 
  *     @property
  *     def Ntrans(self):             # <<<<<<<<<<<<<<
@@ -16666,7 +16702,7 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_6Ntrans___get__(struct __pyx_obj
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":883
+/* "CAtmosphere.pyx":886
  * 
  *     @property
  *     def vBroad(self):             # <<<<<<<<<<<<<<
@@ -16696,7 +16732,7 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_6vBroad___get__(struct __pyx_obj
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":884
+  /* "CAtmosphere.pyx":887
  *     @property
  *     def vBroad(self):
  *         return np.asarray(self.vBroad)             # <<<<<<<<<<<<<<
@@ -16704,13 +16740,13 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_6vBroad___get__(struct __pyx_obj
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 884, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 887, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 884, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 887, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->vBroad.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 884, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->vBroad, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 884, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->vBroad.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 887, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->vBroad, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 887, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -16725,14 +16761,14 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_6vBroad___get__(struct __pyx_obj
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 884, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 887, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":883
+  /* "CAtmosphere.pyx":886
  * 
  *     @property
  *     def vBroad(self):             # <<<<<<<<<<<<<<
@@ -16754,7 +16790,7 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_6vBroad___get__(struct __pyx_obj
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":887
+/* "CAtmosphere.pyx":890
  * 
  *     @property
  *     def Gamma(self):             # <<<<<<<<<<<<<<
@@ -16784,7 +16820,7 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_5Gamma___get__(struct __pyx_obj_
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":888
+  /* "CAtmosphere.pyx":891
  *     @property
  *     def Gamma(self):
  *         return np.asarray(self.Gamma)             # <<<<<<<<<<<<<<
@@ -16792,13 +16828,13 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_5Gamma___get__(struct __pyx_obj_
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 888, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 891, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 888, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 891, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->Gamma.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 888, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->Gamma, 3, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 888, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->Gamma.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 891, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->Gamma, 3, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 891, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -16813,14 +16849,14 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_5Gamma___get__(struct __pyx_obj_
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 888, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 891, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":887
+  /* "CAtmosphere.pyx":890
  * 
  *     @property
  *     def Gamma(self):             # <<<<<<<<<<<<<<
@@ -16842,7 +16878,7 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_5Gamma___get__(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":891
+/* "CAtmosphere.pyx":894
  * 
  *     @property
  *     def C(self):             # <<<<<<<<<<<<<<
@@ -16872,7 +16908,7 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_1C___get__(struct __pyx_obj_11CA
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":892
+  /* "CAtmosphere.pyx":895
  *     @property
  *     def C(self):
  *         return np.asarray(self.C)             # <<<<<<<<<<<<<<
@@ -16880,13 +16916,13 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_1C___get__(struct __pyx_obj_11CA
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 892, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 895, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 892, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 895, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->C.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 892, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->C, 3, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 892, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->C.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 895, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->C, 3, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 895, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -16901,14 +16937,14 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_1C___get__(struct __pyx_obj_11CA
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 892, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 895, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":891
+  /* "CAtmosphere.pyx":894
  * 
  *     @property
  *     def C(self):             # <<<<<<<<<<<<<<
@@ -16930,7 +16966,7 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_1C___get__(struct __pyx_obj_11CA
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":895
+/* "CAtmosphere.pyx":898
  * 
  *     @property
  *     def n(self):             # <<<<<<<<<<<<<<
@@ -16960,7 +16996,7 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_1n___get__(struct __pyx_obj_11CA
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":896
+  /* "CAtmosphere.pyx":899
  *     @property
  *     def n(self):
  *         return np.asarray(self.n)             # <<<<<<<<<<<<<<
@@ -16968,13 +17004,13 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_1n___get__(struct __pyx_obj_11CA
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 896, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 899, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 896, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 899, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->n.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 896, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->n, 2, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 896, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->n.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 899, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->n, 2, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 899, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -16989,14 +17025,14 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_1n___get__(struct __pyx_obj_11CA
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 896, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 899, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":895
+  /* "CAtmosphere.pyx":898
  * 
  *     @property
  *     def n(self):             # <<<<<<<<<<<<<<
@@ -17018,7 +17054,7 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_1n___get__(struct __pyx_obj_11CA
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":899
+/* "CAtmosphere.pyx":902
  * 
  *     @property
  *     def nStar(self):             # <<<<<<<<<<<<<<
@@ -17048,7 +17084,7 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_5nStar___get__(struct __pyx_obj_
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":900
+  /* "CAtmosphere.pyx":903
  *     @property
  *     def nStar(self):
  *         return np.asarray(self.nStar)             # <<<<<<<<<<<<<<
@@ -17056,13 +17092,13 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_5nStar___get__(struct __pyx_obj_
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 900, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 903, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 900, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 903, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->nStar.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 900, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->nStar, 2, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 900, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->nStar.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 903, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->nStar, 2, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 903, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -17077,14 +17113,14 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_5nStar___get__(struct __pyx_obj_
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 900, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 903, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":899
+  /* "CAtmosphere.pyx":902
  * 
  *     @property
  *     def nStar(self):             # <<<<<<<<<<<<<<
@@ -17106,7 +17142,7 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_5nStar___get__(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":903
+/* "CAtmosphere.pyx":906
  * 
  *     @property
  *     def trans(self):             # <<<<<<<<<<<<<<
@@ -17132,7 +17168,7 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_5trans___get__(struct __pyx_obj_
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":904
+  /* "CAtmosphere.pyx":907
  *     @property
  *     def trans(self):
  *         return self.trans             # <<<<<<<<<<<<<<
@@ -17144,7 +17180,7 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_5trans___get__(struct __pyx_obj_
   __pyx_r = __pyx_v_self->trans;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":903
+  /* "CAtmosphere.pyx":906
  * 
  *     @property
  *     def trans(self):             # <<<<<<<<<<<<<<
@@ -17159,7 +17195,7 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_5trans___get__(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":906
+/* "CAtmosphere.pyx":909
  *         return self.trans
  * 
  *     cpdef lte_pops(self, debeye=True):             # <<<<<<<<<<<<<<
@@ -17217,7 +17253,7 @@ static PyObject *__pyx_f_11CAtmosphere_6LwAtom_lte_pops(struct __pyx_obj_11CAtmo
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_lte_pops); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 906, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_lte_pops); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 909, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_11CAtmosphere_6LwAtom_3lte_pops)) {
         __Pyx_XDECREF(__pyx_r);
@@ -17234,7 +17270,7 @@ static PyObject *__pyx_f_11CAtmosphere_6LwAtom_lte_pops(struct __pyx_obj_11CAtmo
         }
         __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_v_debeye) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_v_debeye);
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 906, __pyx_L1_error)
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 909, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         __pyx_r = __pyx_t_2;
@@ -17255,62 +17291,62 @@ static PyObject *__pyx_f_11CAtmosphere_6LwAtom_lte_pops(struct __pyx_obj_11CAtmo
     #endif
   }
 
-  /* "CAtmosphere.pyx":907
+  /* "CAtmosphere.pyx":910
  * 
  *     cpdef lte_pops(self, debeye=True):
  *         cdef f64 c1 = (Const.HPLANCK / (2.0 * np.pi * Const.M_ELECTRON)) * (Const.HPLANCK / Const.KBOLTZMANN)             # <<<<<<<<<<<<<<
  *         cdef c2 = 0.0
  *         cdef int i, Z
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_Const); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 907, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_Const); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 910, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_HPLANCK); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 907, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_HPLANCK); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 910, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 907, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 910, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_pi); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 907, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_pi); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 910, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyNumber_Multiply(__pyx_float_2_0, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 907, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_Multiply(__pyx_float_2_0, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 910, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_Const); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 907, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_Const); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 910, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_M_ELECTRON); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 907, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_M_ELECTRON); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 910, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyNumber_Multiply(__pyx_t_1, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 907, __pyx_L1_error)
+  __pyx_t_3 = PyNumber_Multiply(__pyx_t_1, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 910, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyNumber_Divide(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 907, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyNumber_Divide(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 910, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_Const); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 907, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_Const); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 910, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_HPLANCK); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 907, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_HPLANCK); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 910, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_Const); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 907, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_Const); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 910, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_KBOLTZMANN); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 907, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_KBOLTZMANN); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 910, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyNumber_Divide(__pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 907, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyNumber_Divide(__pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 910, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyNumber_Multiply(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 907, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_Multiply(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 910, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_5 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_5 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 907, __pyx_L1_error)
+  __pyx_t_5 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_5 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 910, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_c1 = __pyx_t_5;
 
-  /* "CAtmosphere.pyx":908
+  /* "CAtmosphere.pyx":911
  *     cpdef lte_pops(self, debeye=True):
  *         cdef f64 c1 = (Const.HPLANCK / (2.0 * np.pi * Const.M_ELECTRON)) * (Const.HPLANCK / Const.KBOLTZMANN)
  *         cdef c2 = 0.0             # <<<<<<<<<<<<<<
@@ -17320,42 +17356,42 @@ static PyObject *__pyx_f_11CAtmosphere_6LwAtom_lte_pops(struct __pyx_obj_11CAtmo
   __Pyx_INCREF(__pyx_float_0_0);
   __pyx_v_c2 = __pyx_float_0_0;
 
-  /* "CAtmosphere.pyx":910
+  /* "CAtmosphere.pyx":913
  *         cdef c2 = 0.0
  *         cdef int i, Z
  *         if debeye:             # <<<<<<<<<<<<<<
  *             c2 = np.sqrt(8.0 * np.pi / Const.KBOLTZMANN) * (Const.Q_ELECTRON**2 / (4.0 * np.pi * Const.EPSILON_0))**1.5
  *             nDebeye = np.zeros(self.Nlevel)
  */
-  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_v_debeye); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 910, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_v_debeye); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 913, __pyx_L1_error)
   if (__pyx_t_6) {
 
-    /* "CAtmosphere.pyx":911
+    /* "CAtmosphere.pyx":914
  *         cdef int i, Z
  *         if debeye:
  *             c2 = np.sqrt(8.0 * np.pi / Const.KBOLTZMANN) * (Const.Q_ELECTRON**2 / (4.0 * np.pi * Const.EPSILON_0))**1.5             # <<<<<<<<<<<<<<
  *             nDebeye = np.zeros(self.Nlevel)
  *             for i in range(1, self.Nlevel):
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 911, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 914, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_sqrt); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 911, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_sqrt); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 914, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 911, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 914, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_pi); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 911, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_pi); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 914, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyNumber_Multiply(__pyx_float_8_0, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 911, __pyx_L1_error)
+    __pyx_t_3 = PyNumber_Multiply(__pyx_float_8_0, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 914, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_Const); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 911, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_Const); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 914, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_KBOLTZMANN); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 911, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_KBOLTZMANN); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 914, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = __Pyx_PyNumber_Divide(__pyx_t_3, __pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 911, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyNumber_Divide(__pyx_t_3, __pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 914, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
@@ -17372,61 +17408,61 @@ static PyObject *__pyx_f_11CAtmosphere_6LwAtom_lte_pops(struct __pyx_obj_11CAtmo
     __pyx_t_1 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_7, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_2);
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 911, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 914, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_Const); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 911, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_Const); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 914, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_Q_ELECTRON); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 911, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_Q_ELECTRON); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 914, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = PyNumber_Power(__pyx_t_2, __pyx_int_2, Py_None); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 911, __pyx_L1_error)
+    __pyx_t_4 = PyNumber_Power(__pyx_t_2, __pyx_int_2, Py_None); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 914, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 911, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 914, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_pi); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 911, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_pi); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 914, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = PyNumber_Multiply(__pyx_float_4_0, __pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 911, __pyx_L1_error)
+    __pyx_t_2 = PyNumber_Multiply(__pyx_float_4_0, __pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 914, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_Const); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 911, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_Const); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 914, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_EPSILON_0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 911, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_EPSILON_0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 914, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __pyx_t_7 = PyNumber_Multiply(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 911, __pyx_L1_error)
+    __pyx_t_7 = PyNumber_Multiply(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 914, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyNumber_Divide(__pyx_t_4, __pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 911, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyNumber_Divide(__pyx_t_4, __pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 914, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __pyx_t_7 = PyNumber_Power(__pyx_t_3, __pyx_float_1_5, Py_None); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 911, __pyx_L1_error)
+    __pyx_t_7 = PyNumber_Power(__pyx_t_3, __pyx_float_1_5, Py_None); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 914, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyNumber_Multiply(__pyx_t_1, __pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 911, __pyx_L1_error)
+    __pyx_t_3 = PyNumber_Multiply(__pyx_t_1, __pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 914, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_DECREF_SET(__pyx_v_c2, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "CAtmosphere.pyx":912
+    /* "CAtmosphere.pyx":915
  *         if debeye:
  *             c2 = np.sqrt(8.0 * np.pi / Const.KBOLTZMANN) * (Const.Q_ELECTRON**2 / (4.0 * np.pi * Const.EPSILON_0))**1.5
  *             nDebeye = np.zeros(self.Nlevel)             # <<<<<<<<<<<<<<
  *             for i in range(1, self.Nlevel):
  *                 stage = self.atomicModel.levels[i].stage
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 912, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 915, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_zeros); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 912, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_zeros); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 915, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_Nlevel); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 912, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_Nlevel); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 915, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_1))) {
@@ -17441,77 +17477,77 @@ static PyObject *__pyx_f_11CAtmosphere_6LwAtom_lte_pops(struct __pyx_obj_11CAtmo
     __pyx_t_3 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_4, __pyx_t_7) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_7);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 912, __pyx_L1_error)
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 915, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_v_nDebeye = __pyx_t_3;
     __pyx_t_3 = 0;
 
-    /* "CAtmosphere.pyx":913
+    /* "CAtmosphere.pyx":916
  *             c2 = np.sqrt(8.0 * np.pi / Const.KBOLTZMANN) * (Const.Q_ELECTRON**2 / (4.0 * np.pi * Const.EPSILON_0))**1.5
  *             nDebeye = np.zeros(self.Nlevel)
  *             for i in range(1, self.Nlevel):             # <<<<<<<<<<<<<<
  *                 stage = self.atomicModel.levels[i].stage
  *                 Z = stage
  */
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_Nlevel); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 913, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_Nlevel); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 916, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_8 = __Pyx_PyInt_As_long(__pyx_t_3); if (unlikely((__pyx_t_8 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 913, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyInt_As_long(__pyx_t_3); if (unlikely((__pyx_t_8 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 916, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_t_9 = __pyx_t_8;
     for (__pyx_t_10 = 1; __pyx_t_10 < __pyx_t_9; __pyx_t_10+=1) {
       __pyx_v_i = __pyx_t_10;
 
-      /* "CAtmosphere.pyx":914
+      /* "CAtmosphere.pyx":917
  *             nDebeye = np.zeros(self.Nlevel)
  *             for i in range(1, self.Nlevel):
  *                 stage = self.atomicModel.levels[i].stage             # <<<<<<<<<<<<<<
  *                 Z = stage
  *                 for m in range(1, stage - self.atomicModel.levels[0].stage + 1):
  */
-      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atomicModel, __pyx_n_s_levels); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 914, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atomicModel, __pyx_n_s_levels); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 917, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_3, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 914, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_3, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 917, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_stage); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 914, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_stage); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 917, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __Pyx_XDECREF_SET(__pyx_v_stage, __pyx_t_3);
       __pyx_t_3 = 0;
 
-      /* "CAtmosphere.pyx":915
+      /* "CAtmosphere.pyx":918
  *             for i in range(1, self.Nlevel):
  *                 stage = self.atomicModel.levels[i].stage
  *                 Z = stage             # <<<<<<<<<<<<<<
  *                 for m in range(1, stage - self.atomicModel.levels[0].stage + 1):
  *                     nDebeye[i] += Z
  */
-      __pyx_t_11 = __Pyx_PyInt_As_int(__pyx_v_stage); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 915, __pyx_L1_error)
+      __pyx_t_11 = __Pyx_PyInt_As_int(__pyx_v_stage); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 918, __pyx_L1_error)
       __pyx_v_Z = __pyx_t_11;
 
-      /* "CAtmosphere.pyx":916
+      /* "CAtmosphere.pyx":919
  *                 stage = self.atomicModel.levels[i].stage
  *                 Z = stage
  *                 for m in range(1, stage - self.atomicModel.levels[0].stage + 1):             # <<<<<<<<<<<<<<
  *                     nDebeye[i] += Z
  *                     Z += 1
  */
-      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atomicModel, __pyx_n_s_levels); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 916, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atomicModel, __pyx_n_s_levels); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 919, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_3, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 916, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_3, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 919, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_stage); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 916, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_stage); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 919, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __pyx_t_1 = PyNumber_Subtract(__pyx_v_stage, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 916, __pyx_L1_error)
+      __pyx_t_1 = PyNumber_Subtract(__pyx_v_stage, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 919, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __pyx_t_3 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 916, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 919, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 916, __pyx_L1_error)
+      __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 919, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_INCREF(__pyx_int_1);
       __Pyx_GIVEREF(__pyx_int_1);
@@ -17519,16 +17555,16 @@ static PyObject *__pyx_f_11CAtmosphere_6LwAtom_lte_pops(struct __pyx_obj_11CAtmo
       __Pyx_GIVEREF(__pyx_t_3);
       PyTuple_SET_ITEM(__pyx_t_1, 1, __pyx_t_3);
       __pyx_t_3 = 0;
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_range, __pyx_t_1, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 916, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_range, __pyx_t_1, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 919, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       if (likely(PyList_CheckExact(__pyx_t_3)) || PyTuple_CheckExact(__pyx_t_3)) {
         __pyx_t_1 = __pyx_t_3; __Pyx_INCREF(__pyx_t_1); __pyx_t_12 = 0;
         __pyx_t_13 = NULL;
       } else {
-        __pyx_t_12 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 916, __pyx_L1_error)
+        __pyx_t_12 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 919, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
-        __pyx_t_13 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 916, __pyx_L1_error)
+        __pyx_t_13 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 919, __pyx_L1_error)
       }
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       for (;;) {
@@ -17536,17 +17572,17 @@ static PyObject *__pyx_f_11CAtmosphere_6LwAtom_lte_pops(struct __pyx_obj_11CAtmo
           if (likely(PyList_CheckExact(__pyx_t_1))) {
             if (__pyx_t_12 >= PyList_GET_SIZE(__pyx_t_1)) break;
             #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-            __pyx_t_3 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_12); __Pyx_INCREF(__pyx_t_3); __pyx_t_12++; if (unlikely(0 < 0)) __PYX_ERR(0, 916, __pyx_L1_error)
+            __pyx_t_3 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_12); __Pyx_INCREF(__pyx_t_3); __pyx_t_12++; if (unlikely(0 < 0)) __PYX_ERR(0, 919, __pyx_L1_error)
             #else
-            __pyx_t_3 = PySequence_ITEM(__pyx_t_1, __pyx_t_12); __pyx_t_12++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 916, __pyx_L1_error)
+            __pyx_t_3 = PySequence_ITEM(__pyx_t_1, __pyx_t_12); __pyx_t_12++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 919, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_3);
             #endif
           } else {
             if (__pyx_t_12 >= PyTuple_GET_SIZE(__pyx_t_1)) break;
             #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-            __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_12); __Pyx_INCREF(__pyx_t_3); __pyx_t_12++; if (unlikely(0 < 0)) __PYX_ERR(0, 916, __pyx_L1_error)
+            __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_12); __Pyx_INCREF(__pyx_t_3); __pyx_t_12++; if (unlikely(0 < 0)) __PYX_ERR(0, 919, __pyx_L1_error)
             #else
-            __pyx_t_3 = PySequence_ITEM(__pyx_t_1, __pyx_t_12); __pyx_t_12++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 916, __pyx_L1_error)
+            __pyx_t_3 = PySequence_ITEM(__pyx_t_1, __pyx_t_12); __pyx_t_12++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 919, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_3);
             #endif
           }
@@ -17556,7 +17592,7 @@ static PyObject *__pyx_f_11CAtmosphere_6LwAtom_lte_pops(struct __pyx_obj_11CAtmo
             PyObject* exc_type = PyErr_Occurred();
             if (exc_type) {
               if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-              else __PYX_ERR(0, 916, __pyx_L1_error)
+              else __PYX_ERR(0, 919, __pyx_L1_error)
             }
             break;
           }
@@ -17565,7 +17601,7 @@ static PyObject *__pyx_f_11CAtmosphere_6LwAtom_lte_pops(struct __pyx_obj_11CAtmo
         __Pyx_XDECREF_SET(__pyx_v_m, __pyx_t_3);
         __pyx_t_3 = 0;
 
-        /* "CAtmosphere.pyx":917
+        /* "CAtmosphere.pyx":920
  *                 Z = stage
  *                 for m in range(1, stage - self.atomicModel.levels[0].stage + 1):
  *                     nDebeye[i] += Z             # <<<<<<<<<<<<<<
@@ -17573,18 +17609,18 @@ static PyObject *__pyx_f_11CAtmosphere_6LwAtom_lte_pops(struct __pyx_obj_11CAtmo
  *         dEion = c2 * np.sqrt(self.atmos.ne / self.atmos.temperature)
  */
         __pyx_t_11 = __pyx_v_i;
-        __pyx_t_3 = __Pyx_GetItemInt(__pyx_v_nDebeye, __pyx_t_11, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 917, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_GetItemInt(__pyx_v_nDebeye, __pyx_t_11, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 920, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
-        __pyx_t_7 = __Pyx_PyInt_From_int(__pyx_v_Z); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 917, __pyx_L1_error)
+        __pyx_t_7 = __Pyx_PyInt_From_int(__pyx_v_Z); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 920, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_7);
-        __pyx_t_4 = PyNumber_InPlaceAdd(__pyx_t_3, __pyx_t_7); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 917, __pyx_L1_error)
+        __pyx_t_4 = PyNumber_InPlaceAdd(__pyx_t_3, __pyx_t_7); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 920, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-        if (unlikely(__Pyx_SetItemInt(__pyx_v_nDebeye, __pyx_t_11, __pyx_t_4, int, 1, __Pyx_PyInt_From_int, 0, 1, 1) < 0)) __PYX_ERR(0, 917, __pyx_L1_error)
+        if (unlikely(__Pyx_SetItemInt(__pyx_v_nDebeye, __pyx_t_11, __pyx_t_4, int, 1, __Pyx_PyInt_From_int, 0, 1, 1) < 0)) __PYX_ERR(0, 920, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-        /* "CAtmosphere.pyx":918
+        /* "CAtmosphere.pyx":921
  *                 for m in range(1, stage - self.atomicModel.levels[0].stage + 1):
  *                     nDebeye[i] += Z
  *                     Z += 1             # <<<<<<<<<<<<<<
@@ -17593,7 +17629,7 @@ static PyObject *__pyx_f_11CAtmosphere_6LwAtom_lte_pops(struct __pyx_obj_11CAtmo
  */
         __pyx_v_Z = (__pyx_v_Z + 1);
 
-        /* "CAtmosphere.pyx":916
+        /* "CAtmosphere.pyx":919
  *                 stage = self.atomicModel.levels[i].stage
  *                 Z = stage
  *                 for m in range(1, stage - self.atomicModel.levels[0].stage + 1):             # <<<<<<<<<<<<<<
@@ -17604,7 +17640,7 @@ static PyObject *__pyx_f_11CAtmosphere_6LwAtom_lte_pops(struct __pyx_obj_11CAtmo
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     }
 
-    /* "CAtmosphere.pyx":910
+    /* "CAtmosphere.pyx":913
  *         cdef c2 = 0.0
  *         cdef int i, Z
  *         if debeye:             # <<<<<<<<<<<<<<
@@ -17613,23 +17649,23 @@ static PyObject *__pyx_f_11CAtmosphere_6LwAtom_lte_pops(struct __pyx_obj_11CAtmo
  */
   }
 
-  /* "CAtmosphere.pyx":919
+  /* "CAtmosphere.pyx":922
  *                     nDebeye[i] += Z
  *                     Z += 1
  *         dEion = c2 * np.sqrt(self.atmos.ne / self.atmos.temperature)             # <<<<<<<<<<<<<<
  *         cNe_T = 0.5  * self.atmos.ne * (c1 / self.atmos.temperature)**1.5
  *         total = np.ones(self.atmos.Nspace)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 919, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 922, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_sqrt); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 919, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_sqrt); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 922, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_ne); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 919, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_ne); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 922, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_temperature); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 919, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_temperature); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 922, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_PyNumber_Divide(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 919, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyNumber_Divide(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 922, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -17646,58 +17682,58 @@ static PyObject *__pyx_f_11CAtmosphere_6LwAtom_lte_pops(struct __pyx_obj_11CAtmo
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_7, __pyx_t_3, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 919, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 922, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = PyNumber_Multiply(__pyx_v_c2, __pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 919, __pyx_L1_error)
+  __pyx_t_7 = PyNumber_Multiply(__pyx_v_c2, __pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 922, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_dEion = __pyx_t_7;
   __pyx_t_7 = 0;
 
-  /* "CAtmosphere.pyx":920
+  /* "CAtmosphere.pyx":923
  *                     Z += 1
  *         dEion = c2 * np.sqrt(self.atmos.ne / self.atmos.temperature)
  *         cNe_T = 0.5  * self.atmos.ne * (c1 / self.atmos.temperature)**1.5             # <<<<<<<<<<<<<<
  *         total = np.ones(self.atmos.Nspace)
  * 
  */
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_ne); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 920, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_ne); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 923, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_1 = PyNumber_Multiply(__pyx_float_0_5, __pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 920, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_Multiply(__pyx_float_0_5, __pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 923, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = PyFloat_FromDouble(__pyx_v_c1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 920, __pyx_L1_error)
+  __pyx_t_7 = PyFloat_FromDouble(__pyx_v_c1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 923, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_temperature); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 920, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_temperature); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 923, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyNumber_Divide(__pyx_t_7, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 920, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyNumber_Divide(__pyx_t_7, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 923, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PyNumber_Power(__pyx_t_3, __pyx_float_1_5, Py_None); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 920, __pyx_L1_error)
+  __pyx_t_2 = PyNumber_Power(__pyx_t_3, __pyx_float_1_5, Py_None); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 923, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyNumber_Multiply(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 920, __pyx_L1_error)
+  __pyx_t_3 = PyNumber_Multiply(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 923, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_cNe_T = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "CAtmosphere.pyx":921
+  /* "CAtmosphere.pyx":924
  *         dEion = c2 * np.sqrt(self.atmos.ne / self.atmos.temperature)
  *         cNe_T = 0.5  * self.atmos.ne * (c1 / self.atmos.temperature)**1.5
  *         total = np.ones(self.atmos.Nspace)             # <<<<<<<<<<<<<<
  * 
  *         nStar = np.asarray(self.nStar)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 921, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 924, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_ones); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 921, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_ones); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 924, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 921, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 924, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_7 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_1))) {
@@ -17712,26 +17748,26 @@ static PyObject *__pyx_f_11CAtmosphere_6LwAtom_lte_pops(struct __pyx_obj_11CAtmo
   __pyx_t_3 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_7, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 921, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 924, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_total = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "CAtmosphere.pyx":923
+  /* "CAtmosphere.pyx":926
  *         total = np.ones(self.atmos.Nspace)
  * 
  *         nStar = np.asarray(self.nStar)             # <<<<<<<<<<<<<<
  *         ground = self.atomicModel.levels[0]
  *         cdef f64 dE, gi0
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 923, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 926, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_asarray); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 923, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_asarray); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 926, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (unlikely(!__pyx_v_self->nStar.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 923, __pyx_L1_error)}
-  __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_self->nStar, 2, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 923, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->nStar.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 926, __pyx_L1_error)}
+  __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_self->nStar, 2, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 926, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_7 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -17746,165 +17782,165 @@ static PyObject *__pyx_f_11CAtmosphere_6LwAtom_lte_pops(struct __pyx_obj_11CAtmo
   __pyx_t_3 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_7, __pyx_t_1) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_1);
   __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 923, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 926, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_nStar = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "CAtmosphere.pyx":924
+  /* "CAtmosphere.pyx":927
  * 
  *         nStar = np.asarray(self.nStar)
  *         ground = self.atomicModel.levels[0]             # <<<<<<<<<<<<<<
  *         cdef f64 dE, gi0
  *         cdef int dZ
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atomicModel, __pyx_n_s_levels); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 924, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atomicModel, __pyx_n_s_levels); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 927, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_3, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 924, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_3, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 927, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_ground = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "CAtmosphere.pyx":927
+  /* "CAtmosphere.pyx":930
  *         cdef f64 dE, gi0
  *         cdef int dZ
  *         for i in range(1, self.Nlevel):             # <<<<<<<<<<<<<<
  *             dE = self.atomicModel.levels[i].E_SI - ground.E_SI
  *             gi0 = self.atomicModel.levels[i].g / ground.g
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_Nlevel); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 927, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_Nlevel); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 930, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_8 = __Pyx_PyInt_As_long(__pyx_t_2); if (unlikely((__pyx_t_8 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 927, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyInt_As_long(__pyx_t_2); if (unlikely((__pyx_t_8 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 930, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_9 = __pyx_t_8;
   for (__pyx_t_10 = 1; __pyx_t_10 < __pyx_t_9; __pyx_t_10+=1) {
     __pyx_v_i = __pyx_t_10;
 
-    /* "CAtmosphere.pyx":928
+    /* "CAtmosphere.pyx":931
  *         cdef int dZ
  *         for i in range(1, self.Nlevel):
  *             dE = self.atomicModel.levels[i].E_SI - ground.E_SI             # <<<<<<<<<<<<<<
  *             gi0 = self.atomicModel.levels[i].g / ground.g
  *             dZ = self.atomicModel.levels[i].stage - ground.stage
  */
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atomicModel, __pyx_n_s_levels); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 928, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atomicModel, __pyx_n_s_levels); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 931, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_2, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 928, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_2, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 931, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_E_SI); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 928, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_E_SI); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 931, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_ground, __pyx_n_s_E_SI); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 928, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_ground, __pyx_n_s_E_SI); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 931, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_1 = PyNumber_Subtract(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 928, __pyx_L1_error)
+    __pyx_t_1 = PyNumber_Subtract(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 931, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_5 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_5 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 928, __pyx_L1_error)
+    __pyx_t_5 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_5 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 931, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_v_dE = __pyx_t_5;
 
-    /* "CAtmosphere.pyx":929
+    /* "CAtmosphere.pyx":932
  *         for i in range(1, self.Nlevel):
  *             dE = self.atomicModel.levels[i].E_SI - ground.E_SI
  *             gi0 = self.atomicModel.levels[i].g / ground.g             # <<<<<<<<<<<<<<
  *             dZ = self.atomicModel.levels[i].stage - ground.stage
  *             if debeye:
  */
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atomicModel, __pyx_n_s_levels); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 929, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atomicModel, __pyx_n_s_levels); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 932, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_1, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 929, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_1, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 932, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_g); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 929, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_g); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 932, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_ground, __pyx_n_s_g); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 929, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_ground, __pyx_n_s_g); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 932, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = __Pyx_PyNumber_Divide(__pyx_t_1, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 929, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyNumber_Divide(__pyx_t_1, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 932, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_5 = __pyx_PyFloat_AsDouble(__pyx_t_2); if (unlikely((__pyx_t_5 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 929, __pyx_L1_error)
+    __pyx_t_5 = __pyx_PyFloat_AsDouble(__pyx_t_2); if (unlikely((__pyx_t_5 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 932, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_v_gi0 = __pyx_t_5;
 
-    /* "CAtmosphere.pyx":930
+    /* "CAtmosphere.pyx":933
  *             dE = self.atomicModel.levels[i].E_SI - ground.E_SI
  *             gi0 = self.atomicModel.levels[i].g / ground.g
  *             dZ = self.atomicModel.levels[i].stage - ground.stage             # <<<<<<<<<<<<<<
  *             if debeye:
  *                 dE_kT = (dE - nDebeye[i] * dEion) / (Const.KBOLTZMANN * self.atmos.temperature)
  */
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atomicModel, __pyx_n_s_levels); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 930, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atomicModel, __pyx_n_s_levels); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 933, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_2, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 930, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_2, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 933, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_stage); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 930, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_stage); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 933, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_ground, __pyx_n_s_stage); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 930, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_ground, __pyx_n_s_stage); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 933, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_1 = PyNumber_Subtract(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 930, __pyx_L1_error)
+    __pyx_t_1 = PyNumber_Subtract(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 933, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_11 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 930, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 933, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_v_dZ = __pyx_t_11;
 
-    /* "CAtmosphere.pyx":931
+    /* "CAtmosphere.pyx":934
  *             gi0 = self.atomicModel.levels[i].g / ground.g
  *             dZ = self.atomicModel.levels[i].stage - ground.stage
  *             if debeye:             # <<<<<<<<<<<<<<
  *                 dE_kT = (dE - nDebeye[i] * dEion) / (Const.KBOLTZMANN * self.atmos.temperature)
  *             else:
  */
-    __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_v_debeye); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 931, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_v_debeye); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 934, __pyx_L1_error)
     if (__pyx_t_6) {
 
-      /* "CAtmosphere.pyx":932
+      /* "CAtmosphere.pyx":935
  *             dZ = self.atomicModel.levels[i].stage - ground.stage
  *             if debeye:
  *                 dE_kT = (dE - nDebeye[i] * dEion) / (Const.KBOLTZMANN * self.atmos.temperature)             # <<<<<<<<<<<<<<
  *             else:
  *                 dE_kT = dE / (Const.KBOLTZMANN * self.atmos.temperature)
  */
-      __pyx_t_1 = PyFloat_FromDouble(__pyx_v_dE); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 932, __pyx_L1_error)
+      __pyx_t_1 = PyFloat_FromDouble(__pyx_v_dE); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 935, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (unlikely(!__pyx_v_nDebeye)) { __Pyx_RaiseUnboundLocalError("nDebeye"); __PYX_ERR(0, 932, __pyx_L1_error) }
-      __pyx_t_3 = __Pyx_GetItemInt(__pyx_v_nDebeye, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 932, __pyx_L1_error)
+      if (unlikely(!__pyx_v_nDebeye)) { __Pyx_RaiseUnboundLocalError("nDebeye"); __PYX_ERR(0, 935, __pyx_L1_error) }
+      __pyx_t_3 = __Pyx_GetItemInt(__pyx_v_nDebeye, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 935, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_2 = PyNumber_Multiply(__pyx_t_3, __pyx_v_dEion); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 932, __pyx_L1_error)
+      __pyx_t_2 = PyNumber_Multiply(__pyx_t_3, __pyx_v_dEion); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 935, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __pyx_t_3 = PyNumber_Subtract(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 932, __pyx_L1_error)
+      __pyx_t_3 = PyNumber_Subtract(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 935, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_Const); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 932, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_Const); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 935, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_KBOLTZMANN); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 932, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_KBOLTZMANN); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 935, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_temperature); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 932, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_temperature); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 935, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
-      __pyx_t_7 = PyNumber_Multiply(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 932, __pyx_L1_error)
+      __pyx_t_7 = PyNumber_Multiply(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 935, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __pyx_t_2 = __Pyx_PyNumber_Divide(__pyx_t_3, __pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 932, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyNumber_Divide(__pyx_t_3, __pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 935, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_XDECREF_SET(__pyx_v_dE_kT, __pyx_t_2);
       __pyx_t_2 = 0;
 
-      /* "CAtmosphere.pyx":931
+      /* "CAtmosphere.pyx":934
  *             gi0 = self.atomicModel.levels[i].g / ground.g
  *             dZ = self.atomicModel.levels[i].stage - ground.stage
  *             if debeye:             # <<<<<<<<<<<<<<
@@ -17914,7 +17950,7 @@ static PyObject *__pyx_f_11CAtmosphere_6LwAtom_lte_pops(struct __pyx_obj_11CAtmo
       goto __pyx_L10;
     }
 
-    /* "CAtmosphere.pyx":934
+    /* "CAtmosphere.pyx":937
  *                 dE_kT = (dE - nDebeye[i] * dEion) / (Const.KBOLTZMANN * self.atmos.temperature)
  *             else:
  *                 dE_kT = dE / (Const.KBOLTZMANN * self.atmos.temperature)             # <<<<<<<<<<<<<<
@@ -17922,20 +17958,20 @@ static PyObject *__pyx_f_11CAtmosphere_6LwAtom_lte_pops(struct __pyx_obj_11CAtmo
  *             nst = gi0 * np.exp(-dE_kT)
  */
     /*else*/ {
-      __pyx_t_2 = PyFloat_FromDouble(__pyx_v_dE); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 934, __pyx_L1_error)
+      __pyx_t_2 = PyFloat_FromDouble(__pyx_v_dE); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 937, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
-      __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_Const); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 934, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_Const); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 937, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
-      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_KBOLTZMANN); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 934, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_KBOLTZMANN); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 937, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_temperature); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 934, __pyx_L1_error)
+      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atmos, __pyx_n_s_temperature); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 937, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
-      __pyx_t_1 = PyNumber_Multiply(__pyx_t_3, __pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 934, __pyx_L1_error)
+      __pyx_t_1 = PyNumber_Multiply(__pyx_t_3, __pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 937, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-      __pyx_t_7 = __Pyx_PyNumber_Divide(__pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 934, __pyx_L1_error)
+      __pyx_t_7 = __Pyx_PyNumber_Divide(__pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 937, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -17944,21 +17980,21 @@ static PyObject *__pyx_f_11CAtmosphere_6LwAtom_lte_pops(struct __pyx_obj_11CAtmo
     }
     __pyx_L10:;
 
-    /* "CAtmosphere.pyx":936
+    /* "CAtmosphere.pyx":939
  *                 dE_kT = dE / (Const.KBOLTZMANN * self.atmos.temperature)
  * 
  *             nst = gi0 * np.exp(-dE_kT)             # <<<<<<<<<<<<<<
  *             nStar[i, :] = nst
  *             nStar[i, :] /= cNe_T**dZ
  */
-    __pyx_t_7 = PyFloat_FromDouble(__pyx_v_gi0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 936, __pyx_L1_error)
+    __pyx_t_7 = PyFloat_FromDouble(__pyx_v_gi0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 939, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 936, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 939, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_exp); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 936, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_exp); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 939, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = PyNumber_Negative(__pyx_v_dE_kT); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 936, __pyx_L1_error)
+    __pyx_t_2 = PyNumber_Negative(__pyx_v_dE_kT); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 939, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -17973,26 +18009,26 @@ static PyObject *__pyx_f_11CAtmosphere_6LwAtom_lte_pops(struct __pyx_obj_11CAtmo
     __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 936, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 939, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyNumber_Multiply(__pyx_t_7, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 936, __pyx_L1_error)
+    __pyx_t_3 = PyNumber_Multiply(__pyx_t_7, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 939, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_XDECREF_SET(__pyx_v_nst, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "CAtmosphere.pyx":937
+    /* "CAtmosphere.pyx":940
  * 
  *             nst = gi0 * np.exp(-dE_kT)
  *             nStar[i, :] = nst             # <<<<<<<<<<<<<<
  *             nStar[i, :] /= cNe_T**dZ
  *             # for m in range(1, dZ + 1):
  */
-    __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_i); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 937, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_i); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 940, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 937, __pyx_L1_error)
+    __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 940, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_GIVEREF(__pyx_t_3);
     PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_3);
@@ -18000,19 +18036,19 @@ static PyObject *__pyx_f_11CAtmosphere_6LwAtom_lte_pops(struct __pyx_obj_11CAtmo
     __Pyx_GIVEREF(__pyx_slice__12);
     PyTuple_SET_ITEM(__pyx_t_1, 1, __pyx_slice__12);
     __pyx_t_3 = 0;
-    if (unlikely(PyObject_SetItem(__pyx_v_nStar, __pyx_t_1, __pyx_v_nst) < 0)) __PYX_ERR(0, 937, __pyx_L1_error)
+    if (unlikely(PyObject_SetItem(__pyx_v_nStar, __pyx_t_1, __pyx_v_nst) < 0)) __PYX_ERR(0, 940, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "CAtmosphere.pyx":938
+    /* "CAtmosphere.pyx":941
  *             nst = gi0 * np.exp(-dE_kT)
  *             nStar[i, :] = nst
  *             nStar[i, :] /= cNe_T**dZ             # <<<<<<<<<<<<<<
  *             # for m in range(1, dZ + 1):
  *             #     nStar[i, :] /= cNe_T
  */
-    __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_i); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 938, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_i); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 941, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 938, __pyx_L1_error)
+    __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 941, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_GIVEREF(__pyx_t_1);
     PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
@@ -18020,69 +18056,69 @@ static PyObject *__pyx_f_11CAtmosphere_6LwAtom_lte_pops(struct __pyx_obj_11CAtmo
     __Pyx_GIVEREF(__pyx_slice__12);
     PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_slice__12);
     __pyx_t_1 = 0;
-    __pyx_t_1 = __Pyx_PyObject_GetItem(__pyx_v_nStar, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 938, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetItem(__pyx_v_nStar, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 941, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_7 = __Pyx_PyInt_From_int(__pyx_v_dZ); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 938, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyInt_From_int(__pyx_v_dZ); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 941, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __pyx_t_2 = PyNumber_Power(__pyx_v_cNe_T, __pyx_t_7, Py_None); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 938, __pyx_L1_error)
+    __pyx_t_2 = PyNumber_Power(__pyx_v_cNe_T, __pyx_t_7, Py_None); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 941, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __pyx_t_7 = __Pyx_PyNumber_InPlaceDivide(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 938, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyNumber_InPlaceDivide(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 941, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(PyObject_SetItem(__pyx_v_nStar, __pyx_t_3, __pyx_t_7) < 0)) __PYX_ERR(0, 938, __pyx_L1_error)
+    if (unlikely(PyObject_SetItem(__pyx_v_nStar, __pyx_t_3, __pyx_t_7) < 0)) __PYX_ERR(0, 941, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-    /* "CAtmosphere.pyx":941
+    /* "CAtmosphere.pyx":944
  *             # for m in range(1, dZ + 1):
  *             #     nStar[i, :] /= cNe_T
  *             total +=  nStar[i]             # <<<<<<<<<<<<<<
  * 
  *         nStar[0] = self.nTotal / total
  */
-    __pyx_t_3 = __Pyx_GetItemInt(__pyx_v_nStar, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 941, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_GetItemInt(__pyx_v_nStar, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 944, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_7 = PyNumber_InPlaceAdd(__pyx_v_total, __pyx_t_3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 941, __pyx_L1_error)
+    __pyx_t_7 = PyNumber_InPlaceAdd(__pyx_v_total, __pyx_t_3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 944, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF_SET(__pyx_v_total, __pyx_t_7);
     __pyx_t_7 = 0;
   }
 
-  /* "CAtmosphere.pyx":943
+  /* "CAtmosphere.pyx":946
  *             total +=  nStar[i]
  * 
  *         nStar[0] = self.nTotal / total             # <<<<<<<<<<<<<<
  *         for i in range(1, self.Nlevel):
  *             nStar[i] *= nStar[0]
  */
-  if (unlikely(!__pyx_v_self->nTotal.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 943, __pyx_L1_error)}
-  __pyx_t_7 = __pyx_memoryview_fromslice(__pyx_v_self->nTotal, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 943, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->nTotal.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 946, __pyx_L1_error)}
+  __pyx_t_7 = __pyx_memoryview_fromslice(__pyx_v_self->nTotal, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 946, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_3 = __Pyx_PyNumber_Divide(__pyx_t_7, __pyx_v_total); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 943, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyNumber_Divide(__pyx_t_7, __pyx_v_total); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 946, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (unlikely(__Pyx_SetItemInt(__pyx_v_nStar, 0, __pyx_t_3, long, 1, __Pyx_PyInt_From_long, 0, 0, 1) < 0)) __PYX_ERR(0, 943, __pyx_L1_error)
+  if (unlikely(__Pyx_SetItemInt(__pyx_v_nStar, 0, __pyx_t_3, long, 1, __Pyx_PyInt_From_long, 0, 0, 1) < 0)) __PYX_ERR(0, 946, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "CAtmosphere.pyx":944
+  /* "CAtmosphere.pyx":947
  * 
  *         nStar[0] = self.nTotal / total
  *         for i in range(1, self.Nlevel):             # <<<<<<<<<<<<<<
  *             nStar[i] *= nStar[0]
  * 
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_Nlevel); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 944, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_Nlevel); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 947, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_8 = __Pyx_PyInt_As_long(__pyx_t_3); if (unlikely((__pyx_t_8 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 944, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyInt_As_long(__pyx_t_3); if (unlikely((__pyx_t_8 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 947, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_9 = __pyx_t_8;
   for (__pyx_t_10 = 1; __pyx_t_10 < __pyx_t_9; __pyx_t_10+=1) {
     __pyx_v_i = __pyx_t_10;
 
-    /* "CAtmosphere.pyx":945
+    /* "CAtmosphere.pyx":948
  *         nStar[0] = self.nTotal / total
  *         for i in range(1, self.Nlevel):
  *             nStar[i] *= nStar[0]             # <<<<<<<<<<<<<<
@@ -18090,19 +18126,19 @@ static PyObject *__pyx_f_11CAtmosphere_6LwAtom_lte_pops(struct __pyx_obj_11CAtmo
  *     def compute_collisions(self):
  */
     __pyx_t_11 = __pyx_v_i;
-    __pyx_t_3 = __Pyx_GetItemInt(__pyx_v_nStar, __pyx_t_11, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 945, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_GetItemInt(__pyx_v_nStar, __pyx_t_11, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 948, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_7 = __Pyx_GetItemInt(__pyx_v_nStar, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 945, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_GetItemInt(__pyx_v_nStar, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 948, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __pyx_t_2 = PyNumber_InPlaceMultiply(__pyx_t_3, __pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 945, __pyx_L1_error)
+    __pyx_t_2 = PyNumber_InPlaceMultiply(__pyx_t_3, __pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 948, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    if (unlikely(__Pyx_SetItemInt(__pyx_v_nStar, __pyx_t_11, __pyx_t_2, int, 1, __Pyx_PyInt_From_int, 0, 1, 1) < 0)) __PYX_ERR(0, 945, __pyx_L1_error)
+    if (unlikely(__Pyx_SetItemInt(__pyx_v_nStar, __pyx_t_11, __pyx_t_2, int, 1, __Pyx_PyInt_From_int, 0, 1, 1) < 0)) __PYX_ERR(0, 948, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   }
 
-  /* "CAtmosphere.pyx":906
+  /* "CAtmosphere.pyx":909
  *         return self.trans
  * 
  *     cpdef lte_pops(self, debeye=True):             # <<<<<<<<<<<<<<
@@ -18167,7 +18203,7 @@ static PyObject *__pyx_pw_11CAtmosphere_6LwAtom_3lte_pops(PyObject *__pyx_v_self
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "lte_pops") < 0)) __PYX_ERR(0, 906, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "lte_pops") < 0)) __PYX_ERR(0, 909, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -18181,7 +18217,7 @@ static PyObject *__pyx_pw_11CAtmosphere_6LwAtom_3lte_pops(PyObject *__pyx_v_self
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("lte_pops", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 906, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("lte_pops", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 909, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("CAtmosphere.LwAtom.lte_pops", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -18203,7 +18239,7 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_2lte_pops(struct __pyx_obj_11CAt
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_2.__pyx_n = 1;
   __pyx_t_2.debeye = __pyx_v_debeye;
-  __pyx_t_1 = __pyx_vtabptr_11CAtmosphere_LwAtom->lte_pops(__pyx_v_self, 1, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 906, __pyx_L1_error)
+  __pyx_t_1 = __pyx_vtabptr_11CAtmosphere_LwAtom->lte_pops(__pyx_v_self, 1, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 909, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -18220,7 +18256,7 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_2lte_pops(struct __pyx_obj_11CAt
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":947
+/* "CAtmosphere.pyx":950
  *             nStar[i] *= nStar[0]
  * 
  *     def compute_collisions(self):             # <<<<<<<<<<<<<<
@@ -18271,20 +18307,20 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_4compute_collisions(struct __pyx
   __pyx_pybuffernd_nStar.data = NULL;
   __pyx_pybuffernd_nStar.rcbuffer = &__pyx_pybuffer_nStar;
 
-  /* "CAtmosphere.pyx":948
+  /* "CAtmosphere.pyx":951
  * 
  *     def compute_collisions(self):
  *         cdef np.ndarray[np.double_t, ndim=3] C = np.asarray(self.C)             # <<<<<<<<<<<<<<
  *         C.fill(0.0)
  *         cdef np.ndarray[np.double_t, ndim=2] nStar = np.asarray(self.nStar)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 948, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 951, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 948, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 951, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->C.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 948, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->C, 3, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 948, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->C.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 951, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->C, 3, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 951, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -18299,16 +18335,16 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_4compute_collisions(struct __pyx
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 948, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 951, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 948, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 951, __pyx_L1_error)
   __pyx_t_5 = ((PyArrayObject *)__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_C.rcbuffer->pybuffer, (PyObject*)__pyx_t_5, &__Pyx_TypeInfo_nn___pyx_t_5numpy_double_t, PyBUF_FORMAT| PyBUF_STRIDES, 3, 0, __pyx_stack) == -1)) {
       __pyx_v_C = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_C.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 948, __pyx_L1_error)
+      __PYX_ERR(0, 951, __pyx_L1_error)
     } else {__pyx_pybuffernd_C.diminfo[0].strides = __pyx_pybuffernd_C.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_C.diminfo[0].shape = __pyx_pybuffernd_C.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_C.diminfo[1].strides = __pyx_pybuffernd_C.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_C.diminfo[1].shape = __pyx_pybuffernd_C.rcbuffer->pybuffer.shape[1]; __pyx_pybuffernd_C.diminfo[2].strides = __pyx_pybuffernd_C.rcbuffer->pybuffer.strides[2]; __pyx_pybuffernd_C.diminfo[2].shape = __pyx_pybuffernd_C.rcbuffer->pybuffer.shape[2];
     }
   }
@@ -18316,14 +18352,14 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_4compute_collisions(struct __pyx
   __pyx_v_C = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "CAtmosphere.pyx":949
+  /* "CAtmosphere.pyx":952
  *     def compute_collisions(self):
  *         cdef np.ndarray[np.double_t, ndim=3] C = np.asarray(self.C)
  *         C.fill(0.0)             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[np.double_t, ndim=2] nStar = np.asarray(self.nStar)
  *         for col in self.atomicModel.collisions:
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_C), __pyx_n_s_fill); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 949, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_C), __pyx_n_s_fill); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 952, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_2 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
@@ -18337,25 +18373,25 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_4compute_collisions(struct __pyx
   }
   __pyx_t_1 = (__pyx_t_2) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_2, __pyx_float_0_0) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_float_0_0);
   __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 949, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 952, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "CAtmosphere.pyx":950
+  /* "CAtmosphere.pyx":953
  *         cdef np.ndarray[np.double_t, ndim=3] C = np.asarray(self.C)
  *         C.fill(0.0)
  *         cdef np.ndarray[np.double_t, ndim=2] nStar = np.asarray(self.nStar)             # <<<<<<<<<<<<<<
  *         for col in self.atomicModel.collisions:
  *             col.compute_rates(self.atmos, nStar, C)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 950, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 953, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_asarray); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 950, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_asarray); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 953, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_v_self->nStar.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 950, __pyx_L1_error)}
-  __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_self->nStar, 2, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 950, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->nStar.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 953, __pyx_L1_error)}
+  __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_self->nStar, 2, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 953, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -18370,16 +18406,16 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_4compute_collisions(struct __pyx
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_4, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 950, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 953, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 950, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 953, __pyx_L1_error)
   __pyx_t_6 = ((PyArrayObject *)__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_nStar.rcbuffer->pybuffer, (PyObject*)__pyx_t_6, &__Pyx_TypeInfo_nn___pyx_t_5numpy_double_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_nStar = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_nStar.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 950, __pyx_L1_error)
+      __PYX_ERR(0, 953, __pyx_L1_error)
     } else {__pyx_pybuffernd_nStar.diminfo[0].strides = __pyx_pybuffernd_nStar.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_nStar.diminfo[0].shape = __pyx_pybuffernd_nStar.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_nStar.diminfo[1].strides = __pyx_pybuffernd_nStar.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_nStar.diminfo[1].shape = __pyx_pybuffernd_nStar.rcbuffer->pybuffer.shape[1];
     }
   }
@@ -18387,22 +18423,22 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_4compute_collisions(struct __pyx
   __pyx_v_nStar = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "CAtmosphere.pyx":951
+  /* "CAtmosphere.pyx":954
  *         C.fill(0.0)
  *         cdef np.ndarray[np.double_t, ndim=2] nStar = np.asarray(self.nStar)
  *         for col in self.atomicModel.collisions:             # <<<<<<<<<<<<<<
  *             col.compute_rates(self.atmos, nStar, C)
  *         C[C < 0.0] = 0.0
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atomicModel, __pyx_n_s_collisions); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 951, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self->atomicModel, __pyx_n_s_collisions); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 954, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (likely(PyList_CheckExact(__pyx_t_1)) || PyTuple_CheckExact(__pyx_t_1)) {
     __pyx_t_2 = __pyx_t_1; __Pyx_INCREF(__pyx_t_2); __pyx_t_7 = 0;
     __pyx_t_8 = NULL;
   } else {
-    __pyx_t_7 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 951, __pyx_L1_error)
+    __pyx_t_7 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 954, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_8 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 951, __pyx_L1_error)
+    __pyx_t_8 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 954, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   for (;;) {
@@ -18410,17 +18446,17 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_4compute_collisions(struct __pyx
       if (likely(PyList_CheckExact(__pyx_t_2))) {
         if (__pyx_t_7 >= PyList_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_1 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_7); __Pyx_INCREF(__pyx_t_1); __pyx_t_7++; if (unlikely(0 < 0)) __PYX_ERR(0, 951, __pyx_L1_error)
+        __pyx_t_1 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_7); __Pyx_INCREF(__pyx_t_1); __pyx_t_7++; if (unlikely(0 < 0)) __PYX_ERR(0, 954, __pyx_L1_error)
         #else
-        __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 951, __pyx_L1_error)
+        __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 954, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         #endif
       } else {
         if (__pyx_t_7 >= PyTuple_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_7); __Pyx_INCREF(__pyx_t_1); __pyx_t_7++; if (unlikely(0 < 0)) __PYX_ERR(0, 951, __pyx_L1_error)
+        __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_7); __Pyx_INCREF(__pyx_t_1); __pyx_t_7++; if (unlikely(0 < 0)) __PYX_ERR(0, 954, __pyx_L1_error)
         #else
-        __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 951, __pyx_L1_error)
+        __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 954, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         #endif
       }
@@ -18430,7 +18466,7 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_4compute_collisions(struct __pyx
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 951, __pyx_L1_error)
+          else __PYX_ERR(0, 954, __pyx_L1_error)
         }
         break;
       }
@@ -18439,14 +18475,14 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_4compute_collisions(struct __pyx
     __Pyx_XDECREF_SET(__pyx_v_col, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "CAtmosphere.pyx":952
+    /* "CAtmosphere.pyx":955
  *         cdef np.ndarray[np.double_t, ndim=2] nStar = np.asarray(self.nStar)
  *         for col in self.atomicModel.collisions:
  *             col.compute_rates(self.atmos, nStar, C)             # <<<<<<<<<<<<<<
  *         C[C < 0.0] = 0.0
  * 
  */
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_col, __pyx_n_s_compute_rates); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 952, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_col, __pyx_n_s_compute_rates); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 955, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     __pyx_t_9 = 0;
@@ -18463,7 +18499,7 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_4compute_collisions(struct __pyx
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_3)) {
       PyObject *__pyx_temp[4] = {__pyx_t_4, __pyx_v_self->atmos, ((PyObject *)__pyx_v_nStar), ((PyObject *)__pyx_v_C)};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_9, 3+__pyx_t_9); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 952, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_9, 3+__pyx_t_9); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 955, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -18471,13 +18507,13 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_4compute_collisions(struct __pyx
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
       PyObject *__pyx_temp[4] = {__pyx_t_4, __pyx_v_self->atmos, ((PyObject *)__pyx_v_nStar), ((PyObject *)__pyx_v_C)};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_9, 3+__pyx_t_9); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 952, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_9, 3+__pyx_t_9); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 955, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_10 = PyTuple_New(3+__pyx_t_9); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 952, __pyx_L1_error)
+      __pyx_t_10 = PyTuple_New(3+__pyx_t_9); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 955, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_10);
       if (__pyx_t_4) {
         __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_10, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -18491,14 +18527,14 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_4compute_collisions(struct __pyx
       __Pyx_INCREF(((PyObject *)__pyx_v_C));
       __Pyx_GIVEREF(((PyObject *)__pyx_v_C));
       PyTuple_SET_ITEM(__pyx_t_10, 2+__pyx_t_9, ((PyObject *)__pyx_v_C));
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_10, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 952, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_10, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 955, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
     }
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "CAtmosphere.pyx":951
+    /* "CAtmosphere.pyx":954
  *         C.fill(0.0)
  *         cdef np.ndarray[np.double_t, ndim=2] nStar = np.asarray(self.nStar)
  *         for col in self.atomicModel.collisions:             # <<<<<<<<<<<<<<
@@ -18508,18 +18544,18 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_4compute_collisions(struct __pyx
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "CAtmosphere.pyx":953
+  /* "CAtmosphere.pyx":956
  *         for col in self.atomicModel.collisions:
  *             col.compute_rates(self.atmos, nStar, C)
  *         C[C < 0.0] = 0.0             # <<<<<<<<<<<<<<
  * 
  * cdef class LwSpectrum:
  */
-  __pyx_t_2 = PyObject_RichCompare(((PyObject *)__pyx_v_C), __pyx_float_0_0, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 953, __pyx_L1_error)
-  if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_C), __pyx_t_2, __pyx_float_0_0) < 0)) __PYX_ERR(0, 953, __pyx_L1_error)
+  __pyx_t_2 = PyObject_RichCompare(((PyObject *)__pyx_v_C), __pyx_float_0_0, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 956, __pyx_L1_error)
+  if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_C), __pyx_t_2, __pyx_float_0_0) < 0)) __PYX_ERR(0, 956, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "CAtmosphere.pyx":947
+  /* "CAtmosphere.pyx":950
  *             nStar[i] *= nStar[0]
  * 
  *     def compute_collisions(self):             # <<<<<<<<<<<<<<
@@ -18665,7 +18701,7 @@ static PyObject *__pyx_pf_11CAtmosphere_6LwAtom_8__setstate_cython__(CYTHON_UNUS
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":962
+/* "CAtmosphere.pyx":965
  *     cdef f64[:,:,::1] Quv
  * 
  *     def __init__(self, wavelength, Nrays, Nspace):             # <<<<<<<<<<<<<<
@@ -18707,17 +18743,17 @@ static int __pyx_pw_11CAtmosphere_10LwSpectrum_1__init__(PyObject *__pyx_v_self,
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_Nrays)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, 1); __PYX_ERR(0, 962, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, 1); __PYX_ERR(0, 965, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_Nspace)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, 2); __PYX_ERR(0, 962, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, 2); __PYX_ERR(0, 965, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 962, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 965, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
       goto __pyx_L5_argtuple_error;
@@ -18732,7 +18768,7 @@ static int __pyx_pw_11CAtmosphere_10LwSpectrum_1__init__(PyObject *__pyx_v_self,
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 962, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 965, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("CAtmosphere.LwSpectrum.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -18757,44 +18793,44 @@ static int __pyx_pf_11CAtmosphere_10LwSpectrum___init__(struct __pyx_obj_11CAtmo
   __Pyx_memviewslice __pyx_t_6 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "CAtmosphere.pyx":963
+  /* "CAtmosphere.pyx":966
  * 
  *     def __init__(self, wavelength, Nrays, Nspace):
  *         self.wavelength = wavelength             # <<<<<<<<<<<<<<
  *         cdef int Nspect = self.wavelength.shape[0]
  *         self.I = np.zeros((Nspect, Nrays))
  */
-  __pyx_t_1 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_v_wavelength, PyBUF_WRITABLE); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 963, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_v_wavelength, PyBUF_WRITABLE); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 966, __pyx_L1_error)
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->wavelength, 0);
   __pyx_v_self->wavelength = __pyx_t_1;
   __pyx_t_1.memview = NULL;
   __pyx_t_1.data = NULL;
 
-  /* "CAtmosphere.pyx":964
+  /* "CAtmosphere.pyx":967
  *     def __init__(self, wavelength, Nrays, Nspace):
  *         self.wavelength = wavelength
  *         cdef int Nspect = self.wavelength.shape[0]             # <<<<<<<<<<<<<<
  *         self.I = np.zeros((Nspect, Nrays))
  *         self.J = np.zeros((Nspect, Nspace))
  */
-  if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 964, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 967, __pyx_L1_error)}
   __pyx_v_Nspect = (__pyx_v_self->wavelength.shape[0]);
 
-  /* "CAtmosphere.pyx":965
+  /* "CAtmosphere.pyx":968
  *         self.wavelength = wavelength
  *         cdef int Nspect = self.wavelength.shape[0]
  *         self.I = np.zeros((Nspect, Nrays))             # <<<<<<<<<<<<<<
  *         self.J = np.zeros((Nspect, Nspace))
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 965, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 968, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 965, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 968, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_Nspect); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 965, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_Nspect); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 968, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 965, __pyx_L1_error)
+  __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 968, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_GIVEREF(__pyx_t_3);
   PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_3);
@@ -18815,31 +18851,31 @@ static int __pyx_pf_11CAtmosphere_10LwSpectrum___init__(struct __pyx_obj_11CAtmo
   __pyx_t_2 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_3, __pyx_t_5) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_5);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 965, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 968, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_2, PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 965, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_2, PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 968, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->I, 0);
   __pyx_v_self->I = __pyx_t_6;
   __pyx_t_6.memview = NULL;
   __pyx_t_6.data = NULL;
 
-  /* "CAtmosphere.pyx":966
+  /* "CAtmosphere.pyx":969
  *         cdef int Nspect = self.wavelength.shape[0]
  *         self.I = np.zeros((Nspect, Nrays))
  *         self.J = np.zeros((Nspect, Nspace))             # <<<<<<<<<<<<<<
  * 
  *         self.spect.wavelength = f64_view(self.wavelength)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 966, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 969, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_zeros); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 966, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_zeros); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 969, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_Nspect); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 966, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_Nspect); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 969, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 966, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 969, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_4);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_4);
@@ -18860,47 +18896,47 @@ static int __pyx_pf_11CAtmosphere_10LwSpectrum___init__(struct __pyx_obj_11CAtmo
   __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_4, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 966, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 969, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_2, PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 966, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_2, PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 969, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->J, 0);
   __pyx_v_self->J = __pyx_t_6;
   __pyx_t_6.memview = NULL;
   __pyx_t_6.data = NULL;
 
-  /* "CAtmosphere.pyx":968
+  /* "CAtmosphere.pyx":971
  *         self.J = np.zeros((Nspect, Nspace))
  * 
  *         self.spect.wavelength = f64_view(self.wavelength)             # <<<<<<<<<<<<<<
  *         self.spect.I = f64_view_2(self.I)
  *         self.spect.J = f64_view_2(self.J)
  */
-  if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 968, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 971, __pyx_L1_error)}
   __pyx_v_self->spect.wavelength = __pyx_f_14CmoArrayHelper_f64_view(__pyx_v_self->wavelength);
 
-  /* "CAtmosphere.pyx":969
+  /* "CAtmosphere.pyx":972
  * 
  *         self.spect.wavelength = f64_view(self.wavelength)
  *         self.spect.I = f64_view_2(self.I)             # <<<<<<<<<<<<<<
  *         self.spect.J = f64_view_2(self.J)
  * 
  */
-  if (unlikely(!__pyx_v_self->I.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 969, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->I.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 972, __pyx_L1_error)}
   __pyx_v_self->spect.I = __pyx_f_14CmoArrayHelper_f64_view_2(__pyx_v_self->I);
 
-  /* "CAtmosphere.pyx":970
+  /* "CAtmosphere.pyx":973
  *         self.spect.wavelength = f64_view(self.wavelength)
  *         self.spect.I = f64_view_2(self.I)
  *         self.spect.J = f64_view_2(self.J)             # <<<<<<<<<<<<<<
  * 
  *     def setup_stokes(self):
  */
-  if (unlikely(!__pyx_v_self->J.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 970, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->J.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 973, __pyx_L1_error)}
   __pyx_v_self->spect.J = __pyx_f_14CmoArrayHelper_f64_view_2(__pyx_v_self->J);
 
-  /* "CAtmosphere.pyx":962
+  /* "CAtmosphere.pyx":965
  *     cdef f64[:,:,::1] Quv
  * 
  *     def __init__(self, wavelength, Nrays, Nspace):             # <<<<<<<<<<<<<<
@@ -18925,7 +18961,7 @@ static int __pyx_pf_11CAtmosphere_10LwSpectrum___init__(struct __pyx_obj_11CAtmo
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":972
+/* "CAtmosphere.pyx":975
  *         self.spect.J = f64_view_2(self.J)
  * 
  *     def setup_stokes(self):             # <<<<<<<<<<<<<<
@@ -18957,25 +18993,25 @@ static PyObject *__pyx_pf_11CAtmosphere_10LwSpectrum_2setup_stokes(struct __pyx_
   __Pyx_memviewslice __pyx_t_6 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_RefNannySetupContext("setup_stokes", 0);
 
-  /* "CAtmosphere.pyx":973
+  /* "CAtmosphere.pyx":976
  * 
  *     def setup_stokes(self):
  *         self.Quv = np.zeros((3, self.I.shape[0], self.I.shape[1]))             # <<<<<<<<<<<<<<
  *         self.spect.Quv = f64_view_3(self.Quv)
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 973, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 976, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_zeros); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 973, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_zeros); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 976, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->I.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 973, __pyx_L1_error)}
-  __pyx_t_2 = PyInt_FromSsize_t((__pyx_v_self->I.shape[0])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 973, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->I.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 976, __pyx_L1_error)}
+  __pyx_t_2 = PyInt_FromSsize_t((__pyx_v_self->I.shape[0])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 976, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (unlikely(!__pyx_v_self->I.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 973, __pyx_L1_error)}
-  __pyx_t_4 = PyInt_FromSsize_t((__pyx_v_self->I.shape[1])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 973, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->I.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 976, __pyx_L1_error)}
+  __pyx_t_4 = PyInt_FromSsize_t((__pyx_v_self->I.shape[1])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 976, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = PyTuple_New(3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 973, __pyx_L1_error)
+  __pyx_t_5 = PyTuple_New(3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 976, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_INCREF(__pyx_int_3);
   __Pyx_GIVEREF(__pyx_int_3);
@@ -18999,27 +19035,27 @@ static PyObject *__pyx_pf_11CAtmosphere_10LwSpectrum_2setup_stokes(struct __pyx_
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_5) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_5);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 973, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 976, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 973, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 976, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->Quv, 0);
   __pyx_v_self->Quv = __pyx_t_6;
   __pyx_t_6.memview = NULL;
   __pyx_t_6.data = NULL;
 
-  /* "CAtmosphere.pyx":974
+  /* "CAtmosphere.pyx":977
  *     def setup_stokes(self):
  *         self.Quv = np.zeros((3, self.I.shape[0], self.I.shape[1]))
  *         self.spect.Quv = f64_view_3(self.Quv)             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  if (unlikely(!__pyx_v_self->Quv.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 974, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->Quv.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 977, __pyx_L1_error)}
   __pyx_v_self->spect.Quv = __pyx_f_14CmoArrayHelper_f64_view_3(__pyx_v_self->Quv);
 
-  /* "CAtmosphere.pyx":972
+  /* "CAtmosphere.pyx":975
  *         self.spect.J = f64_view_2(self.J)
  * 
  *     def setup_stokes(self):             # <<<<<<<<<<<<<<
@@ -19045,7 +19081,7 @@ static PyObject *__pyx_pf_11CAtmosphere_10LwSpectrum_2setup_stokes(struct __pyx_
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":977
+/* "CAtmosphere.pyx":980
  * 
  *     @property
  *     def wavelength(self):             # <<<<<<<<<<<<<<
@@ -19075,7 +19111,7 @@ static PyObject *__pyx_pf_11CAtmosphere_10LwSpectrum_10wavelength___get__(struct
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":978
+  /* "CAtmosphere.pyx":981
  *     @property
  *     def wavelength(self):
  *         return np.asarray(self.wavelength)             # <<<<<<<<<<<<<<
@@ -19083,13 +19119,13 @@ static PyObject *__pyx_pf_11CAtmosphere_10LwSpectrum_10wavelength___get__(struct
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 978, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 981, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 978, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 981, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 978, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->wavelength, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 978, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->wavelength.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 981, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->wavelength, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 981, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -19104,14 +19140,14 @@ static PyObject *__pyx_pf_11CAtmosphere_10LwSpectrum_10wavelength___get__(struct
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 978, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 981, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":977
+  /* "CAtmosphere.pyx":980
  * 
  *     @property
  *     def wavelength(self):             # <<<<<<<<<<<<<<
@@ -19133,7 +19169,7 @@ static PyObject *__pyx_pf_11CAtmosphere_10LwSpectrum_10wavelength___get__(struct
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":981
+/* "CAtmosphere.pyx":984
  * 
  *     @property
  *     def I(self):             # <<<<<<<<<<<<<<
@@ -19163,7 +19199,7 @@ static PyObject *__pyx_pf_11CAtmosphere_10LwSpectrum_1I___get__(struct __pyx_obj
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":982
+  /* "CAtmosphere.pyx":985
  *     @property
  *     def I(self):
  *         return np.asarray(self.I)             # <<<<<<<<<<<<<<
@@ -19171,13 +19207,13 @@ static PyObject *__pyx_pf_11CAtmosphere_10LwSpectrum_1I___get__(struct __pyx_obj
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 982, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 985, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 982, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 985, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->I.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 982, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->I, 2, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 982, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->I.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 985, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->I, 2, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 985, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -19192,14 +19228,14 @@ static PyObject *__pyx_pf_11CAtmosphere_10LwSpectrum_1I___get__(struct __pyx_obj
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 982, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 985, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":981
+  /* "CAtmosphere.pyx":984
  * 
  *     @property
  *     def I(self):             # <<<<<<<<<<<<<<
@@ -19221,7 +19257,7 @@ static PyObject *__pyx_pf_11CAtmosphere_10LwSpectrum_1I___get__(struct __pyx_obj
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":985
+/* "CAtmosphere.pyx":988
  * 
  *     @property
  *     def J(self):             # <<<<<<<<<<<<<<
@@ -19251,7 +19287,7 @@ static PyObject *__pyx_pf_11CAtmosphere_10LwSpectrum_1J___get__(struct __pyx_obj
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":986
+  /* "CAtmosphere.pyx":989
  *     @property
  *     def J(self):
  *         return np.asarray(self.J)             # <<<<<<<<<<<<<<
@@ -19259,13 +19295,13 @@ static PyObject *__pyx_pf_11CAtmosphere_10LwSpectrum_1J___get__(struct __pyx_obj
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 986, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 989, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 986, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 989, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->J.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 986, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->J, 2, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 986, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->J.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 989, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->J, 2, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 989, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -19280,14 +19316,14 @@ static PyObject *__pyx_pf_11CAtmosphere_10LwSpectrum_1J___get__(struct __pyx_obj
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 986, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 989, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":985
+  /* "CAtmosphere.pyx":988
  * 
  *     @property
  *     def J(self):             # <<<<<<<<<<<<<<
@@ -19309,7 +19345,7 @@ static PyObject *__pyx_pf_11CAtmosphere_10LwSpectrum_1J___get__(struct __pyx_obj
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":989
+/* "CAtmosphere.pyx":992
  * 
  *     @property
  *     def Quv(self):             # <<<<<<<<<<<<<<
@@ -19339,7 +19375,7 @@ static PyObject *__pyx_pf_11CAtmosphere_10LwSpectrum_3Quv___get__(struct __pyx_o
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":990
+  /* "CAtmosphere.pyx":993
  *     @property
  *     def Quv(self):
  *         return np.asarray(self.Quv)             # <<<<<<<<<<<<<<
@@ -19347,13 +19383,13 @@ static PyObject *__pyx_pf_11CAtmosphere_10LwSpectrum_3Quv___get__(struct __pyx_o
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 990, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 993, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 990, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 993, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_v_self->Quv.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 990, __pyx_L1_error)}
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->Quv, 3, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 990, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->Quv.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 993, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_self->Quv, 3, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 993, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -19368,14 +19404,14 @@ static PyObject *__pyx_pf_11CAtmosphere_10LwSpectrum_3Quv___get__(struct __pyx_o
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 990, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 993, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":989
+  /* "CAtmosphere.pyx":992
  * 
  *     @property
  *     def Quv(self):             # <<<<<<<<<<<<<<
@@ -19504,7 +19540,7 @@ static PyObject *__pyx_pf_11CAtmosphere_10LwSpectrum_6__setstate_cython__(CYTHON
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":1002
+/* "CAtmosphere.pyx":1005
  *     cdef list activeAtoms
  * 
  *     def __init__(self, atmos, spect, radSet, eqPops, atomicTable, ngOptions=None, initSol=None):             # <<<<<<<<<<<<<<
@@ -19560,25 +19596,25 @@ static int __pyx_pw_11CAtmosphere_9LwContext_1__init__(PyObject *__pyx_v_self, P
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_spect)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 0, 5, 7, 1); __PYX_ERR(0, 1002, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 0, 5, 7, 1); __PYX_ERR(0, 1005, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_radSet)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 0, 5, 7, 2); __PYX_ERR(0, 1002, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 0, 5, 7, 2); __PYX_ERR(0, 1005, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_eqPops)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 0, 5, 7, 3); __PYX_ERR(0, 1002, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 0, 5, 7, 3); __PYX_ERR(0, 1005, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
         if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_atomicTable)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 0, 5, 7, 4); __PYX_ERR(0, 1002, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 0, 5, 7, 4); __PYX_ERR(0, 1005, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  5:
@@ -19594,7 +19630,7 @@ static int __pyx_pw_11CAtmosphere_9LwContext_1__init__(PyObject *__pyx_v_self, P
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 1002, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 1005, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -19621,7 +19657,7 @@ static int __pyx_pw_11CAtmosphere_9LwContext_1__init__(PyObject *__pyx_v_self, P
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 0, 5, 7, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1002, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 0, 5, 7, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1005, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("CAtmosphere.LwContext.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -19649,36 +19685,36 @@ static int __pyx_pf_11CAtmosphere_9LwContext___init__(struct __pyx_obj_11CAtmosp
   PyObject *__pyx_t_7 = NULL;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "CAtmosphere.pyx":1003
+  /* "CAtmosphere.pyx":1006
  * 
  *     def __init__(self, atmos, spect, radSet, eqPops, atomicTable, ngOptions=None, initSol=None):
  *         self.arguments = {'atmos': atmos, 'spect': spect, 'radSet': radSet, 'eqPops': eqPops, 'atomicTable': atomicTable, 'ngOptions': ngOptions, 'initSol': initSol}             # <<<<<<<<<<<<<<
  * 
  *         self.atmos = LwAtmosphere(atmos)
  */
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1003, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1006, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_u_atmos, __pyx_v_atmos) < 0) __PYX_ERR(0, 1003, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_u_spect, __pyx_v_spect) < 0) __PYX_ERR(0, 1003, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_u_radSet, __pyx_v_radSet) < 0) __PYX_ERR(0, 1003, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_u_eqPops, __pyx_v_eqPops) < 0) __PYX_ERR(0, 1003, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_u_atomicTable, __pyx_v_atomicTable) < 0) __PYX_ERR(0, 1003, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_u_ngOptions, __pyx_v_ngOptions) < 0) __PYX_ERR(0, 1003, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_u_initSol, __pyx_v_initSol) < 0) __PYX_ERR(0, 1003, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_u_atmos, __pyx_v_atmos) < 0) __PYX_ERR(0, 1006, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_u_spect, __pyx_v_spect) < 0) __PYX_ERR(0, 1006, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_u_radSet, __pyx_v_radSet) < 0) __PYX_ERR(0, 1006, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_u_eqPops, __pyx_v_eqPops) < 0) __PYX_ERR(0, 1006, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_u_atomicTable, __pyx_v_atomicTable) < 0) __PYX_ERR(0, 1006, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_u_ngOptions, __pyx_v_ngOptions) < 0) __PYX_ERR(0, 1006, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_u_initSol, __pyx_v_initSol) < 0) __PYX_ERR(0, 1006, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_1);
   __Pyx_GOTREF(__pyx_v_self->arguments);
   __Pyx_DECREF(__pyx_v_self->arguments);
   __pyx_v_self->arguments = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "CAtmosphere.pyx":1005
+  /* "CAtmosphere.pyx":1008
  *         self.arguments = {'atmos': atmos, 'spect': spect, 'radSet': radSet, 'eqPops': eqPops, 'atomicTable': atomicTable, 'ngOptions': ngOptions, 'initSol': initSol}
  * 
  *         self.atmos = LwAtmosphere(atmos)             # <<<<<<<<<<<<<<
  *         self.spect = LwSpectrum(spect.wavelength, atmos.Nrays, atmos.Nspace)
  *         self.atomicTable = atomicTable
  */
-  __pyx_t_1 = __Pyx_PyObject_CallOneArg(((PyObject *)__pyx_ptype_11CAtmosphere_LwAtmosphere), __pyx_v_atmos); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1005, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_CallOneArg(((PyObject *)__pyx_ptype_11CAtmosphere_LwAtmosphere), __pyx_v_atmos); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1008, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
   __Pyx_GOTREF(__pyx_v_self->atmos);
@@ -19686,20 +19722,20 @@ static int __pyx_pf_11CAtmosphere_9LwContext___init__(struct __pyx_obj_11CAtmosp
   __pyx_v_self->atmos = ((struct __pyx_obj_11CAtmosphere_LwAtmosphere *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "CAtmosphere.pyx":1006
+  /* "CAtmosphere.pyx":1009
  * 
  *         self.atmos = LwAtmosphere(atmos)
  *         self.spect = LwSpectrum(spect.wavelength, atmos.Nrays, atmos.Nspace)             # <<<<<<<<<<<<<<
  *         self.atomicTable = atomicTable
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_spect, __pyx_n_s_wavelength); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1006, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_spect, __pyx_n_s_wavelength); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1009, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_atmos, __pyx_n_s_Nrays); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1006, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_atmos, __pyx_n_s_Nrays); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1009, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1006, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_atmos, __pyx_n_s_Nspace); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1009, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1006, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1009, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_1);
@@ -19710,7 +19746,7 @@ static int __pyx_pf_11CAtmosphere_9LwContext___init__(struct __pyx_obj_11CAtmosp
   __pyx_t_1 = 0;
   __pyx_t_2 = 0;
   __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_11CAtmosphere_LwSpectrum), __pyx_t_4, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1006, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_11CAtmosphere_LwSpectrum), __pyx_t_4, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1009, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_GIVEREF(__pyx_t_3);
@@ -19719,7 +19755,7 @@ static int __pyx_pf_11CAtmosphere_9LwContext___init__(struct __pyx_obj_11CAtmosp
   __pyx_v_self->spect = ((struct __pyx_obj_11CAtmosphere_LwSpectrum *)__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "CAtmosphere.pyx":1007
+  /* "CAtmosphere.pyx":1010
  *         self.atmos = LwAtmosphere(atmos)
  *         self.spect = LwSpectrum(spect.wavelength, atmos.Nrays, atmos.Nspace)
  *         self.atomicTable = atomicTable             # <<<<<<<<<<<<<<
@@ -19732,14 +19768,14 @@ static int __pyx_pf_11CAtmosphere_9LwContext___init__(struct __pyx_obj_11CAtmosp
   __Pyx_DECREF(__pyx_v_self->atomicTable);
   __pyx_v_self->atomicTable = __pyx_v_atomicTable;
 
-  /* "CAtmosphere.pyx":1009
+  /* "CAtmosphere.pyx":1012
  *         self.atomicTable = atomicTable
  * 
  *         self.background = LwBackground(self.atmos, eqPops, radSet, spect)             # <<<<<<<<<<<<<<
  * 
  *         activeAtoms = radSet.activeAtoms
  */
-  __pyx_t_3 = PyTuple_New(4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1009, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1012, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_INCREF(((PyObject *)__pyx_v_self->atmos));
   __Pyx_GIVEREF(((PyObject *)__pyx_v_self->atmos));
@@ -19753,7 +19789,7 @@ static int __pyx_pf_11CAtmosphere_9LwContext___init__(struct __pyx_obj_11CAtmosp
   __Pyx_INCREF(__pyx_v_spect);
   __Pyx_GIVEREF(__pyx_v_spect);
   PyTuple_SET_ITEM(__pyx_t_3, 3, __pyx_v_spect);
-  __pyx_t_4 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_11CAtmosphere_LwBackground), __pyx_t_3, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1009, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_11CAtmosphere_LwBackground), __pyx_t_3, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1012, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_GIVEREF(__pyx_t_4);
@@ -19762,19 +19798,19 @@ static int __pyx_pf_11CAtmosphere_9LwContext___init__(struct __pyx_obj_11CAtmosp
   __pyx_v_self->background = ((struct __pyx_obj_11CAtmosphere_LwBackground *)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "CAtmosphere.pyx":1011
+  /* "CAtmosphere.pyx":1014
  *         self.background = LwBackground(self.atmos, eqPops, radSet, spect)
  * 
  *         activeAtoms = radSet.activeAtoms             # <<<<<<<<<<<<<<
  *         self.activeAtoms = [LwAtom(a, self.atmos, atmos, eqPops, spect, self.background, ngOptions=ngOptions, initSol=initSol) for a in activeAtoms]
  * 
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_radSet, __pyx_n_s_activeAtoms); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1011, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_radSet, __pyx_n_s_activeAtoms); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1014, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_v_activeAtoms = __pyx_t_4;
   __pyx_t_4 = 0;
 
-  /* "CAtmosphere.pyx":1012
+  /* "CAtmosphere.pyx":1015
  * 
  *         activeAtoms = radSet.activeAtoms
  *         self.activeAtoms = [LwAtom(a, self.atmos, atmos, eqPops, spect, self.background, ngOptions=ngOptions, initSol=initSol) for a in activeAtoms]             # <<<<<<<<<<<<<<
@@ -19782,32 +19818,32 @@ static int __pyx_pf_11CAtmosphere_9LwContext___init__(struct __pyx_obj_11CAtmosp
  *         self.ctx.atmos = &self.atmos.atmos
  */
   { /* enter inner scope */
-    __pyx_t_4 = PyList_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1012, __pyx_L5_error)
+    __pyx_t_4 = PyList_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1015, __pyx_L5_error)
     __Pyx_GOTREF(__pyx_t_4);
     if (likely(PyList_CheckExact(__pyx_v_activeAtoms)) || PyTuple_CheckExact(__pyx_v_activeAtoms)) {
       __pyx_t_3 = __pyx_v_activeAtoms; __Pyx_INCREF(__pyx_t_3); __pyx_t_5 = 0;
       __pyx_t_6 = NULL;
     } else {
-      __pyx_t_5 = -1; __pyx_t_3 = PyObject_GetIter(__pyx_v_activeAtoms); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1012, __pyx_L5_error)
+      __pyx_t_5 = -1; __pyx_t_3 = PyObject_GetIter(__pyx_v_activeAtoms); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1015, __pyx_L5_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_6 = Py_TYPE(__pyx_t_3)->tp_iternext; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1012, __pyx_L5_error)
+      __pyx_t_6 = Py_TYPE(__pyx_t_3)->tp_iternext; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1015, __pyx_L5_error)
     }
     for (;;) {
       if (likely(!__pyx_t_6)) {
         if (likely(PyList_CheckExact(__pyx_t_3))) {
           if (__pyx_t_5 >= PyList_GET_SIZE(__pyx_t_3)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_2 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_5); __Pyx_INCREF(__pyx_t_2); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 1012, __pyx_L5_error)
+          __pyx_t_2 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_5); __Pyx_INCREF(__pyx_t_2); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 1015, __pyx_L5_error)
           #else
-          __pyx_t_2 = PySequence_ITEM(__pyx_t_3, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1012, __pyx_L5_error)
+          __pyx_t_2 = PySequence_ITEM(__pyx_t_3, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1015, __pyx_L5_error)
           __Pyx_GOTREF(__pyx_t_2);
           #endif
         } else {
           if (__pyx_t_5 >= PyTuple_GET_SIZE(__pyx_t_3)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_2 = PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_5); __Pyx_INCREF(__pyx_t_2); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 1012, __pyx_L5_error)
+          __pyx_t_2 = PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_5); __Pyx_INCREF(__pyx_t_2); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 1015, __pyx_L5_error)
           #else
-          __pyx_t_2 = PySequence_ITEM(__pyx_t_3, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1012, __pyx_L5_error)
+          __pyx_t_2 = PySequence_ITEM(__pyx_t_3, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1015, __pyx_L5_error)
           __Pyx_GOTREF(__pyx_t_2);
           #endif
         }
@@ -19817,7 +19853,7 @@ static int __pyx_pf_11CAtmosphere_9LwContext___init__(struct __pyx_obj_11CAtmosp
           PyObject* exc_type = PyErr_Occurred();
           if (exc_type) {
             if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-            else __PYX_ERR(0, 1012, __pyx_L5_error)
+            else __PYX_ERR(0, 1015, __pyx_L5_error)
           }
           break;
         }
@@ -19825,7 +19861,7 @@ static int __pyx_pf_11CAtmosphere_9LwContext___init__(struct __pyx_obj_11CAtmosp
       }
       __Pyx_XDECREF_SET(__pyx_8genexpr1__pyx_v_a, __pyx_t_2);
       __pyx_t_2 = 0;
-      __pyx_t_2 = PyTuple_New(6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1012, __pyx_L5_error)
+      __pyx_t_2 = PyTuple_New(6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1015, __pyx_L5_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_INCREF(__pyx_8genexpr1__pyx_v_a);
       __Pyx_GIVEREF(__pyx_8genexpr1__pyx_v_a);
@@ -19845,15 +19881,15 @@ static int __pyx_pf_11CAtmosphere_9LwContext___init__(struct __pyx_obj_11CAtmosp
       __Pyx_INCREF(((PyObject *)__pyx_v_self->background));
       __Pyx_GIVEREF(((PyObject *)__pyx_v_self->background));
       PyTuple_SET_ITEM(__pyx_t_2, 5, ((PyObject *)__pyx_v_self->background));
-      __pyx_t_1 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1012, __pyx_L5_error)
+      __pyx_t_1 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1015, __pyx_L5_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_ngOptions, __pyx_v_ngOptions) < 0) __PYX_ERR(0, 1012, __pyx_L5_error)
-      if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_initSol, __pyx_v_initSol) < 0) __PYX_ERR(0, 1012, __pyx_L5_error)
-      __pyx_t_7 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_11CAtmosphere_LwAtom), __pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1012, __pyx_L5_error)
+      if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_ngOptions, __pyx_v_ngOptions) < 0) __PYX_ERR(0, 1015, __pyx_L5_error)
+      if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_initSol, __pyx_v_initSol) < 0) __PYX_ERR(0, 1015, __pyx_L5_error)
+      __pyx_t_7 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_11CAtmosphere_LwAtom), __pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1015, __pyx_L5_error)
       __Pyx_GOTREF(__pyx_t_7);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      if (unlikely(__Pyx_ListComp_Append(__pyx_t_4, (PyObject*)__pyx_t_7))) __PYX_ERR(0, 1012, __pyx_L5_error)
+      if (unlikely(__Pyx_ListComp_Append(__pyx_t_4, (PyObject*)__pyx_t_7))) __PYX_ERR(0, 1015, __pyx_L5_error)
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     }
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -19870,7 +19906,7 @@ static int __pyx_pf_11CAtmosphere_9LwContext___init__(struct __pyx_obj_11CAtmosp
   __pyx_v_self->activeAtoms = ((PyObject*)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "CAtmosphere.pyx":1014
+  /* "CAtmosphere.pyx":1017
  *         self.activeAtoms = [LwAtom(a, self.atmos, atmos, eqPops, spect, self.background, ngOptions=ngOptions, initSol=initSol) for a in activeAtoms]
  * 
  *         self.ctx.atmos = &self.atmos.atmos             # <<<<<<<<<<<<<<
@@ -19879,7 +19915,7 @@ static int __pyx_pf_11CAtmosphere_9LwContext___init__(struct __pyx_obj_11CAtmosp
  */
   __pyx_v_self->ctx.atmos = (&__pyx_v_self->atmos->atmos);
 
-  /* "CAtmosphere.pyx":1015
+  /* "CAtmosphere.pyx":1018
  * 
  *         self.ctx.atmos = &self.atmos.atmos
  *         self.ctx.spect = &self.spect.spect             # <<<<<<<<<<<<<<
@@ -19888,7 +19924,7 @@ static int __pyx_pf_11CAtmosphere_9LwContext___init__(struct __pyx_obj_11CAtmosp
  */
   __pyx_v_self->ctx.spect = (&__pyx_v_self->spect->spect);
 
-  /* "CAtmosphere.pyx":1016
+  /* "CAtmosphere.pyx":1019
  *         self.ctx.atmos = &self.atmos.atmos
  *         self.ctx.spect = &self.spect.spect
  *         self.ctx.background = &self.background.background             # <<<<<<<<<<<<<<
@@ -19897,7 +19933,7 @@ static int __pyx_pf_11CAtmosphere_9LwContext___init__(struct __pyx_obj_11CAtmosp
  */
   __pyx_v_self->ctx.background = (&__pyx_v_self->background->background);
 
-  /* "CAtmosphere.pyx":1019
+  /* "CAtmosphere.pyx":1022
  * 
  *         cdef LwAtom la
  *         for la in self.activeAtoms:             # <<<<<<<<<<<<<<
@@ -19906,22 +19942,22 @@ static int __pyx_pf_11CAtmosphere_9LwContext___init__(struct __pyx_obj_11CAtmosp
  */
   if (unlikely(__pyx_v_self->activeAtoms == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-    __PYX_ERR(0, 1019, __pyx_L1_error)
+    __PYX_ERR(0, 1022, __pyx_L1_error)
   }
   __pyx_t_4 = __pyx_v_self->activeAtoms; __Pyx_INCREF(__pyx_t_4); __pyx_t_5 = 0;
   for (;;) {
     if (__pyx_t_5 >= PyList_GET_SIZE(__pyx_t_4)) break;
     #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-    __pyx_t_3 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_5); __Pyx_INCREF(__pyx_t_3); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 1019, __pyx_L1_error)
+    __pyx_t_3 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_5); __Pyx_INCREF(__pyx_t_3); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 1022, __pyx_L1_error)
     #else
-    __pyx_t_3 = PySequence_ITEM(__pyx_t_4, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1019, __pyx_L1_error)
+    __pyx_t_3 = PySequence_ITEM(__pyx_t_4, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1022, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     #endif
-    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_11CAtmosphere_LwAtom))))) __PYX_ERR(0, 1019, __pyx_L1_error)
+    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_11CAtmosphere_LwAtom))))) __PYX_ERR(0, 1022, __pyx_L1_error)
     __Pyx_XDECREF_SET(__pyx_v_la, ((struct __pyx_obj_11CAtmosphere_LwAtom *)__pyx_t_3));
     __pyx_t_3 = 0;
 
-    /* "CAtmosphere.pyx":1020
+    /* "CAtmosphere.pyx":1023
  *         cdef LwAtom la
  *         for la in self.activeAtoms:
  *             self.ctx.activeAtoms.push_back(&la.atom)             # <<<<<<<<<<<<<<
@@ -19932,10 +19968,10 @@ static int __pyx_pf_11CAtmosphere_9LwContext___init__(struct __pyx_obj_11CAtmosp
       __pyx_v_self->ctx.activeAtoms.push_back((&__pyx_v_la->atom));
     } catch(...) {
       __Pyx_CppExn2PyErr();
-      __PYX_ERR(0, 1020, __pyx_L1_error)
+      __PYX_ERR(0, 1023, __pyx_L1_error)
     }
 
-    /* "CAtmosphere.pyx":1019
+    /* "CAtmosphere.pyx":1022
  * 
  *         cdef LwAtom la
  *         for la in self.activeAtoms:             # <<<<<<<<<<<<<<
@@ -19945,7 +19981,7 @@ static int __pyx_pf_11CAtmosphere_9LwContext___init__(struct __pyx_obj_11CAtmosp
   }
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "CAtmosphere.pyx":1002
+  /* "CAtmosphere.pyx":1005
  *     cdef list activeAtoms
  * 
  *     def __init__(self, atmos, spect, radSet, eqPops, atomicTable, ngOptions=None, initSol=None):             # <<<<<<<<<<<<<<
@@ -19972,7 +20008,7 @@ static int __pyx_pf_11CAtmosphere_9LwContext___init__(struct __pyx_obj_11CAtmosp
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":1022
+/* "CAtmosphere.pyx":1025
  *             self.ctx.activeAtoms.push_back(&la.atom)
  * 
  *     def gamma_matrices_formal_sol(self):             # <<<<<<<<<<<<<<
@@ -20018,7 +20054,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_2gamma_matrices_formal_sol(st
   __pyx_pybuffernd_Gamma.data = NULL;
   __pyx_pybuffernd_Gamma.rcbuffer = &__pyx_pybuffer_Gamma;
 
-  /* "CAtmosphere.pyx":1025
+  /* "CAtmosphere.pyx":1028
  *         cdef LwAtom atom
  *         cdef np.ndarray[np.double_t, ndim=3] Gamma
  *         for atom in self.activeAtoms:             # <<<<<<<<<<<<<<
@@ -20027,35 +20063,35 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_2gamma_matrices_formal_sol(st
  */
   if (unlikely(__pyx_v_self->activeAtoms == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-    __PYX_ERR(0, 1025, __pyx_L1_error)
+    __PYX_ERR(0, 1028, __pyx_L1_error)
   }
   __pyx_t_1 = __pyx_v_self->activeAtoms; __Pyx_INCREF(__pyx_t_1); __pyx_t_2 = 0;
   for (;;) {
     if (__pyx_t_2 >= PyList_GET_SIZE(__pyx_t_1)) break;
     #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-    __pyx_t_3 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_3); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(0, 1025, __pyx_L1_error)
+    __pyx_t_3 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_3); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(0, 1028, __pyx_L1_error)
     #else
-    __pyx_t_3 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1025, __pyx_L1_error)
+    __pyx_t_3 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1028, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     #endif
-    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_11CAtmosphere_LwAtom))))) __PYX_ERR(0, 1025, __pyx_L1_error)
+    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_11CAtmosphere_LwAtom))))) __PYX_ERR(0, 1028, __pyx_L1_error)
     __Pyx_XDECREF_SET(__pyx_v_atom, ((struct __pyx_obj_11CAtmosphere_LwAtom *)__pyx_t_3));
     __pyx_t_3 = 0;
 
-    /* "CAtmosphere.pyx":1026
+    /* "CAtmosphere.pyx":1029
  *         cdef np.ndarray[np.double_t, ndim=3] Gamma
  *         for atom in self.activeAtoms:
  *             Gamma = np.asarray(atom.Gamma)             # <<<<<<<<<<<<<<
  *             Gamma.fill(0.0)
  *             atom.compute_collisions()
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1026, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1029, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_asarray); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1026, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_asarray); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1029, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_v_atom->Gamma.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 1026, __pyx_L1_error)}
-    __pyx_t_4 = __pyx_memoryview_fromslice(__pyx_v_atom->Gamma, 3, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1026, __pyx_L1_error)
+    if (unlikely(!__pyx_v_atom->Gamma.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 1029, __pyx_L1_error)}
+    __pyx_t_4 = __pyx_memoryview_fromslice(__pyx_v_atom->Gamma, 3, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1029, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_6 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_5))) {
@@ -20070,10 +20106,10 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_2gamma_matrices_formal_sol(st
     __pyx_t_3 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_6, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_4);
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1026, __pyx_L1_error)
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1029, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 1026, __pyx_L1_error)
+    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 1029, __pyx_L1_error)
     __pyx_t_7 = ((PyArrayObject *)__pyx_t_3);
     {
       __Pyx_BufFmt_StackElem __pyx_stack[1];
@@ -20090,20 +20126,20 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_2gamma_matrices_formal_sol(st
         __pyx_t_9 = __pyx_t_10 = __pyx_t_11 = 0;
       }
       __pyx_pybuffernd_Gamma.diminfo[0].strides = __pyx_pybuffernd_Gamma.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_Gamma.diminfo[0].shape = __pyx_pybuffernd_Gamma.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_Gamma.diminfo[1].strides = __pyx_pybuffernd_Gamma.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_Gamma.diminfo[1].shape = __pyx_pybuffernd_Gamma.rcbuffer->pybuffer.shape[1]; __pyx_pybuffernd_Gamma.diminfo[2].strides = __pyx_pybuffernd_Gamma.rcbuffer->pybuffer.strides[2]; __pyx_pybuffernd_Gamma.diminfo[2].shape = __pyx_pybuffernd_Gamma.rcbuffer->pybuffer.shape[2];
-      if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 1026, __pyx_L1_error)
+      if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 1029, __pyx_L1_error)
     }
     __pyx_t_7 = 0;
     __Pyx_XDECREF_SET(__pyx_v_Gamma, ((PyArrayObject *)__pyx_t_3));
     __pyx_t_3 = 0;
 
-    /* "CAtmosphere.pyx":1027
+    /* "CAtmosphere.pyx":1030
  *         for atom in self.activeAtoms:
  *             Gamma = np.asarray(atom.Gamma)
  *             Gamma.fill(0.0)             # <<<<<<<<<<<<<<
  *             atom.compute_collisions()
  *             Gamma += atom.C
  */
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_Gamma), __pyx_n_s_fill); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1027, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_Gamma), __pyx_n_s_fill); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1030, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_5))) {
@@ -20117,19 +20153,19 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_2gamma_matrices_formal_sol(st
     }
     __pyx_t_3 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_4, __pyx_float_0_0) : __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_float_0_0);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1027, __pyx_L1_error)
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1030, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-    /* "CAtmosphere.pyx":1028
+    /* "CAtmosphere.pyx":1031
  *             Gamma = np.asarray(atom.Gamma)
  *             Gamma.fill(0.0)
  *             atom.compute_collisions()             # <<<<<<<<<<<<<<
  *             Gamma += atom.C
  * 
  */
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_atom), __pyx_n_s_compute_collisions); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1028, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_atom), __pyx_n_s_compute_collisions); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1031, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_5))) {
@@ -20143,25 +20179,25 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_2gamma_matrices_formal_sol(st
     }
     __pyx_t_3 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_5);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1028, __pyx_L1_error)
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1031, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-    /* "CAtmosphere.pyx":1029
+    /* "CAtmosphere.pyx":1032
  *             Gamma.fill(0.0)
  *             atom.compute_collisions()
  *             Gamma += atom.C             # <<<<<<<<<<<<<<
  * 
  *         cdef f64 dJ = gamma_matrices_formal_sol(self.ctx)
  */
-    if (unlikely(!__pyx_v_atom->C.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 1029, __pyx_L1_error)}
-    __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_atom->C, 3, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1029, __pyx_L1_error)
+    if (unlikely(!__pyx_v_atom->C.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 1032, __pyx_L1_error)}
+    __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_atom->C, 3, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1032, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_5 = PyNumber_InPlaceAdd(((PyObject *)__pyx_v_Gamma), __pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1029, __pyx_L1_error)
+    __pyx_t_5 = PyNumber_InPlaceAdd(((PyObject *)__pyx_v_Gamma), __pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1032, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (!(likely(((__pyx_t_5) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_5, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 1029, __pyx_L1_error)
+    if (!(likely(((__pyx_t_5) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_5, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 1032, __pyx_L1_error)
     __pyx_t_7 = ((PyArrayObject *)__pyx_t_5);
     {
       __Pyx_BufFmt_StackElem __pyx_stack[1];
@@ -20178,13 +20214,13 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_2gamma_matrices_formal_sol(st
         __pyx_t_11 = __pyx_t_10 = __pyx_t_9 = 0;
       }
       __pyx_pybuffernd_Gamma.diminfo[0].strides = __pyx_pybuffernd_Gamma.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_Gamma.diminfo[0].shape = __pyx_pybuffernd_Gamma.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_Gamma.diminfo[1].strides = __pyx_pybuffernd_Gamma.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_Gamma.diminfo[1].shape = __pyx_pybuffernd_Gamma.rcbuffer->pybuffer.shape[1]; __pyx_pybuffernd_Gamma.diminfo[2].strides = __pyx_pybuffernd_Gamma.rcbuffer->pybuffer.strides[2]; __pyx_pybuffernd_Gamma.diminfo[2].shape = __pyx_pybuffernd_Gamma.rcbuffer->pybuffer.shape[2];
-      if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 1029, __pyx_L1_error)
+      if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 1032, __pyx_L1_error)
     }
     __pyx_t_7 = 0;
     __Pyx_DECREF_SET(__pyx_v_Gamma, ((PyArrayObject *)__pyx_t_5));
     __pyx_t_5 = 0;
 
-    /* "CAtmosphere.pyx":1025
+    /* "CAtmosphere.pyx":1028
  *         cdef LwAtom atom
  *         cdef np.ndarray[np.double_t, ndim=3] Gamma
  *         for atom in self.activeAtoms:             # <<<<<<<<<<<<<<
@@ -20194,7 +20230,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_2gamma_matrices_formal_sol(st
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "CAtmosphere.pyx":1031
+  /* "CAtmosphere.pyx":1034
  *             Gamma += atom.C
  * 
  *         cdef f64 dJ = gamma_matrices_formal_sol(self.ctx)             # <<<<<<<<<<<<<<
@@ -20203,24 +20239,24 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_2gamma_matrices_formal_sol(st
  */
   __pyx_v_dJ = gamma_matrices_formal_sol(__pyx_v_self->ctx);
 
-  /* "CAtmosphere.pyx":1032
+  /* "CAtmosphere.pyx":1035
  * 
  *         cdef f64 dJ = gamma_matrices_formal_sol(self.ctx)
  *         print('dJ = %.2e' % dJ)             # <<<<<<<<<<<<<<
  *         return dJ
  * 
  */
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_dJ); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1032, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_dJ); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1035, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_5 = PyUnicode_Format(__pyx_kp_u_dJ_2e, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1032, __pyx_L1_error)
+  __pyx_t_5 = PyUnicode_Format(__pyx_kp_u_dJ_2e, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1035, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1032, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1035, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "CAtmosphere.pyx":1033
+  /* "CAtmosphere.pyx":1036
  *         cdef f64 dJ = gamma_matrices_formal_sol(self.ctx)
  *         print('dJ = %.2e' % dJ)
  *         return dJ             # <<<<<<<<<<<<<<
@@ -20228,13 +20264,13 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_2gamma_matrices_formal_sol(st
  *     def stat_equil(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_dJ); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1033, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_dJ); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1036, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":1022
+  /* "CAtmosphere.pyx":1025
  *             self.ctx.activeAtoms.push_back(&la.atom)
  * 
  *     def gamma_matrices_formal_sol(self):             # <<<<<<<<<<<<<<
@@ -20268,7 +20304,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_2gamma_matrices_formal_sol(st
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":1035
+/* "CAtmosphere.pyx":1038
  *         return dJ
  * 
  *     def stat_equil(self):             # <<<<<<<<<<<<<<
@@ -20310,7 +20346,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_4stat_equil(struct __pyx_obj_
   __pyx_t_8CmoArray_f64 __pyx_t_9;
   __Pyx_RefNannySetupContext("stat_equil", 0);
 
-  /* "CAtmosphere.pyx":1036
+  /* "CAtmosphere.pyx":1039
  * 
  *     def stat_equil(self):
  *         atoms = self.activeAtoms             # <<<<<<<<<<<<<<
@@ -20322,7 +20358,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_4stat_equil(struct __pyx_obj_
   __pyx_v_atoms = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "CAtmosphere.pyx":1041
+  /* "CAtmosphere.pyx":1044
  *         cdef Atom* a
  *         cdef f64 delta
  *         cdef f64 maxDelta = 0.0             # <<<<<<<<<<<<<<
@@ -20331,7 +20367,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_4stat_equil(struct __pyx_obj_
  */
   __pyx_v_maxDelta = 0.0;
 
-  /* "CAtmosphere.pyx":1044
+  /* "CAtmosphere.pyx":1047
  *         cdef bool_t accelerated
  * 
  *         for atom in atoms:             # <<<<<<<<<<<<<<
@@ -20340,22 +20376,22 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_4stat_equil(struct __pyx_obj_
  */
   if (unlikely(__pyx_v_atoms == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-    __PYX_ERR(0, 1044, __pyx_L1_error)
+    __PYX_ERR(0, 1047, __pyx_L1_error)
   }
   __pyx_t_1 = __pyx_v_atoms; __Pyx_INCREF(__pyx_t_1); __pyx_t_2 = 0;
   for (;;) {
     if (__pyx_t_2 >= PyList_GET_SIZE(__pyx_t_1)) break;
     #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-    __pyx_t_3 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_3); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(0, 1044, __pyx_L1_error)
+    __pyx_t_3 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_3); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(0, 1047, __pyx_L1_error)
     #else
-    __pyx_t_3 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1044, __pyx_L1_error)
+    __pyx_t_3 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1047, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     #endif
-    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_11CAtmosphere_LwAtom))))) __PYX_ERR(0, 1044, __pyx_L1_error)
+    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_11CAtmosphere_LwAtom))))) __PYX_ERR(0, 1047, __pyx_L1_error)
     __Pyx_XDECREF_SET(__pyx_v_atom, ((struct __pyx_obj_11CAtmosphere_LwAtom *)__pyx_t_3));
     __pyx_t_3 = 0;
 
-    /* "CAtmosphere.pyx":1045
+    /* "CAtmosphere.pyx":1048
  * 
  *         for atom in atoms:
  *             a = &atom.atom             # <<<<<<<<<<<<<<
@@ -20364,7 +20400,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_4stat_equil(struct __pyx_obj_
  */
     __pyx_v_a = (&__pyx_v_atom->atom);
 
-    /* "CAtmosphere.pyx":1046
+    /* "CAtmosphere.pyx":1049
  *         for atom in atoms:
  *             a = &atom.atom
  *             if not a.ng.init:             # <<<<<<<<<<<<<<
@@ -20374,7 +20410,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_4stat_equil(struct __pyx_obj_
     __pyx_t_4 = ((!(__pyx_v_a->ng.init != 0)) != 0);
     if (__pyx_t_4) {
 
-      /* "CAtmosphere.pyx":1047
+      /* "CAtmosphere.pyx":1050
  *             a = &atom.atom
  *             if not a.ng.init:
  *                 a.ng.accelerate(a.n.flatten())             # <<<<<<<<<<<<<<
@@ -20383,7 +20419,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_4stat_equil(struct __pyx_obj_
  */
       (void)(__pyx_v_a->ng.accelerate(__pyx_v_a->n.flatten()));
 
-      /* "CAtmosphere.pyx":1046
+      /* "CAtmosphere.pyx":1049
  *         for atom in atoms:
  *             a = &atom.atom
  *             if not a.ng.init:             # <<<<<<<<<<<<<<
@@ -20392,7 +20428,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_4stat_equil(struct __pyx_obj_
  */
     }
 
-    /* "CAtmosphere.pyx":1048
+    /* "CAtmosphere.pyx":1051
  *             if not a.ng.init:
  *                 a.ng.accelerate(a.n.flatten())
  *             stat_eq(a)             # <<<<<<<<<<<<<<
@@ -20401,7 +20437,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_4stat_equil(struct __pyx_obj_
  */
     stat_eq(__pyx_v_a);
 
-    /* "CAtmosphere.pyx":1049
+    /* "CAtmosphere.pyx":1052
  *                 a.ng.accelerate(a.n.flatten())
  *             stat_eq(a)
  *             accelerated = a.ng.accelerate(a.n.flatten())             # <<<<<<<<<<<<<<
@@ -20410,7 +20446,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_4stat_equil(struct __pyx_obj_
  */
     __pyx_v_accelerated = __pyx_v_a->ng.accelerate(__pyx_v_a->n.flatten());
 
-    /* "CAtmosphere.pyx":1050
+    /* "CAtmosphere.pyx":1053
  *             stat_eq(a)
  *             accelerated = a.ng.accelerate(a.n.flatten())
  *             delta = a.ng.max_change()             # <<<<<<<<<<<<<<
@@ -20419,18 +20455,18 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_4stat_equil(struct __pyx_obj_
  */
     __pyx_v_delta = __pyx_v_a->ng.max_change();
 
-    /* "CAtmosphere.pyx":1051
+    /* "CAtmosphere.pyx":1054
  *             accelerated = a.ng.accelerate(a.n.flatten())
  *             delta = a.ng.max_change()
  *             s = '    %s delta = %6.4e' % (atom.atomicModel.name, delta)             # <<<<<<<<<<<<<<
  *             if accelerated:
  *                 s += ' (accelerated)'
  */
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_atom->atomicModel, __pyx_n_s_name); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1051, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_atom->atomicModel, __pyx_n_s_name); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1054, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_5 = PyFloat_FromDouble(__pyx_v_delta); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1051, __pyx_L1_error)
+    __pyx_t_5 = PyFloat_FromDouble(__pyx_v_delta); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1054, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1051, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1054, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_GIVEREF(__pyx_t_3);
     PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_3);
@@ -20438,13 +20474,13 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_4stat_equil(struct __pyx_obj_
     PyTuple_SET_ITEM(__pyx_t_6, 1, __pyx_t_5);
     __pyx_t_3 = 0;
     __pyx_t_5 = 0;
-    __pyx_t_5 = PyUnicode_Format(__pyx_kp_u_s_delta_6_4e, __pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1051, __pyx_L1_error)
+    __pyx_t_5 = PyUnicode_Format(__pyx_kp_u_s_delta_6_4e, __pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1054, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_XDECREF_SET(__pyx_v_s, ((PyObject*)__pyx_t_5));
     __pyx_t_5 = 0;
 
-    /* "CAtmosphere.pyx":1052
+    /* "CAtmosphere.pyx":1055
  *             delta = a.ng.max_change()
  *             s = '    %s delta = %6.4e' % (atom.atomicModel.name, delta)
  *             if accelerated:             # <<<<<<<<<<<<<<
@@ -20454,19 +20490,19 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_4stat_equil(struct __pyx_obj_
     __pyx_t_4 = (__pyx_v_accelerated != 0);
     if (__pyx_t_4) {
 
-      /* "CAtmosphere.pyx":1053
+      /* "CAtmosphere.pyx":1056
  *             s = '    %s delta = %6.4e' % (atom.atomicModel.name, delta)
  *             if accelerated:
  *                 s += ' (accelerated)'             # <<<<<<<<<<<<<<
  * 
  *             print(s)
  */
-      __pyx_t_5 = __Pyx_PyUnicode_Concat(__pyx_v_s, __pyx_kp_u_accelerated); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1053, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_PyUnicode_Concat(__pyx_v_s, __pyx_kp_u_accelerated); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1056, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF_SET(__pyx_v_s, ((PyObject*)__pyx_t_5));
       __pyx_t_5 = 0;
 
-      /* "CAtmosphere.pyx":1052
+      /* "CAtmosphere.pyx":1055
  *             delta = a.ng.max_change()
  *             s = '    %s delta = %6.4e' % (atom.atomicModel.name, delta)
  *             if accelerated:             # <<<<<<<<<<<<<<
@@ -20475,18 +20511,18 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_4stat_equil(struct __pyx_obj_
  */
     }
 
-    /* "CAtmosphere.pyx":1055
+    /* "CAtmosphere.pyx":1058
  *                 s += ' (accelerated)'
  * 
  *             print(s)             # <<<<<<<<<<<<<<
  *             maxDelta = max(maxDelta, delta)
  * 
  */
-    __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_v_s); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1055, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_v_s); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1058, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-    /* "CAtmosphere.pyx":1056
+    /* "CAtmosphere.pyx":1059
  * 
  *             print(s)
  *             maxDelta = max(maxDelta, delta)             # <<<<<<<<<<<<<<
@@ -20502,7 +20538,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_4stat_equil(struct __pyx_obj_
     }
     __pyx_v_maxDelta = __pyx_t_9;
 
-    /* "CAtmosphere.pyx":1044
+    /* "CAtmosphere.pyx":1047
  *         cdef bool_t accelerated
  * 
  *         for atom in atoms:             # <<<<<<<<<<<<<<
@@ -20512,7 +20548,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_4stat_equil(struct __pyx_obj_
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "CAtmosphere.pyx":1058
+  /* "CAtmosphere.pyx":1061
  *             maxDelta = max(maxDelta, delta)
  * 
  *         return maxDelta             # <<<<<<<<<<<<<<
@@ -20520,13 +20556,13 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_4stat_equil(struct __pyx_obj_
  *     def update_projections(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_maxDelta); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1058, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_maxDelta); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1061, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":1035
+  /* "CAtmosphere.pyx":1038
  *         return dJ
  * 
  *     def stat_equil(self):             # <<<<<<<<<<<<<<
@@ -20551,7 +20587,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_4stat_equil(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":1060
+/* "CAtmosphere.pyx":1063
  *         return maxDelta
  * 
  *     def update_projections(self):             # <<<<<<<<<<<<<<
@@ -20577,7 +20613,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_6update_projections(struct __
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("update_projections", 0);
 
-  /* "CAtmosphere.pyx":1061
+  /* "CAtmosphere.pyx":1064
  * 
  *     def update_projections(self):
  *         self.atmos.atmos.update_projections()             # <<<<<<<<<<<<<<
@@ -20586,7 +20622,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_6update_projections(struct __
  */
   __pyx_v_self->atmos->atmos.update_projections();
 
-  /* "CAtmosphere.pyx":1060
+  /* "CAtmosphere.pyx":1063
  *         return maxDelta
  * 
  *     def update_projections(self):             # <<<<<<<<<<<<<<
@@ -20601,7 +20637,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_6update_projections(struct __
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":1063
+/* "CAtmosphere.pyx":1066
  *         self.atmos.atmos.update_projections()
  * 
  *     def single_stokes_fs(self):             # <<<<<<<<<<<<<<
@@ -20638,7 +20674,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_8single_stokes_fs(struct __py
   PyObject *__pyx_t_8 = NULL;
   __Pyx_RefNannySetupContext("single_stokes_fs", 0);
 
-  /* "CAtmosphere.pyx":1064
+  /* "CAtmosphere.pyx":1067
  * 
  *     def single_stokes_fs(self):
  *         assert self.atmos.B.shape[0] != 0             # <<<<<<<<<<<<<<
@@ -20647,15 +20683,15 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_8single_stokes_fs(struct __py
  */
   #ifndef CYTHON_WITHOUT_ASSERTIONS
   if (unlikely(!Py_OptimizeFlag)) {
-    if (unlikely(!__pyx_v_self->atmos->B.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 1064, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->atmos->B.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 1067, __pyx_L1_error)}
     if (unlikely(!(((__pyx_v_self->atmos->B.shape[0]) != 0) != 0))) {
       PyErr_SetNone(PyExc_AssertionError);
-      __PYX_ERR(0, 1064, __pyx_L1_error)
+      __PYX_ERR(0, 1067, __pyx_L1_error)
     }
   }
   #endif
 
-  /* "CAtmosphere.pyx":1066
+  /* "CAtmosphere.pyx":1069
  *         assert self.atmos.B.shape[0] != 0
  * 
  *         for atom in self.activeAtoms:             # <<<<<<<<<<<<<<
@@ -20664,36 +20700,36 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_8single_stokes_fs(struct __py
  */
   if (unlikely(__pyx_v_self->activeAtoms == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-    __PYX_ERR(0, 1066, __pyx_L1_error)
+    __PYX_ERR(0, 1069, __pyx_L1_error)
   }
   __pyx_t_1 = __pyx_v_self->activeAtoms; __Pyx_INCREF(__pyx_t_1); __pyx_t_2 = 0;
   for (;;) {
     if (__pyx_t_2 >= PyList_GET_SIZE(__pyx_t_1)) break;
     #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-    __pyx_t_3 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_3); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(0, 1066, __pyx_L1_error)
+    __pyx_t_3 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_3); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(0, 1069, __pyx_L1_error)
     #else
-    __pyx_t_3 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1066, __pyx_L1_error)
+    __pyx_t_3 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1069, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     #endif
     __Pyx_XDECREF_SET(__pyx_v_atom, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "CAtmosphere.pyx":1067
+    /* "CAtmosphere.pyx":1070
  * 
  *         for atom in self.activeAtoms:
  *             for t in atom.trans:             # <<<<<<<<<<<<<<
  *                 t.compute_polarised_profiles()
  * 
  */
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_atom, __pyx_n_s_trans); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1067, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_atom, __pyx_n_s_trans); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1070, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     if (likely(PyList_CheckExact(__pyx_t_3)) || PyTuple_CheckExact(__pyx_t_3)) {
       __pyx_t_4 = __pyx_t_3; __Pyx_INCREF(__pyx_t_4); __pyx_t_5 = 0;
       __pyx_t_6 = NULL;
     } else {
-      __pyx_t_5 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1067, __pyx_L1_error)
+      __pyx_t_5 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1070, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_6 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1067, __pyx_L1_error)
+      __pyx_t_6 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1070, __pyx_L1_error)
     }
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     for (;;) {
@@ -20701,17 +20737,17 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_8single_stokes_fs(struct __py
         if (likely(PyList_CheckExact(__pyx_t_4))) {
           if (__pyx_t_5 >= PyList_GET_SIZE(__pyx_t_4)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_3 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_5); __Pyx_INCREF(__pyx_t_3); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 1067, __pyx_L1_error)
+          __pyx_t_3 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_5); __Pyx_INCREF(__pyx_t_3); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 1070, __pyx_L1_error)
           #else
-          __pyx_t_3 = PySequence_ITEM(__pyx_t_4, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1067, __pyx_L1_error)
+          __pyx_t_3 = PySequence_ITEM(__pyx_t_4, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1070, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_3);
           #endif
         } else {
           if (__pyx_t_5 >= PyTuple_GET_SIZE(__pyx_t_4)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_5); __Pyx_INCREF(__pyx_t_3); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 1067, __pyx_L1_error)
+          __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_5); __Pyx_INCREF(__pyx_t_3); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 1070, __pyx_L1_error)
           #else
-          __pyx_t_3 = PySequence_ITEM(__pyx_t_4, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1067, __pyx_L1_error)
+          __pyx_t_3 = PySequence_ITEM(__pyx_t_4, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1070, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_3);
           #endif
         }
@@ -20721,7 +20757,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_8single_stokes_fs(struct __py
           PyObject* exc_type = PyErr_Occurred();
           if (exc_type) {
             if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-            else __PYX_ERR(0, 1067, __pyx_L1_error)
+            else __PYX_ERR(0, 1070, __pyx_L1_error)
           }
           break;
         }
@@ -20730,14 +20766,14 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_8single_stokes_fs(struct __py
       __Pyx_XDECREF_SET(__pyx_v_t, __pyx_t_3);
       __pyx_t_3 = 0;
 
-      /* "CAtmosphere.pyx":1068
+      /* "CAtmosphere.pyx":1071
  *         for atom in self.activeAtoms:
  *             for t in atom.trans:
  *                 t.compute_polarised_profiles()             # <<<<<<<<<<<<<<
  * 
  *         self.spect.setup_stokes()
  */
-      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_t, __pyx_n_s_compute_polarised_profiles); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1068, __pyx_L1_error)
+      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_t, __pyx_n_s_compute_polarised_profiles); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1071, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
       __pyx_t_8 = NULL;
       if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_7))) {
@@ -20751,12 +20787,12 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_8single_stokes_fs(struct __py
       }
       __pyx_t_3 = (__pyx_t_8) ? __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_8) : __Pyx_PyObject_CallNoArg(__pyx_t_7);
       __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1068, __pyx_L1_error)
+      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1071, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-      /* "CAtmosphere.pyx":1067
+      /* "CAtmosphere.pyx":1070
  * 
  *         for atom in self.activeAtoms:
  *             for t in atom.trans:             # <<<<<<<<<<<<<<
@@ -20766,7 +20802,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_8single_stokes_fs(struct __py
     }
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "CAtmosphere.pyx":1066
+    /* "CAtmosphere.pyx":1069
  *         assert self.atmos.B.shape[0] != 0
  * 
  *         for atom in self.activeAtoms:             # <<<<<<<<<<<<<<
@@ -20776,14 +20812,14 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_8single_stokes_fs(struct __py
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "CAtmosphere.pyx":1070
+  /* "CAtmosphere.pyx":1073
  *                 t.compute_polarised_profiles()
  * 
  *         self.spect.setup_stokes()             # <<<<<<<<<<<<<<
  * 
  *         cdef f64 dJ = formal_sol_full_stokes(self.ctx)
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->spect), __pyx_n_s_setup_stokes); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1070, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->spect), __pyx_n_s_setup_stokes); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1073, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
@@ -20797,12 +20833,12 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_8single_stokes_fs(struct __py
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3) : __Pyx_PyObject_CallNoArg(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1070, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1073, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "CAtmosphere.pyx":1072
+  /* "CAtmosphere.pyx":1075
  *         self.spect.setup_stokes()
  * 
  *         cdef f64 dJ = formal_sol_full_stokes(self.ctx)             # <<<<<<<<<<<<<<
@@ -20811,7 +20847,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_8single_stokes_fs(struct __py
  */
   __pyx_v_dJ = formal_sol_full_stokes(__pyx_v_self->ctx);
 
-  /* "CAtmosphere.pyx":1073
+  /* "CAtmosphere.pyx":1076
  * 
  *         cdef f64 dJ = formal_sol_full_stokes(self.ctx)
  *         return dJ             # <<<<<<<<<<<<<<
@@ -20819,13 +20855,13 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_8single_stokes_fs(struct __py
  *     def prd_redistribute(self, int maxIter=3, f64 tol=1e-2):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_dJ); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1073, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_dJ); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1076, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":1063
+  /* "CAtmosphere.pyx":1066
  *         self.atmos.atmos.update_projections()
  * 
  *     def single_stokes_fs(self):             # <<<<<<<<<<<<<<
@@ -20850,7 +20886,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_8single_stokes_fs(struct __py
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":1075
+/* "CAtmosphere.pyx":1078
  *         return dJ
  * 
  *     def prd_redistribute(self, int maxIter=3, f64 tol=1e-2):             # <<<<<<<<<<<<<<
@@ -20895,7 +20931,7 @@ static PyObject *__pyx_pw_11CAtmosphere_9LwContext_11prd_redistribute(PyObject *
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "prd_redistribute") < 0)) __PYX_ERR(0, 1075, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "prd_redistribute") < 0)) __PYX_ERR(0, 1078, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -20908,19 +20944,19 @@ static PyObject *__pyx_pw_11CAtmosphere_9LwContext_11prd_redistribute(PyObject *
       }
     }
     if (values[0]) {
-      __pyx_v_maxIter = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_maxIter == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1075, __pyx_L3_error)
+      __pyx_v_maxIter = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_maxIter == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1078, __pyx_L3_error)
     } else {
       __pyx_v_maxIter = ((int)3);
     }
     if (values[1]) {
-      __pyx_v_tol = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_tol == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 1075, __pyx_L3_error)
+      __pyx_v_tol = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_tol == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 1078, __pyx_L3_error)
     } else {
       __pyx_v_tol = ((__pyx_t_8CmoArray_f64)1e-2);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("prd_redistribute", 0, 0, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1075, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("prd_redistribute", 0, 0, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1078, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("CAtmosphere.LwContext.prd_redistribute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -20941,7 +20977,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_10prd_redistribute(struct __p
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("prd_redistribute", 0);
 
-  /* "CAtmosphere.pyx":1076
+  /* "CAtmosphere.pyx":1079
  * 
  *     def prd_redistribute(self, int maxIter=3, f64 tol=1e-2):
  *         cdef f64 dRho = redistribute_prd_lines(self.ctx, maxIter, tol)             # <<<<<<<<<<<<<<
@@ -20950,24 +20986,24 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_10prd_redistribute(struct __p
  */
   __pyx_v_dRho = redistribute_prd_lines(__pyx_v_self->ctx, __pyx_v_maxIter, __pyx_v_tol);
 
-  /* "CAtmosphere.pyx":1077
+  /* "CAtmosphere.pyx":1080
  *     def prd_redistribute(self, int maxIter=3, f64 tol=1e-2):
  *         cdef f64 dRho = redistribute_prd_lines(self.ctx, maxIter, tol)
  *         print('      PRD dRho = %.2e' % dRho)             # <<<<<<<<<<<<<<
  *         return dRho
  * 
  */
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_dRho); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1077, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_dRho); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1080, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyUnicode_Format(__pyx_kp_u_PRD_dRho_2e, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1077, __pyx_L1_error)
+  __pyx_t_2 = PyUnicode_Format(__pyx_kp_u_PRD_dRho_2e, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1080, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1077, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1080, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "CAtmosphere.pyx":1078
+  /* "CAtmosphere.pyx":1081
  *         cdef f64 dRho = redistribute_prd_lines(self.ctx, maxIter, tol)
  *         print('      PRD dRho = %.2e' % dRho)
  *         return dRho             # <<<<<<<<<<<<<<
@@ -20975,13 +21011,13 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_10prd_redistribute(struct __p
  *     def configure_hprd_coeffs(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_dRho); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1078, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_dRho); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1081, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":1075
+  /* "CAtmosphere.pyx":1078
  *         return dJ
  * 
  *     def prd_redistribute(self, int maxIter=3, f64 tol=1e-2):             # <<<<<<<<<<<<<<
@@ -21001,7 +21037,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_10prd_redistribute(struct __p
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":1080
+/* "CAtmosphere.pyx":1083
  *         return dRho
  * 
  *     def configure_hprd_coeffs(self):             # <<<<<<<<<<<<<<
@@ -21027,7 +21063,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_12configure_hprd_coeffs(struc
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("configure_hprd_coeffs", 0);
 
-  /* "CAtmosphere.pyx":1081
+  /* "CAtmosphere.pyx":1084
  * 
  *     def configure_hprd_coeffs(self):
  *         configure_hprd_coeffs(self.ctx)             # <<<<<<<<<<<<<<
@@ -21036,7 +21072,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_12configure_hprd_coeffs(struc
  */
   configure_hprd_coeffs(__pyx_v_self->ctx);
 
-  /* "CAtmosphere.pyx":1080
+  /* "CAtmosphere.pyx":1083
  *         return dRho
  * 
  *     def configure_hprd_coeffs(self):             # <<<<<<<<<<<<<<
@@ -21051,7 +21087,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_12configure_hprd_coeffs(struc
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":1084
+/* "CAtmosphere.pyx":1087
  * 
  *     @property
  *     def activeAtoms(self):             # <<<<<<<<<<<<<<
@@ -21077,7 +21113,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_11activeAtoms___get__(struct 
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":1085
+  /* "CAtmosphere.pyx":1088
  *     @property
  *     def activeAtoms(self):
  *         return self.activeAtoms             # <<<<<<<<<<<<<<
@@ -21089,7 +21125,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_11activeAtoms___get__(struct 
   __pyx_r = __pyx_v_self->activeAtoms;
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":1084
+  /* "CAtmosphere.pyx":1087
  * 
  *     @property
  *     def activeAtoms(self):             # <<<<<<<<<<<<<<
@@ -21104,7 +21140,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_11activeAtoms___get__(struct 
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":1088
+/* "CAtmosphere.pyx":1091
  * 
  *     @property
  *     def spect(self):             # <<<<<<<<<<<<<<
@@ -21130,7 +21166,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_5spect___get__(struct __pyx_o
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":1089
+  /* "CAtmosphere.pyx":1092
  *     @property
  *     def spect(self):
  *         return self.spect             # <<<<<<<<<<<<<<
@@ -21142,7 +21178,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_5spect___get__(struct __pyx_o
   __pyx_r = ((PyObject *)__pyx_v_self->spect);
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":1088
+  /* "CAtmosphere.pyx":1091
  * 
  *     @property
  *     def spect(self):             # <<<<<<<<<<<<<<
@@ -21157,7 +21193,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_5spect___get__(struct __pyx_o
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":1092
+/* "CAtmosphere.pyx":1095
  * 
  *     @property
  *     def atmos(self):             # <<<<<<<<<<<<<<
@@ -21183,7 +21219,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_5atmos___get__(struct __pyx_o
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":1093
+  /* "CAtmosphere.pyx":1096
  *     @property
  *     def atmos(self):
  *         return self.atmos             # <<<<<<<<<<<<<<
@@ -21195,7 +21231,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_5atmos___get__(struct __pyx_o
   __pyx_r = ((PyObject *)__pyx_v_self->atmos);
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":1092
+  /* "CAtmosphere.pyx":1095
  * 
  *     @property
  *     def atmos(self):             # <<<<<<<<<<<<<<
@@ -21210,7 +21246,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_5atmos___get__(struct __pyx_o
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":1096
+/* "CAtmosphere.pyx":1099
  * 
  *     @property
  *     def background(self):             # <<<<<<<<<<<<<<
@@ -21236,7 +21272,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_10background___get__(struct _
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "CAtmosphere.pyx":1097
+  /* "CAtmosphere.pyx":1100
  *     @property
  *     def background(self):
  *         return self.background             # <<<<<<<<<<<<<<
@@ -21248,7 +21284,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_10background___get__(struct _
   __pyx_r = ((PyObject *)__pyx_v_self->background);
   goto __pyx_L0;
 
-  /* "CAtmosphere.pyx":1096
+  /* "CAtmosphere.pyx":1099
  * 
  *     @property
  *     def background(self):             # <<<<<<<<<<<<<<
@@ -21370,7 +21406,7 @@ static PyObject *__pyx_pf_11CAtmosphere_9LwContext_16__setstate_cython__(CYTHON_
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":1108
+/* "CAtmosphere.pyx":1111
  * 
  * 
  * def blah():             # <<<<<<<<<<<<<<
@@ -21402,16 +21438,16 @@ static PyObject *__pyx_pf_11CAtmosphere_blah(CYTHON_UNUSED PyObject *__pyx_self)
   __Pyx_memviewslice __pyx_t_4 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_RefNannySetupContext("blah", 0);
 
-  /* "CAtmosphere.pyx":1110
+  /* "CAtmosphere.pyx":1113
  * def blah():
  *     cdef f64[::1] a
  *     a = np.zeros(10)             # <<<<<<<<<<<<<<
  *     print(type(a))
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1110, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1113, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_zeros); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1110, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_zeros); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1113, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = NULL;
@@ -21426,30 +21462,30 @@ static PyObject *__pyx_pf_11CAtmosphere_blah(CYTHON_UNUSED PyObject *__pyx_self)
   }
   __pyx_t_1 = (__pyx_t_2) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_2, __pyx_int_10) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_int_10);
   __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1110, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1113, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_4 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_4.memview)) __PYX_ERR(0, 1110, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_4.memview)) __PYX_ERR(0, 1113, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_a = __pyx_t_4;
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "CAtmosphere.pyx":1111
+  /* "CAtmosphere.pyx":1114
  *     cdef f64[::1] a
  *     a = np.zeros(10)
  *     print(type(a))             # <<<<<<<<<<<<<<
  * 
  * cdef class Blah:
  */
-  __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_a, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1111, __pyx_L1_error)
+  __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_a, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_8CmoArray_f64, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_8CmoArray_f64, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1114, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, ((PyObject *)Py_TYPE(__pyx_t_1))); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1111, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, ((PyObject *)Py_TYPE(__pyx_t_1))); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1114, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "CAtmosphere.pyx":1108
+  /* "CAtmosphere.pyx":1111
  * 
  * 
  * def blah():             # <<<<<<<<<<<<<<
@@ -21474,7 +21510,7 @@ static PyObject *__pyx_pf_11CAtmosphere_blah(CYTHON_UNUSED PyObject *__pyx_self)
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":1118
+/* "CAtmosphere.pyx":1121
  *     cdef int c
  * 
  *     def __init__(self):             # <<<<<<<<<<<<<<
@@ -21508,16 +21544,16 @@ static int __pyx_pf_11CAtmosphere_4Blah___init__(struct __pyx_obj_11CAtmosphere_
   __Pyx_memviewslice __pyx_t_4 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "CAtmosphere.pyx":1119
+  /* "CAtmosphere.pyx":1122
  * 
  *     def __init__(self):
  *         self.a = np.zeros(10)             # <<<<<<<<<<<<<<
  *         c = 3
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1119, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1122, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_zeros); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1119, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_zeros); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1122, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = NULL;
@@ -21532,17 +21568,17 @@ static int __pyx_pf_11CAtmosphere_4Blah___init__(struct __pyx_obj_11CAtmosphere_
   }
   __pyx_t_1 = (__pyx_t_2) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_2, __pyx_int_10) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_int_10);
   __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1119, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1122, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_4 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_4.memview)) __PYX_ERR(0, 1119, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_to_MemoryviewSlice_dc_nn___pyx_t_8CmoArray_f64(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_4.memview)) __PYX_ERR(0, 1122, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __PYX_XDEC_MEMVIEW(&__pyx_v_self->a, 0);
   __pyx_v_self->a = __pyx_t_4;
   __pyx_t_4.memview = NULL;
   __pyx_t_4.data = NULL;
 
-  /* "CAtmosphere.pyx":1120
+  /* "CAtmosphere.pyx":1123
  *     def __init__(self):
  *         self.a = np.zeros(10)
  *         c = 3             # <<<<<<<<<<<<<<
@@ -21551,7 +21587,7 @@ static int __pyx_pf_11CAtmosphere_4Blah___init__(struct __pyx_obj_11CAtmosphere_
  */
   __pyx_v_c = 3;
 
-  /* "CAtmosphere.pyx":1118
+  /* "CAtmosphere.pyx":1121
  *     cdef int c
  * 
  *     def __init__(self):             # <<<<<<<<<<<<<<
@@ -21574,7 +21610,7 @@ static int __pyx_pf_11CAtmosphere_4Blah___init__(struct __pyx_obj_11CAtmosphere_
   return __pyx_r;
 }
 
-/* "CAtmosphere.pyx":1122
+/* "CAtmosphere.pyx":1125
  *         c = 3
  * 
  *     def printit(self):             # <<<<<<<<<<<<<<
@@ -21602,21 +21638,21 @@ static PyObject *__pyx_pf_11CAtmosphere_4Blah_2printit(struct __pyx_obj_11CAtmos
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("printit", 0);
 
-  /* "CAtmosphere.pyx":1123
+  /* "CAtmosphere.pyx":1126
  * 
  *     def printit(self):
  *         print(dir(self))             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_t_1 = PyObject_Dir(((PyObject *)__pyx_v_self)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1123, __pyx_L1_error)
+  __pyx_t_1 = PyObject_Dir(((PyObject *)__pyx_v_self)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1123, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "CAtmosphere.pyx":1122
+  /* "CAtmosphere.pyx":1125
  *         c = 3
  * 
  *     def printit(self):             # <<<<<<<<<<<<<<
@@ -40404,7 +40440,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_blah, __pyx_k_blah, sizeof(__pyx_k_blah), 0, 0, 1, 1},
   {&__pyx_n_s_blueIdx, __pyx_k_blueIdx, sizeof(__pyx_k_blueIdx), 0, 0, 1, 1},
   {&__pyx_n_s_bool, __pyx_k_bool, sizeof(__pyx_k_bool), 0, 0, 1, 1},
-  {&__pyx_n_s_bounds_error, __pyx_k_bounds_error, sizeof(__pyx_k_bounds_error), 0, 0, 1, 1},
   {&__pyx_n_s_c, __pyx_k_c, sizeof(__pyx_k_c), 0, 0, 1, 1},
   {&__pyx_n_u_c, __pyx_k_c, sizeof(__pyx_k_c), 0, 1, 0, 1},
   {&__pyx_n_s_cAtmos, __pyx_k_cAtmos, sizeof(__pyx_k_cAtmos), 0, 0, 1, 1},
@@ -40414,6 +40449,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_cmass, __pyx_k_cmass, sizeof(__pyx_k_cmass), 0, 0, 1, 1},
   {&__pyx_n_s_collisions, __pyx_k_collisions, sizeof(__pyx_k_collisions), 0, 0, 1, 1},
   {&__pyx_n_s_compAtom, __pyx_k_compAtom, sizeof(__pyx_k_compAtom), 0, 0, 1, 1},
+  {&__pyx_n_s_compute_alpha, __pyx_k_compute_alpha, sizeof(__pyx_k_compute_alpha), 0, 0, 1, 1},
   {&__pyx_n_s_compute_collisions, __pyx_k_compute_collisions, sizeof(__pyx_k_compute_collisions), 0, 0, 1, 1},
   {&__pyx_n_s_compute_phi, __pyx_k_compute_phi, sizeof(__pyx_k_compute_phi), 0, 0, 1, 1},
   {&__pyx_n_s_compute_polarised_profiles, __pyx_k_compute_polarised_profiles, sizeof(__pyx_k_compute_polarised_profiles), 0, 0, 1, 1},
@@ -40438,7 +40474,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_exp, __pyx_k_exp, sizeof(__pyx_k_exp), 0, 0, 1, 1},
   {&__pyx_n_u_f, __pyx_k_f, sizeof(__pyx_k_f), 0, 1, 0, 1},
   {&__pyx_n_s_fill, __pyx_k_fill, sizeof(__pyx_k_fill), 0, 0, 1, 1},
-  {&__pyx_n_s_fill_value, __pyx_k_fill_value, sizeof(__pyx_k_fill_value), 0, 0, 1, 1},
   {&__pyx_n_s_flags, __pyx_k_flags, sizeof(__pyx_k_flags), 0, 0, 1, 1},
   {&__pyx_n_s_format, __pyx_k_format, sizeof(__pyx_k_format), 0, 0, 1, 1},
   {&__pyx_n_s_fortran, __pyx_k_fortran, sizeof(__pyx_k_fortran), 0, 0, 1, 1},
@@ -40461,7 +40496,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_itemsize_0_for_cython_array, __pyx_k_itemsize_0_for_cython_array, sizeof(__pyx_k_itemsize_0_for_cython_array), 0, 0, 1, 0},
   {&__pyx_n_s_j, __pyx_k_j, sizeof(__pyx_k_j), 0, 0, 1, 1},
   {&__pyx_n_s_jLevel, __pyx_k_jLevel, sizeof(__pyx_k_jLevel), 0, 0, 1, 1},
-  {&__pyx_n_s_kind, __pyx_k_kind, sizeof(__pyx_k_kind), 0, 0, 1, 1},
   {&__pyx_n_s_la, __pyx_k_la, sizeof(__pyx_k_la), 0, 0, 1, 1},
   {&__pyx_n_s_lambda0, __pyx_k_lambda0, sizeof(__pyx_k_lambda0), 0, 0, 1, 1},
   {&__pyx_n_s_lambdaEdge, __pyx_k_lambdaEdge, sizeof(__pyx_k_lambdaEdge), 0, 0, 1, 1},
@@ -40473,6 +40507,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_maxIter, __pyx_k_maxIter, sizeof(__pyx_k_maxIter), 0, 0, 1, 1},
   {&__pyx_n_s_memview, __pyx_k_memview, sizeof(__pyx_k_memview), 0, 0, 1, 1},
   {&__pyx_n_s_metaclass, __pyx_k_metaclass, sizeof(__pyx_k_metaclass), 0, 0, 1, 1},
+  {&__pyx_n_s_minLambda, __pyx_k_minLambda, sizeof(__pyx_k_minLambda), 0, 0, 1, 1},
   {&__pyx_n_s_mode, __pyx_k_mode, sizeof(__pyx_k_mode), 0, 0, 1, 1},
   {&__pyx_n_s_model, __pyx_k_model, sizeof(__pyx_k_model), 0, 0, 1, 1},
   {&__pyx_n_s_module, __pyx_k_module, sizeof(__pyx_k_module), 0, 0, 1, 1},
@@ -40587,7 +40622,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
   __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 330, __pyx_L1_error)
   __pyx_builtin_print = __Pyx_GetBuiltinName(__pyx_n_s_print); if (!__pyx_builtin_print) __PYX_ERR(0, 371, __pyx_L1_error)
   __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(0, 385, __pyx_L1_error)
-  __pyx_builtin_AttributeError = __Pyx_GetBuiltinName(__pyx_n_s_AttributeError); if (!__pyx_builtin_AttributeError) __PYX_ERR(0, 592, __pyx_L1_error)
+  __pyx_builtin_AttributeError = __Pyx_GetBuiltinName(__pyx_n_s_AttributeError); if (!__pyx_builtin_AttributeError) __PYX_ERR(0, 595, __pyx_L1_error)
   __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(2, 856, __pyx_L1_error)
   __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(2, 1038, __pyx_L1_error)
   __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(1, 148, __pyx_L1_error)
@@ -40690,25 +40725,25 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__9);
   __Pyx_GIVEREF(__pyx_tuple__9);
 
-  /* "CAtmosphere.pyx":839
+  /* "CAtmosphere.pyx":842
  * 
  *         if initSol == InitialSolution.Zero:
  *             raise ValueError('Zero radiation InitialSolution not currently supported')             # <<<<<<<<<<<<<<
  * 
  *         cdef np.ndarray[np.double_t, ndim=3] Gamma
  */
-  __pyx_tuple__10 = PyTuple_Pack(1, __pyx_kp_u_Zero_radiation_InitialSolution_n); if (unlikely(!__pyx_tuple__10)) __PYX_ERR(0, 839, __pyx_L1_error)
+  __pyx_tuple__10 = PyTuple_Pack(1, __pyx_kp_u_Zero_radiation_InitialSolution_n); if (unlikely(!__pyx_tuple__10)) __PYX_ERR(0, 842, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__10);
   __Pyx_GIVEREF(__pyx_tuple__10);
 
-  /* "CAtmosphere.pyx":867
+  /* "CAtmosphere.pyx":870
  *                 print('Escape probability didn\'t converge for %s, setting LTE populations' % self.atomicModel.name)
  *                 n = np.asarray(self.n)
  *                 n[:] = np.asarray(self.nStar)             # <<<<<<<<<<<<<<
  * 
  *         if ngOptions is not None:
  */
-  __pyx_slice__12 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__12)) __PYX_ERR(0, 867, __pyx_L1_error)
+  __pyx_slice__12 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__12)) __PYX_ERR(0, 870, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_slice__12);
   __Pyx_GIVEREF(__pyx_slice__12);
 
@@ -41027,17 +41062,17 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__42);
   __Pyx_GIVEREF(__pyx_tuple__42);
 
-  /* "CAtmosphere.pyx":1108
+  /* "CAtmosphere.pyx":1111
  * 
  * 
  * def blah():             # <<<<<<<<<<<<<<
  *     cdef f64[::1] a
  *     a = np.zeros(10)
  */
-  __pyx_tuple__43 = PyTuple_Pack(1, __pyx_n_s_a); if (unlikely(!__pyx_tuple__43)) __PYX_ERR(0, 1108, __pyx_L1_error)
+  __pyx_tuple__43 = PyTuple_Pack(1, __pyx_n_s_a); if (unlikely(!__pyx_tuple__43)) __PYX_ERR(0, 1111, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__43);
   __Pyx_GIVEREF(__pyx_tuple__43);
-  __pyx_codeobj__44 = (PyObject*)__Pyx_PyCode_New(0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__43, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_CAtmosphere_pyx, __pyx_n_s_blah, 1108, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__44)) __PYX_ERR(0, 1108, __pyx_L1_error)
+  __pyx_codeobj__44 = (PyObject*)__Pyx_PyCode_New(0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__43, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_CAtmosphere_pyx, __pyx_n_s_blah, 1111, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__44)) __PYX_ERR(0, 1111, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __pyx_unpickle_RayleighScatterer(__pyx_type, long __pyx_checksum, __pyx_state):             # <<<<<<<<<<<<<<
@@ -41216,83 +41251,83 @@ static int __Pyx_modinit_type_init_code(void) {
   __pyx_ptype_11CAtmosphere_LwBackground = &__pyx_type_11CAtmosphere_LwBackground;
   __pyx_vtabptr_11CAtmosphere_RayleighScatterer = &__pyx_vtable_11CAtmosphere_RayleighScatterer;
   __pyx_vtable_11CAtmosphere_RayleighScatterer.scatter = (PyObject *(*)(struct __pyx_obj_11CAtmosphere_RayleighScatterer *, __pyx_t_8CmoArray_f64, __Pyx_memviewslice, int __pyx_skip_dispatch))__pyx_f_11CAtmosphere_17RayleighScatterer_scatter;
-  if (PyType_Ready(&__pyx_type_11CAtmosphere_RayleighScatterer) < 0) __PYX_ERR(0, 430, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_11CAtmosphere_RayleighScatterer) < 0) __PYX_ERR(0, 432, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_11CAtmosphere_RayleighScatterer.tp_print = 0;
   #endif
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_11CAtmosphere_RayleighScatterer.tp_dictoffset && __pyx_type_11CAtmosphere_RayleighScatterer.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_11CAtmosphere_RayleighScatterer.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (__Pyx_SetVtable(__pyx_type_11CAtmosphere_RayleighScatterer.tp_dict, __pyx_vtabptr_11CAtmosphere_RayleighScatterer) < 0) __PYX_ERR(0, 430, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_RayleighScatterer, (PyObject *)&__pyx_type_11CAtmosphere_RayleighScatterer) < 0) __PYX_ERR(0, 430, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_11CAtmosphere_RayleighScatterer) < 0) __PYX_ERR(0, 430, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_type_11CAtmosphere_RayleighScatterer.tp_dict, __pyx_vtabptr_11CAtmosphere_RayleighScatterer) < 0) __PYX_ERR(0, 432, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_RayleighScatterer, (PyObject *)&__pyx_type_11CAtmosphere_RayleighScatterer) < 0) __PYX_ERR(0, 432, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_11CAtmosphere_RayleighScatterer) < 0) __PYX_ERR(0, 432, __pyx_L1_error)
   __pyx_ptype_11CAtmosphere_RayleighScatterer = &__pyx_type_11CAtmosphere_RayleighScatterer;
   __pyx_vtabptr_11CAtmosphere_LwTransition = &__pyx_vtable_11CAtmosphere_LwTransition;
   __pyx_vtable_11CAtmosphere_LwTransition.compute_phi = (PyObject *(*)(struct __pyx_obj_11CAtmosphere_LwTransition *, int __pyx_skip_dispatch))__pyx_f_11CAtmosphere_12LwTransition_compute_phi;
   __pyx_vtable_11CAtmosphere_LwTransition.compute_polarised_profiles = (PyObject *(*)(struct __pyx_obj_11CAtmosphere_LwTransition *, int __pyx_skip_dispatch))__pyx_f_11CAtmosphere_12LwTransition_compute_polarised_profiles;
-  if (PyType_Ready(&__pyx_type_11CAtmosphere_LwTransition) < 0) __PYX_ERR(0, 489, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_11CAtmosphere_LwTransition) < 0) __PYX_ERR(0, 491, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_11CAtmosphere_LwTransition.tp_print = 0;
   #endif
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_11CAtmosphere_LwTransition.tp_dictoffset && __pyx_type_11CAtmosphere_LwTransition.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_11CAtmosphere_LwTransition.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (__Pyx_SetVtable(__pyx_type_11CAtmosphere_LwTransition.tp_dict, __pyx_vtabptr_11CAtmosphere_LwTransition) < 0) __PYX_ERR(0, 489, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_LwTransition, (PyObject *)&__pyx_type_11CAtmosphere_LwTransition) < 0) __PYX_ERR(0, 489, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_11CAtmosphere_LwTransition) < 0) __PYX_ERR(0, 489, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_type_11CAtmosphere_LwTransition.tp_dict, __pyx_vtabptr_11CAtmosphere_LwTransition) < 0) __PYX_ERR(0, 491, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_LwTransition, (PyObject *)&__pyx_type_11CAtmosphere_LwTransition) < 0) __PYX_ERR(0, 491, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_11CAtmosphere_LwTransition) < 0) __PYX_ERR(0, 491, __pyx_L1_error)
   __pyx_ptype_11CAtmosphere_LwTransition = &__pyx_type_11CAtmosphere_LwTransition;
-  if (PyType_Ready(&__pyx_type_11CAtmosphere_LwZeemanComponents) < 0) __PYX_ERR(0, 741, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_11CAtmosphere_LwZeemanComponents) < 0) __PYX_ERR(0, 744, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_11CAtmosphere_LwZeemanComponents.tp_print = 0;
   #endif
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_11CAtmosphere_LwZeemanComponents.tp_dictoffset && __pyx_type_11CAtmosphere_LwZeemanComponents.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_11CAtmosphere_LwZeemanComponents.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_LwZeemanComponents, (PyObject *)&__pyx_type_11CAtmosphere_LwZeemanComponents) < 0) __PYX_ERR(0, 741, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_11CAtmosphere_LwZeemanComponents) < 0) __PYX_ERR(0, 741, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_LwZeemanComponents, (PyObject *)&__pyx_type_11CAtmosphere_LwZeemanComponents) < 0) __PYX_ERR(0, 744, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_11CAtmosphere_LwZeemanComponents) < 0) __PYX_ERR(0, 744, __pyx_L1_error)
   __pyx_ptype_11CAtmosphere_LwZeemanComponents = &__pyx_type_11CAtmosphere_LwZeemanComponents;
   __pyx_vtabptr_11CAtmosphere_LwAtom = &__pyx_vtable_11CAtmosphere_LwAtom;
   __pyx_vtable_11CAtmosphere_LwAtom.lte_pops = (PyObject *(*)(struct __pyx_obj_11CAtmosphere_LwAtom *, int __pyx_skip_dispatch, struct __pyx_opt_args_11CAtmosphere_6LwAtom_lte_pops *__pyx_optional_args))__pyx_f_11CAtmosphere_6LwAtom_lte_pops;
-  if (PyType_Ready(&__pyx_type_11CAtmosphere_LwAtom) < 0) __PYX_ERR(0, 756, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_11CAtmosphere_LwAtom) < 0) __PYX_ERR(0, 759, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_11CAtmosphere_LwAtom.tp_print = 0;
   #endif
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_11CAtmosphere_LwAtom.tp_dictoffset && __pyx_type_11CAtmosphere_LwAtom.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_11CAtmosphere_LwAtom.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (__Pyx_SetVtable(__pyx_type_11CAtmosphere_LwAtom.tp_dict, __pyx_vtabptr_11CAtmosphere_LwAtom) < 0) __PYX_ERR(0, 756, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_LwAtom, (PyObject *)&__pyx_type_11CAtmosphere_LwAtom) < 0) __PYX_ERR(0, 756, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_11CAtmosphere_LwAtom) < 0) __PYX_ERR(0, 756, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_type_11CAtmosphere_LwAtom.tp_dict, __pyx_vtabptr_11CAtmosphere_LwAtom) < 0) __PYX_ERR(0, 759, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_LwAtom, (PyObject *)&__pyx_type_11CAtmosphere_LwAtom) < 0) __PYX_ERR(0, 759, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_11CAtmosphere_LwAtom) < 0) __PYX_ERR(0, 759, __pyx_L1_error)
   __pyx_ptype_11CAtmosphere_LwAtom = &__pyx_type_11CAtmosphere_LwAtom;
-  if (PyType_Ready(&__pyx_type_11CAtmosphere_LwSpectrum) < 0) __PYX_ERR(0, 955, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_11CAtmosphere_LwSpectrum) < 0) __PYX_ERR(0, 958, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_11CAtmosphere_LwSpectrum.tp_print = 0;
   #endif
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_11CAtmosphere_LwSpectrum.tp_dictoffset && __pyx_type_11CAtmosphere_LwSpectrum.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_11CAtmosphere_LwSpectrum.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_LwSpectrum, (PyObject *)&__pyx_type_11CAtmosphere_LwSpectrum) < 0) __PYX_ERR(0, 955, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_11CAtmosphere_LwSpectrum) < 0) __PYX_ERR(0, 955, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_LwSpectrum, (PyObject *)&__pyx_type_11CAtmosphere_LwSpectrum) < 0) __PYX_ERR(0, 958, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_11CAtmosphere_LwSpectrum) < 0) __PYX_ERR(0, 958, __pyx_L1_error)
   __pyx_ptype_11CAtmosphere_LwSpectrum = &__pyx_type_11CAtmosphere_LwSpectrum;
-  if (PyType_Ready(&__pyx_type_11CAtmosphere_LwContext) < 0) __PYX_ERR(0, 993, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_11CAtmosphere_LwContext) < 0) __PYX_ERR(0, 996, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_11CAtmosphere_LwContext.tp_print = 0;
   #endif
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_11CAtmosphere_LwContext.tp_dictoffset && __pyx_type_11CAtmosphere_LwContext.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_11CAtmosphere_LwContext.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_LwContext, (PyObject *)&__pyx_type_11CAtmosphere_LwContext) < 0) __PYX_ERR(0, 993, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_11CAtmosphere_LwContext) < 0) __PYX_ERR(0, 993, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_LwContext, (PyObject *)&__pyx_type_11CAtmosphere_LwContext) < 0) __PYX_ERR(0, 996, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_11CAtmosphere_LwContext) < 0) __PYX_ERR(0, 996, __pyx_L1_error)
   __pyx_ptype_11CAtmosphere_LwContext = &__pyx_type_11CAtmosphere_LwContext;
-  if (PyType_Ready(&__pyx_type_11CAtmosphere_Blah) < 0) __PYX_ERR(0, 1113, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_11CAtmosphere_Blah) < 0) __PYX_ERR(0, 1116, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_11CAtmosphere_Blah.tp_print = 0;
   #endif
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_11CAtmosphere_Blah.tp_dictoffset && __pyx_type_11CAtmosphere_Blah.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_11CAtmosphere_Blah.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Blah, (PyObject *)&__pyx_type_11CAtmosphere_Blah) < 0) __PYX_ERR(0, 1113, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_11CAtmosphere_Blah) < 0) __PYX_ERR(0, 1113, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Blah, (PyObject *)&__pyx_type_11CAtmosphere_Blah) < 0) __PYX_ERR(0, 1116, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_11CAtmosphere_Blah) < 0) __PYX_ERR(0, 1116, __pyx_L1_error)
   __pyx_ptype_11CAtmosphere_Blah = &__pyx_type_11CAtmosphere_Blah;
   __pyx_vtabptr_array = &__pyx_vtable_array;
   __pyx_vtable_array.get_memview = (PyObject *(*)(struct __pyx_array_obj *))__pyx_array_get_memview;
@@ -41866,16 +41901,16 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "CAtmosphere.pyx":1108
+  /* "CAtmosphere.pyx":1111
  * 
  * 
  * def blah():             # <<<<<<<<<<<<<<
  *     cdef f64[::1] a
  *     a = np.zeros(10)
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_11CAtmosphere_1blah, NULL, __pyx_n_s_CAtmosphere); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1108, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_11CAtmosphere_1blah, NULL, __pyx_n_s_CAtmosphere); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1111, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_blah, __pyx_t_2) < 0) __PYX_ERR(0, 1108, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_blah, __pyx_t_2) < 0) __PYX_ERR(0, 1111, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "(tree fragment)":1

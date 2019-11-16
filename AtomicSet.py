@@ -340,7 +340,8 @@ class RadiativeSet:
                 grids.append(line.wavelength)
             for cont in atom.continua:
                 transitions.append(cont)
-                grids.append(cont.wavelength)
+                grids.append(np.array([cont.lambdaEdge]))
+                grids.append(cont.wavelength[cont.wavelength <= cont.lambdaEdge])
 
         for atom in self.detailedLteSet:
             for line in atom.lines:
@@ -351,21 +352,26 @@ class RadiativeSet:
         grid = np.concatenate(grids)
         grid = np.sort(grid)
         grid = np.unique(grid)
+        # grid = np.unique(np.floor(1e10*grid)) / 1e10
         blueIdx = []
         redIdx = []
-        Nlambda = []
+        # Nlambda = []
 
         for t in transitions:
             blueIdx.append(np.searchsorted(grid, t.wavelength[0]))
             redIdx.append(np.searchsorted(grid, t.wavelength[-1])+1)
-            Nlambda.append(redIdx[-1] - blueIdx[-1])
+            # Nlambda.append(redIdx[-1] - blueIdx[-1])
 
         for i, t in enumerate(transitions):
+            # NOTE(cmo): Some continua have wavelength grids that go past their edge. Let's avoid that.
+            if isinstance(t, AtomicContinuum):
+                while grid[redIdx[i]-1] > t.lambdaEdge:
+                    redIdx[i] -= 1
             wavelength = np.copy(grid[blueIdx[i]:redIdx[i]])
             if isinstance(t, AtomicContinuum):
                 t.alpha = t.compute_alpha(wavelength)
             t.wavelength = wavelength
-            t.Nlambda = Nlambda[i] # type: ignore
+            t.Nlambda = wavelength.shape[0] # type: ignore
 
         activeSet: List[List[Union[AtomicLine, AtomicContinuum]]] = []
         activeLines: List[List[AtomicLine]] = []

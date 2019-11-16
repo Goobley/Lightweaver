@@ -8,7 +8,7 @@
 #include <complex>
 
 typedef Jasnah::Array1NonOwn<bool> BoolView;
-typedef Jasnah::Array1Own<u8> BoolArr; //  Avoid the dreaded vector<bool>
+typedef Jasnah::Array1Own<i8> BoolArr; //  Avoid the dreaded vector<bool>
 typedef Jasnah::Array1NonOwn<i32> I32View;
 typedef Jasnah::Array1Own<i32> I32Arr;
 
@@ -166,8 +166,8 @@ struct Transition
         }
         else
         {
-            constexpr f64 hc = 2 * C::HC / cube(C::NM_TO_M);
-            const f64 hcl = hc / cube(wavelength(lt));
+            constexpr f64 twoHc = 2.0 * C::HC / cube(C::NM_TO_M);
+            const f64 hcl = twoHc / cube(wavelength(lt));
             const f64 a = alpha(lt);
             for (int k = 0; k < Vij.shape(0); ++k)
             {

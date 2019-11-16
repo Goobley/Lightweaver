@@ -1233,6 +1233,7 @@ f64 intensity_core(IntensityCoreData& data, int la)
     const int Nrays = atmos.Nrays;
     const int Nspect = spect.wavelength.shape(0);
     JDag = spect.J(la);
+    // JDag.fill(0.0);
     F64View J = spect.J(la);
     J.fill(0.0);
 
@@ -1252,6 +1253,7 @@ f64 intensity_core(IntensityCoreData& data, int la)
             continuaOnly = continuaOnly && (t.type == CONTINUUM);
         }
     }
+    // continuaOnly = false;
 
     f64 dJMax = 0.0;
     for (int mu = 0; mu < Nrays; ++mu)
@@ -1271,7 +1273,10 @@ f64 intensity_core(IntensityCoreData& data, int la)
                     atom.zero_angle_dependent_vars();
                     for (int kr = 0; kr < atom.Ntrans; ++kr)
                     {
+                        // continue;
                         auto& t = *atom.trans[kr];
+                        // if (kr == atom.Ntrans-4 || kr == atom.Ntrans-5)
+                        //     continue;
                         if (!t.active(la))
                             continue;
 
@@ -1295,14 +1300,48 @@ f64 intensity_core(IntensityCoreData& data, int la)
                             atom.eta(k) += eta;
                         }
                     }
+                    for (int k = 0; k < Nspace; ++k)
+                    {
+                        chiTot(k) += background.chi(la, k);
+                        S(k) = (etaTot(k) + background.eta(la, k) + background.sca(la, k) * JDag(k)) / chiTot(k);
+                    }
                 }
                 // Do LTE atoms here
 
-                for (int k = 0; k < Nspace; ++k)
-                {
-                    chiTot(k) += background.chi(la, k);
-                    S(k) = (etaTot(k) + background.eta(la, k) + background.sca(la, k) * JDag(k)) / chiTot(k);
-                }
+                // if (la == 500)
+                // {
+                //     printf("---------%d------------\n", la);
+                // }
+                // for (int k = 0; k < Nspace; ++k)
+                // {
+                //     S(k) = (etaTot(k) + background.eta(la, k) + background.sca(la, k) * JDag(k)) / chiTot(k);
+                //     // S(k) = background.eta(la, k) / chiTot(k);
+                //     // if (la == 500)
+                //     // {
+                //     //     printf("%.2e, ", S(k));
+                //     // }
+                // }
+                // if (la==1314)
+                // {
+                //     printf("Eta ---------%d------------\n", la);
+                //     for (int k = 0; k < Nspace; ++k)
+                //     {
+                //         printf("%.2e, ", background.eta(la, k));
+                //     }
+                //     printf("\nEta ---------%d------------\n\n", la);
+                //     printf("Chi ---------%d------------\n", la);
+                //     for (int k = 0; k < Nspace; ++k)
+                //     {
+                //         printf("%.2e, ", chiTot(k));
+                //     }
+                //     printf("\nChi ---------%d------------\n\n", la);
+                //     printf("S ---------%d------------\n", la);
+                //     for (int k = 0; k < Nspace; ++k)
+                //     {
+                //         printf("%.2e, ", S(k));
+                //     }
+                //     printf("\nS ---------%d------------\n\n", la);
+                // }
             }
 
             piecewise_bezier3_1d(&fd, mu, toObs, spect.wavelength(la));

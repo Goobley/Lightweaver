@@ -380,7 +380,7 @@ cdef class LwBackground:
 
         cdef f64[:, ::1] alpha = np.zeros((self.wavelength.shape[0], len(continua)))
         cdef int i, la, k, Z
-        cdef f64 nEff, gbf_0, wav, edge
+        cdef f64 nEff, gbf_0, wav, edge, lambdaMin
         # TODO(cmo): Check if differences between continuum types actuually matter for us
         for i, c in enumerate(continua):
             # if c.atom.name.strip() == 'H':
@@ -393,10 +393,12 @@ cdef class LwBackground:
             #             alpha[la, i] = sigma0 * (self.wavelength[la] / c.lambda0)**3 * nEff * Gaunt_bf(self.wavelength[la], nEff, Z)
             # else:
             edge = c.lambdaEdge
-            interpolator = interp1d(c.wavelength, c.alpha, bounds_error=False, fill_value=0.0, kind=3)
-            alphaLa = interpolator(self.wavelength)
+            lambdaMin = c.minLambda
+            # interpolator = interp1d(c.wavelength, c.alpha, bounds_error=False, fill_value=0.0, kind=1)
+            # alphaLa = interpolator(self.wavelength)
+            alphaLa = c.compute_alpha(np.asarray(self.wavelength))
             for la in range(self.wavelength.shape[0]):
-                if self.wavelength[la] < edge:
+                if self.wavelength[la] <= edge and self.wavelength[la] >= lambdaMin:
                     alpha[la, i] = alphaLa[la]
 
         cdef f64[:, ::1] expla = np.zeros((self.wavelength.shape[0], self.atmos.Nspace))
@@ -545,6 +547,7 @@ cdef class LwTransition:
             self.alpha = trans.alpha
             self.trans.alpha = f64_view(self.alpha)
             self.trans.dopplerWidth = 1.0
+            self.trans.lambda0 = trans.lambda0
         
         self.active = np.zeros(len(spect.activeSet), np.int8)
         cdef int i

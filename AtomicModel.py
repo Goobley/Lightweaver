@@ -350,61 +350,66 @@ class VoigtLine(AtomicLine):
         return GStark
 
     def stark_broaden(self, atmos):
-        weight = self.atom.atomicTable[self.atom.name].weight
-        C = 8.0 * Const.KBOLTZMANN / (np.pi * Const.AMU * weight)
-        Cm = (1.0 + weight / (Const.M_ELECTRON / Const.AMU))**(1.0/6.0)
-        # NOTE(cmo): 28.0 is average atomic weight
-        Cm += (1.0 + weight / (28.0))**(1.0/6.0)
+        if self.stark > 0.0:
+            weight = self.atom.atomicTable[self.atom.name].weight
+            C = 8.0 * Const.KBOLTZMANN / (np.pi * Const.AMU * weight)
+            Cm = (1.0 + weight / (Const.M_ELECTRON / Const.AMU))**(1.0/6.0)
+            # NOTE(cmo): 28.0 is average atomic weight
+            Cm += (1.0 + weight / (28.0))**(1.0/6.0)
 
-        Z = self.iLevel.stage + 1
-        ic = self.i + 1
-        while self.atom.levels[ic].stage < Z and ic < len(self.atom.levels):
-            ic += 1
-        if self.atom.levels[ic].stage == self.iLevel.stage:
-            raise ValueError('Cant find overlying cont: %s' % repr(self))
+            Z = self.iLevel.stage + 1
+            ic = self.i + 1
+            while self.atom.levels[ic].stage < Z and ic < len(self.atom.levels):
+                ic += 1
+            if self.atom.levels[ic].stage == self.iLevel.stage:
+                raise ValueError('Cant find overlying cont: %s' % repr(self))
 
-        E_Ryd = Const.E_RYDBERG / (1.0 + Const.M_ELECTRON / (weight * Const.AMU))
-        neff_l = Z * np.sqrt(E_Ryd / (self.atom.levels[ic].E_SI - self.iLevel.E_SI))
-        neff_u = Z * np.sqrt(E_Ryd / (self.atom.levels[ic].E_SI - self.jLevel.E_SI))
+            E_Ryd = Const.E_RYDBERG / (1.0 + Const.M_ELECTRON / (weight * Const.AMU))
+            neff_l = Z * np.sqrt(E_Ryd / (self.atom.levels[ic].E_SI - self.iLevel.E_SI))
+            neff_u = Z * np.sqrt(E_Ryd / (self.atom.levels[ic].E_SI - self.jLevel.E_SI))
 
-        C4 = Const.Q_ELECTRON**2 / (4.0 * np.pi * Const.EPSILON_0) \
-             * Const.RBOHR \
-             * (2.0 * np.pi * Const.RBOHR**2 / Const.HPLANCK) / (18.0 * Z**4) \
-             * ((neff_u * (5.0 * neff_u**2 + 1.0))**2 \
-                 - (neff_l * (5.0 * neff_l**2 + 1.0))**2)
-        cStark23 = 11.37 * (self.stark * C4)**(2.0/3.0)
+            C4 = Const.Q_ELECTRON**2 / (4.0 * np.pi * Const.EPSILON_0) \
+                * Const.RBOHR \
+                * (2.0 * np.pi * Const.RBOHR**2 / Const.HPLANCK) / (18.0 * Z**4) \
+                * ((neff_u * (5.0 * neff_u**2 + 1.0))**2 \
+                    - (neff_l * (5.0 * neff_l**2 + 1.0))**2)
+            cStark23 = 11.37 * (self.stark * C4)**(2.0/3.0)
 
-        vRel = (C * atmos.temperature)**(1.0/6.0) * Cm
-        stark = cStark23 * vRel * atmos.ne
-        if self.atom.name.startswith('H'):
+            vRel = (C * atmos.temperature)**(1.0/6.0) * Cm
+            stark = cStark23 * vRel * atmos.ne
+        elif self.stark < 0.0:
+            stark = np.abs(self.stark) * atmos.ne
+        else:
+            stark = np.zeros(atmos.Nspace)
+
+        if self.atom.name.upper().strip() == 'H':
             stark += self.linear_stark_broaden(atmos)
         return stark
 
     def setup_xrd_wavelength(self):
-        self.xrd = []
+        # self.xrd = []
 
-        # This is just a hack to keep the search happy
-        self.wavelength = np.zeros(1)
-        # NOTE(cmo): This is currently disabled -- we're not gonna do XRD anyway
-        if self.type == LineType.PRD and False:
+        # # This is just a hack to keep the search happy
+        # self.wavelength = np.zeros(1)
+        # # NOTE(cmo): This is currently disabled -- we're not gonna do XRD anyway
+        # if self.type == LineType.PRD and False:
 
-            thisIdx = self.atom.lines.index(self)
+        #     thisIdx = self.atom.lines.index(self)
 
-            for i, l in enumerate(self.atom.lines):
-                if l.type == LineType.PRD and l.j == self.j and l.i != self.i:
-                    self.xrd.append(l)
+        #     for i, l in enumerate(self.atom.lines):
+        #         if l.type == LineType.PRD and l.j == self.j and l.i != self.i:
+        #             self.xrd.append(l)
 
-                    if i > thisIdx:
-                        waveratio = self.xrd[-1].lambda0 / self.lambda0
-                        self.xrd[-1].qWing = waveratio * self.qWing
+        #             if i > thisIdx:
+        #                 waveratio = self.xrd[-1].lambda0 / self.lambda0
+        #                 self.xrd[-1].qWing = waveratio * self.qWing
 
-            if len(self.xrd) > 0:
-                print("Found %d subordinate PRD lines, for line %d->%d of atom %s" % \
-                    (len(self.xrd), self.j, self.i, self.atom.name))
+        #     if len(self.xrd) > 0:
+        #         print("Found %d subordinate PRD lines, for line %d->%d of atom %s" % \
+        #             (len(self.xrd), self.j, self.i, self.atom.name))
 
         # Compute default lambda grid
-        # We're going to assume that a line profile is always asymmetric -- should get rid of keyword
-        Nlambda = self.Nlambda // 2 if self.Nlambda % 2 == 0 else (self.Nlambda + 1) // 2
+        Nlambda = self.Nlambda // 2 if self.Nlambda % 2 == 1 else (self.Nlambda + 1) // 2
 
         if self.qWing <= 2.0 * self.qCore:
             # Use linear scale to qWing
@@ -628,6 +633,19 @@ class AtomicContinuum:
     def __hash__(self):
         return hash(repr(self))
 
+    @property
+    def lambda0(self) -> float:
+        return self.lambda0_m / Const.NM_TO_M
+
+    @property
+    def lambdaEdge(self) -> float:
+        return self.lambda0
+
+    @property
+    def lambda0_m(self) -> float:
+        deltaE = self.jLevel.E_SI - self.iLevel.E_SI
+        return Const.HC / deltaE
+
 @dataclass
 class ExplicitContinuum(AtomicContinuum):
     alphaGrid: Sequence[Sequence[float]]
@@ -651,7 +669,7 @@ class ExplicitContinuum(AtomicContinuum):
         return s
 
     def compute_alpha(self, wavelength) -> np.ndarray:
-        return interp1d(self.wavelength, self.alpha, kind=3)(wavelength)
+        return interp1d(self.wavelength, self.alpha, kind=1, bounds_error=False, fill_value=0.0)(wavelength)
 
     @property
     def lambda0(self) -> float:
@@ -660,6 +678,10 @@ class ExplicitContinuum(AtomicContinuum):
     @property
     def lambdaEdge(self) -> float:
         return self.lambda0
+
+    @property
+    def minLambda(self) -> float:
+        return self.wavelength[0]
 
     @property
     def lambda0_m(self) -> float:
@@ -684,17 +706,28 @@ class HydrogenicContinuum(AtomicContinuum):
         self.iLevel: AtomicLevel = atom.levels[self.i]
         if self.minLambda >= self.lambda0:
             raise ValueError('Minimum wavelength is larger than continuum edge at %f [nm] in continuum %s' % (self.lambda0, repr(self)))
-        self.wavelength = np.linspace(self.minLambda, self.lambda0, self.Nlambda)
+        self.wavelength = np.linspace(self.minLambda, self.lambdaEdge, self.Nlambda)
 
         self.alpha = self.compute_alpha(self.wavelength)
 
     def compute_alpha(self, wavelength) -> np.ndarray:
-        Z = self.jLevel.stage
-        nEff = Z * np.sqrt(Const.E_RYDBERG / (self.jLevel.E_SI - self.iLevel.E_SI))
-        gbf0 = gaunt_bf(self.lambda0, nEff, Z)
-        gbf = gaunt_bf(wavelength, nEff, Z)
-        alpha = self.alpha0 * gbf / gbf0 * (wavelength / self.lambda0)**3
-        return alpha
+        if self.atom.name.strip() != 'H':
+            Z = self.jLevel.stage
+            nEff = Z * np.sqrt(Const.E_RYDBERG / (self.jLevel.E_SI - self.iLevel.E_SI))
+            gbf0 = gaunt_bf(self.lambda0, nEff, Z)
+            gbf = gaunt_bf(wavelength, nEff, Z)
+            alpha = self.alpha0 * gbf / gbf0 * (wavelength / self.lambda0)**3
+            alpha[wavelength < self.minLambda] = 0.0
+            alpha[wavelength > self.lambdaEdge] = 0.0
+            return alpha
+        else:
+            sigma0 = 32.0 / (3.0 * np.sqrt(3.0)) * Const.Q_ELECTRON**2 / (4.0 * np.pi * Const.EPSILON_0) / (Const.M_ELECTRON * Const.CLIGHT) * Const.HPLANCK / (2.0 * Const.E_RYDBERG)
+            nEff = np.sqrt(Const.E_RYDBERG / (self.jLevel.E_SI - self.iLevel.E_SI))
+            gbf = gaunt_bf(wavelength, nEff, self.iLevel.stage+1)
+            sigma = sigma0 * nEff * gbf * (wavelength / self.lambdaEdge)**3
+            sigma[wavelength < self.minLambda] = 0.0
+            sigma[wavelength > self.lambdaEdge] = 0.0
+            return sigma
 
     @property
     def lambda0(self) -> float:
@@ -745,7 +778,7 @@ class Omega(CollisionalRates):
         if len(self.rates) <  3:
             self.interpolator = interp1d(self.temperature, self.rates, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
         else:
-            self.interpolator = interp1d(self.temperature, self.rates, kind=3, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
+            self.interpolator = interp1d(self.temperature, self.rates, kind=1, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
 
     def compute_rates(self, atmos, nstar, Cmat):
         # TODO(cmo): Remove the nstar argument -- replace with g_ij exp(-hv/kbT)
@@ -771,7 +804,7 @@ class CI(CollisionalRates):
         if len(self.rates) <  3:
             self.interpolator = interp1d(self.temperature, self.rates, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
         else:
-            self.interpolator = interp1d(self.temperature, self.rates, kind=3, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
+            self.interpolator = interp1d(self.temperature, self.rates, kind=1, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
 
     def compute_rates(self, atmos, nstar, Cmat):
         C = self.interpolator(atmos.temperature)
@@ -796,7 +829,7 @@ class CE(CollisionalRates):
         if len(self.rates) <  3:
             self.interpolator = interp1d(self.temperature, self.rates, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
         else:
-            self.interpolator = interp1d(self.temperature, self.rates, kind=3, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
+            self.interpolator = interp1d(self.temperature, self.rates, kind=1, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
 
     def compute_rates(self, atmos, nstar, Cmat):
         C = self.interpolator(atmos.temperature)
