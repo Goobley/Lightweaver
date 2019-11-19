@@ -676,7 +676,11 @@ class ExplicitContinuum(AtomicContinuum):
         return s
 
     def compute_alpha(self, wavelength) -> np.ndarray:
-        return interp1d(self.wavelength, self.alpha, kind=3, bounds_error=False, fill_value=0.0)(wavelength)
+        alpha = interp1d(self.wavelength, self.alpha, kind=3, bounds_error=False, fill_value=0.0)(wavelength)
+        alpha[wavelength < self.minLambda] = 0.0
+        alpha[wavelength > self.lambdaEdge] = 0.0
+        return alpha
+
 
     @property
     def lambda0(self) -> float:
