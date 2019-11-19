@@ -161,6 +161,7 @@ cdef extern from "Formal.hpp":
         Atmosphere* atmos
         Spectrum* spect
         vector[Atom*] activeAtoms
+        vector[Atom*] lteAtoms
         Background* background
 
     cdef f64 gamma_matrices_formal_sol(Context& ctx)
@@ -398,8 +399,8 @@ cdef class LwBackground:
             # alphaLa = interpolator(self.wavelength)
             alphaLa = c.compute_alpha(np.asarray(self.wavelength))
             for la in range(self.wavelength.shape[0]):
-                if self.wavelength[la] <= edge and self.wavelength[la] >= lambdaMin:
-                    alpha[la, i] = alphaLa[la]
+                # if self.wavelength[la] <= edge and self.wavelength[la] >= lambdaMin:
+                alpha[la, i] = alphaLa[la]
 
         cdef f64[:, ::1] expla = np.zeros((self.wavelength.shape[0], self.atmos.Nspace))
         cdef f64 hc_k = Const.HC / (Const.KBOLTZMANN * Const.NM_TO_M)
@@ -1002,6 +1003,7 @@ cdef class LwContext:
     cdef dict arguments
     cdef object atomicTable
     cdef list activeAtoms
+    cdef list lteAtoms
 
     def __init__(self, atmos, spect, radSet, eqPops, atomicTable, ngOptions=None, initSol=None):
         self.arguments = {'atmos': atmos, 'spect': spect, 'radSet': radSet, 'eqPops': eqPops, 'atomicTable': atomicTable, 'ngOptions': ngOptions, 'initSol': initSol}
@@ -1013,7 +1015,9 @@ cdef class LwContext:
         self.background = LwBackground(self.atmos, eqPops, radSet, spect)
 
         activeAtoms = radSet.activeAtoms
+        lteAtoms = radSet.lteAtoms
         self.activeAtoms = [LwAtom(a, self.atmos, atmos, eqPops, spect, self.background, ngOptions=ngOptions, initSol=initSol) for a in activeAtoms]
+        self.lteAtoms = [LwAtom(a, self.atmos, atmos, eqPops, spect, self.background, ngOptions=None, initSol=InitialSolution.Lte) for a in lteAtoms]
 
         self.ctx.atmos = &self.atmos.atmos
         self.ctx.spect = &self.spect.spect
@@ -1022,6 +1026,8 @@ cdef class LwContext:
         cdef LwAtom la
         for la in self.activeAtoms:
             self.ctx.activeAtoms.push_back(&la.atom)
+        for la in self.lteAtoms:
+            self.ctx.lteAtoms.push_back(&la.atom)
 
     def gamma_matrices_formal_sol(self):
         cdef LwAtom atom
@@ -1068,6 +1074,9 @@ cdef class LwContext:
         assert self.atmos.B.shape[0] != 0
 
         for atom in self.activeAtoms:
+            for t in atom.trans:
+                t.compute_polarised_profiles()
+        for atom in self.lteAtoms:
             for t in atom.trans:
                 t.compute_polarised_profiles()
 

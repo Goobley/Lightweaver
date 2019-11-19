@@ -1193,6 +1193,7 @@ struct IntensityCoreData
     FormalData* fd;
     Background* background;
     std::vector<Atom*>* activeAtoms;
+    std::vector<Atom*>* lteAtoms;
     F64Arr* JDag;
     F64View chiTot;
     F64View etaTot;
@@ -1212,6 +1213,7 @@ struct StokesCoreData
     FormalDataStokes* fd;
     Background* background;
     std::vector<Atom*>* activeAtoms;
+    std::vector<Atom*>* lteAtoms;
     F64Arr* JDag;
     F64View2D chiTot;
     F64View2D etaTot;
@@ -1226,7 +1228,8 @@ namespace GammaFsCores
 {
 f64 intensity_core(IntensityCoreData& data, int la)
 {
-    JasUnpack(*data, atmos, spect, fd, background, activeAtoms, JDag);
+    JasUnpack(*data, atmos, spect, fd, background);
+    JasUnpack(*data, activeAtoms, lteAtoms, JDag);
     JasUnpack(data, chiTot, etaTot, Uji, Vij, Vji);
     JasUnpack(data, I, S, Ieff, PsiStar);
     const int Nspace = atmos.Nspace;
@@ -1239,6 +1242,8 @@ f64 intensity_core(IntensityCoreData& data, int la)
 
     for (int a = 0; a < activeAtoms.size(); ++a)
         activeAtoms[a]->setup_wavelength(la);
+    for (int a = 0; a < lteAtoms.size(); ++a)
+        lteAtoms[a]->setup_wavelength(la);
 
     // NOTE(cmo): If we only have continua then opacity is angle independent
     bool continuaOnly = true;
@@ -1253,7 +1258,17 @@ f64 intensity_core(IntensityCoreData& data, int la)
             continuaOnly = continuaOnly && (t.type == CONTINUUM);
         }
     }
-    // continuaOnly = false;
+    for (int a = 0; a < lteAtoms.size(); ++a)
+    {
+        auto& atom = *lteAtoms[a];
+        for (int kr = 0; kr < atom.Ntrans; ++kr)
+        {
+            auto& t = *atom.trans[kr];
+            if (!t.active(la))
+                continue;
+            continuaOnly = continuaOnly && (t.type == CONTINUUM);
+        }
+    }
 
     f64 dJMax = 0.0;
     for (int mu = 0; mu < Nrays; ++mu)
@@ -1261,7 +1276,6 @@ f64 intensity_core(IntensityCoreData& data, int la)
         for (int toObsI = 0; toObsI < 2; toObsI += 1)
         {
             bool toObs = (bool)toObsI;
-            // const f64 sign = If toObs Then 1.0 Else -1.0 End;
             if (!continuaOnly || (continuaOnly && (mu == 0 && toObsI == 0)))
             {
                 chiTot.fill(0.0);
@@ -1273,15 +1287,9 @@ f64 intensity_core(IntensityCoreData& data, int la)
                     atom.zero_angle_dependent_vars();
                     for (int kr = 0; kr < atom.Ntrans; ++kr)
                     {
-                        // continue;
                         auto& t = *atom.trans[kr];
-                        // if (kr == atom.Ntrans-4 || kr == atom.Ntrans-5)
-                        //     continue;
                         if (!t.active(la))
                             continue;
-
-                        // if (t.type == LINE)
-                        //     printf("Line: %d, %d\n", kr, la);
 
                         t.uv(la, mu, toObs, Uji, Vij, Vji);
 
@@ -1301,7 +1309,27 @@ f64 intensity_core(IntensityCoreData& data, int la)
                         }
                     }
                 }
-                    // Do LTE atoms here
+                for (int a = 0; a < lteAtoms.size(); ++a)
+                {
+                    auto& atom = *lteAtoms[a];
+                    for (int kr = 0; kr < atom.Ntrans; ++kr)
+                    {
+                        auto& t = *atom.trans[kr];
+                        if (!t.active(la))
+                            continue;
+
+                        t.uv(la, mu, toObs, Uji, Vij, Vji);
+
+                        for (int k = 0; k < Nspace; ++k)
+                        {
+                            f64 chi = atom.n(t.i, k) * Vij(k) - atom.n(t.j, k) * Vji(k);
+                            f64 eta = atom.n(t.j, k) * Uji(k);
+
+                            chiTot(k) += chi;
+                            etaTot(k) += eta;
+                        }
+                    }
+                }
                 for (int k = 0; k < Nspace; ++k)
                 {
                     chiTot(k) += background.chi(la, k);
@@ -1397,6 +1425,27 @@ f64 intensity_core(IntensityCoreData& data, int la)
                     }
                 }
             }
+            for (int a = 0; a < lteAtoms.size(); ++a)
+            {
+                auto& atom = *lteAtoms[a];
+
+                for (int kr = 0; kr < atom.Ntrans; ++kr)
+                {
+                    auto& t = *atom.trans[kr];
+                    if (!t.active(la))
+                        continue;
+
+                    const f64 wmu = 0.5 * atmos.wmu(mu);
+                    t.uv(la, mu, toObs, Uji, Vij, Vji);
+
+                    for (int k = 0; k < Nspace; ++k)
+                    {
+                        const f64 wlamu = atom.wla(kr, k) * wmu;
+                        t.Rij(k) += I(k) * Vij(k) * wlamu;
+                        t.Rji(k) += (Uji(k) + I(k) * Vij(k)) * wlamu;
+                    }
+                }
+            }
         }
     }
     for (int k = 0; k < Nspace; ++k)
@@ -1409,7 +1458,8 @@ f64 intensity_core(IntensityCoreData& data, int la)
 
 f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ)
 {
-    JasUnpack(*data, atmos, spect, fd, background, activeAtoms, JDag);
+    JasUnpack(*data, atmos, spect, fd, background);
+    JasUnpack(*data, activeAtoms, lteAtoms, JDag);
     JasUnpack(data, chiTot, etaTot, Uji, Vij, Vji, I, S);
 
     const int Nspace = atmos.Nspace;
@@ -1423,12 +1473,25 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ)
 
     for (int a = 0; a < activeAtoms.size(); ++a)
         activeAtoms[a]->setup_wavelength(la);
+    for (int a = 0; a < lteAtoms.size(); ++a)
+        lteAtoms[a]->setup_wavelength(la);
 
     // NOTE(cmo): If we only have continua then opacity is angle independent
     bool continuaOnly = true;
     for (int a = 0; a < activeAtoms.size(); ++a)
     {
         auto& atom = *activeAtoms[a];
+        for (int kr = 0; kr < atom.Ntrans; ++kr)
+        {
+            auto& t = *atom.trans[kr];
+            if (!t.active(la))
+                continue;
+            continuaOnly = continuaOnly && (t.type == CONTINUUM);
+        }
+    }
+    for (int a = 0; a < lteAtoms.size(); ++a)
+    {
+        auto& atom = *lteAtoms[a];
         for (int kr = 0; kr < atom.Ntrans; ++kr)
         {
             auto& t = *atom.trans[kr];
@@ -1450,7 +1513,6 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ)
             {
                 chiTot.fill(0.0);
                 etaTot.fill(0.0);
-                S.fill(0.0);
 
                 for (int a = 0; a < activeAtoms.size(); ++a)
                 {
@@ -1471,9 +1533,6 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ)
                             chiTot(0, k) += chi;
                             etaTot(0, k) += eta;
 
-// NOTE(cmo): Even with this stuff commented out and B set to 0, it still yeilds the same incorrect result. Must be
-// something wrong with the FS as this should be identical to no-pol case.
-#if 1
                             if (t.type == TransitionType::LINE && t.polarised)
                             {
                                 polarisedFrequency = true;
@@ -1491,11 +1550,48 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ)
                                 etaTot(2, k) += etaNoProfile * t.phiU(lt, mu, toObs, k);
                                 etaTot(3, k) += etaNoProfile * t.phiV(lt, mu, toObs, k);
                             }
-#endif
                         }
                     }
                 }
-                // Do LTE atoms here
+                for (int a = 0; a < lteAtoms.size(); ++a)
+                {
+                    auto& atom = *lteAtoms[a];
+                    for (int kr = 0; kr < atom.Ntrans; ++kr)
+                    {
+                        auto& t = *atom.trans[kr];
+                        if (!t.active(la))
+                            continue;
+
+                        t.uv(la, mu, toObs, Uji, Vij, Vji);
+
+                        for (int k = 0; k < Nspace; ++k)
+                        {
+                            f64 chi = atom.n(t.i, k) * Vij(k) - atom.n(t.j, k) * Vji(k);
+                            f64 eta = atom.n(t.j, k) * Uji(k);
+
+                            chiTot(0, k) += chi;
+                            etaTot(0, k) += eta;
+
+                            if (t.type == TransitionType::LINE && t.polarised)
+                            {
+                                polarisedFrequency = true;
+                                int lt = t.lt_idx(la);
+                                f64 chiNoProfile = chi / t.phi(lt, mu, toObs, k);
+                                chiTot(1, k) += chiNoProfile * t.phiQ(lt, mu, toObs, k);
+                                chiTot(2, k) += chiNoProfile * t.phiU(lt, mu, toObs, k);
+                                chiTot(3, k) += chiNoProfile * t.phiV(lt, mu, toObs, k);
+                                chiTot(4, k) += chiNoProfile * t.psiQ(lt, mu, toObs, k);
+                                chiTot(5, k) += chiNoProfile * t.psiU(lt, mu, toObs, k);
+                                chiTot(6, k) += chiNoProfile * t.psiV(lt, mu, toObs, k);
+
+                                f64 etaNoProfile = eta / t.phi(lt, mu, toObs, k);
+                                etaTot(1, k) += etaNoProfile * t.phiQ(lt, mu, toObs, k);
+                                etaTot(2, k) += etaNoProfile * t.phiU(lt, mu, toObs, k);
+                                etaTot(3, k) += etaNoProfile * t.phiV(lt, mu, toObs, k);
+                            }
+                        }
+                    }
+                }
 
                 for (int k = 0; k < Nspace; ++k)
                 {
@@ -1530,6 +1626,7 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ)
             spect.Quv(2, la, mu) = 0.0;
 #endif
 
+            // TODO(cmo): Rates?
             if (updateJ)
             {
                 for (int k = 0; k < Nspace; ++k)
@@ -1555,7 +1652,7 @@ f64 gamma_matrices_formal_sol(Context& ctx)
 {
     // feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
     JasUnpack(*ctx, atmos, spect, background);
-    JasUnpack(ctx, activeAtoms);
+    JasUnpack(ctx, activeAtoms, lteAtoms);
 
     const int Nspace = atmos.Nspace;
     const int Nrays = atmos.Nrays;
@@ -1579,7 +1676,8 @@ f64 gamma_matrices_formal_sol(Context& ctx)
     fd.Psi = PsiStar;
     fd.I = I;
     IntensityCoreData iCore;
-    JasPackPtr(iCore, atmos, spect, fd, background, activeAtoms, JDag);
+    JasPackPtr(iCore, atmos, spect, fd, background);
+    JasPackPtr(iCore, activeAtoms, lteAtoms, JDag);
     JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
     JasPack(iCore, I, S, Ieff, PsiStar);
 
@@ -1589,6 +1687,10 @@ f64 gamma_matrices_formal_sol(Context& ctx)
         spect.JRest.fill(0.0);
 
     for (auto& a : activeAtoms)
+    {
+        a->zero_rates();
+    }
+    for (auto& a : lteAtoms)
     {
         a->zero_rates();
     }
@@ -1623,7 +1725,7 @@ f64 formal_sol_full_stokes(Context& ctx)
 {
     // feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
     JasUnpack(*ctx, atmos, spect, background);
-    JasUnpack(ctx, activeAtoms);
+    JasUnpack(ctx, activeAtoms, lteAtoms);
 
     if (!atmos.B)
         assert(false && "Magnetic field required");
@@ -1651,7 +1753,8 @@ f64 formal_sol_full_stokes(Context& ctx)
     fd.fdIntens.S = fd.S(0);
     fd.fdIntens.I = fd.I(0);
     StokesCoreData core;
-    JasPackPtr(core, atmos, spect, fd, background, activeAtoms, JDag);
+    JasPackPtr(core, atmos, spect, fd, background);
+    JasPackPtr(core, activeAtoms, lteAtoms, JDag);
     JasPack(core, chiTot, etaTot, Uji, Vij, Vji, I, S);
 
     printf("%d, %d, %d\n", Nspace, Nrays, Nspect);

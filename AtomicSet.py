@@ -330,7 +330,7 @@ class RadiativeSet:
         upperLevels: Dict[str, List[Set[int]]] = {}
         lowerLevels: Dict[str, List[Set[int]]] = {}
 
-        for atom in self.activeSet:
+        for atom in (self.activeSet | self.detailedLteSet):
             continuaPerAtom[atom.name] = []
             linesPerAtom[atom.name] = []
             lowerLevels[atom.name] = []
@@ -343,11 +343,11 @@ class RadiativeSet:
                 grids.append(np.array([cont.lambdaEdge]))
                 grids.append(cont.wavelength[cont.wavelength <= cont.lambdaEdge])
 
-        for atom in self.detailedLteSet:
-            for line in atom.lines:
-                grids.append(line.wavelength)
-            for cont in atom.continua:
-                grids.append(cont.wavelength)
+        # for atom in self.detailedLteSet:
+        #     for line in atom.lines:
+        #         grids.append(line.wavelength)
+        #     for cont in atom.continua:
+        #         grids.append(cont.wavelength)
 
         grid = np.concatenate(grids)
         grid = np.sort(grid)
@@ -382,7 +382,7 @@ class RadiativeSet:
             activeLines.append([])
             activeContinua.append([])
             contributors.append([])
-            for atom in self.activeSet:
+            for atom in (self.activeSet | self.detailedLteSet):
                 continuaPerAtom[atom.name].append([])
                 linesPerAtom[atom.name].append([])
                 upperLevels[atom.name].append(set())

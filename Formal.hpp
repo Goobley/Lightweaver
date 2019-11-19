@@ -283,6 +283,7 @@ struct Context
     Atmosphere* atmos;
     Spectrum* spect;
     std::vector<Atom*> activeAtoms;
+    std::vector<Atom*> lteAtoms;
     Background* background;
 };
 

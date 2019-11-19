@@ -23,9 +23,9 @@ class NgOptions:
     Ndelay: int = 20
 
 atmos = Falc80()
-# atmos.B = np.ones(atmos.Nspace) * 1.0
-# atmos.gammaB = np.ones(atmos.Nspace) * np.pi * 0.25
-# atmos.chiB = np.zeros(atmos.Nspace)
+atmos.B = np.ones(atmos.Nspace) * 1.0
+atmos.gammaB = np.ones(atmos.Nspace) * np.pi * 0.25
+atmos.chiB = np.zeros(atmos.Nspace)
 at = AtomicTable()
 atmos.convert_scales(at)
 atmos.quadrature(5)
@@ -34,18 +34,20 @@ atmos.quadrature(5)
 aSet = RadiativeSet([H_6_atom(), C_atom(), O_atom(), Si_atom(), Al_atom(), CaII_atom(), Fe_atom(), He_large_atom(), MgII_atom(), N_atom(), Na_atom(), S_atom()], set([]))
 # aSet = RadiativeSet([H_6_atom(), CaII_atom(), Al_atom()], set([]))
 aSet.set_active('H', 'He')
+aSet.set_detailed_lte('Ca')
 spect = aSet.compute_wavelength_grid()
 # spect = aSet.compute_wavelength_grid(np.linspace(10, 200, 100))
 
 # [(47, 266), (266, 632), (470, 974), (632, 1170), (812, 1248)]
 # molPaths = ['../Molecules/' + m + '.molecule' for m in ['H2', 'H2+', 'C2', 'N2', 'O2', 'CH', 'CO', 'CN', 'NH', 'NO', 'OH', 'H2O']] 
 molPaths = ['../Molecules/' + m + '.molecule' for m in ['H2']]
-start = time.time()
 mols = MolecularTable(molPaths, at)
 
 eqPops = aSet.compute_eq_pops(mols, atmos)
 # prevH = np.copy(eqPops['Ca'])
 ctx = LwContext(atmos, spect, aSet, eqPops, at, ngOptions=NgOptions(0,0,0))
+input()
+start = time.time()
 # newH = np.copy(eqPops['Ca'])
 delta = 1.0
 dJ = 1.0
@@ -76,7 +78,7 @@ oldI = np.copy(s.I)
 # plt.plot(s.wavelength, s.I[:, -1])
 # plt.ylim(0.95, 1.05)
 # plt.show()
-# dJStokes = ctx.single_stokes_fs()
+dJStokes = ctx.single_stokes_fs()
 # print(ctx.activeAtoms[0].trans[4].phi[20,0,0,0])
 end = time.time()
 print('%e s' % (end-start))
