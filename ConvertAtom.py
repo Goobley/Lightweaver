@@ -240,13 +240,13 @@ def conv_atom(inFile):
             print(Fore.YELLOW + "Ignoring unknown collisional string %s" % line[0].upper() + Style.RESET_ALL)
 
     atom = AtomicModel(name=ID, levels=levels, lines=lines, continua=continua, collisions=collisions)
-    for i, l in enumerate(atom.lines):
-        l.Nlambda = lineNLambdas[i]
+    # for i, l in enumerate(atom.lines):
+    #     l.Nlambda = lineNLambdas[i]
     return repr(atom)
 
 colorama.init()
 fails = open('Fails.txt', 'w')
-path = '../Atoms/'
+path = '/Users/goobley/VanillaRh/Atoms/'
 baseFiles = [f for f in os.listdir(path) if f.endswith('.atom')]
 # baseFiles = ['N.atom']
 files = [path+f for f in baseFiles]

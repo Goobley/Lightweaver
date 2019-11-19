@@ -1,5 +1,5 @@
 from Falc80 import Falc80
-from AllOfTheAtoms import H_6_atom, H_6_CRD_atom, C_atom, O_atom, Si_atom, Al_atom, CaII_atom, Fe_atom, He_9_atom, He_atom, MgII_atom, N_atom, Na_atom, S_atom
+from AllOfTheAtoms import H_6_atom, H_6_CRD_atom, C_atom, O_atom, Si_atom, Al_atom, CaII_atom, Fe_atom, He_9_atom, He_atom, He_large_atom, MgII_atom, N_atom, Na_atom, S_atom
 # TODO(cmo): Find out why the other atoms weren't generated
 from AtomicTable import AtomicTable
 from AtomicSet import RadiativeSet
@@ -19,8 +19,8 @@ def plot_zeeman_components(z):
 @dataclass
 class NgOptions:
     Norder: int = 2
-    Nperiod: int = 3
-    Ndelay: int = 12
+    Nperiod: int = 8
+    Ndelay: int = 20
 
 atmos = Falc80()
 # atmos.B = np.ones(atmos.Nspace) * 1.0
@@ -30,11 +30,14 @@ at = AtomicTable()
 atmos.convert_scales(at)
 atmos.quadrature(5)
 
-aSet = RadiativeSet([H_6_CRD_atom(), He_atom()], set([]))
+# aSet = RadiativeSet([H_6_CRD_atom(), He_large_atom()], set([]))
+aSet = RadiativeSet([H_6_atom(), C_atom(), O_atom(), Si_atom(), Al_atom(), CaII_atom(), Fe_atom(), He_large_atom(), MgII_atom(), N_atom(), Na_atom(), S_atom()], set([]))
 # aSet = RadiativeSet([H_6_atom(), CaII_atom(), Al_atom()], set([]))
-aSet.set_active('He')
+aSet.set_active('H', 'He')
 spect = aSet.compute_wavelength_grid()
+# spect = aSet.compute_wavelength_grid(np.linspace(10, 200, 100))
 
+# [(47, 266), (266, 632), (470, 974), (632, 1170), (812, 1248)]
 # molPaths = ['../Molecules/' + m + '.molecule' for m in ['H2', 'H2+', 'C2', 'N2', 'O2', 'CH', 'CO', 'CN', 'NH', 'NO', 'OH', 'H2O']] 
 molPaths = ['../Molecules/' + m + '.molecule' for m in ['H2']]
 start = time.time()
@@ -42,21 +45,28 @@ mols = MolecularTable(molPaths, at)
 
 eqPops = aSet.compute_eq_pops(mols, atmos)
 # prevH = np.copy(eqPops['Ca'])
-ctx = LwContext(atmos, spect, aSet, eqPops, at, ngOptions=NgOptions(0,0,0), initSol=InitialSolution.Lte)
+ctx = LwContext(atmos, spect, aSet, eqPops, at, ngOptions=NgOptions(0,0,0))
 # newH = np.copy(eqPops['Ca'])
 delta = 1.0
 dJ = 1.0
 dRho = 1.0
 it = 0
 # ctx.configure_hprd_coeffs()
-for it in range(1):
+for it in range(303):
     # it += 1
     dJ = ctx.gamma_matrices_formal_sol()
-    # delta = ctx.stat_equil()
+    if it >= 3:
+        delta = ctx.stat_equil()
     # if it >= 1:
     #     dRho = ctx.prd_redistribute()
-    if dJ < 1e-2 and delta < 1e-2:
+    if delta < 1e-2:
         break
+
+print(it)
+
+for it in range(3):
+    dJ = ctx.gamma_matrices_formal_sol()
+    
 # print(ctx.activeAtoms[0].trans[4].phi[20,0,0,0])
 s = ctx.spect
 oldI = np.copy(s.I)

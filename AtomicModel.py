@@ -63,7 +63,7 @@ class AtomicModel:
         # This is separate because all of the lines in 
         # an atom need to be initialised first
         for l in self.lines:
-            l.setup_xrd_wavelength()
+            l.setup_wavelength()
 
         for c in self.continua:
             c.setup(self)
@@ -386,7 +386,7 @@ class VoigtLine(AtomicLine):
             stark += self.linear_stark_broaden(atmos)
         return stark
 
-    def setup_xrd_wavelength(self):
+    def setup_wavelength(self):
         # self.xrd = []
 
         # # This is just a hack to keep the search happy
@@ -409,7 +409,9 @@ class VoigtLine(AtomicLine):
         #             (len(self.xrd), self.j, self.i, self.atom.name))
 
         # Compute default lambda grid
-        Nlambda = self.Nlambda // 2 if self.Nlambda % 2 == 1 else (self.Nlambda + 1) // 2
+        Nlambda = self.Nlambda // 2 if self.Nlambda % 2 == 1 else (self.Nlambda - 1) // 2
+        Nlambda += 1
+        # Nlambda = self.Nlambda // 2 if self.Nlambda % 2 == 1 else (self.Nlambda + 1) // 2
 
         if self.qWing <= 2.0 * self.qCore:
             # Use linear scale to qWing
@@ -552,6 +554,7 @@ class VoigtLine(AtomicLine):
         aDamp = np.zeros(atmos.Nspace)
         Qelast = np.zeros(atmos.Nspace)
 
+        # TODO(cmo): Think if we're happy do use hydrogenPops like this. Probably because this effect isn't too huge. But worth considering
         self.vdw.broaden(atmos.temperature, atmos.hydrogenPops[0, :], aDamp)
         Qelast += aDamp
 
@@ -662,6 +665,10 @@ class ExplicitContinuum(AtomicContinuum):
         self.alpha = np.copy(lambdaAlpha[1, ::-1])
         self.jLevel: AtomicLevel = atom.levels[self.j]
         self.iLevel: AtomicLevel = atom.levels[self.i]
+        if self.lambdaEdge > self.wavelength[-1]:
+            wav = np.concatenate((self.wavelength, np.array([self.lambdaEdge])))
+            self.wavelength = wav
+            self.alpha = np.concatenate((self.alpha, np.array([self.alpha[-1]])))
         self.Nlambda = self.wavelength.shape[0]
 
     def __repr__(self):
@@ -669,7 +676,7 @@ class ExplicitContinuum(AtomicContinuum):
         return s
 
     def compute_alpha(self, wavelength) -> np.ndarray:
-        return interp1d(self.wavelength, self.alpha, kind=1, bounds_error=False, fill_value=0.0)(wavelength)
+        return interp1d(self.wavelength, self.alpha, kind=3, bounds_error=False, fill_value=0.0)(wavelength)
 
     @property
     def lambda0(self) -> float:
@@ -711,23 +718,24 @@ class HydrogenicContinuum(AtomicContinuum):
         self.alpha = self.compute_alpha(self.wavelength)
 
     def compute_alpha(self, wavelength) -> np.ndarray:
-        if self.atom.name.strip() != 'H':
-            Z = self.jLevel.stage
-            nEff = Z * np.sqrt(Const.E_RYDBERG / (self.jLevel.E_SI - self.iLevel.E_SI))
-            gbf0 = gaunt_bf(self.lambda0, nEff, Z)
-            gbf = gaunt_bf(wavelength, nEff, Z)
-            alpha = self.alpha0 * gbf / gbf0 * (wavelength / self.lambda0)**3
-            alpha[wavelength < self.minLambda] = 0.0
-            alpha[wavelength > self.lambdaEdge] = 0.0
-            return alpha
-        else:
-            sigma0 = 32.0 / (3.0 * np.sqrt(3.0)) * Const.Q_ELECTRON**2 / (4.0 * np.pi * Const.EPSILON_0) / (Const.M_ELECTRON * Const.CLIGHT) * Const.HPLANCK / (2.0 * Const.E_RYDBERG)
-            nEff = np.sqrt(Const.E_RYDBERG / (self.jLevel.E_SI - self.iLevel.E_SI))
-            gbf = gaunt_bf(wavelength, nEff, self.iLevel.stage+1)
-            sigma = sigma0 * nEff * gbf * (wavelength / self.lambdaEdge)**3
-            sigma[wavelength < self.minLambda] = 0.0
-            sigma[wavelength > self.lambdaEdge] = 0.0
-            return sigma
+        # if self.atom.name.strip() != 'H':
+        # NOTE(cmo): As it should be, the general case is equivalent for H
+        Z = self.jLevel.stage
+        nEff = Z * np.sqrt(Const.E_RYDBERG / (self.jLevel.E_SI - self.iLevel.E_SI))
+        gbf0 = gaunt_bf(self.lambda0, nEff, Z)
+        gbf = gaunt_bf(wavelength, nEff, Z)
+        alpha = self.alpha0 * gbf / gbf0 * (wavelength / self.lambda0)**3
+        alpha[wavelength < self.minLambda] = 0.0
+        alpha[wavelength > self.lambdaEdge] = 0.0
+        return alpha
+        # else:
+        #     sigma0 = 32.0 / (3.0 * np.sqrt(3.0)) * Const.Q_ELECTRON**2 / (4.0 * np.pi * Const.EPSILON_0) / (Const.M_ELECTRON * Const.CLIGHT) * Const.HPLANCK / (2.0 * Const.E_RYDBERG)
+        #     nEff = np.sqrt(Const.E_RYDBERG / (self.jLevel.E_SI - self.iLevel.E_SI))
+        #     gbf = gaunt_bf(wavelength, nEff, self.iLevel.stage+1)
+        #     sigma = sigma0 * nEff * gbf * (wavelength / self.lambdaEdge)**3
+        #     sigma[wavelength < self.minLambda] = 0.0
+        #     sigma[wavelength > self.lambdaEdge] = 0.0
+        #     return sigma
 
     @property
     def lambda0(self) -> float:
@@ -778,7 +786,7 @@ class Omega(CollisionalRates):
         if len(self.rates) <  3:
             self.interpolator = interp1d(self.temperature, self.rates, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
         else:
-            self.interpolator = interp1d(self.temperature, self.rates, kind=1, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
+            self.interpolator = interp1d(self.temperature, self.rates, kind=3, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
 
     def compute_rates(self, atmos, nstar, Cmat):
         # TODO(cmo): Remove the nstar argument -- replace with g_ij exp(-hv/kbT)
@@ -804,7 +812,7 @@ class CI(CollisionalRates):
         if len(self.rates) <  3:
             self.interpolator = interp1d(self.temperature, self.rates, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
         else:
-            self.interpolator = interp1d(self.temperature, self.rates, kind=1, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
+            self.interpolator = interp1d(self.temperature, self.rates, kind=3, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
 
     def compute_rates(self, atmos, nstar, Cmat):
         C = self.interpolator(atmos.temperature)
@@ -829,7 +837,7 @@ class CE(CollisionalRates):
         if len(self.rates) <  3:
             self.interpolator = interp1d(self.temperature, self.rates, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
         else:
-            self.interpolator = interp1d(self.temperature, self.rates, kind=1, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
+            self.interpolator = interp1d(self.temperature, self.rates, kind=3, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
 
     def compute_rates(self, atmos, nstar, Cmat):
         C = self.interpolator(atmos.temperature)

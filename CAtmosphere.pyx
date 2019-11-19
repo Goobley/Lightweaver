@@ -520,6 +520,7 @@ cdef class LwTransition:
         self.trans.j = trans.j
         self.trans.polarised = False
 
+        # print(trans.i, trans.j, type(trans))
         cdef int tIdx = spect.transitions.index(trans)
         self.trans.Nblue = spect.blueIdx[tIdx]
 

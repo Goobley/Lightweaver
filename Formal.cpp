@@ -1300,13 +1300,13 @@ f64 intensity_core(IntensityCoreData& data, int la)
                             atom.eta(k) += eta;
                         }
                     }
-                    for (int k = 0; k < Nspace; ++k)
-                    {
-                        chiTot(k) += background.chi(la, k);
-                        S(k) = (etaTot(k) + background.eta(la, k) + background.sca(la, k) * JDag(k)) / chiTot(k);
-                    }
                 }
-                // Do LTE atoms here
+                    // Do LTE atoms here
+                for (int k = 0; k < Nspace; ++k)
+                {
+                    chiTot(k) += background.chi(la, k);
+                    S(k) = (etaTot(k) + background.eta(la, k) + background.sca(la, k) * JDag(k)) / chiTot(k);
+                }
 
                 // if (la == 500)
                 // {
