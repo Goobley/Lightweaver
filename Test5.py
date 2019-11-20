@@ -1,5 +1,5 @@
 from Falc80 import Falc80
-from AllOfTheAtoms import H_6_atom, H_6_CRD_atom, C_atom, O_atom, Si_atom, Al_atom, CaII_atom, Fe_atom, He_9_atom, He_atom, He_large_atom, MgII_atom, N_atom, Na_atom, S_atom
+from AllOfTheAtoms import H_6_atom, H_6_CRD_atom, C_atom, O_atom, OI_ord_atom, Si_atom, Al_atom, CaII_atom, Fe_atom, FeI_atom, He_9_atom, He_atom, He_large_atom, MgII_atom, N_atom, Na_atom, S_atom
 # TODO(cmo): Find out why the other atoms weren't generated
 from AtomicTable import AtomicTable
 from AtomicSet import RadiativeSet
@@ -56,9 +56,9 @@ prevNe = np.copy(atmos.ne)
 # atmos.ne[:] = atmos.nHTot
 
 # aSet = RadiativeSet([H_6_CRD_atom(), He_large_atom()], set([]))
-aSet = RadiativeSet([H_6_atom(), C_atom(), O_atom(), Si_atom(), Al_atom(), CaII_atom(), Fe_atom(), He_atom(), MgII_atom(), N_atom(), Na_atom(), S_atom()], set([]))
+aSet = RadiativeSet([H_6_atom(), C_atom(), OI_ord_atom(), Si_atom(), Al_atom(), CaII_atom(), Fe_atom(), He_9_atom(), MgII_atom(), N_atom(), Na_atom(), S_atom()], set([]))
 # aSet = RadiativeSet([H_6_atom(), CaII_atom(), Al_atom()], set([]))
-aSet.set_active('H', 'Ca')
+aSet.set_active('H', 'Fe')
 spect = aSet.compute_wavelength_grid()
 # spect = aSet.compute_wavelength_grid(np.linspace(10, 200, 100))
 
@@ -84,7 +84,7 @@ updateBgCount = 0
 changedBgCount = 0
 changedBg = False
 # ctx.configure_hprd_coeffs()
-maxOuter = 100
+maxOuter = 1
 for thing in range(maxOuter):
     for it in range(1000):
         # it += 1

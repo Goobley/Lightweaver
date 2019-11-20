@@ -679,6 +679,8 @@ class ExplicitContinuum(AtomicContinuum):
         alpha = interp1d(self.wavelength, self.alpha, kind=3, bounds_error=False, fill_value=0.0)(wavelength)
         alpha[wavelength < self.minLambda] = 0.0
         alpha[wavelength > self.lambdaEdge] = 0.0
+        if np.any(alpha < 0.0):
+            alpha = interp1d(self.wavelength, self.alpha, bounds_error=False, fill_value=0.0)(wavelength)
         return alpha
 
 
