@@ -214,6 +214,41 @@ class EquilibriumPopulations:
         key = self.molecularTable.indices[name]
         return self.molecularPops[key]
 
+    def update_lte_atoms_Hmin_pops(self, atmos: Atmosphere, maxFracChange=0.2):
+        maxIter = 1000
+        maxName = ''
+        for i in range(maxIter):
+            maxDiff = 0.0
+            for atom in self.atomicPops:
+                prevNStar = np.copy(atom.nStar)
+                newNStar = lte_pops(atom.model, atmos, atom.nTotal, debeye=True)
+                deltaNStar = newNStar - prevNStar
+                atom.nStar[:] = newNStar
+
+                # atom.nStar[:] = np.where(np.abs(1.0 - newNStar / prevNStar) > maxFracChange, prevNStar + np.copysign(maxFracChange*prevNStar, deltaNStar), newNStar)
+                # TODO(cmo): This isn't really the right check, we may need to add a bool to this structure
+                if atom.pops is None:
+                    stages = np.array([l.stage for l in atom.model.levels])
+                    atmos.ne += np.sum((atom.nStar - prevNStar) * stages[:, None], axis=0)
+
+                    atmos.ne[atmos.ne < 1e6] = 1e6
+                    diff = np.nanmax(1.0 - prevNStar / atom.nStar)
+                    if diff > maxDiff:
+                        maxDiff = diff
+                        maxName = atom.name
+            print(maxDiff, maxName)
+            if maxDiff < 1e-2:
+                print('took %d' % i)
+                break
+
+        else:
+            print('No conv')
+
+        self.HminPops[:] = hminus_pops(atmos, self.atomicPops['H'])
+
+        
+
+
 @dataclass
 class RadiativeSet:
     atoms: List[AtomicModel]
@@ -304,6 +339,37 @@ class RadiativeSet:
     def set_atomic_table(self, table: AtomicTable):
         for a in self.atoms:
             a.replace_atomic_table(table)
+
+    def iterate_lte_ne_eq_pops(self, mols: MolecularTable, atmos: Atmosphere):
+        maxIter = 500
+        prevNe = np.copy(atmos.ne)
+        ne = np.copy(atmos.ne)
+        for it in range(maxIter):
+            atomicPops = []
+            prevNe[:] = ne
+            ne.fill(0.0)
+            for a in sorted(self.atoms, key=atomic_weight_sort):
+                nTotal = a.atomicTable[a.name].abundance * atmos.nHTot
+                nStar = lte_pops(a, atmos, nTotal, debeye=True)
+                atomicPops.append(AtomicModelPops(a, nStar, nTotal))
+                stages = np.array([l.stage for l in a.levels])
+                # print(stages)
+                ne += np.sum(nStar * stages[:, None], axis=0)
+                # print(ne)
+            atmos.ne[:] = ne
+
+            relDiff = np.nanmax(np.abs(1.0 - prevNe / ne))
+            print(relDiff)
+            maxRelDiff = np.nanmax(relDiff)
+            if maxRelDiff < 1e-3:
+                print("Iterate LTE: %d iterations" % it)
+                break
+        else:
+            print("LTE ne failed to converge")
+
+        table = AtomicPopsTable(atomicPops)
+        eqPops = chemical_equilibrium_fixed_ne(atmos, mols, table, self.atoms[0].atomicTable)
+        return eqPops
 
     def compute_eq_pops(self, mols: MolecularTable, atmos: Atmosphere):
         atomicPops = []
@@ -406,6 +472,19 @@ class RadiativeSet:
         return SpectrumConfiguration(grid, transitions, blueIdx, redIdx, activeSet, activeLines, activeContinua, contributors, continuaPerAtom, linesPerAtom, lowerLevels, upperLevels)
 
 
+def hminus_pops(atmos: Atmosphere, hPops: AtomicModelPops) -> np.ndarray:
+    CI = (Const.HPLANCK / (2.0 * np.pi * Const.M_ELECTRON)) * (Const.HPLANCK / Const.KBOLTZMANN)
+    Nspace = atmos.depthScale.shape[0]
+    HminPops = np.zeros(Nspace)
+
+    for k in range(Nspace):
+        PhiHmin = 0.25 * (CI / atmos.temperature[k])**1.5 \
+                    * np.exp(Const.E_ION_HMIN / (Const.KBOLTZMANN * atmos.temperature[k]))
+        HminPops[k] = atmos.ne[k] * np.sum(hPops.n[:, k]) * PhiHmin
+
+    return HminPops
+
+    
 
 def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable, atomicPops: AtomicPopsTable, table: AtomicTable) -> EquilibriumPopulations:
     nucleiSet: Set[Element] = set()

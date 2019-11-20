@@ -4,7 +4,7 @@ from CmoArray cimport *
 from CmoArrayHelper cimport *
 from libcpp cimport bool as bool_t
 from libcpp.vector cimport vector
-from libc.math cimport sqrt, exp
+from libc.math cimport sqrt, exp, copysign
 from Atmosphere import BoundaryCondition
 from AtomicModel import AtomicLine, LineType
 from scipy.interpolate import interp1d
@@ -335,6 +335,19 @@ cdef class LwBackground:
         self.background.chi = f64_view_2(self.chi)
         self.background.eta = f64_view_2(self.eta)
         self.background.sca = f64_view_2(self.sca)
+
+    cpdef update_background(self):
+        self.hPops = self.eqPops.atomicPops['H'].n
+        self.bd.hPops = f64_view_2(self.hPops)
+
+        basic_background(&self.bd)
+        self.rayleigh_scattering()
+        self.bf_opacities()
+
+        cdef int la, k
+        for la in range(self.wavelength.shape[0]):
+            for k in range(self.atmos.Nspace):
+                self.chi[la, k] += self.sca[la, k]
 
     @property
     def chi(self):
@@ -772,6 +785,7 @@ cdef class LwAtom:
     cdef f64[:,::1] V
     cdef f64[:,::1] gij
     cdef f64[:,::1] wla
+    cdef f64[::1] stages
     cdef object atomicTable
     cdef object atomicModel
     cdef object atmos
@@ -812,6 +826,7 @@ cdef class LwAtom:
         self.C = np.zeros((Nlevel, Nlevel, atmos.Nspace))
         self.atom.C = f64_view_3(self.C)
 
+        self.stages = np.array([l.stage for l in self.atomicModel.levels], dtype=np.float64)
         # TODO(cmo): Rewrite this to reuse an n and nStar from eqPops
         # self.nStar = np.zeros((self.Nlevel, atmos.Nspace))
         self.nStar = modelPops.nStar
@@ -1002,6 +1017,7 @@ cdef class LwContext:
     cdef LwBackground background
     cdef dict arguments
     cdef object atomicTable
+    cdef object eqPops
     cdef list activeAtoms
     cdef list lteAtoms
 
@@ -1013,6 +1029,7 @@ cdef class LwContext:
         self.atomicTable = atomicTable
 
         self.background = LwBackground(self.atmos, eqPops, radSet, spect)
+        self.eqPops = eqPops
 
         activeAtoms = radSet.activeAtoms
         lteAtoms = radSet.lteAtoms
@@ -1042,7 +1059,7 @@ cdef class LwContext:
         print('dJ = %.2e' % dJ)
         return dJ
 
-    def stat_equil(self):
+    def stat_equil(self, conserveActiveCharge=True, conserveLteCharge=True, doBackground=True, doPhi=True):
         atoms = self.activeAtoms
 
         cdef LwAtom atom
@@ -1050,20 +1067,57 @@ cdef class LwContext:
         cdef f64 delta
         cdef f64 maxDelta = 0.0
         cdef bool_t accelerated
+        cdef LwTransition t
+
+        if conserveLteCharge or conserveActiveCharge:
+            prevNe = np.copy(self.atmos.ne)
 
         for atom in atoms:
             a = &atom.atom
             if not a.ng.init:
                 a.ng.accelerate(a.n.flatten())
+            if conserveActiveCharge:
+                prevN = np.copy(atom.n)
             stat_eq(a)
             accelerated = a.ng.accelerate(a.n.flatten())
             delta = a.ng.max_change()
             s = '    %s delta = %6.4e' % (atom.atomicModel.name, delta)
             if accelerated:
                 s += ' (accelerated)'
-
             print(s)
             maxDelta = max(maxDelta, delta)
+
+            if conserveActiveCharge:
+                deltaNe = np.sum((np.asarray(atom.n) - prevN) * np.asarray(atom.stages)[:, None], axis=0)
+                for k in range(self.atmos.Nspace):
+                    # if abs(deltaNe[k]) > 0.2 * self.atmos.ne[k]:
+                    #     deltaNe[k] = copysign(0.1 * self.atmos.ne[k], deltaNe[k])
+
+                    self.atmos.ne[k] += deltaNe[k]
+
+                for k in range(self.atmos.Nspace):
+                    if self.atmos.ne[k] < 1e6:
+                        self.atmos.ne[k] = 1e6
+
+        if conserveLteCharge:
+            self.eqPops.update_lte_atoms_Hmin_pops(self.arguments['atmos'])
+
+        if doBackground:
+            self.background.update_background()
+
+        if doPhi:
+            for atom in atoms:
+                for t in atom.trans:
+                    t.compute_phi()
+
+        if conserveActiveCharge or conserveLteCharge:
+            for k in range(self.atmos.Nspace):
+                if self.atmos.ne[k] < 1e6:
+                    self.atmos.ne[k] = 1e6
+            maxDeltaNe = np.nanmax(1.0 - prevNe / np.asarray(self.atmos.ne))
+            print('    ne delta: %6.4e' % (maxDeltaNe))
+            maxDelta = max(maxDelta, maxDeltaNe)
+
 
         return maxDelta
 
