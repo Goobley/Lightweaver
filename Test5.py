@@ -19,7 +19,7 @@ def plot_zeeman_components(z):
 @dataclass
 class NgOptions:
     Norder: int = 3
-    Nperiod: int = 5
+    Nperiod: int = 20
     Ndelay: int = 20
 
 atmos = Falc80()
@@ -30,8 +30,8 @@ at = AtomicTable()
 atmos.convert_scales(at)
 atmos.quadrature(5)
 prevNe = np.copy(atmos.ne)
-atmos.vlos = np.random.randn(atmos.Nspace) * 8000
-atmos.temperature += np.random.randn(atmos.Nspace) * 0.12 * atmos.temperature
+# atmos.vlos = np.random.randn(atmos.Nspace) * 8000
+# atmos.temperature += np.random.randn(atmos.Nspace) * 0.12 * atmos.temperature
 # atmos.ne[:] = np.array([1.25175889e+16, 1.30957836e+16, 1.37876773e+16, 1.49296515e+16,
 #        1.64977754e+16, 1.75560532e+16, 1.89211874e+16, 2.07697755e+16,
 #        2.33685059e+16, 2.51289836e+16, 2.72147474e+16, 2.98557771e+16,
@@ -84,37 +84,39 @@ updateBgCount = 0
 changedBgCount = 0
 changedBg = False
 # ctx.configure_hprd_coeffs()
-for it in range(1000):
-    # it += 1
-    dJ = ctx.gamma_matrices_formal_sol()
-    if it >= 3:
-            # delta = 1.0
-        # if it % 3 == 4:
-        #     delta = ctx.stat_equil(True, True, False)
-        # if it % 3 == 1:
-        #     delta = ctx.stat_equil(False, False, True)
-        # else:
-        # if (dJ < 1e-2 and delta < 1e-1) or (dJ < 1e-1 and delta < 1e-2):
-        print(changedBgCount)
-        if dJ * delta < 5e-3:
-            delta = ctx.stat_equil(True, False, False, True)
-            if changedBgCount >= 3:
-                changedBg = True
-            changedBgCount += 1
-        else:
-            delta = ctx.stat_equil(True, False, False, False)
-            changedBgCount = 0
-            changedBg = False
-        # changedBg = True
-        
-        # delta = ctx.stat_equil(True, False, True)
-        # delta = ctx.stat_equil(False, False, False)
-    # if it >= 1:
-    #     dRho = ctx.prd_redistribute()
-    if delta < 5e-3 and changedBg:
-        eqPops.update_lte_atoms_Hmin_pops(atmos)
-        ctx.background.update_background()
-        break
+maxOuter = 100
+for thing in range(maxOuter):
+    for it in range(1000):
+        # it += 1
+        dJ = ctx.gamma_matrices_formal_sol()
+        if it >= 3:
+                # delta = 1.0
+            # if it % 3 == 4:
+            #     delta = ctx.stat_equil(True, True, False)
+            # if it % 3 == 1:
+            #     delta = ctx.stat_equil(False, False, True)
+            # else:
+            # if (dJ < 1e-2 and delta < 1e-1) or (dJ < 1e-1 and delta < 1e-2):
+            print(changedBgCount)
+            if False and dJ * delta < 5e-3:
+                delta = ctx.stat_equil(True, True, False, True)
+                if changedBgCount >= 3:
+                    changedBg = True
+                changedBgCount += 1
+            else:
+                delta = ctx.stat_equil(True, False, False, False)
+                changedBgCount = 0
+                changedBg = False
+            # changedBg = True
+            
+            # delta = ctx.stat_equil(True, False, True)
+            # delta = ctx.stat_equil(False, False, False)
+        # if it >= 1:
+        #     dRho = ctx.prd_redistribute()
+        if delta < 1e-2:
+            eqPops.update_lte_atoms_Hmin_pops(atmos)
+            ctx.background.update_background()
+            break
         # dJ = ctx.gamma_matrices_formal_sol()
         # delta = ctx.stat_equil(False, False, False, True)
         # if delta < 1e-4:
@@ -124,7 +126,13 @@ for it in range(1000):
         # dJ = ctx.gamma_matrices_formal_sol()
         # delta = ctx.stat_equil(True, True, True, False)
         # updateBgCount += 1
+    if thing != maxOuter-1:
+        dJ = ctx.gamma_matrices_formal_sol()
+        delta = ctx.stat_equil(True, True, True, True)
+        if dJ < 1e-2 and delta < 1e-2:
+            break
 
+print(thing)
 print(it)
 
 for it in range(3):

@@ -219,6 +219,7 @@ class EquilibriumPopulations:
         maxName = ''
         for i in range(maxIter):
             maxDiff = 0.0
+            ne = np.copy(atmos.ne)
             for atom in self.atomicPops:
                 prevNStar = np.copy(atom.nStar)
                 newNStar = lte_pops(atom.model, atmos, atom.nTotal, debeye=True)
@@ -229,13 +230,14 @@ class EquilibriumPopulations:
                 # TODO(cmo): This isn't really the right check, we may need to add a bool to this structure
                 if atom.pops is None:
                     stages = np.array([l.stage for l in atom.model.levels])
-                    atmos.ne += np.sum((atom.nStar - prevNStar) * stages[:, None], axis=0)
+                    ne += np.sum((atom.nStar - prevNStar) * stages[:, None], axis=0)
 
-                    atmos.ne[atmos.ne < 1e6] = 1e6
+                    ne[atmos.ne < 1e6] = 1e6
                     diff = np.nanmax(1.0 - prevNStar / atom.nStar)
                     if diff > maxDiff:
                         maxDiff = diff
                         maxName = atom.name
+            atmos.ne[:] = ne
             print(maxDiff, maxName)
             if maxDiff < 1e-2:
                 print('took %d' % i)
