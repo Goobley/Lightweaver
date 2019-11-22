@@ -1,3 +1,4 @@
+from Atmosphere import Atmosphere, ScaleType
 from Falc80 import Falc80
 from AllOfTheAtoms import H_6_atom, H_6_CRD_atom, C_atom, O_atom, OI_ord_atom, Si_atom, Al_atom, CaII_atom, Fe_atom, FeI_atom, He_9_atom, He_atom, He_large_atom, MgII_atom, N_atom, Na_atom, S_atom
 # TODO(cmo): Find out why the other atoms weren't generated
@@ -30,6 +31,9 @@ at = AtomicTable()
 atmos.convert_scales(at)
 atmos.quadrature(5)
 prevNe = np.copy(atmos.ne)
+
+atmos2 = Atmosphere(ScaleType.Tau500, atmos.tau_ref, atmos.temperature, ne=None, hydrogenPops=None, vlos=np.zeros(82), vturb=atmos.vturb)
+atmos2.convert_scales(at)
 # atmos.vlos = np.random.randn(atmos.Nspace) * 8000
 # atmos.temperature += np.random.randn(atmos.Nspace) * 0.12 * atmos.temperature
 # atmos.ne[:] = np.array([1.25175889e+16, 1.30957836e+16, 1.37876773e+16, 1.49296515e+16,
@@ -56,103 +60,103 @@ prevNe = np.copy(atmos.ne)
 # atmos.ne[:] = atmos.nHTot
 
 # aSet = RadiativeSet([H_6_CRD_atom(), He_large_atom()], set([]))
-aSet = RadiativeSet([H_6_atom(), C_atom(), OI_ord_atom(), Si_atom(), Al_atom(), CaII_atom(), Fe_atom(), He_9_atom(), MgII_atom(), N_atom(), Na_atom(), S_atom()], set([]))
-# aSet = RadiativeSet([H_6_atom(), CaII_atom(), Al_atom()], set([]))
-aSet.set_active('H', 'Fe')
-spect = aSet.compute_wavelength_grid()
-# spect = aSet.compute_wavelength_grid(np.linspace(10, 200, 100))
+# aSet = RadiativeSet([H_6_atom(), C_atom(), O_atom(), Si_atom(), Al_atom(), CaII_atom(), Fe_atom(), He_9_atom(), MgII_atom(), N_atom(), Na_atom(), S_atom()], set([]))
+# # aSet = RadiativeSet([H_6_atom(), CaII_atom(), Al_atom()], set([]))
+# aSet.set_active('H', 'Ca')
+# spect = aSet.compute_wavelength_grid()
+# # spect = aSet.compute_wavelength_grid(np.linspace(10, 200, 100))
 
-# [(47, 266), (266, 632), (470, 974), (632, 1170), (812, 1248)]
-# molPaths = ['../Molecules/' + m + '.molecule' for m in ['H2', 'H2+', 'C2', 'N2', 'O2', 'CH', 'CO', 'CN', 'NH', 'NO', 'OH', 'H2O']] 
-molPaths = ['../Molecules/' + m + '.molecule' for m in ['H2']]
-mols = MolecularTable(molPaths, at)
+# # [(47, 266), (266, 632), (470, 974), (632, 1170), (812, 1248)]
+# # molPaths = ['../Molecules/' + m + '.molecule' for m in ['H2', 'H2+', 'C2', 'N2', 'O2', 'CH', 'CO', 'CN', 'NH', 'NO', 'OH', 'H2O']] 
+# molPaths = ['../Molecules/' + m + '.molecule' for m in ['H2']]
+# mols = MolecularTable(molPaths, at)
 
-# eqPops = aSet.compute_eq_pops(mols, atmos)
-eqPops = aSet.iterate_lte_ne_eq_pops(mols, atmos)
-# eqPops['H2'][:] = 0.0
-# eqPops['H-'][:] = 0.0
-# prevH = np.copy(eqPops['Ca'])
-ctx = LwContext(atmos, spect, aSet, eqPops, at, ngOptions=NgOptions(0,0,0), initSol=InitialSolution.Lte)
-# input()
-start = time.time()
-# newH = np.copy(eqPops['Ca'])
-delta = 1.0
-dJ = 1.0
-dRho = 1.0
-it = 0
-updateBgCount = 0
-changedBgCount = 0
-changedBg = False
-# ctx.configure_hprd_coeffs()
-maxOuter = 1
-for thing in range(maxOuter):
-    for it in range(1000):
-        # it += 1
-        dJ = ctx.gamma_matrices_formal_sol()
-        if it >= 3:
-                # delta = 1.0
-            # if it % 3 == 4:
-            #     delta = ctx.stat_equil(True, True, False)
-            # if it % 3 == 1:
-            #     delta = ctx.stat_equil(False, False, True)
-            # else:
-            # if (dJ < 1e-2 and delta < 1e-1) or (dJ < 1e-1 and delta < 1e-2):
-            print(changedBgCount)
-            if False and dJ * delta < 5e-3:
-                delta = ctx.stat_equil(True, True, False, True)
-                if changedBgCount >= 3:
-                    changedBg = True
-                changedBgCount += 1
-            else:
-                delta = ctx.stat_equil(True, False, False, False)
-                changedBgCount = 0
-                changedBg = False
-            # changedBg = True
+# # eqPops = aSet.compute_eq_pops(mols, atmos)
+# eqPops = aSet.iterate_lte_ne_eq_pops(mols, atmos)
+# # eqPops['H2'][:] = 0.0
+# # eqPops['H-'][:] = 0.0
+# # prevH = np.copy(eqPops['Ca'])
+# ctx = LwContext(atmos, spect, aSet, eqPops, at, ngOptions=NgOptions(0,0,0), initSol=InitialSolution.Lte)
+# # input()
+# start = time.time()
+# # newH = np.copy(eqPops['Ca'])
+# delta = 1.0
+# dJ = 1.0
+# dRho = 1.0
+# it = 0
+# updateBgCount = 0
+# changedBgCount = 0
+# changedBg = False
+# # ctx.configure_hprd_coeffs()
+# maxOuter = 1
+# for thing in range(maxOuter):
+#     for it in range(1000):
+#         # it += 1
+#         dJ = ctx.gamma_matrices_formal_sol()
+#         if it >= 3:
+#                 # delta = 1.0
+#             # if it % 3 == 4:
+#             #     delta = ctx.stat_equil(True, True, False)
+#             # if it % 3 == 1:
+#             #     delta = ctx.stat_equil(False, False, True)
+#             # else:
+#             # if (dJ < 1e-2 and delta < 1e-1) or (dJ < 1e-1 and delta < 1e-2):
+#             print(changedBgCount)
+#             if False and dJ * delta < 5e-3:
+#                 delta = ctx.stat_equil(True, True, False, True)
+#                 if changedBgCount >= 3:
+#                     changedBg = True
+#                 changedBgCount += 1
+#             else:
+#                 delta = ctx.stat_equil(True, False, False, False)
+#                 changedBgCount = 0
+#                 changedBg = False
+#             # changedBg = True
             
-            # delta = ctx.stat_equil(True, False, True)
-            # delta = ctx.stat_equil(False, False, False)
-        # if it >= 1:
-        #     dRho = ctx.prd_redistribute()
-        if delta < 1e-2:
-            eqPops.update_lte_atoms_Hmin_pops(atmos)
-            ctx.background.update_background()
-            break
-        # dJ = ctx.gamma_matrices_formal_sol()
-        # delta = ctx.stat_equil(False, False, False, True)
-        # if delta < 1e-4:
-            # break
-        # if updateBgCount > 3:
-        #     break
-        # dJ = ctx.gamma_matrices_formal_sol()
-        # delta = ctx.stat_equil(True, True, True, False)
-        # updateBgCount += 1
-    if thing != maxOuter-1:
-        dJ = ctx.gamma_matrices_formal_sol()
-        delta = ctx.stat_equil(True, True, True, True)
-        if dJ < 1e-2 and delta < 1e-2:
-            break
+#             # delta = ctx.stat_equil(True, False, True)
+#             # delta = ctx.stat_equil(False, False, False)
+#         # if it >= 1:
+#         #     dRho = ctx.prd_redistribute()
+#         if delta < 1e-2:
+#             # eqPops.update_lte_atoms_Hmin_pops(atmos)
+#             # ctx.background.update_background()
+#             break
+#         # dJ = ctx.gamma_matrices_formal_sol()
+#         # delta = ctx.stat_equil(False, False, False, True)
+#         # if delta < 1e-4:
+#             # break
+#         # if updateBgCount > 3:
+#         #     break
+#         # dJ = ctx.gamma_matrices_formal_sol()
+#         # delta = ctx.stat_equil(True, True, True, False)
+#         # updateBgCount += 1
+#     if thing != maxOuter-1:
+#         dJ = ctx.gamma_matrices_formal_sol()
+#         delta = ctx.stat_equil(True, True, True, True)
+#         if dJ < 1e-2 and delta < 1e-2:
+#             break
 
-print(thing)
-print(it)
+# print(thing)
+# print(it)
 
-for it in range(3):
-    dJ = ctx.gamma_matrices_formal_sol()
+# for it in range(3):
+#     dJ = ctx.gamma_matrices_formal_sol()
     
-# print(ctx.activeAtoms[0].trans[4].phi[20,0,0,0])
-s = ctx.spect
-oldI = np.copy(s.I)
-# ctx.single_stokes_fs()
-# # plt.plot(s.wavelength, s.I[:, -1] / oldI[:, -1], '+')
-# plt.plot(s.wavelength, oldI[:, -1])
-# plt.plot(s.wavelength, s.I[:, -1])
-# plt.ylim(0.95, 1.05)
-# plt.show()
-# dJStokes = ctx.single_stokes_fs()
-# print(ctx.activeAtoms[0].trans[4].phi[20,0,0,0])
-end = time.time()
-print('%e s' % (end-start))
+# # print(ctx.activeAtoms[0].trans[4].phi[20,0,0,0])
+# s = ctx.spect
+# oldI = np.copy(s.I)
+# # ctx.single_stokes_fs()
+# # # plt.plot(s.wavelength, s.I[:, -1] / oldI[:, -1], '+')
+# # plt.plot(s.wavelength, oldI[:, -1])
+# # plt.plot(s.wavelength, s.I[:, -1])
+# # plt.ylim(0.95, 1.05)
+# # plt.show()
+# # dJStokes = ctx.single_stokes_fs()
+# # print(ctx.activeAtoms[0].trans[4].phi[20,0,0,0])
+# end = time.time()
+# print('%e s' % (end-start))
 
-plt.plot(s.wavelength, s.I[:,-1])
-from helita.sim.rh import Rhout
-rh = Rhout('/Users/goobley/VanillaRh/rhf1d/run/')
-plt.plot(rh.wave, rh.imu[-1, :], '--')
+# plt.plot(s.wavelength, s.I[:,-1])
+# from helita.sim.rh import Rhout
+# rh = Rhout('/Users/goobley/VanillaRh/rhf1d/run/')
+# plt.plot(rh.wave, rh.imu[-1, :], '--')

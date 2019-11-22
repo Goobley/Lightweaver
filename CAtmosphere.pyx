@@ -1020,13 +1020,15 @@ cdef class LwContext:
     cdef object eqPops
     cdef list activeAtoms
     cdef list lteAtoms
+    cdef bool_t conserveCharge
 
-    def __init__(self, atmos, spect, radSet, eqPops, atomicTable, ngOptions=None, initSol=None):
-        self.arguments = {'atmos': atmos, 'spect': spect, 'radSet': radSet, 'eqPops': eqPops, 'atomicTable': atomicTable, 'ngOptions': ngOptions, 'initSol': initSol}
+    def __init__(self, atmos, spect, radSet, eqPops, atomicTable, ngOptions=None, initSol=None, conserveCharge=False):
+        self.arguments = {'atmos': atmos, 'spect': spect, 'radSet': radSet, 'eqPops': eqPops, 'atomicTable': atomicTable, 'ngOptions': ngOptions, 'initSol': initSol, 'conserveCharge': conserveCharge}
 
         self.atmos = LwAtmosphere(atmos)
         self.spect = LwSpectrum(spect.wavelength, atmos.Nrays, atmos.Nspace)
         self.atomicTable = atomicTable
+        self.conserveCharge = conserveCharge
 
         self.background = LwBackground(self.atmos, eqPops, radSet, spect)
         self.eqPops = eqPops
@@ -1059,7 +1061,7 @@ cdef class LwContext:
         print('dJ = %.2e' % dJ)
         return dJ
 
-    def stat_equil(self, conserveActiveCharge=True, conserveLteCharge=True, doBackground=True, doPhi=True):
+    def stat_equil(self):
         atoms = self.activeAtoms
 
         cdef LwAtom atom
@@ -1069,6 +1071,10 @@ cdef class LwContext:
         cdef bool_t accelerated
         cdef LwTransition t
 
+        conserveActiveCharge = self.conserveCharge
+        conserveLteCharge = False
+        doBackground = False
+        doPhi = False
         if conserveLteCharge or conserveActiveCharge:
             prevNe = np.copy(self.atmos.ne)
 
