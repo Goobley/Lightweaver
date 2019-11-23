@@ -8,6 +8,7 @@ import Constants as Const
 from Atmosphere import Atmosphere
 from scipy.interpolate import interp1d
 from numba import jit
+from Utils import ConvergenceError
 
 if TYPE_CHECKING:
    from ComputationalAtom import ComputationalAtom
@@ -266,7 +267,6 @@ class Element:
       fjk[0] = 1.0
       dfjk = np.zeros(Nstage)
 
-      # TODO(cmo): change this from fjk to fj_T_ne?
       # fjk: fractional population of stage j, at atmospheric index k
       # The first stage starts with a "population" of 1, then via Saha we compute the relative populations of the other stages, before dividing by the sum across these
 
@@ -301,7 +301,6 @@ class Element:
       fj[0, :] = 1.0
       dfj = np.zeros((Nstage, Nspace))
 
-      # TODO(cmo): change this from fjk to fj_T_ne?
       # fjk: fractional population of stage j, at atmospheric index k
       # The first stage starts with a "population" of 1, then via Saha we compute the relative populations of the other stages, before dividing by the sum across these
 
@@ -341,7 +340,7 @@ class AtomicTable:
    def __init__(self, kuruczPfPath: Optional[str]=None, metallicity: float=0.0, 
                       abundances: Dict=None, abundDex: bool=True):
       if set(AtomicWeights.keys()) != set(AtomicAbundances.keys()):
-         raise ValueError('AtomicWeghts and AtomicAbundances keys differ (Problem keys: %s)' % repr(set(AtomicWeights.keys()) - set(AtomicAbundances.keys())))
+         raise ValueError('AtomicWeights and AtomicAbundances keys differ (Problem keys: %s)' % repr(set(AtomicWeights.keys()) - set(AtomicAbundances.keys())))
 
       self.indices = OrderedDict(zip(AtomicWeights.keys(), range(len(AtomicWeights))))
 
@@ -454,7 +453,7 @@ class AtomicTable:
          nIter += 1
 
       if dne > MaxError:
-         raise ValueError("Electron iteration did not converge at point %d" % k)
+         raise ConvergenceError("Electron iteration did not converge at point %d" % k)
       
 
    def compute_ne(self, atmos):
@@ -501,4 +500,4 @@ class AtomicTable:
          nIter += 1
 
       if dne > MaxError:
-         raise ValueError("Electron iteration did not converge")
+         raise ConvergenceError("Electron iteration did not converge")

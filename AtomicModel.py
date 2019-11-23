@@ -36,7 +36,8 @@ from Barklem import Barklem
 # Solve!
 
 
-
+class VdwBarklemIncompatible(Exception):
+    pass
 
 
 @dataclass
@@ -51,7 +52,6 @@ class AtomicModel:
     # TODO(cmo):
     # i.e. a function will replace each atom with another with the same name, levels, lines, continua, collisions, but a different atomic table
     atomicTable: AtomicTable = field(default_factory=AtomicTable)
-    compModel: Optional[Any] = field(default=None)
 
     def __post_init__(self):
         for l in self.levels:
@@ -93,18 +93,6 @@ class AtomicModel:
     def replace_atomic_table(self, table: AtomicTable):
         self.atomicTable = table
         self.__post_init__()
-
-    @property
-    def n(self) -> Optional[np.ndarray]:
-        if self.compModel is not None:
-            return self.compModel.n
-        return None
-
-    @property
-    def nStar(self) -> Optional[np.ndarray]:
-        if self.compModel is not None:
-            return self.compModel.nStar
-        return None
 
 @dataclass
 class AtomicLevel:
@@ -233,20 +221,19 @@ class VdwBarklem(VdwApprox):
     # NOTE(cmo): Since Helium is treated as per Unsold, only 3 vals are used
     def setup(self, line: 'AtomicLine', table: AtomicTable):
         self.line = line
-        # TODO(cmo): Need to process the provided values with Barklem.py
         if len(self.vals) != 2:
-            # TODO(cmo): I think it actually only expects 2, but related to handling in Barklem.py
             raise ValueError('VdwBarklem expects 2 coefficients (%s)' % (repr(line)))
         self.barklem = Barklem(table)
         try:
             newVals = self.barklem.getActiveCrossSection(line.atom, line)
         except:
-            print("Unable to treat line %d->%d of atom %s with Barklem broadening, using Unsold." % (line.j, line.i, line.atom.name))
-            # NOTE(cmo): This should all work fine, but mypy typing doesn't like it.
-            # Shhh no tears, only dreams now
-            self.broaden = lambda *args: VdwUnsold.broaden(self, *args) # type: ignore
-            VdwUnsold.setup(self, line, table) # type: ignore
-            return
+            raise VdwBarklemIncompatible
+            # print("Unable to treat line %d->%d of atom %s with Barklem broadening, using Unsold." % (line.j, line.i, line.atom.name))
+            # # NOTE(cmo): This should all work fine, but mypy typing doesn't like it.
+            # # Shhh no tears, only dreams now
+            # self.broaden = lambda *args: VdwUnsold.broaden(self, *args) # type: ignore
+            # VdwUnsold.setup(self, line, table) # type: ignore
+            # return
         
         self.vals = newVals
 
@@ -328,7 +315,14 @@ class VoigtLine(AtomicLine):
         self.jLevel: AtomicLevel = self.atom.levels[self.j]
         self.iLevel: AtomicLevel = self.atom.levels[self.i]
 
-        self.vdw.setup(self, atom.atomicTable)
+        try:
+            self.vdw.setup(self, atom.atomicTable)
+        except VdwBarklemIncompatible:
+            print("Unable to treat line %d->%d of atom %s with Barklem broadening, using Unsold." % (self.j, self.i, self.atom.name))
+            vals = self.vdw.vals
+            self.vdw = VdwUnsold(vals)
+            self.vdw.setup(self, atom.atomicTable)
+
 
     def __repr__(self):
         s = 'VoigtLine(j=%d, i=%d, f=%e, type=%s, Nlambda=%d, qCore=%f, qWing=%f, vdw=%s, gRad=%e, stark=%f' % (
@@ -550,12 +544,11 @@ class VoigtLine(AtomicLine):
     def polarisable(self) -> bool:
         return (self.iLevel.lsCoupling and self.jLevel.lsCoupling) or (self.gLandeEff is not None)
 
-    def damping(self, atmos, vBroad):
+    def damping(self, atmos, vBroad, hGround):
         aDamp = np.zeros(atmos.Nspace)
         Qelast = np.zeros(atmos.Nspace)
 
-        # TODO(cmo): Think if we're happy do use hydrogenPops like this. Probably because this effect isn't too huge. But worth considering
-        self.vdw.broaden(atmos.temperature, atmos.hydrogenPops[0, :], aDamp)
+        self.vdw.broaden(atmos.temperature, hGround, aDamp)
         Qelast += aDamp
 
         Qelast += self.stark_broaden(atmos)

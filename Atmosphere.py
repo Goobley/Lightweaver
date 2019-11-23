@@ -6,6 +6,7 @@ from witt import witt
 import Constants as Const
 from scipy.interpolate import interp1d
 from numpy.polynomial.legendre import leggauss
+from Utils import ConvergenceError
 
 class ScaleType(Enum):
     Geometric = 0
@@ -41,9 +42,6 @@ def get_top_pressure(eos : witt, temp, ne=None, rho=None):
     ptop = interp1d(tempCoord, pgasCgs, bounds_error=False, fill_value=(pgasCgs[0], pgasCgs[-1]))(temp)
     return ptop
     
-class ConvergenceError(Exception):
-    pass
-
 @dataclass
 class Atmosphere:
     scale: ScaleType

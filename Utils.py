@@ -9,3 +9,6 @@ def gaunt_bf(wvl, nEff, charge) -> float:
 
     return 1.0 + 0.1728 * x3 * (1.0 - 2.0 * nsqx) - 0.0496 * x3**2 \
             * (1.0 - (1.0 - nsqx) * (2.0 / 3.0) * nsqx)
+
+class ConvergenceError(Exception):
+    pass

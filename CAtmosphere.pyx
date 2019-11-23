@@ -11,6 +11,7 @@ from scipy.interpolate import interp1d
 import Constants as Const
 import time
 from enum import Enum, auto
+from copy import deepcopy
 
 ctypedef np.int8_t i8
 ctypedef Array1NonOwn[np.int32_t] I32View
@@ -349,6 +350,20 @@ cdef class LwBackground:
             for k in range(self.atmos.Nspace):
                 self.chi[la, k] += self.sca[la, k]
 
+    def state_dict(self):
+        s = {}
+        s['chi'] = np.copy(self.chi)
+        s['eta'] = np.copy(self.eta)
+        s['sca'] = np.copy(self.sca)
+        s['wavelength'] = np.copy(self.wavelength)
+        return s
+
+    def load_state_dict(self, s):
+        np.asarray(self.chi)[:] = s['chi']
+        np.asarray(self.eta)[:] = s['eta']
+        np.asarray(self.sca)[:] = s['sca']
+        np.asarray(self.wavelength)[:] = s['wavelength']
+
     @property
     def chi(self):
         return np.asarray(self.chi)
@@ -395,24 +410,9 @@ cdef class LwBackground:
         cdef f64[:, ::1] alpha = np.zeros((self.wavelength.shape[0], len(continua)))
         cdef int i, la, k, Z
         cdef f64 nEff, gbf_0, wav, edge, lambdaMin
-        # TODO(cmo): Check if differences between continuum types actuually matter for us
         for i, c in enumerate(continua):
-            # if c.atom.name.strip() == 'H':
-            #     Z = c.jLevel.stage
-            #     nEff = Z * np.sqrt(Const.E_RYDBERG / (c.jLevel.E_SI - c.iLevel.E_SI))
-            #     # gbf_0 = Gaunt_bf(c.lambda0, nEff, Z)
-            #     for la in range(self.wavelength.shape[0]):
-            #         wav = self.wavelength[la]
-            #         if wav >= c.wavelength[0] and wav <= c.wavelength[-1]:
-            #             alpha[la, i] = sigma0 * (self.wavelength[la] / c.lambda0)**3 * nEff * Gaunt_bf(self.wavelength[la], nEff, Z)
-            # else:
-            edge = c.lambdaEdge
-            lambdaMin = c.minLambda
-            # interpolator = interp1d(c.wavelength, c.alpha, bounds_error=False, fill_value=0.0, kind=1)
-            # alphaLa = interpolator(self.wavelength)
             alphaLa = c.compute_alpha(np.asarray(self.wavelength))
             for la in range(self.wavelength.shape[0]):
-                # if self.wavelength[la] <= edge and self.wavelength[la] >= lambdaMin:
                 alpha[la, i] = alphaLa[la]
 
         cdef f64[:, ::1] expla = np.zeros((self.wavelength.shape[0], self.atmos.Nspace))
@@ -534,7 +534,6 @@ cdef class LwTransition:
         self.trans.j = trans.j
         self.trans.polarised = False
 
-        # print(trans.i, trans.j, type(trans))
         cdef int tIdx = spect.transitions.index(trans)
         self.trans.Nblue = spect.blueIdx[tIdx]
 
@@ -585,7 +584,7 @@ cdef class LwTransition:
             np.ndarray[np.double_t, ndim=1] aDamp
 
         cdef LwAtom atom = self.atom
-        aDamp, Qelast = self.transModel.damping(self.atmos, atom.vBroad)
+        aDamp, Qelast = self.transModel.damping(self.atmos, atom.vBroad, atom.hPops.n[0])
 
         cdef Atmosphere* atmos = atom.atom.atmos
         cdef int i
@@ -624,7 +623,7 @@ cdef class LwTransition:
         self.trans.polarised = True
 
         cdef LwAtom atom = self.atom
-        aDamp, Qelast = self.transModel.damping(self.atmos, atom.vBroad)
+        aDamp, Qelast = self.transModel.damping(self.atmos, atom.vBroad, atom.hPops.n[0])
 
         cdef Atmosphere* atmos = atom.atom.atmos
         cdef int i
@@ -644,6 +643,83 @@ cdef class LwTransition:
         cdef F64View cVji = f64_view(Vji)
 
         self.trans.uv(la, mu, obs, cUji, cVij, cVji)
+
+    def state_dict(self):
+        s = {}
+        s['type'] = self.type
+        s['wavelength'] = np.copy(self.wavelength)
+        s['active'] = np.copy(self.active)
+        s['Rij'] = np.copy(self.Rij)
+        s['Rji'] = np.copy(self.Rji)
+        s['i'] = self.trans.i
+        s['j'] = self.trans.j
+        s['polarised'] = self.trans.polarised
+        s['Nblue'] = self.trans.Nblue
+        s['lambda0'] = self.trans.lambda0
+        s['dopplerWidth'] = self.trans.dopplerWidth
+    
+        if self.type == 'Line':
+            s['phi'] = np.copy(self.phi)
+            s['wphi'] = np.copy(self.wphi)
+            s['Qelast'] = np.copy(self.Qelast)
+            s['aDamp'] = np.copy(self.aDamp)
+            s['Aji'] = self.trans.Aji
+            s['Bji'] = self.trans.Bji
+            s['Bij'] = self.trans.Bij
+
+            s['rhoPrd'] = None
+            try:
+                s['rhoPrd'] = np.copy(self.rhoPrd)
+            except AttributeError:
+                pass
+
+            s['phiQ'] = None
+            s['phiU'] = None
+            s['phiV'] = None
+            s['psiQ'] = None
+            s['psiU'] = None
+            s['psiV'] = None
+            try:
+                s['phiQ'] = np.copy(self.phiQ)
+                s['phiU'] = np.copy(self.phiU)
+                s['phiV'] = np.copy(self.phiV)
+                s['psiQ'] = np.copy(self.psiQ)
+                s['psiU'] = np.copy(self.psiU)
+                s['psiV'] = np.copy(self.psiV)
+            except AttributeError:
+                pass
+        else:
+            s['alpha'] = np.copy(self.alpha)
+        return s
+
+    def load_state_dict(self, s):
+        np.asarray(self.wavelength)[:] = s['wavelength']
+        np.asarray(self.active)[:] = s['active']
+        np.asarray(self.Rij)[:] = s['Rij']
+        np.asarray(self.Rji)[:] = s['Rji']
+        self.trans.lambda0 = s['lambda0']
+        self.trans.dopplerWidth = s['dopplerWidth']
+        self.trans.Nblue = s['Nblue']
+        self.trans.polarised = s['polarised']
+
+        if s['type'] == 'Line':
+            np.asarray(self.phi)[:] = s['phi']
+            np.asarray(self.wphi)[:] = s['wphi']
+            np.asarray(self.Qelast)[:] = s['aDamp']
+
+            if s['rhoPrd'] is not None:
+                np.asarray(self.rhoPrd)[:] = s['rhoPrd']
+
+            if s['phiQ'] is not None:
+                np.asarray(self.phiQ)[:] = s['phiQ']
+                np.asarray(self.phiU)[:] = s['phiU']
+                np.asarray(self.phiV)[:] = s['phiV']
+                np.asarray(self.psiQ)[:] = s['psiQ']
+                np.asarray(self.psiU)[:] = s['psiU']
+                np.asarray(self.psiV)[:] = s['psiV']
+        else:
+            np.asarray(self.alpha)[:] = s['alpha']
+
 
     @property
     def jLevel(self):
@@ -789,13 +865,17 @@ cdef class LwAtom:
     cdef object atomicTable
     cdef object atomicModel
     cdef object atmos
+    cdef object hPops
     cdef list trans
+    cdef bool_t lte
 
-    def __init__(self, atom, cAtmos, atmos, eqPops, spect, background, initSol=None, ngOptions=None):
+    def __init__(self, atom, cAtmos, atmos, eqPops, spect, background, lte=False, initSol=None, ngOptions=None):
         self.atomicModel = atom
+        self.lte = lte
         self.atmos = atmos
         cdef LwAtmosphere a = cAtmos
         self.atom.atmos = &a.atmos
+        self.hPops = eqPops.atomicPops['H']
         modelPops = eqPops.atomicPops[atom.name]
         self.atomicTable = modelPops.model.atomicTable
         vTherm = 2.0 * Const.KBOLTZMANN / (Const.AMU * modelPops.weight)
@@ -805,11 +885,19 @@ cdef class LwAtom:
         self.atom.nTotal = f64_view(self.nTotal)
 
         self.trans = []
+        modelPops.lineRij = []
+        modelPops.lineRji = []
         for l in atom.lines:
             self.trans.append(LwTransition(l, self, atmos, spect))
+            modelPops.lineRij.append(np.asarray(self.trans[-1].Rij))
+            modelPops.lineRji.append(np.asarray(self.trans[-1].Rji))
         
+        modelPops.continuumRij = []
+        modelPops.continuumRji = []
         for c in atom.continua:
             self.trans.append(LwTransition(c, self, atmos, spect))
+            modelPops.continuumRij.append(np.asarray(self.trans[-1].Rij))
+            modelPops.continuumRji.append(np.asarray(self.trans[-1].Rji))
 
         cdef LwTransition lt
         for lt in self.trans:
@@ -820,37 +908,41 @@ cdef class LwAtom:
         self.atom.Nlevel = Nlevel
         self.atom.Ntrans = Ntrans
 
-        self.Gamma = np.zeros((Nlevel, Nlevel, a.Nspace))
-        self.atom.Gamma = f64_view_3(self.Gamma)
+        if not self.lte:
+            self.Gamma = np.zeros((Nlevel, Nlevel, a.Nspace))
+            self.atom.Gamma = f64_view_3(self.Gamma)
 
-        self.C = np.zeros((Nlevel, Nlevel, atmos.Nspace))
-        self.atom.C = f64_view_3(self.C)
+            self.C = np.zeros((Nlevel, Nlevel, atmos.Nspace))
+            self.atom.C = f64_view_3(self.C)
 
         self.stages = np.array([l.stage for l in self.atomicModel.levels], dtype=np.float64)
-        # TODO(cmo): Rewrite this to reuse an n and nStar from eqPops
-        # self.nStar = np.zeros((self.Nlevel, atmos.Nspace))
         self.nStar = modelPops.nStar
         self.atom.nStar = f64_view_2(self.nStar)
 
-        # self.lte_pops()
-        self.n = np.copy(self.nStar)
-        self.atom.n = f64_view_2(self.n)
-        modelPops.pops = np.asarray(self.n)
+        if self.lte:
+            self.atom.n = f64_view_2(self.nStar)
+            self.initSol = InitialSolution.Lte
+            ngOptions = None
+        else:
+            self.n = np.copy(self.nStar)
+            self.atom.n = f64_view_2(self.n)
+            modelPops.pops = np.asarray(self.n)
 
-        self.eta = np.zeros(atmos.Nspace)
-        self.atom.eta = f64_view(self.eta)
         self.gij = np.zeros((Ntrans, atmos.Nspace))
         self.atom.gij = f64_view_2(self.gij)
         self.wla = np.zeros((Ntrans, atmos.Nspace))
         self.atom.wla = f64_view_2(self.wla)
 
-        self.V = np.zeros((Nlevel, atmos.Nspace))
-        self.atom.V = f64_view_2(self.V)
-        self.U = np.zeros((Nlevel, atmos.Nspace))
-        self.atom.U = f64_view_2(self.U)
+        if not self.lte:
+            self.V = np.zeros((Nlevel, atmos.Nspace))
+            self.atom.V = f64_view_2(self.V)
+            self.U = np.zeros((Nlevel, atmos.Nspace))
+            self.atom.U = f64_view_2(self.U)
 
-        self.chi = np.zeros((Nlevel, atmos.Nspace))
-        self.atom.chi = f64_view_2(self.chi)
+            self.eta = np.zeros(atmos.Nspace)
+            self.atom.eta = f64_view(self.eta)
+            self.chi = np.zeros((Nlevel, atmos.Nspace))
+            self.atom.chi = f64_view_2(self.chi)
 
         if initSol is None:
             initSol = InitialSolution.EscapeProbability
@@ -891,6 +983,40 @@ cdef class LwAtom:
         else:
             self.atom.ng = Ng(0,0,0, self.atom.n.flatten())
 
+    def state_dict(self):
+        s = {}
+        s['name'] = self.atomicModel.name
+        s['lte'] = self.lte
+        s['Nlevel'] = self.atom.Nlevel
+        s['Ntrans'] = self.atom.Ntrans
+        s['vBroad'] = np.copy(self.vBroad)
+        if self.lte:
+            s['n'] = None
+        else:
+            s['n'] = np.copy(self.n)
+        s['stages'] = np.copy(self.stages)
+        s['trans'] = [t.state_dict() for t in self.trans]
+        return s
+
+    def load_state_dict(self, s):
+        if self.atomicModel.name != s['name']:
+            raise ValueError('Model name (%s) doesn\'t match state_dict name (%s)' % (self.atomicModel.name, s['name']))
+
+        if self.Nlevel != s['Nlevel']:
+            raise ValueError('Number of levels on model (%d) doens\'t match state_dict (%d)' % (self.Nlevel, s['Nlevel']))
+
+        if self.Ntrans != s['Ntrans']:
+            raise ValueError('Number of transitions on model (%d) doens\'t match state_dict (%d)' % (self.Nlevel, s['Nlevel']))
+        
+        np.asarray(self.vBroad)[:] = s['vBroad']
+        np.asarray(self.stages)[:] = s['stages']
+        if not self.lte:
+            np.asarray(self.n)[:] = s['n']
+
+
+        for i, t in enumerate(self.trans):
+            t.load_state_dict(s['trans'][i])
+
     @property
     def Nlevel(self):
         return self.atom.Nlevel
@@ -923,47 +1049,6 @@ cdef class LwAtom:
     def trans(self):
         return self.trans
 
-    cpdef lte_pops(self, debeye=True):
-        cdef f64 c1 = (Const.HPLANCK / (2.0 * np.pi * Const.M_ELECTRON)) * (Const.HPLANCK / Const.KBOLTZMANN)
-        cdef c2 = 0.0
-        cdef int i, Z
-        if debeye:
-            c2 = np.sqrt(8.0 * np.pi / Const.KBOLTZMANN) * (Const.Q_ELECTRON**2 / (4.0 * np.pi * Const.EPSILON_0))**1.5
-            nDebeye = np.zeros(self.Nlevel)
-            for i in range(1, self.Nlevel):
-                stage = self.atomicModel.levels[i].stage
-                Z = stage
-                for m in range(1, stage - self.atomicModel.levels[0].stage + 1):
-                    nDebeye[i] += Z
-                    Z += 1
-        dEion = c2 * np.sqrt(self.atmos.ne / self.atmos.temperature)
-        cNe_T = 0.5  * self.atmos.ne * (c1 / self.atmos.temperature)**1.5
-        total = np.ones(self.atmos.Nspace)
-
-        nStar = np.asarray(self.nStar)
-        ground = self.atomicModel.levels[0]
-        cdef f64 dE, gi0
-        cdef int dZ
-        for i in range(1, self.Nlevel):
-            dE = self.atomicModel.levels[i].E_SI - ground.E_SI
-            gi0 = self.atomicModel.levels[i].g / ground.g
-            dZ = self.atomicModel.levels[i].stage - ground.stage
-            if debeye:
-                dE_kT = (dE - nDebeye[i] * dEion) / (Const.KBOLTZMANN * self.atmos.temperature)
-            else:
-                dE_kT = dE / (Const.KBOLTZMANN * self.atmos.temperature)
-
-            nst = gi0 * np.exp(-dE_kT)
-            nStar[i, :] = nst
-            nStar[i, :] /= cNe_T**dZ
-            # for m in range(1, dZ + 1):
-            #     nStar[i, :] /= cNe_T
-            total +=  nStar[i]
-
-        nStar[0] = self.nTotal / total
-        for i in range(1, self.Nlevel):
-            nStar[i] *= nStar[0]
-
     def compute_collisions(self):
         cdef np.ndarray[np.double_t, ndim=3] C = np.asarray(self.C)
         C.fill(0.0)
@@ -992,6 +1077,27 @@ cdef class LwSpectrum:
     def setup_stokes(self):
         self.Quv = np.zeros((3, self.I.shape[0], self.I.shape[1]))
         self.spect.Quv = f64_view_3(self.Quv)
+
+    def state_dict(self):
+        s = {}
+        s['wavelength'] = np.copy(self.wavelength)
+        s['I'] = np.copy(self.I)
+        s['J'] = np.copy(self.J)
+        s['Quv'] = None
+        try:
+            s['Quv'] = np.copy(s['Quv'])
+        except AttributeError:
+            pass
+        return s
+
+    def load_state_dict(self, s):
+        np.asarray(self.wavelength)[:] = s['wavelength']
+        np.asarray(self.I)[:] = s['I']
+        np.asarray(self.J)[:] = s['J']
+        if s['Quv'] is not None:
+            self.setup_stokes()
+            np.asarray(self.Quv)[:] = s['Quv']
+
 
     @property
     def wavelength(self):
@@ -1036,7 +1142,7 @@ cdef class LwContext:
         activeAtoms = radSet.activeAtoms
         lteAtoms = radSet.lteAtoms
         self.activeAtoms = [LwAtom(a, self.atmos, atmos, eqPops, spect, self.background, ngOptions=ngOptions, initSol=initSol) for a in activeAtoms]
-        self.lteAtoms = [LwAtom(a, self.atmos, atmos, eqPops, spect, self.background, ngOptions=None, initSol=InitialSolution.Lte) for a in lteAtoms]
+        self.lteAtoms = [LwAtom(a, self.atmos, atmos, eqPops, spect, self.background, ngOptions=None, initSol=InitialSolution.Lte, lte=True) for a in lteAtoms]
 
         self.ctx.atmos = &self.atmos.atmos
         self.ctx.spect = &self.spect.spect
@@ -1169,30 +1275,32 @@ cdef class LwContext:
     def background(self):
         return self.background
 
+    @property
+    def pops(self):
+        return self.arguments['eqPops']
 
+    def state_dict(self):
+        s = {}
+        s['arguments'] = deepcopy(self.arguments)
+        s['background'] = self.background.state_dict()
+        s['spectrum'] = self.spect.state_dict()
+        s['activeAtoms'] = [a.state_dict() for a in self.activeAtoms]
+        s['lteAtoms'] = [a.state_dict() for a in self.lteAtoms]
+        return s
 
+    @staticmethod
+    def from_state_dict(cls, s):
+        args = s['arguments']
+        ctx = LwContext(args['atmos'], args['spect'], args['radSet'], args['eqPops'], args['atomicTable'], ngOptions=args['ngOptions'], initSol=args['initSol'], conserveCharge=args['conserveCharge'])
 
+        ctx.spect.load_state_dict(s['spectrum'])
+        ctx.background.load_state_dict(s['background'])
 
+        for i, a in enumerate(ctx.activeAtoms):
+            a.load_state_dict(s['activeAtoms'][i])
 
-
-
-
-
-def blah():
-    cdef f64[::1] a
-    a = np.zeros(10)
-    print(type(a))
-
-cdef class Blah:
-    cdef f64[::1] a
-    cdef f64[::1] b
-    cdef int c
-
-    def __init__(self):
-        self.a = np.zeros(10)
-        c = 3
-
-    def printit(self):
-        print(dir(self))
+        for i, a in enumerate(ctx.lteAtoms):
+            a.load_state_dict(s['lteAtoms'][i])
+        return ctx
 
 

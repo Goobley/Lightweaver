@@ -29,7 +29,7 @@ struct Ng
         for (int k = 0; k < len; ++k)
             storage(k) = sol(k);
         count += 1;
-        printf("Ng: %d, %d, %d; %d\n", Norder, Nperiod, Ndelay, len);
+        // printf("Ng: %d, %d, %d; %d\n", Norder, Nperiod, Ndelay, len);
     }
 
     Ng(const Ng& other) = default;
