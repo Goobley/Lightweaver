@@ -4,15 +4,17 @@ from AtomicModel import *
 from Atmosphere import Atmosphere
 from Molecule import Molecule, MolecularTable
 from typing import List, Sequence, Set, Optional, Any, Union, Dict
-from copy import copy
+from copy import copy, deepcopy
 from collections import OrderedDict
 import numpy as np
 from scipy.linalg import solve
 
 @dataclass
 class SpectrumConfiguration:
+    radSet: 'RadiativeSet'
     wavelength: np.ndarray
     transitions: List[Union[AtomicLine, AtomicContinuum]]
+    models: List[AtomicModel]
     blueIdx: List[int]
     redIdx: List[int]
     activeSet: List[List[Union[AtomicLine, AtomicContinuum]]]
@@ -23,6 +25,94 @@ class SpectrumConfiguration:
     linesPerAtom: Dict[str, List[List[AtomicLine]]]
     lowerLevels: Dict[str, List[Set[int]]]
     upperLevels: Dict[str, List[Set[int]]]
+
+    def subset_configuration(self, wavelengths) -> 'SpectrumConfiguration':
+        Nblue = np.searchsorted(self.wavelength, wavelengths[0])
+        Nred = min(np.searchsorted(self.wavelength, wavelengths[-1])+1, self.wavelength.shape[0]-1)
+
+        trans: List[Union[AtomicLine, AtomicContinuum]] = []
+        continuaPerAtom: Dict[str, List[List[AtomicContinuum]]] = {}
+        linesPerAtom: Dict[str, List[List[AtomicLine]]]= {}
+        upperLevels: Dict[str, List[Set[int]]] = {}
+        lowerLevels: Dict[str, List[Set[int]]] = {}
+
+        # TODO(cmo): GO back to deepcopy here, but take radSet out of arguments to ctx
+        # radSet = deepcopy(self.radSet)
+        radSet = self.radSet
+        models = [m for m in (radSet.activeSet | radSet.detailedLteSet)]
+        for atom in self.models:
+            for l in atom.lines:
+                if l.wavelength[-1] < wavelengths[0]:
+                    continue
+                if l.wavelength[0] > wavelengths[-1]:
+                    continue
+                trans.append(l)
+            for c in atom.continua:
+                if c.wavelength[-1] < wavelengths[0]:
+                    continue
+                if c.wavelength[0] > wavelengths[-1]:
+                    continue
+                trans.append(c)
+        activeAtoms = [t.atom for t in trans]
+
+        for atom in activeAtoms:
+            continuaPerAtom[atom.name] = []
+            linesPerAtom[atom.name] = []
+            upperLevels[atom.name] = []
+            lowerLevels[atom.name] = []
+
+        blueIdx = []
+        redIdx = []
+        for t in trans:
+            blueIdx.append(np.searchsorted(wavelengths, t.wavelength[0]))
+            redIdx.append(min(np.searchsorted(wavelengths, t.wavelength[-1])+1, wavelengths.shape[-1]))
+
+        for i, t in enumerate(trans):
+            if isinstance(t, AtomicContinuum):
+                while wavelengths[redIdx[i]-1] > t.lambdaEdge and redIdx[i] > 0:
+                    redIdx[i] -= 1
+            wavelength = np.copy(wavelengths[blueIdx[i]:redIdx[i]])
+            if isinstance(t, AtomicContinuum):
+                t.alpha = t.compute_alpha(wavelength)
+            t.wavelength = wavelength
+            t.Nlambda = wavelength.shape[0] # type: ignore
+
+        activeSet: List[List[Union[AtomicLine, AtomicContinuum]]] = []
+        activeLines: List[List[AtomicLine]] = []
+        activeContinua: List[List[AtomicContinuum]] = []
+        contributors: List[List[AtomicModel]] = []
+        for i in range(wavelengths.shape[0]):
+            activeSet.append([])
+            activeLines.append([])
+            activeContinua.append([])
+            contributors.append([])
+            for atom in activeAtoms:
+                continuaPerAtom[atom.name].append([])
+                linesPerAtom[atom.name].append([])
+                upperLevels[atom.name].append(set())
+                lowerLevels[atom.name].append(set())
+            for kr, t in enumerate(trans):
+                if blueIdx[kr] <= i < redIdx[kr]:
+                    activeSet[-1].append(t)
+                    contributors[-1].append(t.atom)
+                    if isinstance(t, AtomicContinuum):
+                        activeContinua[-1].append(t)
+                        continuaPerAtom[t.atom.name][-1].append(t)
+                        upperLevels[t.atom.name][-1].add(t.j)
+                        lowerLevels[t.atom.name][-1].add(t.i)
+                    elif isinstance(t, AtomicLine):
+                        activeLines[-1].append(t)
+                        linesPerAtom[t.atom.name][-1].append(t)
+                        upperLevels[t.atom.name][-1].add(t.j)
+                        lowerLevels[t.atom.name][-1].add(t.i)
+
+
+        return SpectrumConfiguration(radSet=radSet, wavelength=wavelengths, transitions=trans, models=activeAtoms, blueIdx=blueIdx, 
+                                     redIdx=redIdx, activeSet=activeSet, activeLines=activeLines, activeContinua=activeContinua, 
+                                     contributors=contributors, continuaPerAtom=continuaPerAtom, linesPerAtom=linesPerAtom, 
+                                     lowerLevels=lowerLevels, upperLevels=upperLevels)
+
+
 
 
 def lte_pops(atomicModel, atmos, nTotal, debye=True):
@@ -398,6 +488,7 @@ class RadiativeSet:
             grids.append(extraWavelengths)
         grids.append(np.array([lambdaReference]))
 
+        models: List[AtomicModel] = []
         transitions: List[Union[AtomicLine, AtomicContinuum]] = []
         continuaPerAtom: Dict[str, List[List[AtomicContinuum]]] = {}
         linesPerAtom: Dict[str, List[List[AtomicLine]]]= {}
@@ -405,6 +496,7 @@ class RadiativeSet:
         lowerLevels: Dict[str, List[Set[int]]] = {}
 
         for atom in (self.activeSet | self.detailedLteSet):
+            models.append(atom)
             continuaPerAtom[atom.name] = []
             linesPerAtom[atom.name] = []
             lowerLevels[atom.name] = []
@@ -476,8 +568,10 @@ class RadiativeSet:
                         upperLevels[t.atom.name][-1].add(t.j)
                         lowerLevels[t.atom.name][-1].add(t.i)
 
-
-        return SpectrumConfiguration(grid, transitions, blueIdx, redIdx, activeSet, activeLines, activeContinua, contributors, continuaPerAtom, linesPerAtom, lowerLevels, upperLevels)
+        return SpectrumConfiguration(radSet=self, wavelength=grid, transitions=transitions, models=models, 
+                                     blueIdx=blueIdx, redIdx=redIdx, activeSet=activeSet, activeLines=activeLines, 
+                                     activeContinua=activeContinua, contributors=contributors, continuaPerAtom=continuaPerAtom, 
+                                     linesPerAtom=linesPerAtom, lowerLevels=lowerLevels, upperLevels=upperLevels)
 
 
 def hminus_pops(atmos: Atmosphere, hPops: AtomicState) -> np.ndarray:
@@ -494,7 +588,7 @@ def hminus_pops(atmos: Atmosphere, hPops: AtomicState) -> np.ndarray:
 
     
 
-def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable, atomicPops: AtomicState, table: AtomicTable) -> SpeciesStateTable:
+def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable, atomicPops: AtomicStateTable, table: AtomicTable) -> SpeciesStateTable:
     nucleiSet: Set[Element] = set()
     for mol in molecules:
         nucleiSet |= set(mol.elements)

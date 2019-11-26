@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import Sequence, TYPE_CHECKING, Optional
+from typing import Sequence, TYPE_CHECKING, Optional, Union
 import numpy as np
 from witt import witt
 import Constants as Const
@@ -220,29 +220,50 @@ class Atmosphere:
         else:
             raise ValueError("Other scales not handled yet")
 
-    def quadrature(self, Nrays: int, mu: Optional[float]=None):
+    def quadrature(self, Nrays: Optional[int]=None, mu: Optional[Sequence[float]]=None, wmu: Optional[Sequence[float]]=None):
 
-        if Nrays > 1:        
-            self.Nrays = Nrays
-            x, w = leggauss(Nrays)
-            mid, halfWidth = 0.5, 0.5
-            x = mid + halfWidth * x
-            w *= halfWidth
+        if Nrays is not None and mu is None:
+            if Nrays >= 1:        
+                self.Nrays = Nrays
+                x, w = leggauss(Nrays)
+                mid, halfWidth = 0.5, 0.5
+                x = mid + halfWidth * x
+                w *= halfWidth
 
-            self.muz = x
-            self.wmu = w
-        elif Nrays == 1:
-            if mu is None:
-                raise ValueError('For Nrays=1, mu must be provided')
-            
-            self.Nrays = 1
-            self.muz = np.array([mu])
-            self.wmu = np.array([1.0])
-        else:
-            raise ValueError('Unsupported Nrays=%d' % Nrays)
+                self.muz = x
+                self.wmu = w
+            # elif Nrays == 1:
+            #     if mu is None:
+            #         raise ValueError('For Nrays=1, mu must be provided')
+                
+            #     self.Nrays = 1
+            #     self.muz = np.array([mu])
+            #     self.wmu = np.array([1.0])
+            else:
+                raise ValueError('Unsupported Nrays=%d' % Nrays)
+        elif Nrays is not None and mu is not None:
+            if wmu is None:
+                raise ValueError('Must provide wmu when providing mu')
+            if Nrays != len(mu):
+                raise ValueError('mu must be Nrays long if Nrays is provided')
+            if len(mu) != len(wmu):
+                raise ValueError('mu and wmu must be the same shape')
 
-        self.muy = np.zeros_like(x)
-        self.mux = np.sqrt(1.0 - x**2)
+            self.muz = np.array(mu)
+            self.wmu = np.array(wmu)
+
+        self.muy = np.zeros_like(self.muz)
+        self.mux = np.sqrt(1.0 - self.muz**2)
+
+    def rays(self, mu: Union[float, Sequence[float]]):
+        if isinstance(mu, float):
+            mu = [mu]
+
+        self.muz = np.array(mu)
+        self.wmu = np.zeros_like(self.muz)
+        self.muy = np.zeros_like(self.muz)
+        self.mux = np.sqrt(1.0 - self.muz**2)
+        self.Nrays = len(self.muz)
 
 
 

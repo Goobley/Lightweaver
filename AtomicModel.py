@@ -35,7 +35,6 @@ from Barklem import Barklem
 # Compute line profiles for active -- damping and collisions from Python atoms
 # Solve!
 
-
 class VdwBarklemIncompatible(Exception):
     pass
 
@@ -94,6 +93,45 @@ class AtomicModel:
         self.atomicTable = table
         self.__post_init__()
 
+def avoid_recursion_eq(a, b) -> bool:
+    if isinstance(a, np.ndarray):
+        if not np.all(a == b):
+            return False
+    elif isinstance(a, AtomicModel):
+        if a.name != b.name:
+            return False
+        if len(a.levels) != len(b.levels):
+            return False
+        if len(a.lines) != len(b.lines):
+            return False
+        if len(a.continua) != len(b.continua):
+            return False
+        if len(a.collisions) != len(b.collisions):
+            return False
+    else:
+        if a != b:
+            return False
+    return True
+
+
+def model_component_eq(a, b) -> bool:
+    # print('Me')
+    if a is b:
+        return True
+
+    if type(a) is not type(b):
+        if not (isinstance(a, AtomicTransition) and isinstance(b, AtomicTransition)):
+            raise NotImplemented
+        else:
+            return False
+
+    # print('My Eq %s \n %s \n\n------------------\n' % (repr(a), repr(b)))
+    da = a.__dict__
+    db = b.__dict__
+
+    return all([avoid_recursion_eq(da[k], db[k]) for k in da.keys()])
+    
+
 @dataclass
 class AtomicLevel:
     E: float
@@ -118,6 +156,8 @@ class AtomicLevel:
             if self.J <= self.L + self.S:
                 self.lsCoupling = True
             
+    def __eq__(self, other: object) -> bool:
+        return model_component_eq(self, other)
 
     @property
     def E_SI(self):
@@ -160,7 +200,13 @@ class VdwApprox:
     def setup(self, line: 'AtomicLine', table: AtomicTable):
         pass
 
-@dataclass
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, VdwApprox):
+            return False
+
+        return (self.vals == other.vals) and (type(self) is type(other))
+
+@dataclass(eq=False)
 class VdwUnsold(VdwApprox):
     def setup(self, line: 'AtomicLine', table: AtomicTable):
         self.line = line
@@ -195,7 +241,7 @@ class VdwUnsold(VdwApprox):
         broad[:] = self.cross * temperature**0.3 * nHGround 
 
 
-@dataclass
+@dataclass(eq=False)
 class VdwRidderRensbergen(VdwApprox):
     # NOTE(cmo): RidderRensbergen actually uses all 4 VdW coeffs
     def setup(self, line: 'AtomicLine', table: AtomicTable):
@@ -216,7 +262,7 @@ class VdwRidderRensbergen(VdwApprox):
                     * self.HeAbund
         broad *= nHGround
 
-@dataclass
+@dataclass(eq=False)
 class VdwBarklem(VdwApprox):
     # NOTE(cmo): Since Helium is treated as per Unsold, only 3 vals are used
     def setup(self, line: 'AtomicLine', table: AtomicTable):
@@ -263,9 +309,14 @@ class VdwBarklem(VdwApprox):
                     + self.cross * temperature**0.3
         broad *= nHGround
         
-    
 @dataclass
-class AtomicLine:
+class AtomicTransition:
+    def __eq__(self, other: object) -> bool:
+        return model_component_eq(self, other)
+    pass
+    
+@dataclass(eq=False)
+class AtomicLine(AtomicTransition):
     j: int
     i: int
     f: float
@@ -305,7 +356,7 @@ class ZeemanComponents:
     strength: np.ndarray
     shift: np.ndarray
 
-@dataclass
+@dataclass(eq=False)
 class VoigtLine(AtomicLine):
     def setup(self, atom):
         if self.j < self.i:
@@ -322,7 +373,6 @@ class VoigtLine(AtomicLine):
             vals = self.vdw.vals
             self.vdw = VdwUnsold(vals)
             self.vdw.setup(self, atom.atomicTable)
-
 
     def __repr__(self):
         s = 'VoigtLine(j=%d, i=%d, f=%e, type=%s, Nlambda=%d, qCore=%f, qWing=%f, vdw=%s, gRad=%e, stark=%f' % (
@@ -609,8 +659,8 @@ def effective_lande(line: AtomicLine):
            0.25 * (gU - gL) * (j.J * (j.J + 1.0) - i.J * (i.J + 1.0)) # type: ignore
 
 
-@dataclass
-class AtomicContinuum:
+@dataclass(eq=False)
+class AtomicContinuum(AtomicTransition):
     j: int
     i: int
     atom: AtomicModel = field(init=False)
@@ -642,7 +692,7 @@ class AtomicContinuum:
         deltaE = self.jLevel.E_SI - self.iLevel.E_SI
         return Const.HC / deltaE
 
-@dataclass
+@dataclass(eq=False)
 class ExplicitContinuum(AtomicContinuum):
     alphaGrid: Sequence[Sequence[float]]
     Nlambda: int = field(init=False)
@@ -694,7 +744,7 @@ class ExplicitContinuum(AtomicContinuum):
         deltaE = self.jLevel.E_SI - self.iLevel.E_SI
         return Const.HC / deltaE
 
-@dataclass 
+@dataclass(eq=False) 
 class HydrogenicContinuum(AtomicContinuum):
     alpha0: float
     minLambda: float
@@ -757,6 +807,7 @@ class CollisionalRates:
     # Make sure to swap if wrong order in setup
     temperature: Sequence[float]
     rates: Sequence[float]
+    atom: AtomicModel = field(init=False)
 
     def __repr__(self):
         s = 'CollisionalRates(j=%d, i=%d, temperature=%s, rates=%s)' % (self.j, self.i, repr(self.temperature), repr(self.rates))
@@ -768,7 +819,10 @@ class CollisionalRates:
     def compute_rates(self, atmos, nstar, Cmat):
         pass
 
-@dataclass
+    def __eq__(self, other: object) -> bool:
+        return model_component_eq(self, other)
+
+@dataclass(eq=False)
 class Omega(CollisionalRates):
     def __repr__(self):
         s = 'Omega(j=%d, i=%d, temperature=%s, rates=%s)' % (self.j, self.i, repr(self.temperature), repr(self.rates))
@@ -794,7 +848,7 @@ class Omega(CollisionalRates):
         Cmat[self.i, self.j, :] += Cdown
         Cmat[self.j, self.i, :] += Cdown * nstar[self.j] / nstar[self.i]
 
-@dataclass
+@dataclass(eq=False)
 class CI(CollisionalRates):
     def __repr__(self):
         s = 'CI(j=%d, i=%d, temperature=%s, rates=%s)' % (self.j, self.i, repr(self.temperature), repr(self.rates))
@@ -820,6 +874,7 @@ class CI(CollisionalRates):
         Cmat[self.i, self.j, :] += Cup * nstar[self.i] / nstar[self.j]
 
 
+@dataclass(eq=False)
 class CE(CollisionalRates):
     def __repr__(self):
         s = 'CE(j=%d, i=%d, temperature=%s, rates=%s)' % (self.j, self.i, repr(self.temperature), repr(self.rates))

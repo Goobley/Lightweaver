@@ -705,7 +705,8 @@ cdef class LwTransition:
         if s['type'] == 'Line':
             np.asarray(self.phi)[:] = s['phi']
             np.asarray(self.wphi)[:] = s['wphi']
-            np.asarray(self.Qelast)[:] = s['aDamp']
+            np.asarray(self.aDamp)[:] = s['aDamp']
+            np.asarray(self.Qelast)[:] = s['Qelast']
 
             if s['rhoPrd'] is not None:
                 np.asarray(self.rhoPrd)[:] = s['rhoPrd']
@@ -884,20 +885,26 @@ cdef class LwAtom:
         self.nTotal = modelPops.nTotal
         self.atom.nTotal = f64_view(self.nTotal)
 
+        atomLambda0 = [(t.atom.name, t.lambda0) for t in spect.transitions]
         self.trans = []
         modelPops.lineRij = []
         modelPops.lineRji = []
+        print('Atom: %s' % atom.name)
         for l in atom.lines:
-            self.trans.append(LwTransition(l, self, atmos, spect))
-            modelPops.lineRij.append(np.asarray(self.trans[-1].Rij))
-            modelPops.lineRji.append(np.asarray(self.trans[-1].Rji))
+            if l in spect.transitions:
+                print('Found:', l)
+                self.trans.append(LwTransition(l, self, atmos, spect))
+                modelPops.lineRij.append(np.asarray(self.trans[-1].Rij))
+                modelPops.lineRji.append(np.asarray(self.trans[-1].Rji))
         
         modelPops.continuumRij = []
         modelPops.continuumRji = []
         for c in atom.continua:
-            self.trans.append(LwTransition(c, self, atmos, spect))
-            modelPops.continuumRij.append(np.asarray(self.trans[-1].Rij))
-            modelPops.continuumRji.append(np.asarray(self.trans[-1].Rji))
+            if c in spect.transitions:
+                print('Found:', c)
+                self.trans.append(LwTransition(c, self, atmos, spect))
+                modelPops.continuumRij.append(np.asarray(self.trans[-1].Rij))
+                modelPops.continuumRji.append(np.asarray(self.trans[-1].Rji))
 
         cdef LwTransition lt
         for lt in self.trans:
@@ -928,10 +935,11 @@ cdef class LwAtom:
             self.atom.n = f64_view_2(self.n)
             modelPops.pops = np.asarray(self.n)
 
-        self.gij = np.zeros((Ntrans, atmos.Nspace))
-        self.atom.gij = f64_view_2(self.gij)
-        self.wla = np.zeros((Ntrans, atmos.Nspace))
-        self.atom.wla = f64_view_2(self.wla)
+        if Ntrans > 0:
+            self.gij = np.zeros((Ntrans, atmos.Nspace))
+            self.atom.gij = f64_view_2(self.gij)
+            self.wla = np.zeros((Ntrans, atmos.Nspace))
+            self.atom.wla = f64_view_2(self.wla)
 
         if not self.lte:
             self.V = np.zeros((Nlevel, atmos.Nspace))
@@ -955,7 +963,7 @@ cdef class LwAtom:
         cdef f64 delta
         cdef LwBackground bg = background
 
-        if initSol == InitialSolution.EscapeProbability:
+        if initSol == InitialSolution.EscapeProbability and Ntrans > 0:
             self.compute_collisions()
             Gamma = np.asarray(self.Gamma)
             C = np.asarray(self.C)
@@ -998,24 +1006,25 @@ cdef class LwAtom:
         s['trans'] = [t.state_dict() for t in self.trans]
         return s
 
-    def load_state_dict(self, s):
+    def load_state_dict(self, s, popsOnly=False):
         if self.atomicModel.name != s['name']:
             raise ValueError('Model name (%s) doesn\'t match state_dict name (%s)' % (self.atomicModel.name, s['name']))
 
         if self.Nlevel != s['Nlevel']:
             raise ValueError('Number of levels on model (%d) doens\'t match state_dict (%d)' % (self.Nlevel, s['Nlevel']))
 
-        if self.Ntrans != s['Ntrans']:
-            raise ValueError('Number of transitions on model (%d) doens\'t match state_dict (%d)' % (self.Nlevel, s['Nlevel']))
+        if not popsOnly and self.Ntrans != s['Ntrans']:
+            raise ValueError('Number of transitions on model/computational atom (%d/%d) doens\'t match state_dict (%d)' % (self.Nlevel, len(self.trans), s['Nlevel']))
         
         np.asarray(self.vBroad)[:] = s['vBroad']
         np.asarray(self.stages)[:] = s['stages']
         if not self.lte:
             np.asarray(self.n)[:] = s['n']
 
-
-        for i, t in enumerate(self.trans):
-            t.load_state_dict(s['trans'][i])
+        cdef LwTransition t
+        if not popsOnly:
+            for i, t in enumerate(self.trans):
+                t.load_state_dict(s['trans'][i])
 
     @property
     def Nlevel(self):
@@ -1236,15 +1245,23 @@ cdef class LwContext:
     def update_projections(self):
         self.atmos.atmos.update_projections()
 
-    def single_stokes_fs(self):
+    def single_stokes_fs(self, recompute=False):
         assert self.atmos.B.shape[0] != 0
 
-        for atom in self.activeAtoms:
-            for t in atom.trans:
-                t.compute_polarised_profiles()
-        for atom in self.lteAtoms:
-            for t in atom.trans:
-                t.compute_polarised_profiles()
+        atoms = self.activeAtoms + self.lteAtoms
+        atomsHavePolarisedProfile = True
+        try:
+            atoms[0].phiQ
+        except AttributeError:
+            atomsHavePolarisedProfile = False
+
+        if recompute or not atomsHavePolarisedProfile:
+            for atom in self.activeAtoms:
+                for t in atom.trans:
+                    t.compute_polarised_profiles()
+            for atom in self.lteAtoms:
+                for t in atom.trans:
+                    t.compute_polarised_profiles()
 
         self.spect.setup_stokes()
 
@@ -1289,18 +1306,40 @@ cdef class LwContext:
         return s
 
     @staticmethod
-    def from_state_dict(cls, s):
+    def from_state_dict(s, ignoreSpect=False, ignoreBackground=False, popsOnly=False):
         args = s['arguments']
-        ctx = LwContext(args['atmos'], args['spect'], args['radSet'], args['eqPops'], args['atomicTable'], ngOptions=args['ngOptions'], initSol=args['initSol'], conserveCharge=args['conserveCharge'])
+        ctx = LwContext(args['atmos'], args['spect'], args['radSet'], args['eqPops'], args['atomicTable'], ngOptions=args['ngOptions'], initSol=InitialSolution.Lte, conserveCharge=args['conserveCharge'])
 
-        ctx.spect.load_state_dict(s['spectrum'])
-        ctx.background.load_state_dict(s['background'])
+        if not ignoreSpect:
+            ctx.spect.load_state_dict(s['spectrum'])
+        if not ignoreBackground:
+            ctx.background.load_state_dict(s['background'])
 
         for i, a in enumerate(ctx.activeAtoms):
-            a.load_state_dict(s['activeAtoms'][i])
+            a.load_state_dict(s['activeAtoms'][i], popsOnly=popsOnly)
 
         for i, a in enumerate(ctx.lteAtoms):
-            a.load_state_dict(s['lteAtoms'][i])
+            a.load_state_dict(s['lteAtoms'][i], popsOnly=popsOnly)
         return ctx
+
+    def compute_rays(self, wavelengths=None, mus=None, stokes=False):
+        state = self.state_dict()
+        if mus is not None:
+            state['arguments']['atmos'].rays(mus)
+        if wavelengths is not None:
+            state['arguments']['spect'] = state['arguments']['spect'].subset_configuration(wavelengths)
+        print(state['arguments']['spect'].transitions)
+        print('------------------------------------------------')
+
+        cdef LwContext rayCtx = self.from_state_dict(state, ignoreBackground=True, ignoreSpect=True, popsOnly=True)
+        J = rayCtx.spect.J
+        if wavelengths is not None:
+            J[:] = interp1d(self.spect.wavelength, self.spect.J.T)(wavelengths).T
+        else:
+            J[:] = self.spect.J
+        rayCtx.gamma_matrices_formal_sol()
+        Iwav = rayCtx.spect.I
+        return np.asarray(Iwav)
+
 
 
