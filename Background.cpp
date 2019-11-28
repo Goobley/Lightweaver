@@ -2,65 +2,10 @@
 #include "Constants.hpp"
 #include "JasPP.hpp"
 #include <algorithm>
-#include "Formal.hpp"
+#include "Lightweaver.hpp"
+#include "Utils.hpp"
 
 typedef Jasnah::Array1Own<i32> I32Arr;
-
-template <typename T, typename U>
-static inline int hunt(int len, T first, U val)
-{
-    auto last = first + len;
-    auto it = std::upper_bound(first, last, val) - 1;
-    return it - first;
-}
-
-static inline int hunt(F64View x, f64 val)
-{
-    return hunt(x.dim0, x.data, val);
-}
-
-void linear(F64View xTable, F64View yTable, F64View x, F64View y)
-{
-    const int Ntable = xTable.shape(0);
-    const int N = x.shape(0);
-    bool ascend = xTable(1) > xTable(0);
-    const f64 xMin = If ascend Then xTable(0) Else xTable(Ntable-1) End;
-    const f64 xMax = If ascend Then xTable(Ntable-1) Else xTable(0) End;
-
-    for (int n = 0; n < N; ++n)
-    {
-        if (x(n) <= xMin)
-            y(n) = If ascend Then yTable(0) Else yTable(Ntable-1) End;
-        else if (x(n) >= xMax)
-            y(n) = If ascend Then yTable(Ntable-1) Else yTable(0) End;
-        else
-        {
-            int j = hunt(xTable, x(n));
-
-            f64 fx = (xTable(j+1) - x(n)) / (xTable(j+1) - xTable(j));
-            y(n) = fx * yTable(j) + (1 - fx) * yTable(j+1);
-        }
-    }
-}
-
-f64 linear(F64View xTable, F64View yTable, f64 x)
-{
-    const int Ntable = xTable.shape(0);
-    bool ascend = xTable(1) > xTable(0);
-    const f64 xMin = If ascend Then xTable(0) Else xTable(Ntable-1) End;
-    const f64 xMax = If ascend Then xTable(Ntable-1) Else xTable(0) End;
-
-    if (x <= xMin)
-        return If ascend Then yTable(0) Else yTable(Ntable-1) End;
-
-    if (x >= xMax)
-        return If ascend Then yTable(Ntable-1) Else yTable(0) End;
-
-    int j = hunt(xTable, x);
-
-    f64 fx = (xTable(j+1) - x) / (xTable(j+1) - xTable(j));
-    return fx * yTable(j) + (1 - fx) * yTable(j+1);
-}
 
 double Gaunt_bf(double lambda, double n_eff, int charge) {
   /* --- M. J. Seaton (1960), Rep. Prog. Phys. 23, 313 -- ----------- */
@@ -177,32 +122,6 @@ struct SplineInterpolator
     }
 };
 
-
-inline f64 bilinear(int Ncol, int Nrow, const f64 *f, f64 x, f64 y) {
-  int i, j, i1, j1;
-  double fx, fy;
-
-  /* --- Bilinear interpolation of the function f on the fractional
-         indices x and y --                            -------------- */
-
-  i = (int)x;
-  fx = x - i;
-  if (i == Ncol - 1)
-    i1 = i;
-  else
-    i1 = i + 1;
-  j = (int)y;
-  fy = y - j;
-  if (j == Nrow - 1)
-    j1 = j;
-  else
-    j1 = j + 1;
-
-  return (1.0 - fx) * (1.0 - fy) * f[j * Ncol + i] +
-         fx * (1.0 - fy) * f[j * Ncol + i1] +
-         (1.0 - fx) * fy * f[j1 * Ncol + i] + fx * fy * f[j1 * Ncol + i1];
-}
-
 void thomson_scattering(const Atmosphere& atmos, F64View chi)
 {
     namespace C =  Constants;
@@ -213,20 +132,6 @@ void thomson_scattering(const Atmosphere& atmos, F64View chi)
     for (int k = 0; k < atmos.Nspace; ++k)
         chi(k) = atmos.ne(k) * sigma;
 }
-
-// bool hydrogen_bf(const Atmosphere& atmos, F64View chi, F64View eta)
-// {
-//     // NOTE(cmo): Unlike Han's version, this doesn't check if Hydrogen is active. Onus on user.
-//     // Actually, can this not be done in the same way as metal_bf?
-//     // namespace C = Constants;
-//     // for (int k = 0; k < atmos.Nspace; ++k)
-//     // {
-//     //     chi(k) = 0.0;
-//     //     eta(k) = 0.0;
-//     // }
-
-//     // constexpr f64 twohc = 2.0 * C::HC / cube(C::NM_TO_M);
-// }
 
 bool hydrogen_ff(const Atmosphere& atmos, f64 lambda, F64View2D hPops, F64View chi)
 {
@@ -1462,4 +1367,5 @@ void basic_background(BackgroundData* bd)
 
     // NOTE(cmo): Still needed: Rayleigh for H, Rayleigh for He, bf opacities from atomic models 
     // NOTE(cmo): At end, add sca * scaFudge to chi
+    // NOTE(cmo): This is all done in Cython in this implementation
 }

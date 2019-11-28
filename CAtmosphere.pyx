@@ -23,7 +23,7 @@ class InitialSolution(Enum):
     EscapeProbability = auto()
 
 
-cdef extern from "Atmosphere.hpp":
+cdef extern from "Lightweaver.hpp":
     cdef enum RadiationBC:
         ZERO
         THERMALISED
@@ -81,7 +81,7 @@ cdef extern from "Ng.hpp":
         bool_t accelerate(F64View sol)
         f64 max_change()
 
-cdef extern from "Formal.hpp":
+cdef extern from "Lightweaver.hpp":
     cdef cppclass Background:
         F64View2D chi
         F64View2D eta
@@ -171,7 +171,7 @@ cdef extern from "Formal.hpp":
     cdef void stat_eq(Atom* atom)
     cdef void configure_hprd_coeffs(Context& ctx)
 
-cdef extern from "Formal.hpp" namespace "EscapeProbability":
+cdef extern from "Lightweaver.hpp" namespace "EscapeProbability":
     cdef void gamma_matrices_escape_prob(Atom* a, Background& background, const Atmosphere& atmos)
 
 
@@ -397,7 +397,7 @@ cdef class LwBackground:
 
     cpdef bf_opacities(self):
         atoms = self.radSet.passiveAtoms
-        print([a.name for a in atoms])
+        # print([a.name for a in atoms])
         if len(atoms) == 0:
             return
 
@@ -889,10 +889,10 @@ cdef class LwAtom:
         self.trans = []
         modelPops.lineRij = []
         modelPops.lineRji = []
-        print('Atom: %s' % atom.name)
+        # print('Atom: %s' % atom.name)
         for l in atom.lines:
             if l in spect.transitions:
-                print('Found:', l)
+                # print('Found:', l)
                 self.trans.append(LwTransition(l, self, atmos, spect))
                 modelPops.lineRij.append(np.asarray(self.trans[-1].Rij))
                 modelPops.lineRji.append(np.asarray(self.trans[-1].Rji))
@@ -901,7 +901,7 @@ cdef class LwAtom:
         modelPops.continuumRji = []
         for c in atom.continua:
             if c in spect.transitions:
-                print('Found:', c)
+                # print('Found:', c)
                 self.trans.append(LwTransition(c, self, atmos, spect))
                 modelPops.continuumRij.append(np.asarray(self.trans[-1].Rij))
                 modelPops.continuumRji.append(np.asarray(self.trans[-1].Rji))
@@ -1328,8 +1328,8 @@ cdef class LwContext:
             state['arguments']['atmos'].rays(mus)
         if wavelengths is not None:
             state['arguments']['spect'] = state['arguments']['spect'].subset_configuration(wavelengths)
-        print(state['arguments']['spect'].transitions)
-        print('------------------------------------------------')
+        # print(state['arguments']['spect'].transitions)
+        # print('------------------------------------------------')
 
         cdef LwContext rayCtx = self.from_state_dict(state, ignoreBackground=True, ignoreSpect=True, popsOnly=True)
         J = rayCtx.spect.J

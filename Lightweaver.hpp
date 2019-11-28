@@ -1,16 +1,32 @@
-#ifndef CMO_FORMAL_HPP
-#define CMO_FORMAL_HPP
+#ifndef CMO_LIGHTWEAVER_HPP
+#define CMO_LIGHTWEAVER_HPP
 
-#include "Atmosphere.hpp"
 #include "CmoArray.hpp"
 #include "Constants.hpp"
 #include "Ng.hpp"
+#include "Faddeeva.hh"
 #include <complex>
 
 typedef Jasnah::Array1NonOwn<bool> BoolView;
 typedef Jasnah::Array1Own<i8> BoolArr; //  Avoid the dreaded vector<bool>
 typedef Jasnah::Array1NonOwn<i32> I32View;
 typedef Jasnah::Array1Own<i32> I32Arr;
+
+inline f64 voigt_H(f64 a, f64 v)
+{
+    using Faddeeva::w;
+    using namespace std::complex_literals;
+    auto z = (v + a * 1i);
+    return w(z).real();
+}
+
+inline std::complex<f64> voigt_HF(f64 a, f64 v)
+{
+    using Faddeeva::w;
+    using namespace std::complex_literals;
+    auto z = (v + a * 1i);
+    return w(z);
+}
 
 namespace Prd
 {
@@ -32,6 +48,44 @@ namespace Prd
     typedef Jasnah::Array4Own<RhoInterpCoeffs> RhoCoeffVec;
     typedef Jasnah::Array4Own<std::vector<JInterpCoeffs>> JCoeffVec;
 }
+
+enum RadiationBC
+{
+    ZERO,
+    THERMALISED
+};
+
+struct Atmosphere
+{
+    F64View cmass;
+    F64View height;
+    F64View tau_ref;
+    F64View temperature;
+    F64View ne;
+    F64View vlos;
+    F64View2D vlosMu;
+    F64View B;
+    F64View gammaB;
+    F64View chiB;
+    F64View2D cosGamma;
+    F64View2D cos2chi;
+    F64View2D sin2chi;
+    F64View vturb;
+    F64View nHtot;
+    F64View muz;
+    F64View muy;
+    F64View mux;
+    F64View wmu;
+    int Nspace;
+    int Nrays;
+
+    enum RadiationBC lowerBc;
+    enum RadiationBC upperBc;
+
+    void update_projections();
+};
+
+
 struct Background
 {
     F64View2D chi;
@@ -289,6 +343,7 @@ struct Context
 
 f64 gamma_matrices_formal_sol(Context& ctx);
 f64 formal_sol_full_stokes(Context& ctx);
+f64 formal_sol(Context& ctx, I32View wavelengthIdxs, bool updateRates=false, bool updateJ=false);
 f64 redistribute_prd_lines(Context& ctx, int maxIter, f64 tol);
 void stat_eq(Atom* atom);
 void planck_nu(long Nspace, double *T, double lambda, double *Bnu);
@@ -300,6 +355,102 @@ namespace EscapeProbability
 {
 void gamma_matrices_escape_prob(Atom* a, Background& background, 
                                 const Atmosphere& atmos);
+}
+
+namespace LwInternal
+{
+    struct FormalData
+    {
+        Atmosphere* atmos;
+        F64View chi;
+        F64View S;
+        F64View I;
+        F64View Psi;
+    };
+
+    struct FormalDataStokes
+    {
+        Atmosphere* atmos;
+        F64View2D chi;
+        F64View2D S;
+        F64View2D I;
+        FormalData fdIntens;
+    };
+
+    struct IntensityCoreData
+    {
+        Atmosphere* atmos;
+        Spectrum* spect;
+        FormalData* fd;
+        Background* background;
+        std::vector<Atom*>* activeAtoms;
+        std::vector<Atom*>* lteAtoms;
+        F64Arr* JDag;
+        F64View chiTot;
+        F64View etaTot;
+        F64View Uji;
+        F64View Vij;
+        F64View Vji;
+        F64View I;
+        F64View S;
+        F64View Ieff;
+        F64View PsiStar;
+    };
+
+    struct StokesCoreData
+    {
+        Atmosphere* atmos;
+        Spectrum* spect;
+        FormalDataStokes* fd;
+        Background* background;
+        std::vector<Atom*>* activeAtoms;
+        std::vector<Atom*>* lteAtoms;
+        F64Arr* JDag;
+        F64View2D chiTot;
+        F64View2D etaTot;
+        F64View Uji;
+        F64View Vij;
+        F64View Vji;
+        F64View2D I;
+        F64View2D S;
+    };
+
+    inline void w2(f64 dtau, f64* w)
+    {
+        f64 expdt;
+
+        if (dtau < 5.0E-4)
+        {
+            w[0] = dtau * (1.0 - 0.5 * dtau);
+            w[1] = square(dtau) * (0.5 - dtau / 3.0);
+        }
+        else if (dtau > 50.0)
+        {
+            w[1] = w[0] = 1.0;
+        }
+        else
+        {
+            expdt = exp(-dtau);
+            w[0] = 1.0 - expdt;
+            w[1] = w[0] - dtau * expdt;
+        }
+    }
+
+    enum FsMode : u32
+    {
+        UpdateJ = 1 << 0,
+        UpdateRates = 1 << 1,
+    };
+    constexpr inline FsMode
+    operator|(FsMode a, FsMode b)
+    {
+        return static_cast<FsMode>(static_cast<u32>(a) | static_cast<u32>(b));
+    }
+
+    void piecewise_bezier3_1d(FormalData* fd, int mu, bool toObs, f64 wav);
+    void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int mu, bool toObs, f64 wav, bool polarisedFrequency);
+    f64 intensity_core(IntensityCoreData& data, int la, FsMode mode);
+
 }
 
 #else

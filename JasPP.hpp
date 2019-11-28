@@ -3,7 +3,7 @@
 /* ==========================================================================
    $File: JasPP.hpp $
    $Version: 1.0 $
-   $Notice: (C) Copyright 2015 Chris Osborne. All Rights Reserved. $
+   $Notice: (C) Copyright 2015-2019 Chris Osborne. All Rights Reserved. $
    $License: MIT: http://opensource.org/licenses/MIT $
    ========================================================================== */
 
