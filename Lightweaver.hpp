@@ -49,6 +49,11 @@ namespace Prd
     typedef Jasnah::Array4Own<std::vector<JInterpCoeffs>> JCoeffVec;
 }
 
+namespace PrdCores
+{
+    constexpr int max_fine_grid_size();
+}
+
 enum RadiationBC
 {
     ZERO,

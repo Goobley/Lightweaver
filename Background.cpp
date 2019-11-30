@@ -1294,7 +1294,7 @@ void basic_background(BackgroundData* bd)
         auto chiLa = chi(la);
         auto scaLa = scatt(la);
 
-        planck_nu(atmos.Nspace, atmos.temperature.data, lambda, Bnu.data.data());
+        planck_nu(atmos.Nspace, atmos.temperature.data, lambda, Bnu.data());
 
         if (hMinus.hminus_bf(lambda, chiAccum, etaAccum))
         {

@@ -3,6 +3,7 @@ cimport numpy as np
 
 cdef extern from "CmoArray.hpp" namespace "Jasnah":
     cdef cppclass Array1NonOwn[T]:
+        T* data
         Array1NonOwn()
         Array1NonOwn(T*, size_t)
         T operator[](size_t) const
@@ -22,6 +23,7 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         Array1Own(T, size_t)
         Array1Own(const Array1NonOwn&)
         Array1Own& operator=(const Array1NonOwn&)
+        T* data()
         T operator[](size_t) const
         T& operator[](size_t)
         T operator()(size_t) const
@@ -35,6 +37,7 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         Array5NonOwn[T] reshape(int, int, int, int, int)
 
     cdef cppclass Array2NonOwn[T]:
+        T* data
         Array2NonOwn()
         Array2NonOwn(T*, size_t, size_t)
         T operator[](size_t) const
@@ -56,6 +59,7 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         Array2Own(T, size_t, size_t)
         Array2Own(const Array2NonOwn&)
         Array2Own& operator=(const Array2NonOwn&)
+        T* data()
         T operator[](size_t) const
         T& operator[](size_t)
         T operator()(size_t) const
@@ -71,6 +75,7 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         Array5NonOwn[T] reshape(int, int, int, int, int)
 
     cdef cppclass Array3NonOwn[T]:
+        T* data
         Array3NonOwn()
         Array3NonOwn(T*, size_t, size_t, size_t)
         T operator[](size_t) const
@@ -93,6 +98,7 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         Array3Own(T, size_t, size_t, size_t)
         Array3Own(const Array3NonOwn&)
         Array3Own& operator=(const Array3NonOwn&)
+        T* data()
         T operator[](size_t) const
         T& operator[](size_t)
         T operator()(size_t) const
@@ -109,6 +115,7 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         Array5NonOwn[T] reshape(int, int, int, int, int)
 
     cdef cppclass Array4NonOwn[T]:
+        T* data
         Array4NonOwn()
         Array4NonOwn(T*, size_t, size_t, size_t, size_t)
         T operator[](size_t) const
@@ -132,6 +139,7 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         Array4Own(T, size_t, size_t, size_t, size_t)
         Array4Own(const Array4NonOwn&)
         Array4Own& operator=(const Array4NonOwn&)
+        T* data()
         T operator[](size_t) const
         T& operator[](size_t)
         T operator()(size_t) const
@@ -149,6 +157,7 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         Array5NonOwn[T] reshape(int, int, int, int, int)
 
     cdef cppclass Array5NonOwn[T]:
+        T* data
         Array5NonOwn()
         Array5NonOwn(T*, size_t, size_t, size_t, size_t, size_t)
         T operator[](size_t) const
@@ -170,9 +179,10 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
 
     cdef cppclass Array5Own[T]:
         Array5Own(size_t, size_t, size_t, size_t, size_t)
-        Array5Own(T, size_t, size_t, size_t, size_t, size_t)
+        Array5Own(T*, size_t, size_t, size_t, size_t, size_t)
         Array5Own(const Array5NonOwn&)
         Array5Own& operator=(const Array5NonOwn&)
+        T* data()
         T operator[](size_t) const
         T& operator[](size_t)
         T operator()(size_t) const

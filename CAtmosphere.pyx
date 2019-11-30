@@ -13,6 +13,9 @@ import time
 from enum import Enum, auto
 from copy import deepcopy
 
+# NOTE(cmo): Some late binding stuff to be able to use numpy C API
+np.import_array()
+
 ctypedef np.int8_t i8
 ctypedef Array1NonOwn[np.int32_t] I32View
 ctypedef Array1NonOwn[bool_t] BoolView
@@ -56,6 +59,10 @@ cdef extern from "Lightweaver.hpp":
 
         void update_projections()
 
+cdef extern from "Lightweaver.hpp" namespace "PrdCores":
+    cdef int max_fine_grid_size()
+
+
 cdef extern from "Background.hpp":
     cdef cppclass BackgroundData:
         F64View chPops
@@ -96,6 +103,7 @@ cdef extern from "Lightweaver.hpp":
         F64View2D I
         F64View3D Quv
         F64View2D J
+        F64Arr2D JRest
 
     cdef cppclass ZeemanComponents:
         I32View alpha
@@ -135,6 +143,7 @@ cdef extern from "Lightweaver.hpp":
         F64View Rij
         F64View Rji
         F64View2D rhoPrd
+        F64Arr3D gII
 
         void uv(int la, int mu, bool_t toObs, F64View Uji, F64View Vij, F64View Vji)
         void compute_phi(const Atmosphere& atmos, F64View aDamp, F64View vBroad)
@@ -673,6 +682,20 @@ cdef class RayleighScatterer:
 
         return True
 
+cdef gII_to_numpy(F64Arr3D gII):
+    if gII.data() is NULL:
+        raise AttributeError
+    cdef np.npy_intp shape[3]
+    shape[0] = <np.npy_intp> gII.shape(0)
+    shape[1] = <np.npy_intp> gII.shape(1)
+    shape[2] = <np.npy_intp> gII.shape(2)
+    ndarray = np.PyArray_SimpleNewFromData(3, &shape[0],
+                                            np.NPY_FLOAT64, <void*>gII.data())
+    return ndarray
+
+cdef gII_from_numpy(Transition trans, f64[:,:,::1] gII):
+    trans.gII = F64Arr3D(f64_view_3(gII))
+
 cdef class LwTransition:
     cdef Transition trans
     cdef f64[:, :, :, ::1] phi
@@ -783,6 +806,11 @@ cdef class LwTransition:
                 state['rhoPrd'] = np.asarray(self.rhoPrd)
             except AttributeError:
                 state['rhoPrd'] = None
+
+            try:
+                state['gII'] = np.copy(gII_to_numpy(self.trans.gII))
+            except AttributeError:
+                state['gII'] = None
         else:
             state['alpha'] = np.asarray(self.alpha)
         return state
@@ -817,6 +845,8 @@ cdef class LwTransition:
             if state['rhoPrd'] is not None:
                 self.rhoPrd = state['rhoPrd']
                 self.trans.rhoPrd = f64_view_2(self.rhoPrd)
+            if state['gII'] is not None:
+                gII_from_numpy(self.trans, state['gII'])
             if state['polarised']:
                 self.phiQ = state['phiQ']
                 self.phiU = state['phiU']
@@ -1435,6 +1465,19 @@ cdef class LwAtom:
             col.compute_rates(self.atmos, nStar, C)
         C[C < 0.0] = 0.0
 
+cdef JRest_to_numpy(F64Arr2D JRest):
+    if JRest.data() is NULL:
+        raise AttributeError
+    cdef np.npy_intp shape[2]
+    shape[0] = <np.npy_intp> JRest.shape(0)
+    shape[1] = <np.npy_intp> JRest.shape(1)
+    ndarray = np.PyArray_SimpleNewFromData(2, &shape[0],
+                                            np.NPY_FLOAT64, <void*>JRest.data())
+    return ndarray
+
+cdef JRest_from_numpy(Spectrum spect, f64[:,::1] JRest):
+    spect.JRest = F64Arr2D(f64_view_2(JRest))
+
 cdef class LwSpectrum:
     cdef Spectrum spect
     cdef f64[::1] wavelength
@@ -1466,6 +1509,11 @@ cdef class LwSpectrum:
         except AttributeError:
             state['Quv'] = None
 
+        try:
+            state['JRest'] = JRest_to_numpy(self.spect.JRest)
+        except AttributeError:
+            state['JRest'] = None
+
         return state
 
     def __setstate__(self, state):
@@ -1479,6 +1527,9 @@ cdef class LwSpectrum:
         if state['Quv'] is not None:
             self.Quv = state['Quv']
             self.spect.Quv = f64_view_3(self.Quv)
+
+        if state['JRest'] is not None:
+            JRest_from_numpy(self.spect, state['JRest'])
 
     def state_dict(self):
         s = {}

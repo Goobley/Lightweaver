@@ -107,6 +107,11 @@ f64 GII(f64 adamp, f64 q_emit, f64 q_abs)
     return gii;
 }
 
+constexpr int max_fine_grid_size()
+{
+    return max(3 * PrdQWing, 2 * PrdQSpread) / PrdDQ + 1;
+}
+
 void prd_scatter(Transition* t, F64View Pj, const Atom& atom, const Atmosphere& atmos, const Spectrum& spect)
 {
     auto& trans = *t;
@@ -115,7 +120,7 @@ void prd_scatter(Transition* t, F64View Pj, const Atom& atom, const Atmosphere& 
     const int Nlambda = trans.wavelength.shape(0);
 
     bool initialiseGii = (!trans.gII) || (trans.gII(0, 0, 0) < 0.0);
-    constexpr int maxFineGrid = max(3 * PrdQWing, 2 * PrdQSpread) / PrdDQ + 1;
+    constexpr int maxFineGrid = max_fine_grid_size();
     if (!trans.gII)
         trans.gII = F64Arr3D(Nlambda, atmos.Nspace, maxFineGrid);
 
@@ -459,7 +464,10 @@ void configure_hprd_coeffs(Context& ctx)
         }
     }
 
-    spect.JRest = F64Arr2D(0.0, prdLambdas.size(), atmos.Nspace);
+    if (!spect.JRest || 
+        !(spect.JRest.shape(0) == prdLambdas.size() && spect.JRest.shape(1) == atmos.Nspace)
+       )
+        spect.JRest = F64Arr2D(0.0, prdLambdas.size(), atmos.Nspace);
     spect.JCoeffs = Prd::JCoeffVec(hPrdIdxs.size(), atmos.Nrays, 2, atmos.Nspace);
     constexpr f64 sign[] = {-1.0, 1.0};
 
