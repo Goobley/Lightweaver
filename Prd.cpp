@@ -215,7 +215,7 @@ void prd_scatter(Transition* t, F64View Pj, const Atom& atom, const Atmosphere& 
 }
 }
 
-f64 formal_sol_update_rates(Context& ctx, I32View wavelengthIdxs)
+f64 formal_sol_prd_update_rates(Context& ctx, ConstView<i32> wavelengthIdxs)
 {
     JasUnpack(*ctx, atmos, spect, background);
     JasUnpack(ctx, activeAtoms, lteAtoms);
@@ -261,18 +261,15 @@ f64 formal_sol_update_rates(Context& ctx, I32View wavelengthIdxs)
     for (int i = 0; i < wavelengthIdxs.shape(0); ++i)
     {
         const f64 la = wavelengthIdxs(i);
-        f64 dJ = intensity_core(iCore, la, (FsMode::UpdateJ | FsMode::UpdateRates));
+        f64 dJ = intensity_core(iCore, la, (FsMode::UpdateJ | FsMode::UpdateRates | FsMode::PrdOnly));
         dJMax = max(dJ, dJMax);
     }
     return dJMax;
 }
 
-f64 formal_sol_update_rates(Context& ctx, const std::vector<int>& wavelengthIdxs)
+f64 formal_sol_prd_update_rates(Context& ctx, const std::vector<int>& wavelengthIdxs)
 {
-    // TODO(cmo): Really need to fix the const-correctness on these arrays, if possible.
-    // It isn't really. However, we should be able to make ArrayNonOwn<const T> constructible from Array(Non)Own<T>
-    I32View wavelengthView(const_cast<int*>(wavelengthIdxs.data()), wavelengthIdxs.size());
-    return formal_sol_update_rates(ctx, wavelengthView);
+    return formal_sol_prd_update_rates(ctx, ConstView<i32>(wavelengthIdxs.data(), wavelengthIdxs.size()));
 }
 
 f64 redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
@@ -333,7 +330,7 @@ f64 redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
             dRho = max(dRho, p.ng.max_change());
         }
 
-        formal_sol_update_rates(ctx, idxsForFs);
+        formal_sol_prd_update_rates(ctx, idxsForFs);
 
         if (dRho < tol)
             break;

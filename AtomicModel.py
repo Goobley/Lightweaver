@@ -10,7 +10,7 @@ from parse import parse
 
 import Constants as Const
 from Utils import gaunt_bf
-from AtomicTable import AtomicTable
+from AtomicTable import AtomicTable, get_global_atomic_table
 from Barklem import Barklem
 
 # TODO(cmo): Handle Stark (+ Linear stark for H) broadening in the same way as VdW, i.e. move all of Broaden to Python AtomicModel
@@ -50,8 +50,9 @@ class AtomicModel:
     # We need lots of periodic table data to calculate lots of stuff. This lets us override the default AtomicTable if abundaces/metallicity is changed.
     # TODO(cmo):
     # i.e. a function will replace each atom with another with the same name, levels, lines, continua, collisions, but a different atomic table
-    atomicTable: AtomicTable = field(default_factory=AtomicTable)
+    atomicTable: AtomicTable = field(default_factory=get_global_atomic_table)
 
+    # @profile
     def __post_init__(self):
         for l in self.levels:
             l.setup(self)
@@ -130,6 +131,11 @@ def model_component_eq(a, b) -> bool:
     db = b.__dict__
 
     return all([avoid_recursion_eq(da[k], db[k]) for k in da.keys()])
+
+# def __deepcopy__(self, memo):
+#     cls = type(self)
+#     new = cls.__new__(cls)
+#     memo[id(self)] = new
     
 
 @dataclass
@@ -819,8 +825,38 @@ class CollisionalRates:
     def compute_rates(self, atmos, nstar, Cmat):
         pass
 
+    def setup_interpolator(self):
+        if len(self.rates) <  3:
+            self.interpolator = interp1d(self.temperature, self.rates, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
+        else:
+            self.interpolator = interp1d(self.temperature, self.rates, kind=3, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
+
     def __eq__(self, other: object) -> bool:
         return model_component_eq(self, other)
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        # try:
+        #     state['interpolator']
+        #     state['interpolator'] = True
+        # except KeyError:
+        #     state['interpolator'] = False
+        try:
+            del state['interpolator']
+        except KeyError:
+            pass
+
+        return state
+
+    # def __setstate(self, state):
+    #     interpolator = state['interpolator']
+    #     del state['interpolator']
+    #     self.__dict__.update(state)
+    #     if interpolator:
+    #         if len(self.rates) <  3:
+    #             self.interpolator = interp1d(self.temperature, self.rates, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
+    #         else:
+    #             self.interpolator = interp1d(self.temperature, self.rates, kind=3, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
 
 @dataclass(eq=False)
 class Omega(CollisionalRates):
@@ -836,14 +872,14 @@ class Omega(CollisionalRates):
         self.jLevel = atom.levels[self.j]
         self.iLevel = atom.levels[self.i]
         self.C0 = Const.E_RYDBERG / np.sqrt(Const.M_ELECTRON) * np.pi * Const.RBOHR**2 * np.sqrt(8.0 / (np.pi * Const.KBOLTZMANN))
-        if len(self.rates) <  3:
-            self.interpolator = interp1d(self.temperature, self.rates, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
-        else:
-            self.interpolator = interp1d(self.temperature, self.rates, kind=3, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
 
     def compute_rates(self, atmos, nstar, Cmat):
-        # TODO(cmo): Remove the nstar argument -- replace with g_ij exp(-hv/kbT)
-        C = self.interpolator(atmos.temperature)
+        try:
+            C = self.interpolator(atmos.temperature)
+        except AttributeError:
+            self.setup_interpolator()
+            C = self.interpolator(atmos.temperature)
+
         Cdown = self.C0 * atmos.ne * C / (self.jLevel.g * np.sqrt(atmos.temperature))
         Cmat[self.i, self.j, :] += Cdown
         Cmat[self.j, self.i, :] += Cdown * nstar[self.j] / nstar[self.i]
@@ -862,13 +898,13 @@ class CI(CollisionalRates):
         self.jLevel = atom.levels[self.j]
         self.iLevel = atom.levels[self.i]
         self.dE = self.jLevel.E_SI - self.iLevel.E_SI
-        if len(self.rates) <  3:
-            self.interpolator = interp1d(self.temperature, self.rates, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
-        else:
-            self.interpolator = interp1d(self.temperature, self.rates, kind=3, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
 
     def compute_rates(self, atmos, nstar, Cmat):
-        C = self.interpolator(atmos.temperature)
+        try:
+            C = self.interpolator(atmos.temperature)
+        except AttributeError:
+            self.setup_interpolator()
+            C = self.interpolator(atmos.temperature)
         Cup = C * atmos.ne * np.exp(-self.dE / (Const.KBOLTZMANN * atmos.temperature)) * np.sqrt(atmos.temperature)
         Cmat[self.j, self.i, :] += Cup
         Cmat[self.i, self.j, :] += Cup * nstar[self.i] / nstar[self.j]
@@ -888,13 +924,13 @@ class CE(CollisionalRates):
         self.jLevel = atom.levels[self.j]
         self.iLevel = atom.levels[self.i]
         self.gij = self.iLevel.g / self.jLevel.g
-        if len(self.rates) <  3:
-            self.interpolator = interp1d(self.temperature, self.rates, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
-        else:
-            self.interpolator = interp1d(self.temperature, self.rates, kind=3, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
 
     def compute_rates(self, atmos, nstar, Cmat):
-        C = self.interpolator(atmos.temperature)
+        try:
+            C = self.interpolator(atmos.temperature)
+        except AttributeError:
+            self.setup_interpolator()
+            C = self.interpolator(atmos.temperature)
         Cdown = C * atmos.ne * self.gij * np.sqrt(atmos.temperature)
         Cmat[self.i, self.j, :] += Cdown
         Cmat[self.j, self.i, :] += Cdown * nstar[self.j] / nstar[self.i]

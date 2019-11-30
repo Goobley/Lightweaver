@@ -5,46 +5,45 @@ from xdrlib import Unpacker
 from dataclasses import dataclass, field
 import numpy as np
 import Constants as Const
-from Atmosphere import Atmosphere
 from scipy.interpolate import interp1d
 from numba import jit
 from Utils import ConvergenceError
 
 if TYPE_CHECKING:
-   from ComputationalAtom import ComputationalAtom
-   from AtomicModel import AtomicModel
+    from ComputationalAtom import ComputationalAtom
+    from AtomicModel import AtomicModel
+    # from Atmosphere import Atmosphere
 
-AtomicWeights: OrderedDict = \
-   OrderedDict([
-   ("H ", 1.008),   ("HE", 4.003),   ("LI", 6.939),   ("BE", 9.013),
-   ("B ", 10.810),  ("C ", 12.010),  ("N ", 14.010),  ("O ", 16.000),
-   ("F ", 19.000),  ("NE", 20.180),  ("NA", 22.990),  ("MG", 24.310),
-   ("AL", 26.980),  ("SI", 28.090),  ("P ", 30.980),  ("S ", 32.070),
-   ("CL", 35.450),  ("AR", 39.950),  ("K ", 39.100),  ("CA", 40.080),
-   ("SC", 44.960),  ("TI", 47.900),  ("V ", 50.940),  ("CR", 52.000),
-   ("MN", 54.940),  ("FE", 55.850),  ("CO", 58.940),  ("NI", 58.710),
-   ("CU", 63.550),  ("ZN", 65.370),  ("GA", 69.720),  ("GE", 72.600),
-   ("AS", 74.920),  ("SE", 78.960),  ("BR", 79.910),  ("KR", 83.800),
-   ("RB", 85.480),  ("SR", 87.630),  ("Y ", 88.910),  ("ZR", 91.220),
-   ("NB", 92.910),  ("MO", 95.950),  ("TC", 99.000),  ("RU", 101.100),
-   ("RH", 102.900), ("PD", 106.400), ("AG", 107.900), ("CD", 112.400),
-   ("IN", 114.800), ("SN", 118.700), ("SB", 121.800), ("TE", 127.600),
-   ("I ", 126.900), ("XE", 131.300), ("CS", 132.900), ("BA", 137.400),
-   ("LA", 138.900), ("CE", 140.100), ("PR", 140.900), ("ND", 144.300),
-   ("PM", 147.000), ("SM", 150.400), ("EU", 152.000), ("GD", 157.300),
-   ("TB", 158.900), ("DY", 162.500), ("HO", 164.900), ("ER", 167.300),
-   ("TM", 168.900), ("YB", 173.000), ("LU", 175.000), ("HF", 178.500),
-   ("TA", 181.000), ("W ", 183.900), ("RE", 186.300), ("OS", 190.200),
-   ("IR", 192.200), ("PT", 195.100), ("AU", 197.000), ("HG", 200.600),
-   ("TL", 204.400), ("PB", 207.200), ("BI", 209.000), ("PO", 210.000),
-   ("AT", 211.000), ("RN", 222.000), ("FR", 223.000), ("RA", 226.100),
-   ("AC", 227.100), ("TH", 232.000), ("PA", 231.000), ("U ", 238.000),
-   ("NP", 237.000), ("PU", 244.000), ("AM", 243.000), ("CM", 247.000),
-   ("BK", 247.000), ("CF", 251.000), ("ES", 254.000)])
+AtomicWeights = OrderedDict([
+    ("H ", 1.008),   ("HE", 4.003),   ("LI", 6.939),   ("BE", 9.013),
+    ("B ", 10.810),  ("C ", 12.010),  ("N ", 14.010),  ("O ", 16.000),
+    ("F ", 19.000),  ("NE", 20.180),  ("NA", 22.990),  ("MG", 24.310),
+    ("AL", 26.980),  ("SI", 28.090),  ("P ", 30.980),  ("S ", 32.070),
+    ("CL", 35.450),  ("AR", 39.950),  ("K ", 39.100),  ("CA", 40.080),
+    ("SC", 44.960),  ("TI", 47.900),  ("V ", 50.940),  ("CR", 52.000),
+    ("MN", 54.940),  ("FE", 55.850),  ("CO", 58.940),  ("NI", 58.710),
+    ("CU", 63.550),  ("ZN", 65.370),  ("GA", 69.720),  ("GE", 72.600),
+    ("AS", 74.920),  ("SE", 78.960),  ("BR", 79.910),  ("KR", 83.800),
+    ("RB", 85.480),  ("SR", 87.630),  ("Y ", 88.910),  ("ZR", 91.220),
+    ("NB", 92.910),  ("MO", 95.950),  ("TC", 99.000),  ("RU", 101.100),
+    ("RH", 102.900), ("PD", 106.400), ("AG", 107.900), ("CD", 112.400),
+    ("IN", 114.800), ("SN", 118.700), ("SB", 121.800), ("TE", 127.600),
+    ("I ", 126.900), ("XE", 131.300), ("CS", 132.900), ("BA", 137.400),
+    ("LA", 138.900), ("CE", 140.100), ("PR", 140.900), ("ND", 144.300),
+    ("PM", 147.000), ("SM", 150.400), ("EU", 152.000), ("GD", 157.300),
+    ("TB", 158.900), ("DY", 162.500), ("HO", 164.900), ("ER", 167.300),
+    ("TM", 168.900), ("YB", 173.000), ("LU", 175.000), ("HF", 178.500),
+    ("TA", 181.000), ("W ", 183.900), ("RE", 186.300), ("OS", 190.200),
+    ("IR", 192.200), ("PT", 195.100), ("AU", 197.000), ("HG", 200.600),
+    ("TL", 204.400), ("PB", 207.200), ("BI", 209.000), ("PO", 210.000),
+    ("AT", 211.000), ("RN", 222.000), ("FR", 223.000), ("RA", 226.100),
+    ("AC", 227.100), ("TH", 232.000), ("PA", 231.000), ("U ", 238.000),
+    ("NP", 237.000), ("PU", 244.000), ("AM", 243.000), ("CM", 247.000),
+    ("BK", 247.000), ("CF", 251.000), ("ES", 254.000)])
 
 def atomic_weight_sort(atom):
-   name = atom.name.upper().ljust(2)
-   return AtomicWeights[name]
+    name = atom.name.upper().ljust(2)
+    return AtomicWeights[name]
 
 # def weight_amu(name: str):
 #    name = name.upper()
@@ -56,7 +55,7 @@ def atomic_weight_sort(atom):
 # O   8.93  # original
 # C   8.60  # original
 # FE   7.67  #original
-AtomicAbundances: OrderedDict = \
+AtomicAbundances = \
 OrderedDict([
 ("H ", 12.00),
 ("HE", 10.99),
@@ -185,319 +184,324 @@ OrderedDict([
 # def read_abundance(metallicity):
 
 def read_pf(path):
-   with open(path, 'rb') as f:
-      s = f.read()
-   u = Unpacker(s)
-   Tpf = u.unpack_array(u.unpack_double)
-   ptis = []
-   stages = []
-   pf = []
-   ionpot = []
-   for i in range(len(AtomicWeights)):
-      ptis.append(u.unpack_int())
-      stages.append(u.unpack_int())
-      pf.append(u.unpack_farray(stages[-1] * len(Tpf), u.unpack_double))
-      ionpot.append(u.unpack_farray(stages[-1], u.unpack_double))
+    with open(path, 'rb') as f:
+        s = f.read()
+    u = Unpacker(s)
+    Tpf = u.unpack_array(u.unpack_double)
+    ptis = []
+    stages = []
+    pf = []
+    ionpot = []
+    for i in range(len(AtomicWeights)):
+        ptis.append(u.unpack_int())
+        stages.append(u.unpack_int())
+        pf.append(u.unpack_farray(stages[-1] * len(Tpf), u.unpack_double))
+        ionpot.append(u.unpack_farray(stages[-1], u.unpack_double))
 
-   return {'Tpf': Tpf, 'stages': stages, 'pf': pf, 'ionpot': ionpot}
+    return {'Tpf': Tpf, 'stages': stages, 'pf': pf, 'ionpot': ionpot}
 
 @dataclass
 class Element:
-   name: str
-   weight: float
-   abundance: float
-   ionpot: np.ndarray
-   Tpf: np.ndarray
-   pf: np.ndarray
-   atom: Optional['ComputationalAtom'] = None
+    name: str
+    weight: float
+    abundance: float
+    ionpot: np.ndarray
+    Tpf: np.ndarray
+    pf: np.ndarray
 
-   def __post_init__(self):
-      Nstage = self.ionpot.shape[0]
-      self.Uk = [interp1d(self.Tpf, self.pf[i]) for i in range(Nstage)]
+    def __post_init__(self):
+        Nstage = self.ionpot.shape[0]
 
-   def __hash__(self):
-      return hash(repr(self))
+    def __hash__(self):
+        return hash(repr(self))
 
-   def __cmp__(self, other):
-      return hash(self) == hash(other)
+    def __cmp__(self, other):
+        return hash(self) == hash(other)
 
-   def __repr__(self):
-      return 'Element(name=\'%s\', weight=%e, abundance=%e)' % (self.name, self.weight, self.abundance)
+    def __repr__(self):
+        return 'Element(name=\'%s\', weight=%e, abundance=%e)' % (self.name, self.weight, self.abundance)
 
-   def lte_populations(self, atmos: Atmosphere) -> np.ndarray:
-      Nstage = self.ionpot.shape[0]
-      Nspace = atmos.depthScale.shape[0]
+    def lte_populations(self, atmos: 'Atmosphere') -> np.ndarray:
+        Nstage = self.ionpot.shape[0]
+        Nspace = atmos.depthScale.shape[0]
 
-      C1 = (Const.HPLANCK / (2.0 * np.pi * Const.M_ELECTRON)) * Const.HPLANCK / Const.KBOLTZMANN
-      
-      CtNe = 2.0 * (C1/atmos.temperature)**(-1.5) / atmos.ne
-      total = np.ones(Nspace)
-      pops = np.zeros((Nstage, Nspace))
-      pops[0, :] = 1.0
+        C1 = (Const.HPLANCK / (2.0 * np.pi * Const.M_ELECTRON)) * Const.HPLANCK / Const.KBOLTZMANN
+        
+        CtNe = 2.0 * (C1/atmos.temperature)**(-1.5) / atmos.ne
+        total = np.ones(Nspace)
+        pops = np.zeros((Nstage, Nspace))
+        pops[0, :] = 1.0
 
-      # Uk = interp1d(self.Tpf, self.pf[0])(atmos.temperature)
-      Uk = self.Uk[0](atmos.temperature)
+        Uk = np.interp(atmos.temperature, self.Tpf, self.pf[0, :])
 
-      for i in range(1, Nstage):
-         # Ukp1 = interp1d(self.Tpf, self.pf[i])(atmos.temperature)
-         Ukp1 = self.Uk[i](atmos.temperature)
+        for i in range(1, Nstage):
+            Ukp1 = np.interp(atmos.temperature, self.Tpf, self.pf[i, :])
 
-         pops[i, :] = pops[i-1, :] * CtNe * np.exp(Ukp1 - Uk - self.ionpot[i-1] \
-                        / (Const.KBOLTZMANN * atmos.temperature))
-         total += pops[i]
+            pops[i, :] = pops[i-1, :] * CtNe * np.exp(Ukp1 - Uk - self.ionpot[i-1] \
+                            / (Const.KBOLTZMANN * atmos.temperature))
+            total += pops[i]
 
-         Ukp1, Uk = Uk, Ukp1
+            Ukp1, Uk = Uk, Ukp1
 
-      pops[0, :] = self.abundance * atmos.nHTot / total
-      pops[1:,:] *= pops[0, :]
+        pops[0, :] = self.abundance * atmos.nHTot / total
+        pops[1:,:] *= pops[0, :]
 
-      return pops
+        return pops
 
    # @jit
-   def fjk(self, atmos, k):
-      Nspace: int = atmos.depthScale.shape[0]
-      T: float = atmos.temperature[k]
-      ne: float = atmos.ne[k]
+    def fjk(self, atmos, k):
+        Nspace: int = atmos.depthScale.shape[0]
+        T: float = atmos.temperature[k]
+        ne: float = atmos.ne[k]
 
-      C1 = (Const.HPLANCK / (2.0 * np.pi * Const.M_ELECTRON)) * Const.HPLANCK / Const.KBOLTZMANN
-      
-      CtNe = 2.0 * (C1/T)**(-1.5) / ne
-      Nstage: int = self.ionpot.shape[0]
-      fjk = np.zeros(Nstage)
-      fjk[0] = 1.0
-      dfjk = np.zeros(Nstage)
+        C1 = (Const.HPLANCK / (2.0 * np.pi * Const.M_ELECTRON)) * Const.HPLANCK / Const.KBOLTZMANN
+        
+        CtNe = 2.0 * (C1/T)**(-1.5) / ne
+        Nstage: int = self.ionpot.shape[0]
+        fjk = np.zeros(Nstage)
+        fjk[0] = 1.0
+        dfjk = np.zeros(Nstage)
 
-      # fjk: fractional population of stage j, at atmospheric index k
-      # The first stage starts with a "population" of 1, then via Saha we compute the relative populations of the other stages, before dividing by the sum across these
+        # fjk: fractional population of stage j, at atmospheric index k
+        # The first stage starts with a "population" of 1, then via Saha we compute the relative populations of the other stages, before dividing by the sum across these
 
-      # Uk = interp1d(self.Tpf, self.pf[0])(T)
-      Uk: float = self.Uk[0](T)
+        Uk: float = np.interp(T, self.Tpf, self.pf[0, :])
 
-      for j in range(1, Nstage):
-         # Ukp1 = interp1d(self.Tpf, self.pf[j])(T)
-         Ukp1: float = self.Uk[j](T)
+        for j in range(1, Nstage):
+            Ukp1: float = np.interp(T, self.Tpf, self.pf[j, :])
 
-         fjk[j] = fjk[j-1] * CtNe * np.exp(Ukp1 - Uk - self.ionpot[j-1] / (Const.KBOLTZMANN * T))
-         dfjk[j] = -j * fjk[j] / ne
+            fjk[j] = fjk[j-1] * CtNe * np.exp(Ukp1 - Uk - self.ionpot[j-1] / (Const.KBOLTZMANN * T))
+            dfjk[j] = -j * fjk[j] / ne
 
-         Uk = Ukp1
+            Uk = Ukp1
 
-      sumF = np.sum(fjk)
-      sumDf = np.sum(dfjk)
-      fjk /= sumF
-      dfjk = (dfjk - fjk * sumDf) / sumF
-      return fjk, dfjk
+        sumF = np.sum(fjk)
+        sumDf = np.sum(dfjk)
+        fjk /= sumF
+        dfjk = (dfjk - fjk * sumDf) / sumF
+        return fjk, dfjk
 
-   def fj(self, atmos):
-      Nspace: int = atmos.depthScale.shape[0]
-      T = atmos.temperature
-      ne = atmos.ne
+    def fj(self, atmos):
+        Nspace: int = atmos.depthScale.shape[0]
+        T = atmos.temperature
+        ne = atmos.ne
 
-      C1 = (Const.HPLANCK / (2.0 * np.pi * Const.M_ELECTRON)) * Const.HPLANCK / Const.KBOLTZMANN
-      
-      CtNe = 2.0 * (C1/T)**(-1.5) / ne
-      Nstage: int = self.ionpot.shape[0]
-      fj = np.zeros((Nstage, Nspace))
-      fj[0, :] = 1.0
-      dfj = np.zeros((Nstage, Nspace))
+        C1 = (Const.HPLANCK / (2.0 * np.pi * Const.M_ELECTRON)) * Const.HPLANCK / Const.KBOLTZMANN
+        
+        CtNe = 2.0 * (C1/T)**(-1.5) / ne
+        Nstage: int = self.ionpot.shape[0]
+        fj = np.zeros((Nstage, Nspace))
+        fj[0, :] = 1.0
+        dfj = np.zeros((Nstage, Nspace))
 
-      # fjk: fractional population of stage j, at atmospheric index k
-      # The first stage starts with a "population" of 1, then via Saha we compute the relative populations of the other stages, before dividing by the sum across these
+        # fjk: fractional population of stage j, at atmospheric index k
+        # The first stage starts with a "population" of 1, then via Saha we compute the relative populations of the other stages, before dividing by the sum across these
 
-      # Uk = interp1d(self.Tpf, self.pf[0])(T)
-      Uk = self.Uk[0](T)
+        Uk = np.interp(T, self.Tpf, self.pf[0, :])
 
-      for j in range(1, Nstage):
-         # Ukp1 = interp1d(self.Tpf, self.pf[j])(T)
-         Ukp1 = self.Uk[j](T)
+        for j in range(1, Nstage):
+            Ukp1 = np.interp(T, self.Tpf, self.pf[j, 0])
 
-         fj[j] = fj[j-1] * CtNe * np.exp(Ukp1 - Uk - self.ionpot[j-1] / (Const.KBOLTZMANN * T))
-         dfj[j] = -j * fj[j] / ne
+            fj[j] = fj[j-1] * CtNe * np.exp(Ukp1 - Uk - self.ionpot[j-1] / (Const.KBOLTZMANN * T))
+            dfj[j] = -j * fj[j] / ne
 
-         Uk[:] = Ukp1
+            Uk[:] = Ukp1
 
-      sumF = np.sum(fj, axis=0)
-      sumDf = np.sum(dfj, axis=0)
-      fj /= sumF
-      dfj = (dfj - fj * sumDf) / sumF
-      return fj, dfj
+        sumF = np.sum(fj, axis=0)
+        sumDf = np.sum(dfj, axis=0)
+        fj /= sumF
+        dfj = (dfj - fj * sumDf) / sumF
+        return fj, dfj
 
 
 @dataclass
 class LtePopulations:
-   atomicTable: 'AtomicTable'
-   atmosphere: Atmosphere
-   populations: List[np.ndarray]
+    atomicTable: 'AtomicTable'
+    atmosphere: 'Atmosphere'
+    populations: List[np.ndarray]
 
-   def __getitem__(self, name: str) -> np.ndarray:
-      name = name.upper()
-      if len(name) == 1:
-         name += ' '
-      return self.populations[self.atomicTable.indices[name]]
-   
+    def __getitem__(self, name: str) -> np.ndarray:
+        name = name.upper()
+        if len(name) == 1:
+            name += ' '
+        return self.populations[self.atomicTable.indices[name]]
+    
 
 class AtomicTable:
-   def __init__(self, kuruczPfPath: Optional[str]=None, metallicity: float=0.0, 
-                      abundances: Dict=None, abundDex: bool=True):
-      if set(AtomicWeights.keys()) != set(AtomicAbundances.keys()):
-         raise ValueError('AtomicWeights and AtomicAbundances keys differ (Problem keys: %s)' % repr(set(AtomicWeights.keys()) - set(AtomicAbundances.keys())))
+    def __init__(self, kuruczPfPath: Optional[str]=None, metallicity: float=0.0, 
+                        abundances: Dict=None, abundDex: bool=True):
+        if set(AtomicWeights.keys()) != set(AtomicAbundances.keys()):
+            raise ValueError('AtomicWeights and AtomicAbundances keys differ (Problem keys: %s)' % repr(set(AtomicWeights.keys()) - set(AtomicAbundances.keys())))
 
-      self.indices = OrderedDict(zip(AtomicWeights.keys(), range(len(AtomicWeights))))
+        self.indices = OrderedDict(zip(AtomicWeights.keys(), range(len(AtomicWeights))))
 
-      # Convert abundances and overwrite any provided secondary abundances
-      self.abund = deepcopy(AtomicAbundances)
-      if self.abund['H '] == 12.0:
-         for k, v in self.abund.items():
-            self.abund[k] = 10**(v - 12.0)
+        # Convert abundances and overwrite any provided secondary abundances
+        self.abund = deepcopy(AtomicAbundances)
+        if self.abund['H '] == 12.0:
+            for k, v in self.abund.items():
+                self.abund[k] = 10**(v - 12.0)
 
-      if abundances is not None:
-         if abundDex:
+        if abundances is not None:
+            if abundDex:
+                for k, v in abundances.items():
+                    abundances[k] = 10**(v - 12.0)
             for k, v in abundances.items():
-               abundances[k] = 10**(v - 12.0)
-         for k, v in abundances.items():
-            self.abund[k] = v
+                self.abund[k] = v
 
-      metallicity = 10**metallicity
-      for k, v in self.abund.items():
-         if k != 'H ':
-            self.abund[k] = v*metallicity
+        metallicity = 10**metallicity
+        for k, v in self.abund.items():
+            if k != 'H ':
+                self.abund[k] = v*metallicity
 
 
-      # TODO(cmo): replace this with a proper default path
-      kuruczPfPath = '../Atoms/pf_Kurucz.input' if kuruczPfPath is None else kuruczPfPath
-      with open(kuruczPfPath, 'rb') as f:
-         s = f.read()
-      u = Unpacker(s)
+        # TODO(cmo): replace this with a proper default path
+        kuruczPfPath = '../Atoms/pf_Kurucz.input' if kuruczPfPath is None else kuruczPfPath
+        with open(kuruczPfPath, 'rb') as f:
+            s = f.read()
+        u = Unpacker(s)
 
-      self.Tpf = np.array(u.unpack_array(u.unpack_double))
-      ptIndex = [] # Index in the periodic table (fortran based, so +1) -- could be used for validation
-      stages = []
-      pf = []
-      ionpot = []
-      for i in range(len(AtomicWeights)):
-         ptIndex.append(u.unpack_int())
-         stages.append(u.unpack_int())
-         pf.append(np.array(u.unpack_farray(stages[-1] * self.Tpf.shape[0], u.unpack_double)).reshape(stages[-1], self.Tpf.shape[0]))
-         ionpot.append(np.array(u.unpack_farray(stages[-1], u.unpack_double)))
+        self.Tpf = np.array(u.unpack_array(u.unpack_double))
+        ptIndex = [] # Index in the periodic table (fortran based, so +1) -- could be used for validation
+        stages = []
+        pf = []
+        ionpot = []
+        for i in range(len(AtomicWeights)):
+            ptIndex.append(u.unpack_int())
+            stages.append(u.unpack_int())
+            pf.append(np.array(u.unpack_farray(stages[-1] * self.Tpf.shape[0], u.unpack_double)).reshape(stages[-1], self.Tpf.shape[0]))
+            ionpot.append(np.array(u.unpack_farray(stages[-1], u.unpack_double)))
 
-      ionpot = [i * Const.HC / Const.CM_TO_M for i in ionpot]
-      pf = [np.log(p) for p in pf]
+        ionpot = [i * Const.HC / Const.CM_TO_M for i in ionpot]
+        pf = [np.log(p) for p in pf]
 
-      totalAbund = 0.0
-      avgWeight = 0.0
-      self.elements: List[Element] = []
-      for k, v in AtomicWeights.items():
-         i = self.indices[k]
-         ele = Element(k, v, self.abund[k], ionpot[i], self.Tpf, pf[i])
-         self.elements.append(ele)
-         totalAbund += ele.abundance
-         avgWeight += ele.abundance * ele.weight
+        totalAbund = 0.0
+        avgWeight = 0.0
+        self.elements: List[Element] = []
+        for k, v in AtomicWeights.items():
+            i = self.indices[k]
+            ele = Element(k, v, self.abund[k], ionpot[i], self.Tpf, pf[i])
+            self.elements.append(ele)
+            totalAbund += ele.abundance
+            avgWeight += ele.abundance * ele.weight
 
-      self.totalAbundance = totalAbund
-      self.weightPerH = avgWeight
-      self.avgMolWeight = avgWeight / totalAbund
+        self.totalAbundance = totalAbund
+        self.weightPerH = avgWeight
+        self.avgMolWeight = avgWeight / totalAbund
 
-   def __getitem__(self, name: str) -> Element:
-      name = name.upper()
-      if len(name) == 1:
-         name += ' '
-      return self.elements[self.indices[name]]
+    def __getitem__(self, name: str) -> Element:
+        name = name.upper()
+        if len(name) == 1:
+            name += ' '
+        return self.elements[self.indices[name]]
 
-   def lte_populations(self, atmos: Atmosphere) -> LtePopulations:
-      pops = []
-      for ele in self.elements:
-         pops.append(ele.lte_populations(atmos))
+    def lte_populations(self, atmos: 'Atmosphere') -> LtePopulations:
+        pops = []
+        for ele in self.elements:
+            pops.append(ele.lte_populations(atmos))
 
-      return LtePopulations(self, atmos, pops)
+        return LtePopulations(self, atmos, pops)
 
-   def compute_ne_k(self, atmos, k):
-      # Can add a "fromScratch" where we start with ne=nHii
-      neOld = atmos.ne[k]
+    def compute_ne_k(self, atmos, k):
+        # Can add a "fromScratch" where we start with ne=nHii
+        neOld = atmos.ne[k]
 
-      C1 = (Const.HPLANCK / (2.0 * np.pi * Const.M_ELECTRON)) * (Const.HPLANCK / Const.KBOLTZMANN)
+        C1 = (Const.HPLANCK / (2.0 * np.pi * Const.M_ELECTRON)) * (Const.HPLANCK / Const.KBOLTZMANN)
 
-      nIter = 1
-      NmaxIter = 100
-      MaxError = 1e-2
-      while nIter < NmaxIter:
-         # Electrons per H
-         error = neOld / atmos.nHTot[k]
-         total = 0.0
+        nIter = 1
+        NmaxIter = 100
+        MaxError = 1e-2
+        while nIter < NmaxIter:
+            # Electrons per H
+            error = neOld / atmos.nHTot[k]
+            total = 0.0
 
-         for i, ele in enumerate(self.elements):
-            # Fractional stage pops and derivate wrt ne
-            fjk, dfjk = ele.fjk(atmos, k)
+            for i, ele in enumerate(self.elements):
+                # Fractional stage pops and derivate wrt ne
+                fjk, dfjk = ele.fjk(atmos, k)
 
-            if ele.name.startswith('H'):
-               # Add H- effects
-               PhiHmin = 0.25 * (C1 / atmos.temperature[k])**1.5 \
-                           * np.exp(Const.E_ION_HMIN / (Const.KBOLTZMANN * atmos.temperature[k]))
-               error += neOld * fjk[0] * PhiHmin
-               total -= (fjk[0] + neOld * dfjk[0]) * PhiHmin
+                if ele.name.startswith('H'):
+                # Add H- effects
+                    PhiHmin = 0.25 * (C1 / atmos.temperature[k])**1.5 \
+                                * np.exp(Const.E_ION_HMIN / (Const.KBOLTZMANN * atmos.temperature[k]))
+                    error += neOld * fjk[0] * PhiHmin
+                    total -= (fjk[0] + neOld * dfjk[0]) * PhiHmin
 
-            for j in range(1, len(ele.ionpot)):
-               electronContribution = ele.abundance * j
-               error -= electronContribution * fjk[j]
-               total += electronContribution * dfjk[j]
+                for j in range(1, len(ele.ionpot)):
+                    electronContribution = ele.abundance * j
+                    error -= electronContribution * fjk[j]
+                    total += electronContribution * dfjk[j]
 
-         # Quasi-Newton iteration
-         # atmos.nHTot * total is the sum of the derivative of all of the atomic populations wrt ne, weighted by the ionisation stage
-         # Obviously error tends to 0 as this converges -- we're solving f(x) = 0
-         atmos.ne[k] = neOld - atmos.nHTot[k] * error / (1.0 - atmos.nHTot[k] * total)
-         dne = np.abs((atmos.ne[k] - neOld) / neOld)
-         neOld = atmos.ne[k]
+            # Quasi-Newton iteration
+            # atmos.nHTot * total is the sum of the derivative of all of the atomic populations wrt ne, weighted by the ionisation stage
+            # Obviously error tends to 0 as this converges -- we're solving f(x) = 0
+            atmos.ne[k] = neOld - atmos.nHTot[k] * error / (1.0 - atmos.nHTot[k] * total)
+            dne = np.abs((atmos.ne[k] - neOld) / neOld)
+            neOld = atmos.ne[k]
 
-         if dne < MaxError:
-            break
+            if dne < MaxError:
+                break
 
-         nIter += 1
+            nIter += 1
 
-      if dne > MaxError:
-         raise ConvergenceError("Electron iteration did not converge at point %d" % k)
-      
+        if dne > MaxError:
+            raise ConvergenceError("Electron iteration did not converge at point %d" % k)
+        
 
-   def compute_ne(self, atmos):
-      # Can add a "fromScratch" where we start with ne=nHii
-      neOld = atmos.ne.copy()
+    def compute_ne(self, atmos):
+        # Can add a "fromScratch" where we start with ne=nHii
+        neOld = atmos.ne.copy()
 
-      C1 = (Const.HPLANCK / (2.0 * np.pi * Const.M_ELECTRON)) * (Const.HPLANCK / Const.KBOLTZMANN)
+        C1 = (Const.HPLANCK / (2.0 * np.pi * Const.M_ELECTRON)) * (Const.HPLANCK / Const.KBOLTZMANN)
 
-      nIter = 1
-      NmaxIter = 100
-      MaxError = 1e-2
-      while nIter < NmaxIter:
-         # Electrons per H
-         error = neOld / atmos.nHTot
-         total = np.zeros_like(error)
+        nIter = 1
+        NmaxIter = 100
+        MaxError = 1e-2
+        while nIter < NmaxIter:
+            # Electrons per H
+            error = neOld / atmos.nHTot
+            total = np.zeros_like(error)
 
-         for i, ele in enumerate(self.elements):
-            # Fractional stage pops and derivate wrt ne
-            fj, dfj = ele.fj(atmos)
+            for i, ele in enumerate(self.elements):
+                # Fractional stage pops and derivate wrt ne
+                fj, dfj = ele.fj(atmos)
 
-            if ele.name.startswith('H'):
-               # Add H- effects
-               PhiHmin = 0.25 * (C1 / atmos.temperature)**1.5 \
-                           * np.exp(Const.E_ION_HMIN / (Const.KBOLTZMANN * atmos.temperature))
-               error += neOld * fj[0] * PhiHmin
-               total -= (fj[0] + neOld * dfj[0]) * PhiHmin
+                if ele.name.startswith('H'):
+                    # Add H- effects
+                    PhiHmin = 0.25 * (C1 / atmos.temperature)**1.5 \
+                                * np.exp(Const.E_ION_HMIN / (Const.KBOLTZMANN * atmos.temperature))
+                    error += neOld * fj[0] * PhiHmin
+                    total -= (fj[0] + neOld * dfj[0]) * PhiHmin
 
-            for j in range(1, len(ele.ionpot)):
-               electronContribution = ele.abundance * j
-               error -= electronContribution * fj[j]
-               total += electronContribution * dfj[j]
+                for j in range(1, len(ele.ionpot)):
+                    electronContribution = ele.abundance * j
+                    error -= electronContribution * fj[j]
+                    total += electronContribution * dfj[j]
 
-         # Quasi-Newton iteration
-         # atmos.nHTot * total is the sum of the derivative of all of the atomic populations wrt ne, weighted by the ionisation stage
-         # Obviously error tends to 0 as this converges -- we're solving f(x) = 0
-         # Krylov or somtheing?
-         atmos.ne[:] = neOld - atmos.nHTot * error / (1.0 - atmos.nHTot * total)
-         dne = np.max(np.abs((atmos.ne - neOld) / neOld))
-         neOld[:] = atmos.ne
+            # Quasi-Newton iteration
+            # atmos.nHTot * total is the sum of the derivative of all of the atomic populations wrt ne, weighted by the ionisation stage
+            # Obviously error tends to 0 as this converges -- we're solving f(x) = 0
+            # Krylov or somtheing?
+            atmos.ne[:] = neOld - atmos.nHTot * error / (1.0 - atmos.nHTot * total)
+            dne = np.max(np.abs((atmos.ne - neOld) / neOld))
+            neOld[:] = atmos.ne
 
-         if dne < MaxError:
-            break
+            if dne < MaxError:
+                break
 
-         nIter += 1
+            nIter += 1
 
-      if dne > MaxError:
-         raise ConvergenceError("Electron iteration did not converge")
+        if dne > MaxError:
+            raise ConvergenceError("Electron iteration did not converge")
+
+_StandardAtomicTable: AtomicTable
+def get_global_atomic_table() -> AtomicTable:
+    global _StandardAtomicTable
+    try:
+        return _StandardAtomicTable
+    except NameError:
+        _StandardAtomicTable = AtomicTable()
+    return _StandardAtomicTable
+
+def set_global_atomic_table(table: AtomicTable):
+    global _StandardAtomicTable
+    _StandardAtomicTable = table

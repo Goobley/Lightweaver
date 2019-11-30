@@ -468,6 +468,7 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
     const int Nspect = spect.wavelength.shape(0);
     const bool updateJ = mode & FsMode::UpdateJ;
     const bool updateRates = mode & FsMode::UpdateRates;
+    const bool prdRatesOnly = mode & FsMode::PrdOnly;
     const bool computeOperator = bool(PsiStar);
 
     JDag = spect.J(la);
@@ -564,7 +565,8 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                                 atom.Gamma(t.j, t.i, k) += integrand * wlamu;
                             }
 
-                            if (updateRates)
+                            if ((updateRates && !prdRatesOnly)
+                                || (prdRatesOnly && t.rhoPrd))
                             {
                                 t.Rij(k) += I(k) * Vij(k) * wlamu;
                                 t.Rji(k) += (Uji(k) + I(k) * Vij(k)) * wlamu;
@@ -573,7 +575,7 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                     }
                 }
             }
-            if (updateRates)
+            if (updateRates && !prdRatesOnly)
             {
                 for (int a = 0; a < lteAtoms.size(); ++a)
                 {
@@ -611,7 +613,7 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
 }
 }
 
-f64 gamma_matrices_formal_sol(Context& ctx)
+f64 formal_sol_gamma_matrices(Context& ctx)
 {
     // feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
     JasUnpack(*ctx, atmos, spect, background);
@@ -680,4 +682,140 @@ f64 gamma_matrices_formal_sol(Context& ctx)
         }
     }
     return dJMax;
+}
+
+f64 formal_sol_update_rates(Context& ctx)
+{
+    JasUnpack(*ctx, atmos, spect, background);
+    JasUnpack(ctx, activeAtoms, lteAtoms);
+
+    const int Nspace = atmos.Nspace;
+    const int Nrays = atmos.Nrays;
+    const int Nspect = spect.wavelength.shape(0);
+
+    F64Arr chiTot = F64Arr(Nspace);
+    F64Arr etaTot = F64Arr(Nspace);
+    F64Arr S = F64Arr(Nspace);
+    F64Arr Uji = F64Arr(Nspace);
+    F64Arr Vij = F64Arr(Nspace);
+    F64Arr Vji = F64Arr(Nspace);
+    F64Arr I = F64Arr(Nspace);
+    F64Arr Ieff = F64Arr(Nspace);
+    F64Arr JDag = F64Arr(Nspace);
+    FormalData fd;
+    fd.atmos = &atmos;
+    fd.chi = chiTot;
+    fd.S = S;
+    fd.I = I;
+    IntensityCoreData iCore;
+    JasPackPtr(iCore, atmos, spect, fd, background);
+    JasPackPtr(iCore, activeAtoms, lteAtoms, JDag);
+    JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
+    JasPack(iCore, I, S, Ieff);
+
+    if (spect.JRest)
+        spect.JRest.fill(0.0);
+
+    for (auto& a : activeAtoms)
+    {
+        a->zero_rates();
+    }
+    for (auto& a : lteAtoms)
+    {
+        a->zero_rates();
+    }
+
+    f64 dJMax = 0.0;
+    FsMode mode = (UpdateJ | UpdateRates);
+    for (int la = 0; la < Nspect; ++la)
+    {
+        f64 dJ = intensity_core(iCore, la, mode);
+        dJMax = max(dJ, dJMax);
+    }
+    return dJMax;
+}
+
+f64 formal_sol_update_rates_fixed_J(Context& ctx)
+{
+    JasUnpack(*ctx, atmos, spect, background);
+    JasUnpack(ctx, activeAtoms, lteAtoms);
+
+    const int Nspace = atmos.Nspace;
+    const int Nrays = atmos.Nrays;
+    const int Nspect = spect.wavelength.shape(0);
+
+    F64Arr chiTot = F64Arr(Nspace);
+    F64Arr etaTot = F64Arr(Nspace);
+    F64Arr S = F64Arr(Nspace);
+    F64Arr Uji = F64Arr(Nspace);
+    F64Arr Vij = F64Arr(Nspace);
+    F64Arr Vji = F64Arr(Nspace);
+    F64Arr I = F64Arr(Nspace);
+    F64Arr Ieff = F64Arr(Nspace);
+    F64Arr JDag = F64Arr(Nspace);
+    FormalData fd;
+    fd.atmos = &atmos;
+    fd.chi = chiTot;
+    fd.S = S;
+    fd.I = I;
+    IntensityCoreData iCore;
+    JasPackPtr(iCore, atmos, spect, fd, background);
+    JasPackPtr(iCore, activeAtoms, lteAtoms, JDag);
+    JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
+    JasPack(iCore, I, S, Ieff);
+
+    for (auto& a : activeAtoms)
+    {
+        a->zero_rates();
+    }
+    for (auto& a : lteAtoms)
+    {
+        a->zero_rates();
+    }
+
+    f64 dJMax = 0.0;
+    FsMode mode = (UpdateRates);
+    for (int la = 0; la < Nspect; ++la)
+    {
+        f64 dJ = intensity_core(iCore, la, mode);
+        dJMax = max(dJ, dJMax);
+    }
+    return dJMax;
+}
+
+f64 formal_sol(Context& ctx)
+{
+    JasUnpack(*ctx, atmos, spect, background);
+    JasUnpack(ctx, activeAtoms, lteAtoms);
+
+    const int Nspace = atmos.Nspace;
+    const int Nrays = atmos.Nrays;
+    const int Nspect = spect.wavelength.shape(0);
+
+    F64Arr chiTot = F64Arr(Nspace);
+    F64Arr etaTot = F64Arr(Nspace);
+    F64Arr S = F64Arr(Nspace);
+    F64Arr Uji = F64Arr(Nspace);
+    F64Arr Vij = F64Arr(Nspace);
+    F64Arr Vji = F64Arr(Nspace);
+    F64Arr I = F64Arr(Nspace);
+    F64Arr Ieff = F64Arr(Nspace);
+    F64Arr JDag = F64Arr(Nspace);
+    FormalData fd;
+    fd.atmos = &atmos;
+    fd.chi = chiTot;
+    fd.S = S;
+    fd.I = I;
+    IntensityCoreData iCore;
+    JasPackPtr(iCore, atmos, spect, fd, background);
+    JasPackPtr(iCore, activeAtoms, lteAtoms, JDag);
+    JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
+    JasPack(iCore, I, S, Ieff);
+
+    FsMode mode = FsMode::FsOnly;
+    for (int la = 0; la < Nspect; ++la)
+    {
+        intensity_core(iCore, la, mode);
+    }
+    return 0.0;
 }

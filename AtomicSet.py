@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from AtomicTable import atomic_weight_sort, Element, AtomicTable
+from AtomicTable import atomic_weight_sort, Element, AtomicTable, get_global_atomic_table
 from AtomicModel import *
 from Atmosphere import Atmosphere
 from Molecule import Molecule, MolecularTable
@@ -16,15 +16,15 @@ class SpectrumConfiguration:
     transitions: List[Union[AtomicLine, AtomicContinuum]]
     models: List[AtomicModel]
     blueIdx: List[int]
-    redIdx: List[int]
+    # redIdx: List[int]
     activeSet: List[List[Union[AtomicLine, AtomicContinuum]]]
-    activeLines: List[List[AtomicLine]]
-    activeContinua: List[List[AtomicContinuum]]
-    contributors: List[List[AtomicModel]]
-    continuaPerAtom: Dict[str, List[List[AtomicContinuum]]]
-    linesPerAtom: Dict[str, List[List[AtomicLine]]]
-    lowerLevels: Dict[str, List[Set[int]]]
-    upperLevels: Dict[str, List[Set[int]]]
+    # activeLines: List[List[AtomicLine]]
+    # activeContinua: List[List[AtomicContinuum]]
+    # contributors: List[List[AtomicModel]]
+    # continuaPerAtom: Dict[str, List[List[AtomicContinuum]]]
+    # linesPerAtom: Dict[str, List[List[AtomicLine]]]
+    # lowerLevels: Dict[str, List[Set[int]]]
+    # upperLevels: Dict[str, List[Set[int]]]
 
     def subset_configuration(self, wavelengths) -> 'SpectrumConfiguration':
         Nblue = np.searchsorted(self.wavelength, wavelengths[0])
@@ -108,10 +108,7 @@ class SpectrumConfiguration:
 
 
         return SpectrumConfiguration(radSet=radSet, wavelength=wavelengths, transitions=trans, models=activeAtoms, blueIdx=blueIdx, 
-                                     redIdx=redIdx, activeSet=activeSet, activeLines=activeLines, activeContinua=activeContinua, 
-                                     contributors=contributors, continuaPerAtom=continuaPerAtom, linesPerAtom=linesPerAtom, 
-                                     lowerLevels=lowerLevels, upperLevels=upperLevels)
-
+                                     activeSet=activeSet)
 
 
 
@@ -350,6 +347,7 @@ class SpeciesStateTable:
 @dataclass
 class RadiativeSet:
     atoms: List[AtomicModel]
+    atomicTable: AtomicTable = field(default_factory=get_global_atomic_table)
     activeSet: Set[AtomicModel] = field(default_factory=set)
     detailedLteSet: Set[AtomicModel] = field(default_factory=set)
     passiveSet: Set[AtomicModel] = field(init=False)
@@ -362,6 +360,12 @@ class RadiativeSet:
 
         if len(self.atomicNames) > len(set(self.atomicNames)):
             raise ValueError('Multiple entries for an atom: %s' % self.atoms)
+
+        self.set_atomic_table(self.atomicTable)
+        for a in self.atoms:
+            if a.atomicTable is self.atomicTable:
+                continue
+            a.replace_atomic_table(self.atomicTable)
 
     def __contains__(self, name: str) -> bool:
         return name in self.atomicNames
@@ -568,10 +572,7 @@ class RadiativeSet:
                         upperLevels[t.atom.name][-1].add(t.j)
                         lowerLevels[t.atom.name][-1].add(t.i)
 
-        return SpectrumConfiguration(radSet=self, wavelength=grid, transitions=transitions, models=models, 
-                                     blueIdx=blueIdx, redIdx=redIdx, activeSet=activeSet, activeLines=activeLines, 
-                                     activeContinua=activeContinua, contributors=contributors, continuaPerAtom=continuaPerAtom, 
-                                     linesPerAtom=linesPerAtom, lowerLevels=lowerLevels, upperLevels=upperLevels)
+        return SpectrumConfiguration(radSet=self, wavelength=grid, transitions=transitions, models=models, blueIdx=blueIdx, activeSet=activeSet)
 
 
 def hminus_pops(atmos: Atmosphere, hPops: AtomicState) -> np.ndarray:

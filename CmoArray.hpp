@@ -50,6 +50,10 @@ struct Array1NonOwn
     Array1NonOwn(Array1Own<T>& other) : data(other.data.data()), Ndim(other.Ndim), dim0(other.dim0)
     {}
 
+    template<typename U = T, typename = std::enable_if_t<std::is_const<U>::value>>
+    Array1NonOwn(const Array1NonOwn<typename std::remove_const<T>::type>& other) : data(other.data()), Ndim(other.Ndim), dim0(other.dim0)
+    {}
+
     Array1NonOwn&
     operator=(const Array1NonOwn& other) = default;
 
@@ -192,7 +196,6 @@ struct Array1NonOwn
         }
         return Array5NonOwn(data, d0, d1, d2, d3, d4);
     }
-
 };
 
 template <typename T>
@@ -384,6 +387,9 @@ struct Array2NonOwn
     Array2NonOwn(const Array2NonOwn& other) = default;
     Array2NonOwn(Array2NonOwn&& other) = default;
     Array2NonOwn(Array2Own<T>& other) : data(other.data.data()), Ndim(other.Ndim), dim(other.dim)
+    {}
+    template<typename U = T, typename = std::enable_if_t<std::is_const<U>::value>>
+    Array2NonOwn(const Array2NonOwn<typename std::remove_const<T>::type>& other) : data(other.data()), Ndim(other.Ndim), dim(other.dim)
     {}
 
     Array2NonOwn&
@@ -736,6 +742,9 @@ struct Array3NonOwn
     Array3NonOwn(const Array3NonOwn& other) = default;
     Array3NonOwn(Array3NonOwn&& other) = default;
     Array3NonOwn(Array3Own<T>& other) : data(other.data.data()), Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
+    {}
+    template<typename U = T, typename = std::enable_if_t<std::is_const<U>::value>>
+    Array3NonOwn(const Array3NonOwn<typename std::remove_const<T>::type>& other) : data(other.data()), Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
     {}
 
     Array3NonOwn&
@@ -1112,6 +1121,9 @@ struct Array4NonOwn
     Array4NonOwn(const Array4NonOwn& other) = default;
     Array4NonOwn(Array4NonOwn&& other) = default;
     Array4NonOwn(Array4Own<T>& other) : data(other.data.data()), Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
+    {}
+    template<typename U = T, typename = std::enable_if_t<std::is_const<U>::value>>
+    Array4NonOwn(const Array4NonOwn<typename std::remove_const<T>::type>& other) : data(other.data()), Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
     {}
 
     Array4NonOwn&
@@ -1513,6 +1525,9 @@ struct Array5NonOwn
     Array5NonOwn(Array5NonOwn&& other) = default;
     Array5NonOwn(Array5Own<T>& other) : data(other.data.data()), Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
     {}
+    template<typename U = T, typename = std::enable_if_t<std::is_const<U>::value>>
+    Array5NonOwn(const Array5NonOwn<typename std::remove_const<T>::type>& other) : data(other.data()), Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
+    {}
 
     Array5NonOwn&
     operator=(const Array5NonOwn& other) = default;
@@ -1908,12 +1923,49 @@ struct Array5Own
 }
 
 #ifndef CMO_ARRAY_NO_TYPEDEF
-typedef Jasnah::Array1NonOwn<double> F64View;
-typedef Jasnah::Array1NonOwn<double> F64View1D;
-typedef Jasnah::Array2NonOwn<double> F64View2D;
-typedef Jasnah::Array3NonOwn<double> F64View3D;
-typedef Jasnah::Array4NonOwn<double> F64View4D;
-typedef Jasnah::Array5NonOwn<double> F64View5D;
+template <typename T>
+using View = Jasnah::Array1NonOwn<T>;
+template <typename T>
+using ConstView = Jasnah::Array1NonOwn<const T>;
+template <typename T>
+using View1D = Jasnah::Array1NonOwn<T>;
+template <typename T>
+using ConstView1D = Jasnah::Array1NonOwn<const T>;
+template <typename T>
+using View2D = Jasnah::Array2NonOwn<T>;
+template <typename T>
+using ConstView2D = Jasnah::Array2NonOwn<const T>;
+template <typename T>
+using View3D = Jasnah::Array3NonOwn<T>;
+template <typename T>
+using ConstView3D = Jasnah::Array3NonOwn<const T>;
+template <typename T>
+using View4D = Jasnah::Array4NonOwn<T>;
+template <typename T>
+using ConstView4D = Jasnah::Array4NonOwn<const T>;
+template <typename T>
+using View5D = Jasnah::Array5NonOwn<T>;
+template <typename T>
+using ConstView5D = Jasnah::Array5NonOwn<const T>;
+typedef View<double> F64View;
+typedef View<double> F64View1D;
+typedef View2D<double> F64View2D;
+typedef View3D<double> F64View3D;
+typedef View4D<double> F64View4D;
+typedef View5D<double> F64View5D;
+
+template <typename T>
+using Arr = Jasnah::Array1Own<T>;
+template <typename T>
+using Arr1D = Jasnah::Array1Own<T>;
+template <typename T>
+using Arr2D = Jasnah::Array2Own<T>;
+template <typename T>
+using Arr3D = Jasnah::Array3Own<T>;
+template <typename T>
+using Arr4D = Jasnah::Array4Own<T>;
+template <typename T>
+using Arr5D = Jasnah::Array5Own<T>;
 typedef Jasnah::Array1Own<double> F64Arr;
 typedef Jasnah::Array1Own<double> F64Arr1D;
 typedef Jasnah::Array2Own<double> F64Arr2D;

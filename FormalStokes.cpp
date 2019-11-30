@@ -852,7 +852,7 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ)
 }
 }
 
-f64 formal_sol_full_stokes(Context& ctx)
+f64 formal_sol_full_stokes(Context& ctx, bool updateJ)
 {
     // feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
     JasUnpack(*ctx, atmos, spect, background);

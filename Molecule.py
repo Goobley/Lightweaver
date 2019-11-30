@@ -1,9 +1,9 @@
 from AtomicTable import AtomicTable
 from parse import parse
 import Constants as Const
-from typing import Tuple, Set, List, TYPE_CHECKING
+from typing import Tuple, Set, List, TYPE_CHECKING, Optional
 # if TYPE_CHECKING:
-from AtomicTable import LtePopulations, AtomicTable, Element
+from AtomicTable import LtePopulations, AtomicTable, Element, get_global_atomic_table
 from Atmosphere import Atmosphere
 import numpy as np
 from numpy.linalg import solve
@@ -158,7 +158,9 @@ class Molecule:
             raise ValueError('Unknown molecular equilibrium constant fit method %s in molecule %s' % (fitStr, self.name))
 
 class MolecularTable:
-    def __init__(self, paths: List[str], table: AtomicTable):
+    def __init__(self, paths: List[str], table: Optional[AtomicTable]=None):
+        if table is None:
+            table = get_global_atomic_table()
         self.molecules: List[Molecule] = []
         for path in paths:
             self.molecules.append(Molecule(path, table))

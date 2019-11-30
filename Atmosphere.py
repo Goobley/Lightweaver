@@ -7,6 +7,7 @@ import Constants as Const
 from scipy.interpolate import interp1d
 from numpy.polynomial.legendre import leggauss
 from Utils import ConvergenceError
+from AtomicTable import get_global_atomic_table
 
 class ScaleType(Enum):
     Geometric = 0
@@ -17,7 +18,7 @@ class BoundaryCondition(Enum):
     Zero = auto()
     Thermalised = auto()
 
-def get_top_pressure(eos : witt, temp, ne=None, rho=None):
+def get_top_pressure(eos: witt, temp, ne=None, rho=None):
     if ne is not None:
         pe = ne * Const.CM_TO_M**3 * eos.BK * temp
         return eos.pg_from_pe(temp, pe)
@@ -39,7 +40,7 @@ def get_top_pressure(eos : witt, temp, ne=None, rho=None):
         53280.,  60170.,  66150.,  71340.,  75930.,  83890.,  90820.,
         95600., 100000.])
 
-    ptop = interp1d(tempCoord, pgasCgs, bounds_error=False, fill_value=(pgasCgs[0], pgasCgs[-1]))(temp)
+    ptop = np.interp(temp, tempCoord, pgasCgs)
     return ptop
     
 @dataclass
@@ -65,7 +66,10 @@ class Atmosphere:
         if self.hydrogenPops is not None:
             self.nHTot = np.sum(self.hydrogenPops, axis=0)
 
-    def convert_scales(self, atomicTable, logG=2.44, Ptop=None, PeTop=None):
+    def convert_scales(self, atomicTable=None, logG=2.44, Ptop=None, PeTop=None):
+        if atomicTable is None:
+            atomicTable = get_global_atomic_table()
+
         if np.any(self.temperature < 2500):
             raise ValueError('Extremely low temperature (< 2500 K)')
 
@@ -84,7 +88,7 @@ class Atmosphere:
                 pe[k] = eos.pe_from_rho(self.temperature[k], rho[k])
             self.ne = np.copy(pe / (eos.BK * self.temperature) / Const.CM_TO_M**3)
         elif self.ne is None and self.nHTot is None:
-            # Have to do Hydrostatic Eq. based here on NICOLE implementation
+            # Doing Hydrostatic Eq. based here on NICOLE implementation
             gravAcc = 10**logG / Const.CM_TO_M
             Avog = 6.022045e23 # Avogadro's Number
             if Ptop is None and PeTop is not None:
@@ -136,7 +140,6 @@ class Atmosphere:
                     chi_c[k] /= rho[k]
 
                     change = np.abs(prevChi - chi_c[k]) / (prevChi + chi_c[k])
-                    print(change)
                     if change < 1e-5:
                         break
                 else:
@@ -178,7 +181,7 @@ class Atmosphere:
                 height[k] = height[k-1] - 2.0 * (cmass[k] - cmass[k-1]) / (rhoSI[k-1] + rhoSI[k])
                 tau_ref[k] = tau_ref[k-1] + 0.5 * (chi_c[k-1] + chi_c[k]) * (height[k-1] - height[k])
 
-            hTau1 = interp1d(tau_ref, height)(1.0)
+            hTau1 = np.interp(1.0, tau_ref, height)
             height -= hTau1
 
             self.cmass = cmass
@@ -210,8 +213,7 @@ class Atmosphere:
                 height[k] = height[k-1] - 2.0 * (tau_ref[k] - tau_ref[k-1]) / (chi_c[k-1] + chi_c[k])
                 cmass[k] = cmass[k-1] + 0.5 * (chi_c[k-1] + chi_c[k]) * (height[k-1] - height[k])
 
-            print(tau_ref, height)
-            hTau1 = interp1d(tau_ref, height)(1.0)
+            hTau1 = np.interp(1.0, tau_ref, height)
             height -= hTau1
 
             self.cmass = cmass

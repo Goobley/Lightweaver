@@ -7,10 +7,10 @@
 #include "Faddeeva.hh"
 #include <complex>
 
-typedef Jasnah::Array1NonOwn<bool> BoolView;
-typedef Jasnah::Array1Own<i8> BoolArr; //  Avoid the dreaded vector<bool>
-typedef Jasnah::Array1NonOwn<i32> I32View;
-typedef Jasnah::Array1Own<i32> I32Arr;
+typedef View<bool> BoolView;
+typedef Arr<i8> BoolArr; //  Avoid the dreaded vector<bool>
+typedef View<i32> I32View;
+typedef Arr<i32> I32Arr;
 
 inline f64 voigt_H(f64 a, f64 v)
 {
@@ -341,14 +341,14 @@ struct Context
     Background* background;
 };
 
-f64 gamma_matrices_formal_sol(Context& ctx);
-f64 formal_sol_full_stokes(Context& ctx);
-f64 formal_sol(Context& ctx, I32View wavelengthIdxs, bool updateRates=false, bool updateJ=false);
+f64 formal_sol_gamma_matrices(Context& ctx);
+f64 formal_sol_update_rates(Context& ctx);
+f64 formal_sol_update_rates_fixed_J(Context& ctx);
+f64 formal_sol(Context& ctx);
+f64 formal_sol_full_stokes(Context& ctx, bool updateJ=true);
 f64 redistribute_prd_lines(Context& ctx, int maxIter, f64 tol);
 void stat_eq(Atom* atom);
 void planck_nu(long Nspace, double *T, double lambda, double *Bnu);
-void piecewise_linear_1d(Atmosphere* atmos, int mu, bool toObs, f64 wav, 
-                         F64View chi, F64View S, F64View I, F64View Psi);
 void configure_hprd_coeffs(Context& ctx);
 
 namespace EscapeProbability
@@ -438,8 +438,10 @@ namespace LwInternal
 
     enum FsMode : u32
     {
+        FsOnly = 0,
         UpdateJ = 1 << 0,
         UpdateRates = 1 << 1,
+        PrdOnly = 1 << 2,
     };
     constexpr inline FsMode
     operator|(FsMode a, FsMode b)
