@@ -126,11 +126,11 @@ def model_component_eq(a, b) -> bool:
         else:
             return False
 
-    # print('My Eq %s \n %s \n\n------------------\n' % (repr(a), repr(b)))
+    ignoreKeys = ['interpolator']
     da = a.__dict__
     db = b.__dict__
 
-    return all([avoid_recursion_eq(da[k], db[k]) for k in da.keys()])
+    return all([avoid_recursion_eq(da[k], db[k]) for k in da.keys() if k not in ignoreKeys])
 
 # def __deepcopy__(self, memo):
 #     cls = type(self)

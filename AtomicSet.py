@@ -202,6 +202,8 @@ class AtomicState:
     nStar: np.ndarray
     nTotal: np.ndarray
     pops: Optional[np.ndarray] = None
+    Rij: Optional[List[np.ndarray]] = None
+    Rji: Optional[List[np.ndarray]] = None
     lineRij: Optional[List[np.ndarray]] = None
     lineRji: Optional[List[np.ndarray]] = None
     continuumRij: Optional[List[np.ndarray]] = None
@@ -231,6 +233,13 @@ class AtomicState:
             return self.pops
         else:
             return self.nStar
+
+    @n.setter
+    def n(self, val: np.ndarray):
+        if val.shape != self.nStar.shape:
+            raise ValueError('Incorrect dimensions for population array, expected %s' % repr(self.nStar.shape))
+
+        self.pops = val
 
     def fjk(self, atmos, k):
         # Nstage: int = (self.model.levels[-1].stage - self.model.levels[0].stage) + 1
