@@ -327,6 +327,7 @@ f64 redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
     F64Arr Pj(atmos.Nspace);
     while (iter < maxIter)
     {
+        dRho = 0.0;
         for (auto& p : prdLines)
         {
             PrdCores::total_depop_rate(p.line, p.atom, Pj);
@@ -343,6 +344,7 @@ f64 redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
         ++iter;
     }
 
+    printf("PRD Iter: %d\n", iter);
     return dRho;
 }
 

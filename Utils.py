@@ -1,4 +1,5 @@
 import Constants as C
+from copy import copy, deepcopy
 
 def gaunt_bf(wvl, nEff, charge) -> float:
     # /* --- M. J. Seaton (1960), Rep. Prog. Phys. 23, 313 -- ----------- */
@@ -12,3 +13,19 @@ def gaunt_bf(wvl, nEff, charge) -> float:
 
 class ConvergenceError(Exception):
     pass
+
+# def copy_state_dict_preserve_atoms(state):
+#     from AtomicModel import *
+#     from AtomicSet import SpeciesStateTable, RadiativeSet
+
+#     memo = {}
+#     s = copy(state)
+#     s['arguments'] = copy(s['arguments'])
+#     args = s['arguments']
+#     args['atmos'] = deepcopy(args['atmos'], memo)
+#     spect = copy(args['spect'])
+#     memo[id(args['spect'])] = spect
+#     args['spect'] = spect
+#     memo[id(spect.radSet)] = spect.radSet
+#     memo[id(spect.wavelength)] = spect.wavelength
+#     memo[id(spect.models)] = spect.models

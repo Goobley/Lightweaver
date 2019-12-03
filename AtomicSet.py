@@ -36,8 +36,6 @@ class SpectrumConfiguration:
         upperLevels: Dict[str, List[Set[int]]] = {}
         lowerLevels: Dict[str, List[Set[int]]] = {}
 
-        # TODO(cmo): GO back to deepcopy here, but take radSet out of arguments to ctx
-        # radSet = deepcopy(self.radSet)
         radSet = self.radSet
         models = [m for m in (radSet.activeSet | radSet.detailedLteSet)]
         for atom in self.models:
@@ -316,7 +314,7 @@ class SpeciesStateTable:
         key = self.molecularTable.indices[name]
         return self.molecularPops[key]
 
-    def update_lte_atoms_Hmin_pops(self, atmos: Atmosphere, maxFracChange=0.2):
+    def update_lte_atoms_Hmin_pops(self, atmos: Atmosphere, conserveCharge=False):
         maxIter = 1000
         maxName = ''
         for i in range(maxIter):
@@ -328,21 +326,19 @@ class SpeciesStateTable:
                 deltaNStar = newNStar - prevNStar
                 atom.nStar[:] = newNStar
 
-                # atom.nStar[:] = np.where(np.abs(1.0 - newNStar / prevNStar) > maxFracChange, prevNStar + np.copysign(maxFracChange*prevNStar, deltaNStar), newNStar)
-                # TODO(cmo): This isn't really the right check, we may need to add a bool to this structure
-                if atom.pops is None:
+                if atom.pops is None and conserveCharge:
                     stages = np.array([l.stage for l in atom.model.levels])
                     ne += np.sum((atom.nStar - prevNStar) * stages[:, None], axis=0)
 
                     ne[ne < 1e6] = 1e6
-                    diff = np.nanmax(1.0 - prevNStar / atom.nStar)
-                    if diff > maxDiff:
-                        maxDiff = diff
-                        maxName = atom.name
+                diff = np.nanmax(1.0 - prevNStar / atom.nStar)
+                if diff > maxDiff:
+                    maxDiff = diff
+                    maxName = atom.name
             atmos.ne[:] = ne
-            print(maxDiff, maxName)
-            if maxDiff < 1e-2:
-                print('took %d' % i)
+            # print(maxDiff, maxName)
+            if maxDiff < 1e-3:
+                print('LTE Iterations %d' % (i+1))
                 break
 
         else:
