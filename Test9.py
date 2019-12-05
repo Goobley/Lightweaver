@@ -11,57 +11,55 @@ from copy import deepcopy
 import time
 import pickle
 import numpy as np
+from concurrent.futures import ProcessPoolExecutor, wait
 from tqdm import tqdm
+from Utils import NgOptions
+from Multi import MultiMetadata, read_multi_atmos
 
-from concurrent.futures import ProcessPoolExecutor, as_completed, wait
 
-@dataclass
-class NgOptions:
-    Norder: int = 3
-    Nperiod: int = 20
-    Ndelay: int = 20
-    
-with open('state.pkl', 'rb') as p:
-    ctx = pickle.load(p)
+meta, atmos = read_multi_atmos('FaultyFal/model1003.atmos')
+atmos.convert_scales()
+atmos.quadrature(5)
+aSet = RadiativeSet([H_6_atom(), C_atom(), O_atom(), Si_atom(), Al_atom(), CaII_atom(), Fe_atom(), He_atom(), MgII_atom(), N_atom(), Na_atom(), S_atom()])
+aSet.set_active('H')
+spect = aSet.compute_wavelength_grid()
 
-# with open('state2.pkl', 'rb') as p:
-#     ctx2 = pickle.load(p)
+molPaths = ['../Molecules/' + m + '.molecule' for m in ['H2']]
+mols = MolecularTable(molPaths)
 
-# with open('state3.pkl', 'rb') as p:
-#     ctx3 = pickle.load(p)
+eqPops = aSet.compute_eq_pops(mols, atmos)
+ctx = LwContext(atmos, spect, eqPops, initSol=InitialSolution.Lte, ngOptions=NgOptions(0,0,0), hprd=False)
 
-def iterate_ctx(ctx):
-    for i in range(300):
+def iterate_ctx(ctx, prd=True, Nscatter=3, NmaxIter=500):
+    for i in range(NmaxIter):
         dJ = ctx.formal_sol_gamma_matrices()
-        if i < 3:
+        if i < Nscatter:
             continue
         delta = ctx.stat_equil()
-        dRho = ctx.prd_redistribute()
+        if prd:
+            dRho = ctx.prd_redistribute(maxIter=5)
 
-        if dJ < 7e-3 and delta < 5e-3:
+        if dJ < 3e-3 and delta < 1e-3:
             print(i)
             print('----------')
             return
-# wave = np.linspace(853.9444, 854.9444, 1001)
-# wave = np.linspace(392, 398, 10001)
+
+pertSize = 100
+wave = np.linspace(655, 658, 1001)
+pertPlus = np.zeros((wave.shape[0], atmos.Nspace))
+pertMinus = np.zeros((wave.shape[0], atmos.Nspace))
+
 iterate_ctx(ctx)
-wave = np.linspace(392, 395, 2001)
 Iwave = ctx.compute_rays(wave, [1.0])
-
-# rf = np.load('8542RF.npy')
-
-
-pertSize = 1e14
-pertPlus = np.zeros((wave.shape[0], 82))
-pertMinus = np.zeros((wave.shape[0], 82))
 sd = deepcopy(ctx.state_dict())
 
 def response_fn_temp_k(state, k):
     sd = deepcopy(state)
     atmos2 = deepcopy(sd['arguments']['atmos'])
     # atmos2.temperature[k] += 0.5 * pertSize
-    pertSize = 0.0001 * atmos2.ne[k]
-    atmos2.ne[k] += 0.5 * pertSize
+    # pertSize = 0.0001 * atmos2.ne[k]
+    # atmos2.ne[k] += 0.5 * pertSize
+    atmos2.vlos[k] += 0.5 * pertSize
     ctxPlus = LwContext.construct_from_state_dict_with(sd, atmos=atmos2)
     iterate_ctx(ctxPlus)
     res1 = np.copy(ctxPlus.compute_rays(wave, [1.0])[:, 0])
@@ -69,7 +67,8 @@ def response_fn_temp_k(state, k):
     sd = deepcopy(state)
     atmos2 = deepcopy(sd['arguments']['atmos'])
     # atmos2.temperature[k] -= 0.5*pertSize
-    atmos2.ne[k] -= 0.5*pertSize
+    # atmos2.ne[k] -= 0.5*pertSize
+    atmos2.vlos[k] -= 0.5*pertSize
     ctxMinus = LwContext.construct_from_state_dict_with(sd, atmos=atmos2)
     iterate_ctx(ctxMinus)
     res2 = np.copy(ctxMinus.compute_rays(wave, [1.0])[:, 0])
@@ -77,7 +76,7 @@ def response_fn_temp_k(state, k):
     return (res1, res2)
 
 with ProcessPoolExecutor() as executor:
-    futures = [executor.submit(response_fn_temp_k, sd, k) for k in range(82)]
+    futures = [executor.submit(response_fn_temp_k, sd, k) for k in range(atmos.Nspace)]
     wait(futures)
     perturbations = [f.result() for f in futures]
 # perturbations = [response_fn_temp_k(sd, k) for k in range(81, 75, -1)]
@@ -87,19 +86,4 @@ for k in range(len(pos)):
     pertPlus[:, k] = pos[k]
     pertMinus[:, k] = neg[k]
 
-# for k in range(82):
-    # print('==========%.3d==========' % k)
-    # atmos2 = deepcopy(sd['arguments']['atmos'])
-    # atmos2.temperature[k] += 0.5 * pertSize
-    # ctxPlus = LwContext.construct_from_state_dict_with(sd, atmos=atmos2)
-    # iterate_ctx(ctxPlus)
-    # pertPlus[:, k] = ctxPlus.compute_rays(wave, [1.0])[:, 0]
-
-    # atmos2.temperature[k] -= pertSize
-    # ctxMinus = LwContext.construct_from_state_dict_with(sd, atmos=atmos2)
-    # iterate_ctx(ctxMinus)
-    # pertMinus[:, k] = ctxMinus.compute_rays(wave, [1.0])[:, 0]
-
-
 rf = (pertPlus - pertMinus) / Iwave
-cfData = ctx.contrib_fn(ctx.arguments['spect'].radSet['Ca'].lines[1], wavelengths=wave, mu=[1.0])

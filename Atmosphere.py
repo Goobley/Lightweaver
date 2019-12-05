@@ -43,6 +43,7 @@ def get_top_pressure(eos: witt, temp, ne=None, rho=None):
     ptop = np.interp(temp, tempCoord, pgasCgs)
     return ptop
     
+# TODO(cmo): Fix repr
 @dataclass
 class Atmosphere:
     scale: ScaleType
@@ -92,10 +93,10 @@ class Atmosphere:
             gravAcc = 10**logG / Const.CM_TO_M
             Avog = 6.022045e23 # Avogadro's Number
             if Ptop is None and PeTop is not None:
-                PeTop *= (Const.CM_TO_M**3 / Const.G_TO_KG)
+                PeTop *= (Const.CM_TO_M**2 / Const.G_TO_KG)
                 Ptop = eos.pg_from_pe(self.temperature[0], PeTop)
             elif Ptop is not None and PeTop is None:
-                Ptop *= (Const.CM_TO_M**3 / Const.G_TO_KG)
+                Ptop *= (Const.CM_TO_M**2 / Const.G_TO_KG)
                 PeTop = eos.pe_from_pg(self.temperature[0], Ptop)
             elif Ptop is None and PeTop is None:
                 Ptop = get_top_pressure(eos, self.temperature[0])

@@ -1546,7 +1546,7 @@ cdef class LwAtom:
             stat_eq(&self.atom)
             self.atom.ng.accelerate(self.atom.n.flatten())
             delta = self.atom.ng.max_change()
-            if delta < 1e-2:
+            if delta < 3e-2:
                 end = time.time()
                 print('Converged: %s, %d\nTime: %f' % (self.atomicModel.name, it, end-start))
                 break
@@ -1738,7 +1738,7 @@ cdef class LwContext:
 
         activeAtoms = spect.radSet.activeAtoms
         lteAtoms = spect.radSet.lteAtoms
-        self.activeAtoms = [LwAtom(a, self.atmos, atmos, eqPops, spect, self.background, ngOptions=ngOptions, initSol=initSol) for a in activeAtoms]
+        self.activeAtoms = [LwAtom(a, self.atmos, atmos, eqPops, spect, self.background, ngOptions=ngOptions, initSol=initSol, conserveCharge=conserveCharge) for a in activeAtoms]
         self.lteAtoms = [LwAtom(a, self.atmos, atmos, eqPops, spect, self.background, ngOptions=None, initSol=InitialSolution.Lte, lte=True) for a in lteAtoms]
 
         self.ctx.atmos = &self.atmos.atmos
@@ -2065,6 +2065,7 @@ cdef class LwContext:
         return ctx
 
     def compute_rays(self, wavelengths=None, mus=None, stokes=False, refinePrd=False):
+        # TODO(cmo): STOKES!!!
         # state = self.state_dict()
         # if mus is not None:
         #     state['arguments']['atmos'].rays(mus)

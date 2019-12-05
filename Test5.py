@@ -163,6 +163,6 @@ ctx = LwContext(atmos, spect, aSet, eqPops, get_global_atomic_table(), ngOptions
 # print('%e s' % (end-start))
 
 # plt.plot(s.wavelength, s.I[:,-1])
-# from helita.sim.rh import Rhout
-# rh = Rhout('/Users/goobley/VanillaRh/rhf1d/run/')
-# plt.plot(rh.wave, rh.imu[-1, :], '--')
+from helita.sim.rh import Rhout
+rh = Rhout('/Users/goobley/VanillaRh/rhf1d/run/')
+plt.plot(rh.wave, rh.imu[-1, :], '--')
