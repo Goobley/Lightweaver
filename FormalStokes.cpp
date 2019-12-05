@@ -2,6 +2,7 @@
 #include "Bezier.hpp"
 #include "JasPP.hpp"
 #include <x86intrin.h>
+#include <string.h>
 
 using namespace LwInternal;
 

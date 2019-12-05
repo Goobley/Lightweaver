@@ -11,6 +11,7 @@
 
 using namespace LwInternal;
 
+#ifdef __APPLE__
 // Public domain polyfill for feenableexcept on OS X
 // http://www-personal.umich.edu/~williams/archive/computation/fe-handling-example.c
 int feenableexcept(unsigned int excepts)
@@ -52,6 +53,7 @@ inline int fedisableexcept(unsigned int excepts)
 
     return fesetenv(&fenv) ? -1 : old_excepts;
 }
+#endif
 
 void planck_nu(long Nspace, double* T, double lambda, double* Bnu)
 {
