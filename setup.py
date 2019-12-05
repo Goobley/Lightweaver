@@ -9,7 +9,7 @@ setup(name="CAtmosphere", ext_modules=cythonize([
     Extension(
     "CAtmosphere",
     # ["CAtmosphere.pyx", "Background.cpp", "Atmosphere.cpp", "Formal.cpp", "Faddeeva.cc", "LuSolve.cpp"],
-    ["CAtmosphere.pyx", "LightweaverAmalgamated.cpp"],
+    ["CAtmosphere.pyx", "LightweaverAmalgamated.cpp", "Faddeeva.cc"],
     include_dirs=[np.get_include()],
     extra_compile_args=["-std=c++17", "-Wno-sign-compare", "-march=native", "-mavx2", "-funroll-loops"],
     language="c++"
