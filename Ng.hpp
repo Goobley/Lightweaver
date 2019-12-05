@@ -74,7 +74,7 @@ struct Ng
                 Delta(i, k) = previous(ip, k) - previous(ipp, k);
         }
         for (int k = 0; k < len; ++k)
-            weight(k) = 1.0 / std::abs(sol(k));
+            weight(k) = 1.0 / abs(sol(k));
 
         auto A = F64Arr2D(0.0, Norder, Norder);
         auto b = F64Arr1D(0.0, Norder);
@@ -141,7 +141,7 @@ struct Ng
         {
             if (current(k) != 0.0)
             {
-                dMax = max(dMax, std::abs((current(k) - old(k)) / current(k)));
+                dMax = max(dMax, abs((current(k) - old(k)) / current(k)));
             }
         }
         return dMax;

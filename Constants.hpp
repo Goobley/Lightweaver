@@ -62,6 +62,12 @@ typedef uint16_t u16;
 typedef uint32_t u32;
 typedef uint64_t u64;
 typedef unsigned uint;
+using std::abs;
+using std::sin;
+using std::cos;
+using std::tan;
+using std::pow;
+using std::sqrt;
 #endif
 
 #ifndef CMO_NO_MATH
