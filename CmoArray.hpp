@@ -1568,7 +1568,7 @@ struct Array5NonOwn
         }
     }
 
-    inline const i64* shape() const
+    inline const decltype(dim) shape() const
     {
         return dim;
     }
@@ -1784,7 +1784,7 @@ struct Array5Own
         }
     }
 
-    inline const i64* shape() const
+    inline const decltype(dim) shape() const
     {
         return dim;
     }
