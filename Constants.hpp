@@ -49,6 +49,7 @@ constexpr double MEGABARN_TO_M2 = 1.0E-22;
 #ifndef CMO_NO_TYPEDEFS
 #include <cstdint>
 #include <cstddef>
+#include <cmath>
 typedef int8_t i8;
 typedef int16_t i16;
 typedef int32_t i32;
