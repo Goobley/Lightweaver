@@ -17,7 +17,8 @@ from Utils import NgOptions
 from Multi import MultiMetadata, read_multi_atmos
 
 
-meta, atmos = read_multi_atmos('FaultyFal/model1003.atmos')
+# meta, atmos = read_multi_atmos('FaultyFal/model1003.atmos')
+atmos = Falc80()
 atmos.convert_scales()
 atmos.quadrature(5)
 aSet = RadiativeSet([H_6_atom(), C_atom(), O_atom(), Si_atom(), Al_atom(), CaII_atom(), Fe_atom(), He_atom(), MgII_atom(), N_atom(), Na_atom(), S_atom()])
