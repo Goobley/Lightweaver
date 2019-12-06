@@ -34,7 +34,7 @@ def iterate_ctx(ctx, prd=True, Nscatter=3, NmaxIter=500):
             return
 
 wave = np.linspace(853.9444, 854.9444, 1001)
-def synth_8542(atmos, conserve, useNe):
+def synth_8542(atmos, conserve, useNe, stokes=False):
     # atmos = Atmosphere(ScaleType.Tau500, depthScale=10**data['tau'], temperature=data['temperature'], vlos=data['vlos']/1e2, vturb=data['vturb']/1e2)
     # atmos = Atmosphere(ScaleType.Geometric, depthScale=data['height']/1e2, temperature=data['temperature'], vlos=data['vlos']/1e2, vturb=data['vturb']/1e2)
     # atmos = Atmosphere(ScaleType.ColumnMass, depthScale=data['cmass'], temperature=data['temperature'], vlos=data['vlos'], vturb=data['vturb'], ne=data['ne'], nHTot=data['nHTot'])
@@ -55,11 +55,37 @@ def synth_8542(atmos, conserve, useNe):
     ctx = LwContext(atmos, spect, eqPops, ngOptions=NgOptions(0,0,0), hprd=False, conserveCharge=conserve)
     iterate_ctx(ctx, prd=False)
     eqPops.update_lte_atoms_Hmin_pops(atmos)
-    Iwave = ctx.compute_rays(wave, [1.0])
+    Iwave = ctx.compute_rays(wave, [atmos.muz[-1]], stokes=stokes)
     return Iwave
 
-atmosCons = Falc80()
-IwaveCons = synth_8542(atmosCons, conserve=True, useNe=False)
-atmos = Falc80()
-Iwave = synth_8542(atmos, conserve=False, useNe=True)
+def add_B(atmos):
+    atmos.B = np.ones(atmos.Nspace) * 1.0
+    atmos.gammaB = np.ones(atmos.Nspace) * np.pi * 0.25
+    atmos.chiB = np.zeros(atmos.Nspace)
 
+
+atmosCons = Falc80()
+add_B(atmosCons)
+IwaveCons = synth_8542(atmosCons, conserve=True, useNe=False, stokes=True)
+atmosLte = Falc80()
+add_B(atmosLte)
+IwaveLte = synth_8542(atmosLte, conserve=False, useNe=False, stokes=True)
+atmosFal = Falc80()
+add_B(atmosFal)
+Iwave = synth_8542(atmosFal, conserve=False, useNe=True, stokes=True)
+
+atmos = Falc80()
+add_B(atmos)
+atmos.convert_scales()
+atmos.quadrature(5)
+aSet = RadiativeSet([H_3_atom(), C_atom(), O_atom(), Si_atom(), Al_atom(), CaII_atom(), Fe_atom(), He_atom(), MgII_atom(), N_atom(), Na_atom(), S_atom()])
+aSet.set_active('H', 'Ca')
+spect = aSet.compute_wavelength_grid()
+
+molPaths = ['../Molecules/' + m + '.molecule' for m in ['H2']]
+mols = MolecularTable(molPaths)
+eqPops = aSet.compute_eq_pops(mols, atmos)
+ctx = LwContext(atmos, spect, eqPops, ngOptions=NgOptions(0,0,0), hprd=False, conserveCharge=False)
+iterate_ctx(ctx, prd=False)
+ctx.single_stokes_fs()
+s = ctx.spect

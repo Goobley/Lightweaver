@@ -1903,7 +1903,7 @@ cdef class LwContext:
     def update_projections(self):
         self.atmos.atmos.update_projections()
 
-    def single_stokes_fs(self, recompute=False):
+    def setup_stokes(self, recompute=False):
         assert self.atmos.B.shape[0] != 0
 
         atoms = self.activeAtoms + self.lteAtoms
@@ -1922,6 +1922,9 @@ cdef class LwContext:
                     t.compute_polarised_profiles()
 
         self.spect.setup_stokes()
+
+    def single_stokes_fs(self, recompute=False):
+        self.setup_stokes(recompute=recompute)
 
         cdef f64 dJ = formal_sol_full_stokes(self.ctx)
         return dJ
@@ -2033,44 +2036,38 @@ cdef class LwContext:
 
         return ctx
 
-    @staticmethod
-    def from_state_dict(s, ignoreSpect=False, ignoreBackground=False, popsOnly=False):
-        args = s['arguments']
-        ctx = LwContext(args['atmos'], args['spect'], args['eqPops'], ngOptions=args['ngOptions'], initSol=InitialSolution.Lte, conserveCharge=args['conserveCharge'])
+    # @staticmethod
+    # def from_state_dict(s, ignoreSpect=False, ignoreBackground=False, popsOnly=False):
+    #     args = s['arguments']
+    #     ctx = LwContext(args['atmos'], args['spect'], args['eqPops'], ngOptions=args['ngOptions'], initSol=InitialSolution.Lte, conserveCharge=args['conserveCharge'])
 
-        if not ignoreSpect:
-            ctx.spect.load_state_dict(s['spectrum'])
-        if not ignoreBackground:
-            ctx.background.load_state_dict(s['background'])
+    #     if not ignoreSpect:
+    #         ctx.spect.load_state_dict(s['spectrum'])
+    #     if not ignoreBackground:
+    #         ctx.background.load_state_dict(s['background'])
 
-        for i, a in enumerate(ctx.activeAtoms):
-            a.load_state_dict(s['activeAtoms'][i], popsOnly=popsOnly)
+    #     for i, a in enumerate(ctx.activeAtoms):
+    #         a.load_state_dict(s['activeAtoms'][i], popsOnly=popsOnly)
 
-        for i, a in enumerate(ctx.lteAtoms):
-            a.load_state_dict(s['lteAtoms'][i], popsOnly=popsOnly)
-        return ctx
+    #     for i, a in enumerate(ctx.lteAtoms):
+    #         a.load_state_dict(s['lteAtoms'][i], popsOnly=popsOnly)
+    #     return ctx
 
-    @staticmethod
-    def from_state_dict_with_perturbation(s, perturbVar='Temperature', perturbIdx=0, perturbMagnitude=20):
-        args = s['arguments']
-        ctx = LwContext(args['atmos'], args['spect'], args['eqPops'], ngOptions=args['ngOptions'], initSol=InitialSolution.Lte, conserveCharge=args['conserveCharge'])
+    # @staticmethod
+    # def from_state_dict_with_perturbation(s, perturbVar='Temperature', perturbIdx=0, perturbMagnitude=20):
+    #     args = s['arguments']
+    #     ctx = LwContext(args['atmos'], args['spect'], args['eqPops'], ngOptions=args['ngOptions'], initSol=InitialSolution.Lte, conserveCharge=args['conserveCharge'])
 
-        ctx.spect.load_state_dict(s['spectrum'])
+    #     ctx.spect.load_state_dict(s['spectrum'])
 
-        for i, a in enumerate(ctx.activeAtoms):
-            a.load_state_dict(s['activeAtoms'][i], popsOnly=True)
+    #     for i, a in enumerate(ctx.activeAtoms):
+    #         a.load_state_dict(s['activeAtoms'][i], popsOnly=True)
 
-        for i, a in enumerate(ctx.lteAtoms):
-            a.load_state_dict(s['lteAtoms'][i], popsOnly=True)
-        return ctx
+    #     for i, a in enumerate(ctx.lteAtoms):
+    #         a.load_state_dict(s['lteAtoms'][i], popsOnly=True)
+    #     return ctx
 
     def compute_rays(self, wavelengths=None, mus=None, stokes=False, refinePrd=False):
-        # TODO(cmo): STOKES!!!
-        # state = self.state_dict()
-        # if mus is not None:
-        #     state['arguments']['atmos'].rays(mus)
-        # if wavelengths is not None:
-        #     state['arguments']['spect'] = state['arguments']['spect'].subset_configuration(wavelengths)
         state = deepcopy(self.state_dict())
         if wavelengths is not None:
             spect = state['arguments']['spect'].subset_configuration(wavelengths)
@@ -2090,14 +2087,17 @@ cdef class LwContext:
                 atmos.rays(mus)
             rayCtx = self.construct_from_state_dict_with(state, spect=spect)
 
-        # J = rayCtx.spect.J
-        # if wavelengths is not None:
-        #     J[:] = interp1d(self.spect.wavelength, self.spect.J.T)(wavelengths).T
-        # else:
-        #     J[:] = self.spect.J
-        rayCtx.formal_sol()
-        Iwav = rayCtx.spect.I
-        return np.asarray(Iwav)
+        if stokes:
+            rayCtx.single_stokes_fs()
+            Iwav = np.asarray(rayCtx.spect.I)
+            Iquv = np.zeros((4, *Iwav.shape))
+            Iquv[0, :] = Iwav
+            Iquv[1:, :] = np.asarray(rayCtx.spect.Quv)
+            return Iquv
+        else:
+            rayCtx.formal_sol()
+            Iwav = rayCtx.spect.I
+            return np.asarray(Iwav)
 
     def contrib_fn(self, line, wavelengths=None, mu=None, refinePrd=False):
         state = deepcopy(self.state_dict())

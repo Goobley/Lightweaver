@@ -56,22 +56,22 @@ sd = deepcopy(ctx.state_dict())
 def response_fn_temp_k(state, k):
     sd = deepcopy(state)
     atmos2 = deepcopy(sd['arguments']['atmos'])
-    # atmos2.temperature[k] += 0.5 * pertSize
+    atmos2.temperature[k] += 0.5 * pertSize
     # pertSize = 0.0001 * atmos2.ne[k]
     # atmos2.ne[k] += 0.5 * pertSize
-    atmos2.vlos[k] += 0.5 * pertSize
+    # atmos2.vlos[k] += 0.5 * pertSize
     ctxPlus = LwContext.construct_from_state_dict_with(sd, atmos=atmos2)
     iterate_ctx(ctxPlus)
-    res1 = np.copy(ctxPlus.compute_rays(wave, [1.0])[:, 0])
+    res1 = np.copy(ctxPlus.compute_rays(wavelengths=None, mus=[1.0])[:, 0])
 
     sd = deepcopy(state)
     atmos2 = deepcopy(sd['arguments']['atmos'])
-    # atmos2.temperature[k] -= 0.5*pertSize
+    atmos2.temperature[k] -= 0.5*pertSize
     # atmos2.ne[k] -= 0.5*pertSize
-    atmos2.vlos[k] -= 0.5*pertSize
+    # atmos2.vlos[k] -= 0.5*pertSize
     ctxMinus = LwContext.construct_from_state_dict_with(sd, atmos=atmos2)
     iterate_ctx(ctxMinus)
-    res2 = np.copy(ctxMinus.compute_rays(wave, [1.0])[:, 0])
+    res2 = np.copy(ctxMinus.compute_rays(wavelengths=None, mus=[1.0])[:, 0])
 
     return (res1, res2)
 
