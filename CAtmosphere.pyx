@@ -2071,6 +2071,8 @@ cdef class LwContext:
         state = deepcopy(self.state_dict())
         if wavelengths is not None:
             spect = state['arguments']['spect'].subset_configuration(wavelengths)
+        else:
+            spect = None
 
         cdef LwContext rhoCtx, rayCtx
         if refinePrd:
