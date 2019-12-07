@@ -91,6 +91,7 @@ cdef extern from "Ng.hpp":
         Ng(int nOrder, int nPeriod, int nDelay, F64View sol)
         bool_t accelerate(F64View sol)
         f64 max_change()
+        void clear()
 
 cdef extern from "Lightweaver.hpp":
     cdef cppclass Background:
@@ -187,6 +188,7 @@ cdef extern from "Lightweaver.hpp":
     cdef f64 formal_sol_full_stokes(Context& ctx, bool_t updateJ)
     cdef f64 redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
     cdef void stat_eq(Atom* atom)
+    cdef void time_dependent_update(Atom* atomIn, F64View2D nOld, f64 dt)
     cdef void configure_hprd_coeffs(Context& ctx)
 
 cdef extern from "Lightweaver.hpp" namespace "EscapeProbability":
@@ -582,7 +584,7 @@ cdef class LwBackground:
         cdef RayleighScatterer rayH, rayHe
 
         if 'H' in self.radSet:
-            hPops = self.eqPops.atomicPops['H'].nStar if useLte else self.eqPops.atomicPops['H']
+            hPops = self.eqPops.atomicPops['H'].nStar if useLte else self.eqPops['H']
             rayH = RayleighScatterer(self.atmos, self.radSet['H'], hPops)
             for la in range(self.wavelength.shape[0]):
                 if rayH.scatter(self.wavelength[la], sca):
@@ -590,7 +592,7 @@ cdef class LwBackground:
                         self.sca[la, k] += sca[k]
 
         if 'He' in self.radSet:
-            hePops = self.eqPops.atomicPops['He'].nStar if useLte else self.eqPops.atomicPops['He']
+            hePops = self.eqPops.atomicPops['He'].nStar if useLte else self.eqPops['He']
             rayHe = RayleighScatterer(self.atmos, self.radSet['He'], hePops)
             for la in range(self.wavelength.shape[0]):
                 if rayHe.scatter(self.wavelength[la], sca):
@@ -1200,6 +1202,10 @@ cdef class LwTransition:
         return np.asarray(self.aDamp)
 
     @property
+    def polarisable(self):
+        return self.transModel.polarisable
+
+    @property
     def type(self):
         if self.trans.type == LINE:
             return 'Line'
@@ -1254,8 +1260,8 @@ cdef class LwAtom:
         modelPops = eqPops.atomicPops[atom.name]
         self.modelPops = modelPops
         self.atomicTable = modelPops.model.atomicTable
-        vTherm = 2.0 * Const.KBOLTZMANN / (Const.AMU * modelPops.weight)
-        self.vBroad = np.sqrt(vTherm * atmos.temperature + atmos.vturb**2)
+
+        self.vBroad = atom.vBroad(atmos)
         self.atom.vBroad = f64_view(self.vBroad)
         self.nTotal = modelPops.nTotal
         self.atom.nTotal = f64_view(self.nTotal)
@@ -1568,6 +1574,14 @@ cdef class LwAtom:
     cpdef setup_wavelength(self, int la):
         self.atom.setup_wavelength(la)
 
+    def update_profiles(self, polarised=False):
+        np.asarray(self.vBroad)[:] = self.atomicModel.vBroad(self.atmos)
+        for t in self.trans:
+            if polarised and t.polarisable:
+                t.compute_polarised_profiles()
+            else:
+                t.compute_phi()
+
     @property
     def Nlevel(self):
         return self.atom.Nlevel
@@ -1807,6 +1821,11 @@ cdef class LwContext:
         if self.hprd:
             self.configure_hprd_coeffs()
 
+    def compute_profiles(self, polarised=False):
+        atoms = self.activeAtoms + self.lteAtoms
+        for atom in atoms:
+            atom.update_profiles(polarised=polarised)
+
     def formal_sol_gamma_matrices(self):
         cdef LwAtom atom
         cdef np.ndarray[np.double_t, ndim=3] Gamma
@@ -1833,6 +1852,44 @@ cdef class LwContext:
         # print('dJ = %.2e' % dJ)
         return dJ
 
+    def time_dep_update(self, f64 dt, prevTimePops=None):
+        atoms = self.activeAtoms
+
+        cdef LwAtom atom
+        cdef Atom* a
+        cdef f64 delta
+        cdef f64 maxDelta = 0.0
+
+        if prevTimePops is None:
+            prevTimePops = [np.copy(atom.n) for atom in atoms]
+
+        for i, atom in enumerate(atoms):
+            a = &atom.atom
+
+            time_dependent_update(a, f64_view_2(prevTimePops[i]), dt)
+            a.ng.accelerate(a.n.flatten())
+            delta = a.ng.max_change()
+            maxDelta = max(maxDelta, delta)
+            print('    %s delta = %6.4e' % (atom.atomicModel.name, delta))
+
+
+        return maxDelta, prevTimePops
+
+    def time_dep_conserve_charge(self, prevTimePops):
+        cdef np.ndarray[np.double_t, ndim=1] deltaNe
+        cdef LwAtom atom
+
+        atoms = self.activeAtoms
+        for i, atom in enumerate(atoms):
+            deltaNe = np.sum((np.asarray(atom.n) - prevTimePops[i]) * np.asarray(atom.stages)[:, None], axis=0)
+            for k in range(self.atmos.Nspace):
+                self.atmos.ne[k] += deltaNe[k]
+
+            for k in range(self.atmos.Nspace):
+                if self.atmos.ne[k] < 1e6:
+                    self.atmos.ne[k] = 1e6
+
+
     def stat_equil(self):
         atoms = self.activeAtoms
 
@@ -1843,6 +1900,7 @@ cdef class LwContext:
         cdef bool_t accelerated
         cdef LwTransition t
         cdef int k
+        cdef np.ndarray[np.double_t, ndim=1] deltaNe
 
         conserveActiveCharge = self.conserveCharge
         conserveLteCharge = False
@@ -2119,6 +2177,8 @@ cdef class LwContext:
             if mu is not None:
                 atmos.rays(mu)
             rayCtx = self.construct_from_state_dict_with(state, spect=spect)
+        if mu is None:
+            mu = atmos.muz[-1]
 
         cdef f64[:,::1] pops
         cdef LwAtom atom

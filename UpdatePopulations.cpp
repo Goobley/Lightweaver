@@ -3,7 +3,7 @@
 void stat_eq(Atom* atomIn)
 {
     auto& atom = *atomIn;
-    int Nlevel = atom.Nlevel;
+    const int Nlevel = atom.Nlevel;
     const int Nspace = atom.n.shape(1);
 
     auto nk = F64Arr(Nlevel);
@@ -33,5 +33,32 @@ void stat_eq(Atom* atomIn)
         solve_lin_eq(Gamma, nk);
         for (int i = 0; i < Nlevel; ++i)
             atom.n(i, k) = nk(i);
+    }
+}
+
+void time_dependent_update(Atom* atomIn, F64View2D nOld, f64 dt)
+{
+    auto& atom  = *atomIn;
+    const int Nlevel = atom.Nlevel;
+    const int Nspace = atom.n.shape(1);
+
+    auto nk = F64Arr(Nlevel);
+    auto Gamma = F64Arr2D(Nlevel, Nlevel);
+
+    for (int k = 0; k < Nspace; ++k)
+    {
+        for (int i = 0; i < Nlevel; ++i)
+        {
+            nk(i) = nOld(i, k);
+            for (int j = 0; j < Nlevel; ++j)
+                Gamma(i, j) = -atom.Gamma(i, j, k) * dt;
+            Gamma(i, i) = 1.0 - atom.Gamma(i, i, k) * dt;
+        }
+
+        solve_lin_eq(Gamma, nk);
+        for (int i = 0; i < Nlevel; ++i)
+        {
+            atom.n(i, k) = nk(i);
+        }
     }
 }

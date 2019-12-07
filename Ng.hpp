@@ -129,7 +129,7 @@ struct Ng
         return true;
     }
 
-    f64 max_change()
+    inline f64 max_change()
     {
         if (!init || count < 2)
             return 0.0;
@@ -145,6 +145,12 @@ struct Ng
             }
         }
         return dMax;
+    }
+
+    inline void clear()
+    {
+        previous.fill(0);
+        count = 0;
     }
 };
 

@@ -65,27 +65,27 @@ def add_B(atmos):
 
 
 atmosCons = Falc80()
-add_B(atmosCons)
-IwaveCons = synth_8542(atmosCons, conserve=True, useNe=False, stokes=True)
+# add_B(atmosCons)
+IwaveCons = synth_8542(atmosCons, conserve=True, useNe=False, stokes=False)
 atmosLte = Falc80()
-add_B(atmosLte)
-IwaveLte = synth_8542(atmosLte, conserve=False, useNe=False, stokes=True)
+# add_B(atmosLte)
+IwaveLte = synth_8542(atmosLte, conserve=False, useNe=False, stokes=False)
 atmosFal = Falc80()
-add_B(atmosFal)
-Iwave = synth_8542(atmosFal, conserve=False, useNe=True, stokes=True)
+# add_B(atmosFal)
+Iwave = synth_8542(atmosFal, conserve=False, useNe=True, stokes=False)
 
-atmos = Falc80()
-add_B(atmos)
-atmos.convert_scales()
-atmos.quadrature(5)
-aSet = RadiativeSet([H_3_atom(), C_atom(), O_atom(), Si_atom(), Al_atom(), CaII_atom(), Fe_atom(), He_atom(), MgII_atom(), N_atom(), Na_atom(), S_atom()])
-aSet.set_active('H', 'Ca')
-spect = aSet.compute_wavelength_grid()
+# atmos = Falc80()
+# add_B(atmos)
+# atmos.convert_scales()
+# atmos.quadrature(5)
+# aSet = RadiativeSet([H_3_atom(), C_atom(), O_atom(), Si_atom(), Al_atom(), CaII_atom(), Fe_atom(), He_atom(), MgII_atom(), N_atom(), Na_atom(), S_atom()])
+# aSet.set_active('H', 'Ca')
+# spect = aSet.compute_wavelength_grid()
 
-molPaths = ['../Molecules/' + m + '.molecule' for m in ['H2']]
-mols = MolecularTable(molPaths)
-eqPops = aSet.compute_eq_pops(mols, atmos)
-ctx = LwContext(atmos, spect, eqPops, ngOptions=NgOptions(0,0,0), hprd=False, conserveCharge=False)
-iterate_ctx(ctx, prd=False)
-ctx.single_stokes_fs()
-s = ctx.spect
+# molPaths = ['../Molecules/' + m + '.molecule' for m in ['H2']]
+# mols = MolecularTable(molPaths)
+# eqPops = aSet.compute_eq_pops(mols, atmos)
+# ctx = LwContext(atmos, spect, eqPops, ngOptions=NgOptions(0,0,0), hprd=False, conserveCharge=False)
+# iterate_ctx(ctx, prd=False)
+# ctx.single_stokes_fs()
+# s = ctx.spect

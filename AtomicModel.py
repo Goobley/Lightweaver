@@ -94,6 +94,11 @@ class AtomicModel:
         self.atomicTable = table
         self.__post_init__()
 
+    def vBroad(self, atmos):
+        vTherm = 2.0 * Const.KBOLTZMANN / (Const.AMU * self.atomicTable[self.name].weight)
+        vBroad = np.sqrt(vTherm * atmos.temperature + atmos.vturb**2)
+        return vBroad
+
 def avoid_recursion_eq(a, b) -> bool:
     if isinstance(a, np.ndarray):
         if not np.all(a == b):
