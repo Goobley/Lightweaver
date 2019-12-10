@@ -1177,7 +1177,7 @@ typedef npy_double __pyx_t_5numpy_double_t;
  */
 typedef npy_longdouble __pyx_t_5numpy_longdouble_t;
 
-/* "CmoArray.pxd":215
+/* "CmoArray.pxd":225
  * ctypedef Array4Own[double] F64Arr4D
  * ctypedef Array5Own[double] F64Arr5D
  * ctypedef double f64             # <<<<<<<<<<<<<<
@@ -1250,7 +1250,7 @@ typedef npy_clongdouble __pyx_t_5numpy_clongdouble_t;
  */
 typedef npy_cdouble __pyx_t_5numpy_complex_t;
 
-/* "CmoArray.pxd":203
+/* "CmoArray.pxd":213
  *         Array4NonOwn[T] reshape(int, int, int, int)
  * 
  * ctypedef Array1NonOwn[double] F64View             # <<<<<<<<<<<<<<
@@ -1259,7 +1259,7 @@ typedef npy_cdouble __pyx_t_5numpy_complex_t;
  */
 typedef Jasnah::Array1NonOwn<double>  __pyx_t_8CmoArray_F64View;
 
-/* "CmoArray.pxd":204
+/* "CmoArray.pxd":214
  * 
  * ctypedef Array1NonOwn[double] F64View
  * ctypedef Array1NonOwn[double] F64View1D             # <<<<<<<<<<<<<<
@@ -1268,7 +1268,7 @@ typedef Jasnah::Array1NonOwn<double>  __pyx_t_8CmoArray_F64View;
  */
 typedef Jasnah::Array1NonOwn<double>  __pyx_t_8CmoArray_F64View1D;
 
-/* "CmoArray.pxd":205
+/* "CmoArray.pxd":215
  * ctypedef Array1NonOwn[double] F64View
  * ctypedef Array1NonOwn[double] F64View1D
  * ctypedef Array2NonOwn[double] F64View2D             # <<<<<<<<<<<<<<
@@ -1277,7 +1277,7 @@ typedef Jasnah::Array1NonOwn<double>  __pyx_t_8CmoArray_F64View1D;
  */
 typedef Jasnah::Array2NonOwn<double>  __pyx_t_8CmoArray_F64View2D;
 
-/* "CmoArray.pxd":206
+/* "CmoArray.pxd":216
  * ctypedef Array1NonOwn[double] F64View1D
  * ctypedef Array2NonOwn[double] F64View2D
  * ctypedef Array3NonOwn[double] F64View3D             # <<<<<<<<<<<<<<
@@ -1286,7 +1286,7 @@ typedef Jasnah::Array2NonOwn<double>  __pyx_t_8CmoArray_F64View2D;
  */
 typedef Jasnah::Array3NonOwn<double>  __pyx_t_8CmoArray_F64View3D;
 
-/* "CmoArray.pxd":207
+/* "CmoArray.pxd":217
  * ctypedef Array2NonOwn[double] F64View2D
  * ctypedef Array3NonOwn[double] F64View3D
  * ctypedef Array4NonOwn[double] F64View4D             # <<<<<<<<<<<<<<
@@ -1295,7 +1295,7 @@ typedef Jasnah::Array3NonOwn<double>  __pyx_t_8CmoArray_F64View3D;
  */
 typedef Jasnah::Array4NonOwn<double>  __pyx_t_8CmoArray_F64View4D;
 
-/* "CmoArray.pxd":208
+/* "CmoArray.pxd":218
  * ctypedef Array3NonOwn[double] F64View3D
  * ctypedef Array4NonOwn[double] F64View4D
  * ctypedef Array5NonOwn[double] F64View5D             # <<<<<<<<<<<<<<
@@ -1304,7 +1304,7 @@ typedef Jasnah::Array4NonOwn<double>  __pyx_t_8CmoArray_F64View4D;
  */
 typedef Jasnah::Array5NonOwn<double>  __pyx_t_8CmoArray_F64View5D;
 
-/* "CmoArray.pxd":209
+/* "CmoArray.pxd":219
  * ctypedef Array4NonOwn[double] F64View4D
  * ctypedef Array5NonOwn[double] F64View5D
  * ctypedef Array1Own[double] F64Arr             # <<<<<<<<<<<<<<
@@ -1313,7 +1313,7 @@ typedef Jasnah::Array5NonOwn<double>  __pyx_t_8CmoArray_F64View5D;
  */
 typedef Jasnah::Array1Own<double>  __pyx_t_8CmoArray_F64Arr;
 
-/* "CmoArray.pxd":210
+/* "CmoArray.pxd":220
  * ctypedef Array5NonOwn[double] F64View5D
  * ctypedef Array1Own[double] F64Arr
  * ctypedef Array1Own[double] F64Arr1D             # <<<<<<<<<<<<<<
@@ -1322,7 +1322,7 @@ typedef Jasnah::Array1Own<double>  __pyx_t_8CmoArray_F64Arr;
  */
 typedef Jasnah::Array1Own<double>  __pyx_t_8CmoArray_F64Arr1D;
 
-/* "CmoArray.pxd":211
+/* "CmoArray.pxd":221
  * ctypedef Array1Own[double] F64Arr
  * ctypedef Array1Own[double] F64Arr1D
  * ctypedef Array2Own[double] F64Arr2D             # <<<<<<<<<<<<<<
@@ -1331,7 +1331,7 @@ typedef Jasnah::Array1Own<double>  __pyx_t_8CmoArray_F64Arr1D;
  */
 typedef Jasnah::Array2Own<double>  __pyx_t_8CmoArray_F64Arr2D;
 
-/* "CmoArray.pxd":212
+/* "CmoArray.pxd":222
  * ctypedef Array1Own[double] F64Arr1D
  * ctypedef Array2Own[double] F64Arr2D
  * ctypedef Array3Own[double] F64Arr3D             # <<<<<<<<<<<<<<
@@ -1340,7 +1340,7 @@ typedef Jasnah::Array2Own<double>  __pyx_t_8CmoArray_F64Arr2D;
  */
 typedef Jasnah::Array3Own<double>  __pyx_t_8CmoArray_F64Arr3D;
 
-/* "CmoArray.pxd":213
+/* "CmoArray.pxd":223
  * ctypedef Array2Own[double] F64Arr2D
  * ctypedef Array3Own[double] F64Arr3D
  * ctypedef Array4Own[double] F64Arr4D             # <<<<<<<<<<<<<<
@@ -1349,7 +1349,7 @@ typedef Jasnah::Array3Own<double>  __pyx_t_8CmoArray_F64Arr3D;
  */
 typedef Jasnah::Array4Own<double>  __pyx_t_8CmoArray_F64Arr4D;
 
-/* "CmoArray.pxd":214
+/* "CmoArray.pxd":224
  * ctypedef Array3Own[double] F64Arr3D
  * ctypedef Array4Own[double] F64Arr4D
  * ctypedef Array5Own[double] F64Arr5D             # <<<<<<<<<<<<<<

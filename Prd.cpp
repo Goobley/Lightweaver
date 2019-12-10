@@ -1,4 +1,5 @@
 #include "Lightweaver.hpp"
+#include "Utils.hpp"
 
 namespace PrdCores
 {
@@ -122,7 +123,10 @@ void prd_scatter(Transition* t, F64View Pj, const Atom& atom, const Atmosphere& 
     bool initialiseGii = (!trans.gII) || (trans.gII(0, 0, 0) < 0.0);
     constexpr int maxFineGrid = max_fine_grid_size();
     if (!trans.gII)
-        trans.gII = F64Arr3D(Nlambda, atmos.Nspace, maxFineGrid);
+    {
+        trans.prdStorage.gII = F64Arr3D(Nlambda, atmos.Nspace, maxFineGrid);
+        trans.gII = trans.prdStorage.gII;
+    }
 
     // Reset Rho
     trans.rhoPrd.fill(1.0);
@@ -222,6 +226,7 @@ void prd_scatter(Transition* t, F64View Pj, const Atom& atom, const Atmosphere& 
 
 f64 formal_sol_prd_update_rates(Context& ctx, ConstView<i32> wavelengthIdxs)
 {
+    using namespace LwInternal;
     JasUnpack(*ctx, atmos, spect, background);
     JasUnpack(ctx, activeAtoms, lteAtoms);
 
@@ -556,7 +561,8 @@ void configure_hprd_coeffs(Context& ctx)
     for (auto& p : prdLines)
     {
         auto& wavelength = p.line->wavelength;
-        p.line->hPrdCoeffs = Prd::RhoCoeffVec(wavelength.shape(0), atmos.Nrays, 2, atmos.Nspace);
+        p.line->prdStorage.hPrdCoeffs = Prd::RhoCoeffVec(wavelength.shape(0), atmos.Nrays, 2, atmos.Nspace);
+        p.line->hPrdCoeffs = p.line->prdStorage.hPrdCoeffs;
         auto& coeffs = p.line->hPrdCoeffs;
         for (int lt = 0; lt < wavelength.shape(0); ++lt)
         {

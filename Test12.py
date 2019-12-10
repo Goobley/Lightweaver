@@ -33,7 +33,8 @@ def iterate_ctx(ctx, prd=True, Nscatter=3, NmaxIter=500):
             print('----------')
             return
 
-wave = np.linspace(853.9444, 854.9444, 1001)
+# wave = np.linspace(853.9444, 854.9444, 1001)
+wave = np.linspace(392, 398, 10001)
 def synth_8542(atmos, conserve, useNe, stokes=False):
     # atmos = Atmosphere(ScaleType.Tau500, depthScale=10**data['tau'], temperature=data['temperature'], vlos=data['vlos']/1e2, vturb=data['vturb']/1e2)
     # atmos = Atmosphere(ScaleType.Geometric, depthScale=data['height']/1e2, temperature=data['temperature'], vlos=data['vlos']/1e2, vturb=data['vturb']/1e2)
@@ -52,8 +53,8 @@ def synth_8542(atmos, conserve, useNe, stokes=False):
         eqPops = aSet.compute_eq_pops(mols, atmos)
     else:
         eqPops = aSet.iterate_lte_ne_eq_pops(mols, atmos)
-    ctx = LwContext(atmos, spect, eqPops, ngOptions=NgOptions(0,0,0), hprd=False, conserveCharge=conserve)
-    iterate_ctx(ctx, prd=False)
+    ctx = LwContext(atmos, spect, eqPops, ngOptions=NgOptions(0,0,0), hprd=True, conserveCharge=conserve)
+    iterate_ctx(ctx, prd=True)
     eqPops.update_lte_atoms_Hmin_pops(atmos)
     Iwave = ctx.compute_rays(wave, [atmos.muz[-1]], stokes=stokes)
     return Iwave

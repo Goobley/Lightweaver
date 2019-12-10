@@ -36,6 +36,12 @@ void stat_eq(Atom* atomIn)
     }
 }
 
+#include <exception>
+
+// class SingularMatrixException : std::runtime_error
+// {
+// };
+
 void time_dependent_update(Atom* atomIn, F64View2D nOld, f64 dt)
 {
     auto& atom  = *atomIn;
@@ -44,6 +50,8 @@ void time_dependent_update(Atom* atomIn, F64View2D nOld, f64 dt)
 
     auto nk = F64Arr(Nlevel);
     auto Gamma = F64Arr2D(Nlevel, Nlevel);
+
+    // throw std::runtime_error("Singular Matrix");
 
     for (int k = 0; k < Nspace; ++k)
     {

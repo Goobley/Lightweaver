@@ -46,7 +46,14 @@ namespace Prd
         JInterpCoeffs(int i, f64 f) : frac(f), idx(i) {}
     };
     typedef Jasnah::Array4Own<RhoInterpCoeffs> RhoCoeffVec;
+    typedef Jasnah::Array4NonOwn<RhoInterpCoeffs> RhoCoeffView;
     typedef Jasnah::Array4Own<std::vector<JInterpCoeffs>> JCoeffVec;
+
+    struct PrdStorage
+    {
+        F64Arr3D gII;
+        Prd::RhoCoeffVec hPrdCoeffs;
+    };
 }
 
 namespace PrdCores
@@ -127,9 +134,6 @@ enum TransitionType
     CONTINUUM
 };
 
-typedef std::complex<f64> (*WofZType)(std::complex<f64>);
-void print_complex(std::complex<f64> cmp, WofZType wofz);
-
 struct Transition
 {
     enum TransitionType type;
@@ -160,21 +164,10 @@ struct Transition
     F64View Rij;
     F64View Rji;
     F64View2D rhoPrd;
-    F64Arr3D gII;
-    Prd::RhoCoeffVec hPrdCoeffs;
 
-    // F64Arr wlambda() const
-    // {
-    //     auto wla = F64Arr(wavelength.shape(0));
-    //     int len = wavelength.shape(0);
-    //     for (int i = 1; i < len-1; ++i)
-    //     {
-    //         wla(i) = 0.5 * (wavelength(i+1) - wavelength(i-1)) * dopplerWidth;
-    //     }
-    //     wla(0) = 0.5 * (wavelength(1) - wavelength(0)) * dopplerWidth;
-    //     wla(len-1) = 0.5 * (wavelength(len-1) - wavelength(len-2)) * dopplerWidth;
-    //     return wla;
-    // }
+    F64View3D gII;
+    Prd::RhoCoeffView hPrdCoeffs;
+    Prd::PrdStorage prdStorage;
 
     inline f64 wlambda(int la) const
     {

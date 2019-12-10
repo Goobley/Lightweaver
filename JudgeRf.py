@@ -10,6 +10,7 @@ from dataclasses import dataclass
 import matplotlib.pyplot as plt
 from copy import deepcopy
 import time
+import sys
 import pickle
 import numpy as np
 from concurrent.futures import ProcessPoolExecutor, wait
@@ -83,7 +84,14 @@ print(atmos.temperature - prevT)
 
 hPops = [np.copy(eqPops['H'])]
 for it in range(NtStep):
-    sub = do_timestep(ctx)
+    try:
+        sub = do_timestep(ctx)
+    except Exception as e:
+        # print(e)
+        print('===========\n===========\n')
+        sys.exit(1)
+        print('Tried to quit')
+        
     print('Iteration %d (%f s) done after %d sub iterations' % (it, (it+1)*dt, sub))
     # input()
 
@@ -97,6 +105,7 @@ def response_fn_temp_k(state, k):
     # pertSize = 0.0001 * atmos2.ne[k]
     # atmos2.ne[k] += 0.5 * pertSize
     # atmos2.vlos[k] += 0.5 * pertSize
+    # NOTE(cmo): This doesn't need to be construct_from_state here, as do_timestep updates the things for us...
     ctxPlus = LwContext.construct_from_state_dict_with(sd, atmos=atmos2)
     do_timestep(ctxPlus)
     res1 = np.copy(ctxPlus.compute_rays(wavelengths=wave, mus=[1.0])[:, 0])

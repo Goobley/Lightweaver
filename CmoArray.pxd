@@ -6,6 +6,8 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         T* data
         Array1NonOwn()
         Array1NonOwn(T*, size_t)
+        Array1NonOwn(Array1Own[T]&)
+        Array1NonOwn& operator=(Array1Own[T]&) # This function doesn't actually exist, but cython seems to need to believe it does to assign an Arr to a View
         T operator[](size_t) const
         T& operator[](size_t)
         T operator()(size_t) const
@@ -40,6 +42,8 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         T* data
         Array2NonOwn()
         Array2NonOwn(T*, size_t, size_t)
+        Array2NonOwn(Array2Own[T]&)
+        Array2NonOwn& operator=(Array2Own[T]&) # This function doesn't actually exist, but cython seems to need to believe it does to assign an Arr to a View
         T operator[](size_t) const
         T& operator[](size_t)
         T operator()(size_t, size_t) const
@@ -78,6 +82,8 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         T* data
         Array3NonOwn()
         Array3NonOwn(T*, size_t, size_t, size_t)
+        Array3NonOwn(Array3Own[T]&)
+        Array3NonOwn& operator=(Array3Own[T]&) # This function doesn't actually exist, but cython seems to need to believe it does to assign an Arr to a View
         T operator[](size_t) const
         T& operator[](size_t)
         T operator()(size_t, size_t, size_t) const
@@ -118,6 +124,8 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         T* data
         Array4NonOwn()
         Array4NonOwn(T*, size_t, size_t, size_t, size_t)
+        Array4NonOwn(Array4Own[T]&)
+        Array4NonOwn& operator=(Array4Own[T]&) # This function doesn't actually exist, but cython seems to need to believe it does to assign an Arr to a View
         T operator[](size_t) const
         T& operator[](size_t)
         T operator()(size_t, size_t, size_t, size_t) const
@@ -160,6 +168,8 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         T* data
         Array5NonOwn()
         Array5NonOwn(T*, size_t, size_t, size_t, size_t, size_t)
+        Array5NonOwn(Array5Own[T]&)
+        Array5NonOwn& operator=(Array5Own[T]&) # This function doesn't actually exist, but cython seems to need to believe it does to assign an Arr to a View
         T operator[](size_t) const
         T& operator[](size_t)
         T operator()(size_t, size_t, size_t, size_t, size_t) const

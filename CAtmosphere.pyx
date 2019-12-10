@@ -62,6 +62,9 @@ cdef extern from "Lightweaver.hpp":
 cdef extern from "Lightweaver.hpp" namespace "PrdCores":
     cdef int max_fine_grid_size()
 
+cdef extern from "Lightweaver.hpp" namespace "Prd":
+    cdef cppclass PrdStorage:
+        F64Arr3D gII
 
 cdef extern from "Background.hpp":
     cdef cppclass BackgroundData:
@@ -144,7 +147,8 @@ cdef extern from "Lightweaver.hpp":
         F64View Rij
         F64View Rji
         F64View2D rhoPrd
-        F64Arr3D gII
+        F64View3D gII
+        PrdStorage prdStorage
 
         void uv(int la, int mu, bool_t toObs, F64View Uji, F64View Vij, F64View Vji)
         void compute_phi(const Atmosphere& atmos, F64View aDamp, F64View vBroad)
@@ -188,7 +192,7 @@ cdef extern from "Lightweaver.hpp":
     cdef f64 formal_sol_full_stokes(Context& ctx, bool_t updateJ)
     cdef f64 redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
     cdef void stat_eq(Atom* atom)
-    cdef void time_dependent_update(Atom* atomIn, F64View2D nOld, f64 dt)
+    cdef void time_dependent_update(Atom* atomIn, F64View2D nOld, f64 dt) except +
     cdef void configure_hprd_coeffs(Context& ctx)
 
 cdef extern from "Lightweaver.hpp" namespace "EscapeProbability":
@@ -718,7 +722,7 @@ cdef gII_to_numpy(F64Arr3D gII):
     return ndarray
 
 cdef gII_from_numpy(Transition trans, f64[:,:,::1] gII):
-    trans.gII = F64Arr3D(f64_view_3(gII))
+    trans.prdStorage.gII = F64Arr3D(f64_view_3(gII))
 
 cpdef approx_trans_comp(t1, t2):
     return t1.atom.name == t2.atom.name and t1.j == t2.j and t1.i == t2.i
@@ -851,7 +855,7 @@ cdef class LwTransition:
                 state['rhoPrd'] = None
 
             try:
-                state['gII'] = np.copy(gII_to_numpy(self.trans.gII))
+                state['gII'] = np.copy(gII_to_numpy(self.trans.prdStorage.gII))
             except AttributeError:
                 state['gII'] = None
         else:
@@ -889,6 +893,8 @@ cdef class LwTransition:
                 self.trans.rhoPrd = f64_view_2(self.rhoPrd)
             if state['gII'] is not None:
                 gII_from_numpy(self.trans, state['gII'])
+                self.trans.gII = self.trans.prdStorage.gII
+
             if state['polarised']:
                 self.phiQ = state['phiQ']
                 self.phiU = state['phiU']
@@ -934,6 +940,7 @@ cdef class LwTransition:
 
             if prevState['gII'] is not None:
                 gII_from_numpy(self.trans, prevState['gII'])
+                self.trans.gII = self.trans.prdStorage.gII
 
             if preserveProfiles:
                 np.asarray(self.phi)[:] = prevState['phi']
@@ -1866,7 +1873,10 @@ cdef class LwContext:
         for i, atom in enumerate(atoms):
             a = &atom.atom
 
-            time_dependent_update(a, f64_view_2(prevTimePops[i]), dt)
+            try:
+                time_dependent_update(a, f64_view_2(prevTimePops[i]), dt)
+            except:
+                raise Exception('Singular Matrix')
             a.ng.accelerate(a.n.flatten())
             delta = a.ng.max_change()
             maxDelta = max(maxDelta, delta)
