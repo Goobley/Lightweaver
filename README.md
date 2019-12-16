@@ -1,6 +1,6 @@
 # Lightweaver
 
-**C. Osborne & I. Milić 2019**
+**C. Osborne (University of Glasgow) & I. Milić (NSO/CU Boulder), 2019**
 
 **MIT License**
 
@@ -13,6 +13,7 @@ The aim of Lightweaver is to provide an NLTE Framework, rather than a "code". Th
 ### Installation
 
 Requirements:
+
     - C++17 Compiler
     - Python 3.7+
 
