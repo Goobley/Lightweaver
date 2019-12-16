@@ -1,8 +1,13 @@
+#ifndef CMO_THREAD_STORAGE_HPP
+#define CMO_THREAD_STORAGE_HPP
 #include "Lightweaver.hpp"
 #include "Constants.hpp"
 #include "CmoArray.hpp"
+#include "JasPP.hpp"
 #include <vector>
 
+namespace LwInternal
+{
 struct TransitionStorage
 {
     F64Arr Rij;
@@ -152,3 +157,104 @@ struct AtomStorageFactory
         return a;
     }
 };
+
+struct IntensityCoreStorage
+{
+    F64Arr I;
+    F64Arr S;
+    F64Arr JDag;
+    F64Arr chiTot;
+    F64Arr etaTot;
+    F64Arr Uji;
+    F64Arr Vij;
+    F64Arr Vji;
+    F64Arr Ieff;
+    F64Arr PsiStar;
+    std::vector<Atom*> activeAtoms;
+    std::vector<Atom*> lteAtoms;
+
+    void set_Nspace(int Nspace)
+    {
+        I = F64Arr(0.0, Nspace);
+        S = F64Arr(0.0, Nspace);
+        JDag = F64Arr(0.0, Nspace);
+        chiTot = F64Arr(0.0, Nspace);
+        etaTot = F64Arr(0.0, Nspace);
+        Uji = F64Arr(0.0, Nspace);
+        Vij = F64Arr(0.0, Nspace);
+        Vji = F64Arr(0.0, Nspace);
+        Ieff = F64Arr(0.0, Nspace);
+        PsiStar = F64Arr(0.0, Nspace);
+    }
+};
+
+struct IntensityCoreFactory
+{
+    Atmosphere* atmos;
+    Spectrum* spect;
+    Background* background;
+    std::vector<AtomStorageFactory> activeAtoms;
+    std::vector<AtomStorageFactory> lteAtoms;
+    std::vector<IntensityCoreStorage> arrayStorage;
+    std::vector<FormalData> fdStorage;
+
+    IntensityCoreFactory(Context* ctx) : atmos(ctx->atmos), 
+                                         spect(ctx->spect),
+                                         background(ctx->background)
+    {
+        activeAtoms.reserve(ctx->activeAtoms.size());
+        for (auto a : ctx->activeAtoms)
+            activeAtoms.emplace_back(AtomStorageFactory(a));
+
+        lteAtoms.reserve(ctx->lteAtoms.size());
+        for (auto a : ctx->lteAtoms)
+            lteAtoms.emplace_back(AtomStorageFactory(a));
+
+    }
+
+    IntensityCoreData new_intensity_core(bool psiOperator)
+    {
+        arrayStorage.emplace_back(IntensityCoreStorage());
+        auto& as = arrayStorage.back();
+        const int Nspace = atmos->Nspace;
+        as.set_Nspace(Nspace);
+        fdStorage.emplace_back(FormalData());
+        FormalData* fd = &fdStorage.back();
+
+        IntensityCoreData iCore;
+        JasPack(iCore, atmos, spect, fd, background);
+        fd->atmos = atmos;
+        fd->chi = as.chiTot;
+        fd->S = as.S;
+        fd->I = as.I;
+        if (psiOperator)
+            fd->Psi = as.PsiStar;
+
+        iCore.JDag = &as.JDag;
+        iCore.chiTot = as.chiTot;
+        iCore.etaTot = as.etaTot;
+        iCore.Uji = as.Uji;
+        iCore.Vij = as.Vij;
+        iCore.Vji = as.Vji;
+        iCore.S = as.S;
+        iCore.I = as.I;
+        iCore.Ieff = as.Ieff;
+        if (psiOperator)
+            iCore.PsiStar = as.PsiStar;
+
+        as.activeAtoms.reserve(activeAtoms.size());
+        for (auto& atom : activeAtoms)
+            as.activeAtoms.emplace_back(atom.copy_atom());
+        iCore.activeAtoms = &as.activeAtoms;
+        
+        as.lteAtoms.reserve(lteAtoms.size());
+        for (auto& atom : lteAtoms)
+            as.lteAtoms.emplace_back(atom.copy_atom());
+        iCore.lteAtoms = &as.lteAtoms;
+
+        return iCore;
+    }
+};
+}
+#else
+#endif

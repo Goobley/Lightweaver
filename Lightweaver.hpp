@@ -337,6 +337,7 @@ struct Context
     std::vector<Atom*> activeAtoms;
     std::vector<Atom*> lteAtoms;
     Background* background;
+    int Nthreads;
 };
 
 f64 formal_sol_gamma_matrices(Context& ctx);

@@ -1,5 +1,5 @@
 from Falc80 import Falc80
-from AllOfTheAtoms import H_6_atom, H_6_CRD_atom, H_3_atom, C_atom, O_atom, OI_ord_atom, Si_atom, Al_atom, CaII_atom, Fe_atom, FeI_atom, He_9_atom, He_atom, He_large_atom, MgII_atom, N_atom, Na_atom, S_atom
+from AllOfTheAtoms import H_6_atom, H_6_CRD_atom, H_4_atom, C_atom, O_atom, OI_ord_atom, Si_atom, Al_atom, CaII_atom, Fe_atom, FeI_atom, He_9_atom, He_atom, He_large_atom, MgII_atom, N_atom, Na_atom, S_atom
 from Atmosphere import Atmosphere, ScaleType
 from AtomicSet import RadiativeSet
 from AtomicTable import get_global_atomic_table
@@ -36,7 +36,7 @@ def iterate_ctx(ctx, prd=True, Nscatter=3, NmaxIter=500):
 atmos= Falc80()
 atmos.convert_scales()
 atmos.quadrature(5)
-aSet = RadiativeSet([H_3_atom(), C_atom(), O_atom(), Si_atom(), Al_atom(), CaII_atom(), Fe_atom(), He_atom(), MgII_atom(), N_atom(), Na_atom(), S_atom()])
+aSet = RadiativeSet([H_4_atom(), C_atom(), O_atom(), Si_atom(), Al_atom(), CaII_atom(), Fe_atom(), He_atom(), MgII_atom(), N_atom(), Na_atom(), S_atom()])
 aSet.set_active('H')
 spect = aSet.compute_wavelength_grid()
 

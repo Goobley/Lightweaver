@@ -1,6 +1,7 @@
 #include "Lightweaver.hpp"
 #include "Bezier.hpp"
 #include "JasPP.hpp"
+#include "ThreadStorage.hpp"
 
 #include <cmath>
 #include <fenv.h>
@@ -625,65 +626,129 @@ f64 formal_sol_gamma_matrices(Context& ctx)
     const int Nrays = atmos.Nrays;
     const int Nspect = spect.wavelength.shape(0);
 
-    F64Arr chiTot = F64Arr(Nspace);
-    F64Arr etaTot = F64Arr(Nspace);
-    F64Arr S = F64Arr(Nspace);
-    F64Arr Uji = F64Arr(Nspace);
-    F64Arr Vij = F64Arr(Nspace);
-    F64Arr Vji = F64Arr(Nspace);
-    F64Arr I = F64Arr(Nspace);
-    F64Arr PsiStar = F64Arr(Nspace);
-    F64Arr Ieff = F64Arr(Nspace);
-    F64Arr JDag = F64Arr(Nspace);
-    FormalData fd;
-    fd.atmos = &atmos;
-    fd.chi = chiTot;
-    fd.S = S;
-    fd.Psi = PsiStar;
-    fd.I = I;
-    IntensityCoreData iCore;
-    JasPackPtr(iCore, atmos, spect, fd, background);
-    JasPackPtr(iCore, activeAtoms, lteAtoms, JDag);
-    JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
-    JasPack(iCore, I, S, Ieff, PsiStar);
+    if (ctx.Nthreads <= 1)
+    {
+        F64Arr chiTot = F64Arr(Nspace);
+        F64Arr etaTot = F64Arr(Nspace);
+        F64Arr S = F64Arr(Nspace);
+        F64Arr Uji = F64Arr(Nspace);
+        F64Arr Vij = F64Arr(Nspace);
+        F64Arr Vji = F64Arr(Nspace);
+        F64Arr I = F64Arr(Nspace);
+        F64Arr PsiStar = F64Arr(Nspace);
+        F64Arr Ieff = F64Arr(Nspace);
+        F64Arr JDag = F64Arr(Nspace);
+        FormalData fd;
+        fd.atmos = &atmos;
+        fd.chi = chiTot;
+        fd.S = S;
+        fd.Psi = PsiStar;
+        fd.I = I;
+        IntensityCoreData iCore;
+        JasPackPtr(iCore, atmos, spect, fd, background);
+        JasPackPtr(iCore, activeAtoms, lteAtoms, JDag);
+        JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
+        JasPack(iCore, I, S, Ieff, PsiStar);
 
-    if (spect.JRest)
-        spect.JRest.fill(0.0);
+        if (spect.JRest)
+            spect.JRest.fill(0.0);
 
-    for (auto& a : activeAtoms)
-    {
-        a->zero_rates();
-    }
-    for (auto& a : lteAtoms)
-    {
-        a->zero_rates();
-    }
-
-    f64 dJMax = 0.0;
-    FsMode mode = (UpdateJ | UpdateRates);
-    for (int la = 0; la < Nspect; ++la)
-    {
-        f64 dJ = intensity_core(iCore, la, mode);
-        dJMax = max(dJ, dJMax);
-    }
-    for (int a = 0; a < activeAtoms.size(); ++a)
-    {
-        auto& atom = *activeAtoms[a];
-        for (int k = 0; k < Nspace; ++k)
+        for (auto& a : activeAtoms)
         {
-            for (int i = 0; i < atom.Nlevel; ++i)
+            a->zero_rates();
+        }
+        for (auto& a : lteAtoms)
+        {
+            a->zero_rates();
+        }
+
+        f64 dJMax = 0.0;
+        FsMode mode = (UpdateJ | UpdateRates);
+        for (int la = 0; la < Nspect; ++la)
+        {
+            f64 dJ = intensity_core(iCore, la, mode);
+            dJMax = max(dJ, dJMax);
+        }
+        for (int a = 0; a < activeAtoms.size(); ++a)
+        {
+            auto& atom = *activeAtoms[a];
+            for (int k = 0; k < Nspace; ++k)
             {
-                atom.Gamma(i, i, k) = 0.0;
-                f64 gammaDiag = 0.0;
-                for (int j = 0; j < atom.Nlevel; ++j)
+                for (int i = 0; i < atom.Nlevel; ++i)
                 {
-                    gammaDiag += atom.Gamma(j, i, k);
+                    atom.Gamma(i, i, k) = 0.0;
+                    f64 gammaDiag = 0.0;
+                    for (int j = 0; j < atom.Nlevel; ++j)
+                    {
+                        gammaDiag += atom.Gamma(j, i, k);
+                    }
+                    atom.Gamma(i, i, k) = -gammaDiag;
                 }
-                atom.Gamma(i, i, k) = -gammaDiag;
             }
         }
+        return dJMax;
     }
-    return dJMax;
+    else
+    {
+        std::vector<IntensityCoreData> cores;
+        cores.reserve(ctx.Nthreads);
+        IntensityCoreFactory coreFactory(&ctx);
+        for (int thread = 0; thread < ctx.Nthreads; ++thread)
+            cores.emplace_back(coreFactory.new_intensity_core(true));
+
+        if (spect.JRest)
+            spect.JRest.fill(0.0);
+
+        for (auto& core : cores)
+        {
+            for (auto& a : *core.activeAtoms)
+            {
+                a->zero_rates();
+            }
+            for (auto& a : *core.lteAtoms)
+            {
+                a->zero_rates();
+            }
+        }
+
+        f64 dJMax = 0.0;
+        FsMode mode = (UpdateJ | UpdateRates);
+        for (int la = 0; la < Nspect; ++la)
+        {
+            f64 dJ = intensity_core(cores[0], la, mode);
+            dJMax = max(dJ, dJMax);
+        }
+        for (auto& a : activeAtoms)
+        {
+            a->zero_rates();
+        }
+        for (auto& a : lteAtoms)
+        {
+            a->zero_rates();
+        }
+
+        // TODO(cmo): Accumulate rates and Gamma onto the "true" atoms
+
+
+        for (int a = 0; a < activeAtoms.size(); ++a)
+        {
+            auto& atom = *activeAtoms[a];
+            for (int k = 0; k < Nspace; ++k)
+            {
+                for (int i = 0; i < atom.Nlevel; ++i)
+                {
+                    atom.Gamma(i, i, k) = 0.0;
+                    f64 gammaDiag = 0.0;
+                    for (int j = 0; j < atom.Nlevel; ++j)
+                    {
+                        gammaDiag += atom.Gamma(j, i, k);
+                    }
+                    atom.Gamma(i, i, k) = -gammaDiag;
+                }
+            }
+        }
+        
+    }
 }
 
 f64 formal_sol_update_rates(Context& ctx)
