@@ -16,7 +16,7 @@ def read_multi_atmos(filename: str) -> Tuple[MultiMetadata, Atmosphere]:
         with open(filename, 'r') as f:
             lines = f.readlines()
     except FileNotFoundError:
-        raise ValueError('Atmosphere file not foind (%s)' % filename)
+        raise ValueError('Atmosphere file not found (%s)' % filename)
 
     def get_line(commentPattern='^\s*\*'):
         while len(lines) > 0:
