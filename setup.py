@@ -2,15 +2,14 @@ from distutils.core import setup, Extension
 from Cython.Build import cythonize
 import numpy as np
 
-setup(name="CAtmosphere", ext_modules=cythonize([
-    Extension("CmoArrayHelper", ["CmoArrayHelper.pyx"],
-    include_dirs=[np.get_include()], 
-    extra_compile_args=["-std=c++17"], language="c++"),
+setup(name='lightweaver', version='0.1.0', packages=['lightweaver'],
+ ext_modules=cythonize([
     Extension(
-    "CAtmosphere",
-    # ["CAtmosphere.pyx", "Background.cpp", "Atmosphere.cpp", "Formal.cpp", "Faddeeva.cc", "LuSolve.cpp"],
-    ["CAtmosphere.pyx", "LightweaverAmalgamated.cpp", "Faddeeva.cc"],
-    include_dirs=[np.get_include()],
-    extra_compile_args=["-std=c++17", "-Wno-sign-compare", "-march=native", "-mavx2", "-funroll-loops"],
-    language="c++"
+        "lightweaver.LwCompiled",
+        ["Source/LightweaverAmalgamated.cpp", "Source/CAtmosphere.pyx"],
+        include_dirs=[np.get_include()],
+        extra_compile_args=["-std=c++17", "-Wno-sign-compare", "-march=native", "-mavx2", "-funroll-loops"],
+        language="c++"
 )], language_level=3))
+
+# set -x CXX "/home/osborne/gcc-8/bin/g++8 -pthread"; set -x LDSHARED "/home/osborne/gcc-8/bin/g++8 -pthread -shared"; set -x DISTUTILS_DEBUG 1; and sudo -HE python3.7 -m pip install -vvv -e .
