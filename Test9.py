@@ -22,7 +22,7 @@ atmos = Falc80()
 atmos.convert_scales()
 atmos.quadrature(5)
 aSet = RadiativeSet([H_6_atom(), C_atom(), O_atom(), Si_atom(), Al_atom(), CaII_atom(), Fe_atom(), He_atom(), MgII_atom(), N_atom(), Na_atom(), S_atom()])
-aSet.set_active('H')
+aSet.set_active('H', 'Ca')
 spect = aSet.compute_wavelength_grid()
 
 molPaths = ['../Molecules/' + m + '.molecule' for m in ['H2']]
@@ -45,10 +45,10 @@ def iterate_ctx(ctx, prd=True, Nscatter=3, NmaxIter=500):
             print('----------')
             return
 
-pertSize = 100
+pertSize = 30
 wave = np.linspace(655, 658, 1001)
-pertPlus = np.zeros((wave.shape[0], atmos.Nspace))
-pertMinus = np.zeros((wave.shape[0], atmos.Nspace))
+pertPlus = np.zeros((spect.wavelength.shape[0], atmos.Nspace))
+pertMinus = np.zeros((spect.wavelength.shape[0], atmos.Nspace))
 
 iterate_ctx(ctx)
 Iwave = ctx.compute_rays(wave, [1.0])
