@@ -4,12 +4,18 @@ import numpy as np
 import re
 from typing import Tuple
 from dataclasses import dataclass
+from enum import Enum, auto
 
 @dataclass
 class NgOptions:
     Norder: int = 0
     Nperiod: int = 0
     Ndelay: int = 0
+
+class InitialSolution(Enum):
+    Lte = auto()
+    Zero = auto()
+    EscapeProbability = auto()
 
 def gaunt_bf(wvl, nEff, charge) -> float:
     # /* --- M. J. Seaton (1960), Rep. Prog. Phys. 23, 313 -- ----------- */

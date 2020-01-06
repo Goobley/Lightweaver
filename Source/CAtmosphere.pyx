@@ -7,6 +7,7 @@ from libcpp.vector cimport vector
 from libc.math cimport sqrt, exp, copysign
 from .atmosphere import BoundaryCondition
 from .atomic_model import AtomicLine, LineType
+from .utils import InitialSolution
 from scipy.interpolate import interp1d
 import lightweaver.constants as Const
 import time
@@ -21,12 +22,6 @@ np.import_array()
 ctypedef np.int8_t i8
 ctypedef Array1NonOwn[np.int32_t] I32View
 ctypedef Array1NonOwn[bool_t] BoolView
-
-class InitialSolution(Enum):
-    Lte = auto()
-    Zero = auto()
-    EscapeProbability = auto()
-
 
 cdef extern from "Lightweaver.hpp":
     cdef enum RadiationBC:
