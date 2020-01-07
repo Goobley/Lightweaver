@@ -63,7 +63,10 @@ void time_dependent_update(Atom* atomIn, F64View2D nOld, f64 dt)
             Gamma(i, i) = 1.0 - atom.Gamma(i, i, k) * dt;
         }
 
-        solve_lin_eq(Gamma, nk);
+        int solved = solve_lin_eq(Gamma, nk);
+        if (solved != 0)
+            throw std::runtime_error("Explodey!");
+
         for (int i = 0; i < Nlevel; ++i)
         {
             atom.n(i, k) = nk(i);

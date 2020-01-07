@@ -1945,6 +1945,7 @@ cdef class LwContext:
         cdef f64 maxDelta = 0.0
 
         if prevTimePops is None:
+            # TODO(cmo): Do we need to preserve the previous J too, or can we just reset I and J to 0 if needed? (to prevent NaN poisoning)
             prevTimePops = [np.copy(atom.n) for atom in atoms]
 
         for i, atom in enumerate(atoms):
