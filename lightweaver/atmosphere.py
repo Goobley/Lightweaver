@@ -43,7 +43,6 @@ def get_top_pressure(eos: witt, temp, ne=None, rho=None):
     ptop = np.interp(temp, tempCoord, pgasCgs)
     return ptop
     
-# TODO(cmo): Fix repr
 @dataclass
 class Atmosphere:
     scale: ScaleType
@@ -57,13 +56,10 @@ class Atmosphere:
     gammaB: Optional[np.ndarray] = None
     chiB: Optional[np.ndarray] = None
     nHTot: Optional[np.ndarray] = None
-    Nspace: int = field(init=False)
-    Nrays: int = field(init=False)
     lowerBc: BoundaryCondition = field(default=BoundaryCondition.Thermalised)
     upperBc: BoundaryCondition = field(default=BoundaryCondition.Zero)
 
     def __post_init__(self):
-        self.Nspace = self.depthScale.shape[0]
         if self.hydrogenPops is not None:
             self.nHTot = np.sum(self.hydrogenPops, axis=0)
 
@@ -76,16 +72,17 @@ class Atmosphere:
 
         eos = witt()
 
+        Nspace = self.Nspace
         if self.nHTot is None and self.ne is not None:
             pe = self.ne * Const.CM_TO_M**3 * eos.BK * self.temperature
-            rho = np.zeros(self.Nspace)
-            for k in range(self.Nspace):
+            rho = np.zeros(Nspace)
+            for k in range(Nspace):
                 rho[k] = eos.rho_from_pe(self.temperature[k], pe[k])
             self.nHTot = np.copy(rho / (Const.CM_TO_M**3 / Const.G_TO_KG) / (Const.Amu * atomicTable.weightPerH))
         elif self.ne is None and self.nHTot is not None:
             rho = Const.Amu * atomicTable.weightPerH * self.nHTot * Const.CM_TO_M**3 / Const.G_TO_KG
-            pe = np.zeros(self.Nspace)
-            for k in range(self.Nspace):
+            pe = np.zeros(Nspace)
+            for k in range(Nspace):
                 pe[k] = eos.pe_from_rho(self.temperature[k], rho[k])
             self.ne = np.copy(pe / (eos.BK * self.temperature) / Const.CM_TO_M**3)
         elif self.ne is None and self.nHTot is None:
@@ -111,10 +108,10 @@ class Atmosphere:
             else:
                 cmass = self.depthScale / Const.G_TO_KG * Const.CM_TO_M**2
 
-            rho = np.zeros(self.Nspace)
-            chi_c = np.zeros(self.Nspace)
-            pgas = np.zeros(self.Nspace)
-            pe = np.zeros(self.Nspace)
+            rho = np.zeros(Nspace)
+            chi_c = np.zeros(Nspace)
+            pgas = np.zeros(Nspace)
+            pe = np.zeros(Nspace)
             pgas[0] = Ptop
             pe[0] = PeTop
             chi_c[0] = eos.contOpacity(self.temperature[0], pgas[0], pe[0], np.array([5000.0]))
@@ -122,7 +119,7 @@ class Atmosphere:
             rho[0] = Ptop * avg_mol_weight(0) / Avog / eos.BK / self.temperature[0]
             chi_c[0] /= rho[0]
 
-            for k in range(1, self.Nspace):
+            for k in range(1, Nspace):
                 chi_c[k] = chi_c[k-1]
                 rho[k] = rho[k-1]
                 for it in range(200):
@@ -168,9 +165,6 @@ class Atmosphere:
         for k in range(self.depthScale.shape[0]):
             chi_c[k] = eos.contOpacity(self.temperature[k], pgas[k], pe[k], np.array([5000.0])) / Const.CM_TO_M
 
-        # self.pgas = pgas
-        # self.pe = pe
-
         if self.scale == ScaleType.ColumnMass:
             height = np.zeros_like(self.depthScale)
             tau_ref = np.zeros_like(self.depthScale)
@@ -189,8 +183,8 @@ class Atmosphere:
             self.height = height
             self.tau_ref = tau_ref
         elif self.scale == ScaleType.Geometric:
-            cmass = np.zeros(self.Nspace)
-            tau_ref = np.zeros(self.Nspace)
+            cmass = np.zeros(Nspace)
+            tau_ref = np.zeros(Nspace)
             height = self.depthScale
 
             cmass[0] = (self.nHTot[0] * atomicTable.weightPerH + self.ne[0]) * (Const.KBoltzmann * self.temperature[0] / 10**logG)
@@ -198,19 +192,19 @@ class Atmosphere:
             if tau_ref[0] > 1.0:
                 tau_ref[0] = 0.0
 
-            for k in range(1, self.Nspace):
+            for k in range(1, Nspace):
                 cmass[k] = cmass[k-1] + 0.5 * (rhoSI[k-1] + rhoSI[k]) * (height[k-1] - height[k])
                 tau_ref[k] = tau_ref[k-1] + 0.5 * (chi_c[k-1] + chi_c[k]) * (height[k-1] - height[k])
             self.cmass = cmass
             self.height = height
             self.tau_ref = tau_ref
         elif self.scale == ScaleType.Tau500:
-            cmass = np.zeros(self.Nspace)
-            height = np.zeros(self.Nspace)
+            cmass = np.zeros(Nspace)
+            height = np.zeros(Nspace)
             tau_ref = self.depthScale
 
             cmass[0] = (tau_ref[0] / chi_c[0]) * rhoSI[0]
-            for k in range(1, self.Nspace):
+            for k in range(1, Nspace):
                 height[k] = height[k-1] - 2.0 * (tau_ref[k] - tau_ref[k-1]) / (chi_c[k-1] + chi_c[k])
                 cmass[k] = cmass[k-1] + 0.5 * (chi_c[k-1] + chi_c[k]) * (height[k-1] - height[k])
 
@@ -227,7 +221,6 @@ class Atmosphere:
 
         if Nrays is not None and mu is None:
             if Nrays >= 1:        
-                self.Nrays = Nrays
                 x, w = leggauss(Nrays)
                 mid, halfWidth = 0.5, 0.5
                 x = mid + halfWidth * x
@@ -235,13 +228,6 @@ class Atmosphere:
 
                 self.muz = x
                 self.wmu = w
-            # elif Nrays == 1:
-            #     if mu is None:
-            #         raise ValueError('For Nrays=1, mu must be provided')
-                
-            #     self.Nrays = 1
-            #     self.muz = np.array([mu])
-            #     self.wmu = np.array([1.0])
             else:
                 raise ValueError('Unsupported Nrays=%d' % Nrays)
         elif Nrays is not None and mu is not None:
@@ -266,7 +252,25 @@ class Atmosphere:
         self.wmu = np.zeros_like(self.muz)
         self.muy = np.zeros_like(self.muz)
         self.mux = np.sqrt(1.0 - self.muz**2)
-        self.Nrays = len(self.muz)
+
+    @property
+    def Nspace(self):
+        if self.depthScale is not None:
+            return self.depthScale.shape[0]
+        elif self.cmass is not None:
+            return self.cmass.shape[0]
+        elif self.height is not None:
+            return self.height.shape[0]
+        elif self.tau_ref is not None:
+            return self.tau_ref.shape[0]
+
+    @property
+    def Nrays(self):
+        if self.muz is None:
+            raise AttributeError('Nrays not set, call atmos.rays or .quadrature first')
+
+        return self.muz.shape[0]
+
 
 
 

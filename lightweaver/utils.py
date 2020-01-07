@@ -32,13 +32,18 @@ def gaunt_bf(wvl, nEff, charge) -> float:
 class ConvergenceError(Exception):
     pass
 
+_LwCodeLocation = None
 def get_data_path():
-    fileLoc, _ = os.path.split(__file__)
-    return fileLoc + '/../Data/'
+    global _LwCodeLocation
+    if _LwCodeLocation is None:
+        _LwCodeLocation, _ = os.path.split(__file__)
+    return _LwCodeLocation + '/../Data/'
 
 def get_default_molecule_path():
-    fileLoc, _ = os.path.split(__file__)
-    return fileLoc + '/../Molecules/'
+    global _LwCodeLocation
+    if _LwCodeLocation is None:
+        _LwCodeLocation, _ = os.path.split(__file__)
+    return _LwCodeLocation + '/../Molecules/'
 
 def vac_to_air(wavelength: np.ndarray) -> np.ndarray:
     return spec_vac_to_air(wavelength * units.nm, method='edlen1966').value

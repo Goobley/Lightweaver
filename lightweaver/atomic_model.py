@@ -13,28 +13,6 @@ from .utils import gaunt_bf
 from .atomic_table import AtomicTable, get_global_atomic_table
 from .barklem import Barklem
 
-# TODO(cmo): Handle Stark (+ Linear stark for H) broadening in the same way as VdW, i.e. move all of Broaden to Python AtomicModel
-# TODO(cmo): Add collisional beam rates as a default empty field to AtomicModel
-# TODO(cmo): Prune Kurucz lines after loading all of them, based on the ones we have detailed models for. This lets us remove the element checks from rlk_opacity!
-# May need to compute the RLK unsold cross-section in Python, where we have access to all the element stuff
-# RlkProfile needs the atomic weight
-# The easiest option may instead be to fill a CElement struct for these functions, especially the ICE stuff
-
-# Process of setting up a simulation:
-# Load/Update abundances/AtomicTable
-# Load Atomic Models -- select active and initial solutions
-# Load Background Molecular Models
-# Setup Atmosphere
-# Load and prune rlk lines
-# Set up computational atoms
-# Set up CAtomicTable -- backrefs
-# Set up computational molecule
-# Set up spectrum/wvl contributions/activeset i.e. Spectrum
-# LTE/initial/ICE pops
-# Compute background 
-# Compute line profiles for active -- damping and collisions from Python atoms
-# Solve!
-
 class VdwBarklemIncompatible(Exception):
     pass
 
@@ -46,10 +24,6 @@ class AtomicModel:
     lines: Sequence['AtomicLine']
     continua: Sequence['AtomicContinuum']
     collisions: Sequence['CollisionalRates']
-
-    # We need lots of periodic table data to calculate lots of stuff. This lets us override the default AtomicTable if abundaces/metallicity is changed.
-    # TODO(cmo):
-    # i.e. a function will replace each atom with another with the same name, levels, lines, continua, collisions, but a different atomic table
     atomicTable: AtomicTable = field(default_factory=get_global_atomic_table)
 
     # @profile

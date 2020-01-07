@@ -6,6 +6,7 @@ if TYPE_CHECKING:
     from .atomic_model import AtomicLevel, AtomicLine, AtomicModel, determinate, CompositeLevelError
 import string
 from .atomic_table import AtomicTable
+from .utils import get_data_path
 from scipy.interpolate import RectBivariateSpline
 from scipy.special import gamma
 import lightweaver.constants as Const
@@ -30,10 +31,9 @@ class Barklem:
     def __init__(self, table: AtomicTable):
         # Should probably make these static class variables, but also they're tiny
         # TODO(cmo): Move this to be ResourceReader/Loader based?
-        fileLoc, _ = os.path.split(__file__)
-        self.barklem_sp = BarklemTable(fileLoc + '/../Data/Barklem_spdata.dat', (1.0, 1.3))
-        self.barklem_pd = BarklemTable(fileLoc + '/../Data/Barklem_pddata.dat', (1.3, 2.3))
-        self.barklem_df = BarklemTable(fileLoc + '/../Data/Barklem_dfdata.dat', (2.3, 3.3))
+        self.barklem_sp = BarklemTable(get_data_path() + 'Barklem_spdata.dat', (1.0, 1.3))
+        self.barklem_pd = BarklemTable(get_data_path() + 'Barklem_pddata.dat', (1.3, 2.3))
+        self.barklem_df = BarklemTable(get_data_path() + 'Barklem_dfdata.dat', (2.3, 3.3))
 
         self.atomicTable = table
 

@@ -7,6 +7,7 @@ from math import *
 import os
 import xdrlib
 from numba import njit
+from .utils import get_data_path
 
 
 class dum: # Just a container for the PF
@@ -186,8 +187,7 @@ class witt:
         # Init PF
 
         # TODO(cmo): Move this to be ResourceReader/Loader based?
-        this_dir, this_filename = os.path.split(__file__)
-        DATA_PATH = os.path.join(this_dir, '../Data/', pf_file)
+        DATA_PATH = get_data_path() + pf_file
 
         self.init_pf_data(DATA_PATH, True)
         

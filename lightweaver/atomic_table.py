@@ -7,7 +7,7 @@ import numpy as np
 import lightweaver.constants as Const
 from scipy.interpolate import interp1d
 from numba import jit
-from .utils import ConvergenceError
+from .utils import ConvergenceError, get_data_path
 
 if TYPE_CHECKING:
     from .atomic_model import AtomicModel
@@ -155,32 +155,6 @@ OrderedDict([
 ("BK", -7.96),
 ("CF", -7.96),
 ("ES", -7.96)])
-
- # TODO(cmo): Make all of this into a class, so that convert_abundances is called upon construction, so that we could ostensibly have multiple AtomicTables for different contexts
- # This should also make it easier to convert into the C-struct if needed --  though hopefully it won't be
-
-# def convert_abundances():
-#    if set(AtomicWeights.keys()) != set(AtomicAbundances.keys()):
-#       raise ValueError('AtomicWeghts and AtomicAbundances keys differ (Problem keys: %s)' % repr(set(AtomicWeights.keys()) - set(AtomicAbundances.keys())))
-#    global _OriginalAtomicAbundances 
-#    _OriginalAtomicAbundances = copy(AtomicAbundances)
-#    if AtomicAbundances['H '] == 12.0:
-#       for k, v in AtomicAbundances.items():
-#          AtomicAbundances[k] = 10**(v - 12.0)
-
-# def override_abundance(element, value, dex=True):
-#    if dex:
-#       AtomicAbundances[element] = 10**(value - 12.0)
-#    else:
-#       AtomicAbundances[element] = value
-
-# convert_abundances()
-
-# TODO(cmo): Read the Kurucz pf stuff here too
-# TODO(cmo): Try and move everything that depends on the AtomicTable and pf stuff to P/Cython. The sticking point there is the molecule ICE stuff, I think. We might be best off just keeping a version of the old struct around for that. But the problem there is that I think it adjusts the populations of the active atoms due to computing ICE -- it does, all the populations relating to molecules, in fact (duh). I mean, on a theoretical level all of that might be better in Cython, but much work. Alternatively, we might be able to bridge the two sufficiently transparently
-
-
-# def read_abundance(metallicity):
 
 def read_pf(path):
     with open(path, 'rb') as f:
@@ -354,7 +328,7 @@ class AtomicTable:
 
 
         # TODO(cmo): replace this with a proper default path
-        kuruczPfPath = '../Atoms/pf_Kurucz.input' if kuruczPfPath is None else kuruczPfPath
+        kuruczPfPath = get_data_path() + 'pf_Kurucz.input' if kuruczPfPath is None else kuruczPfPath
         with open(kuruczPfPath, 'rb') as f:
             s = f.read()
         u = Unpacker(s)

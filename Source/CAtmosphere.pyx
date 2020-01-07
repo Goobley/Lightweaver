@@ -378,6 +378,10 @@ cdef class LwAtmosphere:
         return self.atmos.Nrays
 
     @property
+    def cmass(self):
+        return np.asarray(self.cmass)
+
+    @property
     def height(self):
         return np.asarray(self.height)
 
@@ -388,6 +392,66 @@ cdef class LwAtmosphere:
     @property
     def temperature(self):
         return np.asarray(self.temperature)
+
+    @property
+    def ne(self):
+        return np.asarray(self.ne)
+
+    @property
+    def vlos(self):
+        return np.asarray(self.vlos)
+
+    @property
+    def vlosMu(self):
+        return np.asarray(self.vlosMu)
+
+    @property
+    def B(self):
+        return np.asarray(self.B)
+
+    @property
+    def gammaB(self):
+        return np.asarray(self.gammaB)
+
+    @property
+    def chiB(self):
+        return np.asarray(self.chiB)
+
+    @property
+    def cosGamma(self):
+        return np.asarray(self.cosGamma)
+
+    @property
+    def cos2chi(self):
+        return np.asarray(self.cos2chi)
+
+    @property
+    def sin2chi(self):
+        return np.asarray(self.sin2chi)
+
+    @property
+    def vturb(self):
+        return np.asarray(self.vturb)
+
+    @property
+    def nHtot(self):
+        return np.asarray(self.nHtot)
+
+    @property
+    def muz(self):
+        return np.asarray(self.muz)
+
+    @property
+    def muy(self):
+        return np.asarray(self.muy)
+
+    @property
+    def mux(self):
+        return np.asarray(self.mux)
+
+    @property
+    def wmu(self):
+        return np.asarray(self.wmu)
 
     @staticmethod
     cdef bc_string_to_c(str bc):
