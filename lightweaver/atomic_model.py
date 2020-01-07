@@ -95,7 +95,6 @@ def avoid_recursion_eq(a, b) -> bool:
 
 
 def model_component_eq(a, b) -> bool:
-    # print('Me')
     if a is b:
         return True
 
@@ -111,12 +110,6 @@ def model_component_eq(a, b) -> bool:
 
     return all([avoid_recursion_eq(da[k], db[k]) for k in da.keys() if k not in ignoreKeys])
 
-# def __deepcopy__(self, memo):
-#     cls = type(self)
-#     new = cls.__new__(cls)
-#     memo[id(self)] = new
-    
-
 @dataclass
 class AtomicLevel:
     E: float
@@ -131,12 +124,6 @@ class AtomicLevel:
 
     def setup(self, atom):
         self.atom = atom
-        # try: 
-        #     self.qNo = determinate(self)
-        # except Exception as e:
-        #     print(self.atom.name)
-        #     self.noPol = True
-        #     print('Unable to treat level with polarisation: %s' % e)
         if not any([x is None for x in [self.J, self.L, self.S]]):
             if self.J <= self.L + self.S:
                 self.lsCoupling = True
@@ -151,19 +138,6 @@ class AtomicLevel:
     def __repr__(self):
         s = 'AtomicLevel(E=%f, g=%f, label="%s", stage=%d, J=%s, L=%s, S=%s)' % (self.E, self.g, self.label, self.stage, repr(self.J), repr(self.L), repr(self.S))
         return s
-
-
-# Since we're always going to assume a moving atmosphere, the question of symmetry is unnecessary.
-# class LineSymmetry(Enum):
-#     Asymmetric = 0
-#     Symmetric = auto()
-
-# In my line lists, Gauss is only ever commented out, and composite is extremely rare
-# class LineType(Enum):
-#     Gauss = 0
-#     Voigt = auto()
-#     PRD = auto()
-#     Composit = auto()
 
 class LineType(Enum):
     CRD = 0
@@ -259,12 +233,6 @@ class VdwBarklem(VdwApprox):
             newVals = self.barklem.get_active_cross_section(line.atom, line)
         except:
             raise VdwBarklemIncompatible
-            # print("Unable to treat line %d->%d of atom %s with Barklem broadening, using Unsold." % (line.j, line.i, line.atom.name))
-            # # NOTE(cmo): This should all work fine, but mypy typing doesn't like it.
-            # # Shhh no tears, only dreams now
-            # self.broaden = lambda *args: VdwUnsold.broaden(self, *args) # type: ignore
-            # VdwUnsold.setup(self, line, table) # type: ignore
-            # return
         
         self.vals = newVals
 

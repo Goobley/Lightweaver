@@ -285,6 +285,9 @@ cdef class LwAtmosphere:
 
         self.atmos.update_projections()
 
+    def update_projections(self):
+        self.atmos.update_projections()
+
     def __getstate__(self):
         state = {}
         state['atmosObj'] = self.atmosObj
@@ -1919,6 +1922,19 @@ cdef class LwContext:
         cdef f64 dJ = formal_sol(self.ctx)
         # print('dJ = %.2e' % dJ)
         return dJ
+
+    def update_deps(self, temperature=True, ne=True, vturb=True, vlos=True, B=True, background=True):
+        if vlos or B:
+            self.atmos.update_projections()
+
+        if temperature or vturb:
+            self.compute_profiles()
+
+        if temperature or ne:
+            self.eqPops.update_lte_atoms_Hmin_pops(self.arguments['atmos'], conserveCharge=self.conserveCharge)
+
+        if any([temperature, ne, vturb, vlos, background]):
+            self.background.update_background()
 
     def time_dep_update(self, f64 dt, prevTimePops=None):
         atoms = self.activeAtoms

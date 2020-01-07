@@ -343,7 +343,7 @@ class SpeciesStateTable:
                 break
 
         else:
-            print('No conv')
+            raise ValueError('No convergence in LTE update')
 
         self.HminPops[:] = hminus_pops(atmos, self.atomicPops['H'])
 
