@@ -394,7 +394,7 @@ struct H2Opacity
         Also: R. Mathisen (1984), Master's thesis, Inst. Theor.
             Astroph., University of Oslo, p. 49
          --                                            -------------- */
-        if (!computePlus || lambda < RAYLEIGH_H2_LIMIT)
+        if (!computeMinus || !computePlus || lambda < RAYLEIGH_H2_LIMIT)
             return false;
 
         namespace C = Constants;

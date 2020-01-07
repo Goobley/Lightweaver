@@ -282,7 +282,7 @@ class VdwBarklem(VdwApprox):
             raise ValueError('VdwBarklem expects 2 coefficients (%s)' % (repr(line)))
         self.barklem = Barklem(table)
         try:
-            newVals = self.barklem.getActiveCrossSection(line.atom, line)
+            newVals = self.barklem.get_active_cross_section(line.atom, line)
         except:
             raise VdwBarklemIncompatible
             # print("Unable to treat line %d->%d of atom %s with Barklem broadening, using Unsold." % (line.j, line.i, line.atom.name))

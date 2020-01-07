@@ -1,10 +1,12 @@
 import lightweaver.constants as C
 from copy import copy, deepcopy
 import numpy as np
-import re
+import os
 from typing import Tuple
 from dataclasses import dataclass
 from enum import Enum, auto
+from astropy import units
+from specutils.utils.wcs_utils import vac_to_air as spec_vac_to_air, air_to_vac as spec_air_to_vac
 
 @dataclass
 class NgOptions:
@@ -29,3 +31,17 @@ def gaunt_bf(wvl, nEff, charge) -> float:
 
 class ConvergenceError(Exception):
     pass
+
+def get_data_path():
+    fileLoc, _ = os.path.split(__file__)
+    return fileLoc + '/../Data/'
+
+def get_default_molecule_path():
+    fileLoc, _ = os.path.split(__file__)
+    return fileLoc + '/../Molecules/'
+
+def vac_to_air(wavelength: np.ndarray) -> np.ndarray:
+    return spec_vac_to_air(wavelength * units.nm, method='edlen1966').value
+
+def air_to_vac(wavelength: np.ndarray) -> np.ndarray:
+    return spec_air_to_vac(wavelength * units.nm, scheme='iteration', method='edlen1966').value

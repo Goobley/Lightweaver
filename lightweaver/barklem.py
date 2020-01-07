@@ -9,6 +9,7 @@ from .atomic_table import AtomicTable
 from scipy.interpolate import RectBivariateSpline
 from scipy.special import gamma
 import lightweaver.constants as Const
+import os
 
 DeltaNeff = 0.1
 
@@ -28,14 +29,15 @@ class BarklemCrossSectionError(Exception):
 class Barklem:
     def __init__(self, table: AtomicTable):
         # Should probably make these static class variables, but also they're tiny
-        # TODO(cmo): Load these from a default path
-        self.barklem_sp = BarklemTable('../Atoms/Barklem_spdata.dat', (1.0, 1.3))
-        self.barklem_pd = BarklemTable('../Atoms/Barklem_pddata.dat', (1.3, 2.3))
-        self.barklem_df = BarklemTable('../Atoms/Barklem_dfdata.dat', (2.3, 3.3))
+        # TODO(cmo): Move this to be ResourceReader/Loader based?
+        fileLoc, _ = os.path.split(__file__)
+        self.barklem_sp = BarklemTable(fileLoc + '/../Data/Barklem_spdata.dat', (1.0, 1.3))
+        self.barklem_pd = BarklemTable(fileLoc + '/../Data/Barklem_pddata.dat', (1.3, 2.3))
+        self.barklem_df = BarklemTable(fileLoc + '/../Data/Barklem_dfdata.dat', (2.3, 3.3))
 
         self.atomicTable = table
 
-    def getActiveCrossSection(self, atom: 'AtomicModel', line: 'AtomicLine') -> Sequence[float]:
+    def get_active_cross_section(self, atom: 'AtomicModel', line: 'AtomicLine') -> Sequence[float]:
         i = line.i
         j = line.j
 

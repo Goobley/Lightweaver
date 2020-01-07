@@ -3,6 +3,7 @@ from .atomic_table import atomic_weight_sort, Element, AtomicTable, get_global_a
 from .atomic_model import *
 from .atmosphere import Atmosphere
 from .molecule import Molecule, MolecularTable
+import lightweaver.constants as Const
 from typing import List, Sequence, Set, Optional, Any, Union, Dict
 from copy import copy, deepcopy
 from collections import OrderedDict
@@ -600,6 +601,12 @@ def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable, 
         nucleiSet |= set(mol.elements)
     nuclei: List[Union[Element, AtomicState]]= list(nucleiSet)
     nuclei = sorted(nuclei, key=atomic_weight_sort)
+
+    if len(nuclei) == 0:
+        HminPops = hminus_pops(atmos, atomicPops['H'])
+        result = SpeciesStateTable(atmos, table, atomicPops, molecules, [], HminPops)
+        return result
+
     if not nuclei[0].name.startswith('H'):
         raise ValueError('H not list of nuclei -- check H2 molecule')
     print([n.name for n in nuclei])

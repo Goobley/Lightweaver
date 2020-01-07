@@ -1,14 +1,10 @@
 from parse import parse
 import lightweaver.constants as Const
 from typing import Tuple, Set, List, TYPE_CHECKING, Optional
-# if TYPE_CHECKING:
 from .atomic_table import LtePopulations, AtomicTable, Element, get_global_atomic_table
 from .atmosphere import Atmosphere
 import numpy as np
 from numpy.linalg import solve
-# from scipy.linalg import solve, lstsq
-from scipy.optimize import newton_krylov
-from scipy.linalg.lapack import dgesvx
 from numba import njit
 from dataclasses import dataclass
 from collections import OrderedDict
@@ -157,10 +153,14 @@ class Molecule:
             raise ValueError('Unknown molecular equilibrium constant fit method %s in molecule %s' % (fitStr, self.name))
 
 class MolecularTable:
-    def __init__(self, paths: List[str], table: Optional[AtomicTable]=None):
+    def __init__(self, paths: Optional[List[str]]=None, table: Optional[AtomicTable]=None):
         if table is None:
             table = get_global_atomic_table()
         self.molecules: List[Molecule] = []
+
+        if paths is None:
+            return
+
         for path in paths:
             self.molecules.append(Molecule(path, table))
 
@@ -249,6 +249,7 @@ class EquilibriumPopulations:
 
 
 
+# TODO(cmo): remove?
 def chemical_equilibrium(atmos: Atmosphere, molecules: MolecularTable, atomicPops: LtePopulations, computeNe=True) -> EquilibriumPopulations:
     table = atomicPops.atomicTable
     nucleiSet: Set[Element] = set()
