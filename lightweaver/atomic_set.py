@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from .atomic_table import atomic_weight_sort, Element, AtomicTable, get_global_atomic_table
-from .atomic_model import *
+from .atomic_model import AtomicLine, AtomicModel, AtomicContinuum
 from .atmosphere import Atmosphere
 from .molecule import Molecule, MolecularTable
 import lightweaver.constants as Const
