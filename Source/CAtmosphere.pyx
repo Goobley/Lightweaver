@@ -2231,7 +2231,7 @@ cdef class LwContext:
     def compute_rays(self, wavelengths=None, mus=None, stokes=False, refinePrd=False):
         state = deepcopy(self.state_dict())
         if wavelengths is not None:
-            spect = state['arguments']['spect'].subset_configuration(wavelengths)
+            spect = state['arguments']['spect'].subset_configuration(wavelengths, expandLineGridsNm=5)
         else:
             spect = None
 

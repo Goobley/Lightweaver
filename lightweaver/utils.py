@@ -53,3 +53,12 @@ def vac_to_air(wavelength: np.ndarray) -> np.ndarray:
 
 def air_to_vac(wavelength: np.ndarray) -> np.ndarray:
     return spec_air_to_vac(wavelength * units.nm, scheme='iteration', method='edlen1966').value
+
+def convert_specific_intensity(wavelength: np.ndarray, specInt: np.ndarray, outUnits) -> units.quantity.Quantity:
+    if not isinstance(wavelength, units.Quantity):
+        wavelength = wavelength << units.nm
+    
+    if not isinstance(specInt, units.Quantity):
+        specInt = specInt << units.J / units.s / units.m**2 / units.sr / units.Hz
+
+    return specInt.to(outUnits, equivalencies=units.spectral_density(wavelength))

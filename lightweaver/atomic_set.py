@@ -27,7 +27,7 @@ class SpectrumConfiguration:
     # lowerLevels: Dict[str, List[Set[int]]]
     # upperLevels: Dict[str, List[Set[int]]]
 
-    def subset_configuration(self, wavelengths) -> 'SpectrumConfiguration':
+    def subset_configuration(self, wavelengths, expandLineGridsNm=0.0) -> 'SpectrumConfiguration':
         Nblue = np.searchsorted(self.wavelength, wavelengths[0])
         Nred = min(np.searchsorted(self.wavelength, wavelengths[-1])+1, self.wavelength.shape[0]-1)
 
@@ -46,6 +46,8 @@ class SpectrumConfiguration:
                 if l.wavelength[0] > wavelengths[-1]:
                     continue
                 trans.append(l)
+                if expandLineGridsNm != 0.0:
+                    l.wavelength = np.concatenate([[l.wavelength[0]-expandLineGridsNm, l.wavelength, l.wavelength[-1]+expandLineGridsNm]])
             for c in atom.continua:
                 if c.wavelength[-1] < wavelengths[0]:
                     continue
