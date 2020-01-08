@@ -7,7 +7,7 @@ from libcpp.vector cimport vector
 from libc.math cimport sqrt, exp, copysign
 from .atmosphere import BoundaryCondition
 from .atomic_model import AtomicLine, LineType
-from .utils import InitialSolution
+from .utils import InitialSolution, ExplodingMatrixError
 from scipy.interpolate import interp1d
 import lightweaver.constants as Const
 import time
@@ -1620,7 +1620,10 @@ cdef class LwAtom:
             Gamma.fill(0.0)
             Gamma += C
             gamma_matrices_escape_prob(&self.atom, bg.background, a.atmos)
-            stat_eq(&self.atom)
+            try:
+                stat_eq(&self.atom)
+            except:
+                raise ExplodingMatrixError('Singular Matrix')
             self.atom.ng.accelerate(self.atom.n.flatten())
             delta = self.atom.ng.max_change()
             if delta < 3e-2:
@@ -1954,7 +1957,7 @@ cdef class LwContext:
             try:
                 time_dependent_update(a, f64_view_2(prevTimePops[i]), dt)
             except:
-                raise Exception('Singular Matrix')
+                raise ExplodingMatrixError('Singular Matrix')
             a.ng.accelerate(a.n.flatten())
             delta = a.ng.max_change()
             maxDelta = max(maxDelta, delta)
@@ -1962,6 +1965,15 @@ cdef class LwContext:
 
 
         return maxDelta, prevTimePops
+
+    def time_dep_restore_prev_pops(self, prevTimePops):
+        cdef LwAtom atom
+        cdef int i
+        for i, atom in enumerate(self.activeAtoms):
+            atom.n[:] = prevTimePops[i][:]
+        
+        self.spect.I.fill(0.0)
+        self.spect.J.fill(0.0)
 
     def time_dep_conserve_charge(self, prevTimePops):
         cdef np.ndarray[np.double_t, ndim=1] deltaNe
@@ -2003,7 +2015,10 @@ cdef class LwContext:
                 a.ng.accelerate(a.n.flatten())
             if conserveActiveCharge:
                 prevN = np.copy(atom.n)
-            stat_eq(a)
+            try:
+                stat_eq(a)
+            except:
+                raise ExplodingMatrixError('Singular Matrix')
             accelerated = a.ng.accelerate(a.n.flatten())
             delta = a.ng.max_change()
             s = '    %s delta = %6.4e' % (atom.atomicModel.name, delta)

@@ -32,6 +32,9 @@ def gaunt_bf(wvl, nEff, charge) -> float:
 class ConvergenceError(Exception):
     pass
 
+class ExplodingMatrixError(Exception):
+    pass
+
 _LwCodeLocation = None
 def get_data_path():
     global _LwCodeLocation

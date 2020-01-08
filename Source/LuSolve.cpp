@@ -1,12 +1,13 @@
 #include "LuSolve.hpp"
 #include "Constants.hpp"
 #include <cmath>
+#include <exception>
 
 typedef Jasnah::Array1NonOwn<i32> I32View;
 typedef Jasnah::Array1Own<i32> I32Arr;
 
 
-int lu_decompose(F64View2D A, I32View index, f64* d)
+void lu_decompose(F64View2D A, I32View index, f64* d)
 {
     constexpr f64 Tiny = 1e-20;
     const int N = A.shape(0);
@@ -21,10 +22,8 @@ int lu_decompose(F64View2D A, I32View index, f64* d)
             big = max(big, abs(A(i,j)));
         }
         if (big == 0.0)
-        {
-            printf("Singular Matrix\n");
-            return -1;
-        }
+            throw std::runtime_error("Singular Matrix");
+
         vv(i) = 1.0 / big;
     }
 
@@ -70,7 +69,6 @@ int lu_decompose(F64View2D A, I32View index, f64* d)
                 A(i,j) *= temp;
         }
     }
-    return 0;
 }
 
 void lu_backsub(F64View2D A, I32View index, F64View b)
@@ -104,7 +102,7 @@ void lu_backsub(F64View2D A, I32View index, F64View b)
     }
 }
 
-int solve_lin_eq(F64View2D A, F64View b, bool improve)
+void solve_lin_eq(F64View2D A, F64View b, bool improve)
 {
     const int N = A.shape(0);
 
@@ -120,8 +118,7 @@ int solve_lin_eq(F64View2D A, F64View b, bool improve)
 
     f64 d;
     auto index = I32Arr(N);
-    if (lu_decompose(A, index, &d) != 0)
-        return -1;
+    lu_decompose(A, index, &d);
 
     lu_backsub(A, index, b);
     if (improve)
@@ -135,6 +132,4 @@ int solve_lin_eq(F64View2D A, F64View b, bool improve)
         for (int i = 0; i < N; ++i)
             b(i) += residual(i);
     }
-
-    return 0;
 }

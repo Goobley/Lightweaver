@@ -36,12 +36,6 @@ void stat_eq(Atom* atomIn)
     }
 }
 
-#include <exception>
-
-// class SingularMatrixException : std::runtime_error
-// {
-// };
-
 void time_dependent_update(Atom* atomIn, F64View2D nOld, f64 dt)
 {
     auto& atom  = *atomIn;
@@ -63,9 +57,7 @@ void time_dependent_update(Atom* atomIn, F64View2D nOld, f64 dt)
             Gamma(i, i) = 1.0 - atom.Gamma(i, i, k) * dt;
         }
 
-        int solved = solve_lin_eq(Gamma, nk);
-        if (solved != 0)
-            throw std::runtime_error("Explodey!");
+        solve_lin_eq(Gamma, nk);
 
         for (int i = 0; i < Nlevel; ++i)
         {

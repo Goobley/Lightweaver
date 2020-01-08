@@ -3,6 +3,6 @@
 
 #include "CmoArray.hpp"
 
-int solve_lin_eq(F64View2D A, F64View b, bool improve=true);
+void solve_lin_eq(F64View2D A, F64View b, bool improve=true);
 
 #endif
