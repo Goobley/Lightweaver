@@ -76,7 +76,6 @@ class SpectrumConfiguration:
             if isinstance(t, AtomicContinuum):
                 t.alpha = t.compute_alpha(wavelength)
             t.wavelength = wavelength
-            t.Nlambda = wavelength.shape[0] # type: ignore
 
         activeSet: List[List[Union[AtomicLine, AtomicContinuum]]] = []
         activeLines: List[List[AtomicLine]] = []
@@ -419,10 +418,6 @@ class RadiativeSet:
         return self.atoms[self.atomicNames.index(name)]
 
     def validate_sets(self):
-        print([a.name for a in self.activeSet])
-        print([a.name for a in self.passiveSet])
-        print([a.name for a in self.detailedLteSet])
-        print([a.name for a in self.atoms])
         if (self.activeSet | self.passiveSet | self.detailedLteSet) != set(self.atoms):
             raise ValueError('Problem with distribution of Atoms inside AtomicSet')
     
@@ -537,12 +532,10 @@ class RadiativeSet:
         # grid = np.unique(np.floor(1e10*grid)) / 1e10
         blueIdx = []
         redIdx = []
-        # Nlambda = []
 
         for t in transitions:
             blueIdx.append(np.searchsorted(grid, t.wavelength[0]))
             redIdx.append(np.searchsorted(grid, t.wavelength[-1])+1)
-            # Nlambda.append(redIdx[-1] - blueIdx[-1])
 
         for i, t in enumerate(transitions):
             # NOTE(cmo): Some continua have wavelength grids that go past their edge. Let's avoid that.
@@ -553,7 +546,6 @@ class RadiativeSet:
             if isinstance(t, AtomicContinuum):
                 t.alpha = t.compute_alpha(wavelength)
             t.wavelength = wavelength
-            t.Nlambda = wavelength.shape[0] # type: ignore
 
         activeSet: List[List[Union[AtomicLine, AtomicContinuum]]] = []
         activeLines: List[List[AtomicLine]] = []

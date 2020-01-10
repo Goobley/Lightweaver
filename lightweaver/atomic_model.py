@@ -286,9 +286,6 @@ class AtomicLine(AtomicTransition):
     iLevel: AtomicLevel = field(init=False)
     wavelength: np.ndarray = field(init=False)
 
-    def __post_init__(self):
-        self.Nlambda = self.NlambdaGen
-
     def __repr__(self):
         s = 'AtomicLine(j=%d, i=%d, f=%e, type=%s, NlambdaGen=%d, qCore=%f, qWing=%f, vdw=%s, gRad=%e, stark=%f' % (
                 self.j, self.i, self.f, repr(self.type), self.NlambdaGen, self.qCore, self.qWing, repr(self.vdw), 
@@ -300,6 +297,10 @@ class AtomicLine(AtomicTransition):
 
     def __hash__(self):
         return hash(repr(self))
+
+    @property
+    def Nlambda(self):
+        return self.wavelength.shape[0]
 
 def fraction_range(start: Fraction, stop: Fraction, step: Fraction=Fraction(1,1)) -> Iterator[Fraction]:
     while start < stop:
@@ -408,11 +409,8 @@ class VoigtLine(AtomicLine):
         #         print("Found %d subordinate PRD lines, for line %d->%d of atom %s" % \
         #             (len(self.xrd), self.j, self.i, self.atom.name))
 
-        # Update Nlambda if NlambdaGen has been changed
-        if self.NlambdaGen != self.Nlambda:
-            self.Nlambda = self.NlambdaGen
         # Compute default lambda grid
-        Nlambda = self.Nlambda // 2 if self.Nlambda % 2 == 1 else (self.Nlambda - 1) // 2
+        Nlambda = self.NlambdaGen // 2 if self.NlambdaGen % 2 == 1 else (self.NlambdaGen - 1) // 2
         Nlambda += 1
         # Nlambda = self.Nlambda // 2 if self.Nlambda % 2 == 1 else (self.Nlambda + 1) // 2
 
@@ -433,8 +431,8 @@ class VoigtLine(AtomicLine):
         self.q: np.ndarray = a * (nl + (np.exp(b * nl) - 1.0))
 
         qToLambda = self.lambda0 * (Const.VMICRO_CHAR / Const.CLight)
-        self.Nlambda = 2 * Nlambda - 1
-        line = np.zeros(self.Nlambda)
+        NlambdaFull = 2 * Nlambda - 1
+        line = np.zeros(NlambdaFull)
         Nmid = Nlambda - 1
 
         line[Nmid] = self.lambda0
