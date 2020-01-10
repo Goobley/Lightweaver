@@ -188,7 +188,7 @@ cdef extern from "Lightweaver.hpp":
     cdef f64 formal_sol_full_stokes(Context& ctx)
     cdef f64 formal_sol_full_stokes(Context& ctx, bool_t updateJ)
     cdef f64 redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
-    cdef void stat_eq(Atom* atom)
+    cdef void stat_eq(Atom* atom) except +
     cdef void time_dependent_update(Atom* atomIn, F64View2D nOld, f64 dt) except +
     cdef void configure_hprd_coeffs(Context& ctx)
 
