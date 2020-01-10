@@ -9,6 +9,7 @@ from numba import njit
 from dataclasses import dataclass
 from collections import OrderedDict
 
+# TODO(cmo): This should really be done with a generator/coroutine
 def get_next_line(data):
     if len(data) == 0:
         return None
@@ -159,6 +160,7 @@ class MolecularTable:
         self.molecules: List[Molecule] = []
 
         if paths is None:
+            self.indices = OrderedDict()
             return
 
         for path in paths:
