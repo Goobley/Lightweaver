@@ -1,6 +1,8 @@
-from lightweave.atomic_model import *
+from lightweaver.atomic_model import *
+from typing import List
 from parse import parse
 import os
+from dataclasses import dataclass
 
 import re
 from fractions import Fraction
@@ -83,7 +85,7 @@ def conv_atom(inFile):
         data = fi.readlines()
 
     ID = getNextLine(data)
-    print(Fore.GREEN + 'Reading model atom %s from file %s' % (inFile, ID) + Style.RESET_ALL)
+    print(Fore.GREEN + 'Reading model atom %s from file %s' % (ID, inFile) + Style.RESET_ALL)
     Ns = [maybe_int(d) for d in getNextLine(data).split()]
     Nlevel = Ns[0]
     Nline = Ns[1]
@@ -166,7 +168,7 @@ def conv_atom(inFile):
         else:
             raise ValueError('Unknown vdw type %s' % vdw)
 
-        lines.append(VoigtLine(j=j, i=i, f=f, type=lineType, Nlambda=Nlambda, qCore=qCore, qWing=qWing, vdw=vdwApprox, gRad=gRad, stark=stark, gLandeEff=gLande))
+        lines.append(VoigtLine(j=j, i=i, f=f, type=lineType, NlambdaGen=Nlambda, qCore=qCore, qWing=qWing, vdw=vdwApprox, gRad=gRad, stark=stark, gLandeEff=gLande))
         lineNLambdas.append(Nlambda)
 
 
@@ -193,7 +195,7 @@ def conv_atom(inFile):
             alphaGrid = [list(x) for x in list(zip(wavelengths, alphas))]
             continua.append(ExplicitContinuum(j=j, i=i, alphaGrid=alphaGrid))
         elif wavelengthDep.upper() == 'HYDROGENIC':
-            continua.append(HydrogenicContinuum(j=j, i=i, alpha0=alpha0, minLambda=minLambda, Nlambda=Nlambda))
+            continua.append(HydrogenicContinuum(j=j, i=i, alpha0=alpha0, minLambda=minLambda, NlambdaGen=Nlambda))
         else:
             raise ValueError('Unknown Continuum type %s' % wavelengthDep)
 
@@ -246,8 +248,8 @@ def conv_atom(inFile):
 
 colorama.init()
 fails = open('Fails.txt', 'w')
-path = '/Users/goobley/VanillaRh/Atoms/'
-baseFiles = [f for f in os.listdir(path) if f.endswith('.atom')]
+path = '/home/osborne/Atoms/'
+baseFiles = sorted([f for f in os.listdir(path) if f.endswith('.atom')])
 # baseFiles = ['N.atom']
 files = [path+f for f in baseFiles]
 atoms = []
@@ -263,7 +265,7 @@ for i, f in enumerate(files):
         fails.write('%s\n' % repr(e))
         fails.write('----------\n')
 
-with open('AllOfTheAtoms.py', 'w') as fi:
+with open('rh_atoms.py', 'w') as fi:
     fi.write('from lightweaver.atomic_model import *\n')
     for i, a in enumerate(atoms):
         s = clean(doneFiles[i]) + ' = lambda: \\\n'

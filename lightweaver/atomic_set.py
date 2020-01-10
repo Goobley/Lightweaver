@@ -419,7 +419,11 @@ class RadiativeSet:
         return self.atoms[self.atomicNames.index(name)]
 
     def validate_sets(self):
-        if self.activeSet | self.passiveSet | self.detailedLteSet != set(self.atoms):
+        print([a.name for a in self.activeSet])
+        print([a.name for a in self.passiveSet])
+        print([a.name for a in self.detailedLteSet])
+        print([a.name for a in self.atoms])
+        if (self.activeSet | self.passiveSet | self.detailedLteSet) != set(self.atoms):
             raise ValueError('Problem with distribution of Atoms inside AtomicSet')
     
     def set_active(self, *args: str):

@@ -274,7 +274,7 @@ class AtomicLine(AtomicTransition):
     i: int
     f: float
     type: LineType
-    Nlambda: int
+    NlambdaGen: int
     qCore: float
     qWing: float
     vdw: VdwApprox
@@ -286,9 +286,12 @@ class AtomicLine(AtomicTransition):
     iLevel: AtomicLevel = field(init=False)
     wavelength: np.ndarray = field(init=False)
 
+    def __post_init__(self):
+        self.Nlambda = self.NlambdaGen
+
     def __repr__(self):
-        s = 'AtomicLine(j=%d, i=%d, f=%e, type=%s, Nlambda=%d, qCore=%f, qWing=%f, vdw=%s, gRad=%e, stark=%f' % (
-                self.j, self.i, self.f, repr(self.type), self.Nlambda, self.qCore, self.qWing, repr(self.vdw), 
+        s = 'AtomicLine(j=%d, i=%d, f=%e, type=%s, NlambdaGen=%d, qCore=%f, qWing=%f, vdw=%s, gRad=%e, stark=%f' % (
+                self.j, self.i, self.f, repr(self.type), self.NlambdaGen, self.qCore, self.qWing, repr(self.vdw), 
                 self.gRad, self.stark)
         if self.gLandeEff is not None:
             s += ', gLandeEff=%f' % self.gLandeEff
@@ -328,8 +331,8 @@ class VoigtLine(AtomicLine):
             self.vdw.setup(self, atom.atomicTable)
 
     def __repr__(self):
-        s = 'VoigtLine(j=%d, i=%d, f=%e, type=%s, Nlambda=%d, qCore=%f, qWing=%f, vdw=%s, gRad=%e, stark=%f' % (
-                self.j, self.i, self.f, repr(self.type), self.Nlambda, self.qCore, self.qWing, repr(self.vdw), 
+        s = 'VoigtLine(j=%d, i=%d, f=%e, type=%s, NlambdaGen=%d, qCore=%f, qWing=%f, vdw=%s, gRad=%e, stark=%f' % (
+                self.j, self.i, self.f, repr(self.type), self.NlambdaGen, self.qCore, self.qWing, repr(self.vdw), 
                 self.gRad, self.stark)
         if self.gLandeEff is not None:
             s += ', gLandeEff=%f' % self.gLandeEff
@@ -405,6 +408,9 @@ class VoigtLine(AtomicLine):
         #         print("Found %d subordinate PRD lines, for line %d->%d of atom %s" % \
         #             (len(self.xrd), self.j, self.i, self.atom.name))
 
+        # Update Nlambda if NlambdaGen has been changed
+        if self.NlambdaGen != self.Nlambda:
+            self.Nlambda = self.NlambdaGen
         # Compute default lambda grid
         Nlambda = self.Nlambda // 2 if self.Nlambda % 2 == 1 else (self.Nlambda - 1) // 2
         Nlambda += 1
@@ -648,7 +654,6 @@ class AtomicContinuum(AtomicTransition):
 @dataclass(eq=False)
 class ExplicitContinuum(AtomicContinuum):
     alphaGrid: Sequence[Sequence[float]]
-    Nlambda: int = field(init=False)
 
     def setup(self, atom):
         if self.j < self.i:
@@ -665,7 +670,6 @@ class ExplicitContinuum(AtomicContinuum):
             wav = np.concatenate((self.wavelength, np.array([self.lambdaEdge])))
             self.wavelength = wav
             self.alpha = np.concatenate((self.alpha, np.array([self.alpha[-1]])))
-        self.Nlambda = self.wavelength.shape[0]
 
     def __repr__(self):
         s = 'ExplicitContinuum(j=%d, i=%d, alphaGrid=%s)' % (self.j, self.i, repr(self.alphaGrid))
@@ -679,6 +683,9 @@ class ExplicitContinuum(AtomicContinuum):
             alpha = interp1d(self.wavelength, self.alpha, bounds_error=False, fill_value=0.0)(wavelength)
         return alpha
 
+    @property
+    def Nlambda(self) -> int:
+        return self.wavelength.shape[0]
 
     @property
     def lambda0(self) -> float:
@@ -701,10 +708,10 @@ class ExplicitContinuum(AtomicContinuum):
 class HydrogenicContinuum(AtomicContinuum):
     alpha0: float
     minLambda: float
-    Nlambda: int
+    NlambdaGen: int
 
     def __repr__(self): 
-        s = 'HydrogenicContinuum(j=%d, i=%d, alpha0=%e, minLambda=%f, Nlambda=%d)' % (self.j, self.i, self.alpha0, self.minLambda, self.Nlambda)
+        s = 'HydrogenicContinuum(j=%d, i=%d, alpha0=%e, minLambda=%f, NlambdaGen=%d)' % (self.j, self.i, self.alpha0, self.minLambda, self.NlambdaGen)
         return s
 
     def setup(self, atom):
@@ -715,8 +722,7 @@ class HydrogenicContinuum(AtomicContinuum):
         self.iLevel: AtomicLevel = atom.levels[self.i]
         if self.minLambda >= self.lambda0:
             raise ValueError('Minimum wavelength is larger than continuum edge at %f [nm] in continuum %s' % (self.lambda0, repr(self)))
-        self.wavelength = np.linspace(self.minLambda, self.lambdaEdge, self.Nlambda)
-
+        self.wavelength = np.linspace(self.minLambda, self.lambdaEdge, self.NlambdaGen)
         self.alpha = self.compute_alpha(self.wavelength)
 
     def compute_alpha(self, wavelength) -> np.ndarray:
@@ -752,6 +758,9 @@ class HydrogenicContinuum(AtomicContinuum):
         deltaE = self.jLevel.E_SI - self.iLevel.E_SI
         return Const.HC / deltaE
 
+    @property
+    def Nlambda(self) -> int:
+        return self.wavelength.shape[0]
 
 @dataclass
 class CollisionalRates:
