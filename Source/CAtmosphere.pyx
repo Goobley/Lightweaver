@@ -1811,8 +1811,10 @@ cdef class LwContext:
     cdef list lteAtoms
     cdef bool_t conserveCharge
     cdef bool_t hprd
+    cdef object crswCallback
+    cdef public object crswDone
 
-    def __init__(self, atmos, spect, eqPops, ngOptions=None, initSol=None, conserveCharge=False, hprd=False):
+    def __init__(self, atmos, spect, eqPops, ngOptions=None, initSol=None, conserveCharge=False, hprd=False, crswCallback=None):
         self.arguments = {'atmos': atmos, 'spect': spect, 'eqPops': eqPops, 'ngOptions': ngOptions, 'initSol': initSol, 'conserveCharge': conserveCharge, 'hprd': hprd}
 
         self.atmos = LwAtmosphere(atmos)
@@ -1841,6 +1843,13 @@ cdef class LwContext:
 
         if self.hprd:
             self.configure_hprd_coeffs()
+
+        if crswCallback is None:
+            self.crswCallback = lambda: 1.0
+            self.crswDone = True
+        else:
+            self.crswCallback = crswCallback
+            self.crswDone = False
         
     def __getstate__(self):
         state = {}
@@ -1903,11 +1912,17 @@ cdef class LwContext:
     def formal_sol_gamma_matrices(self):
         cdef LwAtom atom
         cdef np.ndarray[np.double_t, ndim=3] Gamma
+        cdef f64 crswVal = self.crswCallback()
+        if crswVal == 1.0:
+            self.crswDone = True
+        else:
+            print('CRSW: %.2e'%crswVal)
+
         for atom in self.activeAtoms:
             Gamma = np.asarray(atom.Gamma)
             Gamma.fill(0.0)
             atom.compute_collisions()
-            Gamma += atom.C
+            Gamma += crswVal * np.asarray(atom.C)
 
         cdef f64 dJ = formal_sol_gamma_matrices(self.ctx)
         print('dJ = %.2e' % dJ)
