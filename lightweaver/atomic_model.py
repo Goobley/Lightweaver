@@ -764,9 +764,6 @@ class HydrogenicContinuum(AtomicContinuum):
 class CollisionalRates:
     j: int
     i: int
-    # Make sure to swap if wrong order in setup
-    temperature: Sequence[float]
-    rates: Sequence[float]
     atom: AtomicModel = field(init=False)
 
     def __repr__(self):
@@ -779,22 +776,11 @@ class CollisionalRates:
     def compute_rates(self, atmos, nstar, Cmat):
         pass
 
-    def setup_interpolator(self):
-        if len(self.rates) <  3:
-            self.interpolator = interp1d(self.temperature, self.rates, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
-        else:
-            self.interpolator = interp1d(self.temperature, self.rates, kind=3, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
-
     def __eq__(self, other: object) -> bool:
         return model_component_eq(self, other)
 
     def __getstate__(self):
         state = self.__dict__.copy()
-        # try:
-        #     state['interpolator']
-        #     state['interpolator'] = True
-        # except KeyError:
-        #     state['interpolator'] = False
         try:
             del state['interpolator']
         except KeyError:
@@ -802,18 +788,20 @@ class CollisionalRates:
 
         return state
 
-    # def __setstate(self, state):
-    #     interpolator = state['interpolator']
-    #     del state['interpolator']
-    #     self.__dict__.update(state)
-    #     if interpolator:
-    #         if len(self.rates) <  3:
-    #             self.interpolator = interp1d(self.temperature, self.rates, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
-    #         else:
-    #             self.interpolator = interp1d(self.temperature, self.rates, kind=3, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
 
 @dataclass(eq=False)
-class Omega(CollisionalRates):
+class TemperatureInterpolationRates(CollisionalRates):
+    temperature: Sequence[float]
+    rates: Sequence[float]
+
+    def setup_interpolator(self):
+        if len(self.rates) <  3:
+            self.interpolator = interp1d(self.temperature, self.rates, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
+        else:
+            self.interpolator = interp1d(self.temperature, self.rates, kind=3, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
+
+@dataclass(eq=False)
+class Omega(TemperatureInterpolationRates):
     def __repr__(self):
         s = 'Omega(j=%d, i=%d, temperature=%s, rates=%s)' % (self.j, self.i, repr(self.temperature), repr(self.rates))
         return s
@@ -839,7 +827,7 @@ class Omega(CollisionalRates):
         Cmat[self.j, self.i, :] += Cdown * nstar[self.j] / nstar[self.i]
 
 @dataclass(eq=False)
-class CI(CollisionalRates):
+class CI(TemperatureInterpolationRates):
     def __repr__(self):
         s = 'CI(j=%d, i=%d, temperature=%s, rates=%s)' % (self.j, self.i, repr(self.temperature), repr(self.rates))
         return s
@@ -865,7 +853,7 @@ class CI(CollisionalRates):
 
 
 @dataclass(eq=False)
-class CE(CollisionalRates):
+class CE(TemperatureInterpolationRates):
     def __repr__(self):
         s = 'CE(j=%d, i=%d, temperature=%s, rates=%s)' % (self.j, self.i, repr(self.temperature), repr(self.rates))
         return s
