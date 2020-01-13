@@ -2080,7 +2080,11 @@ cdef class LwContext:
         self.atmos.atmos.update_projections()
 
     def setup_stokes(self, recompute=False):
-        assert self.atmos.B.shape[0] != 0
+        try:
+            if self.atmos.B.shape[0] == 0:
+                raise ValueError('Please specify B-field')
+        except:
+            raise ValueError('Please specify B-field')
 
         atoms = self.activeAtoms + self.lteAtoms
         atomsHavePolarisedProfile = True

@@ -889,8 +889,6 @@ f64 formal_sol_full_stokes(Context& ctx, bool updateJ)
     JasPackPtr(core, activeAtoms, lteAtoms, JDag);
     JasPack(core, chiTot, etaTot, Uji, Vij, Vji, I, S);
 
-    printf("%d, %d, %d\n", Nspace, Nrays, Nspect);
-
     f64 dJMax = 0.0;
     for (int la = 0; la < Nspect; ++la)
     {
