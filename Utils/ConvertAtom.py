@@ -1,4 +1,5 @@
 from lightweaver.atomic_model import *
+from lightweaver.collisional_rates import *
 from typing import List
 from parse import parse
 import os
@@ -238,6 +239,26 @@ def conv_atom(inFile):
             for nt in range(Ntemp):
                 rates.append(float(line[nt+3]))
             collisions.append(CE(j=j, i=i, temperature=temperatureGrid, rates=rates))
+        elif line[0].upper() == 'AR85-CDI':
+            i1 = int(line[1])
+            i2 = int(line[2])
+            Nrow = int(line[3])
+            Mshell = 5
+            j = max(i1, i2)
+            i = min(i1, i2)
+            cdi = []
+            for n in range(Nrow):
+                line = getNextLine(data)
+                line = line.split()
+                cdi.append([])
+                for m in range(Mshell):
+                    cdi[n].append(float(line[m]))
+            collisions.append(Ar85Cdi(j=j, i=i, cdiCoeffs=cdi))
+        elif line[0].upper() == 'BURGESS':
+            i1 = int(line[1])
+            i2 = int(line[2])
+            fudge = float(line[3])
+            collisions.append(Burgess(j=j, i=i, fudge=fudge))
         else:
             print(Fore.YELLOW + "Ignoring unknown collisional string %s" % line[0].upper() + Style.RESET_ALL)
 
@@ -250,7 +271,7 @@ colorama.init()
 fails = open('Fails.txt', 'w')
 path = '/home/osborne/Atoms/'
 baseFiles = sorted([f for f in os.listdir(path) if f.endswith('.atom')])
-# baseFiles = ['N.atom']
+# baseFiles = ['He_9.atom']
 files = [path+f for f in baseFiles]
 atoms = []
 doneFiles = []
@@ -267,6 +288,7 @@ for i, f in enumerate(files):
 
 with open('rh_atoms.py', 'w') as fi:
     fi.write('from lightweaver.atomic_model import *\n')
+    fi.write('from lightweaver.collisional_rates import *\n')
     for i, a in enumerate(atoms):
         s = clean(doneFiles[i]) + ' = lambda: \\\n'
         s += a
