@@ -1261,11 +1261,11 @@ bool CH_bf_opac(const Atmosphere& atmos, f64 lambda, F64View CH, F64View chi, F6
     return true;
 }
 
-void basic_background(BackgroundData* bd)
+void basic_background(BackgroundData* bd, Atmosphere* atmosphere)
 {
     JasUnpack((*bd), chPops, ohPops, h2Pops, hMinusPops, hPops);
     JasUnpack((*bd), wavelength, chi, eta, scatt);
-    const auto& atmos = *bd->atmos;
+    const auto& atmos = *atmosphere;
 
     chi.fill(0.0);
     eta.fill(0.0);

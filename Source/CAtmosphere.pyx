@@ -75,10 +75,8 @@ cdef extern from "Background.hpp":
         F64View2D chi
         F64View2D eta
         F64View2D scatt
-
-        Atmosphere* atmos
     
-    cdef void basic_background(BackgroundData* bg)
+    cdef void basic_background(BackgroundData* bg, Atmosphere* atmos)
     cdef f64 Gaunt_bf(f64, f64, int)
 
 cdef extern from "Ng.hpp":
@@ -478,7 +476,6 @@ cdef class LwAtmosphere:
 cdef class LwBackground:
     cdef Background background
     cdef BackgroundData bd
-    cdef LwAtmosphere atmos
     cdef object eqPops
     cdef object radSet
 
@@ -495,10 +492,8 @@ cdef class LwBackground:
 
     def __init__(self, atmosphere, eqPops, radSet, wavelength):
         cdef LwAtmosphere atmos = atmosphere
-        self.atmos = atmos
         self.eqPops = eqPops
         self.radSet = radSet
-        self.bd.atmos = &atmos.atmos
 
         if 'CH' in eqPops:
             self.chPops = eqPops['CH']
@@ -520,7 +515,7 @@ cdef class LwBackground:
         self.bd.wavelength = f64_view(self.wavelength)
 
         cdef int Nlambda = self.wavelength.shape[0]
-        cdef int Nspace = self.atmos.Nspace
+        cdef int Nspace = atmos.Nspace
 
         self.chi = np.zeros((Nlambda, Nspace))
         self.bd.chi = f64_view_2(self.chi)
@@ -529,9 +524,9 @@ cdef class LwBackground:
         self.sca = np.zeros((Nlambda, Nspace))
         self.bd.scatt = f64_view_2(self.sca)
 
-        basic_background(&self.bd)
-        self.rayleigh_scattering()
-        self.bf_opacities()
+        basic_background(&self.bd, &atmos.atmos)
+        self.rayleigh_scattering(atmos)
+        self.bf_opacities(atmos)
 
         cdef int la, k
         for la in range(Nlambda):
@@ -542,17 +537,18 @@ cdef class LwBackground:
         self.background.eta = f64_view_2(self.eta)
         self.background.sca = f64_view_2(self.sca)
 
-    cpdef update_background(self):
+    cpdef update_background(self, atmos):
+        cdef LwAtmosphere lwAtmos = atmos
         self.hPops = self.eqPops.atomicPops['H'].n
         self.bd.hPops = f64_view_2(self.hPops)
 
-        basic_background(&self.bd)
-        self.rayleigh_scattering(useLte=False)
-        self.bf_opacities()
+        basic_background(&self.bd, &lwAtmos.atmos)
+        self.rayleigh_scattering(lwAtmos, useLte=False)
+        self.bf_opacities(lwAtmos)
 
         cdef int la, k
         for la in range(self.wavelength.shape[0]):
-            for k in range(self.atmos.Nspace):
+            for k in range(lwAtmos.Nspace):
                 self.chi[la, k] += self.sca[la, k]
 
     def __getstate__(self):
@@ -646,28 +642,30 @@ cdef class LwBackground:
     def sca(self):
         return np.asarray(self.sca)
 
-    cpdef rayleigh_scattering(self, useLte=True):
-        cdef f64[::1] sca = np.zeros(self.atmos.Nspace)
+    cpdef rayleigh_scattering(self, atmosphere, useLte=True):
+        cdef LwAtmosphere atmos = atmosphere
+        cdef f64[::1] sca = np.zeros(atmos.Nspace)
         cdef int k, la
         cdef RayleighScatterer rayH, rayHe
 
         if 'H' in self.radSet:
             hPops = self.eqPops.atomicPops['H'].nStar if useLte else self.eqPops['H']
-            rayH = RayleighScatterer(self.atmos, self.radSet['H'], hPops)
+            rayH = RayleighScatterer(atmos, self.radSet['H'], hPops)
             for la in range(self.wavelength.shape[0]):
                 if rayH.scatter(self.wavelength[la], sca):
-                    for k in range(self.atmos.Nspace):
+                    for k in range(atmos.Nspace):
                         self.sca[la, k] += sca[k]
 
         if 'He' in self.radSet:
             hePops = self.eqPops.atomicPops['He'].nStar if useLte else self.eqPops['He']
-            rayHe = RayleighScatterer(self.atmos, self.radSet['He'], hePops)
+            rayHe = RayleighScatterer(atmos, self.radSet['He'], hePops)
             for la in range(self.wavelength.shape[0]):
                 if rayHe.scatter(self.wavelength[la], sca):
-                    for k in range(self.atmos.Nspace):
+                    for k in range(atmos.Nspace):
                         self.sca[la, k] += sca[k]
 
-    cpdef bf_opacities(self):
+    cpdef bf_opacities(self, atmosphere):
+        cdef LwAtmosphere atmos = atmosphere
         atoms = self.radSet.passiveAtoms
         # print([a.name for a in atoms])
         if len(atoms) == 0:
@@ -687,14 +685,14 @@ cdef class LwBackground:
             for la in range(self.wavelength.shape[0]):
                 alpha[la, i] = alphaLa[la]
 
-        cdef f64[:, ::1] expla = np.zeros((self.wavelength.shape[0], self.atmos.Nspace))
+        cdef f64[:, ::1] expla = np.zeros((self.wavelength.shape[0], atmos.Nspace))
         cdef f64 hc_k = Const.HC / (Const.KBoltzmann * Const.NM_TO_M)
         cdef f64 twohc = (2.0 * Const.HC) / Const.NM_TO_M**3
         cdef f64 hc_kla
         for la in range(self.wavelength.shape[0]):
             hc_kla = hc_k / self.wavelength[la]
-            for k in range(self.atmos.Nspace):
-                expla[la, k] = exp(-hc_kla / self.atmos.temperature[k])
+            for k in range(atmos.Nspace):
+                expla[la, k] = exp(-hc_kla / atmos.temperature[k])
         
         cdef f64 twohnu3_c2
         cdef f64 gijk
@@ -710,7 +708,7 @@ cdef class LwBackground:
             cj = c.j
             for la in range(self.wavelength.shape[0]):
                 twohnu3_c2 = twohc / self.wavelength[la]**3
-                for k in range(self.atmos.Nspace):
+                for k in range(atmos.Nspace):
                     gijk = nStar[ci, k] / nStar[cj, k] * expla[la, k]
                     self.chi[la, k] += alpha[la, i] * (1.0 - expla[la, k]) * n[ci, k]
                     self.eta[la, k] += twohnu3_c2 * gijk * alpha[la, i] * n[cj, k]
@@ -1963,7 +1961,7 @@ cdef class LwContext:
             self.eqPops.update_lte_atoms_Hmin_pops(self.arguments['atmos'], conserveCharge=self.conserveCharge, updateTotals=True)
 
         if any([temperature, ne, vturb, vlos, background]):
-            self.background.update_background()
+            self.background.update_background(self.atmos)
 
     def time_dep_update(self, f64 dt, prevTimePops=None):
         atoms = self.activeAtoms
@@ -2069,7 +2067,7 @@ cdef class LwContext:
             self.eqPops.update_lte_atoms_Hmin_pops(self.arguments['atmos'])
 
         if doBackground:
-            self.background.update_background()
+            self.background.update_background(self.atmos)
 
         if doPhi:
             for atom in atoms:
