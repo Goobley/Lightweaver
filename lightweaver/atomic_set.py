@@ -216,7 +216,7 @@ class AtomicState:
         return hash(repr(self))
 
     def update_nTotal(self, atmos):
-        self.nTotal[:] = model.atomicTable[self.name].abundance * atmos.nHTot
+        self.nTotal[:] = self.model.atomicTable[self.name].abundance * atmos.nHTot
 
     @property
     def name(self):
