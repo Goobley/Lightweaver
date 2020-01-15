@@ -1960,7 +1960,7 @@ cdef class LwContext:
             self.compute_profiles()
 
         if temperature or ne:
-            self.eqPops.update_lte_atoms_Hmin_pops(self.arguments['atmos'], conserveCharge=self.conserveCharge)
+            self.eqPops.update_lte_atoms_Hmin_pops(self.arguments['atmos'], conserveCharge=self.conserveCharge, updateTotals=True)
 
         if any([temperature, ne, vturb, vlos, background]):
             self.background.update_background()

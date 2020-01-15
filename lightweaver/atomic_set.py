@@ -215,6 +215,9 @@ class AtomicState:
     def __hash__(self):
         return hash(repr(self))
 
+    def update_nTotal(self, atmos):
+        self.nTotal[:] = model.atomicTable[self.name].abundance * atmos.nHTot
+
     @property
     def name(self):
         return self.model.name
@@ -316,9 +319,12 @@ class SpeciesStateTable:
         key = self.molecularTable.indices[name]
         return self.molecularPops[key]
 
-    def update_lte_atoms_Hmin_pops(self, atmos: Atmosphere, conserveCharge=False):
+    def update_lte_atoms_Hmin_pops(self, atmos: Atmosphere, conserveCharge=False, updateTotals=False):
         maxIter = 1000
         maxName = ''
+        if updateTotals:
+            for atom in self.atomicPops:
+                atom.update_nTotal(atmos)
         for i in range(maxIter):
             maxDiff = 0.0
             ne = np.copy(atmos.ne)
