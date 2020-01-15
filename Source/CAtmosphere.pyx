@@ -1863,6 +1863,11 @@ cdef class LwContext:
         state['atmos'] = self.atmos.__getstate__()
         state['spect'] = self.spect.__getstate__()
         state['background'] = self.background.__getstate__()
+        state['crswDone'] = self.crswDone
+        if not self.crswDone:
+            state['crswCallback'] = self.crswCallback
+        else:
+            state['crswCallback'] = None
         return state
         
     def __setstate__(self, state):
@@ -1890,6 +1895,12 @@ cdef class LwContext:
         self.spect.__setstate__(state['spect'])
         self.background = LwBackground.__new__(LwBackground)
         self.background.__setstate__(state['background'])
+
+        self.crswDone = state['crswDone']
+        if state['crswCallback'] is None:
+            self.crswCallback = lambda: 1.0
+        else:
+            self.crswCallback = state['crswCallback']
 
         self.ctx.atmos = &self.atmos.atmos
         self.ctx.spect = &self.spect.spect

@@ -73,6 +73,9 @@ class AtomicModel:
         vBroad = np.sqrt(vTherm * atmos.temperature + atmos.vturb**2)
         return vBroad
 
+def reconfigure_atom(atom: AtomicModel):
+    atom.__post_init__()
+
 def avoid_recursion_eq(a, b) -> bool:
     if isinstance(a, np.ndarray):
         if not np.all(a == b):
