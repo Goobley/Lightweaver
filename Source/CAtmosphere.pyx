@@ -1970,6 +1970,7 @@ cdef class LwContext:
         cdef Atom* a
         cdef f64 delta
         cdef f64 maxDelta = 0.0
+        cdef bool_t accelerated
 
         if prevTimePops is None:
             # TODO(cmo): Do we need to preserve the previous J too, or can we just reset I and J to 0 if needed? (to prevent NaN poisoning)
@@ -1982,10 +1983,13 @@ cdef class LwContext:
                 time_dependent_update(a, f64_view_2(prevTimePops[i]), dt)
             except:
                 raise ExplodingMatrixError('Singular Matrix')
-            a.ng.accelerate(a.n.flatten())
+            accelerated = a.ng.accelerate(a.n.flatten())
             delta = a.ng.max_change()
             maxDelta = max(maxDelta, delta)
-            print('    %s delta = %6.4e' % (atom.atomicModel.name, delta))
+            s = '    %s delta = %6.4e' % (atom.atomicModel.name, delta)
+            if accelerated:
+                s += ' (accelerated)'
+            print(s)
 
 
         return maxDelta, prevTimePops
@@ -1994,10 +1998,10 @@ cdef class LwContext:
         cdef LwAtom atom
         cdef int i
         for i, atom in enumerate(self.activeAtoms):
-            atom.n[:] = prevTimePops[i][:]
+            np.asarray(atom.n)[:] = prevTimePops[i]
         
-        self.spect.I.fill(0.0)
-        self.spect.J.fill(0.0)
+        np.asarray(self.spect.I).fill(0.0)
+        np.asarray(self.spect.J).fill(0.0)
 
     def time_dep_conserve_charge(self, prevTimePops):
         cdef np.ndarray[np.double_t, ndim=1] deltaNe
@@ -2013,6 +2017,10 @@ cdef class LwContext:
                 if self.atmos.ne[k] < 1e6:
                     self.atmos.ne[k] = 1e6
 
+    def clear_ng(self):
+        cdef LwAtom atom
+        for atom in self.activeAtoms:
+            atom.atom.ng.clear()
 
     def stat_equil(self):
         atoms = self.activeAtoms
@@ -2330,16 +2338,16 @@ cdef class LwContext:
         cdef int la, k
         cdef f64[:,::1] chiLine = np.zeros((wavelengths.shape[0], rayCtx.atmos.Nspace))
         cdef f64[:,::1] etaLine = np.zeros((wavelengths.shape[0], rayCtx.atmos.Nspace))
-
-
+ 
+ 
         cdef f64[::1] Uji = np.zeros(atmos.Nspace)
         cdef f64[::1] Vij = np.zeros(atmos.Nspace)
         cdef f64[::1] Vji = np.zeros(atmos.Nspace)
-
+ 
         for la in range(wavelengths.shape[0]):
             if not trans.active[la]:
                 continue
-
+ 
             atom.setup_wavelength(la)
             trans.uv(la, 0, True, Uji, Vij, Vji)
             for k in range(rayCtx.atmos.Nspace):
@@ -2351,20 +2359,20 @@ cdef class LwContext:
         cdef f64[:,::1] tau = np.zeros((wavelengths.shape[0], rayCtx.atmos.Nspace))
         cdef f64[::1] height = rayCtx.atmos.height
         cdef f64[::1] tau_ref = rayCtx.atmos.tau_ref
-
+ 
         for la in range(wavelengths.shape[0]):
             for k in range(rayCtx.atmos.Nspace):
                 chiTot[la, k] = chiLine[la, k] + chiBg[la, k]
-
+ 
             tau[la, 0] = 0.5 * chiTot[la, 0] * (height[0] - height[1])
             for k in range(1, rayCtx.atmos.Nspace):
                 tau[la, k] = tau[la, k-1] + 0.5 * (chiTot[la, k-1] + chiTot[la, k]) * (height[k-1] - height[k])
-
+ 
         cdef f64[:,::1] SLine = np.asarray(etaLine) / (np.asarray(chiLine) + 1e-40)
-        cdef f64[:,::1] contFn = (np.asarray(chiTot) / mu[0] * np.exp(-np.asarray(tau) / mu[0]) * np.asarray(SLine))
-
+        cdef f64[:,::1] contFn = (np.asarray(chiTot) / mu * np.exp(-np.asarray(tau) / mu) * np.asarray(SLine))
+ 
         result = {'contFn': np.asarray(contFn), 'SLine': np.asarray(SLine), 'tau': np.asarray(tau), 'chiTot': np.asarray(chiTot), 'chiLine': np.asarray(chiLine), 'chiBg': np.asarray(chiBg), 'etaLine': np.asarray(etaLine)}
-
+ 
         return result
 
             
