@@ -2338,16 +2338,16 @@ cdef class LwContext:
         cdef int la, k
         cdef f64[:,::1] chiLine = np.zeros((wavelengths.shape[0], rayCtx.atmos.Nspace))
         cdef f64[:,::1] etaLine = np.zeros((wavelengths.shape[0], rayCtx.atmos.Nspace))
- 
- 
+
+
         cdef f64[::1] Uji = np.zeros(atmos.Nspace)
         cdef f64[::1] Vij = np.zeros(atmos.Nspace)
         cdef f64[::1] Vji = np.zeros(atmos.Nspace)
- 
+
         for la in range(wavelengths.shape[0]):
             if not trans.active[la]:
                 continue
- 
+
             atom.setup_wavelength(la)
             trans.uv(la, 0, True, Uji, Vij, Vji)
             for k in range(rayCtx.atmos.Nspace):
@@ -2359,32 +2359,18 @@ cdef class LwContext:
         cdef f64[:,::1] tau = np.zeros((wavelengths.shape[0], rayCtx.atmos.Nspace))
         cdef f64[::1] height = rayCtx.atmos.height
         cdef f64[::1] tau_ref = rayCtx.atmos.tau_ref
- 
+
         for la in range(wavelengths.shape[0]):
             for k in range(rayCtx.atmos.Nspace):
                 chiTot[la, k] = chiLine[la, k] + chiBg[la, k]
- 
+
             tau[la, 0] = 0.5 * chiTot[la, 0] * (height[0] - height[1])
             for k in range(1, rayCtx.atmos.Nspace):
                 tau[la, k] = tau[la, k-1] + 0.5 * (chiTot[la, k-1] + chiTot[la, k]) * (height[k-1] - height[k])
- 
+
         cdef f64[:,::1] SLine = np.asarray(etaLine) / (np.asarray(chiLine) + 1e-40)
         cdef f64[:,::1] contFn = (np.asarray(chiTot) / mu * np.exp(-np.asarray(tau) / mu) * np.asarray(SLine))
- 
+
         result = {'contFn': np.asarray(contFn), 'SLine': np.asarray(SLine), 'tau': np.asarray(tau), 'chiTot': np.asarray(chiTot), 'chiLine': np.asarray(chiLine), 'chiBg': np.asarray(chiBg), 'etaLine': np.asarray(etaLine)}
  
         return result
-
-            
-
-
-
-
-
-
-
-
-        
-
-
-
