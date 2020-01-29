@@ -20,8 +20,8 @@ Requirements:
 The code isn't currently packaged as a module, (this will happen when we hit beta), so code is designed to be run in the project directory for now.
 Due to the use of C++ and the Cython build system it appears to be necessary when clang isn't the default compiler to set the local shell variable `CC` to the name of your C++ compiler (e.g. `g++-9`) before invoking the build script.
 
-The build is then run with `python3 setup.py build_ext --inplace`. The libraries currently produce a few warnings, but should not produce any errors.
-At this point one of the test scripts (such as `Test12.py`) can be run. I suggest using interactive mode for this and then plotting the results.
+The build is then run with `python3 -m pip install -vvv -e .`. The libraries currently produce a few warnings, but should not produce any errors.
+At this point one of the test scripts can be run (see [the samples repository](https://github.com/Goobley/LightweaverSamples)). I suggest using interactive mode for this and then plotting the results.
 
 Some of these test scripts show examples of how to do 1.5D parallel column-by-column synthesis, and parallel numeric NLTE response functions.
 
