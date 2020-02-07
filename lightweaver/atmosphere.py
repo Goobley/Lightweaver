@@ -105,7 +105,7 @@ class Atmosphere:
                 pe = Pe * (Const.CM_TO_M**2 / Const.G_TO_KG)
                 pgas = np.zeros(Nspace)
                 for k in range(Nspace):
-                    pgas = eos.pg_from_pe(self.temperature[k], pe[k])
+                    pgas[k] = eos.pg_from_pe(self.temperature[k], pe[k])
             else:
                 # Doing Hydrostatic Eq. based here on NICOLE implementation
                 gravAcc = 10**logG / Const.CM_TO_M
