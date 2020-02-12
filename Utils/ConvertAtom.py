@@ -253,7 +253,7 @@ def conv_atom(inFile):
                 cdi.append([])
                 for m in range(Mshell):
                     cdi[n].append(float(line[m]))
-            collisions.append(Ar85Cdi(j=j, i=i, cdiCoeffs=cdi))
+            collisions.append(Ar85Cdi(j=j, i=i, cdi=cdi))
         elif line[0].upper() == 'BURGESS':
             i1 = int(line[1])
             i2 = int(line[2])

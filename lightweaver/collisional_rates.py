@@ -96,7 +96,8 @@ class CE(TemperatureInterpolationRates):
         Cmat[self.j, self.i, :] += Cdown * nstar[self.j] / nstar[self.i]
 
 def fone(x):
-    return np.where(x <= 50.0, np.exp(x) * exp1(x), 1.0/x)
+    # return np.where(x <= 50.0, np.exp(x) * exp1(x), 1.0/x)
+    return np.where(x <= 50.0, np.exp(x) * exp1(x), (1.0 - 1.0 / x + 2.0 / x**2) / x)
 
 @njit(cache=True)
 def ftwo(x):
@@ -121,7 +122,7 @@ def ftwo(x):
                 xFact /= x
                 qx += q[i] * xFact
 
-            return px / (qx + x**2)
+            return px / (qx * x**2)
 
         else:
             gamma = 0.5772156649
@@ -152,11 +153,15 @@ def ftwo(x):
 
 @dataclass
 class Ar85Cdi(CollisionalRates):
-    cdiCoeffs: Sequence[Sequence[float]]
+    cdi: Sequence[Sequence[float]]
 
     def __repr__(self):
-        # TODO(cmo): The np. below is a nasty hack, but should work for now
-        s = 'Ar85Cdi(j=%d, i=%d, cdiCoeffs=%s)' % (self.j, self.i, repr(self.cdiCoeffs))
+        if type(self.cdi) is np.ndarray:
+            cdi = repr(self.cdi.tolist())
+        else:
+            cdi = repr(self.cdi)
+
+        s = 'Ar85Cdi(j=%d, i=%d, cdi=%s)' % (self.j, self.i, cdi)
         return s
 
     def setup(self, atom):
@@ -166,7 +171,7 @@ class Ar85Cdi(CollisionalRates):
         self.atom = atom
         self.iLevel = atom.levels[self.i]
         self.jLevel = atom.levels[self.j]
-        self.cdi = np.array(self.cdiCoeffs)
+        self.cdi = np.array(self.cdi)
 
     def compute_rates(self, atmos, nstar, Cmat):
         Cup = np.zeros(atmos.Nspace)
@@ -213,7 +218,7 @@ class Burgess(CollisionalRates):
         invdEkT = 1.0 / dEkT
         wlog = np.log(1.0 + invdEkT)
         wb = wlog**(betaB / (1.0 + invdEkT))
-        Cup = 2.1715e-8 * cbar * (13.6/dE)**1.5 * np.sqrt(dE) * exp1(dEkT) * wb * atmos.ne * Const.CM_TO_M**3
+        Cup = 2.1715e-8 * cbar * (13.6/dE)**1.5 * np.sqrt(dEkT) * exp1(dEkT) * wb * atmos.ne * Const.CM_TO_M**3
 
         Cup *= self.fudge
         Cdown = Cup * nstar[self.i, :] / nstar[self.j, :]

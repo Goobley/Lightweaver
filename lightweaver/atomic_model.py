@@ -65,6 +65,7 @@ class AtomicModel:
         return hash(repr(self))
 
     def replace_atomic_table(self, table: AtomicTable):
+        print('Called %s' % self.name)
         self.atomicTable = table
         self.__post_init__()
 
@@ -288,6 +289,7 @@ class AtomicLine(AtomicTransition):
     jLevel: AtomicLevel = field(init=False)
     iLevel: AtomicLevel = field(init=False)
     wavelength: np.ndarray = field(init=False)
+    preserveWavelength: bool = False
 
     def __repr__(self):
         s = 'AtomicLine(j=%d, i=%d, f=%e, type=%s, NlambdaGen=%d, qCore=%f, qWing=%f, vdw=%s, gRad=%e, stark=%f' % (
@@ -411,6 +413,10 @@ class VoigtLine(AtomicLine):
         #     if len(self.xrd) > 0:
         #         print("Found %d subordinate PRD lines, for line %d->%d of atom %s" % \
         #             (len(self.xrd), self.j, self.i, self.atom.name))
+
+        if self.preserveWavelength:
+            print('preserveWavelength set on %s, ignoring NlambdaGen' % (repr(self)))
+            return
 
         # Compute default lambda grid
         Nlambda = self.NlambdaGen // 2 if self.NlambdaGen % 2 == 1 else (self.NlambdaGen - 1) // 2

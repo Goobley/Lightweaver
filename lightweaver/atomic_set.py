@@ -375,10 +375,6 @@ class RadiativeSet:
             raise ValueError('Multiple entries for an atom: %s' % self.atoms)
 
         self.set_atomic_table(self.atomicTable)
-        for a in self.atoms:
-            if a.atomicTable is self.atomicTable:
-                continue
-            a.replace_atomic_table(self.atomicTable)
 
     def __contains__(self, name: str) -> bool:
         return name in self.atomicNames
@@ -452,8 +448,11 @@ class RadiativeSet:
         self.validate_sets()
 
     def set_atomic_table(self, table: AtomicTable):
+        self.atomicTable = table
         for a in self.atoms:
-            a.replace_atomic_table(table)
+            if a.atomicTable is self.atomicTable:
+                continue
+            a.replace_atomic_table(self.atomicTable)
 
     def iterate_lte_ne_eq_pops(self, mols: MolecularTable, atmos: Atmosphere):
         maxIter = 500
