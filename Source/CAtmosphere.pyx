@@ -779,7 +779,7 @@ cdef gII_to_numpy(F64Arr3D gII):
     shape[0] = <np.npy_intp> gII.shape(0)
     shape[1] = <np.npy_intp> gII.shape(1)
     shape[2] = <np.npy_intp> gII.shape(2)
-    ndarray = np.PyArray_SimpleNewFromData(3, &shape[0],
+    cdef f64[:,:,::1] ndarray = np.PyArray_SimpleNewFromData(3, &shape[0],
                                             np.NPY_FLOAT64, <void*>gII.data())
     return ndarray.copy()
 
@@ -917,7 +917,7 @@ cdef class LwTransition:
                 state['rhoPrd'] = None
 
             try:
-                state['gII'] = gII_to_numpy(self.trans.prdStorage.gII)
+                state['gII'] = np.asarray(gII_to_numpy(self.trans.prdStorage.gII))
             except AttributeError:
                 state['gII'] = None
         else:
