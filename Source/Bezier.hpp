@@ -7,6 +7,7 @@
 
 namespace Bezier
 {
+#ifdef USE_FRITSCH_DERIVATIVE
 inline f64 cent_deriv(f64 dsup, f64 dsdn, f64 chiup, f64 chic, f64 chidn)
 {
     /* --- Derivative Fritsch & Butland (1984) --- */
@@ -27,6 +28,16 @@ inline f64 cent_deriv(f64 dsup, f64 dsdn, f64 chiup, f64 chic, f64 chidn)
     }
     return wprime;
 }
+#else
+inline f64 cent_deriv(f64 dsuw, f64 dsdw, f64 yuw, f64 y0, f64 ydw)
+{
+    // Steffen (1990) derivatives
+    const f64 S0 = (ydw - y0) / dsdw;
+    const f64 Suw = (y0 - yuw) / dsuw;
+    const f64 P0 = abs((Suw * dsdw + S0 * dsuw) / (dsdw + dsuw));
+    return (std::copysign(1.0, S0) + std::copysign(1.0, Suw)) * min(abs(Suw), min(abs(S0), 0.5 * P0));
+}
+#endif
 
 inline void cent_deriv(f64 wprime[4][4], f64 dsup, f64 dsdn, f64 chiup[4][4], f64 chic[4][4], f64 chidn[4][4])
 {
@@ -41,38 +52,61 @@ inline void cent_deriv(f64 wprime[4], f64 dsup, f64 dsdn, f64 chiup[4], f64 chic
         wprime[i] = cent_deriv(dsup, dsdn, chiup[i], chic[i], chidn[i]);
 }
 
-inline void Bezier3_coeffs(f64 dt, f64* alpha, f64* beta, f64* gamma, f64* eps, f64* edt)
+inline void Bezier3_coeffs(f64 dt, f64* alpha, f64* beta, f64* gamma, f64* delta, f64* edt)
 {
     /* ---
 
-     Integration coeffs. for cubic Bezier interpolants
-     Use Taylor expansion if dtau is small
+    Integration coeffs. for cubic Bezier interpolants
+    Use Taylor expansion if dtau is small
+
+    Coefficients go with:
+        alpha: Suw
+        beta: S0
+        gamma: Cuw
+        delta: C0
+        edt: exp(-dtau)
 
      --- */
 
-    double dt2 = dt * dt, dt3 = dt2 * dt, dt4;
+    f64 dt2 = square(dt);
+    f64 dt3 = dt2 * dt;
 
-    if (dt >= 5.e-2)
+    if (dt < 5e-2)
     {
-        //
-        *edt = exp(-dt);
-
-        *alpha = (-6.0 + 6.0 * dt - 3.0 * dt2 + dt3 + 6.0 * edt[0]) / dt3;
-        dt3 = 1.0 / dt3;
-        *beta = (6.0 + (-6.0 - dt * (6.0 + dt * (3.0 + dt))) * edt[0]) * dt3;
-        *gamma = 3.0 * (6.0 + (-4.0 + dt) * dt - 2.0 * (3.0 + dt) * edt[0]) * dt3;
-        *eps = 3.0 * (edt[0] * (6.0 + dt2 + 4.0 * dt) + 2.0 * dt - 6.0) * dt3;
+        *edt = 1.0 - dt + 0.5 * dt2 - dt3 / 6.0;
+        // NOTE(cmo): To get the correct taylor expansion need to take terms up
+        // to dt^6 due to the 1/dt^3 term. Then truncate at dt^3.
+        *alpha = 0.25 * dt - 0.2 * dt2 + dt3 / 12.0;
+        *beta = 0.25 * dt - 0.05 * dt2 + dt3 / 120.0;
+        *gamma = 0.25 * dt - 0.15 * dt2 + 0.05 * dt3;
+        *delta = 0.25 * dt - 0.1 * dt2 + 0.025 * dt3;
+    }
+    else if (dt > 30.0)
+    {
+        *edt = 0.0;
+        *alpha = 6.0 / dt3;
+        *beta = (-6.0 + 6.0 * dt - 3.0 * dt2 + dt3) / dt3;
+        *gamma = 3.0 * (2.0 * dt - 6.0) / dt3;
+        *delta = 3.0 * (6.0 - 4.0 * dt + dt2) / dt3;
     }
     else
     {
-        dt4 = dt2 * dt2;
-        *edt = 1.0 - dt + 0.5 * dt2 - dt3 / 6.0 + dt4 / 24.0;
-        //
-        *alpha = 0.25 * dt - 0.05 * dt2 + dt3 / 120.0 - dt4 / 840.0;
-        *beta = 0.25 * dt - 0.20 * dt2 + dt3 / 12.0 - dt4 / 42.0;
-        *gamma = 0.25 * dt - 0.10 * dt2 + dt3 * 0.025 - dt4 / 210.0;
-        *eps = 0.25 * dt - 0.15 * dt2 + dt3 * 0.05 - dt4 / 84.0;
+        *edt = exp(-dt);
+
+        *alpha = (6.0 - *edt * (6.0 + 6.0 * dt + 3 * dt2 + dt3)) / dt3;
+        *beta = (6.0 * *edt - 6.0 + 6.0 * dt - 3.0 * dt2 + dt3) / dt3;
+        *gamma = 3.0 * (2.0 * dt - 6.0 + *edt * (6.0 + 4.0 * dt + dt2)) / dt3;
+        *delta = 3.0 * (6.0 - 4.0 * dt + dt2 - 2.0 * *edt * (3.0 + dt)) / dt3;
     }
+}
+
+constexpr bool LimitControlPoints = false;
+constexpr f64 limit_control_point(f64 c)
+{
+    if (LimitControlPoints)
+        return max(c, 0.0);
+    else
+        return c;
 }
 }
 

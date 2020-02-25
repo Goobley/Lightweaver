@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from astropy import units
 from specutils.utils.wcs_utils import vac_to_air as spec_vac_to_air, air_to_vac as spec_air_to_vac
+from numba import njit
 
 @dataclass
 class NgOptions:
@@ -18,6 +19,17 @@ class InitialSolution(Enum):
     Lte = auto()
     Zero = auto()
     EscapeProbability = auto()
+
+def voigt_H(a, v):
+    z = (v + 1j * a)
+    return special.wofz(z).real
+
+@njit
+def planck(temp, wav):
+    hc_Tkla = C.HC / (C.KBoltzmann * C.NM_TO_M * wav) / temp
+    twohnu3_c2 = (2.0 * C.HC) / (C.NM_TO_M * wav)**3
+
+    return twohnu3_c2 / (np.exp(hc_Tkla) - 1.0)
 
 def gaunt_bf(wvl, nEff, charge) -> float:
     # /* --- M. J. Seaton (1960), Rep. Prog. Phys. 23, 313 -- ----------- */

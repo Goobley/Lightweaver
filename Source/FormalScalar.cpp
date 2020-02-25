@@ -251,9 +251,12 @@ void piecewise_bezier3_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
     f64 ds_dw = abs(height(k + dk) - height(k)) * zmu;
     f64 dx_uw = (chi(k) - chi(k - dk)) / ds_uw;
     f64 dx_c = Bezier::cent_deriv(ds_uw, ds_dw, chi(k - dk), chi(k), chi(k + dk));
-    f64 E = max(chi(k) - (ds_uw / 3.0) * dx_c, 0.0);
-    f64 F = max(chi(k - dk) + (ds_uw / 3.0) * dx_uw, 0.0);
-    f64 dtau_uw = ds_uw * (chi(k) + chi(k - dk) + E + F) * 0.25;
+
+    f64 Cuw = Bezier::limit_control_point(chi(k - dk) + (ds_uw / 3.0) * dx_uw);
+    f64 C0 = Bezier::limit_control_point(chi(k) - (ds_uw / 3.0) * dx_c);
+
+    // NOTE(cmo): Average chi over the uw-0 interval
+    f64 dtau_uw = ds_uw * (chi(k) + chi(k - dk) + Cuw + C0) * 0.25;
     f64 dS_uw = (S(k) - S(k - dk)) / dtau_uw;
 
     f64 ds_dw2 = 0.0;
@@ -263,25 +266,26 @@ void piecewise_bezier3_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
     f64 dtau_dw = 0.0;
     auto dS_central
         = [&dtau_uw, &dtau_dw, &S, &k, dk] { return Bezier::cent_deriv(dtau_uw, dtau_dw, S(k - dk), S(k), S(k + dk)); };
+
     for (; k != k_end - dk; k += dk)
     {
         ds_dw2 = abs(height(k + 2 * dk) - height(k + dk)) * zmu;
         f64 dx_dw = dx_downwind();
-        E = max(chi(k) + (ds_dw / 3.0) * dx_c, 0.0);
-        F = max(chi(k + dk) - (ds_dw / 3.0) * dx_dw, 0.0);
-        dtau_dw = ds_dw * (chi(k) + chi(k + dk) + E + F) * 0.25;
+        Cuw = Bezier::limit_control_point(chi(k) + (ds_dw / 3.0) * dx_c);
+        C0 = Bezier::limit_control_point(chi(k + dk) - (ds_dw / 3.0) * dx_dw);
+        dtau_dw = ds_dw * (chi(k) + chi(k + dk) + Cuw + C0) * 0.25;
 
-        f64 alpha, beta, gamma, eps, edt;
-        Bezier::Bezier3_coeffs(dtau_uw, &alpha, &beta, &gamma, &eps, &edt);
+        f64 alpha, beta, gamma, delta, edt;
+        Bezier::Bezier3_coeffs(dtau_uw, &alpha, &beta, &gamma, &delta, &edt);
 
         f64 dS_c = dS_central();
 
-        E = max(S(k) - (dtau_uw / 3.0) * dS_c, 0.0);
-        F = max(S(k - dk) + (dtau_uw / 3.0) * dS_uw, 0.0);
+        Cuw = Bezier::limit_control_point(S(k - dk) + (dtau_uw / 3.0) * dS_uw);
+        C0 = Bezier::limit_control_point(S(k) - (dtau_uw / 3.0) * dS_c);
 
-        I(k) = I_upw * edt + alpha * S(k) + beta * S(k - dk) + gamma * E + eps * F;
+        I(k) = I_upw * edt + alpha * S(k - dk) + beta * S(k) + gamma * Cuw + delta * C0;
         if (computeOperator)
-            Psi(k) = alpha + gamma;
+            Psi(k) = beta + delta;
 
         I_upw = I(k);
         ds_uw = ds_dw;
@@ -295,21 +299,22 @@ void piecewise_bezier3_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
     k = k_end - dk;
     ds_dw = abs(height(k + dk) - height(k)) * zmu;
     f64 dx_dw = (chi(k + dk) - chi(k)) / ds_dw;
-    E = max(chi(k) + (ds_dw / 3.0) * dx_c, 0.0);
-    F = max(chi(k + dk) - (ds_dw / 3.0) * dx_dw, 0.0);
-    dtau_dw = ds_dw * (chi(k) + chi(k + dk) + E + F) * 0.25;
+    Cuw = Bezier::limit_control_point(chi(k) + (ds_dw / 3.0) * dx_c);
+    C0 = Bezier::limit_control_point(chi(k + dk) - (ds_dw / 3.0) * dx_dw);
+    // TODO(cmo): Use this quantity to compute the final point without falling back to w2? (Make derivatives constant?)
+    dtau_dw = ds_dw * (chi(k) + chi(k + dk) + Cuw + C0) * 0.25;
 
-    f64 alpha, beta, gamma, eps, edt;
-    Bezier::Bezier3_coeffs(dtau_uw, &alpha, &beta, &gamma, &eps, &edt);
+    f64 alpha, beta, gamma, delta, edt;
+    Bezier::Bezier3_coeffs(dtau_uw, &alpha, &beta, &gamma, &delta, &edt);
 
     f64 dS_c = dS_central();
 
-    E = max(S(k) - dtau_uw / 3.0 * dS_c, 0.0);
-    F = max(S(k - dk) + dtau_uw / 3.0 * dS_uw, 0.0);
+    Cuw = Bezier::limit_control_point(S(k - dk) + dtau_uw / 3.0 * dS_uw);
+    C0 = Bezier::limit_control_point(S(k) - dtau_uw / 3.0 * dS_c);
 
-    I(k) = I_upw * edt + alpha * S(k) + beta * S(k - dk) + gamma * E + eps * F;
+    I(k) = I_upw * edt + alpha * S(k - dk) + beta * S(k) + gamma * Cuw + delta * C0;
     if (computeOperator)
-        Psi(k) = alpha + gamma;
+        Psi(k) = beta + delta;
     I_upw = I(k);
 
     // Piecewise linear on end
