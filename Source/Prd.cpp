@@ -332,6 +332,7 @@ PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
     F64Arr Pj(atmos.Nspace);
     while (iter < maxIter)
     {
+        ++iter;
         dRho = 0.0;
         for (auto& p : prdLines)
         {
@@ -345,8 +346,6 @@ PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
 
         if (dRho < tol)
             break;
-
-        ++iter;
     }
 
     return {iter, dRho};

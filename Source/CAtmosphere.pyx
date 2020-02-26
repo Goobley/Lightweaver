@@ -2133,7 +2133,7 @@ cdef class LwContext:
     def prd_redistribute(self, int maxIter=3, f64 tol=1e-2):
         cdef PrdIterData prdIter = redistribute_prd_lines(self.ctx, maxIter, tol)
         print('      PRD dRho = %.2e, (sub-iterations: %d)' % (prdIter.dRho, prdIter.iter))
-        return dRho
+        return prdIter.dRho, prdIter.iter
 
     def configure_hprd_coeffs(self):
         configure_hprd_coeffs(self.ctx)
