@@ -80,5 +80,5 @@ class CrswIterator:
         self.val = initVal
 
     def __call__(self):
-        self.val = max(1.0, val * 0.1**(1.0/val))
+        self.val = max(1.0, self.val * 0.1**(1.0/self.val))
         return self.val

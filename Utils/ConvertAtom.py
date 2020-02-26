@@ -257,6 +257,8 @@ def conv_atom(inFile):
         elif line[0].upper() == 'BURGESS':
             i1 = int(line[1])
             i2 = int(line[2])
+            j = max(i1, i2)
+            i = min(i1, i2)
             fudge = float(line[3])
             collisions.append(Burgess(j=j, i=i, fudge=fudge))
         else:
@@ -270,7 +272,8 @@ def conv_atom(inFile):
 colorama.init()
 fails = open('Fails.txt', 'w')
 path = '/home/osborne/Atoms/'
-baseFiles = sorted([f for f in os.listdir(path) if f.endswith('.atom')])
+excludeFiles = ['FeII_big.atom']
+baseFiles = sorted([f for f in os.listdir(path) if f.endswith('.atom') and f not in excludeFiles])
 # baseFiles = ['He_9.atom']
 files = [path+f for f in baseFiles]
 atoms = []
