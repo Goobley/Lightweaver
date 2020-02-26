@@ -228,7 +228,7 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<i32> wavelengthIdxs)
 {
     using namespace LwInternal;
     JasUnpack(*ctx, atmos, spect, background);
-    JasUnpack(ctx, activeAtoms, lteAtoms);
+    JasUnpack(ctx, activeAtoms, detailedAtoms);
 
     const int Nspace = atmos.Nspace;
     const int Nrays = atmos.Nrays;
@@ -249,7 +249,7 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<i32> wavelengthIdxs)
     fd.I = I;
     IntensityCoreData iCore;
     JasPackPtr(iCore, atmos, spect, fd, background);
-    JasPackPtr(iCore, activeAtoms, lteAtoms, JDag);
+    JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
     JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
     JasPack(iCore, I, S, Ieff);
 

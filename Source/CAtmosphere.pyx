@@ -176,7 +176,7 @@ cdef extern from "Lightweaver.hpp":
         Atmosphere* atmos
         Spectrum* spect
         vector[Atom*] activeAtoms
-        vector[Atom*] lteAtoms
+        vector[Atom*] detailedAtoms
         Background* background
     
     cdef cppclass PrdIterData:
@@ -619,20 +619,6 @@ cdef class LwBackground:
         self.background.chi = f64_view_2(self.chi)
         self.background.eta = f64_view_2(self.eta)
         self.background.sca = f64_view_2(self.sca)
-
-    def state_dict(self):
-        s = {}
-        s['chi'] = np.copy(self.chi)
-        s['eta'] = np.copy(self.eta)
-        s['sca'] = np.copy(self.sca)
-        s['wavelength'] = np.copy(self.wavelength)
-        return s
-
-    def load_state_dict(self, s):
-        np.asarray(self.chi)[:] = s['chi']
-        np.asarray(self.eta)[:] = s['eta']
-        np.asarray(self.sca)[:] = s['sca']
-        np.asarray(self.wavelength)[:] = s['wavelength']
 
     @property
     def chi(self):
@@ -1093,83 +1079,6 @@ cdef class LwTransition:
 
         self.trans.uv(la, mu, obs, cUji, cVij, cVji)
 
-    def state_dict(self):
-        s = {}
-        s['type'] = self.type
-        s['wavelength'] = np.copy(self.wavelength)
-        s['active'] = np.copy(self.active)
-        s['Rij'] = np.copy(self.Rij)
-        s['Rji'] = np.copy(self.Rji)
-        s['i'] = self.trans.i
-        s['j'] = self.trans.j
-        s['polarised'] = self.trans.polarised
-        s['Nblue'] = self.trans.Nblue
-        s['lambda0'] = self.trans.lambda0
-        s['dopplerWidth'] = self.trans.dopplerWidth
-    
-        if self.type == 'Line':
-            s['phi'] = np.copy(self.phi)
-            s['wphi'] = np.copy(self.wphi)
-            s['Qelast'] = np.copy(self.Qelast)
-            s['aDamp'] = np.copy(self.aDamp)
-            s['Aji'] = self.trans.Aji
-            s['Bji'] = self.trans.Bji
-            s['Bij'] = self.trans.Bij
-
-            s['rhoPrd'] = None
-            try:
-                s['rhoPrd'] = np.copy(self.rhoPrd)
-            except AttributeError:
-                pass
-
-            s['phiQ'] = None
-            s['phiU'] = None
-            s['phiV'] = None
-            s['psiQ'] = None
-            s['psiU'] = None
-            s['psiV'] = None
-            try:
-                s['phiQ'] = np.copy(self.phiQ)
-                s['phiU'] = np.copy(self.phiU)
-                s['phiV'] = np.copy(self.phiV)
-                s['psiQ'] = np.copy(self.psiQ)
-                s['psiU'] = np.copy(self.psiU)
-                s['psiV'] = np.copy(self.psiV)
-            except AttributeError:
-                pass
-        else:
-            s['alpha'] = np.copy(self.alpha)
-        return s
-
-    def load_state_dict(self, s):
-        np.asarray(self.wavelength)[:] = s['wavelength']
-        np.asarray(self.active)[:] = s['active']
-        np.asarray(self.Rij)[:] = s['Rij']
-        np.asarray(self.Rji)[:] = s['Rji']
-        self.trans.lambda0 = s['lambda0']
-        self.trans.dopplerWidth = s['dopplerWidth']
-        self.trans.Nblue = s['Nblue']
-        self.trans.polarised = s['polarised']
-
-        if s['type'] == 'Line':
-            np.asarray(self.phi)[:] = s['phi']
-            np.asarray(self.wphi)[:] = s['wphi']
-            np.asarray(self.aDamp)[:] = s['aDamp']
-            np.asarray(self.Qelast)[:] = s['Qelast']
-
-            if s['rhoPrd'] is not None:
-                np.asarray(self.rhoPrd)[:] = s['rhoPrd']
-
-            if s['phiQ'] is not None:
-                np.asarray(self.phiQ)[:] = s['phiQ']
-                np.asarray(self.phiU)[:] = s['phiU']
-                np.asarray(self.phiV)[:] = s['phiV']
-                np.asarray(self.psiQ)[:] = s['psiQ']
-                np.asarray(self.psiU)[:] = s['psiU']
-                np.asarray(self.psiV)[:] = s['psiV']
-        else:
-            np.asarray(self.alpha)[:] = s['alpha']
-
     @property
     def jLevel(self):
         return self.transModel.jLevel
@@ -1321,11 +1230,11 @@ cdef class LwAtom:
     cdef object atmos
     cdef object hPops
     cdef list trans
-    cdef bool_t lte
+    cdef bool_t detailed
 
-    def __init__(self, atom, cAtmos, atmos, eqPops, spect, background, lte=False, initSol=None, ngOptions=None, conserveCharge=False):
+    def __init__(self, atom, cAtmos, atmos, eqPops, spect, background, detailed=False, initSol=None, ngOptions=None, conserveCharge=False):
         self.atomicModel = atom
-        self.lte = lte
+        self.detailed = detailed
         self.atmos = atmos
         cdef LwAtmosphere a = cAtmos
         self.atom.atmos = &a.atmos
@@ -1376,7 +1285,7 @@ cdef class LwAtom:
         self.atom.Nlevel = Nlevel
         self.atom.Ntrans = Ntrans
 
-        if not self.lte:
+        if not self.detailed:
             self.Gamma = np.zeros((Nlevel, Nlevel, a.Nspace))
             self.atom.Gamma = f64_view_3(self.Gamma)
 
@@ -1388,9 +1297,11 @@ cdef class LwAtom:
         self.atom.nStar = f64_view_2(self.nStar)
 
         doInitSol = True
-        if self.lte:
-            self.n = self.nStar
-            self.atom.n = f64_view_2(self.nStar)
+        if self.detailed:
+            if modelPops.pops is not None:
+                self.n = modelPops.pops
+            else:
+                self.n = self.nStar
             doInitSol = False
             ngOptions = None
         else:
@@ -1400,7 +1311,8 @@ cdef class LwAtom:
             else:
                 self.n = np.copy(self.nStar)
                 modelPops.pops = np.asarray(self.n)
-            self.atom.n = f64_view_2(self.n)
+
+        self.atom.n = f64_view_2(self.n)
 
         if Ntrans > 0:
             self.gij = np.zeros((Ntrans, atmos.Nspace))
@@ -1408,7 +1320,7 @@ cdef class LwAtom:
             self.wla = np.zeros((Ntrans, atmos.Nspace))
             self.atom.wla = f64_view_2(self.wla)
 
-        if not self.lte:
+        if not self.detailed:
             self.V = np.zeros((Nlevel, atmos.Nspace))
             self.atom.V = f64_view_2(self.V)
             self.U = np.zeros((Nlevel, atmos.Nspace))
@@ -1450,14 +1362,14 @@ cdef class LwAtom:
         state['atmos'] = self.atmos
         state['hPops'] = self.hPops
         state['trans'] = [t.__getstate__() for t in self.trans]
-        state['lte'] = self.lte
+        state['detailed'] = self.detailed
         state['vBroad'] = np.asarray(self.vBroad)
         state['nTotal'] = self.modelPops.nTotal
         state['nStar'] = self.modelPops.nStar
         state['n'] = self.modelPops.n
         state['stages'] = np.asarray(self.stages)
         state['Ng'] = (self.atom.ng.Norder, self.atom.ng.Nperiod, self.atom.ng.Ndelay)
-        if self.lte:
+        if self.detailed:
             state['U'] = None
             state['V'] = None
             state['eta'] = None
@@ -1488,7 +1400,7 @@ cdef class LwAtom:
         self.atmos = state['atmos']
         self.hPops = state['hPops']
 
-        self.lte = state['lte']
+        self.detailed = state['detailed']
 
         self.vBroad = state['vBroad']
         self.atom.vBroad = f64_view(self.vBroad)
@@ -1509,7 +1421,7 @@ cdef class LwAtom:
         self.atom.Nlevel = Nlevel
         self.atom.Ntrans = Ntrans
 
-        if not self.lte:
+        if not self.detailed:
             self.Gamma = state['Gamma']
             self.atom.Gamma = f64_view_3(self.Gamma)
 
@@ -1542,43 +1454,8 @@ cdef class LwAtom:
         ng = state['Ng']
         self.atom.ng = Ng(ng[0], ng[1], ng[2], self.atom.n.flatten())
 
-    def state_dict(self):
-        s = {}
-        s['name'] = self.atomicModel.name
-        s['lte'] = self.lte
-        s['Nlevel'] = self.atom.Nlevel
-        s['Ntrans'] = self.atom.Ntrans
-        s['vBroad'] = np.copy(self.vBroad)
-        if self.lte:
-            s['n'] = None
-        else:
-            s['n'] = np.copy(self.n)
-        s['stages'] = np.copy(self.stages)
-        s['trans'] = [t.state_dict() for t in self.trans]
-        return s
-
-    def load_state_dict(self, s, popsOnly=False):
-        if self.atomicModel.name != s['name']:
-            raise ValueError('Model name (%s) doesn\'t match state_dict name (%s)' % (self.atomicModel.name, s['name']))
-
-        if self.Nlevel != s['Nlevel']:
-            raise ValueError('Number of levels on model (%d) doens\'t match state_dict (%d)' % (self.Nlevel, s['Nlevel']))
-
-        if not popsOnly and self.Ntrans != s['Ntrans']:
-            raise ValueError('Number of transitions on model/computational atom (%d/%d) doens\'t match state_dict (%d)' % (self.Nlevel, len(self.trans), s['Nlevel']))
-        
-        np.asarray(self.vBroad)[:] = s['vBroad']
-        np.asarray(self.stages)[:] = s['stages']
-        if not self.lte:
-            np.asarray(self.n)[:] = s['n']
-
-        cdef LwTransition t
-        if not popsOnly:
-            for i, t in enumerate(self.trans):
-                t.load_state_dict(s['trans'][i])
-
     def load_pops_rates_prd_from_state(self, prevState, popsOnly=False, preserveProfiles=False):
-        if not self.lte:
+        if not self.detailed:
             np.asarray(self.n)[:] = prevState['n']
             ng = prevState['Ng']
             self.atom.ng = Ng(ng[0], ng[1], ng[2], self.atom.n.flatten())
@@ -1762,28 +1639,6 @@ cdef class LwSpectrum:
         for k in range(self.J.shape[1]):
             J[:, k] = np.interp(self.wavelength, prevState['wavelength'], prevState['J'][:, k])
 
-
-    def state_dict(self):
-        s = {}
-        s['wavelength'] = np.copy(self.wavelength)
-        s['I'] = np.copy(self.I)
-        s['J'] = np.copy(self.J)
-        s['Quv'] = None
-        try:
-            s['Quv'] = np.copy(s['Quv'])
-        except AttributeError:
-            pass
-        return s
-
-    def load_state_dict(self, s):
-        np.asarray(self.wavelength)[:] = s['wavelength']
-        np.asarray(self.I)[:] = s['I']
-        np.asarray(self.J)[:] = s['J']
-        if s['Quv'] is not None:
-            self.setup_stokes()
-            np.asarray(self.Quv)[:] = s['Quv']
-
-
     @property
     def wavelength(self):
         return np.asarray(self.wavelength)
@@ -1810,7 +1665,7 @@ cdef class LwContext:
     cdef object atomicTable
     cdef object eqPops
     cdef list activeAtoms
-    cdef list lteAtoms
+    cdef list detailedAtoms
     cdef bool_t conserveCharge
     cdef bool_t hprd
     cdef object crswCallback
@@ -1829,9 +1684,9 @@ cdef class LwContext:
         self.eqPops = eqPops
 
         activeAtoms = spect.radSet.activeAtoms
-        lteAtoms = spect.radSet.lteAtoms
+        detailedAtoms = spect.radSet.detailedAtoms
         self.activeAtoms = [LwAtom(a, self.atmos, atmos, eqPops, spect, self.background, ngOptions=ngOptions, initSol=initSol, conserveCharge=conserveCharge) for a in activeAtoms]
-        self.lteAtoms = [LwAtom(a, self.atmos, atmos, eqPops, spect, self.background, ngOptions=None, initSol=InitialSolution.Lte, lte=True) for a in lteAtoms]
+        self.detailedAtoms = [LwAtom(a, self.atmos, atmos, eqPops, spect, self.background, ngOptions=None, initSol=InitialSolution.Lte, detailed=True) for a in detailedAtoms]
 
         self.ctx.atmos = &self.atmos.atmos
         self.ctx.spect = &self.spect.spect
@@ -1840,8 +1695,8 @@ cdef class LwContext:
         cdef LwAtom la
         for la in self.activeAtoms:
             self.ctx.activeAtoms.push_back(&la.atom)
-        for la in self.lteAtoms:
-            self.ctx.lteAtoms.push_back(&la.atom)
+        for la in self.detailedAtoms:
+            self.ctx.detailedAtoms.push_back(&la.atom)
 
         if self.hprd:
             self.configure_hprd_coeffs()
@@ -1859,7 +1714,7 @@ cdef class LwContext:
         state['atomicTable'] = self.atomicTable
         state['eqPops'] = self.eqPops
         state['activeAtoms'] = [a.__getstate__() for a in self.activeAtoms]
-        state['lteAtoms'] = [a.__getstate__() for a in self.lteAtoms]
+        state['detailedAtoms'] = [a.__getstate__() for a in self.detailedAtoms]
         state['conserveCharge'] = self.conserveCharge
         state['hprd'] = self.hprd
         state['atmos'] = self.atmos.__getstate__()
@@ -1885,10 +1740,10 @@ cdef class LwContext:
             atom = self.activeAtoms[-1]
             atom.__setstate__(s)
             atom.atom.atmos = &self.atmos.atmos
-        self.lteAtoms = []
-        for s in state['lteAtoms']:
-            self.lteAtoms.append(LwAtom.__new__(LwAtom))
-            atom = self.lteAtoms[-1]
+        self.detailedAtoms = []
+        for s in state['detailedAtoms']:
+            self.detailedAtoms.append(LwAtom.__new__(LwAtom))
+            atom = self.detailedAtoms[-1]
             atom.__setstate__(s)
             atom.atom.atmos = &self.atmos.atmos
         self.conserveCharge = state['conserveCharge']
@@ -1911,14 +1766,14 @@ cdef class LwContext:
         cdef LwAtom la
         for la in self.activeAtoms:
             self.ctx.activeAtoms.push_back(&la.atom)
-        for la in self.lteAtoms:
-            self.ctx.lteAtoms.push_back(&la.atom)
+        for la in self.detailedAtoms:
+            self.ctx.detailedAtoms.push_back(&la.atom)
 
         if self.hprd:
             self.configure_hprd_coeffs()
 
     def compute_profiles(self, polarised=False):
-        atoms = self.activeAtoms + self.lteAtoms
+        atoms = self.activeAtoms + self.detailedAtoms
         for atom in atoms:
             atom.update_profiles(polarised=polarised)
 
@@ -2107,7 +1962,7 @@ cdef class LwContext:
         except:
             raise ValueError('Please specify B-field')
 
-        atoms = self.activeAtoms + self.lteAtoms
+        atoms = self.activeAtoms + self.detailedAtoms
         atomsHavePolarisedProfile = True
         try:
             atoms[0].phiQ
@@ -2118,7 +1973,7 @@ cdef class LwContext:
             for atom in self.activeAtoms:
                 for t in atom.trans:
                     t.compute_polarised_profiles()
-            for atom in self.lteAtoms:
+            for atom in self.detailedAtoms:
                 for t in atom.trans:
                     t.compute_polarised_profiles()
 
@@ -2160,13 +2015,6 @@ cdef class LwContext:
         return self.eqPops
 
     def state_dict(self):
-        # s = {}
-        # s['arguments'] = deepcopy(self.arguments)
-        # s['background'] = self.background.state_dict()
-        # s['spectrum'] = self.spect.state_dict()
-        # s['activeAtoms'] = [a.state_dict() for a in self.activeAtoms]
-        # s['lteAtoms'] = [a.state_dict() for a in self.lteAtoms]
-        # return s
         return self.__getstate__()
 
     @staticmethod
@@ -2229,44 +2077,13 @@ cdef class LwContext:
                     a.set_pops_escape_probability(ctx.atmos, ctx.background, conserveCharge=ctx.conserveCharge)
 
 
-        for a in ctx.lteAtoms:
-            for s in sd['lteAtoms']:
+        for a in ctx.detailedAtoms:
+            for s in sd['detailedAtoms']:
                 if a.atomicModel == s['atomicModel']:
                     a.load_pops_rates_prd_from_state(s)
                     break
 
         return ctx
-
-    # @staticmethod
-    # def from_state_dict(s, ignoreSpect=False, ignoreBackground=False, popsOnly=False):
-    #     args = s['arguments']
-    #     ctx = LwContext(args['atmos'], args['spect'], args['eqPops'], ngOptions=args['ngOptions'], initSol=InitialSolution.Lte, conserveCharge=args['conserveCharge'])
-
-    #     if not ignoreSpect:
-    #         ctx.spect.load_state_dict(s['spectrum'])
-    #     if not ignoreBackground:
-    #         ctx.background.load_state_dict(s['background'])
-
-    #     for i, a in enumerate(ctx.activeAtoms):
-    #         a.load_state_dict(s['activeAtoms'][i], popsOnly=popsOnly)
-
-    #     for i, a in enumerate(ctx.lteAtoms):
-    #         a.load_state_dict(s['lteAtoms'][i], popsOnly=popsOnly)
-    #     return ctx
-
-    # @staticmethod
-    # def from_state_dict_with_perturbation(s, perturbVar='Temperature', perturbIdx=0, perturbMagnitude=20):
-    #     args = s['arguments']
-    #     ctx = LwContext(args['atmos'], args['spect'], args['eqPops'], ngOptions=args['ngOptions'], initSol=InitialSolution.Lte, conserveCharge=args['conserveCharge'])
-
-    #     ctx.spect.load_state_dict(s['spectrum'])
-
-    #     for i, a in enumerate(ctx.activeAtoms):
-    #         a.load_state_dict(s['activeAtoms'][i], popsOnly=True)
-
-    #     for i, a in enumerate(ctx.lteAtoms):
-    #         a.load_state_dict(s['lteAtoms'][i], popsOnly=True)
-    #     return ctx
 
     def compute_rays(self, wavelengths=None, mus=None, stokes=False, refinePrd=False):
         state = deepcopy(self.state_dict())

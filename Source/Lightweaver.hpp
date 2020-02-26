@@ -335,7 +335,7 @@ struct Context
     Atmosphere* atmos;
     Spectrum* spect;
     std::vector<Atom*> activeAtoms;
-    std::vector<Atom*> lteAtoms;
+    std::vector<Atom*> detailedAtoms;
     Background* background;
     int Nthreads;
 };
@@ -390,7 +390,7 @@ namespace LwInternal
         FormalData* fd;
         Background* background;
         std::vector<Atom*>* activeAtoms;
-        std::vector<Atom*>* lteAtoms;
+        std::vector<Atom*>* detailedAtoms;
         F64Arr* JDag;
         F64View chiTot;
         F64View etaTot;
@@ -410,7 +410,7 @@ namespace LwInternal
         FormalDataStokes* fd;
         Background* background;
         std::vector<Atom*>* activeAtoms;
-        std::vector<Atom*>* lteAtoms;
+        std::vector<Atom*>* detailedAtoms;
         F64Arr* JDag;
         F64View2D chiTot;
         F64View2D etaTot;
