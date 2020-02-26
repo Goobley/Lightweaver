@@ -292,11 +292,11 @@ class AtomicLine(AtomicTransition):
     preserveWavelength: bool = False
 
     def __repr__(self):
-        s = 'AtomicLine(j=%d, i=%d, f=%e, type=%s, NlambdaGen=%d, qCore=%f, qWing=%f, vdw=%s, gRad=%e, stark=%f' % (
+        s = 'AtomicLine(j=%d, i=%d, f=%e, type=%s, NlambdaGen=%d, qCore=%f, qWing=%f, vdw=%s, gRad=%e, stark=%e' % (
                 self.j, self.i, self.f, repr(self.type), self.NlambdaGen, self.qCore, self.qWing, repr(self.vdw), 
                 self.gRad, self.stark)
         if self.gLandeEff is not None:
-            s += ', gLandeEff=%f' % self.gLandeEff
+            s += ', gLandeEff=%e' % self.gLandeEff
         s += ')'
         return s
 
@@ -337,11 +337,11 @@ class VoigtLine(AtomicLine):
             self.vdw.setup(self, atom.atomicTable)
 
     def __repr__(self):
-        s = 'VoigtLine(j=%d, i=%d, f=%e, type=%s, NlambdaGen=%d, qCore=%f, qWing=%f, vdw=%s, gRad=%e, stark=%f' % (
+        s = 'VoigtLine(j=%d, i=%d, f=%e, type=%s, NlambdaGen=%d, qCore=%f, qWing=%f, vdw=%s, gRad=%e, stark=%e' % (
                 self.j, self.i, self.f, repr(self.type), self.NlambdaGen, self.qCore, self.qWing, repr(self.vdw), 
                 self.gRad, self.stark)
         if self.gLandeEff is not None:
-            s += ', gLandeEff=%f' % self.gLandeEff
+            s += ', gLandeEff=%e' % self.gLandeEff
         s += ')'
         return s
 
