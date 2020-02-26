@@ -282,7 +282,7 @@ f64 formal_sol_prd_update_rates(Context& ctx, const std::vector<int>& wavelength
     return formal_sol_prd_update_rates(ctx, ConstView<i32>(wavelengthIdxs.data(), wavelengthIdxs.size()));
 }
 
-f64 redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
+PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
 {
     struct PrdData
     {
@@ -349,8 +349,7 @@ f64 redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
         ++iter;
     }
 
-    printf("PRD Iter: %d\n", iter);
-    return dRho;
+    return {iter, dRho};
 }
 
 void configure_hprd_coeffs(Context& ctx)

@@ -340,12 +340,18 @@ struct Context
     int Nthreads;
 };
 
+struct PrdIterData
+{
+    int iter;
+    f64 dRho;
+};
+
 f64 formal_sol_gamma_matrices(Context& ctx);
 f64 formal_sol_update_rates(Context& ctx);
 f64 formal_sol_update_rates_fixed_J(Context& ctx);
 f64 formal_sol(Context& ctx);
 f64 formal_sol_full_stokes(Context& ctx, bool updateJ=true);
-f64 redistribute_prd_lines(Context& ctx, int maxIter, f64 tol);
+PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol);
 void stat_eq(Atom* atom);
 void time_dependent_update(Atom* atomIn, F64View2D nOld, f64 dt);
 void planck_nu(long Nspace, double *T, double lambda, double *Bnu);

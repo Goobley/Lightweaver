@@ -178,6 +178,10 @@ cdef extern from "Lightweaver.hpp":
         vector[Atom*] activeAtoms
         vector[Atom*] lteAtoms
         Background* background
+    
+    cdef cppclass PrdIterData:
+        int iter
+        f64 dRho
 
     cdef f64 formal_sol_gamma_matrices(Context& ctx)
     cdef f64 formal_sol_update_rates(Context& ctx)
@@ -185,7 +189,7 @@ cdef extern from "Lightweaver.hpp":
     cdef f64 formal_sol(Context& ctx)
     cdef f64 formal_sol_full_stokes(Context& ctx)
     cdef f64 formal_sol_full_stokes(Context& ctx, bool_t updateJ)
-    cdef f64 redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
+    cdef PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
     cdef void stat_eq(Atom* atom) except +
     cdef void time_dependent_update(Atom* atomIn, F64View2D nOld, f64 dt) except +
     cdef void configure_hprd_coeffs(Context& ctx)
@@ -2127,8 +2131,8 @@ cdef class LwContext:
         return dJ
 
     def prd_redistribute(self, int maxIter=3, f64 tol=1e-2):
-        cdef f64 dRho = redistribute_prd_lines(self.ctx, maxIter, tol)
-        print('      PRD dRho = %.2e' % dRho)
+        cdef PrdIterData prdIter = redistribute_prd_lines(self.ctx, maxIter, tol)
+        print('      PRD dRho = %.2e, (sub-iterations: %d)' % (prdIter.dRho, prdIter.iter))
         return dRho
 
     def configure_hprd_coeffs(self):
