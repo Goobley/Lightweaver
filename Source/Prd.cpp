@@ -228,7 +228,7 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<i32> wavelengthIdxs)
 {
     using namespace LwInternal;
     JasUnpack(*ctx, atmos, spect, background);
-    JasUnpack(ctx, activeAtoms, lteAtoms);
+    JasUnpack(ctx, activeAtoms, detailedAtoms);
 
     const int Nspace = atmos.Nspace;
     const int Nrays = atmos.Nrays;
@@ -249,7 +249,7 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<i32> wavelengthIdxs)
     fd.I = I;
     IntensityCoreData iCore;
     JasPackPtr(iCore, atmos, spect, fd, background);
-    JasPackPtr(iCore, activeAtoms, lteAtoms, JDag);
+    JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
     JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
     JasPack(iCore, I, S, Ieff);
 
@@ -282,7 +282,7 @@ f64 formal_sol_prd_update_rates(Context& ctx, const std::vector<int>& wavelength
     return formal_sol_prd_update_rates(ctx, ConstView<i32>(wavelengthIdxs.data(), wavelengthIdxs.size()));
 }
 
-f64 redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
+PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
 {
     struct PrdData
     {
@@ -332,6 +332,7 @@ f64 redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
     F64Arr Pj(atmos.Nspace);
     while (iter < maxIter)
     {
+        ++iter;
         dRho = 0.0;
         for (auto& p : prdLines)
         {
@@ -345,12 +346,9 @@ f64 redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
 
         if (dRho < tol)
             break;
-
-        ++iter;
     }
 
-    printf("PRD Iter: %d\n", iter);
-    return dRho;
+    return {iter, dRho};
 }
 
 void configure_hprd_coeffs(Context& ctx)

@@ -378,7 +378,7 @@ void piecewise_bezier3_1d(FormalData* fd, int mu, bool toObs, f64 wav)
 
 bool continua_only(const IntensityCoreData& data, int la)
 {
-    JasUnpack(*data, activeAtoms, lteAtoms);
+    JasUnpack(*data, activeAtoms, detailedAtoms);
     bool continuaOnly = true;
     for (int a = 0; a < activeAtoms.size(); ++a)
     {
@@ -391,9 +391,9 @@ bool continua_only(const IntensityCoreData& data, int la)
             continuaOnly = continuaOnly && (t.type == CONTINUUM);
         }
     }
-    for (int a = 0; a < lteAtoms.size(); ++a)
+    for (int a = 0; a < detailedAtoms.size(); ++a)
     {
-        auto& atom = *lteAtoms[a];
+        auto& atom = *detailedAtoms[a];
         for (int kr = 0; kr < atom.Ntrans; ++kr)
         {
             auto& t = *atom.trans[kr];
@@ -407,7 +407,7 @@ bool continua_only(const IntensityCoreData& data, int la)
 
 void gather_opacity_emissivity(IntensityCoreData* data, bool computeOperator, int la, int mu, bool toObs)
 {
-    JasUnpack(*(*data), activeAtoms, lteAtoms);
+    JasUnpack(*(*data), activeAtoms, detailedAtoms);
     JasUnpack((*data), Uji, Vij, Vji, chiTot, etaTot);
     const int Nspace = data->atmos->Nspace;
 
@@ -442,9 +442,9 @@ void gather_opacity_emissivity(IntensityCoreData* data, bool computeOperator, in
             }
         }
     }
-    for (int a = 0; a < lteAtoms.size(); ++a)
+    for (int a = 0; a < detailedAtoms.size(); ++a)
     {
-        auto& atom = *lteAtoms[a];
+        auto& atom = *detailedAtoms[a];
         for (int kr = 0; kr < atom.Ntrans; ++kr)
         {
             auto& t = *atom.trans[kr];
@@ -468,7 +468,7 @@ void gather_opacity_emissivity(IntensityCoreData* data, bool computeOperator, in
 f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
 {
     JasUnpack(*data, atmos, spect, fd, background);
-    JasUnpack(*data, activeAtoms, lteAtoms, JDag);
+    JasUnpack(*data, activeAtoms, detailedAtoms, JDag);
     JasUnpack(data, chiTot, etaTot, Uji, Vij, Vji);
     JasUnpack(data, I, S, Ieff, PsiStar);
     const int Nspace = atmos.Nspace;
@@ -486,8 +486,8 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
 
     for (int a = 0; a < activeAtoms.size(); ++a)
         activeAtoms[a]->setup_wavelength(la);
-    for (int a = 0; a < lteAtoms.size(); ++a)
-        lteAtoms[a]->setup_wavelength(la);
+    for (int a = 0; a < detailedAtoms.size(); ++a)
+        detailedAtoms[a]->setup_wavelength(la);
 
     // NOTE(cmo): If we only have continua then opacity is angle independent
     const bool continuaOnly = continua_only(data, la);
@@ -585,9 +585,9 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
             }
             if (updateRates && !prdRatesOnly)
             {
-                for (int a = 0; a < lteAtoms.size(); ++a)
+                for (int a = 0; a < detailedAtoms.size(); ++a)
                 {
-                    auto& atom = *lteAtoms[a];
+                    auto& atom = *detailedAtoms[a];
 
                     for (int kr = 0; kr < atom.Ntrans; ++kr)
                     {
@@ -625,7 +625,7 @@ f64 formal_sol_gamma_matrices(Context& ctx)
 {
     // feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
     JasUnpack(*ctx, atmos, spect, background);
-    JasUnpack(ctx, activeAtoms, lteAtoms);
+    JasUnpack(ctx, activeAtoms, detailedAtoms);
 
     const int Nspace = atmos.Nspace;
     const int Nrays = atmos.Nrays;
@@ -651,7 +651,7 @@ f64 formal_sol_gamma_matrices(Context& ctx)
         fd.I = I;
         IntensityCoreData iCore;
         JasPackPtr(iCore, atmos, spect, fd, background);
-        JasPackPtr(iCore, activeAtoms, lteAtoms, JDag);
+        JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
         JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
         JasPack(iCore, I, S, Ieff, PsiStar);
 
@@ -662,7 +662,7 @@ f64 formal_sol_gamma_matrices(Context& ctx)
         {
             a->zero_rates();
         }
-        for (auto& a : lteAtoms)
+        for (auto& a : detailedAtoms)
         {
             a->zero_rates();
         }
@@ -710,7 +710,7 @@ f64 formal_sol_gamma_matrices(Context& ctx)
             {
                 a->zero_rates();
             }
-            for (auto& a : *core.lteAtoms)
+            for (auto& a : *core.detailedAtoms)
             {
                 a->zero_rates();
             }
@@ -727,7 +727,7 @@ f64 formal_sol_gamma_matrices(Context& ctx)
         {
             a->zero_rates();
         }
-        for (auto& a : lteAtoms)
+        for (auto& a : detailedAtoms)
         {
             a->zero_rates();
         }
@@ -759,7 +759,7 @@ f64 formal_sol_gamma_matrices(Context& ctx)
 f64 formal_sol_update_rates(Context& ctx)
 {
     JasUnpack(*ctx, atmos, spect, background);
-    JasUnpack(ctx, activeAtoms, lteAtoms);
+    JasUnpack(ctx, activeAtoms, detailedAtoms);
 
     const int Nspace = atmos.Nspace;
     const int Nrays = atmos.Nrays;
@@ -781,7 +781,7 @@ f64 formal_sol_update_rates(Context& ctx)
     fd.I = I;
     IntensityCoreData iCore;
     JasPackPtr(iCore, atmos, spect, fd, background);
-    JasPackPtr(iCore, activeAtoms, lteAtoms, JDag);
+    JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
     JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
     JasPack(iCore, I, S, Ieff);
 
@@ -792,7 +792,7 @@ f64 formal_sol_update_rates(Context& ctx)
     {
         a->zero_rates();
     }
-    for (auto& a : lteAtoms)
+    for (auto& a : detailedAtoms)
     {
         a->zero_rates();
     }
@@ -810,7 +810,7 @@ f64 formal_sol_update_rates(Context& ctx)
 f64 formal_sol_update_rates_fixed_J(Context& ctx)
 {
     JasUnpack(*ctx, atmos, spect, background);
-    JasUnpack(ctx, activeAtoms, lteAtoms);
+    JasUnpack(ctx, activeAtoms, detailedAtoms);
 
     const int Nspace = atmos.Nspace;
     const int Nrays = atmos.Nrays;
@@ -832,7 +832,7 @@ f64 formal_sol_update_rates_fixed_J(Context& ctx)
     fd.I = I;
     IntensityCoreData iCore;
     JasPackPtr(iCore, atmos, spect, fd, background);
-    JasPackPtr(iCore, activeAtoms, lteAtoms, JDag);
+    JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
     JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
     JasPack(iCore, I, S, Ieff);
 
@@ -840,7 +840,7 @@ f64 formal_sol_update_rates_fixed_J(Context& ctx)
     {
         a->zero_rates();
     }
-    for (auto& a : lteAtoms)
+    for (auto& a : detailedAtoms)
     {
         a->zero_rates();
     }
@@ -858,7 +858,7 @@ f64 formal_sol_update_rates_fixed_J(Context& ctx)
 f64 formal_sol(Context& ctx)
 {
     JasUnpack(*ctx, atmos, spect, background);
-    JasUnpack(ctx, activeAtoms, lteAtoms);
+    JasUnpack(ctx, activeAtoms, detailedAtoms);
 
     const int Nspace = atmos.Nspace;
     const int Nrays = atmos.Nrays;
@@ -880,7 +880,7 @@ f64 formal_sol(Context& ctx)
     fd.I = I;
     IntensityCoreData iCore;
     JasPackPtr(iCore, atmos, spect, fd, background);
-    JasPackPtr(iCore, activeAtoms, lteAtoms, JDag);
+    JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
     JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
     JasPack(iCore, I, S, Ieff);
 

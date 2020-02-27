@@ -38,7 +38,7 @@ class SpectrumConfiguration:
         lowerLevels: Dict[str, List[Set[int]]] = {}
 
         radSet = self.radSet
-        models = [m for m in (radSet.activeSet | radSet.detailedLteSet)]
+        models = [m for m in (radSet.activeSet | radSet.detailedStaticSet)]
         for atom in self.models:
             for l in atom.lines:
                 if l.wavelength[-1] < wavelengths[0]:
@@ -362,7 +362,7 @@ class RadiativeSet:
     atoms: List[AtomicModel]
     atomicTable: AtomicTable = field(default_factory=get_global_atomic_table)
     activeSet: Set[AtomicModel] = field(default_factory=set)
-    detailedLteSet: Set[AtomicModel] = field(default_factory=set)
+    detailedStaticSet: Set[AtomicModel] = field(default_factory=set)
     passiveSet: Set[AtomicModel] = field(init=False)
 
     def __post_init__(self):
@@ -389,9 +389,9 @@ class RadiativeSet:
             return self.atoms[self.atomicNames.index(name)] in self.passiveSet
         raise ValueError('Atom %s not present in RadiativeSet' % name)
 
-    def is_lte(self, name: str) -> bool:
+    def is_detailed(self, name: str) -> bool:
         if name in self.atomicNames:
-            return self.atoms[self.atomicNames.index(name)] in self.detailedLteSet
+            return self.atoms[self.atomicNames.index(name)] in self.detailedStaticSet
         raise ValueError('Atom %s not present in RadiativeSet' % name)
 
     @property
@@ -401,10 +401,10 @@ class RadiativeSet:
         return activeAtoms
 
     @property
-    def lteAtoms(self) -> List[AtomicModel]:
-        lteAtoms : List[AtomicModel] = [a for a in self.detailedLteSet]
-        lteAtoms = sorted(lteAtoms, key=atomic_weight_sort)
-        return lteAtoms
+    def detailedAtoms(self) -> List[AtomicModel]:
+        detailedAtoms : List[AtomicModel] = [a for a in self.detailedStaticSet]
+        detailedAtoms = sorted(detailedAtoms, key=atomic_weight_sort)
+        return detailedAtoms
 
     @property
     def passiveAtoms(self) -> List[AtomicModel]:
@@ -420,21 +420,21 @@ class RadiativeSet:
         return self.atoms[self.atomicNames.index(name)]
 
     def validate_sets(self):
-        if (self.activeSet | self.passiveSet | self.detailedLteSet) != set(self.atoms):
+        if (self.activeSet | self.passiveSet | self.detailedStaticSet) != set(self.atoms):
             raise ValueError('Problem with distribution of Atoms inside AtomicSet')
     
     def set_active(self, *args: str):
         names = set(args)
         for atomName in names:
             self.activeSet.add(self[atomName])
-            self.detailedLteSet.discard(self[atomName])
+            self.detailedStaticSet.discard(self[atomName])
             self.passiveSet.discard(self[atomName])
         self.validate_sets()
 
-    def set_detailed_lte(self, *args: str):
+    def set_detailed_static(self, *args: str):
         names = set(args)
         for atomName in names:
-            self.detailedLteSet.add(self[atomName])
+            self.detailedStaticSet.add(self[atomName])
             self.activeSet.discard(self[atomName])
             self.passiveSet.discard(self[atomName])
         self.validate_sets()
@@ -444,7 +444,7 @@ class RadiativeSet:
         for atomName in names:
             self.passiveSet.add(self[atomName])
             self.activeSet.discard(self[atomName])
-            self.detailedLteSet.discard(self[atomName])
+            self.detailedStaticSet.discard(self[atomName])
         self.validate_sets()
 
     def set_atomic_table(self, table: AtomicTable):
@@ -497,8 +497,8 @@ class RadiativeSet:
         return eqPops
 
     def compute_wavelength_grid(self, extraWavelengths: Optional[np.ndarray]=None, lambdaReference=500.0) -> SpectrumConfiguration:
-        if len(self.activeSet) == 0 and len(self.detailedLteSet) == 0:
-            raise ValueError('Need at least one atom active or in detailed LTE')
+        if len(self.activeSet) == 0 and len(self.detailedStaticSet) == 0:
+            raise ValueError('Need at least one atom active or in detailed calculation with static populations.')
         grids = []
         if extraWavelengths is not None:
             grids.append(extraWavelengths)
@@ -511,7 +511,7 @@ class RadiativeSet:
         upperLevels: Dict[str, List[Set[int]]] = {}
         lowerLevels: Dict[str, List[Set[int]]] = {}
 
-        for atom in (self.activeSet | self.detailedLteSet):
+        for atom in (self.activeSet | self.detailedStaticSet):
             models.append(atom)
             continuaPerAtom[atom.name] = []
             linesPerAtom[atom.name] = []
@@ -561,7 +561,7 @@ class RadiativeSet:
             activeLines.append([])
             activeContinua.append([])
             contributors.append([])
-            for atom in (self.activeSet | self.detailedLteSet):
+            for atom in (self.activeSet | self.detailedStaticSet):
                 continuaPerAtom[atom.name].append([])
                 linesPerAtom[atom.name].append([])
                 upperLevels[atom.name].append(set())

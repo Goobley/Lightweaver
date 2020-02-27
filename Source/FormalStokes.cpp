@@ -664,7 +664,7 @@ namespace GammaFsCores
 f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ)
 {
     JasUnpack(*data, atmos, spect, fd, background);
-    JasUnpack(*data, activeAtoms, lteAtoms, JDag);
+    JasUnpack(*data, activeAtoms, detailedAtoms, JDag);
     JasUnpack(data, chiTot, etaTot, Uji, Vij, Vji, I, S);
 
     const int Nspace = atmos.Nspace;
@@ -678,8 +678,8 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ)
 
     for (int a = 0; a < activeAtoms.size(); ++a)
         activeAtoms[a]->setup_wavelength(la);
-    for (int a = 0; a < lteAtoms.size(); ++a)
-        lteAtoms[a]->setup_wavelength(la);
+    for (int a = 0; a < detailedAtoms.size(); ++a)
+        detailedAtoms[a]->setup_wavelength(la);
 
     // NOTE(cmo): If we only have continua then opacity is angle independent
     bool continuaOnly = true;
@@ -694,9 +694,9 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ)
             continuaOnly = continuaOnly && (t.type == CONTINUUM);
         }
     }
-    for (int a = 0; a < lteAtoms.size(); ++a)
+    for (int a = 0; a < detailedAtoms.size(); ++a)
     {
-        auto& atom = *lteAtoms[a];
+        auto& atom = *detailedAtoms[a];
         for (int kr = 0; kr < atom.Ntrans; ++kr)
         {
             auto& t = *atom.trans[kr];
@@ -758,9 +758,9 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ)
                         }
                     }
                 }
-                for (int a = 0; a < lteAtoms.size(); ++a)
+                for (int a = 0; a < detailedAtoms.size(); ++a)
                 {
-                    auto& atom = *lteAtoms[a];
+                    auto& atom = *detailedAtoms[a];
                     for (int kr = 0; kr < atom.Ntrans; ++kr)
                     {
                         auto& t = *atom.trans[kr];
@@ -857,7 +857,7 @@ f64 formal_sol_full_stokes(Context& ctx, bool updateJ)
 {
     // feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
     JasUnpack(*ctx, atmos, spect, background);
-    JasUnpack(ctx, activeAtoms, lteAtoms);
+    JasUnpack(ctx, activeAtoms, detailedAtoms);
 
     if (!atmos.B)
         assert(false && "Magnetic field required");
@@ -886,7 +886,7 @@ f64 formal_sol_full_stokes(Context& ctx, bool updateJ)
     fd.fdIntens.I = fd.I(0);
     StokesCoreData core;
     JasPackPtr(core, atmos, spect, fd, background);
-    JasPackPtr(core, activeAtoms, lteAtoms, JDag);
+    JasPackPtr(core, activeAtoms, detailedAtoms, JDag);
     JasPack(core, chiTot, etaTot, Uji, Vij, Vji, I, S);
 
     f64 dJMax = 0.0;

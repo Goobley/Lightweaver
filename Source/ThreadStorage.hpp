@@ -171,7 +171,7 @@ struct IntensityCoreStorage
     F64Arr Ieff;
     F64Arr PsiStar;
     std::vector<Atom*> activeAtoms;
-    std::vector<Atom*> lteAtoms;
+    std::vector<Atom*> detailedAtoms;
 
     void set_Nspace(int Nspace)
     {
@@ -194,7 +194,7 @@ struct IntensityCoreFactory
     Spectrum* spect;
     Background* background;
     std::vector<AtomStorageFactory> activeAtoms;
-    std::vector<AtomStorageFactory> lteAtoms;
+    std::vector<AtomStorageFactory> detailedAtoms;
     std::vector<IntensityCoreStorage> arrayStorage;
     std::vector<FormalData> fdStorage;
 
@@ -206,9 +206,9 @@ struct IntensityCoreFactory
         for (auto a : ctx->activeAtoms)
             activeAtoms.emplace_back(AtomStorageFactory(a));
 
-        lteAtoms.reserve(ctx->lteAtoms.size());
-        for (auto a : ctx->lteAtoms)
-            lteAtoms.emplace_back(AtomStorageFactory(a));
+        detailedAtoms.reserve(ctx->detailedAtoms.size());
+        for (auto a : ctx->detailedAtoms)
+            detailedAtoms.emplace_back(AtomStorageFactory(a));
 
     }
 
@@ -247,10 +247,10 @@ struct IntensityCoreFactory
             as.activeAtoms.emplace_back(atom.copy_atom());
         iCore.activeAtoms = &as.activeAtoms;
         
-        as.lteAtoms.reserve(lteAtoms.size());
-        for (auto& atom : lteAtoms)
-            as.lteAtoms.emplace_back(atom.copy_atom());
-        iCore.lteAtoms = &as.lteAtoms;
+        as.detailedAtoms.reserve(detailedAtoms.size());
+        for (auto& atom : detailedAtoms)
+            as.detailedAtoms.emplace_back(atom.copy_atom());
+        iCore.detailedAtoms = &as.detailedAtoms;
 
         return iCore;
     }
