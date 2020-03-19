@@ -1819,7 +1819,7 @@ cdef class LwContext:
         if temperature or ne:
             self.eqPops.update_lte_atoms_Hmin_pops(self.arguments['atmos'], conserveCharge=self.conserveCharge, updateTotals=True)
 
-        if any([temperature, ne, vturb, vlos, background]):
+        if background and any([temperature, ne, vturb, vlos]):
             self.background.update_background(self.atmos)
 
     def time_dep_update(self, f64 dt, prevTimePops=None):
