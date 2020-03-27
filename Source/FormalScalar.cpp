@@ -130,6 +130,8 @@ void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
     // change that would really occur if these were flipped would be I(k) = ... -
     // w[1] * dS_uw, but really this is a holdover from when this was parabolic. May
     // adjust, but not really planning on using thisFS
+    // NOTE(cmo): This is the Auer & Paletou (1994) method, direction is due to
+    // integral along tau
 
     int dk = -1;
     int k_start = Ndep - 1;
@@ -695,11 +697,7 @@ f64 formal_sol_gamma_matrices(Context& ctx)
     }
     else
     {
-        std::vector<IntensityCoreData> cores;
-        cores.reserve(ctx.Nthreads);
-        IntensityCoreFactory coreFactory(&ctx);
-        for (int thread = 0; thread < ctx.Nthreads; ++thread)
-            cores.emplace_back(coreFactory.new_intensity_core(true));
+        auto& cores = ctx.threading.intensityCores;
 
         if (spect.JRest)
             spect.JRest.fill(0.0);
@@ -709,6 +707,7 @@ f64 formal_sol_gamma_matrices(Context& ctx)
             for (auto& a : *core.activeAtoms)
             {
                 a->zero_rates();
+                a->zero_Gamma();
             }
             for (auto& a : *core.detailedAtoms)
             {
@@ -716,24 +715,46 @@ f64 formal_sol_gamma_matrices(Context& ctx)
             }
         }
 
+        struct FsTaskData
+        {
+            IntensityCoreData& core;
+            f64 dJ;
+            i64 dJIdx;
+        };
+        FsTaskData* taskData = (FsTaskData*)malloc(ctx.Nthreads * sizeof(FsTaskData));
+        for (int t = 0; t < ctx.Nthreads; ++t)
+        {
+            taskData[t].core = cores[t];
+            taskData[t].dJ = 0.0;
+            taskData[t].dJIdx = 0;
+        }
+
+        auto fs_task = [](void* data, scheduler* s, 
+                          sched_task_partition p, sched_uint threadId)
+        {
+            auto& td = ((FsTaskData*)data)[threadId];
+            FsMode mode = (UpdateJ | UpdateRates);
+            for (i64 la = p.start; la < p.end; ++la)
+            {
+                f64 dJ = intensity_core(td.core, la, mode);
+                td.dJ = max_idx(td.dJ, dJ, td.dJIdx, la);
+            }
+        };
+
+        {
+            sched_task formalSolutions;
+            scheduler_add(&ctx.threading.sched, &formalSolutions, 
+                          fs_task, (void*)cores.data(), Nspect, 32);
+            scheduler_join(&ctx.threading.sched, &formalSolutions);
+        }
+
         f64 dJMax = 0.0;
-        FsMode mode = (UpdateJ | UpdateRates);
-        for (int la = 0; la < Nspect; ++la)
-        {
-            f64 dJ = intensity_core(cores[0], la, mode);
-            dJMax = max(dJ, dJMax);
-        }
-        for (auto& a : activeAtoms)
-        {
-            a->zero_rates();
-        }
-        for (auto& a : detailedAtoms)
-        {
-            a->zero_rates();
-        }
+        i64 maxIdx = 0;
+        for (int t = 0; t < ctx.Nthreads; ++t)
+            dJMax = max_idx(dJMax, taskData[t].dJ, maxIdx, taskData[t].dJIdx);
 
-        // TODO(cmo): Accumulate rates and Gamma onto the "true" atoms
 
+        ctx.threading.threadDataFactory.accumulate_Gamma_rates();
 
         for (int a = 0; a < activeAtoms.size(); ++a)
         {

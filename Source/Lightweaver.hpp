@@ -5,7 +5,10 @@
 #include "Constants.hpp"
 #include "Ng.hpp"
 #include "Faddeeva.hh"
+#include "ThreadStorage.hpp"
+#include "LwInternal.hpp"
 #include <complex>
+#include <vector>
 
 typedef View<bool> BoolView;
 typedef Arr<i8> BoolArr; //  Avoid the dreaded vector<bool>
@@ -328,6 +331,14 @@ struct Atom
         for (auto& t : trans)
             t->zero_rates();
     }
+
+    inline void zero_Gamma()
+    {
+        if (!Gamma)
+            return;
+
+        Gamma.fill(0.0);
+    }
 };
 
 struct Context
@@ -338,6 +349,37 @@ struct Context
     std::vector<Atom*> detailedAtoms;
     Background* background;
     int Nthreads;
+    LwInternal::ThreadData threading;
+
+    void initialise_threads()
+    {
+        threading.threadDataFactory.initialise(this);
+        if (Nthreads <= 1)
+            return;
+
+        if (threading.schedMemory)
+            assert(false && "Tried to re initialise_threads for a Context");
+
+        sched_size memNeeded;
+        scheduler_init(&threading.sched, &memNeeded, Nthreads, nullptr);
+        threading.schedMemory = calloc(memNeeded, 1);
+        scheduler_start(&threading.sched, threading.schedMemory);
+
+        threading.intensityCores.reserve(Nthreads);
+        for (int t = 0; t < Nthreads; ++t)
+        {
+            threading.intensityCores.emplace_back(threading.threadDataFactory.new_intensity_core(true));
+        }
+
+    }
+
+    void update_threads()
+    {
+        assert(false && "do me");
+        // NOTE(cmo): Can we use references on the scalars to get transparent update on the Atom "copies" per thread?
+        // It would end up being a derived type (extra pointers) -- unless we changed it everywhere and held the originals in cython...
+
+    }
 };
 
 struct PrdIterData
@@ -363,103 +405,6 @@ void gamma_matrices_escape_prob(Atom* a, Background& background,
                                 const Atmosphere& atmos);
 }
 
-namespace LwInternal
-{
-    struct FormalData
-    {
-        Atmosphere* atmos;
-        F64View chi;
-        F64View S;
-        F64View I;
-        F64View Psi;
-    };
-
-    struct FormalDataStokes
-    {
-        Atmosphere* atmos;
-        F64View2D chi;
-        F64View2D S;
-        F64View2D I;
-        FormalData fdIntens;
-    };
-
-    struct IntensityCoreData
-    {
-        Atmosphere* atmos;
-        Spectrum* spect;
-        FormalData* fd;
-        Background* background;
-        std::vector<Atom*>* activeAtoms;
-        std::vector<Atom*>* detailedAtoms;
-        F64Arr* JDag;
-        F64View chiTot;
-        F64View etaTot;
-        F64View Uji;
-        F64View Vij;
-        F64View Vji;
-        F64View I;
-        F64View S;
-        F64View Ieff;
-        F64View PsiStar;
-    };
-
-    struct StokesCoreData
-    {
-        Atmosphere* atmos;
-        Spectrum* spect;
-        FormalDataStokes* fd;
-        Background* background;
-        std::vector<Atom*>* activeAtoms;
-        std::vector<Atom*>* detailedAtoms;
-        F64Arr* JDag;
-        F64View2D chiTot;
-        F64View2D etaTot;
-        F64View Uji;
-        F64View Vij;
-        F64View Vji;
-        F64View2D I;
-        F64View2D S;
-    };
-
-    inline void w2(f64 dtau, f64* w)
-    {
-        f64 expdt;
-
-        if (dtau < 5.0E-4)
-        {
-            w[0] = dtau * (1.0 - 0.5 * dtau);
-            w[1] = square(dtau) * (0.5 - dtau / 3.0);
-        }
-        else if (dtau > 50.0)
-        {
-            w[1] = w[0] = 1.0;
-        }
-        else
-        {
-            expdt = exp(-dtau);
-            w[0] = 1.0 - expdt;
-            w[1] = w[0] - dtau * expdt;
-        }
-    }
-
-    enum FsMode : u32
-    {
-        FsOnly = 0,
-        UpdateJ = 1 << 0,
-        UpdateRates = 1 << 1,
-        PrdOnly = 1 << 2,
-    };
-    constexpr inline FsMode
-    operator|(FsMode a, FsMode b)
-    {
-        return static_cast<FsMode>(static_cast<u32>(a) | static_cast<u32>(b));
-    }
-
-    void piecewise_bezier3_1d(FormalData* fd, int mu, bool toObs, f64 wav);
-    void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int mu, bool toObs, f64 wav, bool polarisedFrequency);
-    f64 intensity_core(IntensityCoreData& data, int la, FsMode mode);
-
-}
 
 #else
 #endif
