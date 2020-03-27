@@ -5,7 +5,7 @@
 #include "CmoArray.hpp"
 #include "JasPP.hpp"
 #include "LwInternal.hpp"
-#include "sched.h"
+#include "TaskScheduler.h"
 #include <vector>
 
 struct Transition;
@@ -14,8 +14,12 @@ struct Context;
 struct Atmosphere;
 struct Background;
 struct Spectrum;
-struct FormalData;
-struct IntensityCoreData;
+
+// NOTE(cmo): Longer term, a requirement to pre-reserve isn't really the look I
+// want to go for, but we need to see how this stuff can all be allocated
+// monolithically. OTOH, is it ever going to be a problem to only set up for a
+// certain number of threads? A deque could be used for this... It's pointer
+// stable (avoid list at almost any cost urgh.)
 
 namespace LwInternal
 {
@@ -31,6 +35,7 @@ struct TransitionStorageFactory
     std::vector<Transition> tStorage;
     std::vector<TransitionStorage> arrayStorage;
     TransitionStorageFactory(Transition* t);
+    void reserve(int Nthreads);
     Transition* copy_transition();
     void accumulate_rates();
 };
@@ -54,6 +59,7 @@ struct AtomStorageFactory
     std::vector<TransitionStorageFactory> tStorage;
     std::vector<AtomStorage> arrayStorage;
     AtomStorageFactory(Atom* a, bool detail);
+    void reserve(int Nthreads);
     Atom* copy_atom();
     void accumulate_Gamma_rates();
 };
@@ -75,6 +81,7 @@ struct IntensityCoreStorage
 
     void set_Nspace(int Nspace)
     {
+        // NOTE(cmo): This function somehow clobbers the location of fd in IntensityCoreData[0]
         I = F64Arr(0.0, Nspace);
         S = F64Arr(0.0, Nspace);
         JDag = F64Arr(0.0, Nspace);

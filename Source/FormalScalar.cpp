@@ -717,14 +717,14 @@ f64 formal_sol_gamma_matrices(Context& ctx)
 
         struct FsTaskData
         {
-            IntensityCoreData& core;
+            IntensityCoreData* core;
             f64 dJ;
             i64 dJIdx;
         };
         FsTaskData* taskData = (FsTaskData*)malloc(ctx.Nthreads * sizeof(FsTaskData));
         for (int t = 0; t < ctx.Nthreads; ++t)
         {
-            taskData[t].core = cores[t];
+            taskData[t].core = &cores[t];
             taskData[t].dJ = 0.0;
             taskData[t].dJIdx = 0;
         }
@@ -736,7 +736,7 @@ f64 formal_sol_gamma_matrices(Context& ctx)
             FsMode mode = (UpdateJ | UpdateRates);
             for (i64 la = p.start; la < p.end; ++la)
             {
-                f64 dJ = intensity_core(td.core, la, mode);
+                f64 dJ = intensity_core(*td.core, la, mode);
                 td.dJ = max_idx(td.dJ, dJ, td.dJIdx, la);
             }
         };
@@ -744,7 +744,7 @@ f64 formal_sol_gamma_matrices(Context& ctx)
         {
             sched_task formalSolutions;
             scheduler_add(&ctx.threading.sched, &formalSolutions, 
-                          fs_task, (void*)cores.data(), Nspect, 32);
+                          fs_task, (void*)taskData, Nspect, 32);
             scheduler_join(&ctx.threading.sched, &formalSolutions);
         }
 

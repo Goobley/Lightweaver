@@ -7,6 +7,12 @@ namespace LwInternal
 TransitionStorageFactory::TransitionStorageFactory(Transition* t) : trans(t)
 {}
 
+void TransitionStorageFactory::reserve(int Nthreads)
+{
+    tStorage.reserve(Nthreads);
+    arrayStorage.reserve(Nthreads);
+}
+
 Transition* TransitionStorageFactory::copy_transition()
 {
     if (!trans)
@@ -32,6 +38,7 @@ Transition* TransitionStorageFactory::copy_transition()
         t->Qelast = trans->Qelast;
         t->aDamp = trans->aDamp;
         t->phi = trans->phi;
+        t->wphi = trans->wphi;
         t->phiQ = trans->phiQ;
         t->phiU = trans->phiU;
         t->phiV = trans->phiV;
@@ -81,8 +88,18 @@ AtomStorageFactory::AtomStorageFactory(Atom* a, bool detail)
     : atom(a),         
       detailedStatic(detail)
 {
+    tStorage.reserve(atom->trans.size());
     for (auto t : atom->trans)
         tStorage.emplace_back(TransitionStorageFactory(t));
+}
+
+void AtomStorageFactory::reserve(int Nthreads)
+{
+    aStorage.reserve(Nthreads);
+    tStorage.reserve(Nthreads);
+    arrayStorage.reserve(Nthreads);
+    for (auto& t : tStorage)
+        t.reserve(Nthreads);
 }
 
 Atom* AtomStorageFactory::copy_atom()
@@ -162,12 +179,21 @@ void IntensityCoreFactory::initialise(Context* context)
     bool detailedStatic = false;
     activeAtoms.reserve(ctx->activeAtoms.size());
     for (auto a : ctx->activeAtoms)
+    {
+        printf("Adding atom\n");
         activeAtoms.emplace_back(AtomStorageFactory(a, detailedStatic=false));
+        activeAtoms.back().reserve(ctx->Nthreads);
+    }
 
     detailedAtoms.reserve(ctx->detailedAtoms.size());
     for (auto a : ctx->detailedAtoms)
+    {
         detailedAtoms.emplace_back(AtomStorageFactory(a, detailedStatic=true));
+        detailedAtoms.back().reserve(ctx->Nthreads);
+    }
 
+    arrayStorage.reserve(ctx->Nthreads);
+    fdStorage.reserve(ctx->Nthreads);
 }
 
 IntensityCoreData IntensityCoreFactory::new_intensity_core(bool psiOperator)
@@ -177,16 +203,17 @@ IntensityCoreData IntensityCoreFactory::new_intensity_core(bool psiOperator)
     const int Nspace = atmos->Nspace;
     as.set_Nspace(Nspace);
     fdStorage.emplace_back(FormalData());
-    FormalData* fd = &fdStorage.back();
+    auto& fd = fdStorage.back();
 
     IntensityCoreData iCore;
-    JasPack(iCore, atmos, spect, fd, background);
-    fd->atmos = atmos;
-    fd->chi = as.chiTot;
-    fd->S = as.S;
-    fd->I = as.I;
+    JasPack(iCore, atmos, spect, background);
+    iCore.fd = &fd;
+    fd.atmos = atmos;
+    fd.chi = as.chiTot;
+    fd.S = as.S;
+    fd.I = as.I;
     if (psiOperator)
-        fd->Psi = as.PsiStar;
+        fd.Psi = as.PsiStar;
 
     iCore.JDag = &as.JDag;
     iCore.chiTot = as.chiTot;
@@ -202,7 +229,10 @@ IntensityCoreData IntensityCoreFactory::new_intensity_core(bool psiOperator)
 
     as.activeAtoms.reserve(activeAtoms.size());
     for (auto& atom : activeAtoms)
+    {
         as.activeAtoms.emplace_back(atom.copy_atom());
+        printf("Adding atom inner\n");
+    }
     iCore.activeAtoms = &as.activeAtoms;
     
     as.detailedAtoms.reserve(detailedAtoms.size());
