@@ -34,6 +34,8 @@ struct TransitionStorageFactory
     void erase(Transition* t);
     void accumulate_rates();
     void accumulate_rates(const std::vector<size_t>& indices);
+    void accumulate_prd_rates();
+    void accumulate_prd_rates(const std::vector<size_t>& indices);
 };
 
 struct AtomStorage
@@ -59,6 +61,8 @@ struct AtomStorageFactory
     void erase(Atom* atom);
     void accumulate_Gamma_rates();
     void accumulate_Gamma_rates(const std::vector<size_t>& indices);
+    void accumulate_prd_rates();
+    void accumulate_prd_rates(const std::vector<size_t>& indices);
 };
 
 struct IntensityCoreStorage
@@ -111,6 +115,8 @@ struct IntensityCoreFactory
     void erase(IntensityCoreData* core);
     void accumulate_Gamma_rates();
     void accumulate_Gamma_rates(const std::vector<size_t>& indices);
+    void accumulate_prd_rates();
+    void accumulate_prd_rates(const std::vector<size_t>& indices);
 };
 
 struct IterationCores
@@ -125,6 +131,7 @@ struct IterationCores
 
     void initialise(IntensityCoreFactory* fac, int Nthreads);
     void accumulate_Gamma_rates();
+    void accumulate_prd_rates();
 };
 
 

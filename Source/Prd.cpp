@@ -231,50 +231,116 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<i32> wavelengthIdxs)
     JasUnpack(ctx, activeAtoms, detailedAtoms);
 
     const int Nspace = atmos.Nspace;
-    const int Nrays = atmos.Nrays;
 
-    F64Arr chiTot = F64Arr(Nspace);
-    F64Arr etaTot = F64Arr(Nspace);
-    F64Arr S = F64Arr(Nspace);
-    F64Arr Uji = F64Arr(Nspace);
-    F64Arr Vij = F64Arr(Nspace);
-    F64Arr Vji = F64Arr(Nspace);
-    F64Arr I = F64Arr(Nspace);
-    F64Arr Ieff = F64Arr(Nspace);
-    F64Arr JDag = F64Arr(Nspace);
-    FormalData fd;
-    fd.atmos = &atmos;
-    fd.chi = chiTot;
-    fd.S = S;
-    fd.I = I;
-    IntensityCoreData iCore;
-    JasPackPtr(iCore, atmos, spect, fd, background);
-    JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
-    JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
-    JasPack(iCore, I, S, Ieff);
-
-    for (auto& a : activeAtoms)
+    if (ctx.Nthreads <= 1)
     {
-        for (auto& t : a->trans)
+        F64Arr chiTot = F64Arr(Nspace);
+        F64Arr etaTot = F64Arr(Nspace);
+        F64Arr S = F64Arr(Nspace);
+        F64Arr Uji = F64Arr(Nspace);
+        F64Arr Vij = F64Arr(Nspace);
+        F64Arr Vji = F64Arr(Nspace);
+        F64Arr I = F64Arr(Nspace);
+        F64Arr Ieff = F64Arr(Nspace);
+        F64Arr JDag = F64Arr(Nspace);
+        FormalData fd;
+        fd.atmos = &atmos;
+        fd.chi = chiTot;
+        fd.S = S;
+        fd.I = I;
+        IntensityCoreData iCore;
+        JasPackPtr(iCore, atmos, spect, fd, background);
+        JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
+        JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
+        JasPack(iCore, I, S, Ieff);
+
+        for (auto& a : activeAtoms)
         {
-            if (t->rhoPrd)
+            for (auto& t : a->trans)
             {
-                t->zero_rates();
+                if (t->rhoPrd)
+                {
+                    t->zero_rates();
+                }
             }
         }
+        if (spect.JRest)
+            spect.JRest.fill(0.0);
+
+        f64 dJMax = 0.0;
+
+        for (int i = 0; i < wavelengthIdxs.shape(0); ++i)
+        {
+            const f64 la = wavelengthIdxs(i);
+            f64 dJ = intensity_core(iCore, la, (FsMode::UpdateJ | FsMode::UpdateRates | FsMode::PrdOnly));
+            dJMax = max(dJ, dJMax);
+        }
+        return dJMax;
     }
-    if (spect.JRest)
-        spect.JRest.fill(0.0);
-
-    f64 dJMax = 0.0;
-
-    for (int i = 0; i < wavelengthIdxs.shape(0); ++i)
+    else
     {
-        const f64 la = wavelengthIdxs(i);
-        f64 dJ = intensity_core(iCore, la, (FsMode::UpdateJ | FsMode::UpdateRates | FsMode::PrdOnly));
-        dJMax = max(dJ, dJMax);
+        auto& cores = ctx.threading.intensityCores;
+        for (auto& core : cores.cores)
+        {
+            for (auto& a : *core->activeAtoms)
+            {
+                for (auto& t : a->trans)
+                {
+                    if (t->rhoPrd)
+                    {
+                        t->zero_rates();
+                    }
+                }
+            }
+        }
+        if (spect.JRest)
+            spect.JRest.fill(0.0);
+
+        struct FsTaskData
+        {
+            IntensityCoreData* core;
+            f64 dJ;
+            i64 dJIdx;
+            ConstView<i32> idxs;
+        };
+        FsTaskData* taskData = (FsTaskData*)malloc(ctx.Nthreads * sizeof(FsTaskData));
+        for (int t = 0; t < ctx.Nthreads; ++t)
+        {
+            taskData[t].core = cores.cores[t];
+            taskData[t].dJ = 0.0;
+            taskData[t].dJIdx = 0;
+            taskData[t].idxs = wavelengthIdxs;
+        }
+
+        auto fs_task = [](void* data, scheduler* s, 
+                          sched_task_partition p, sched_uint threadId)
+        {
+            auto& td = ((FsTaskData*)data)[threadId];
+            FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates 
+                           | FsMode::PrdOnly);
+            for (i64 la = p.start; la < p.end; ++la)
+            {
+                f64 dJ = intensity_core(*td.core, td.idxs(la), mode);
+                td.dJ = max_idx(td.dJ, dJ, td.dJIdx, la);
+            }
+        };
+
+        {
+            sched_task formalSolutions;
+            scheduler_add(&ctx.threading.sched, &formalSolutions, 
+                          fs_task, (void*)taskData, wavelengthIdxs.shape(0), 4);
+            scheduler_join(&ctx.threading.sched, &formalSolutions);
+        }
+
+        f64 dJMax = 0.0;
+        i64 maxIdx = 0;
+        for (int t = 0; t < ctx.Nthreads; ++t)
+            dJMax = max_idx(dJMax, taskData[t].dJ, maxIdx, taskData[t].dJIdx);
+
+
+        ctx.threading.intensityCores.accumulate_prd_rates();
+        return dJMax;
     }
-    return dJMax;
 }
 
 f64 formal_sol_prd_update_rates(Context& ctx, const std::vector<int>& wavelengthIdxs)
@@ -304,7 +370,6 @@ PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
         {
             if (t->rhoPrd)
             {
-                // t->zero_rates();
                 prdLines.emplace_back(PrdData(t, *a, Ng(0, 0, 0, t->rhoPrd.flatten())));
             }
         }
@@ -329,23 +394,86 @@ PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
 
     int iter = 0;
     f64 dRho = 0.0;
-    F64Arr Pj(atmos.Nspace);
-    while (iter < maxIter)
+    if (ctx.Nthreads <= 1)
     {
-        ++iter;
-        dRho = 0.0;
-        for (auto& p : prdLines)
+        F64Arr Pj(atmos.Nspace);
+        while (iter < maxIter)
         {
-            PrdCores::total_depop_rate(p.line, p.atom, Pj);
-            PrdCores::prd_scatter(p.line, Pj, p.atom, atmos, spect);
-            p.ng.accelerate(p.line->rhoPrd.flatten());
-            dRho = max(dRho, p.ng.max_change());
+            ++iter;
+            dRho = 0.0;
+            for (auto& p : prdLines)
+            {
+                PrdCores::total_depop_rate(p.line, p.atom, Pj);
+                PrdCores::prd_scatter(p.line, Pj, p.atom, atmos, spect);
+                p.ng.accelerate(p.line->rhoPrd.flatten());
+                dRho = max(dRho, p.ng.max_change());
+            }
+
+            formal_sol_prd_update_rates(ctx, idxsForFs);
+
+            if (dRho < tol)
+                break;
+        }
+    }
+    else
+    {
+        struct PrdTaskData
+        {
+            F64Arr Pj;
+            PrdData* line;
+            f64 dRho;
+            Atmosphere* atmos;
+            Spectrum* spect;
+        };
+        auto taskData = std::vector<PrdTaskData>(prdLines.size());
+        for (int i = 0; i < prdLines.size(); ++i)
+        {
+            auto& p = taskData[i];
+            p.Pj = F64Arr(atmos.Nspace);
+            p.line = &prdLines[i];
+            p.dRho = 0.0;
+            p.atmos = &atmos;
+            p.spect = &spect;
         }
 
-        formal_sol_prd_update_rates(ctx, idxsForFs);
+        auto prd_task = [](void* data, scheduler* s,
+                           sched_task_partition part, sched_uint threadId)
+        {
+            for (i64 lineIdx = part.start; lineIdx < part.end; ++lineIdx)
+            {
+                auto& td = ((PrdTaskData*)data)[lineIdx];
+                auto& p = *td.line;
+                PrdCores::total_depop_rate(p.line, p.atom, td.Pj);
+                PrdCores::prd_scatter(p.line, td.Pj, p.atom, *td.atmos, *td.spect);
+                p.ng.accelerate(p.line->rhoPrd.flatten());
+                td.dRho = max(td.dRho, p.ng.max_change());
+            }
+        };
 
-        if (dRho < tol)
-            break;
+        while (iter < maxIter)
+        {
+            ++iter;
+            dRho = 0.0;
+            for (auto& p : taskData)
+                p.dRho = 0.0;
+
+            {
+                sched_task prdScatter;
+                scheduler_add(&ctx.threading.sched, &prdScatter, prd_task, (void*)taskData.data(), prdLines.size(), 1);
+                scheduler_join(&ctx.threading.sched, &prdScatter);
+            }
+            
+            formal_sol_prd_update_rates(ctx, idxsForFs);
+
+            for (const auto& p : taskData)
+            {
+                dRho = max(dRho, p.dRho);
+            }
+
+            if (dRho < tol)
+                break;
+
+        }
     }
 
     return {iter, dRho};
@@ -401,27 +529,11 @@ void configure_hprd_coeffs(Context& ctx)
     }
 
 
-    // NOTE(cmo): We can't simply store the prd wavelengths and then only
-    // compute JRest from those. JRest can be only prdIdxs long, but we need to
-    // compute all of the contributors to each of these prdIdx.
-    // NOTE(cmo): This might be overcomplicating the problem. STiC is happy to
-    // only compute these terms for the prd idxs. But I worry if a high Doppler
-    // shift were to brind intensity into the prdLine region. I don't think it's
-    // massively likely, but 500km/s is 0.8nm @ 500nm, and I don't want the line
-    // wings missing Jbar that they should have.
-    // NOTE(cmo): Okay, I need to think about this one some more (note that in
-    // its current state, something is exploding, but that's neither here nor
-    // there in realm of design). Currently when we compute the udpated the J
-    // for use internal to the prd_scatter function, we only loop over the prd
-    // wavelengths. Therefore it wouldn't be consistent to add in contributions
-    // from outside that range. We would therefore have to extend the wavelength
-    // range over which the FS was being calculated to continue using this wider
-    // definition. I don't know if that's worthwhile, especially as, for the
-    // most part, PRD is making lines narrower rather than wider. i.e.
-    // conecentrating the intensity towards the core, which is where this method
-    // will be fine anyway. This is already an approximation, so it's probably
-    // best not to overcomplicate it
-
+    // NOTE(cmo): Rather than simply re-evaluating the rates over the wavelength
+    // grids of the PRD lines, in cases of medium-high Doppler shifts it is
+    // better to compute the FS over all wavelengths which scatter into the
+    // "rest" PRD grid. This sometimes seems to converge significantly better
+    // than the basic HPRD in these cases.
     auto check_lambda_scatter_into_prd_region = [&](int la)
     {
         constexpr f64 sign[] = {-1.0, 1.0};

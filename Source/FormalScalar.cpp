@@ -630,7 +630,6 @@ f64 formal_sol_gamma_matrices(Context& ctx)
     JasUnpack(ctx, activeAtoms, detailedAtoms);
 
     const int Nspace = atmos.Nspace;
-    const int Nrays = atmos.Nrays;
     const int Nspect = spect.wavelength.shape(0);
 
     if (ctx.Nthreads <= 1)
@@ -744,7 +743,7 @@ f64 formal_sol_gamma_matrices(Context& ctx)
         {
             sched_task formalSolutions;
             scheduler_add(&ctx.threading.sched, &formalSolutions, 
-                          fs_task, (void*)taskData, Nspect, 32);
+                          fs_task, (void*)taskData, Nspect, 4);
             scheduler_join(&ctx.threading.sched, &formalSolutions);
         }
 

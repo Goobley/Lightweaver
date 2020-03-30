@@ -83,6 +83,7 @@ void TransitionStorageFactory::erase(Transition* trans)
 void TransitionStorageFactory::accumulate_rates()
 {
     const int Nspace = trans->Rij.shape(0);
+    trans->zero_rates();
     for (const auto& t : tStorage)
     {
         for (int k = 0; k < Nspace; ++k)
@@ -96,6 +97,7 @@ void TransitionStorageFactory::accumulate_rates()
 void TransitionStorageFactory::accumulate_rates(const std::vector<size_t>& indices)
 {
     const int Nspace = trans->Rij.shape(0);
+    trans->zero_rates();
     for (auto i : indices)
     { 
         const auto& t = tStorage[i];
@@ -105,6 +107,22 @@ void TransitionStorageFactory::accumulate_rates(const std::vector<size_t>& indic
             trans->Rji(k) += t->Rji(k);
         }
     }
+}
+
+void TransitionStorageFactory::accumulate_prd_rates()
+{
+    if (!trans->rhoPrd)
+        return;
+
+    accumulate_rates();
+}
+
+void TransitionStorageFactory::accumulate_prd_rates(const std::vector<size_t>& indices)
+{
+    if (!trans->rhoPrd)
+        return;
+
+    accumulate_rates(indices);
 }
 
 AtomStorageFactory::AtomStorageFactory(Atom* a, bool detail) 
@@ -219,6 +237,18 @@ void AtomStorageFactory::accumulate_Gamma_rates(const std::vector<size_t>& indic
 
 }
 
+void AtomStorageFactory::accumulate_prd_rates()
+{
+    for (auto& t : tStorage)
+        t.accumulate_prd_rates();
+}
+
+void AtomStorageFactory::accumulate_prd_rates(const std::vector<size_t>& indices)
+{
+    for (auto& t : tStorage)
+        t.accumulate_prd_rates(indices);
+}
+
 void IntensityCoreFactory::initialise(Context* ctx)
 {
     atmos = ctx->atmos;
@@ -328,6 +358,18 @@ void IntensityCoreFactory::accumulate_Gamma_rates(const std::vector<size_t>& ind
         a.accumulate_Gamma_rates(indices);
 }
 
+void IntensityCoreFactory::accumulate_prd_rates()
+{
+    for (auto& a : activeAtoms)
+        a.accumulate_prd_rates();
+}
+
+void IntensityCoreFactory::accumulate_prd_rates(const std::vector<size_t>& indices)
+{
+    for (auto& a : activeAtoms)
+        a.accumulate_prd_rates(indices);
+}
+
 void IterationCores::initialise(IntensityCoreFactory* fac, int Nthreads)
 {
     factory = fac;
@@ -352,6 +394,11 @@ IterationCores::~IterationCores()
 void IterationCores::accumulate_Gamma_rates()
 {
     factory->accumulate_Gamma_rates(indices);
+}
+
+void IterationCores::accumulate_prd_rates()
+{
+    factory->accumulate_prd_rates(indices);
 }
 
 void ThreadData::initialise(Context* ctx)
