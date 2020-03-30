@@ -247,6 +247,14 @@ struct Array1Own
         }
     }
 
+    inline bool is_base_view(const Array1NonOwn<T>& view)
+    {
+        bool result = (Ndim == view.Ndim);
+        result = result && (dim0 == view.dim0);
+        result = result && (data() == view.data);
+        return result;
+    }
+
     inline const i64* shape() const
     {
         return &dim0;
@@ -603,10 +611,19 @@ struct Array2Own
     {
         return dim;
     }
+
     inline i64 shape(int i) const
     {
         assert(i >= 0 && i < Ndim);
         return dim[i];
+    }
+
+    inline bool is_base_view(const Array2NonOwn<T>& view)
+    {
+        bool result = (Ndim == view.Ndim);
+        result = result && (dim == view.dim);
+        result = result && (data() == view.data);
+        return result;
     }
 
     inline T& operator[](i64 i)
@@ -976,10 +993,19 @@ struct Array3Own
     {
         return dim;
     }
+
     inline i64 shape(int i) const
     {
         assert (i >= 0 && i < Ndim);
         return dim[i];
+    }
+
+    inline bool is_base_view(const Array3NonOwn<T>& view)
+    {
+        bool result = (Ndim == view.Ndim);
+        result = result && (dim == view.dim);
+        result = result && (data() == view.data);
+        return result;
     }
 
     inline T& operator[](i64 i)
@@ -1373,10 +1399,19 @@ struct Array4Own
     {
         return dim;
     }
+
     inline i64 shape(int i) const
     {
         assert(i >= 0 && i < Ndim);
         return dim[i];
+    }
+
+    inline bool is_base_view(const Array4NonOwn<T>& view)
+    {
+        bool result = (Ndim == view.Ndim);
+        result = result && (dim == view.dim);
+        result = result && (data() == view.data);
+        return result;
     }
 
     inline T& operator[](i64 i)
@@ -1788,10 +1823,19 @@ struct Array5Own
     {
         return dim;
     }
+
     inline i64 shape(int i) const
     {
         assert(i >= 0 && i < Ndim);
         return dim[i];
+    }
+
+    inline bool is_base_view(const Array5NonOwn<T>& view)
+    {
+        bool result = (Ndim == view.Ndim);
+        result = result && (dim == view.dim);
+        result = result && (data() == view.data);
+        return result;
     }
 
     inline T& operator[](i64 i)
