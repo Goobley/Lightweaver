@@ -5,21 +5,16 @@
 #include "CmoArray.hpp"
 #include "JasPP.hpp"
 #include "LwInternal.hpp"
+#include "LwTransition.hpp"
+#include "LwAtom.hpp"
 #include "TaskScheduler.h"
 #include <vector>
+#include <memory>
 
-struct Transition;
-struct Atom;
 struct Context;
 struct Atmosphere;
 struct Background;
 struct Spectrum;
-
-// NOTE(cmo): Longer term, a requirement to pre-reserve isn't really the look I
-// want to go for, but we need to see how this stuff can all be allocated
-// monolithically. OTOH, is it ever going to be a problem to only set up for a
-// certain number of threads? A deque could be used for this... It's pointer
-// stable (avoid list at almost any cost urgh.)
 
 namespace LwInternal
 {
@@ -27,17 +22,18 @@ struct TransitionStorage
 {
     F64Arr Rij;
     F64Arr Rji;
+    Transition trans;
 };
 
 struct TransitionStorageFactory
 {
     Transition* trans;
-    std::vector<Transition> tStorage;
-    std::vector<TransitionStorage> arrayStorage;
+    std::vector<std::unique_ptr<TransitionStorage>> tStorage;
     TransitionStorageFactory(Transition* t);
-    void reserve(int Nthreads);
     Transition* copy_transition();
+    void erase(Transition* t);
     void accumulate_rates();
+    void accumulate_rates(const std::vector<size_t>& indices);
 };
 
 struct AtomStorage
@@ -49,19 +45,20 @@ struct AtomStorage
     F64Arr2D V;
     F64Arr2D U;
     F64Arr2D chi;
+    Atom atom;
 };
 
 struct AtomStorageFactory
 {
     Atom* atom;
     bool detailedStatic;
-    std::vector<Atom> aStorage;
+    std::vector<std::unique_ptr<AtomStorage>> aStorage;
     std::vector<TransitionStorageFactory> tStorage;
-    std::vector<AtomStorage> arrayStorage;
     AtomStorageFactory(Atom* a, bool detail);
-    void reserve(int Nthreads);
     Atom* copy_atom();
+    void erase(Atom* atom);
     void accumulate_Gamma_rates();
+    void accumulate_Gamma_rates(const std::vector<size_t>& indices);
 };
 
 struct IntensityCoreStorage
@@ -78,42 +75,55 @@ struct IntensityCoreStorage
     F64Arr PsiStar;
     std::vector<Atom*> activeAtoms;
     std::vector<Atom*> detailedAtoms;
+    IntensityCoreData core;
+    FormalData formal;
 
-    void set_Nspace(int Nspace)
-    {
-        // NOTE(cmo): This function somehow clobbers the location of fd in IntensityCoreData[0]
-        I = F64Arr(0.0, Nspace);
-        S = F64Arr(0.0, Nspace);
-        JDag = F64Arr(0.0, Nspace);
-        chiTot = F64Arr(0.0, Nspace);
-        etaTot = F64Arr(0.0, Nspace);
-        Uji = F64Arr(0.0, Nspace);
-        Vij = F64Arr(0.0, Nspace);
-        Vji = F64Arr(0.0, Nspace);
-        Ieff = F64Arr(0.0, Nspace);
-        PsiStar = F64Arr(0.0, Nspace);
-    }
+    IntensityCoreStorage(int Nspace) 
+        : I(F64Arr(0.0, Nspace)),
+          S(F64Arr(0.0, Nspace)),
+          JDag(F64Arr(0.0, Nspace)),
+          chiTot(F64Arr(0.0, Nspace)),
+          etaTot(F64Arr(0.0, Nspace)),
+          Uji(F64Arr(0.0, Nspace)),
+          Vij(F64Arr(0.0, Nspace)),
+          Vji(F64Arr(0.0, Nspace)),
+          Ieff(F64Arr(0.0, Nspace)),
+          PsiStar(F64Arr(0.0, Nspace))
+    {}
 };
 
 struct IntensityCoreFactory
 {
-    Context* ctx;
     Atmosphere* atmos;
     Spectrum* spect;
     Background* background;
     std::vector<AtomStorageFactory> activeAtoms;
     std::vector<AtomStorageFactory> detailedAtoms;
-    std::vector<IntensityCoreStorage> arrayStorage;
-    std::vector<FormalData> fdStorage;
+    std::vector<std::unique_ptr<IntensityCoreStorage>> arrayStorage;
 
-    IntensityCoreFactory() : ctx(nullptr),
-                             atmos(nullptr), 
+    IntensityCoreFactory() : atmos(nullptr), 
                              spect(nullptr),
                              background(nullptr)
     {}
 
-    void initialise(Context* context);
-    IntensityCoreData new_intensity_core(bool psiOperator);
+    void initialise(Context* ctx);
+    IntensityCoreData* new_intensity_core(bool psiOperator);
+    void erase(IntensityCoreData* core);
+    void accumulate_Gamma_rates();
+    void accumulate_Gamma_rates(const std::vector<size_t>& indices);
+};
+
+struct IterationCores
+{
+    IntensityCoreFactory* factory;
+    std::vector<IntensityCoreData*> cores;
+    std::vector<size_t> indices;
+    IterationCores() : factory(nullptr),
+                       cores()
+    {};
+    ~IterationCores();
+
+    void initialise(IntensityCoreFactory* fac, int Nthreads);
     void accumulate_Gamma_rates();
 };
 
@@ -121,7 +131,7 @@ struct IntensityCoreFactory
 struct ThreadData
 {
     IntensityCoreFactory threadDataFactory;
-    std::vector<IntensityCoreData> intensityCores;
+    IterationCores intensityCores;
     scheduler sched;
     void* schedMemory;
 
@@ -129,6 +139,9 @@ struct ThreadData
                    sched(),
                    schedMemory(nullptr)
     {}
+
+
+    void initialise(Context* ctx);
 
     ~ThreadData()
     {

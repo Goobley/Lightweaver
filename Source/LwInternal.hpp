@@ -1,5 +1,5 @@
-#ifndef CMO_LWINTERNAL_HPP
-#define CMO_LWINTERNAL_HPP
+#ifndef CMO_LW_INTERNAL_HPP
+#define CMO_LW_INTERNAL_HPP
 #include "Constants.hpp"
 #include "CmoArray.hpp"
 #include <vector>

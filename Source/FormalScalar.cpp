@@ -702,14 +702,14 @@ f64 formal_sol_gamma_matrices(Context& ctx)
         if (spect.JRest)
             spect.JRest.fill(0.0);
 
-        for (auto& core : cores)
+        for (auto& core : cores.cores)
         {
-            for (auto& a : *core.activeAtoms)
+            for (auto& a : *core->activeAtoms)
             {
                 a->zero_rates();
                 a->zero_Gamma();
             }
-            for (auto& a : *core.detailedAtoms)
+            for (auto& a : *core->detailedAtoms)
             {
                 a->zero_rates();
             }
@@ -724,7 +724,7 @@ f64 formal_sol_gamma_matrices(Context& ctx)
         FsTaskData* taskData = (FsTaskData*)malloc(ctx.Nthreads * sizeof(FsTaskData));
         for (int t = 0; t < ctx.Nthreads; ++t)
         {
-            taskData[t].core = &cores[t];
+            taskData[t].core = cores.cores[t];
             taskData[t].dJ = 0.0;
             taskData[t].dJIdx = 0;
         }
@@ -754,7 +754,7 @@ f64 formal_sol_gamma_matrices(Context& ctx)
             dJMax = max_idx(dJMax, taskData[t].dJ, maxIdx, taskData[t].dJIdx);
 
 
-        ctx.threading.threadDataFactory.accumulate_Gamma_rates();
+        ctx.threading.intensityCores.accumulate_Gamma_rates();
 
         for (int a = 0; a < activeAtoms.size(); ++a)
         {
