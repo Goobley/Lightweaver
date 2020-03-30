@@ -1,6 +1,13 @@
 #include "Lightweaver.hpp"
 #include "Utils.hpp"
 
+#ifdef CMO_BASIC_PROFILE
+#include <chrono>
+using hrc = std::chrono::high_resolution_clock;
+using std::chrono::duration_cast;
+using std::chrono::nanoseconds;
+#endif
+
 namespace PrdCores
 {
 void total_depop_rate(const Transition* trans, const Atom& atom, F64View Pj)
@@ -417,6 +424,12 @@ PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
     }
     else
     {
+#ifdef CMO_BASIC_PROFILE
+        hrc::time_point startTimes[maxIter+1];
+        hrc::time_point midTimes[maxIter+1];
+        hrc::time_point endTimes[maxIter+1];
+#endif
+
         struct PrdTaskData
         {
             F64Arr Pj;
@@ -453,6 +466,9 @@ PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
         while (iter < maxIter)
         {
             ++iter;
+#ifdef CMO_BASIC_PROFILE
+            startTimes[iter-1] = hrc::now();
+#endif
             dRho = 0.0;
             for (auto& p : taskData)
                 p.dRho = 0.0;
@@ -462,6 +478,9 @@ PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
                 scheduler_add(&ctx.threading.sched, &prdScatter, prd_task, (void*)taskData.data(), prdLines.size(), 1);
                 scheduler_join(&ctx.threading.sched, &prdScatter);
             }
+#ifdef CMO_BASIC_PROFILE
+            midTimes[iter-1] = hrc::now();
+#endif
             
             formal_sol_prd_update_rates(ctx, idxsForFs);
 
@@ -469,11 +488,23 @@ PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
             {
                 dRho = max(dRho, p.dRho);
             }
+#ifdef CMO_BASIC_PROFILE
+            endTimes[iter-1] = hrc::now();
+#endif
 
             if (dRho < tol)
                 break;
 
         }
+
+#ifdef CMO_BASIC_PROFILE
+        for (int i = 0; i < iter+1; ++i)
+        {
+            int f = duration_cast<nanoseconds>(midTimes[i] - startTimes[i]).count();
+            int s = duration_cast<nanoseconds>(endTimes[i] - midTimes[i]).count();
+            printf("[PRD]  First: %d ns, Second: %d ns, Ratio: %.3e\n", f, s, (f64)f/(f64)s);
+        }
+#endif
     }
 
     return {iter, dRho};

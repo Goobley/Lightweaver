@@ -9,6 +9,13 @@
 #include <utility>
 #include <vector>
 #include <algorithm>
+#include <chrono>
+
+#ifdef CMO_BASIC_PROFILE
+using hrc = std::chrono::high_resolution_clock;
+using std::chrono::duration_cast;
+using std::chrono::nanoseconds;
+#endif
 
 using namespace LwInternal;
 
@@ -669,7 +676,7 @@ f64 formal_sol_gamma_matrices(Context& ctx)
         }
 
         f64 dJMax = 0.0;
-        FsMode mode = (UpdateJ | UpdateRates);
+        FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates);
         for (int la = 0; la < Nspect; ++la)
         {
             f64 dJ = intensity_core(iCore, la, mode);
@@ -696,6 +703,9 @@ f64 formal_sol_gamma_matrices(Context& ctx)
     }
     else
     {
+#ifdef CMO_BASIC_PROFILE
+        hrc::time_point startTime = hrc::now();
+#endif
         auto& cores = ctx.threading.intensityCores;
 
         if (spect.JRest)
@@ -713,6 +723,9 @@ f64 formal_sol_gamma_matrices(Context& ctx)
                 a->zero_rates();
             }
         }
+#ifdef CMO_BASIC_PROFILE
+        hrc::time_point preMidTime = hrc::now();
+#endif
 
         struct FsTaskData
         {
@@ -732,7 +745,7 @@ f64 formal_sol_gamma_matrices(Context& ctx)
                           sched_task_partition p, sched_uint threadId)
         {
             auto& td = ((FsTaskData*)data)[threadId];
-            FsMode mode = (UpdateJ | UpdateRates);
+            FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates);
             for (i64 la = p.start; la < p.end; ++la)
             {
                 f64 dJ = intensity_core(*td.core, la, mode);
@@ -746,6 +759,9 @@ f64 formal_sol_gamma_matrices(Context& ctx)
                           fs_task, (void*)taskData, Nspect, 4);
             scheduler_join(&ctx.threading.sched, &formalSolutions);
         }
+#ifdef CMO_BASIC_PROFILE
+        hrc::time_point midTime = hrc::now();
+#endif
 
         f64 dJMax = 0.0;
         i64 maxIdx = 0;
@@ -753,7 +769,7 @@ f64 formal_sol_gamma_matrices(Context& ctx)
             dJMax = max_idx(dJMax, taskData[t].dJ, maxIdx, taskData[t].dJIdx);
 
 
-        ctx.threading.intensityCores.accumulate_Gamma_rates();
+        ctx.threading.intensityCores.accumulate_Gamma_rates_parallel(ctx);
 
         for (int a = 0; a < activeAtoms.size(); ++a)
         {
@@ -772,6 +788,13 @@ f64 formal_sol_gamma_matrices(Context& ctx)
                 }
             }
         }
+#ifdef CMO_BASIC_PROFILE
+        hrc::time_point endTime = hrc::now();
+        int f = duration_cast<nanoseconds>(preMidTime - startTime).count();
+        int s = duration_cast<nanoseconds>(midTime - preMidTime).count();
+        int t = duration_cast<nanoseconds>(endTime - midTime).count();
+        printf("[FS]  First: %d ns, Second: %d ns, Third: %d ns, Ratio: %.3e\n", f, s, t, (f64)f/(f64)s);
+#endif
         return dJMax;
     }
 }

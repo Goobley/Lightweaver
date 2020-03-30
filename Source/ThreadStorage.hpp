@@ -63,6 +63,8 @@ struct AtomStorageFactory
     void accumulate_Gamma_rates(const std::vector<size_t>& indices);
     void accumulate_prd_rates();
     void accumulate_prd_rates(const std::vector<size_t>& indices);
+    void accumulate_Gamma_rates_parallel(scheduler* s);
+    void accumulate_Gamma_rates_parallel(scheduler* s, const std::vector<size_t>& indices);
 };
 
 struct IntensityCoreStorage
@@ -115,8 +117,11 @@ struct IntensityCoreFactory
     void erase(IntensityCoreData* core);
     void accumulate_Gamma_rates();
     void accumulate_Gamma_rates(const std::vector<size_t>& indices);
+    void accumulate_Gamma_rates(Context& ctx, const std::vector<size_t>& indices);
     void accumulate_prd_rates();
     void accumulate_prd_rates(const std::vector<size_t>& indices);
+    void accumulate_Gamma_rates_parallel(Context& ctx);
+    void accumulate_Gamma_rates_parallel(Context& ctx, const std::vector<size_t>& indices);
 };
 
 struct IterationCores
@@ -132,6 +137,7 @@ struct IterationCores
     void initialise(IntensityCoreFactory* fac, int Nthreads);
     void accumulate_Gamma_rates();
     void accumulate_prd_rates();
+    void accumulate_Gamma_rates_parallel(Context& ctx);
 };
 
 

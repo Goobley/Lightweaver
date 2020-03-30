@@ -234,6 +234,81 @@ void AtomStorageFactory::accumulate_Gamma_rates(const std::vector<size_t>& indic
                 for (int k = 0; k < atom->atmos->Nspace; ++k)
                     atom->Gamma(i, j, k) += a->Gamma(i, j, k);
     }
+}
+
+void AtomStorageFactory::accumulate_Gamma_rates_parallel(scheduler* s)
+{
+    const int Njobs = tStorage.size();
+    auto acc_task = [](void* userdata, scheduler* s,
+                     sched_task_partition p, sched_uint threadId)
+    {
+        for (int j = p.start; j < p.end; ++j)
+        {
+            auto& data = ((TransitionStorageFactory*)userdata)[j];
+            data.accumulate_rates();
+        }
+    };
+
+
+    {
+        sched_task accumulation;
+        scheduler_add(s, &accumulation, acc_task, (void*)tStorage.data(), Njobs, 1);
+        if (!detailedStatic)
+        {
+            for (auto& a : aStorage)
+            {
+                for (int i = 0; i < atom->Nlevel; ++i)
+                    for (int j = 0; j < atom->Nlevel; ++j)
+                        for (int k = 0; k < atom->atmos->Nspace; ++k)
+                            atom->Gamma(i, j, k) += a->Gamma(i, j, k);
+            }
+        }
+        scheduler_join(s, &accumulation);
+    }
+
+}
+
+void AtomStorageFactory::accumulate_Gamma_rates_parallel(scheduler* s, 
+                                                         const std::vector<size_t>& indices)
+{
+    struct AccData
+    {
+        TransitionStorageFactory* trans;
+        const std::vector<size_t>& indices;
+    };
+    const int Njobs = tStorage.size();
+    std::vector<AccData> taskData;
+    taskData.reserve(Njobs);
+    for (int j = 0; j < Njobs; ++j)
+        taskData.emplace_back(AccData{&tStorage[j], indices});
+
+    auto acc_task = [](void* userdata, scheduler* s,
+                     sched_task_partition p, sched_uint threadId)
+    {
+        for (int j = p.start; j < p.end; ++j)
+        {
+            auto& data = ((AccData*)userdata)[j];
+            data.trans->accumulate_rates(data.indices);
+        }
+    };
+
+
+    {
+        sched_task accumulation;
+        scheduler_add(s, &accumulation, acc_task, (void*)taskData.data(), Njobs, 1);
+        if (!detailedStatic)
+        {
+            for (auto& i : indices)
+            {
+                auto& a = aStorage[i];
+                for (int i = 0; i < atom->Nlevel; ++i)
+                    for (int j = 0; j < atom->Nlevel; ++j)
+                        for (int k = 0; k < atom->atmos->Nspace; ++k)
+                            atom->Gamma(i, j, k) += a->Gamma(i, j, k);
+            }
+        }
+        scheduler_join(s, &accumulation);
+    }
 
 }
 
@@ -358,6 +433,72 @@ void IntensityCoreFactory::accumulate_Gamma_rates(const std::vector<size_t>& ind
         a.accumulate_Gamma_rates(indices);
 }
 
+void IntensityCoreFactory::accumulate_Gamma_rates_parallel(Context& ctx)
+{
+    struct AccData
+    {
+        AtomStorageFactory* atom;
+    };
+    std::vector<AccData> taskData;
+    const int Njobs = activeAtoms.size() + detailedAtoms.size();
+    taskData.reserve(Njobs);
+    for (int j = 0; j < activeAtoms.size(); ++j)
+        taskData.emplace_back(AccData{&activeAtoms[j]});
+    for (int j = 0; j < detailedAtoms.size(); ++j)
+        taskData.emplace_back(AccData{&detailedAtoms[j]});
+
+    auto acc_task = [](void* userdata, scheduler* s,
+                       sched_task_partition p, sched_uint threadId)
+    {
+        for (i64 j = p.start; j < p.end; ++j)
+        {
+            auto& data = ((AccData*)userdata)[j];
+            data.atom->accumulate_Gamma_rates_parallel(s);
+        }
+    };
+
+    {
+        sched_task accumulation;
+        scheduler_add(&ctx.threading.sched, &accumulation, acc_task, 
+                      (void*)taskData.data(), Njobs, 1);
+        scheduler_join(&ctx.threading.sched, &accumulation);
+    }
+}
+
+void IntensityCoreFactory::accumulate_Gamma_rates_parallel(Context& ctx, 
+                                                           const std::vector<size_t>& indices)
+{
+    struct AccData
+    {
+        AtomStorageFactory* atom;
+        const std::vector<size_t>& indices;
+    };
+    std::vector<AccData> taskData;
+    const int Njobs = activeAtoms.size() + detailedAtoms.size();
+    taskData.reserve(Njobs);
+    for (int j = 0; j < activeAtoms.size(); ++j)
+        taskData.emplace_back(AccData{&activeAtoms[j], indices});
+    for (int j = 0; j < detailedAtoms.size(); ++j)
+        taskData.emplace_back(AccData{&detailedAtoms[j], indices});
+
+    auto acc_task = [](void* userdata, scheduler* s,
+                       sched_task_partition p, sched_uint threadId)
+    {
+        for (i64 j = p.start; j < p.end; ++j)
+        {
+            auto& data = ((AccData*)userdata)[j];
+            data.atom->accumulate_Gamma_rates_parallel(s, data.indices);
+        }
+    };
+
+    {
+        sched_task accumulation;
+        scheduler_add(&ctx.threading.sched, &accumulation, acc_task, 
+                      (void*)taskData.data(), Njobs, 1);
+        scheduler_join(&ctx.threading.sched, &accumulation);
+    }
+}
+
 void IntensityCoreFactory::accumulate_prd_rates()
 {
     for (auto& a : activeAtoms)
@@ -394,6 +535,11 @@ IterationCores::~IterationCores()
 void IterationCores::accumulate_Gamma_rates()
 {
     factory->accumulate_Gamma_rates(indices);
+}
+
+void IterationCores::accumulate_Gamma_rates_parallel(Context& ctx)
+{
+    factory->accumulate_Gamma_rates_parallel(ctx, indices);
 }
 
 void IterationCores::accumulate_prd_rates()
