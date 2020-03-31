@@ -17,15 +17,7 @@ class SpectrumConfiguration:
     transitions: List[Union[AtomicLine, AtomicContinuum]]
     models: List[AtomicModel]
     blueIdx: List[int]
-    # redIdx: List[int]
     activeSet: List[List[Union[AtomicLine, AtomicContinuum]]]
-    # activeLines: List[List[AtomicLine]]
-    # activeContinua: List[List[AtomicContinuum]]
-    # contributors: List[List[AtomicModel]]
-    # continuaPerAtom: Dict[str, List[List[AtomicContinuum]]]
-    # linesPerAtom: Dict[str, List[List[AtomicLine]]]
-    # lowerLevels: Dict[str, List[Set[int]]]
-    # upperLevels: Dict[str, List[Set[int]]]
 
     def subset_configuration(self, wavelengths, expandLineGridsNm=0.0) -> 'SpectrumConfiguration':
         Nblue = np.searchsorted(self.wavelength, wavelengths[0])
@@ -107,8 +99,8 @@ class SpectrumConfiguration:
                         lowerLevels[t.atom.name][-1].add(t.i)
 
 
-        return SpectrumConfiguration(radSet=radSet, wavelength=wavelengths, transitions=trans, models=activeAtoms, blueIdx=blueIdx, 
-                                     activeSet=activeSet)
+        return SpectrumConfiguration(radSet=radSet, wavelength=wavelengths, transitions=trans,
+                                     models=activeAtoms, blueIdx=blueIdx, activeSet=activeSet)
 
 
 
@@ -126,9 +118,6 @@ def lte_pops(atomicModel, atmos, nTotal, debye=True):
             for m in range(1, stage - atomicModel.levels[0].stage + 1):
                 nDebye[i] += Z
                 Z += 1
-    # print(atomicModel.name)
-    # print([l.stage for l in atomicModel.levels])
-    # print(nDebye)
 
     dEion = c2 * np.sqrt(atmos.ne / atmos.temperature)
     cNe_T = 0.5 * atmos.ne * (c1 / atmos.temperature)**1.5
@@ -148,8 +137,6 @@ def lte_pops(atomicModel, atmos, nTotal, debye=True):
         nst = gi0 * np.exp(-dE_kT)
         nStar[i, :] = nst
         nStar[i, :] /= cNe_T**dZ
-        # for m in range(1, dZ + 1):
-        #     nStar[i, :] /= cNe_T
         total += nStar[i]
 
     nStar[0] = nTotal / total
@@ -319,9 +306,7 @@ class SpeciesStateTable:
         key = self.molecularTable.indices[name]
         return self.molecularPops[key]
 
-    def update_lte_atoms_Hmin_pops(self, atmos: Atmosphere, conserveCharge=False, updateTotals=False):
-        maxIter = 1000
-        maxName = ''
+    def update_lte_atoms_Hmin_pops(self, atmos: Atmosphere, conserveCharge=False, updateTotals=False, maxIter=2000):
         if updateTotals:
             for atom in self.atomicPops:
                 atom.update_nTotal(atmos)
@@ -344,7 +329,6 @@ class SpeciesStateTable:
                     maxDiff = diff
                     maxName = atom.name
             atmos.ne[:] = ne
-            # print(maxDiff, maxName)
             if maxDiff < 1e-3:
                 print('LTE Iterations %d' % (i+1))
                 break
@@ -454,8 +438,7 @@ class RadiativeSet:
                 continue
             a.replace_atomic_table(self.atomicTable)
 
-    def iterate_lte_ne_eq_pops(self, mols: MolecularTable, atmos: Atmosphere):
-        maxIter = 500
+    def iterate_lte_ne_eq_pops(self, mols: MolecularTable, atmos: Atmosphere, maxIter=2000):
         prevNe = np.copy(atmos.ne)
         ne = np.copy(atmos.ne)
         for it in range(maxIter):
@@ -473,7 +456,6 @@ class RadiativeSet:
             atmos.ne[:] = ne
 
             relDiff = np.nanmax(np.abs(1.0 - prevNe / ne))
-            print(relDiff)
             maxRelDiff = np.nanmax(relDiff)
             if maxRelDiff < 1e-3:
                 print("Iterate LTE: %d iterations" % it)
