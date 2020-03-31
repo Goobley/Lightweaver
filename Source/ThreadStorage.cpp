@@ -1,5 +1,6 @@
 #include "ThreadStorage.hpp"
 #include "Lightweaver.hpp"
+#include <algorithm>
 
 namespace LwInternal
 {
@@ -170,8 +171,6 @@ Atom* AtomStorageFactory::copy_atom()
 
     as.Gamma = F64Arr3D(0.0, Nlevel, Nlevel, Nspace);
     a->Gamma = as.Gamma;
-    as.V = F64Arr2D(0.0, Nlevel, Nspace);
-    a->V = as.V;
     as.U = F64Arr2D(0.0, Nlevel, Nspace);
     a->U = as.U;
     as.eta = F64Arr(0.0, Nspace);

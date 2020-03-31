@@ -44,7 +44,6 @@ struct AtomStorage
     F64Arr eta;
     F64Arr2D gij;
     F64Arr2D wla;
-    F64Arr2D V;
     F64Arr2D U;
     F64Arr2D chi;
     Atom atom;

@@ -1,3 +1,4 @@
+#include "LwInternal.hpp"
 #include "Lightweaver.hpp"
 #include "Bezier.hpp"
 #include "JasPP.hpp"
@@ -18,6 +19,8 @@ using std::chrono::nanoseconds;
 #endif
 
 using namespace LwInternal;
+using LwInternal::FormalData;
+using LwInternal::IntensityCoreData;
 
 #ifdef __APPLE__
 // Public domain polyfill for feenableexcept on OS X
@@ -442,8 +445,6 @@ void gather_opacity_emissivity(IntensityCoreData* data, bool computeOperator, in
                     atom.chi(t.i, k) += chi;
                     atom.chi(t.j, k) -= chi;
                     atom.U(t.j, k) += Uji(k);
-                    atom.V(t.i, k) += Vij(k);
-                    atom.V(t.j, k) += Vji(k);
                 }
                 chiTot(k) += chi;
                 etaTot(k) += eta;

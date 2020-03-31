@@ -161,7 +161,6 @@ cdef extern from "Lightweaver.hpp":
         F64View eta
         F64View2D gij
         F64View2D wla
-        F64View2D V
         F64View2D U
         F64View2D chi
 
@@ -1228,7 +1227,6 @@ cdef class LwAtom:
     cdef f64[::1] eta
     cdef f64[:,::1] chi
     cdef f64[:,::1] U
-    cdef f64[:,::1] V
     cdef f64[:,::1] gij
     cdef f64[:,::1] wla
     cdef f64[::1] stages
@@ -1329,8 +1327,6 @@ cdef class LwAtom:
             self.atom.wla = f64_view_2(self.wla)
 
         if not self.detailed:
-            self.V = np.zeros((Nlevel, atmos.Nspace))
-            self.atom.V = f64_view_2(self.V)
             self.U = np.zeros((Nlevel, atmos.Nspace))
             self.atom.U = f64_view_2(self.U)
 
@@ -1379,14 +1375,12 @@ cdef class LwAtom:
         state['Ng'] = (self.atom.ng.Norder, self.atom.ng.Nperiod, self.atom.ng.Ndelay)
         if self.detailed:
             state['U'] = None
-            state['V'] = None
             state['eta'] = None
             state['chi'] = None
             state['Gamma'] = None
             state['C'] = None
         else:
             state['U'] = np.asarray(self.U)
-            state['V'] = np.asarray(self.V)
             state['eta'] = np.asarray(self.eta)
             state['chi'] = np.asarray(self.chi)
             state['Gamma'] = np.asarray(self.Gamma)
@@ -1436,8 +1430,6 @@ cdef class LwAtom:
             self.C = state['C']
             self.atom.C = f64_view_3(self.C)
 
-            self.V = state['V']
-            self.atom.V = f64_view_2(self.V)
             self.U = state['U']
             self.atom.U = f64_view_2(self.U)
 
