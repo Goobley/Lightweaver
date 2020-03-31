@@ -180,6 +180,7 @@ cdef extern from "Lightweaver.hpp":
         Background* background
         int Nthreads
         void initialise_threads()
+        void update_threads()
     
     cdef cppclass PrdIterData:
         int iter
@@ -530,9 +531,14 @@ cdef class LwBackground:
         self.sca = np.zeros((Nlambda, Nspace))
         self.bd.scatt = f64_view_2(self.sca)
 
+        # start = time.time()
         basic_background(&self.bd, &atmos.atmos)
+        # mid = time.time()
         self.rayleigh_scattering(atmos)
         self.bf_opacities(atmos)
+        # end = time.time()
+
+        # print("First: %.4e, Second: %.4e, Ratio: %.4e" % (mid - start, end - mid, ((mid-start)/(end-mid))))
 
         cdef int la, k
         for la in range(Nlambda):
@@ -1782,9 +1788,12 @@ cdef class LwContext:
     def Nthreads(self):
         return self.ctx.Nthreads
 
-    cpdef setup_threads(self, int Nthreads):
+    cdef setup_threads(self, int Nthreads):
         self.ctx.Nthreads = Nthreads
         self.ctx.initialise_threads()
+
+    cpdef update_threads(self):
+        self.ctx.update_threads()
 
     def compute_profiles(self, polarised=False):
         atoms = self.activeAtoms + self.detailedAtoms

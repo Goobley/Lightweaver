@@ -511,6 +511,16 @@ void IntensityCoreFactory::accumulate_prd_rates(const std::vector<size_t>& indic
         a.accumulate_prd_rates(indices);
 }
 
+void IntensityCoreFactory::clear()
+{
+    arrayStorage.clear();
+    detailedAtoms.clear();
+    activeAtoms.clear();
+    atmos = nullptr;
+    spect = nullptr;
+    background = nullptr;
+}
+
 void IterationCores::initialise(IntensityCoreFactory* fac, int Nthreads)
 {
     factory = fac;
@@ -547,6 +557,13 @@ void IterationCores::accumulate_prd_rates()
     factory->accumulate_prd_rates(indices);
 }
 
+void IterationCores::clear()
+{
+    cores.clear();
+    indices.clear();
+    factory = nullptr;
+}
+
 void ThreadData::initialise(Context* ctx)
 {
     threadDataFactory.initialise(ctx);
@@ -562,6 +579,18 @@ void ThreadData::initialise(Context* ctx)
     scheduler_start(&sched, schedMemory);
 
     intensityCores.initialise(&threadDataFactory, ctx->Nthreads);
+}
+
+void ThreadData::clear()
+{
+    if (schedMemory)
+    {
+        scheduler_stop(&sched, 1);
+        free(schedMemory);
+        schedMemory = nullptr;
+    }
+    intensityCores.clear();
+    threadDataFactory.clear();
 }
 
 }

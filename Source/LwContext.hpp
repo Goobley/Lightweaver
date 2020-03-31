@@ -25,10 +25,8 @@ struct Context
 
     void update_threads()
     {
-        assert(false && "do me");
-        // NOTE(cmo): Can we use references on the scalars to get transparent update on the Atom "copies" per thread?
-        // It would end up being a derived type (extra pointers) -- unless we changed it everywhere and held the originals in cython...
-
+        threading.clear();
+        threading.initialise(this);
     }
 };
 

@@ -122,6 +122,7 @@ struct IntensityCoreFactory
     void accumulate_prd_rates(const std::vector<size_t>& indices);
     void accumulate_Gamma_rates_parallel(Context& ctx);
     void accumulate_Gamma_rates_parallel(Context& ctx, const std::vector<size_t>& indices);
+    void clear();
 };
 
 struct IterationCores
@@ -138,6 +139,7 @@ struct IterationCores
     void accumulate_Gamma_rates();
     void accumulate_prd_rates();
     void accumulate_Gamma_rates_parallel(Context& ctx);
+    void clear();
 };
 
 
@@ -155,6 +157,7 @@ struct ThreadData
 
 
     void initialise(Context* ctx);
+    void clear();
 
     ~ThreadData()
     {
@@ -162,6 +165,7 @@ struct ThreadData
         {
             scheduler_stop(&sched, 1);
             free(schedMemory);
+            schedMemory = nullptr;
         }
     }
 };
