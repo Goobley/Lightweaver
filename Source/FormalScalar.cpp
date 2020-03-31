@@ -9,6 +9,13 @@
 #include <utility>
 #include <vector>
 #include <algorithm>
+#include <chrono>
+
+#ifdef CMO_BASIC_PROFILE
+using hrc = std::chrono::high_resolution_clock;
+using std::chrono::duration_cast;
+using std::chrono::nanoseconds;
+#endif
 
 using namespace LwInternal;
 
@@ -130,6 +137,8 @@ void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
     // change that would really occur if these were flipped would be I(k) = ... -
     // w[1] * dS_uw, but really this is a holdover from when this was parabolic. May
     // adjust, but not really planning on using thisFS
+    // NOTE(cmo): This is the Auer & Paletou (1994) method, direction is due to
+    // integral along tau
 
     int dk = -1;
     int k_start = Ndep - 1;
@@ -628,7 +637,6 @@ f64 formal_sol_gamma_matrices(Context& ctx)
     JasUnpack(ctx, activeAtoms, detailedAtoms);
 
     const int Nspace = atmos.Nspace;
-    const int Nrays = atmos.Nrays;
     const int Nspect = spect.wavelength.shape(0);
 
     if (ctx.Nthreads <= 1)
@@ -668,7 +676,7 @@ f64 formal_sol_gamma_matrices(Context& ctx)
         }
 
         f64 dJMax = 0.0;
-        FsMode mode = (UpdateJ | UpdateRates);
+        FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates);
         for (int la = 0; la < Nspect; ++la)
         {
             f64 dJ = intensity_core(iCore, la, mode);
@@ -695,45 +703,73 @@ f64 formal_sol_gamma_matrices(Context& ctx)
     }
     else
     {
-        std::vector<IntensityCoreData> cores;
-        cores.reserve(ctx.Nthreads);
-        IntensityCoreFactory coreFactory(&ctx);
-        for (int thread = 0; thread < ctx.Nthreads; ++thread)
-            cores.emplace_back(coreFactory.new_intensity_core(true));
+#ifdef CMO_BASIC_PROFILE
+        hrc::time_point startTime = hrc::now();
+#endif
+        auto& cores = ctx.threading.intensityCores;
 
         if (spect.JRest)
             spect.JRest.fill(0.0);
 
-        for (auto& core : cores)
+        for (auto& core : cores.cores)
         {
-            for (auto& a : *core.activeAtoms)
+            for (auto& a : *core->activeAtoms)
             {
                 a->zero_rates();
+                a->zero_Gamma();
             }
-            for (auto& a : *core.detailedAtoms)
+            for (auto& a : *core->detailedAtoms)
             {
                 a->zero_rates();
             }
         }
+#ifdef CMO_BASIC_PROFILE
+        hrc::time_point preMidTime = hrc::now();
+#endif
+
+        struct FsTaskData
+        {
+            IntensityCoreData* core;
+            f64 dJ;
+            i64 dJIdx;
+        };
+        FsTaskData* taskData = (FsTaskData*)malloc(ctx.Nthreads * sizeof(FsTaskData));
+        for (int t = 0; t < ctx.Nthreads; ++t)
+        {
+            taskData[t].core = cores.cores[t];
+            taskData[t].dJ = 0.0;
+            taskData[t].dJIdx = 0;
+        }
+
+        auto fs_task = [](void* data, scheduler* s, 
+                          sched_task_partition p, sched_uint threadId)
+        {
+            auto& td = ((FsTaskData*)data)[threadId];
+            FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates);
+            for (i64 la = p.start; la < p.end; ++la)
+            {
+                f64 dJ = intensity_core(*td.core, la, mode);
+                td.dJ = max_idx(td.dJ, dJ, td.dJIdx, la);
+            }
+        };
+
+        {
+            sched_task formalSolutions;
+            scheduler_add(&ctx.threading.sched, &formalSolutions, 
+                          fs_task, (void*)taskData, Nspect, 4);
+            scheduler_join(&ctx.threading.sched, &formalSolutions);
+        }
+#ifdef CMO_BASIC_PROFILE
+        hrc::time_point midTime = hrc::now();
+#endif
 
         f64 dJMax = 0.0;
-        FsMode mode = (UpdateJ | UpdateRates);
-        for (int la = 0; la < Nspect; ++la)
-        {
-            f64 dJ = intensity_core(cores[0], la, mode);
-            dJMax = max(dJ, dJMax);
-        }
-        for (auto& a : activeAtoms)
-        {
-            a->zero_rates();
-        }
-        for (auto& a : detailedAtoms)
-        {
-            a->zero_rates();
-        }
+        i64 maxIdx = 0;
+        for (int t = 0; t < ctx.Nthreads; ++t)
+            dJMax = max_idx(dJMax, taskData[t].dJ, maxIdx, taskData[t].dJIdx);
 
-        // TODO(cmo): Accumulate rates and Gamma onto the "true" atoms
 
+        ctx.threading.intensityCores.accumulate_Gamma_rates_parallel(ctx);
 
         for (int a = 0; a < activeAtoms.size(); ++a)
         {
@@ -752,6 +788,13 @@ f64 formal_sol_gamma_matrices(Context& ctx)
                 }
             }
         }
+#ifdef CMO_BASIC_PROFILE
+        hrc::time_point endTime = hrc::now();
+        int f = duration_cast<nanoseconds>(preMidTime - startTime).count();
+        int s = duration_cast<nanoseconds>(midTime - preMidTime).count();
+        int t = duration_cast<nanoseconds>(endTime - midTime).count();
+        printf("[FS]  First: %d ns, Second: %d ns, Third: %d ns, Ratio: %.3e\n", f, s, t, (f64)f/(f64)s);
+#endif
         return dJMax;
     }
 }

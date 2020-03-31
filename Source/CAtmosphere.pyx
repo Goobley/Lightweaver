@@ -178,6 +178,9 @@ cdef extern from "Lightweaver.hpp":
         vector[Atom*] activeAtoms
         vector[Atom*] detailedAtoms
         Background* background
+        int Nthreads
+        void initialise_threads()
+        void update_threads()
     
     cdef cppclass PrdIterData:
         int iter
@@ -528,9 +531,14 @@ cdef class LwBackground:
         self.sca = np.zeros((Nlambda, Nspace))
         self.bd.scatt = f64_view_2(self.sca)
 
+        # start = time.time()
         basic_background(&self.bd, &atmos.atmos)
+        # mid = time.time()
         self.rayleigh_scattering(atmos)
         self.bf_opacities(atmos)
+        # end = time.time()
+
+        # print("First: %.4e, Second: %.4e, Ratio: %.4e" % (mid - start, end - mid, ((mid-start)/(end-mid))))
 
         cdef int la, k
         for la in range(Nlambda):
@@ -1671,8 +1679,8 @@ cdef class LwContext:
     cdef object crswCallback
     cdef public object crswDone
 
-    def __init__(self, atmos, spect, eqPops, ngOptions=None, initSol=None, conserveCharge=False, hprd=False, crswCallback=None):
-        self.arguments = {'atmos': atmos, 'spect': spect, 'eqPops': eqPops, 'ngOptions': ngOptions, 'initSol': initSol, 'conserveCharge': conserveCharge, 'hprd': hprd}
+    def __init__(self, atmos, spect, eqPops, ngOptions=None, initSol=None, conserveCharge=False, hprd=False, crswCallback=None, Nthreads=1):
+        self.arguments = {'atmos': atmos, 'spect': spect, 'eqPops': eqPops, 'ngOptions': ngOptions, 'initSol': initSol, 'conserveCharge': conserveCharge, 'hprd': hprd, 'Nthreads': Nthreads}
 
         self.atmos = LwAtmosphere(atmos)
         self.spect = LwSpectrum(spect.wavelength, atmos.Nrays, atmos.Nspace)
@@ -1707,6 +1715,8 @@ cdef class LwContext:
         else:
             self.crswCallback = crswCallback
             self.crswDone = False
+
+        self.setup_threads(Nthreads)
         
     def __getstate__(self):
         state = {}
@@ -1771,6 +1781,19 @@ cdef class LwContext:
 
         if self.hprd:
             self.configure_hprd_coeffs()
+
+        self.setup_threads(state['arguments']['Nthreads'])
+
+    @property
+    def Nthreads(self):
+        return self.ctx.Nthreads
+
+    cdef setup_threads(self, int Nthreads):
+        self.ctx.Nthreads = Nthreads
+        self.ctx.initialise_threads()
+
+    cpdef update_threads(self):
+        self.ctx.update_threads()
 
     def compute_profiles(self, polarised=False):
         atoms = self.activeAtoms + self.detailedAtoms
