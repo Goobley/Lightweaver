@@ -21,7 +21,6 @@ struct Atom
     F64View eta;
     F64View2D gij;
     F64View2D wla;
-    F64View2D V;
     F64View2D U;
     F64View2D chi;
 
@@ -85,7 +84,6 @@ struct Atom
     inline void zero_angle_dependent_vars()
     {
         eta.fill(0.0);
-        V.fill(0.0);
         U.fill(0.0);
         chi.fill(0.0);
     }
