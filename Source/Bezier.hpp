@@ -39,17 +39,17 @@ inline f64 cent_deriv(f64 dsuw, f64 dsdw, f64 yuw, f64 y0, f64 ydw)
 }
 #endif
 
-inline void cent_deriv(f64 wprime[4][4], f64 dsup, f64 dsdn, f64 chiup[4][4], f64 chic[4][4], f64 chidn[4][4])
+inline void cent_deriv(F64View2D& wprime, f64 dsup, f64 dsdn, const F64View2D& chiup, const F64View2D& chic, const F64View2D& chidn)
 {
     for (int j = 0; j < 4; j++)
         for (int i = 0; i < 4; i++)
-            wprime[j][i] = cent_deriv(dsup, dsdn, chiup[j][i], chic[j][i], chidn[j][i]);
+            wprime(j, i) = cent_deriv(dsup, dsdn, chiup(j, i), chic(j, i), chidn(j, i));
 }
 
-inline void cent_deriv(f64 wprime[4], f64 dsup, f64 dsdn, f64 chiup[4], f64 chic[4], f64 chidn[4])
+inline void cent_deriv(F64View& wprime, f64 dsup, f64 dsdn, const F64View& chiup, const F64View& chic, const F64View& chidn)
 {
     for (int i = 0; i < 4; i++)
-        wprime[i] = cent_deriv(dsup, dsdn, chiup[i], chic[i], chidn[i]);
+        wprime(i) = cent_deriv(dsup, dsdn, chiup(i), chic(i), chidn(i));
 }
 
 inline void Bezier3_coeffs(f64 dt, f64* alpha, f64* beta, f64* gamma, f64* delta, f64* edt)

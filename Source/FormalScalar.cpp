@@ -277,7 +277,7 @@ void piecewise_bezier3_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
     };
     f64 dtau_dw = 0.0;
     auto dS_central
-        = [&dtau_uw, &dtau_dw, &S, &k, dk] { return Bezier::cent_deriv(dtau_uw, dtau_dw, S(k - dk), S(k), S(k + dk)); };
+        = [&dtau_uw, &dtau_dw, &S, &k, dk] () { return Bezier::cent_deriv(dtau_uw, dtau_dw, S(k - dk), S(k), S(k + dk)); };
 
     for (; k != k_end - dk; k += dk)
     {

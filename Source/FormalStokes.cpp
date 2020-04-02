@@ -282,64 +282,62 @@ bool gluInvertMatrix(const double m[16], double invOut[16])
     return true;
 }
 
-void stokes_K(int k, const F64View2D& chi, f64 chiI, f64 K[4][4])
+void stokes_K(int k, const F64View2D& chi, f64 chiI, F64View2D& K)
 {
-    for (int j = 0; j < 4; ++j)
-        for (int i = 0; i < 4; ++i)
-            K[j][i] = 0.0;
-    K[0][1] = chi(1, k);
-    K[0][2] = chi(2, k);
-    K[0][3] = chi(3, k);
+    K.fill(0.0);
+    K(0, 1) = chi(1, k);
+    K(0, 2) = chi(2, k);
+    K(0, 3) = chi(3, k);
 
-    K[1][2] = chi(6, k);
-    K[1][3] = chi(5, k);
-    K[2][3] = chi(4, k);
+    K(1, 2) = chi(6, k);
+    K(1, 3) = chi(5, k);
+    K(2, 3) = chi(4, k);
 
     for (int j = 0; j < 3; ++j)
     {
         for (int i = j + 1; i < 4; ++i)
         {
-            K[j][i] /= chiI;
-            K[i][j] = K[j][i];
+            K(j, i) /= chiI;
+            K(i, j) = K(j, i);
         }
     }
 
-    K[1][3] *= -1.0;
-    K[2][1] *= -1.0;
-    K[3][2] *= -1.0;
+    K(1, 3) *= -1.0;
+    K(2, 1) *= -1.0;
+    K(3, 2) *= -1.0;
 }
 
-inline void prod(f64 a[4][4], f64 b[4][4], f64 c[4][4])
+inline void prod(const F64View2D& a, const F64View2D& b, F64View2D& c)
 {
-    for (int j = 0; j < 4; ++j)
-        for (int i = 0; i < 4; ++i)
-            c[j][i] = 0.0;
+    c.fill(0.0);
 
     for (int j = 0; j < 4; ++j)
         for (int i = 0; i < 4; ++i)
             for (int k = 0; k < 4; ++k)
-                c[j][i] += a[k][i] * b[j][k];
+                c(j, i) += a(k, i) * b(j, k);
 }
 
-inline void prod(f64 a[4][4], f64 b[4], f64 c[4])
+inline void prod(const F64View2D& a, const F64View& b, F64View& c)
 {
-    for (int i = 0; i < 4; ++i)
-        c[i] = 0.0;
+    c.fill(0.0);
 
     for (int i = 0; i < 4; ++i)
         for (int k = 0; k < 4; ++k)
-            c[i] += a[i][k] * b[k];
+            c(i) += a(i, k) * b(k);
 }
 
-inline void prod(f32 a[4][4], f64 b[4], f64 c[4])
-{
-    for (int i = 0; i < 4; ++i)
-        c[i] = 0.0;
+// inline void prod(f32 a[4][4], f64 b[4], f64 c[4])
+// {
+//     for (int i = 0; i < 4; ++i)
+//         c[i] = 0.0;
 
-    for (int i = 0; i < 4; ++i)
-        for (int k = 0; k < 4; ++k)
-            c[i] += f64(a[i][k]) * b[k];
-}
+//     for (int i = 0; i < 4; ++i)
+//         for (int k = 0; k < 4; ++k)
+//             c[i] += f64(a[i][k]) * b[k];
+// }
+
+#define StackStoredView2D(name, dim0, dim1) f64 name ## Storage[dim0*dim1]; auto name = F64View2D(name ## Storage, dim0, dim1);
+#define StackStoredView(name, dim0) f64 name ## Storage[dim0]; auto name = F64View(name ## Storage, dim0);
 
 #define GLU_MAT 1
 void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs, f64 Istart[4], bool polarisedFrequency)
@@ -355,16 +353,14 @@ void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs,
                                { 0.0, 0.0, 0.0, 1.0 } };
     // clang-format on
 
-    auto slice_s4 = [&S](int k, f64 slice[4]) {
+    auto slice_s4 = [&S](int k, F64View& slice) {
         for (int i = 0; i < 4; ++i)
         {
-            slice[i] = S(i, k);
+            slice(i) = S(i, k);
         }
     };
 
-    /* --- Distinguish between rays going from BOTTOM to TOP
-            (to_obs == TRUE), and vice versa --      -------------- */
-
+    // NOTE(cmo): Set up directions and loop bounds
     int dk = -1;
     int k_start = Ndep - 1;
     int k_end = 0;
@@ -375,122 +371,143 @@ void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs,
         k_end = Ndep - 1;
     }
 
-    /* --- Boundary conditions --                        -------------- */
-
     for (int n = 0; n < 4; ++n)
         I(n, k_start) = Istart[n];
 
+    // NOTE(cmo): Set up values and storage at initial point (one from first end)
     int k = k_start + dk;
     f64 ds_uw = abs(height(k) - height(k - dk)) * zmu;
     f64 ds_dw = abs(height(k + dk) - height(k)) * zmu;
     f64 dx_uw = (chi(0, k) - chi(0, k - dk)) / ds_uw;
     f64 dx_c = Bezier::cent_deriv(ds_uw, ds_dw, chi(0, k - dk), chi(0, k), chi(0, k + dk));
-    f64 c1 = max(chi(0, k) - (ds_uw / 3.0) * dx_c, 0.0);
-    f64 c2 = max(chi(0, k - dk) + (ds_uw / 3.0) * dx_uw, 0.0);
+    f64 c1 = Bezier::limit_control_point(chi(0, k) - (ds_uw / 3.0) * dx_c);
+    f64 c2 = Bezier::limit_control_point(chi(0, k - dk) + (ds_uw / 3.0) * dx_uw);
     f64 dtau_uw = ds_uw * (chi(0, k) + chi(0, k - dk) + c1 + c2) * 0.25;
 
-    f64 Ku[4][4], K0[4][4], Su[4], S0[4];
-    f64 dKu[4][4], dK0[4][4], dSu[4], dS0[4];
+    StackStoredView2D(Ku, 4, 4);
+    StackStoredView2D(dKu, 4, 4);
+    StackStoredView2D(K0, 4, 4);
+    StackStoredView2D(dK0, 4, 4);
+    StackStoredView(Su, 4);
+    StackStoredView(dSu, 4);
+    StackStoredView(S0, 4);
+    StackStoredView(dS0, 4);
     stokes_K(k_start, chi, chi(0, k_start), Ku);
     stokes_K(k, chi, chi(0, k), K0);
-    // memset(Ku[0], 0, 16*sizeof(f64));
-    // memset(K0[0], 0, 16*sizeof(f64));
     slice_s4(k_start, Su);
     slice_s4(k, S0);
 
     for (int n = 0; n < 4; ++n)
     {
-        dSu[n] = (S0[n] - Su[n]) / dtau_uw;
+        dSu(n) = (S0(n) - Su(n)) / dtau_uw;
         for (int m = 0; m < 4; ++m)
-            dKu[n][m] = (K0[n][m] - Ku[n][m]) / dtau_uw;
+            dKu(n, m) = (K0(n, m) - Ku(n, m)) / dtau_uw;
     }
 
     f64 ds_dw2 = 0.0;
     f64 dtau_dw = 0.0;
-    auto dx_downwind = [&ds_dw, &ds_dw2, &chi, &k, dk] {
+    f64 dx_dw = 0.0;
+    auto dx_downwind = [&ds_dw, &ds_dw2, &chi, &k, dk] () {
         return Bezier::cent_deriv(ds_dw, ds_dw2, chi(0, k), chi(0, k + dk), chi(0, k + 2 * dk));
     };
 
-    f64 Kd[4][4], A[4][4], Ma[4][4], Mb[4][4], Mc[4][4], V0[4], V1[4], Sd[4];
-#if GLU_MAT
-    f64 Md[4][4], Mdi[4][4];
-#else
-    f32 Md[4][4];
-#endif
-    for (; k != k_end - dk; k += dk)
+    StackStoredView2D(Kd, 4, 4);
+    StackStoredView2D(K02, 4, 4);
+    StackStoredView2D(Ku2, 4, 4);
+    StackStoredView2D(Ma, 4, 4);
+    StackStoredView2D(Mb, 4, 4);
+    StackStoredView2D(Mc, 4, 4);
+    StackStoredView2D(Md, 4, 4);
+    StackStoredView(V0, 4);
+    StackStoredView(Sd, 4);
+    for (; k != k_end + dk; k += dk)
     {
-        ds_dw2 = abs(height(k + 2 * dk) - height(k + dk)) * zmu;
-        f64 dx_dw = dx_downwind();
-        c1 = max(chi(0, k) + (ds_dw / 3.0) * dx_c, 0.0);
-        c2 = max(chi(0, k + dk) - (ds_dw / 3.0) * dx_dw, 0.0);
-        dtau_dw = ds_dw * (chi(0, k) + chi(0, k + dk) + c1 + c2) * 0.25;
+        if (k == k_end)
+        {
+            // Assume linear on the end, so drop dw point stuff
+            for (int n = 0; n < 4; ++n)
+            {
+                dS0(n) = (S0(n) - Su(n)) / dtau_uw;
+                for (int m = 0; m < 4; ++m)
+                    dK0(n, m) = (K0(n, m) - Ku(n, m)) / dtau_uw;
+            }
+        }
+        else
+        {
+            if (k_end - k == dk)
+            {
+                dx_dw = (chi(0, k + dk) - chi(0, k)) / ds_dw;
+            }
+            else
+            {
+                ds_dw2 = abs(height(k + 2 * dk) - height(k + dk)) * zmu;
+                dx_dw = dx_downwind();
+            }
+            c1 = Bezier::limit_control_point(chi(0, k) + (ds_dw / 3.0) * dx_c);
+            c2 = Bezier::limit_control_point(chi(0, k+dk) - (ds_dw / 3.0) * dx_dw);
+            dtau_dw = ds_dw * (chi(0, k) + chi(0, k + dk) + c1 + c2) * 0.25;
 
-        f64 alpha, beta, gamma, edt, eps;
-        Bezier::Bezier3_coeffs(dtau_uw, &alpha, &beta, &gamma, &eps, &edt);
+            stokes_K(k + dk, chi, chi(0, k + dk), Kd);
+            slice_s4(k + dk, Sd);
 
-        stokes_K(k + dk, chi, chi(0, k + dk), Kd);
-        // memset(Kd[0], 0, 16*sizeof(f64));
-        slice_s4(k + dk, Sd);
+            Bezier::cent_deriv(dK0, dtau_uw, dtau_dw, Ku, K0, Kd);
+            Bezier::cent_deriv(dS0, dtau_uw, dtau_dw, Su, S0, Sd);
+        }
 
-        Bezier::cent_deriv(dK0, dtau_uw, dtau_dw, Ku, K0, Kd);
-        Bezier::cent_deriv(dS0, dtau_uw, dtau_dw, Su, S0, Sd);
 
-        prod(Ku, Ku, Ma); // Ma = Ku @ Ku
-        prod(K0, K0, A); // A = K0 @ K0
+        prod(Ku, Ku, Ku2); // Ku2 = Ku @ Ku
+        prod(K0, K0, K02); // K02 = K0 @ K0
 
-        // c1 = S0[0] - (dtau_uw/3.0) * dS0[0];
-        // c2 = Su[0] + (dtau_uw/3.0) * dSu[0];
-        // I(0, k) = I(0, k-dk) * edt + alpha * S0[0] + beta * Su[0] + gamma * c1 + eps * c2;
+        f64 alpha, beta, gamma, delta, edt;
+        if (dtau_uw < 0.0)
+            printf("dt neg: %.3e", dtau_uw);
+        Bezier::Bezier3_coeffs(dtau_uw, &alpha, &beta, &gamma, &delta, &edt);
 
         for (int j = 0; j < 4; ++j)
         {
             for (int i = 0; i < 4; ++i)
             {
+                // Defined in little memo Jaime sent
+                f64 d = dtau_uw / 3.0 * (Ku2(j, i) + Ku(j, i) - dKu(j, i)) - Ku(j, i);
+                f64 e = dtau_uw / 3.0 * (K02(j, i) + K0(j, i) - dK0(j, i)) + K0(j, i);
                 // A in paper (LHS of system)
-                Md[j][i] = id[j][i] + alpha * K0[j][i]
-                    - gamma * -(dtau_uw / 3.0 * (A[j][i] + dK0[j][i] + K0[j][i]) + K0[j][i]);
+                Md(j, i) = id[j][i] + beta * K0(j, i) + delta * e;
 
-                // Terms to be multiplied by I(:,k-dk) in B: (exp(-dtau) + beta*Ku + epsilon*\bar{f}_k)
-                Ma[j][i] = edt * id[j][i] - beta * Ku[j][i]
-                    + eps * (dtau_uw / 3.0 * (Ma[j][i] + dKu[j][i] + Ku[j][i]) - Ku[j][i]);
+                // Terms to be multiplied by I(:,k-dk)
+                Ma(j, i) = edt * id[j][i] - alpha * Ku(j, i) + gamma * d;
 
-                // Terms to be multiplied by S(:,k-dk) in B i.e. f_k
-                Mb[j][i] = beta * id[j][i] + eps * (id[j][i] - dtau_uw / 3.0 * Ku[j][i]);
+                // Terms to be multiplied by S(:,k-dk)
+                Mb(j, i) = alpha * id[j][i] + gamma * (id[j][i] - (dtau_uw / 3.0) * Ku(j, i));
 
-                // Terms to be multiplied by S(:,k) in B i.e. e_k
-                Mc[j][i] = alpha * id[j][i] + gamma * (id[j][i] + dtau_uw / 3.0 * K0[j][i]);
+                // Terms to be multiplied by S(:,k)
+                Mc(j, i) = beta * id[j][i] + delta * (id[j][i] + (dtau_uw / 3.0) * K0(j, i));
             }
         }
 
-        // printf("%e, %e, %e, %e\n", K0[0][0], K0[1][0], K0[0][1], K0[3][2]);
-
+        // Build complete RHS
         for (int i = 0; i < 4; ++i)
         {
-            V0[i] = 0.0;
+            V0(i) = 0.0;
             for (int j = 0; j < 4; ++j)
-                V0[i] += Ma[i][j] * I(j, k - dk) + Mb[i][j] * Su[j] + Mc[i][j] * S0[j];
+                V0(i) += Ma(i, j) * I(j, k - dk) + Mb(i, j) * Su(j) + Mc(i, j) * S0(j);
 
-            V0[i] += dtau_uw / 3.0 * (eps * dSu[i] - gamma * dS0[i]);
+            // Extra terms that just chill on the end of the RHS
+            V0(i) += (dtau_uw / 3.0) * (gamma * dSu(i) - delta * dS0(i));
         }
 
-#if GLU_MAT
-        gluInvertMatrix(Md[0], Mdi[0]);
-        prod(Mdi, V0, V1);
-#else
-        SIMD_MatInv(Md[0]);
-        prod(Md, V0, V1);
-#endif
+        solve_lin_eq(Md, V0);
 
         for (int i = 0; i < 4; ++i)
-            I(i, k) = V1[i];
+            I(i, k) = V0(i);
 
-        memcpy(Su, S0, 4 * sizeof(f64));
-        memcpy(S0, Sd, 4 * sizeof(f64));
-        memcpy(dSu, dS0, 4 * sizeof(f64));
+        // NOTE(cmo): Shuffle everything along to avoid recomputing things
+        memcpy(SuStorage, S0Storage, 4 * sizeof(f64));
+        memcpy(S0Storage, SdStorage, 4 * sizeof(f64));
+        memcpy(dSuStorage, dS0Storage, 4 * sizeof(f64));
 
-        memcpy(Ku[0], K0[0], 16 * sizeof(f64));
-        memcpy(K0[0], Kd[0], 16 * sizeof(f64));
-        memcpy(dKu[0], dK0[0], 16 * sizeof(f64));
+        memcpy(KuStorage, K0Storage, 16 * sizeof(f64));
+        memcpy(K0Storage, KdStorage, 16 * sizeof(f64));
+        memcpy(dKuStorage, dK0Storage, 16 * sizeof(f64));
 
         dtau_uw = dtau_dw;
         ds_uw = ds_dw;
@@ -498,118 +515,6 @@ void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs,
         dx_uw = dx_c;
         dx_c = dx_dw;
     }
-    // NOTE(cmo): Need to handle last 2 points here
-    k = k_end - dk;
-    f64 dx_dw = (chi(0, k + dk) - chi(0, k)) / ds_dw;
-    c1 = max(chi(0, k) + (ds_dw / 3.0) * dx_c, 0.0);
-    c2 = max(chi(0, k + dk) - (ds_dw / 3.0) * dx_dw, 0.0);
-    dtau_dw = ds_dw * (chi(0, k) + chi(0, k + dk) + c1 + c2) * 0.25;
-
-    f64 alpha, beta, gamma, edt, eps;
-    Bezier::Bezier3_coeffs(dtau_uw, &alpha, &beta, &gamma, &eps, &edt);
-
-    stokes_K(k + dk, chi, chi(0, k + dk), Kd);
-    // memset(Kd[0], 0, 16*sizeof(f64));
-    slice_s4(k + dk, Sd);
-
-    Bezier::cent_deriv(dK0, dtau_uw, dtau_dw, Ku, K0, Kd);
-    Bezier::cent_deriv(dS0, dtau_uw, dtau_dw, Su, S0, Sd);
-
-    prod(Ku, Ku, Ma); // Ma = Ku @ Ku
-    prod(K0, K0, A); // A = K0 @ K0
-
-    // c1 = max(S(0, k) - (dtau_uw/3.0) * dS0[0], 0.0);
-    // c2 = max(S(0, k-dk) + (dtau_uw/3.0) * dSu[0], 0.0);
-    // I(0, k) = I(0, k-dk) * edt + alpha * S(0, k) + beta * S(0, k-dk) + gamma * c1 + eps * c2;
-
-    for (int j = 0; j < 4; ++j)
-    {
-        for (int i = 0; i < 4; ++i)
-        {
-            // A in paper (LHS of system)
-            Md[j][i]
-                = id[j][i] + alpha * K0[j][i] - gamma * -(dtau_uw / 3.0 * (A[j][i] + dK0[j][i] + K0[j][i]) + K0[j][i]);
-
-            // Terms to be multiplied by I(:,k-dk) in B: (exp(-dtau) + beta + \bar{f}_k)
-            Ma[j][i] = edt * id[j][i] - beta * Ku[j][i]
-                + eps * (dtau_uw / 3.0 * (Ma[j][i] + dKu[j][i] + Ku[j][i]) - Ku[j][i]);
-
-            // Terms to be multiplied by S(:,k-dk) in B i.e. f_k
-            Mb[j][i] = beta * id[j][i] + eps * (id[j][i] - dtau_uw / 3.0 * Ku[j][i]);
-
-            // Terms to be multiplied by S(:,k) in B i.e. e_k
-            Mc[j][i] = alpha * id[j][i] + gamma * (id[j][i] + dtau_uw / 3.0 * K0[j][i]);
-        }
-    }
-
-    for (int i = 0; i < 4; ++i)
-    {
-        V0[i] = 0.0;
-        for (int j = 0; j < 4; ++j)
-            V0[i] += Ma[i][j] * I(j, k - dk) + Mb[i][j] * Su[j] + Mc[i][j] * S0[j];
-
-        V0[i] += dtau_uw / 3.0 * (eps * dSu[i] - gamma * dS0[i]);
-    }
-
-#if GLU_MAT
-    gluInvertMatrix(Md[0], Mdi[0]);
-    prod(Mdi, V0, V1);
-#else
-    SIMD_MatInv(Md[0]);
-    prod(Md, V0, V1);
-#endif
-
-    for (int i = 0; i < 4; ++i)
-        I(i, k) = V1[i];
-
-    memcpy(Su, S0, 4 * sizeof(f64));
-    memcpy(S0, Sd, 4 * sizeof(f64));
-    memcpy(dSu, dS0, 4 * sizeof(f64));
-
-    memcpy(Ku[0], K0[0], 16 * sizeof(f64));
-    memcpy(K0[0], Kd[0], 16 * sizeof(f64));
-    memcpy(dKu[0], dK0[0], 16 * sizeof(f64));
-
-    dtau_uw = dtau_dw;
-    ds_uw = ds_dw;
-    ds_dw = ds_dw2;
-    dx_uw = dx_c;
-    dx_c = dx_dw;
-
-    // Piecewise linear on end
-    k = k_end;
-    dtau_uw = 0.5 * zmu * (chi(0, k) + chi(0, k - dk)) * abs(height(k) - height(k - dk));
-
-    f64 w[2];
-    w2(dtau_uw, w);
-    for (int n = 0; n < 4; ++n)
-        V0[n] = w[0] * S(n, k) - w[1] * dSu[n];
-
-    for (int n = 0; n < 4; ++n)
-    {
-        for (int m = 0; m < 4; ++m)
-        {
-            A[n][m] = -w[1] / dtau_uw * Ku[n][m];
-            Md[n][m] = (w[0] - w[1] / dtau_uw) * K0[n][m];
-        }
-        A[n][n] = 1.0 - w[0];
-        Md[n][n] = 1.0;
-    }
-
-    for (int n = 0; n < 4; ++n)
-        for (int m = 0; m < 4; ++m)
-            V0[n] += A[n][m] * I(m, k - dk);
-
-#if GLU_MAT
-    gluInvertMatrix(Md[0], Mdi[0]);
-    prod(Mdi, V0, V1);
-#else
-    SIMD_MatInv(Md[0]);
-    prod(Md, V0, V1);
-#endif
-
-    for (int n = 0; n < 4; ++n)
-        I(n, k) = V1[n];
 }
 
 namespace LwInternal
