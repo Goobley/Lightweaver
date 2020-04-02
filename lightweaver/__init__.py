@@ -5,3 +5,4 @@ from .constants import *
 from .molecule import MolecularTable
 from .multi import read_multi_atmos
 from .utils import NgOptions, InitialSolution, voigt_H, planck, gaunt_bf, ConvergenceError, ExplodingMatrixError, get_data_path, get_default_molecule_path, vac_to_air, air_to_vac, convert_specific_intensity, CrswIterator
+from .LwCompiled import LwContext as Context
