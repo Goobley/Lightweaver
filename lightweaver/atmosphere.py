@@ -71,7 +71,8 @@ class Atmosphere:
         if np.any(self.temperature < 2500):
             raise ValueError('Extremely low temperature (< 2500 K)')
 
-        eos = witt()
+        abundances = np.array([a[1] for a in atomicTable.abund.items()])
+        eos = witt(abund_init=abundances)
 
         Nspace = self.Nspace
         if self.nHTot is None and self.ne is not None:
