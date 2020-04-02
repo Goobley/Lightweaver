@@ -413,6 +413,7 @@ class RadiativeSet:
     def __post_init__(self):
         self.passiveSet = set(self.atoms)
         self.atomicNames = []
+        self.atoms = sorted(self.atoms, key=atomic_weight_sort)
         for atom in self.atoms:
             self.atomicNames.append(atom.name)
 
@@ -463,9 +464,22 @@ class RadiativeSet:
             name += ' '
 
         return self.atoms[self.atomicNames.index(name)]
+    
+    def __iter__(self):
+        return iter(self.atoms)
 
-    def validate_sets(self):
+    def rehash(self):
+        self.activeSet = set([x for x in self.activeSet])
+        self.passiveSet = set([x for x in self.passiveSet])
+        self.detailedStaticSet = set([x for x in self.detailedStaticSet])
+
+    def validate_sets(self, rehashed=False):
         if (self.activeSet | self.passiveSet | self.detailedStaticSet) != set(self.atoms):
+            if not rehashed:
+                self.rehash()
+                self.validate_sets(rehashed=True)
+                return
+
             raise ValueError('Problem with distribution of Atoms inside AtomicSet')
     
     def set_active(self, *args: str):
