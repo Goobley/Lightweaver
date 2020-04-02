@@ -9,6 +9,7 @@ from copy import copy, deepcopy
 from collections import OrderedDict
 import numpy as np
 from scipy.linalg import solve
+from scipy.optimize import newton_krylov
 
 @dataclass
 class SpectrumConfiguration:
@@ -104,8 +105,9 @@ class SpectrumConfiguration:
 
 
 
-def lte_pops(atomicModel, atmos, nTotal, debye=True):
+def lte_pops(atomicModel, temperature, ne, nTotal, debye=True):
     Nlevel = len(atomicModel.levels)
+    Nspace = ne.shape[0]
     c1 = (Const.HPlanck / (2.0 * np.pi * Const.MElectron)) * (Const.HPlanck / Const.KBoltzmann)
 
     c2 = 0.0
@@ -119,20 +121,20 @@ def lte_pops(atomicModel, atmos, nTotal, debye=True):
                 nDebye[i] += Z
                 Z += 1
 
-    dEion = c2 * np.sqrt(atmos.ne / atmos.temperature)
-    cNe_T = 0.5 * atmos.ne * (c1 / atmos.temperature)**1.5
-    total = np.ones(atmos.Nspace)
+    dEion = c2 * np.sqrt(ne / temperature)
+    cNe_T = 0.5 * ne * (c1 / temperature)**1.5
+    total = np.ones(Nspace)
 
-    nStar = np.zeros((Nlevel, atmos.temperature.shape[0]))
+    nStar = np.zeros((Nlevel, Nspace))
     ground = atomicModel.levels[0]
     for i in range(1, Nlevel):
         dE = atomicModel.levels[i].E_SI - ground.E_SI
         gi0 = atomicModel.levels[i].g / ground.g
         dZ = atomicModel.levels[i].stage - ground.stage
         if debye:
-            dE_kT = (dE - nDebye[i] * dEion) / (Const.KBoltzmann * atmos.temperature)
+            dE_kT = (dE - nDebye[i] * dEion) / (Const.KBoltzmann * temperature)
         else:
-            dE_kT = dE / (Const.KBoltzmann * atmos.temperature)
+            dE_kT = dE / (Const.KBoltzmann * temperature)
 
         nst = gi0 * np.exp(-dE_kT)
         nStar[i, :] = nst
@@ -145,6 +147,34 @@ def lte_pops(atomicModel, atmos, nTotal, debye=True):
         nStar[i] *= nStar[0]
 
     return nStar
+
+
+class LteNeIterator:
+    def __init__(self, atoms, temperature, nHTot):
+        sortedAtoms = sorted(atoms, key=atomic_weight_sort)
+        self.nTotal = [a.atomicTable[a.name].abundance * nHTot 
+                       for a in sortedAtoms]
+        self.stages = [np.array([l.stage for l in a.levels])
+                       for a in sortedAtoms]
+        self.temperature = temperature
+        self.nHTot = nHTot
+        self.sortedAtoms = sortedAtoms
+
+    def __call__(self, prevNeRatio):
+        atomicPops = []
+        ne = np.zeros_like(prevNeRatio)
+        prevNe = prevNeRatio * self.nHTot
+
+        for i, a in enumerate(self.sortedAtoms):
+            nStar = lte_pops(a, self.temperature, prevNe, 
+                             self.nTotal[i], debye=True)
+            atomicPops.append(AtomicState(a, nStar, self.nTotal[i]))
+            ne += np.sum(nStar * self.stages[i][:, None], axis=0)
+
+        self.atomicPops = atomicPops
+        diff = (ne - prevNe) / self.nHTot
+        return diff
+
 
 class AtomicStateTable:
     def __init__(self, atoms: List['AtomicState']):
@@ -247,9 +277,8 @@ class AtomicState:
         return fjk, dfjk
 
     def fj(self, atmos):
-        # Nstage: int = (self.model.levels[-1].stage - self.model.levels[0].stage) + 1
         Nstage: int = self.model.levels[-1].stage + 1
-        Nspace: int = atmos.depthScale.shape[0]
+        Nspace: int = atmos.Nspace
 
         fj = np.zeros((Nstage, Nspace))
         # TODO(cmo): Proper derivative treatment
@@ -258,7 +287,7 @@ class AtomicState:
         for i, l in enumerate(self.model.levels):
             fj[l.stage] += self.n[i]
 
-        fjk /= self.nTotal
+        fj /= self.nTotal
 
         return fj, dfj
 
@@ -315,7 +344,39 @@ class SpeciesStateTable:
             ne = np.copy(atmos.ne)
             for atom in self.atomicPops:
                 prevNStar = np.copy(atom.nStar)
-                newNStar = lte_pops(atom.model, atmos, atom.nTotal, debye=True)
+                newNStar = lte_pops(atom.model, atmos.temperature, atmos.ne, atom.nTotal, debye=True)
+                deltaNStar = newNStar - prevNStar
+                atom.nStar[:] = newNStar
+
+                if atom.pops is None and conserveCharge:
+                    stages = np.array([l.stage for l in atom.model.levels])
+                    ne += np.sum((atom.nStar - prevNStar) * stages[:, None], axis=0)
+
+                    ne[ne < 1e6] = 1e6
+                diff = np.nanmax(1.0 - prevNStar / atom.nStar)
+                if diff > maxDiff:
+                    maxDiff = diff
+                    maxName = atom.name
+            atmos.ne[:] = ne
+            if maxDiff < 1e-3:
+                print('LTE Iterations %d' % (i+1))
+                break
+
+        else:
+            raise ValueError('No convergence in LTE update')
+
+        self.HminPops[:] = hminus_pops(atmos, self.atomicPops['H'])
+
+    def update_lte_pops(self, atmos: Atmosphere, conserveCharge=False, updateTotals=False, maxIter=2000):
+        if updateTotals:
+            for atom in self.atomicPops:
+                atom.update_nTotal(atmos)
+        for i in range(maxIter):
+            maxDiff = 0.0
+            ne = np.copy(atmos.ne)
+            for atom in self.atomicPops:
+                prevNStar = np.copy(atom.nStar)
+                newNStar = lte_pops(atom.model, atmos.temperature, atmos.ne, atom.nTotal, debye=True)
                 deltaNStar = newNStar - prevNStar
                 atom.nStar[:] = newNStar
 
@@ -438,44 +499,38 @@ class RadiativeSet:
                 continue
             a.replace_atomic_table(self.atomicTable)
 
-    def iterate_lte_ne_eq_pops(self, mols: MolecularTable, atmos: Atmosphere, maxIter=2000):
-        prevNe = np.copy(atmos.ne)
-        ne = np.copy(atmos.ne)
-        for it in range(maxIter):
-            atomicPops = []
-            prevNe[:] = ne
-            ne.fill(0.0)
-            for a in sorted(self.atoms, key=atomic_weight_sort):
-                nTotal = a.atomicTable[a.name].abundance * atmos.nHTot
-                nStar = lte_pops(a, atmos, nTotal, debye=True)
-                atomicPops.append(AtomicState(a, nStar, nTotal))
-                stages = np.array([l.stage for l in a.levels])
-                # print(stages)
-                ne += np.sum(nStar * stages[:, None], axis=0)
-                # print(ne)
-            atmos.ne[:] = ne
+    def iterate_lte_ne_eq_pops(self, atmos: Atmosphere, 
+                               mols: Optional[MolecularTable]=None):
+        if mols is None:
+            mols = MolecularTable([])
 
-            relDiff = np.nanmax(np.abs(1.0 - prevNe / ne))
-            maxRelDiff = np.nanmax(relDiff)
-            if maxRelDiff < 1e-3:
-                print("Iterate LTE: %d iterations" % it)
-                break
-        else:
-            print("LTE ne failed to converge")
+        ne = np.copy(atmos.ne) / atmos.nHTot
+        iterator = LteNeIterator(self.atoms, atmos.temperature, atmos.nHTot)
+        ne += iterator(ne)
+        newNe = newton_krylov(iterator, ne)
+        atmos.ne[:] = newNe * atmos.nHTot
+
+        atomicPops = iterator.atomicPops
 
         table = AtomicStateTable(atomicPops)
         eqPops = chemical_equilibrium_fixed_ne(atmos, mols, table, self.atoms[0].atomicTable)
+        # NOTE(cmo): This is technically not quite correct, because we adjust nTotal and the atomic populations to account for the atoms bound up in molecules, but not n_e, this is unlikely to make much difference in reality, other than in very cool atmospheres with a lot of molecules (even then it should be pretty tiny)
         return eqPops
 
-    def compute_eq_pops(self, mols: MolecularTable, atmos: Atmosphere):
+    def compute_eq_pops(self, atmos: Atmosphere,
+                        mols: Optional[MolecularTable]=None):
+        if mols is None:
+            mols = MolecularTable([])
+
         atomicPops = []
         for a in sorted(self.atoms, key=atomic_weight_sort):
             nTotal = a.atomicTable[a.name].abundance * atmos.nHTot
-            nStar = lte_pops(a, atmos, nTotal, debye=True)
+            nStar = lte_pops(a, atmos.temperature, atmos.ne, nTotal, debye=True)
             atomicPops.append(AtomicState(a, nStar, nTotal))
 
         table = AtomicStateTable(atomicPops)
         eqPops = chemical_equilibrium_fixed_ne(atmos, mols, table, self.atoms[0].atomicTable)
+        # NOTE(cmo): This is technically not quite correct, because we adjust nTotal and the atomic populations to account for the atoms bound up in molecules, but not n_e, this is unlikely to make much difference in reality, other than in very cool atmospheres with a lot of molecules (even then it should be pretty tiny)
         return eqPops
 
     def compute_wavelength_grid(self, extraWavelengths: Optional[np.ndarray]=None, lambdaReference=500.0) -> SpectrumConfiguration:
@@ -577,8 +632,6 @@ def hminus_pops(atmos: Atmosphere, hPops: AtomicState) -> np.ndarray:
         HminPops[k] = atmos.ne[k] * np.sum(hPops.n[:, k]) * PhiHmin
 
     return HminPops
-
-    
 
 def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable, atomicPops: AtomicStateTable, table: AtomicTable) -> SpeciesStateTable:
     nucleiSet: Set[Element] = set()
@@ -683,15 +736,7 @@ def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable, 
             correction = solve(df, f)
             n -= correction
 
-            # correction = dgesvx(df, f.reshape(f.shape[0], 1))[7]
-            # n -= correction.squeeze()
-            # correction = newton_krylov(lambda x: df@x - f, np.zeros_like(f))
-            # n -= correction
-            # print(correction)
-
-            # dnMax = np.nanmax(np.abs((n - prevN) / n))
             dnMax = np.nanmax(np.abs(1.0 - prevN / n))
-            # print(dnMax)
             if dnMax <= IterLimit:
                 maxIter = max(maxIter, nIter)
                 break
@@ -702,9 +747,12 @@ def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable, 
 
         for i, ele in enumerate(nuclei):
             if ele.name in atomicPops:
-                atomPop = atomicPops[ele.name].n
-                fraction = n[i] / np.sum(atomPop[:, k])
-                atomPop[:, k] *= fraction
+                atomPop = atomicPops[ele.name]
+                fraction = n[i] / atomPop.nTotal[k]
+                atomPop.nStar[:, k] *= fraction
+                atomPop.nTotal[k] *= fraction
+                if atomPop.pops is not None:
+                    atomPop.pops[:, k] *= fraction
 
         HminPops[k] = atmos.ne[k] * n[0] * PhiHmin
 

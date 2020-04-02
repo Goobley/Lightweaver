@@ -286,6 +286,38 @@ class Element:
         dfj = (dfj - fj * sumDf) / sumF
         return fj, dfj
 
+    def fj_new(self, temperature, ne, mask=None):
+        Nspace: int = temperature.shape[0]
+        T = temperature
+        ne = ne
+
+        C1 = (Const.HPlanck / (2.0 * np.pi * Const.MElectron)) * Const.HPlanck / Const.KBoltzmann
+        
+        CtNe = 2.0 * (C1/T)**(-1.5) / ne
+        Nstage: int = self.ionpot.shape[0]
+        fj = np.zeros((Nstage, Nspace))
+        fj[0, :] = 1.0
+        dfj = np.zeros((Nstage, Nspace))
+
+        # fjk: fractional population of stage j, at atmospheric index k
+        # The first stage starts with a "population" of 1, then via Saha we compute the relative populations of the other stages, before dividing by the sum across these
+
+        Uk = np.interp(T, self.Tpf, self.pf[0, :])
+
+        for j in range(1, Nstage):
+            Ukp1 = np.interp(T, self.Tpf, self.pf[j, 0])
+
+            fj[j] = fj[j-1] * CtNe * np.exp(Ukp1 - Uk - self.ionpot[j-1] / (Const.KBoltzmann * T))
+            dfj[j] = -j * fj[j] / ne
+
+            Uk[:] = Ukp1
+
+        sumF = np.sum(fj, axis=0)
+        sumDf = np.sum(dfj, axis=0)
+        fj /= sumF
+        dfj = (dfj - fj * sumDf) / sumF
+        return fj, dfj
+
 
 @dataclass
 class LtePopulations:
