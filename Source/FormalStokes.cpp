@@ -459,8 +459,6 @@ void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs,
         prod(K0, K0, K02); // K02 = K0 @ K0
 
         f64 alpha, beta, gamma, delta, edt;
-        if (dtau_uw < 0.0)
-            printf("dt neg: %.3e", dtau_uw);
         Bezier::Bezier3_coeffs(dtau_uw, &alpha, &beta, &gamma, &delta, &edt);
 
         for (int j = 0; j < 4; ++j)
