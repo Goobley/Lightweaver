@@ -171,12 +171,18 @@ cdef extern from "Lightweaver.hpp":
         int Ntrans
         void setup_wavelength(int la)
 
+    cdef cppclass DepthData:
+        bool_t fill
+        F64View4D chi
+        F64View4D eta
+
     cdef cppclass Context:
         Atmosphere* atmos
         Spectrum* spect
         vector[Atom*] activeAtoms
         vector[Atom*] detailedAtoms
         Background* background
+        DepthData* depthData
         int Nthreads
         void initialise_threads()
         void update_threads()
@@ -198,6 +204,63 @@ cdef extern from "Lightweaver.hpp":
 
 cdef extern from "Lightweaver.hpp" namespace "EscapeProbability":
     cdef void gamma_matrices_escape_prob(Atom* a, Background& background, const Atmosphere& atmos)
+
+
+cdef class LwDepthData:
+    cdef object shape
+    cdef DepthData depthData
+    cdef f64[:,:,:,::1] chi
+    cdef f64[:,:,:,::1] eta
+
+    def __init__(self, Nlambda, Nmu, Nspace):
+        self.shape = (Nlambda, Nmu, 2, Nspace)
+        self.depthData.fill = 0
+
+    def __getstate__(self):
+        s = {}
+        s['shape'] = self.shape
+        s['fill'] = bool(self.fill)
+        try:
+            s['chi'] = np.copy(np.asarray(self.chi))
+            s['eta'] = np.copy(np.asarray(self.eta))
+        except AttributeError:
+            s['chi'] = None
+            s['eta'] = None
+
+        return s
+
+    def __setstate__(self, s):
+        self.shape = s['shape']
+        self.depthData.fill = int(s['fill'])
+        if s['chi'] is not None:
+            self.chi = s['chi']
+            self.depthData.chi = f64_view_4(self.chi)
+            self.eta = s['eta']
+            self.depthData.eta = f64_view_4(self.eta)
+
+    @property
+    def fill(self):
+        return bool(self.depthData.fill)
+
+    @fill.setter
+    def fill(self, value):
+        try:
+            self.depthData.fill = int(value)
+            if value:
+                self.chi
+        except AttributeError:
+            self.chi = np.zeros(self.shape)
+            self.depthData.chi = f64_view_4(self.chi)
+            self.eta = np.zeros(self.shape)
+            self.depthData.eta = f64_view_4(self.eta)
+
+    @property
+    def chi(self):
+        return np.asarray(self.chi)
+
+    @property
+    def eta(self):
+        return np.asarray(self.eta)
 
 
 cdef class LwAtmosphere:
@@ -1661,6 +1724,7 @@ cdef class LwContext:
     cdef LwAtmosphere atmos
     cdef LwSpectrum spect
     cdef LwBackground background
+    cdef LwDepthData depthData
     cdef public dict arguments
     cdef object atomicTable
     cdef object eqPops
@@ -1708,6 +1772,10 @@ cdef class LwContext:
             self.crswCallback = crswCallback
             self.crswDone = False
 
+        shape = (self.spect.I.shape[0], self.atmos.Nrays, self.atmos.Nspace)
+        self.depthData = LwDepthData(*shape)
+        self.ctx.depthData = &self.depthData.depthData
+
         self.setup_threads(Nthreads)
         
     def __getstate__(self):
@@ -1727,6 +1795,7 @@ cdef class LwContext:
             state['crswCallback'] = self.crswCallback
         else:
             state['crswCallback'] = None
+        state['depthData'] = self.depthData.__getstate__()
         return state
         
     def __setstate__(self, state):
@@ -1774,6 +1843,11 @@ cdef class LwContext:
         if self.hprd:
             self.configure_hprd_coeffs()
 
+        shape = (self.spect.I.shape[0], self.atmos.Nrays, self.atmos.Nspace)
+        self.depthData = LwDepthData.__new__(LwDepthData)
+        self.depthData.__setstate__(state['depthData'])
+        self.ctx.depthData = &self.depthData.depthData
+
         self.setup_threads(state['arguments']['Nthreads'])
 
     @property
@@ -1787,12 +1861,12 @@ cdef class LwContext:
     cpdef update_threads(self):
         self.ctx.update_threads()
 
-    def compute_profiles(self, polarised=False):
+    cpdef compute_profiles(self, polarised=False):
         atoms = self.activeAtoms + self.detailedAtoms
         for atom in atoms:
             atom.update_profiles(polarised=polarised)
 
-    def formal_sol_gamma_matrices(self):
+    cpdef formal_sol_gamma_matrices(self):
         cdef LwAtom atom
         cdef np.ndarray[np.double_t, ndim=3] Gamma
         cdef f64 crswVal = self.crswCallback()
@@ -1811,7 +1885,7 @@ cdef class LwContext:
         print('dJ = %.2e' % dJ)
         return dJ
 
-    def formal_sol(self):
+    cpdef formal_sol(self):
         # cdef LwAtom atom
         # cdef np.ndarray[np.double_t, ndim=3] Gamma
         # for atom in self.activeAtoms:
@@ -1821,10 +1895,11 @@ cdef class LwContext:
         #     Gamma += atom.C
 
         cdef f64 dJ = formal_sol(self.ctx)
+        # cdef f64 dJ = formal_sol_gamma_matrices(self.ctx)
         # print('dJ = %.2e' % dJ)
         return dJ
 
-    def update_deps(self, temperature=True, ne=True, vturb=True, vlos=True, B=True, background=True):
+    cpdef update_deps(self, temperature=True, ne=True, vturb=True, vlos=True, B=True, background=True):
         if vlos or B:
             self.atmos.update_projections()
 
@@ -1837,7 +1912,7 @@ cdef class LwContext:
         if background and any([temperature, ne, vturb, vlos]):
             self.background.update_background(self.atmos)
 
-    def time_dep_update(self, f64 dt, prevTimePops=None):
+    cpdef time_dep_update(self, f64 dt, prevTimePops=None):
         atoms = self.activeAtoms
 
         cdef LwAtom atom
@@ -1868,7 +1943,7 @@ cdef class LwContext:
 
         return maxDelta, prevTimePops
 
-    def time_dep_restore_prev_pops(self, prevTimePops):
+    cpdef time_dep_restore_prev_pops(self, prevTimePops):
         cdef LwAtom atom
         cdef int i
         for i, atom in enumerate(self.activeAtoms):
@@ -1877,7 +1952,7 @@ cdef class LwContext:
         np.asarray(self.spect.I).fill(0.0)
         np.asarray(self.spect.J).fill(0.0)
 
-    def time_dep_conserve_charge(self, prevTimePops):
+    cpdef time_dep_conserve_charge(self, prevTimePops):
         cdef np.ndarray[np.double_t, ndim=1] deltaNe
         cdef LwAtom atom
 
@@ -1891,12 +1966,12 @@ cdef class LwContext:
                 if self.atmos.ne[k] < 1e6:
                     self.atmos.ne[k] = 1e6
 
-    def clear_ng(self):
+    cpdef clear_ng(self):
         cdef LwAtom atom
         for atom in self.activeAtoms:
             atom.atom.ng.clear()
 
-    def stat_equil(self):
+    cpdef stat_equil(self):
         atoms = self.activeAtoms
 
         cdef LwAtom atom
@@ -1967,10 +2042,10 @@ cdef class LwContext:
 
         return maxDelta
 
-    def update_projections(self):
+    cpdef update_projections(self):
         self.atmos.atmos.update_projections()
 
-    def setup_stokes(self, recompute=False):
+    cpdef setup_stokes(self, recompute=False):
         try:
             if self.atmos.B.shape[0] == 0:
                 raise ValueError('Please specify B-field')
@@ -1994,18 +2069,18 @@ cdef class LwContext:
 
         self.spect.setup_stokes()
 
-    def single_stokes_fs(self, recompute=False):
+    cpdef single_stokes_fs(self, recompute=False):
         self.setup_stokes(recompute=recompute)
 
         cdef f64 dJ = formal_sol_full_stokes(self.ctx)
         return dJ
 
-    def prd_redistribute(self, int maxIter=3, f64 tol=1e-2):
+    cpdef prd_redistribute(self, int maxIter=3, f64 tol=1e-2):
         cdef PrdIterData prdIter = redistribute_prd_lines(self.ctx, maxIter, tol)
         print('      PRD dRho = %.2e, (sub-iterations: %d)' % (prdIter.dRho, prdIter.iter))
         return prdIter.dRho, prdIter.iter
 
-    def configure_hprd_coeffs(self):
+    cpdef configure_hprd_coeffs(self):
         configure_hprd_coeffs(self.ctx)
 
     @property
@@ -2023,6 +2098,10 @@ cdef class LwContext:
     @property
     def background(self):
         return self.background
+
+    @property
+    def depthData(self):
+        return self.depthData
 
     @property
     def pops(self):

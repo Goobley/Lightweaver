@@ -328,8 +328,9 @@ void IntensityCoreFactory::initialise(Context* ctx)
     atmos = ctx->atmos;
     spect = ctx->spect;
     background = ctx->background;
-    if (ctx->Nthreads <= 1)
-        return;
+    depthData = ctx->depthData;
+    // if (ctx->Nthreads <= 1)
+    //     return;
 
     bool detailedStatic = false;
     activeAtoms.reserve(ctx->activeAtoms.size());
@@ -353,7 +354,7 @@ IntensityCoreData* IntensityCoreFactory::new_intensity_core(bool psiOperator)
     auto& fd = as.formal;
     auto& iCore = as.core;
 
-    JasPack(iCore, atmos, spect, background);
+    JasPack(iCore, atmos, spect, background, depthData);
     iCore.fd = &fd;
     fd.atmos = atmos;
     fd.chi = as.chiTot;
@@ -518,6 +519,7 @@ void IntensityCoreFactory::clear()
     atmos = nullptr;
     spect = nullptr;
     background = nullptr;
+    depthData = nullptr;
 }
 
 void IterationCores::initialise(IntensityCoreFactory* fac, int Nthreads)

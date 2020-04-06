@@ -267,7 +267,7 @@ void piecewise_bezier3_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
     f64 Cuw = Bezier::limit_control_point(chi(k - dk) + (ds_uw / 3.0) * dx_uw);
     f64 C0 = Bezier::limit_control_point(chi(k) - (ds_uw / 3.0) * dx_c);
 
-    // NOTE(cmo): Average chi over the uw-0 interval
+    // NOTE(cmo): Average chi over the uw-0 interval -- the Bezier3 integral
     f64 dtau_uw = ds_uw * (chi(k) + chi(k - dk) + Cuw + C0) * 0.25;
     f64 dS_uw = (S(k) - S(k - dk)) / dtau_uw;
 
@@ -445,10 +445,10 @@ void gather_opacity_emissivity(IntensityCoreData* data, bool computeOperator, in
                     atom.chi(t.i, k) += chi;
                     atom.chi(t.j, k) -= chi;
                     atom.U(t.j, k) += Uji(k);
+                    atom.eta(k) += eta;
                 }
                 chiTot(k) += chi;
                 etaTot(k) += eta;
-                atom.eta(k) += eta;
             }
         }
     }
@@ -488,6 +488,7 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
     const bool updateRates = mode & FsMode::UpdateRates;
     const bool prdRatesOnly = mode & FsMode::PrdOnly;
     const bool computeOperator = bool(PsiStar);
+    const bool storeDepthData = (data.depthData && data.depthData->fill);
 
     JDag = spect.J(la);
     F64View J = spect.J(la);
@@ -519,6 +520,28 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                 {
                     chiTot(k) += background.chi(la, k);
                     S(k) = (etaTot(k) + background.eta(la, k) + background.sca(la, k) * JDag(k)) / chiTot(k);
+                }
+                if (storeDepthData)
+                {
+                    auto& depth = *data.depthData;
+                    if (!continuaOnly)
+                    {
+                        for (int k = 0; k < Nspace; ++k)
+                        {
+                            depth.chi(la, mu, toObsI, k) = chiTot(k);
+                            depth.eta(la, mu, toObsI, k) = etaTot(k);
+                        }
+                    }
+                    else
+                    {
+                        for (int mu = 0; mu < Nrays; ++mu)
+                            for (int toObsI = 0; toObsI < 2; toObsI += 1)
+                                for (int k = 0; k < Nspace; ++k)
+                                {
+                                    depth.chi(la, mu, toObsI, k) = chiTot(k);
+                                    depth.eta(la, mu, toObsI, k) = etaTot(k);
+                                }
+                    }
                 }
             }
 
@@ -634,7 +657,7 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
 f64 formal_sol_gamma_matrices(Context& ctx)
 {
     // feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
-    JasUnpack(*ctx, atmos, spect, background);
+    JasUnpack(*ctx, atmos, spect, background, depthData);
     JasUnpack(ctx, activeAtoms, detailedAtoms);
 
     const int Nspace = atmos.Nspace;
@@ -659,7 +682,7 @@ f64 formal_sol_gamma_matrices(Context& ctx)
         fd.Psi = PsiStar;
         fd.I = I;
         IntensityCoreData iCore;
-        JasPackPtr(iCore, atmos, spect, fd, background);
+        JasPackPtr(iCore, atmos, spect, fd, background, depthData);
         JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
         JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
         JasPack(iCore, I, S, Ieff, PsiStar);
@@ -802,7 +825,7 @@ f64 formal_sol_gamma_matrices(Context& ctx)
 
 f64 formal_sol_update_rates(Context& ctx)
 {
-    JasUnpack(*ctx, atmos, spect, background);
+    JasUnpack(*ctx, atmos, spect, background, depthData);
     JasUnpack(ctx, activeAtoms, detailedAtoms);
 
     const int Nspace = atmos.Nspace;
@@ -824,7 +847,7 @@ f64 formal_sol_update_rates(Context& ctx)
     fd.S = S;
     fd.I = I;
     IntensityCoreData iCore;
-    JasPackPtr(iCore, atmos, spect, fd, background);
+    JasPackPtr(iCore, atmos, spect, fd, background, depthData);
     JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
     JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
     JasPack(iCore, I, S, Ieff);
@@ -853,7 +876,7 @@ f64 formal_sol_update_rates(Context& ctx)
 
 f64 formal_sol_update_rates_fixed_J(Context& ctx)
 {
-    JasUnpack(*ctx, atmos, spect, background);
+    JasUnpack(*ctx, atmos, spect, background, depthData);
     JasUnpack(ctx, activeAtoms, detailedAtoms);
 
     const int Nspace = atmos.Nspace;
@@ -875,7 +898,7 @@ f64 formal_sol_update_rates_fixed_J(Context& ctx)
     fd.S = S;
     fd.I = I;
     IntensityCoreData iCore;
-    JasPackPtr(iCore, atmos, spect, fd, background);
+    JasPackPtr(iCore, atmos, spect, fd, background, depthData);
     JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
     JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
     JasPack(iCore, I, S, Ieff);
@@ -901,7 +924,7 @@ f64 formal_sol_update_rates_fixed_J(Context& ctx)
 
 f64 formal_sol(Context& ctx)
 {
-    JasUnpack(*ctx, atmos, spect, background);
+    JasUnpack(*ctx, atmos, spect, background, depthData);
     JasUnpack(ctx, activeAtoms, detailedAtoms);
 
     const int Nspace = atmos.Nspace;
@@ -923,7 +946,7 @@ f64 formal_sol(Context& ctx)
     fd.S = S;
     fd.I = I;
     IntensityCoreData iCore;
-    JasPackPtr(iCore, atmos, spect, fd, background);
+    JasPackPtr(iCore, atmos, spect, fd, background, depthData);
     JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
     JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
     JasPack(iCore, I, S, Ieff);

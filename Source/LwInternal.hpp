@@ -8,6 +8,7 @@ struct Atmosphere;
 struct Spectrum;
 struct Background;
 struct Atom;
+struct DepthData;
 
 namespace LwInternal
 {
@@ -35,6 +36,7 @@ namespace LwInternal
         Spectrum* spect;
         FormalData* fd;
         Background* background;
+        DepthData* depthData;
         std::vector<Atom*>* activeAtoms;
         std::vector<Atom*>* detailedAtoms;
         F64Arr* JDag;

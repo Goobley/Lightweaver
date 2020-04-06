@@ -234,7 +234,7 @@ void prd_scatter(Transition* t, F64View Pj, const Atom& atom, const Atmosphere& 
 f64 formal_sol_prd_update_rates(Context& ctx, ConstView<i32> wavelengthIdxs)
 {
     using namespace LwInternal;
-    JasUnpack(*ctx, atmos, spect, background);
+    JasUnpack(*ctx, atmos, spect, background, depthData);
     JasUnpack(ctx, activeAtoms, detailedAtoms);
 
     const int Nspace = atmos.Nspace;
@@ -256,7 +256,7 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<i32> wavelengthIdxs)
         fd.S = S;
         fd.I = I;
         IntensityCoreData iCore;
-        JasPackPtr(iCore, atmos, spect, fd, background);
+        JasPackPtr(iCore, atmos, spect, fd, background, depthData);
         JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
         JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
         JasPack(iCore, I, S, Ieff);

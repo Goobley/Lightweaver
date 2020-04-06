@@ -11,6 +11,7 @@
 #include <vector>
 #include <memory>
 
+struct DepthData;
 struct Context;
 struct Atmosphere;
 struct Background;
@@ -102,13 +103,15 @@ struct IntensityCoreFactory
     Atmosphere* atmos;
     Spectrum* spect;
     Background* background;
+    DepthData* depthData;
     std::vector<AtomStorageFactory> activeAtoms;
     std::vector<AtomStorageFactory> detailedAtoms;
     std::vector<std::unique_ptr<IntensityCoreStorage>> arrayStorage;
 
     IntensityCoreFactory() : atmos(nullptr), 
                              spect(nullptr),
-                             background(nullptr)
+                             background(nullptr),
+                             depthData(nullptr)
     {}
 
     void initialise(Context* ctx);

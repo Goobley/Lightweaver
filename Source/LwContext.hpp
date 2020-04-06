@@ -8,6 +8,13 @@
 #include "LwTransition.hpp"
 #include "LwAtom.hpp"
 
+struct DepthData
+{
+    bool fill;
+    F64View4D chi;
+    F64View4D eta;
+};
+
 struct Context
 {
     Atmosphere* atmos;
@@ -15,6 +22,7 @@ struct Context
     std::vector<Atom*> activeAtoms;
     std::vector<Atom*> detailedAtoms;
     Background* background;
+    DepthData* depthData;
     int Nthreads;
     LwInternal::ThreadData threading;
 
