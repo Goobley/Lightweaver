@@ -1854,6 +1854,13 @@ cdef class LwContext:
     def Nthreads(self):
         return self.ctx.Nthreads
 
+    @Nthreads.setter
+    def Nthreads(self, value):
+        cdef int prevValue = self.ctx.Nthreads
+        self.ctx.Nthreads = int(value)
+        if prevValue != value:
+            self.update_threads()
+
     cdef setup_threads(self, int Nthreads):
         self.ctx.Nthreads = Nthreads
         self.ctx.initialise_threads()
