@@ -1873,7 +1873,7 @@ cdef class LwContext:
         for atom in atoms:
             atom.update_profiles(polarised=polarised)
 
-    cpdef formal_sol_gamma_matrices(self):
+    cpdef formal_sol_gamma_matrices(self, fixCollisionalRates=False):
         cdef LwAtom atom
         cdef np.ndarray[np.double_t, ndim=3] Gamma
         cdef f64 crswVal = self.crswCallback()
@@ -1885,7 +1885,8 @@ cdef class LwContext:
         for atom in self.activeAtoms:
             Gamma = np.asarray(atom.Gamma)
             Gamma.fill(0.0)
-            atom.compute_collisions()
+            if not fixCollisionalRates:
+                atom.compute_collisions()
             Gamma += crswVal * np.asarray(atom.C)
 
         cdef f64 dJ = formal_sol_gamma_matrices(self.ctx)
