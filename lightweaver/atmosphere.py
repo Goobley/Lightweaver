@@ -201,10 +201,6 @@ class Atmosphere:
 
             hTau1 = np.interp(1.0, tau_ref, height)
             height -= hTau1
-
-            self.cmass = cmass
-            self.height = height
-            self.tau_ref = tau_ref
         elif self.scale == ScaleType.Geometric:
             cmass = np.zeros(Nspace)
             tau_ref = np.zeros(Nspace)
@@ -218,9 +214,6 @@ class Atmosphere:
             for k in range(1, Nspace):
                 cmass[k] = cmass[k-1] + 0.5 * (rhoSI[k-1] + rhoSI[k]) * (height[k-1] - height[k])
                 tau_ref[k] = tau_ref[k-1] + 0.5 * (chi_c[k-1] + chi_c[k]) * (height[k-1] - height[k])
-            self.cmass = cmass
-            self.height = height
-            self.tau_ref = tau_ref
         elif self.scale == ScaleType.Tau500:
             cmass = np.zeros(Nspace)
             height = np.zeros(Nspace)
@@ -233,12 +226,21 @@ class Atmosphere:
 
             hTau1 = np.interp(1.0, tau_ref, height)
             height -= hTau1
-
-            self.cmass = cmass
-            self.height = height
-            self.tau_ref = tau_ref
         else:
             raise ValueError("Other scales not handled yet")
+
+        try:
+            self.cmass[:] = cmass
+        except AttributeError:
+            self.cmass = cmass
+        try:
+            self.height[:] = height
+        except AttributeError:
+            self.height = height
+        try:
+            self.tau_ref[:] = tau_ref
+        except AttributeError:
+            self.tau_ref = tau_ref
 
     def quadrature(self, Nrays: Optional[int]=None, mu: Optional[Sequence[float]]=None, wmu: Optional[Sequence[float]]=None):
 
