@@ -487,6 +487,7 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
     const bool updateJ = mode & FsMode::UpdateJ;
     const bool updateRates = mode & FsMode::UpdateRates;
     const bool prdRatesOnly = mode & FsMode::PrdOnly;
+    const bool lambdaIterate = mode & FsMode::PureLambdaIteration;
     const bool computeOperator = bool(PsiStar);
     const bool storeDepthData = (data.depthData && data.depthData->fill);
 
@@ -578,6 +579,9 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
 
                     if (computeOperator)
                     {
+                        if (lambdaIterate)
+                            PsiStar.fill(0.0);
+
                         for (int k = 0; k < Nspace; ++k)
                         {
                             Ieff(k) = I(k) - PsiStar(k) * atom.eta(k);
@@ -654,7 +658,7 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
 }
 }
 
-f64 formal_sol_gamma_matrices(Context& ctx)
+f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
 {
     // feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
     JasUnpack(*ctx, atmos, spect, background, depthData);
@@ -701,6 +705,9 @@ f64 formal_sol_gamma_matrices(Context& ctx)
 
         f64 dJMax = 0.0;
         FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates);
+        if (lambdaIterate)
+            mode = mode | FsMode::PureLambdaIteration;
+
         for (int la = 0; la < Nspect; ++la)
         {
             f64 dJ = intensity_core(iCore, la, mode);
@@ -756,6 +763,7 @@ f64 formal_sol_gamma_matrices(Context& ctx)
             IntensityCoreData* core;
             f64 dJ;
             i64 dJIdx;
+            bool lambdaIterate;
         };
         FsTaskData* taskData = (FsTaskData*)malloc(ctx.Nthreads * sizeof(FsTaskData));
         for (int t = 0; t < ctx.Nthreads; ++t)
@@ -763,6 +771,7 @@ f64 formal_sol_gamma_matrices(Context& ctx)
             taskData[t].core = cores.cores[t];
             taskData[t].dJ = 0.0;
             taskData[t].dJIdx = 0;
+            taskData[t].lambdaIterate = lambdaIterate;
         }
 
         auto fs_task = [](void* data, scheduler* s, 
@@ -770,6 +779,9 @@ f64 formal_sol_gamma_matrices(Context& ctx)
         {
             auto& td = ((FsTaskData*)data)[threadId];
             FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates);
+            if (td.lambdaIterate)
+                mode = mode | FsMode::PureLambdaIteration;
+
             for (i64 la = p.start; la < p.end; ++la)
             {
                 f64 dJ = intensity_core(*td.core, la, mode);

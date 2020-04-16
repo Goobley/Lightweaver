@@ -192,6 +192,7 @@ cdef extern from "Lightweaver.hpp":
         f64 dRho
 
     cdef f64 formal_sol_gamma_matrices(Context& ctx)
+    cdef f64 formal_sol_gamma_matrices(Context& ctx, bool_t lambdaIterate)
     cdef f64 formal_sol_update_rates(Context& ctx)
     cdef f64 formal_sol_update_rates_fixed_J(Context& ctx)
     cdef f64 formal_sol(Context& ctx)
@@ -1619,6 +1620,10 @@ cdef class LwAtom:
         return np.asarray(self.C)
 
     @property
+    def nTotal(self):
+        return np.asarray(self.nTotal)
+
+    @property
     def n(self):
         return np.asarray(self.n)
 
@@ -1873,7 +1878,7 @@ cdef class LwContext:
         for atom in atoms:
             atom.update_profiles(polarised=polarised)
 
-    cpdef formal_sol_gamma_matrices(self, fixCollisionalRates=False):
+    cpdef formal_sol_gamma_matrices(self, fixCollisionalRates=False, lambdaIterate=False):
         cdef LwAtom atom
         cdef np.ndarray[np.double_t, ndim=3] Gamma
         cdef f64 crswVal = self.crswCallback()
@@ -1889,7 +1894,7 @@ cdef class LwContext:
                 atom.compute_collisions()
             Gamma += crswVal * np.asarray(atom.C)
 
-        cdef f64 dJ = formal_sol_gamma_matrices(self.ctx)
+        cdef f64 dJ = formal_sol_gamma_matrices(self.ctx, lambdaIterate)
         print('dJ = %.2e' % dJ)
         return dJ
 
