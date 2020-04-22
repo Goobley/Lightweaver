@@ -514,17 +514,45 @@ class RadiativeSet:
             a.replace_atomic_table(self.atomicTable)
 
     def iterate_lte_ne_eq_pops(self, atmos: Atmosphere, 
-                               mols: Optional[MolecularTable]=None):
+                               mols: Optional[MolecularTable]=None,
+                               direct: bool=False):
         if mols is None:
             mols = MolecularTable([])
 
-        ne = np.copy(atmos.ne) / atmos.nHTot
-        iterator = LteNeIterator(self.atoms, atmos.temperature, atmos.nHTot)
-        ne += iterator(ne)
-        newNe = newton_krylov(iterator, ne)
-        atmos.ne[:] = newNe * atmos.nHTot
+        if direct:
+            maxIter = 3000
+            prevNe = np.copy(atmos.ne)
+            ne = np.copy(atmos.ne)
+            for it in range(maxIter):
+                atomicPops = []
+                prevNe[:] = ne
+                ne.fill(0.0)
+                for a in sorted(self.atoms, key=atomic_weight_sort):
+                    nTotal = self.atomicTable[a.name].abundance * atmos.nHTot
+                    nStar = lte_pops(a, atmos.temperature, atmos.ne, nTotal, debye=True)
+                    atomicPops.append(AtomicState(a, nStar, nTotal))
+                    stages = np.array([l.stage for l in a.levels])
+                    # print(stages)
+                    ne += np.sum(nStar * stages[:, None], axis=0)
+                    # print(ne)
+                atmos.ne[:] = ne
 
-        atomicPops = iterator.atomicPops
+                relDiff = np.nanmax(np.abs(1.0 - prevNe / ne))
+                print(relDiff)
+                maxRelDiff = np.nanmax(relDiff)
+                if maxRelDiff < 1e-3:
+                    print("Iterate LTE: %d iterations" % it)
+                    break
+            else:
+                print("LTE ne failed to converge")
+        else:
+            ne = np.copy(atmos.ne) / atmos.nHTot
+            iterator = LteNeIterator(self.atoms, atmos.temperature, atmos.nHTot)
+            ne += iterator(ne)
+            newNe = newton_krylov(iterator, ne)
+            atmos.ne[:] = newNe * atmos.nHTot
+
+            atomicPops = iterator.atomicPops
 
         table = AtomicStateTable(atomicPops)
         eqPops = chemical_equilibrium_fixed_ne(atmos, mols, table, self.atoms[0].atomicTable)

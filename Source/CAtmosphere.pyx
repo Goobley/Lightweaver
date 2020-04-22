@@ -1535,13 +1535,29 @@ cdef class LwAtom:
                     t.load_rates_prd_from_state(st, preserveProfiles=preserveProfiles)
                     break
 
-    def compute_collisions(self):
+    def compute_collisions(self, fillDiagonal=False):
         cdef np.ndarray[np.double_t, ndim=3] C = np.asarray(self.C)
         C.fill(0.0)
         cdef np.ndarray[np.double_t, ndim=2] nStar = np.asarray(self.nStar)
         for col in self.atomicModel.collisions:
             col.compute_rates(self.atmos, nStar, C)
         C[C < 0.0] = 0.0
+
+        if not fillDiagonal:
+            return
+
+        cdef int k
+        cdef int i
+        cdef int j
+        cdef f64 CDiag
+        for k in range(C.shape[2]):
+            for i in range(C.shape[0]):
+                CDiag = 0.0
+                C[i, i, k] = 0.0
+                for j in range(C.shape[0]):
+                    CDiag += C[j, i, k]
+                C[i, i, k] = -CDiag
+
 
     cpdef set_pops_escape_probability(self, LwAtmosphere a, LwBackground bg, conserveCharge=False, int Niter=100):
         cdef np.ndarray[np.double_t, ndim=3] Gamma
@@ -1739,8 +1755,10 @@ cdef class LwContext:
     cdef bool_t hprd
     cdef object crswCallback
     cdef public object crswDone
+    cdef dict __dict__
 
     def __init__(self, atmos, spect, eqPops, ngOptions=None, initSol=None, conserveCharge=False, hprd=False, crswCallback=None, Nthreads=1):
+        self.__dict__ = {}
         self.arguments = {'atmos': atmos, 'spect': spect, 'eqPops': eqPops, 'ngOptions': ngOptions, 'initSol': initSol, 'conserveCharge': conserveCharge, 'hprd': hprd, 'Nthreads': Nthreads}
 
         self.atmos = LwAtmosphere(atmos)
