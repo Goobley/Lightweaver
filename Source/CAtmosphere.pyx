@@ -7,7 +7,7 @@ from libcpp.vector cimport vector
 from libc.math cimport sqrt, exp, copysign
 from .atmosphere import BoundaryCondition
 from .atomic_model import AtomicLine, LineType
-from .utils import InitialSolution, ExplodingMatrixError
+from .utils import InitialSolution, ExplodingMatrixError, UnityCrswIterator
 from scipy.interpolate import interp1d
 import lightweaver.constants as Const
 import time
@@ -1789,7 +1789,7 @@ cdef class LwContext:
             self.configure_hprd_coeffs()
 
         if crswCallback is None:
-            self.crswCallback = lambda: 1.0
+            self.crswCallback = UnityCrswIterator()
             self.crswDone = True
         else:
             self.crswCallback = crswCallback
@@ -1849,7 +1849,7 @@ cdef class LwContext:
 
         self.crswDone = state['crswDone']
         if state['crswCallback'] is None:
-            self.crswCallback = lambda: 1.0
+            self.crswCallback = UnityCrswIterator()
         else:
             self.crswCallback = state['crswCallback']
 

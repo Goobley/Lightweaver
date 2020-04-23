@@ -82,3 +82,10 @@ class CrswIterator:
     def __call__(self):
         self.val = max(1.0, self.val * 0.1**(1.0/self.val))
         return self.val
+
+class UnityCrswIterator(CrswIterator):
+    def __init__(self):
+        super().__init__(1.0)
+
+    def __call__(self):
+        return self.val
