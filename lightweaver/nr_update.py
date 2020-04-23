@@ -26,6 +26,7 @@ def F(self, k, backgroundNe=0.0):
 
 def nr_post_update(self, fdCollisionRates=True):
     assert self.activeAtoms[0].atomicModel.name.startswith('H')
+    crswVal = self.crswCallback.val
 
     Nlevel = 0
     for atom in self.activeAtoms:
@@ -58,7 +59,7 @@ def nr_post_update(self, fdCollisionRates=True):
             atom.compute_collisions(fillDiagonal=True)
             self.atmos.ne[:] = neStart
             atom.nStar[:] = nStarPrev
-            dC.append((atom.C - Cprev) / pert)
+            dC.append(crswVal * (atom.C - Cprev) / pert)
             atom.C[:] = Cprev
 
     maxChange = 0.0
@@ -77,7 +78,7 @@ def nr_post_update(self, fdCollisionRates=True):
             for t in atom.trans:
                 if t.type == 'Continuum':
                     # dF[start + t.i, Neqn-1] -= (t.Rji[k] / self.atmos.ne[k]) * atom.n[t.j, k]
-                    preconRji = atom.Gamma[t.i, t.j, k] - atom.C[t.i, t.j, k]
+                    preconRji = atom.Gamma[t.i, t.j, k] - crswVal * atom.C[t.i, t.j, k]
                     dF[start + t.i, Neqn-1] -= (preconRji / self.atmos.ne[k]) * atom.n[t.j, k]
 
             if fdCollisionRates:

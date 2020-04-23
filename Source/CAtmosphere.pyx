@@ -1753,7 +1753,7 @@ cdef class LwContext:
     cdef list detailedAtoms
     cdef bool_t conserveCharge
     cdef bool_t hprd
-    cdef object crswCallback
+    cdef public object crswCallback
     cdef public object crswDone
     cdef dict __dict__
 
