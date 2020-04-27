@@ -542,9 +542,14 @@ cdef class LwAtmosphere:
         else:
             raise ValueError('Unknown bc')
 
-    
-cdef class LwBackground:
-    cdef Background background
+cdef class BackgroundProvider:
+    def __init__(self, eqPops, radSet, wavelength):
+        pass
+
+    cpdef compute_background(self, LwAtmosphere atmos, f64[:,::1] chi, f64[:,::1] eta, f64[:,::1] sca):
+        raise NotImplemented
+
+cdef class BasicBackground(BackgroundProvider):
     cdef BackgroundData bd
     cdef object eqPops
     cdef object radSet
@@ -556,12 +561,9 @@ cdef class LwBackground:
     cdef f64[:,::1] hPops
 
     cdef f64[::1] wavelength
-    cdef f64[:,::1] chi
-    cdef f64[:,::1] eta
-    cdef f64[:,::1] sca
 
-    def __init__(self, atmosphere, eqPops, radSet, wavelength):
-        cdef LwAtmosphere atmos = atmosphere
+    def __init__(self, eqPops, radSet, wavelength):
+        super().__init__(eqPops, radSet, wavelength)
         self.eqPops = eqPops
         self.radSet = radSet
 
@@ -577,156 +579,51 @@ cdef class LwBackground:
 
         self.hMinusPops = eqPops['H-']
         self.bd.hMinusPops = f64_view(self.hMinusPops)
-        # NOTE(cmo): Use LTE hydrogen pops here. If NLTE pops are wanted call update_background. Alternatively, add another flag to context construction
-        self.hPops = eqPops.atomicPops['H'].nStar
+        self.hPops = eqPops['H']
         self.bd.hPops = f64_view_2(self.hPops)
 
         self.wavelength = wavelength
         self.bd.wavelength = f64_view(self.wavelength)
 
+    cpdef compute_background(self, LwAtmosphere atmos, f64[:,::1] chi, f64[:,::1] eta, f64[:,::1] sca):
         cdef int Nlambda = self.wavelength.shape[0]
         cdef int Nspace = atmos.Nspace
 
-        self.chi = np.zeros((Nlambda, Nspace))
-        self.bd.chi = f64_view_2(self.chi)
-        self.eta = np.zeros((Nlambda, Nspace))
-        self.bd.eta = f64_view_2(self.eta)
-        self.sca = np.zeros((Nlambda, Nspace))
-        self.bd.scatt = f64_view_2(self.sca)
+        self.bd.chi = f64_view_2(chi)
+        self.bd.eta = f64_view_2(eta)
+        self.bd.scatt = f64_view_2(sca)
 
-        # start = time.time()
         basic_background(&self.bd, &atmos.atmos)
-        # mid = time.time()
-        self.rayleigh_scattering(atmos)
-        self.bf_opacities(atmos)
-        # end = time.time()
-
-        # print("First: %.4e, Second: %.4e, Ratio: %.4e" % (mid - start, end - mid, ((mid-start)/(end-mid))))
+        self.rayleigh_scattering(atmos, sca)
+        self.bf_opacities(atmos, chi, eta)
 
         cdef int la, k
         for la in range(Nlambda):
             for k in range(Nspace):
-                self.chi[la, k] += self.sca[la, k]
+                chi[la, k] += sca[la, k]
 
-        self.background.chi = f64_view_2(self.chi)
-        self.background.eta = f64_view_2(self.eta)
-        self.background.sca = f64_view_2(self.sca)
-
-    cpdef update_background(self, atmos):
-        cdef LwAtmosphere lwAtmos = atmos
-        self.hPops = self.eqPops.atomicPops['H'].n
-        self.bd.hPops = f64_view_2(self.hPops)
-
-        basic_background(&self.bd, &lwAtmos.atmos)
-        self.rayleigh_scattering(lwAtmos, useLte=False)
-        self.bf_opacities(lwAtmos)
-
-        cdef int la, k
-        for la in range(self.wavelength.shape[0]):
-            for k in range(lwAtmos.Nspace):
-                self.chi[la, k] += self.sca[la, k]
-
-    def __getstate__(self):
-        state = {}
-        state['eqPops'] = self.eqPops
-        state['radSet'] = self.radSet
-
-        if 'CH' is self.eqPops:
-            state['chPops'] = self.eqPops['CH']
-        else:
-            state['chPops'] = None
-
-        if 'OH' in self.eqPops:
-            state['ohPops'] = self.eqPops['OH']
-        else:
-            state['ohPops'] = None
-
-        if 'H2' in self.eqPops:
-            state['h2Pops'] = self.eqPops['H2']
-        else:
-            state['h2Pops'] = None
-
-        state['hMinusPops'] = self.eqPops['H-']
-        if np.all(np.asarray(self.hPops) == self.eqPops.atomicPops['H'].n):
-            state['hPops'] = self.eqPops.atomicPops['H'].n
-        else:
-            state['hPops'] = self.eqPops.atomicPops['H'].nStar
-
-        state['wavelength'] = np.asarray(self.wavelength)
-        state['chi'] = np.asarray(self.chi)
-        state['eta'] = np.asarray(self.eta)
-        state['sca'] = np.asarray(self.sca)
-
-        return state
-
-    def __setstate__(self, state):
-        self.eqPops = state['eqPops']
-        self.radSet = state['radSet']
-
-        if state['chPops'] is not None:
-            self.chPops = state['chPops']
-            self.bd.chPops = f64_view(self.chPops)
-        if state['ohPops'] is not None:
-            self.ohPops = state['ohPops']
-            self.bd.ohPops = f64_view(self.h2Pops)
-        if state['h2Pops'] is not None:
-            self.h2Pops = state['h2Pops']
-            self.bd.h2Pops = f64_view(self.h2Pops)
-
-        self.hMinusPops = state['hMinusPops']
-        self.bd.hMinusPops = f64_view(self.hMinusPops)
-        self.hPops = state['hPops']
-        self.bd.hPops = f64_view_2(self.hPops)
-
-        self.wavelength = state['wavelength']
-        self.bd.wavelength = f64_view(self.wavelength)
-
-        self.chi = state['chi']
-        self.bd.chi = f64_view_2(self.chi)
-        self.eta = state['eta']
-        self.bd.eta = f64_view_2(self.eta)
-        self.sca = state['sca']
-        self.bd.scatt = f64_view_2(self.sca)
-        self.background.chi = f64_view_2(self.chi)
-        self.background.eta = f64_view_2(self.eta)
-        self.background.sca = f64_view_2(self.sca)
-
-    @property
-    def chi(self):
-        return np.asarray(self.chi)
-
-    @property
-    def eta(self):
-        return np.asarray(self.eta)
-
-    @property
-    def sca(self):
-        return np.asarray(self.sca)
-
-    cpdef rayleigh_scattering(self, atmosphere, useLte=True):
-        cdef LwAtmosphere atmos = atmosphere
-        cdef f64[::1] sca = np.zeros(atmos.Nspace)
+    cpdef rayleigh_scattering(self, LwAtmosphere atmos, f64[:,::1] sca):
+        cdef f64[::1] scaLine = np.zeros(atmos.Nspace)
         cdef int k, la
         cdef RayleighScatterer rayH, rayHe
 
         if 'H' in self.radSet:
-            hPops = self.eqPops.atomicPops['H'].nStar if useLte else self.eqPops['H']
+            hPops = self.eqPops['H']
             rayH = RayleighScatterer(atmos, self.radSet['H'], hPops)
             for la in range(self.wavelength.shape[0]):
-                if rayH.scatter(self.wavelength[la], sca):
+                if rayH.scatter(self.wavelength[la], scaLine):
                     for k in range(atmos.Nspace):
-                        self.sca[la, k] += sca[k]
+                        sca[la, k] += scaLine[k]
 
         if 'He' in self.radSet:
-            hePops = self.eqPops.atomicPops['He'].nStar if useLte else self.eqPops['He']
+            hePops = self.eqPops['He']
             rayHe = RayleighScatterer(atmos, self.radSet['He'], hePops)
             for la in range(self.wavelength.shape[0]):
-                if rayHe.scatter(self.wavelength[la], sca):
+                if rayHe.scatter(self.wavelength[la], scaLine):
                     for k in range(atmos.Nspace):
-                        self.sca[la, k] += sca[k]
+                        sca[la, k] += scaLine[k]
 
-    cpdef bf_opacities(self, atmosphere):
-        cdef LwAtmosphere atmos = atmosphere
+    cpdef bf_opacities(self, LwAtmosphere atmos, f64[:,::1] chi, f64[:,::1] eta):
         atoms = self.radSet.passiveAtoms
         # print([a.name for a in atoms])
         if len(atoms) == 0:
@@ -771,8 +668,143 @@ cdef class LwBackground:
                 twohnu3_c2 = twohc / self.wavelength[la]**3
                 for k in range(atmos.Nspace):
                     gijk = nStar[ci, k] / nStar[cj, k] * expla[la, k]
-                    self.chi[la, k] += alpha[la, i] * (1.0 - expla[la, k]) * n[ci, k]
-                    self.eta[la, k] += twohnu3_c2 * gijk * alpha[la, i] * n[cj, k]
+                    chi[la, k] += alpha[la, i] * (1.0 - expla[la, k]) * n[ci, k]
+                    eta[la, k] += twohnu3_c2 * gijk * alpha[la, i] * n[cj, k]
+
+    def __getstate__(self):
+        state = {}
+        state['eqPops'] = self.eqPops
+        state['radSet'] = self.radSet
+        if 'CH' is self.eqPops:
+            state['chPops'] = self.eqPops['CH']
+        else:
+            state['chPops'] = None
+
+        if 'OH' in self.eqPops:
+            state['ohPops'] = self.eqPops['OH']
+        else:
+            state['ohPops'] = None
+
+        if 'H2' in self.eqPops:
+            state['h2Pops'] = self.eqPops['H2']
+        else:
+            state['h2Pops'] = None
+
+        state['hMinusPops'] = self.eqPops['H-']
+        state['hPops'] = self.eqPops['H']
+        state['wavelength'] = np.asarray(self.wavelength)
+
+        return state
+
+    def __setstate__(self, state):
+        self.eqPops = state['eqPops']
+        self.radSet = state['radSet']
+
+        if state['chPops'] is not None:
+            self.chPops = state['chPops']
+            self.bd.chPops = f64_view(self.chPops)
+        if state['ohPops'] is not None:
+            self.ohPops = state['ohPops']
+            self.bd.ohPops = f64_view(self.h2Pops)
+        if state['h2Pops'] is not None:
+            self.h2Pops = state['h2Pops']
+            self.bd.h2Pops = f64_view(self.h2Pops)
+
+        self.hMinusPops = state['hMinusPops']
+        self.bd.hMinusPops = f64_view(self.hMinusPops)
+        self.hPops = state['hPops']
+        self.bd.hPops = f64_view_2(self.hPops)
+
+        self.wavelength = state['wavelength']
+        self.bd.wavelength = f64_view(self.wavelength)
+
+    @classmethod
+    def _reconstruct(cls, state):
+        o = cls.__new__(cls)
+        o.__setstate__(state)
+        return o
+
+    def __reduce__(self):
+        return self._reconstruct, (self.__getstate__(),)
+
+    
+cdef class LwBackground:
+    cdef Background background
+    cdef object eqPops
+    cdef object radSet
+
+    cdef BackgroundProvider provider
+
+    cdef f64[::1] wavelength
+    cdef f64[:,::1] chi
+    cdef f64[:,::1] eta
+    cdef f64[:,::1] sca
+
+    def __init__(self, atmosphere, eqPops, radSet, wavelength, provider=None):
+        cdef LwAtmosphere atmos = atmosphere
+        self.eqPops = eqPops
+        self.radSet = radSet
+
+        self.wavelength = wavelength
+
+        cdef int Nlambda = self.wavelength.shape[0]
+        cdef int Nspace = atmos.Nspace
+
+        self.chi = np.zeros((Nlambda, Nspace))
+        self.eta = np.zeros((Nlambda, Nspace))
+        self.sca = np.zeros((Nlambda, Nspace))
+
+        if provider is None:
+            self.provider = BasicBackground(eqPops, radSet, wavelength)
+        else:
+            self.provider = provider(eqPops, radSet, wavelength)
+
+        self.provider.compute_background(atmos, self.chi, self.eta, self.sca)
+
+        self.background.chi = f64_view_2(self.chi)
+        self.background.eta = f64_view_2(self.eta)
+        self.background.sca = f64_view_2(self.sca)
+
+    cpdef update_background(self, LwAtmosphere atmos):
+        self.provider.compute_background(atmos, self.chi, self.eta, self.sca)
+
+    def __getstate__(self):
+        state = {}
+        state['eqPops'] = self.eqPops
+        state['radSet'] = self.radSet
+        state['provider'] = self.provider
+        state['wavelength'] = np.asarray(self.wavelength)
+        state['chi'] = np.asarray(self.chi)
+        state['eta'] = np.asarray(self.eta)
+        state['sca'] = np.asarray(self.sca)
+
+        return state
+
+    def __setstate__(self, state):
+        self.eqPops = state['eqPops']
+        self.radSet = state['radSet']
+        self.provider = state['provider']
+
+        self.wavelength = state['wavelength']
+        self.chi = state['chi']
+        self.eta = state['eta']
+        self.sca = state['sca']
+        self.background.chi = f64_view_2(self.chi)
+        self.background.eta = f64_view_2(self.eta)
+        self.background.sca = f64_view_2(self.sca)
+
+    @property
+    def chi(self):
+        return np.asarray(self.chi)
+
+    @property
+    def eta(self):
+        return np.asarray(self.eta)
+
+    @property
+    def sca(self):
+        return np.asarray(self.sca)
+
 
 cdef class RayleighScatterer:
     cdef f64 lambdaLimit
