@@ -110,7 +110,8 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False, timeDependentData=N
         dF[...] = 0.0
         if timeDependent:
             Fg = self.Ftd(k, dt=timeDependentData['dt'], 
-                          nPrev=timeDependentData['nPrev'], backgroundNe=backgroundNe[k])
+                          nPrev=timeDependentData['nPrev'],
+                          backgroundNe=backgroundNe[k], atoms=atoms)
         else:
             Fg = self.F(k, backgroundNe=backgroundNe[k], atoms=atoms)
 
@@ -177,7 +178,9 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False, timeDependentData=N
             maxIdx = np.argmax(np.abs(update/Fnew))
             maxk = k
 
-    # NOTE(cmo): If we're here then conserveCharge has to be True
-    self.eqPops.update_lte_atoms_Hmin_pops(self.arguments['atmos'], conserveCharge=True, quiet=True)
+    # NOTE(cmo): If we're here then conserveCharge has to be True, but we don't
+    # actually want to mess with n_e, that's the point in this function. Should
+    # handle LTE atoms here if we want to include their effects
+    self.eqPops.update_lte_atoms_Hmin_pops(self.arguments['atmos'], conserveCharge=False, quiet=True)
     print('    NR Update dPops: %.2e (%d, k: %d)' % (maxChange, maxIdx, maxk))
     return maxChange
