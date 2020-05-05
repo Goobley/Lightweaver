@@ -335,31 +335,37 @@ class SpeciesStateTable:
         key = self.molecularTable.indices[name]
         return self.molecularPops[key]
 
-    def update_lte_atoms_Hmin_pops(self, atmos: Atmosphere, conserveCharge=False, updateTotals=False, maxIter=2000):
+    def update_lte_atoms_Hmin_pops(self, atmos: Atmosphere, conserveCharge=False, updateTotals=False, maxIter=2000, quiet=False):
         if updateTotals:
             for atom in self.atomicPops:
                 atom.update_nTotal(atmos)
         for i in range(maxIter):
             maxDiff = 0.0
-            ne = np.copy(atmos.ne)
+            maxName = '--'
+            ne = np.zeros_like(atmos.ne)
             for atom in self.atomicPops:
                 prevNStar = np.copy(atom.nStar)
                 newNStar = lte_pops(atom.model, atmos.temperature, atmos.ne, atom.nTotal, debye=True)
                 deltaNStar = newNStar - prevNStar
                 atom.nStar[:] = newNStar
 
-                if atom.pops is None and conserveCharge:
+                if conserveCharge:
                     stages = np.array([l.stage for l in atom.model.levels])
-                    ne += np.sum((atom.nStar - prevNStar) * stages[:, None], axis=0)
+                    if atom.pops is None:
+                        ne += np.sum(atom.nStar * stages[:, None], axis=0)
+                    else:
+                        ne += np.sum(atom.n * stages[:, None], axis=0)
 
-                    ne[ne < 1e6] = 1e6
                 diff = np.nanmax(1.0 - prevNStar / atom.nStar)
                 if diff > maxDiff:
                     maxDiff = diff
                     maxName = atom.name
-            atmos.ne[:] = ne
+            if conserveCharge:
+                ne[ne < 1e6] = 1e6
+                atmos.ne[:] = ne
             if maxDiff < 1e-3:
-                print('LTE Iterations %d' % (i+1))
+                if not quiet:
+                    print('LTE Iterations %d (%s slowest convergence)' % (i+1, maxName))
                 break
 
         else:

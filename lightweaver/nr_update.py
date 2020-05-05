@@ -177,6 +177,7 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False, timeDependentData=N
             maxIdx = np.argmax(np.abs(update/Fnew))
             maxk = k
 
-
-    print('NR Update dPops: %.2e (%d, k: %d)' % (maxChange, maxIdx, maxk))
+    # NOTE(cmo): If we're here then conserveCharge has to be True
+    self.eqPops.update_lte_atoms_Hmin_pops(self.arguments['atmos'], conserveCharge=True, quiet=True)
+    print('    NR Update dPops: %.2e (%d, k: %d)' % (maxChange, maxIdx, maxk))
     return maxChange

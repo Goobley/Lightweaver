@@ -1400,7 +1400,7 @@ cdef class LwAtom:
             self.atom.chi = f64_view_2(self.chi)
 
         if initSol is None:
-            initSol = InitialSolution.EscapeProbability
+            initSol = InitialSolution.Lte
 
         if doInitSol and initSol == InitialSolution.Zero:
             raise ValueError('Zero radiation InitialSolution not currently supported')
@@ -1747,8 +1747,8 @@ cdef class LwContext:
     cdef LwBackground background
     cdef LwDepthData depthData
     cdef public dict arguments
-    cdef object atomicTable
-    cdef object eqPops
+    cdef public object atomicTable
+    cdef public object eqPops
     cdef list activeAtoms
     cdef list detailedAtoms
     cdef bool_t conserveCharge
@@ -2014,19 +2014,10 @@ cdef class LwContext:
         cdef int k
         cdef np.ndarray[np.double_t, ndim=1] deltaNe
 
-        conserveActiveCharge = self.conserveCharge
-        conserveLteCharge = False
-        doBackground = False
-        doPhi = False
-        if conserveLteCharge or conserveActiveCharge:
-            prevNe = np.copy(self.atmos.ne)
-
         for atom in atoms:
             a = &atom.atom
             if not a.ng.init:
                 a.ng.accelerate(a.n.flatten())
-            if conserveActiveCharge:
-                prevN = np.copy(atom.n)
             try:
                 stat_eq(a)
             except:
@@ -2039,37 +2030,8 @@ cdef class LwContext:
             print(s)
             maxDelta = max(maxDelta, delta)
 
-            if conserveActiveCharge:
-                deltaNe = np.sum((np.asarray(atom.n) - prevN) * np.asarray(atom.stages)[:, None], axis=0)
-                for k in range(self.atmos.Nspace):
-                    # if abs(deltaNe[k]) > 0.2 * self.atmos.ne[k]:
-                    #     deltaNe[k] = copysign(0.1 * self.atmos.ne[k], deltaNe[k])
-
-                    self.atmos.ne[k] += deltaNe[k]
-
-                for k in range(self.atmos.Nspace):
-                    if self.atmos.ne[k] < 1e6:
-                        self.atmos.ne[k] = 1e6
-
-        if conserveLteCharge:
-            self.eqPops.update_lte_atoms_Hmin_pops(self.arguments['atmos'])
-
-        if doBackground:
-            self.background.update_background(self.atmos)
-
-        if doPhi:
-            for atom in atoms:
-                for t in atom.trans:
-                    t.compute_phi()
-
-        if conserveActiveCharge or conserveLteCharge:
-            for k in range(self.atmos.Nspace):
-                if self.atmos.ne[k] < 1e6:
-                    self.atmos.ne[k] = 1e6
-            maxDeltaNe = np.nanmax(1.0 - prevNe / np.asarray(self.atmos.ne))
-            print('    ne delta: %6.4e' % (maxDeltaNe))
-            maxDelta = max(maxDelta, maxDeltaNe)
-
+        if self.conserveCharge:
+            self.nr_post_update()
 
         return maxDelta
 
