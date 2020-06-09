@@ -33,8 +33,8 @@ class AtomicModel:
 
         for l in self.lines:
             l.setup(self)
-        
-        # This is separate because all of the lines in 
+
+        # This is separate because all of the lines in
         # an atom need to be initialised first
         for l in self.lines:
             l.setup_wavelength()
@@ -65,7 +65,6 @@ class AtomicModel:
         return hash(repr(self))
 
     def replace_atomic_table(self, table: AtomicTable):
-        print('Called %s' % self.name)
         self.atomicTable = table
         self.__post_init__()
 
@@ -131,7 +130,7 @@ class AtomicLevel:
         if not any([x is None for x in [self.J, self.L, self.S]]):
             if self.J <= self.L + self.S:
                 self.lsCoupling = True
-            
+
     def __eq__(self, other: object) -> bool:
         return model_component_eq(self, other)
 
@@ -201,7 +200,7 @@ class VdwUnsold(VdwApprox):
                              + self.vals[1] * heAbund * vRel35He) * C625
 
     def broaden(self, temperature, nHGround, broad):
-        broad[:] = self.cross * temperature**0.3 * nHGround 
+        broad[:] = self.cross * temperature**0.3 * nHGround
 
 
 @dataclass(eq=False)
@@ -237,8 +236,8 @@ class VdwBarklem(VdwApprox):
             newVals = self.barklem.get_active_cross_section(line.atom, line)
         except:
             raise VdwBarklemIncompatible
-        
-        self.vals = newVals
+
+        self.barklemVals = newVals
 
         Z = line.jLevel.stage + 1
         j = line.j
@@ -259,19 +258,19 @@ class VdwBarklem(VdwApprox):
                     * (1.0 + table[name].weight / table['He'].weight))**0.3
 
         heAbund = table['He'].abundance
-        self.cross = 8.08 * self.vals[2] * heAbund * vRel35He * C625
+        self.cross = 8.08 * self.barklemVals[2] * heAbund * vRel35He * C625
 
     def broaden(self, temperature, nHGround, broad):
-        broad[:] = self.vals[0] * temperature**(0.5*(1.0-self.vals[1])) \
+        broad[:] = self.barklemVals[0] * temperature**(0.5*(1.0-self.barklemVals[1])) \
                     + self.cross * temperature**0.3
         broad *= nHGround
-        
+
 @dataclass
 class AtomicTransition:
     def __eq__(self, other: object) -> bool:
         return model_component_eq(self, other)
     pass
-    
+
 @dataclass(eq=False)
 class AtomicLine(AtomicTransition):
     j: int
@@ -293,7 +292,7 @@ class AtomicLine(AtomicTransition):
 
     def __repr__(self):
         s = 'AtomicLine(j=%d, i=%d, f=%e, type=%s, NlambdaGen=%d, qCore=%f, qWing=%f, vdw=%s, gRad=%e, stark=%e' % (
-                self.j, self.i, self.f, repr(self.type), self.NlambdaGen, self.qCore, self.qWing, repr(self.vdw), 
+                self.j, self.i, self.f, repr(self.type), self.NlambdaGen, self.qCore, self.qWing, repr(self.vdw),
                 self.gRad, self.stark)
         if self.gLandeEff is not None:
             s += ', gLandeEff=%e' % self.gLandeEff
@@ -338,7 +337,7 @@ class VoigtLine(AtomicLine):
 
     def __repr__(self):
         s = 'VoigtLine(j=%d, i=%d, f=%e, type=%s, NlambdaGen=%d, qCore=%f, qWing=%f, vdw=%s, gRad=%e, stark=%e' % (
-                self.j, self.i, self.f, repr(self.type), self.NlambdaGen, self.qCore, self.qWing, repr(self.vdw), 
+                self.j, self.i, self.f, repr(self.type), self.NlambdaGen, self.qCore, self.qWing, repr(self.vdw),
                 self.gRad, self.stark)
         if self.gLandeEff is not None:
             s += ', gLandeEff=%e' % self.gLandeEff
@@ -456,7 +455,7 @@ class VoigtLine(AtomicLine):
             strength = np.ones(3)
             shift = alpha * self.gLandeEff
             return ZeemanComponents(alpha, strength, shift)
-        
+
         # Do LS coupling
         if self.iLevel.lsCoupling and self.jLevel.lsCoupling:
             # Mypy... you're a pain sometimes... (even if you are technically correct)
@@ -473,7 +472,7 @@ class VoigtLine(AtomicLine):
             strength = []
             shift = []
             norm = np.zeros(3)
-            
+
             for ml in fraction_range(-Jl, Jl+1):
                 for mu in fraction_range(-Ju, Ju+1):
                     if abs(ml - mu) <= 1.0:
@@ -711,13 +710,13 @@ class ExplicitContinuum(AtomicContinuum):
         deltaE = self.jLevel.E_SI - self.iLevel.E_SI
         return Const.HC / deltaE
 
-@dataclass(eq=False) 
+@dataclass(eq=False)
 class HydrogenicContinuum(AtomicContinuum):
     alpha0: float
     minLambda: float
     NlambdaGen: int
 
-    def __repr__(self): 
+    def __repr__(self):
         s = 'HydrogenicContinuum(j=%d, i=%d, alpha0=%e, minLambda=%f, NlambdaGen=%d)' % (self.j, self.i, self.alpha0, self.minLambda, self.NlambdaGen)
         return s
 

@@ -49,7 +49,7 @@ struct Transition
     inline f64 wlambda(int la) const
     {
         if (la == 0)
-            return 0.5 * (wavelength(1) - wavelength(0)) * dopplerWidth; 
+            return 0.5 * (wavelength(1) - wavelength(0)) * dopplerWidth;
 
         int len = wavelength.shape(0);
         if (la == len-1)

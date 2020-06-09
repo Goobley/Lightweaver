@@ -32,7 +32,7 @@ class CompositeLevelError(Exception):
 def get_oribital_number(orbit: str) -> int:
     orbits = ['S', 'P', 'D', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'Q', 'R', 'T', 'U', 'V', 'W', 'X']
     return orbits.index(orbit)
-    
+
 
 def determinate(level: AtomicLevel) -> PrincipalQuantum:
     endIdx = [level.label.upper().rfind(x) for x in ['E', 'O']]
@@ -153,7 +153,7 @@ def conv_atom(inFile):
             lineType = LineType.CRD
         else:
             raise ValueError('Only PRD and VOIGT lines are supported, found type %s' % typ)
-        
+
         # if sym.upper() != 'ASYMM':
         #     print('Only Asymmetric lines are supported, doubling Nlambda')
         #     Nlambda *= 2
@@ -212,7 +212,7 @@ def conv_atom(inFile):
             temperatureGrid = []
             for i in range(Ntemp):
                 temperatureGrid.append(float(line[i+2]))
-        elif line[0].upper() == 'OMEGA': 
+        elif line[0].upper() == 'OMEGA':
             i1 = int(line[1])
             i2 = int(line[2])
             j = max(i1, i2)
@@ -271,7 +271,7 @@ def conv_atom(inFile):
 
 colorama.init()
 fails = open('Fails.txt', 'w')
-path = '/home/osborne/Atoms/'
+path = './Atoms/'
 excludeFiles = ['FeII_big.atom']
 baseFiles = sorted([f for f in os.listdir(path) if f.endswith('.atom') and f not in excludeFiles])
 # baseFiles = ['He_9.atom']
