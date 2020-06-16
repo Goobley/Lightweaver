@@ -1,6 +1,6 @@
 from .atmosphere import Atmosphere, ScaleType, BoundaryCondition
 from .atomic_set import SpectrumConfiguration, RadiativeSet, lte_pops, hminus_pops
-from .atomic_table import atomic_weight_sort, AtomicTable, get_global_atomic_table, set_global_atomic_table
+from .atomic_table import PeriodicTable, AtomicAbundance, KuruczPfTable, DefaultAtomicAbundance
 from .constants import *
 from .molecule import MolecularTable
 from .multi import read_multi_atmos

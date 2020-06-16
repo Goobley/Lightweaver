@@ -10,7 +10,8 @@ from parse import parse
 
 import lightweaver.constants as Const
 from .utils import gaunt_bf
-from .atomic_table import AtomicTable, get_global_atomic_table
+# from .atomic_table import AtomicTable, get_global_atomic_table
+from .atomic_table import PeriodicTable
 from .barklem import Barklem
 
 class VdwBarklemIncompatible(Exception):
@@ -24,7 +25,6 @@ class AtomicModel:
     lines: Sequence['AtomicLine']
     continua: Sequence['AtomicContinuum']
     collisions: Sequence['CollisionalRates']
-    atomicTable: AtomicTable = field(default_factory=get_global_atomic_table)
 
     # @profile
     def __post_init__(self):
@@ -64,12 +64,8 @@ class AtomicModel:
     def __hash__(self):
         return hash(repr(self))
 
-    def replace_atomic_table(self, table: AtomicTable):
-        self.atomicTable = table
-        self.__post_init__()
-
     def vBroad(self, atmos):
-        vTherm = 2.0 * Const.KBoltzmann / (Const.Amu * self.atomicTable[self.name].weight)
+        vTherm = 2.0 * Const.KBoltzmann / (Const.Amu * PeriodicTable[self.atom].mass)
         vBroad = np.sqrt(vTherm * atmos.temperature + atmos.vturb**2)
         return vBroad
 
@@ -119,7 +115,6 @@ class AtomicLevel:
     g: float
     label: str
     stage: int
-    lsCoupling: bool = False
     atom: AtomicModel = field(init=False)
     J: Optional[Fraction] = None
     L: Optional[int] = None
@@ -135,8 +130,19 @@ class AtomicLevel:
         return model_component_eq(self, other)
 
     @property
+    def lsCoupling(self) -> bool:
+        if all(x is not None for x in (self.J, self.L, self.S)):
+            if self.J <= self.L + self.S:
+                return True
+        return False
+
+    @property
     def E_SI(self):
         return self.E * Const.HC / Const.CM_TO_M
+
+    @property
+    def E_eV(self):
+        return self.E_SI / Const.EV
 
     def __repr__(self):
         s = 'AtomicLevel(E=%f, g=%f, label="%s", stage=%d, J=%s, L=%s, S=%s)' % (self.E, self.g, self.label, self.stage, repr(self.J), repr(self.L), repr(self.S))

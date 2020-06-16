@@ -1,7 +1,7 @@
 from parse import parse
 import lightweaver.constants as Const
 from typing import Tuple, Set, List, TYPE_CHECKING, Optional
-from .atomic_table import LtePopulations, AtomicTable, Element, get_global_atomic_table
+from .atomic_table import AtomicTable, Element, get_global_atomic_table
 from .atmosphere import Atmosphere
 import numpy as np
 from numpy.linalg import solve
@@ -90,7 +90,7 @@ def equilibrium_constant_sauval_tatum(tempRange, Ediss, eqc):
         theta = THETA0 / T
         t = np.log10(theta)
         kT = kB * T
-        
+
         eq = eqc[0]
         for i in range(1, eqc.shape[0]):
             eq = eq * t + eqc[i]
@@ -142,11 +142,11 @@ class Molecule:
             self.weight += count * ele.weight
 
         if fitStr == 'KURUCZ_70':
-            self.equilibrium_constant = equilibrium_constant_kurucz_70(self.formationTempRange, 
-             self.Nnuclei - 1 - self.charge, 
+            self.equilibrium_constant = equilibrium_constant_kurucz_70(self.formationTempRange,
+             self.Nnuclei - 1 - self.charge,
              self.Ediss, self.eqcCoeffs)
         elif fitStr == 'KURUCZ_85':
-            self.equilibrium_constant = equilibrium_constant_kurucz_85(self.formationTempRange, 
+            self.equilibrium_constant = equilibrium_constant_kurucz_85(self.formationTempRange,
             self.Nnuclei - 1 - self.charge, self.Ediss, self.eqcCoeffs)
         elif fitStr == 'SAUVAL_TATUM_84':
             self.equilibrium_constant = equilibrium_constant_sauval_tatum(self.formationTempRange, self.Ediss, self.eqcCoeffs)
@@ -197,53 +197,3 @@ class MolecularTableIterator():
             return mol
 
         raise StopIteration
-
-@dataclass
-class EquilibriumPopulations:
-    atmosphere: Atmosphere
-    atomicTable: AtomicTable
-    atomicPops: List[np.ndarray]
-    molecularTable: MolecularTable
-    molecularPops: List[np.ndarray]
-    HminPops: np.ndarray
-
-    def __getitem__(self, name: str) -> np.ndarray:
-        if name == 'H-':
-            return self.HminPops
-        else:
-            name = name.upper()
-            if len(name) == 1:
-                name += ' '
-
-            if name in self.molecularTable.indices.keys():
-                key = self.molecularTable.indices[name]
-                return self.molecularPops[key]
-            elif name in self.atomicTable.indices.keys():
-                key = self.atomicTable.indices[name]
-                return self.atomicPops[key]
-            else:
-                raise KeyError('Unknown key: %s' % name)
-
-    def __contains__(self, name: str) -> bool:
-        if name == 'H-':
-            return True
-        
-        if name in self.molecularTable.indices.keys():
-            return True
-
-        if name in self.atomicTable.indices.keys():
-            return True
-
-        return False
-
-    def atomic_population(self, name: str) -> np.ndarray:
-        name = name.upper()
-        if len(name) == 1:
-            name += ' '
-        key = self.atomicTable.indices[name]
-        return self.atomicPops[key]
-
-    def molecular_population(self, name: str) -> np.ndarray:
-        name = name.upper()
-        key = self.molecularTable.indices[name]
-        return self.molecularPops[key]
