@@ -1,7 +1,7 @@
 from parse import parse
 import lightweaver.constants as Const
-from typing import Tuple, Set, List, TYPE_CHECKING, Optional
-from .atomic_table import AtomicTable, Element, get_global_atomic_table
+from typing import Tuple, Set, List, TYPE_CHECKING, Optional, Union
+from .atomic_table import PeriodicTable, Element
 from .atmosphere import Atmosphere
 import numpy as np
 from numpy.linalg import solve
@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from collections import OrderedDict
 
 # TODO(cmo): This should really be done with a generator/coroutine
-def get_next_line(data):
+def get_next_line(data: List[str]) -> Optional[str]:
     if len(data) == 0:
         return None
     for i, d in enumerate(data):
@@ -100,7 +100,7 @@ def equilibrium_constant_sauval_tatum(tempRange, Ediss, eqc):
 
 
 class Molecule:
-    def __init__(self, filePath: str, atomicTable: AtomicTable):
+    def __init__(self, filePath: str):
         with open(filePath, 'r') as f:
             lines = f.readlines()
 
@@ -113,7 +113,7 @@ class Molecule:
 
         structure = get_next_line(lines)
         constituents = [get_constituent(s.strip()) for s in structure.split(',')]
-        self.elements = [atomicTable[c[1]] for c in constituents]
+        self.elements = [PeriodicTable[c[1]] for c in constituents]
         self.elementCount = [c[0] for c in constituents]
         self.Nnuclei = sum(self.elementCount)
 
@@ -139,7 +139,7 @@ class Molecule:
 
         self.weight = 0.0
         for count, ele in zip(self.elementCount, self.elements):
-            self.weight += count * ele.weight
+            self.weight += count * ele.mass
 
         if fitStr == 'KURUCZ_70':
             self.equilibrium_constant = equilibrium_constant_kurucz_70(self.formationTempRange,
@@ -154,17 +154,15 @@ class Molecule:
             raise ValueError('Unknown molecular equilibrium constant fit method %s in molecule %s' % (fitStr, self.name))
 
 class MolecularTable:
-    def __init__(self, paths: Optional[List[str]]=None, table: Optional[AtomicTable]=None):
-        if table is None:
-            table = get_global_atomic_table()
-        self.molecules: List[Molecule] = []
+    def __init__(self, paths: Optional[List[str]]=None):
 
+        self.molecules: List[Molecule] = []
         if paths is None:
             self.indices = OrderedDict()
             return
 
         for path in paths:
-            self.molecules.append(Molecule(path, table))
+            self.molecules.append(Molecule(path))
 
         self.indices = OrderedDict(zip([m.name for m in self.molecules], list(range(len(self.molecules)))))
 
@@ -172,8 +170,11 @@ class MolecularTable:
         name = name.upper()
         return self.molecules[self.indices[name]]
 
-    def __contains__(self, name: str) -> bool:
-        name = name.upper()
+    def __contains__(self, name: Union[int, Tuple[int, int], str, Element]) -> bool:
+        if type(name) is not str:
+            return False
+
+        name = name.upper() # type: ignore
         return name in self.indices.keys()
 
     def __len__(self) -> int:

@@ -79,6 +79,7 @@ struct Transition
             }
             // NOTE(cmo): Do the HPRD linear interpolation on rho here
             // As we make Uji, Vij, and Vji explicit, there shouldn't be any need for direct access to gij
+            // TODO(cmo): Why doesn't this just modify gij directly at the top of the function?
             if (hPrdCoeffs)
             {
                 for (int k = 0; k < Vij.shape(0); ++k)

@@ -4,7 +4,6 @@ from typing import Sequence, TYPE_CHECKING, Optional, Union
 import numpy as np
 from .witt import witt
 import lightweaver.constants as Const
-from scipy.interpolate import interp1d
 from numpy.polynomial.legendre import leggauss
 from .utils import ConvergenceError
 from .atomic_table import PeriodicTable, AtomicAbundance, DefaultAtomicAbundance

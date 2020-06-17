@@ -2,7 +2,7 @@ import lightweaver.constants as C
 from copy import copy, deepcopy
 import numpy as np
 import os
-from typing import Tuple
+from typing import Tuple, Sequence
 from dataclasses import dataclass
 from enum import Enum, auto
 from astropy import units
@@ -33,7 +33,7 @@ def planck(temp, wav):
 
 def gaunt_bf(wvl, nEff, charge) -> float:
     # /* --- M. J. Seaton (1960), Rep. Prog. Phys. 23, 313 -- ----------- */
-    # Copied from RH, ensuring vectorisation support 
+    # Copied from RH, ensuring vectorisation support
     x = C.HC / (wvl * C.NM_TO_M) / (C.ERydberg * charge**2)
     x3 = x**(1.0/3.0)
     nsqx = 1.0 / (nEff**2 *x)
@@ -69,7 +69,7 @@ def air_to_vac(wavelength: np.ndarray) -> np.ndarray:
 def convert_specific_intensity(wavelength: np.ndarray, specInt: np.ndarray, outUnits) -> units.quantity.Quantity:
     if not isinstance(wavelength, units.Quantity):
         wavelength = wavelength << units.nm
-    
+
     if not isinstance(specInt, units.Quantity):
         specInt = specInt << units.J / units.s / units.m**2 / units.sr / units.Hz
 
@@ -89,3 +89,9 @@ class UnityCrswIterator(CrswIterator):
 
     def __call__(self):
         return self.val
+
+def sequence_repr(x: Sequence) -> str:
+    if isinstance(x, np.ndarray):
+        return repr(x.tolist())
+
+    return repr(x)

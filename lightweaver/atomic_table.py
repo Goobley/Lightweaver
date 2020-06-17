@@ -4,7 +4,6 @@ from collections import OrderedDict
 from xdrlib import Unpacker
 from dataclasses import dataclass, field
 import numpy as np
-from scipy.interpolate import interp1d
 import pickle
 import lightweaver.constants as Const
 from .utils import get_data_path
@@ -23,9 +22,14 @@ class Element:
         return self.Z == other.Z
 
     def __lt__(self, other):
+        if type(other) is Isotope:
+            return NotImplemented
         return self.Z < other.Z
 
     def __repr__(self):
+        return 'Element(Z=%d)' % self.Z
+
+    def __str__(self):
         return '%s(Z=%d)' % (self.name, self.Z)
 
     @property
@@ -45,12 +49,21 @@ class Isotope(Element):
         return hash((self.N, self.Z))
 
     def __eq__(self, other):
-        return self.N == other.N and self.Z == other.Z
+        if type(other) is Isotope:
+            return self.N == other.N and self.Z == other.Z
+        return False
 
     def __lt__(self, other):
-        return (self.Z, self.N) < (other.Z, other.N)
+        if type(other) is Isotope:
+            return (self.Z, self.N) < (other.Z, other.N)
+        elif type(other) is Element:
+            return self.Z < other.Z
+        return False
 
     def __repr__(self):
+        return 'Isotope(N=%d, Z=%d)' % (self.N, self.Z)
+
+    def __str__(self):
         return '%s(N=%d, Z=%d)' % (self.element_name, self.N, self.Z)
 
     @property
@@ -233,6 +246,16 @@ class AtomicAbundance:
     def __getitem__(self, x: Union[str, int, Tuple[int, int], Element]) -> float:
         return self.abundance[PeriodicTable[x]]
 
+    def get_primary_isotope(self, x: Element) -> Isotope:
+        isos = PeriodicTable.get_isotopes(x)
+        maxIso = isos[0]
+        maxAbund = self[maxIso]
+        for iso in isos[1:]:
+            if (abund := self[iso]) > maxAbund:
+                maxAbund = abund
+                maxIso = iso
+        return iso
+
     @staticmethod
     def dex_to_decimal(abunds):
         for e, v in abunds.items():
@@ -376,7 +399,7 @@ class KuruczPf:
 
 
 class KuruczPfTable:
-    def __init__(self, atomicAbundance=None):
+    def __init__(self, atomicAbundance: AtomicAbundance=None, kuruczPfPath: str=None):
         if atomicAbundance is None:
             atomicAbundance = DefaultAtomicAbundance
         self.atomicAbundance = atomicAbundance
@@ -391,8 +414,7 @@ class KuruczPfTable:
         stages = []
         pf = []
         ionpot = []
-        for i in range(len(AtomicWeights)):
-            ptIndex.append(u.unpack_int())
+        for i in range(99):
             stages.append(u.unpack_int())
             pf.append(np.array(u.unpack_farray(stages[-1] * self.Tpf.shape[0], u.unpack_double)).reshape(stages[-1], self.Tpf.shape[0]))
             ionpot.append(np.array(u.unpack_farray(stages[-1], u.unpack_double)))
