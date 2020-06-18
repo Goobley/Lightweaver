@@ -1,111 +1,18 @@
 from dataclasses import dataclass, field
-from .atomic_table import atomic_weight_sort, Element, AtomicTable, get_global_atomic_table
-from .atomic_model import AtomicLine, AtomicModel, AtomicContinuum
+from .atomic_table import PeriodicTable, Element, Isotope, AtomicAbundance, DefaultAtomicAbundance, KuruczPf, KuruczPfTable
+from .atomic_model import AtomicTransition, AtomicLine, AtomicModel, AtomicContinuum, element_sort
 from .atmosphere import Atmosphere
 from .molecule import Molecule, MolecularTable
 import lightweaver.constants as Const
-from typing import List, Sequence, Set, Optional, Any, Union, Dict
+from typing import List, Sequence, Set, Optional, Any, Union, Dict, Tuple, Iterable, cast
 from copy import copy, deepcopy
 from collections import OrderedDict
 import numpy as np
 from scipy.linalg import solve
 from scipy.optimize import newton_krylov
 
-@dataclass
-class SpectrumConfiguration:
-    radSet: 'RadiativeSet'
-    wavelength: np.ndarray
-    transitions: List[Union[AtomicLine, AtomicContinuum]]
-    models: List[AtomicModel]
-    blueIdx: List[int]
-    activeSet: List[List[Union[AtomicLine, AtomicContinuum]]]
-
-    def subset_configuration(self, wavelengths, expandLineGridsNm=0.0) -> 'SpectrumConfiguration':
-        Nblue = np.searchsorted(self.wavelength, wavelengths[0])
-        Nred = min(np.searchsorted(self.wavelength, wavelengths[-1])+1, self.wavelength.shape[0]-1)
-
-        trans: List[Union[AtomicLine, AtomicContinuum]] = []
-        continuaPerAtom: Dict[str, List[List[AtomicContinuum]]] = {}
-        linesPerAtom: Dict[str, List[List[AtomicLine]]]= {}
-        upperLevels: Dict[str, List[Set[int]]] = {}
-        lowerLevels: Dict[str, List[Set[int]]] = {}
-
-        radSet = self.radSet
-        models = [m for m in (radSet.activeSet | radSet.detailedStaticSet)]
-        for atom in self.models:
-            for l in atom.lines:
-                if l.wavelength[-1] < wavelengths[0]:
-                    continue
-                if l.wavelength[0] > wavelengths[-1]:
-                    continue
-                trans.append(l)
-                if expandLineGridsNm != 0.0:
-                    l.wavelength = np.concatenate([[l.wavelength[0]-expandLineGridsNm, l.wavelength, l.wavelength[-1]+expandLineGridsNm]])
-            for c in atom.continua:
-                if c.wavelength[-1] < wavelengths[0]:
-                    continue
-                if c.wavelength[0] > wavelengths[-1]:
-                    continue
-                trans.append(c)
-        activeAtoms = [t.atom for t in trans]
-
-        for atom in activeAtoms:
-            continuaPerAtom[atom.name] = []
-            linesPerAtom[atom.name] = []
-            upperLevels[atom.name] = []
-            lowerLevels[atom.name] = []
-
-        blueIdx = []
-        redIdx = []
-        for t in trans:
-            blueIdx.append(np.searchsorted(wavelengths, t.wavelength[0]))
-            redIdx.append(min(np.searchsorted(wavelengths, t.wavelength[-1])+1, wavelengths.shape[-1]))
-
-        for i, t in enumerate(trans):
-            if isinstance(t, AtomicContinuum):
-                while wavelengths[redIdx[i]-1] > t.lambdaEdge and redIdx[i] > 0:
-                    redIdx[i] -= 1
-            wavelength = np.copy(wavelengths[blueIdx[i]:redIdx[i]])
-            if isinstance(t, AtomicContinuum):
-                t.alpha = t.compute_alpha(wavelength)
-            t.wavelength = wavelength
-
-        activeSet: List[List[Union[AtomicLine, AtomicContinuum]]] = []
-        activeLines: List[List[AtomicLine]] = []
-        activeContinua: List[List[AtomicContinuum]] = []
-        contributors: List[List[AtomicModel]] = []
-        for i in range(wavelengths.shape[0]):
-            activeSet.append([])
-            activeLines.append([])
-            activeContinua.append([])
-            contributors.append([])
-            for atom in activeAtoms:
-                continuaPerAtom[atom.name].append([])
-                linesPerAtom[atom.name].append([])
-                upperLevels[atom.name].append(set())
-                lowerLevels[atom.name].append(set())
-            for kr, t in enumerate(trans):
-                if blueIdx[kr] <= i < redIdx[kr]:
-                    activeSet[-1].append(t)
-                    contributors[-1].append(t.atom)
-                    if isinstance(t, AtomicContinuum):
-                        activeContinua[-1].append(t)
-                        continuaPerAtom[t.atom.name][-1].append(t)
-                        upperLevels[t.atom.name][-1].add(t.j)
-                        lowerLevels[t.atom.name][-1].add(t.i)
-                    elif isinstance(t, AtomicLine):
-                        activeLines[-1].append(t)
-                        linesPerAtom[t.atom.name][-1].append(t)
-                        upperLevels[t.atom.name][-1].add(t.j)
-                        lowerLevels[t.atom.name][-1].add(t.i)
-
-
-        return SpectrumConfiguration(radSet=radSet, wavelength=wavelengths, transitions=trans,
-                                     models=activeAtoms, blueIdx=blueIdx, activeSet=activeSet)
-
-
-
-def lte_pops(atomicModel, temperature, ne, nTotal, debye=True):
+def lte_pops(atomicModel: AtomicModel, temperature: np.ndarray,
+             ne: np.ndarray, nTotal: np.ndarray, debye: bool=True) -> np.ndarray:
     Nlevel = len(atomicModel.levels)
     Nspace = ne.shape[0]
     c1 = (Const.HPlanck / (2.0 * np.pi * Const.MElectron)) * (Const.HPlanck / Const.KBoltzmann)
@@ -150,25 +57,35 @@ def lte_pops(atomicModel, temperature, ne, nTotal, debye=True):
 
 
 class LteNeIterator:
-    def __init__(self, atoms, temperature, nHTot):
-        sortedAtoms = sorted(atoms, key=atomic_weight_sort)
-        self.nTotal = [a.atomicTable[a.name].abundance * nHTot 
+    def __init__(self, atoms: Iterable[AtomicModel], temperature: np.ndarray,
+                 nHTot: np.ndarray, abundance: AtomicAbundance,
+                 nlteStartingPops: Dict[Element, np.ndarray]):
+        sortedAtoms = sorted(atoms, key=element_sort)
+        self.nTotal = [abundance[a.element] * nHTot
                        for a in sortedAtoms]
         self.stages = [np.array([l.stage for l in a.levels])
                        for a in sortedAtoms]
         self.temperature = temperature
         self.nHTot = nHTot
         self.sortedAtoms = sortedAtoms
+        self.abundances = [abundance[a.element] for a in sortedAtoms]
+        self.nlteStartingPops = nlteStartingPops
 
-    def __call__(self, prevNeRatio):
+    def __call__(self, prevNeRatio: np.ndarray) -> np.ndarray:
         atomicPops = []
         ne = np.zeros_like(prevNeRatio)
         prevNe = prevNeRatio * self.nHTot
 
         for i, a in enumerate(self.sortedAtoms):
-            nStar = lte_pops(a, self.temperature, prevNe, 
+            nStar = lte_pops(a, self.temperature, prevNe,
                              self.nTotal[i], debye=True)
-            atomicPops.append(AtomicState(a, nStar, self.nTotal[i]))
+            atomicPops.append(AtomicState(model=a, abundance=self.abundances[i], nStar=nStar, nTotal=self.nTotal[i]))
+            # NOTE(cmo): Take into account NLTE pops if provided
+            if a.element in self.nlteStartingPops:
+                if self.nlteStartingPops[a.element].shape != nStar:
+                    raise ValueError('Starting populations provided for %s do not match model.' % a.element)
+                nStar = self.nlteStartingPops[a.element]
+
             ne += np.sum(nStar * self.stages[i][:, None], axis=0)
 
         self.atomicPops = atomicPops
@@ -176,90 +93,93 @@ class LteNeIterator:
         return diff
 
 
-class AtomicStateTable:
-    def __init__(self, atoms: List['AtomicState']):
-        self.atoms = atoms
-        self.indices = OrderedDict(zip([a.model.name.upper().ljust(2) for a in atoms], list(range(len(atoms)))))
+@dataclass
+class SpectrumConfiguration:
+    radSet: 'RadiativeSet'
+    wavelength: np.ndarray
+    models: List[AtomicModel]
+    transWavelengths: Dict[Tuple[Element, int, int], np.ndarray]
+    blueIdx: Dict[Tuple[Element, int, int], int]
+    activeTrans: Dict[Tuple[Element, int, int], bool]
+    activeWavelengths: Dict[Tuple[Element, int, int], np.ndarray]
 
-    def __contains__(self, name: str) -> bool:
-        name = name.upper().ljust(2)
-        return name in self.indices.keys()
+    def subset_configuration(self, wavelengths) -> 'SpectrumConfiguration':
+        Nblue = np.searchsorted(self.wavelength, wavelengths[0])
+        Nred = min(np.searchsorted(self.wavelength, wavelengths[-1])+1, self.wavelength.shape[0])
 
-    def __len__(self) -> int:
-        return len(self.atoms)
+        activeTrans = {k: np.any(v[Nblue:Nred]) for k, v in self.activeWavelengths.items()}
+        transGrids = {k: np.copy(wavelengths) for k, active in activeTrans.items() if active}
+        activeWavelengths = {k: np.ones_like(wavelengths, dtype=np.bool8) for k in transGrids}
+        blueIdx = {k: 0 for k in transGrids}
 
-    def __getitem__(self, name: str) -> 'AtomicState':
-        name = name.upper().ljust(2)
-        return self.atoms[self.indices[name]]
+        def test_atom_active(atom: AtomicModel) -> bool:
+            for t in atom.transitions:
+                if activeTrans[t.transId]:
+                    return True
+            return False
 
-    def __iter__(self) -> 'AtomicStateTableIterator':
-        return AtomicStateTableIterator(self)
+        models = []
+        for atom in self.models:
+            if test_atom_active(atom):
+                models.append(atom)
 
-class AtomicStateTableIterator:
-    def __init__(self, table: AtomicStateTable):
-        self.table = table
-        self.index = 0
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        if self.index < len(self.table):
-            a = self.table.atoms[self.index]
-            self.index += 1
-            return a
-
-        raise StopIteration
-
+        return SpectrumConfiguration(radSet=self.radSet, wavelength=wavelengths, models=models, transWavelengths=transGrids,
+                                     blueIdx=blueIdx, activeTrans=activeTrans, activeWavelengths=activeWavelengths)
 
 
 @dataclass
 class AtomicState:
     model: AtomicModel
+    abundance: float
     nStar: np.ndarray
     nTotal: np.ndarray
+    detailed: bool = False
     pops: Optional[np.ndarray] = None
-    Rij: Optional[List[np.ndarray]] = None
-    Rji: Optional[List[np.ndarray]] = None
-    lineRij: Optional[List[np.ndarray]] = None
-    lineRji: Optional[List[np.ndarray]] = None
-    continuumRij: Optional[List[np.ndarray]] = None
-    continuumRji: Optional[List[np.ndarray]] = None
+    radiativeRates: Optional[Dict[Tuple[int, int], np.ndarray]] = None
 
-    def __repr__(self):
-        return 'AtomicModelPops(name=%s(%d), nStar=%s, nTotal=%s, pops=%s)' % (self.model.name, hash(self.model), repr(self.nStar), repr(self.nTotal), repr(self.pops))
+    def __post_init__(self):
+        if self.detailed:
+            self.radiativeRates = {}
+            ratesShape = self.nStar.shape[1:]
+            for t in self.model.transitions:
+                self.radiativeRates[(t.i, t.j)] = np.zeros(ratesShape)
+                self.radiativeRates[(t.j, t.i)] = np.zeros(ratesShape)
+
+    def __str__(self):
+        s = 'AtomicState(%s)' % self.element
+        return s
 
     def __hash__(self):
-        return hash(repr(self))
+        # return hash(repr(self))
+        raise NotImplementedError
 
-    def update_nTotal(self, atmos):
-        self.nTotal[:] = self.model.atomicTable[self.name].abundance * atmos.nHTot
-
-    @property
-    def name(self):
-        return self.model.name
+    def update_nTotal(self, atmos: Atmosphere):
+        self.nTotal[:] = self.abundance * atmos.nHTot # type: ignore
 
     @property
-    def abundance(self):
-        return self.model.atomicTable[self.model.name].abundance
+    def element(self) -> Element:
+        return self.model.element
 
     @property
-    def weight(self):
-        return self.model.atomicTable[self.model.name].weight
+    def mass(self) -> float:
+        return self.element.mass
 
     @property
     def n(self) -> np.ndarray:
-        if self.pops is not None:
-            return self.pops
-        else:
+        if self.pops is None:
             return self.nStar
+        return self.pops
 
     @n.setter
     def n(self, val: np.ndarray):
         if val.shape != self.nStar.shape:
-            raise ValueError('Incorrect dimensions for population array, expected %s' % repr(self.nStar.shape))
+            raise ValueError('Incorrect dimensions for population array, expected %s' % self.nStar.shape)
 
         self.pops = val
+
+    @property
+    def name(self) -> str:
+        return self.model.element.name
 
     def fjk(self, atmos, k):
         # Nstage: int = (self.model.levels[-1].stage - self.model.levels[0].stage) + 1
@@ -291,34 +211,57 @@ class AtomicState:
 
         return fj, dfj
 
+    def set_n_to_lte(self):
+        if self.pops is not None:
+            self.pops[:] = self.nStar
+
+
+class AtomicStateTable:
+    def __init__(self, atoms: List[AtomicState]):
+        self.atoms = {a.element: a for a in atoms}
+
+    def __contains__(self, name: Union[int, Tuple[int, int], str, Element]) -> bool:
+        try:
+            x = PeriodicTable[name]
+            return x in self.atoms
+        except:
+            return False
+
+    def __len__(self) -> int:
+        return len(self.atoms)
+
+    def __getitem__(self, name: Union[int, Tuple[int, int], str, Element]) -> AtomicState:
+        x = PeriodicTable[name]
+        return self.atoms[x]
+
+    def __iter__(self):
+        return iter(sorted(self.atoms.values(), key=element_sort))
+
 
 @dataclass
 class SpeciesStateTable:
     atmosphere: Atmosphere
-    atomicTable: AtomicTable
+    abundance: AtomicAbundance
     atomicPops: AtomicStateTable
     molecularTable: MolecularTable
     molecularPops: List[np.ndarray]
     HminPops: np.ndarray
 
-    def __getitem__(self, name: str) -> np.ndarray:
+    def __getitem__(self, name: Union[int, Tuple[int, int], str, Element]) -> np.ndarray:
         if name == 'H-':
             return self.HminPops
         else:
             if name in self.molecularTable:
+                name = cast(str, name)
                 key = self.molecularTable.indices[name]
                 return self.molecularPops[key]
             elif name in self.atomicPops:
                 return self.atomicPops[name].n
-            else:
-                raise KeyError('Unknown key: %s' % name)
 
-    def __contains__(self, name: Union[str, AtomicModel]) -> bool:
-        if isinstance(name, AtomicModel):
-            name = name.name
+    def __contains__(self, name: Union[int, Tuple[int, int], str, Element]) -> bool:
         if name == 'H-':
             return True
-        
+
         if name in self.molecularTable:
             return True
 
@@ -326,14 +269,6 @@ class SpeciesStateTable:
             return True
 
         return False
-
-    def atomic_population(self, name: str) -> np.ndarray:
-        return self.atomicPops[name].n
-
-    def molecular_population(self, name: str) -> np.ndarray:
-        name = name.upper()
-        key = self.molecularTable.indices[name]
-        return self.molecularPops[key]
 
     def update_lte_atoms_Hmin_pops(self, atmos: Atmosphere, conserveCharge=False, updateTotals=False, maxIter=2000, quiet=False):
         if updateTotals:
@@ -373,174 +308,116 @@ class SpeciesStateTable:
 
         self.HminPops[:] = hminus_pops(atmos, self.atomicPops['H'])
 
-    def update_lte_pops(self, atmos: Atmosphere, conserveCharge=False, updateTotals=False, maxIter=2000):
-        if updateTotals:
-            for atom in self.atomicPops:
-                atom.update_nTotal(atmos)
-        for i in range(maxIter):
-            maxDiff = 0.0
-            ne = np.copy(atmos.ne)
-            for atom in self.atomicPops:
-                prevNStar = np.copy(atom.nStar)
-                newNStar = lte_pops(atom.model, atmos.temperature, atmos.ne, atom.nTotal, debye=True)
-                deltaNStar = newNStar - prevNStar
-                atom.nStar[:] = newNStar
 
-                if atom.pops is None and conserveCharge:
-                    stages = np.array([l.stage for l in atom.model.levels])
-                    ne += np.sum((atom.nStar - prevNStar) * stages[:, None], axis=0)
-
-                    ne[ne < 1e6] = 1e6
-                diff = np.nanmax(1.0 - prevNStar / atom.nStar)
-                if diff > maxDiff:
-                    maxDiff = diff
-                    maxName = atom.name
-            atmos.ne[:] = ne
-            if maxDiff < 1e-3:
-                print('LTE Iterations %d' % (i+1))
-                break
-
-        else:
-            raise ValueError('No convergence in LTE update')
-
-        self.HminPops[:] = hminus_pops(atmos, self.atomicPops['H'])
-
-        
-
-
-@dataclass
 class RadiativeSet:
-    atoms: List[AtomicModel]
-    atomicTable: AtomicTable = field(default_factory=get_global_atomic_table)
-    activeSet: Set[AtomicModel] = field(default_factory=set)
-    detailedStaticSet: Set[AtomicModel] = field(default_factory=set)
-    passiveSet: Set[AtomicModel] = field(init=False)
+    def __init__(self, atoms: List[AtomicModel], abundance: AtomicAbundance=DefaultAtomicAbundance):
+        self.abundance = abundance
+        self.elements = [a.element for a in atoms]
+        self.atoms = {k: v for k, v in zip(self.elements, atoms)}
+        self.passiveSet = set(self.elements)
+        self.detailedStaticSet: Set[Element] = set()
+        self.activeSet: Set[Element] = set()
 
-    def __post_init__(self):
-        self.passiveSet = set(self.atoms)
-        self.atomicNames = []
-        self.atoms = sorted(self.atoms, key=atomic_weight_sort)
-        for atom in self.atoms:
-            self.atomicNames.append(atom.name)
-
-        if len(self.atomicNames) > len(set(self.atomicNames)):
+        if len(self.passiveSet) > len(self.elements):
             raise ValueError('Multiple entries for an atom: %s' % self.atoms)
 
-        self.set_atomic_table(self.atomicTable)
+    def __contains__(self, x: Union[int, Tuple[int, int], str, Element]) -> bool:
+        return PeriodicTable[x] in self.elements
 
-    def __contains__(self, name: str) -> bool:
-        return name in self.atomicNames
+    def is_active(self, name: Union[int, Tuple[int, int], str, Element]) -> bool:
+        x = PeriodicTable[name]
+        return x in self.activeSet
 
-    def is_active(self, name: str) -> bool:
-        if name in self.atomicNames:
-            return self.atoms[self.atomicNames.index(name)] in self.activeSet
-        raise ValueError('Atom %s not present in RadiativeSet' % name)
+    def is_passive(self, name: Union[int, Tuple[int, int], str, Element]) -> bool:
+        x = PeriodicTable[name]
+        return x in self.passiveSet
 
-    def is_passive(self, name: str) -> bool:
-        if name in self.atomicNames:
-            return self.atoms[self.atomicNames.index(name)] in self.passiveSet
-        raise ValueError('Atom %s not present in RadiativeSet' % name)
-
-    def is_detailed(self, name: str) -> bool:
-        if name in self.atomicNames:
-            return self.atoms[self.atomicNames.index(name)] in self.detailedStaticSet
-        raise ValueError('Atom %s not present in RadiativeSet' % name)
+    def is_detailed(self, name: Union[int, Tuple[int, int], str, Element]) -> bool:
+        x = PeriodicTable[name]
+        return x in self.detailedStaticSet
 
     @property
     def activeAtoms(self) -> List[AtomicModel]:
-        activeAtoms : List[AtomicModel] = [a for a in self.activeSet]
-        activeAtoms = sorted(activeAtoms, key=atomic_weight_sort)
+        activeAtoms : List[AtomicModel] = [self.atoms[e] for e in self.activeSet]
+        activeAtoms = sorted(activeAtoms, key=element_sort)
         return activeAtoms
 
     @property
     def detailedAtoms(self) -> List[AtomicModel]:
-        detailedAtoms : List[AtomicModel] = [a for a in self.detailedStaticSet]
-        detailedAtoms = sorted(detailedAtoms, key=atomic_weight_sort)
+        detailedAtoms : List[AtomicModel] = [self.atoms[e] for e in self.detailedStaticSet]
+        detailedAtoms = sorted(detailedAtoms, key=element_sort)
         return detailedAtoms
 
     @property
     def passiveAtoms(self) -> List[AtomicModel]:
-        passiveAtoms : List[AtomicModel] = [a for a in self.passiveSet]
-        passiveAtoms = sorted(passiveAtoms, key=atomic_weight_sort)
+        passiveAtoms : List[AtomicModel] = [self.atoms[e] for e in self.passiveSet]
+        passiveAtoms = sorted(passiveAtoms, key=element_sort)
         return passiveAtoms
 
-    def __getitem__(self, name: str) -> AtomicModel:
-        name = name.upper()
-        if len(name) == 1 and name not in self.atomicNames:
-            name += ' '
+    def __getitem__(self, name: Union[int, Tuple[int, int], str, Element]) -> AtomicModel:
+        x = PeriodicTable[name]
+        return self.atoms[x]
 
-        return self.atoms[self.atomicNames.index(name)]
-    
     def __iter__(self):
-        return iter(self.atoms)
+        return iter(self.atoms.values())
 
-    def rehash(self):
-        self.activeSet = set([x for x in self.activeSet])
-        self.passiveSet = set([x for x in self.passiveSet])
-        self.detailedStaticSet = set([x for x in self.detailedStaticSet])
-
-    def validate_sets(self, rehashed=False):
-        if (self.activeSet | self.passiveSet | self.detailedStaticSet) != set(self.atoms):
-            if not rehashed:
-                self.rehash()
-                self.validate_sets(rehashed=True)
-                return
-
-            raise ValueError('Problem with distribution of Atoms inside AtomicSet')
-    
     def set_active(self, *args: str):
         names = set(args)
-        for atomName in names:
-            self.activeSet.add(self[atomName])
-            self.detailedStaticSet.discard(self[atomName])
-            self.passiveSet.discard(self[atomName])
-        self.validate_sets()
+        xs = [PeriodicTable[name] for name in names]
+        for x in xs:
+            self.activeSet.add(x)
+            self.detailedStaticSet.discard(x)
+            self.passiveSet.discard(x)
 
     def set_detailed_static(self, *args: str):
         names = set(args)
-        for atomName in names:
-            self.detailedStaticSet.add(self[atomName])
-            self.activeSet.discard(self[atomName])
-            self.passiveSet.discard(self[atomName])
-        self.validate_sets()
+        xs = [PeriodicTable[name] for name in names]
+        for x in xs:
+            self.detailedStaticSet.add(x)
+            self.activeSet.discard(x)
+            self.passiveSet.discard(x)
 
     def set_passive(self, *args: str):
         names = set(args)
-        for atomName in names:
-            self.passiveSet.add(self[atomName])
-            self.activeSet.discard(self[atomName])
-            self.detailedStaticSet.discard(self[atomName])
-        self.validate_sets()
+        xs = [PeriodicTable[name] for name in names]
+        for x in xs:
+            self.passiveSet.add(x)
+            self.activeSet.discard(x)
+            self.detailedStaticSet.discard(x)
 
-    def set_atomic_table(self, table: AtomicTable):
-        self.atomicTable = table
-        for a in self.atoms:
-            if a.atomicTable is self.atomicTable:
-                continue
-            a.replace_atomic_table(self.atomicTable)
-
-    def iterate_lte_ne_eq_pops(self, atmos: Atmosphere, 
+    def iterate_lte_ne_eq_pops(self, atmos: Atmosphere,
                                mols: Optional[MolecularTable]=None,
-                               direct: bool=False):
+                               nlteStartingPops: Optional[Dict[Element, np.ndarray]]=None,
+                               direct: bool=False) -> SpeciesStateTable:
         if mols is None:
             mols = MolecularTable([])
+
+        if nlteStartingPops is None:
+            nlteStartingPops = {}
 
         if direct:
             maxIter = 3000
             prevNe = np.copy(atmos.ne)
             ne = np.copy(atmos.ne)
+            atoms = sorted(self.atoms.values(), key=element_sort)
             for it in range(maxIter):
                 atomicPops = []
                 prevNe[:] = ne
                 ne.fill(0.0)
-                for a in sorted(self.atoms, key=atomic_weight_sort):
-                    nTotal = self.atomicTable[a.name].abundance * atmos.nHTot
+                for a in atoms:
+                    abund = self.abundance[a.element]
+                    nTotal = abund * atmos.nHTot
                     nStar = lte_pops(a, atmos.temperature, atmos.ne, nTotal, debye=True)
-                    atomicPops.append(AtomicState(a, nStar, nTotal))
+                    atomicPops.append(AtomicState(model=a, abundance=abund, nStar=nStar, nTotal=nTotal))
+
+                    # NOTE(cmo): Take into account NLTE pops if provided
+                    if a.element in nlteStartingPops:
+                        if nlteStartingPops[a.element].shape != nStar:
+                            raise ValueError('Starting populations provided for %s do not match model.' % e)
+                        nStar = nlteStartingPops[a.element]
+
                     stages = np.array([l.stage for l in a.levels])
-                    # print(stages)
                     ne += np.sum(nStar * stages[:, None], axis=0)
-                    # print(ne)
                 atmos.ne[:] = ne
 
                 relDiff = np.nanmax(np.abs(1.0 - prevNe / ne))
@@ -552,121 +429,120 @@ class RadiativeSet:
             else:
                 print("LTE ne failed to converge")
         else:
-            ne = np.copy(atmos.ne) / atmos.nHTot
-            iterator = LteNeIterator(self.atoms, atmos.temperature, atmos.nHTot)
-            ne += iterator(ne)
-            newNe = newton_krylov(iterator, ne)
-            atmos.ne[:] = newNe * atmos.nHTot
+            neRatio = np.copy(atmos.ne) / atmos.nHTot
+            iterator = LteNeIterator(self.atoms.values(), atmos.temperature,
+                                     atmos.nHTot, self.abundance, nlteStartingPops)
+            neRatio += iterator(neRatio)
+            newNeRatio = newton_krylov(iterator, neRatio)
+            atmos.ne[:] = newNeRatio * atmos.nHTot
 
             atomicPops = iterator.atomicPops
 
-        table = AtomicStateTable(atomicPops)
-        eqPops = chemical_equilibrium_fixed_ne(atmos, mols, table, self.atoms[0].atomicTable)
-        # NOTE(cmo): This is technically not quite correct, because we adjust nTotal and the atomic populations to account for the atoms bound up in molecules, but not n_e, this is unlikely to make much difference in reality, other than in very cool atmospheres with a lot of molecules (even then it should be pretty tiny)
+        detailedAtomicPops = []
+        for pop in atomicPops:
+            ele = pop.model.element
+            if ele in self.passiveSet:
+                if ele in nlteStartingPops:
+                    pop.n = np.copy(nlteStartingPops[ele])
+                detailedAtomicPops.append(pop)
+            else:
+                nltePops = np.copy(nlteStartingPops[ele]) if ele in nlteStartingPops else np.copy(pop.nStar)
+                detailedAtomicPops.append(AtomicState(model=pop.model, abundance=self.abundance[ele],
+                                                      nStar=pop.nStar, nTotal=pop.nTotal, detailed=True,
+                                                      pops=nltePops))
+
+        table = AtomicStateTable(detailedAtomicPops)
+        eqPops = chemical_equilibrium_fixed_ne(atmos, mols, table, self.abundance)
+        # NOTE(cmo): This is technically not quite correct, because we adjust
+        # nTotal and the atomic populations to account for the atoms bound up
+        # in molecules, but not n_e, this is unlikely to make much difference
+        # in reality, other than in very cool atmospheres with a lot of
+        # molecules (even then it should be pretty tiny)
         return eqPops
 
     def compute_eq_pops(self, atmos: Atmosphere,
-                        mols: Optional[MolecularTable]=None):
+                        mols: Optional[MolecularTable]=None,
+                        nlteStartingPops: Optional[Dict[Element, np.ndarray]]=None):
         if mols is None:
             mols = MolecularTable([])
 
+        if nlteStartingPops is None:
+            nlteStartingPops = {}
+        else:
+            for e in nlteStartingPops:
+                if (e not in self.activeSet) \
+                   or (e not in self.detailedStaticSet):
+                    raise ValueError('Provided NLTE Populations for %s assumed LTE.' % e)
+
         atomicPops = []
-        for a in sorted(self.atoms, key=atomic_weight_sort):
-            nTotal = a.atomicTable[a.name].abundance * atmos.nHTot
+        atoms = sorted(self.atoms.values(), key=element_sort)
+        for a in atoms:
+            nTotal = self.abundance[a.element] * atmos.nHTot
             nStar = lte_pops(a, atmos.temperature, atmos.ne, nTotal, debye=True)
-            atomicPops.append(AtomicState(a, nStar, nTotal))
+
+            ele = a.element
+            if ele in self.passiveSet:
+                if ele in nlteStartingPops:
+                    n = np.copy(nlteStartingPops[ele])
+                else:
+                    n = None
+                atomicPops.append(AtomicState(model=a, abundance=self.abundance[ele], nStar=nStar,
+                                              nTotal=nTotal, pops=n))
+            else:
+                nltePops = np.copy(nlteStartingPops[ele]) if ele in nlteStartingPops else np.copy(nStar)
+                atomicPops.append(AtomicState(model=a, abundance=self.abundance[ele],
+                                              nStar=nStar, nTotal=nTotal, detailed=True,
+                                              pops=nltePops))
 
         table = AtomicStateTable(atomicPops)
-        eqPops = chemical_equilibrium_fixed_ne(atmos, mols, table, self.atoms[0].atomicTable)
-        # NOTE(cmo): This is technically not quite correct, because we adjust nTotal and the atomic populations to account for the atoms bound up in molecules, but not n_e, this is unlikely to make much difference in reality, other than in very cool atmospheres with a lot of molecules (even then it should be pretty tiny)
+        eqPops = chemical_equilibrium_fixed_ne(atmos, mols, table, self.abundance)
+        # NOTE(cmo): This is technically not quite correct, because we adjust
+        # nTotal and the atomic populations to account for the atoms bound up
+        # in molecules, but not n_e, this is unlikely to make much difference
+        # in reality, other than in very cool atmospheres with a lot of
+        # molecules (even then it should be pretty tiny)
         return eqPops
 
     def compute_wavelength_grid(self, extraWavelengths: Optional[np.ndarray]=None, lambdaReference=500.0) -> SpectrumConfiguration:
         if len(self.activeSet) == 0 and len(self.detailedStaticSet) == 0:
             raise ValueError('Need at least one atom active or in detailed calculation with static populations.')
-        grids = []
+        extraGrids = []
         if extraWavelengths is not None:
-            grids.append(extraWavelengths)
-        grids.append(np.array([lambdaReference]))
+            extraGrids.append(extraWavelengths)
+        extraGrids.append(np.array([lambdaReference]))
 
         models: List[AtomicModel] = []
-        transitions: List[Union[AtomicLine, AtomicContinuum]] = []
-        continuaPerAtom: Dict[str, List[List[AtomicContinuum]]] = {}
-        linesPerAtom: Dict[str, List[List[AtomicLine]]]= {}
-        upperLevels: Dict[str, List[Set[int]]] = {}
-        lowerLevels: Dict[str, List[Set[int]]] = {}
+        ids: List[Tuple[Element, int, int]] = []
+        grids = []
 
-        for atom in (self.activeSet | self.detailedStaticSet):
+        for ele in (self.activeSet | self.detailedStaticSet):
+            atom = self.atoms[ele]
             models.append(atom)
-            continuaPerAtom[atom.name] = []
-            linesPerAtom[atom.name] = []
-            lowerLevels[atom.name] = []
-            upperLevels[atom.name] = []
-            for line in atom.lines:
-                transitions.append(line)
-                grids.append(line.wavelength)
-            for cont in atom.continua:
-                transitions.append(cont)
-                grids.append(np.array([cont.lambdaEdge]))
-                grids.append(cont.wavelength[cont.wavelength <= cont.lambdaEdge])
+            for trans in atom.transitions:
+                grids.append(trans.wavelength())
+                ids.append(trans.transId)
 
-        # for atom in self.detailedLteSet:
-        #     for line in atom.lines:
-        #         grids.append(line.wavelength)
-        #     for cont in atom.continua:
-        #         grids.append(cont.wavelength)
-
-        grid = np.concatenate(grids)
+        grid = np.concatenate(grids + extraGrids)
         grid = np.sort(grid)
         grid = np.unique(grid)
         # grid = np.unique(np.floor(1e10*grid)) / 1e10
-        blueIdx = []
-        redIdx = []
+        blueIdx = {}
+        redIdx = {}
 
-        for t in transitions:
-            blueIdx.append(np.searchsorted(grid, t.wavelength[0]))
-            redIdx.append(np.searchsorted(grid, t.wavelength[-1])+1)
+        for i, g in enumerate(grids):
+            ident = ids[i]
+            blueIdx[ident] = np.searchsorted(grid, g[0])
+            redIdx[ident] = np.searchsorted(grid, g[-1])+1
 
-        for i, t in enumerate(transitions):
-            # NOTE(cmo): Some continua have wavelength grids that go past their edge. Let's avoid that.
-            if isinstance(t, AtomicContinuum):
-                while grid[redIdx[i]-1] > t.lambdaEdge:
-                    redIdx[i] -= 1
-            wavelength = np.copy(grid[blueIdx[i]:redIdx[i]])
-            if isinstance(t, AtomicContinuum):
-                t.alpha = t.compute_alpha(wavelength)
-            t.wavelength = wavelength
+        transGrids: Dict[Tuple[Element, int, int], np.ndarray] = {}
+        for ident in ids:
+            transGrids[ident] = np.copy(grid[blueIdx[ident]:redIdx[ident]])
 
-        activeSet: List[List[Union[AtomicLine, AtomicContinuum]]] = []
-        activeLines: List[List[AtomicLine]] = []
-        activeContinua: List[List[AtomicContinuum]] = []
-        contributors: List[List[AtomicModel]] = []
-        for i in range(grid.shape[0]):
-            activeSet.append([])
-            activeLines.append([])
-            activeContinua.append([])
-            contributors.append([])
-            for atom in (self.activeSet | self.detailedStaticSet):
-                continuaPerAtom[atom.name].append([])
-                linesPerAtom[atom.name].append([])
-                upperLevels[atom.name].append(set())
-                lowerLevels[atom.name].append(set())
-            for kr, t in enumerate(transitions):
-                if blueIdx[kr] <= i < redIdx[kr]:
-                    activeSet[-1].append(t)
-                    contributors[-1].append(t.atom)
-                    if isinstance(t, AtomicContinuum):
-                        activeContinua[-1].append(t)
-                        continuaPerAtom[t.atom.name][-1].append(t)
-                        upperLevels[t.atom.name][-1].add(t.j)
-                        lowerLevels[t.atom.name][-1].add(t.i)
-                    elif isinstance(t, AtomicLine):
-                        activeLines[-1].append(t)
-                        linesPerAtom[t.atom.name][-1].append(t)
-                        upperLevels[t.atom.name][-1].add(t.j)
-                        lowerLevels[t.atom.name][-1].add(t.i)
+        activeWavelengths = {k: ((grid >= v[0]) & (grid <= v[-1])) for k, v in transGrids.items()}
+        activeTrans = {k: True for k in transGrids}
 
-        return SpectrumConfiguration(radSet=self, wavelength=grid, transitions=transitions, models=models, blueIdx=blueIdx, activeSet=activeSet)
+        return SpectrumConfiguration(radSet=self, wavelength=grid, models=models, transWavelengths=transGrids,
+                                     blueIdx=blueIdx, activeTrans=activeTrans, activeWavelengths=activeWavelengths)
 
 
 def hminus_pops(atmos: Atmosphere, hPops: AtomicState) -> np.ndarray:
@@ -681,28 +557,33 @@ def hminus_pops(atmos: Atmosphere, hPops: AtomicState) -> np.ndarray:
 
     return HminPops
 
-def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable, atomicPops: AtomicStateTable, table: AtomicTable) -> SpeciesStateTable:
+def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable, atomicPops: AtomicStateTable, abundance: AtomicAbundance) -> SpeciesStateTable:
     nucleiSet: Set[Element] = set()
     for mol in molecules:
         nucleiSet |= set(mol.elements)
-    nuclei: List[Union[Element, AtomicState]]= list(nucleiSet)
-    nuclei = sorted(nuclei, key=atomic_weight_sort)
+    nuclei: List[Element] = list(nucleiSet)
+    nuclei = sorted(nuclei)
 
     if len(nuclei) == 0:
         HminPops = hminus_pops(atmos, atomicPops['H'])
-        result = SpeciesStateTable(atmos, table, atomicPops, molecules, [], HminPops)
+        result = SpeciesStateTable(atmos, abundance, atomicPops, molecules, [], HminPops)
         return result
 
-    if not nuclei[0].name.startswith('H'):
+    if nuclei[0] != PeriodicTable[1]:
         raise ValueError('H not list of nuclei -- check H2 molecule')
-    print([n.name for n in nuclei])
+    # print([n.name for n in nuclei])
 
     nuclIndex = [[nuclei.index(ele) for ele in mol.elements] for mol in molecules]
 
     # Replace basic elements with full Models if present
-    for i, nuc in enumerate(nuclei):
-        if nuc.name in atomicPops:
-            nuclei[i] = atomicPops[nuc.name]
+    kuruczTable = KuruczPfTable(atomicAbundance=abundance)
+    nucData: Dict[Element, Union[KuruczPf, AtomicState]] = {}
+    for nuc in nuclei:
+        if nuc in atomicPops:
+            nucData[nuc] = atomicPops[nuc]
+        else:
+            nucData[nuc] = kuruczTable[nuc]
+
     Nnuclei = len(nuclei)
 
     Neqn = Nnuclei + len(molecules)
@@ -722,9 +603,10 @@ def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable, 
     molPops = [np.zeros(Nspace) for mol in molecules]
     maxIter = 0
     for k in range(Nspace):
-        for i in range(Nnuclei):
-            a[i] = nuclei[i].abundance * atmos.nHTot[k]
-            fjk, dfjk = nuclei[i].fjk(atmos, k)
+        for i, nuc in enumerate(nuclei):
+            nucleus = nucData[nuc]
+            a[i] = nucleus.abundance * atmos.nHTot[k]
+            fjk, dfjk = nucleus.fjk(atmos, k)
             fn0[i] = fjk[0]
 
         PhiHmin = 0.25 * (CI / atmos.temperature[k])**1.5 \
@@ -794,8 +676,8 @@ def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable, 
             raise ValueError("ChemEq iteration not converged: T: %e [K], density %e [m^-3], dnmax %e" % (atmos.temperature[k], atmos.nHTot[k], dnMax))
 
         for i, ele in enumerate(nuclei):
-            if ele.name in atomicPops:
-                atomPop = atomicPops[ele.name]
+            if ele in atomicPops:
+                atomPop = atomicPops[ele]
                 fraction = n[i] / atomPop.nTotal[k]
                 atomPop.nStar[:, k] *= fraction
                 atomPop.nTotal[k] *= fraction
@@ -805,8 +687,8 @@ def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable, 
         HminPops[k] = atmos.ne[k] * n[0] * PhiHmin
 
         for i, pop in enumerate(molPops):
-            pop[k] = n[Nnuclei + i] 
+            pop[k] = n[Nnuclei + i]
 
-    result = SpeciesStateTable(atmos, table, atomicPops, molecules, molPops, HminPops)
-    print("Maximum number of iterations taken: %d" % maxIter)
+    result = SpeciesStateTable(atmos, abundance, atomicPops, molecules, molPops, HminPops)
+    print("chem_eq: maximum number of iterations taken: %d" % maxIter)
     return result

@@ -1,6 +1,7 @@
 import numpy as np
 from .atomic_set import lte_pops
 from scipy.linalg import solve
+from .atomic_table import PeriodicTable
 
 def Ftd(self, k, dt, nPrev, backgroundNe=0.0, atoms=None):
     Nlevel = 0
@@ -11,7 +12,7 @@ def Ftd(self, k, dt, nPrev, backgroundNe=0.0, atoms=None):
         Nlevel += atom.Nlevel
     Neqn = Nlevel + 1
 
-    stages = [np.array([l.stage for l in atom.atomicModel.levels]) 
+    stages = [np.array([l.stage for l in atom.atomicModel.levels])
               for atom in atoms]
 
     F = np.zeros(Neqn)
@@ -37,7 +38,7 @@ def F(self, k, backgroundNe=0.0, atoms=None):
         Nlevel += atom.Nlevel
     Neqn = Nlevel + 1
 
-    stages = [np.array([l.stage for l in atom.atomicModel.levels]) 
+    stages = [np.array([l.stage for l in atom.atomicModel.levels])
               for atom in atoms]
 
     F = np.zeros(Neqn)
@@ -54,7 +55,7 @@ def F(self, k, backgroundNe=0.0, atoms=None):
 
 
 def nr_post_update(self, fdCollisionRates=True, hOnly=False, timeDependentData=None):
-    assert self.activeAtoms[0].atomicModel.name.startswith('H')
+    assert self.activeAtoms[0].element == PeriodicTable[1]
     crswVal = self.crswCallback.val
 
     timeDependent = (timeDependentData is not None)
@@ -66,21 +67,21 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False, timeDependentData=N
     Neqn = Nlevel + 1
 
     Nspace = self.atmos.Nspace
-    stages = [np.array([l.stage for l in atom.atomicModel.levels]) 
+    stages = [np.array([l.stage for l in atom.atomicModel.levels])
               for atom in atoms]
-    
+
 
     if hOnly:
-        backgroundAtoms = self.arguments['spect'].radSet.atoms[1:] 
+        backgroundAtoms = [model for ele, model in self.arguments['spect'].radSet.items() if ele != PeriodicTable[1]]
     else:
         backgroundAtoms = self.arguments['spect'].radSet.passiveAtoms
 
     backgroundNe = np.zeros_like(self.atmos.ne)
     for idx, atomModel in enumerate(backgroundAtoms):
-        lteStages = np.array([l.stage for l in atomModel.levels]) 
-        atom = self.arguments['eqPops'].atomicPops[atomModel.name]
+        lteStages = np.array([l.stage for l in atomModel.levels])
+        atom = self.arguments['eqPops'].atomicPops[atomModel.element]
         backgroundNe += (lteStages[:, None] * atom.n[:, :]).sum(axis=0)
-              
+
     neStart = np.copy(self.atmos.ne)
 
     if fdCollisionRates:
@@ -92,7 +93,7 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False, timeDependentData=N
             pert = neStart * pertSize
             self.atmos.ne[:] += pert
             nStarPrev = np.copy(atom.nStar)
-            atom.nStar[:] = lte_pops(atom.atomicModel, self.atmos.temperature, 
+            atom.nStar[:] = lte_pops(atom.atomicModel, self.atmos.temperature,
                                      self.atmos.ne, atom.nTotal)
             atom.compute_collisions(fillDiagonal=True)
             self.atmos.ne[:] = neStart
@@ -109,7 +110,7 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False, timeDependentData=N
     for k in range(Nspace):
         dF[...] = 0.0
         if timeDependent:
-            Fg = self.Ftd(k, dt=timeDependentData['dt'], 
+            Fg = self.Ftd(k, dt=timeDependentData['dt'],
                           nPrev=timeDependentData['nPrev'],
                           backgroundNe=backgroundNe[k], atoms=atoms)
         else:

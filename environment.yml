@@ -16,3 +16,4 @@ dependencies:
     - cython
     - specutils
     - tqdm
+    - weno4

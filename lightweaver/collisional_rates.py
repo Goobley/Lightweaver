@@ -1,27 +1,48 @@
-from .atomic_model import CollisionalRates, AtomicModel
+from .atomic_model import model_component_eq
+from .utils import sequence_repr
 import lightweaver.constants as Const
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import numpy as np
-from typing import Sequence
+from typing import Sequence, cast, TYPE_CHECKING
 from scipy.special import exp1
 from numba import njit
-from scipy.interpolate import interp1d
+from weno4 import weno4
+
+if TYPE_CHECKING:
+    from .atomic_model import AtomicModel
+    from .atmosphere import Atmosphere
+    from .atomic_set import SpeciesStateTable
+
+@dataclass
+class CollisionalRates:
+    j: int
+    i: int
+    atom: 'AtomicModel' = field(init=False)
+
+    def __repr__(self):
+        s = 'CollisionalRates(j=%d, i=%d)' % (self.j, self.i)
+        return s
+
+    def setup(self, atom):
+        pass
+
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+        raise NotImplementedError
+
+    def __eq__(self, other: object) -> bool:
+        return model_component_eq(self, other)
+
 
 @dataclass(eq=False)
 class TemperatureInterpolationRates(CollisionalRates):
     temperature: Sequence[float]
     rates: Sequence[float]
 
-    def setup_interpolator(self):
-        if len(self.rates) <  3:
-            self.interpolator = interp1d(self.temperature, self.rates, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
-        else:
-            self.interpolator = interp1d(self.temperature, self.rates, kind=3, fill_value=(self.rates[0], self.rates[-1]), bounds_error=False)
 
 @dataclass(eq=False)
 class Omega(TemperatureInterpolationRates):
     def __repr__(self):
-        s = 'Omega(j=%d, i=%d, temperature=%s, rates=%s)' % (self.j, self.i, repr(self.temperature), repr(self.rates))
+        s = 'Omega(j=%d, i=%d, temperature=%s, rates=%s)' % (self.j, self.i, sequence_repr(self.temperature), sequence_repr(self.rates))
         return s
 
     def setup(self, atom):
@@ -33,13 +54,10 @@ class Omega(TemperatureInterpolationRates):
         self.iLevel = atom.levels[self.i]
         self.C0 = Const.ERydberg / np.sqrt(Const.MElectron) * np.pi * Const.RBohr**2 * np.sqrt(8.0 / (np.pi * Const.KBoltzmann))
 
-    def compute_rates(self, atmos, nstar, Cmat):
-        try:
-            C = self.interpolator(atmos.temperature)
-        except AttributeError:
-            self.setup_interpolator()
-            C = self.interpolator(atmos.temperature)
-
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+        C = weno4(atmos.temperature, self.temperature, self.rates)
+        C[C < 0.0] = 0.0
+        nstar = eqPops.atomicPops[self.atom.element].nStar
         Cdown = self.C0 * atmos.ne * C / (self.jLevel.g * np.sqrt(atmos.temperature))
         Cmat[self.i, self.j, :] += Cdown
         Cmat[self.j, self.i, :] += Cdown * nstar[self.j] / nstar[self.i]
@@ -47,7 +65,7 @@ class Omega(TemperatureInterpolationRates):
 @dataclass(eq=False)
 class CI(TemperatureInterpolationRates):
     def __repr__(self):
-        s = 'CI(j=%d, i=%d, temperature=%s, rates=%s)' % (self.j, self.i, repr(self.temperature), repr(self.rates))
+        s = 'CI(j=%d, i=%d, temperature=%s, rates=%s)' % (self.j, self.i, sequence_repr(self.temperature), sequence_repr(self.rates))
         return s
 
     def setup(self, atom):
@@ -59,12 +77,10 @@ class CI(TemperatureInterpolationRates):
         self.iLevel = atom.levels[self.i]
         self.dE = self.jLevel.E_SI - self.iLevel.E_SI
 
-    def compute_rates(self, atmos, nstar, Cmat):
-        try:
-            C = self.interpolator(atmos.temperature)
-        except AttributeError:
-            self.setup_interpolator()
-            C = self.interpolator(atmos.temperature)
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+        C = weno4(atmos.temperature, self.temperature, self.rates)
+        C[C < 0.0] = 0.0
+        nstar = eqPops.atomicPops[self.atom.element].nStar
         Cup = C * atmos.ne * np.exp(-self.dE / (Const.KBoltzmann * atmos.temperature)) * np.sqrt(atmos.temperature)
         Cmat[self.j, self.i, :] += Cup
         Cmat[self.i, self.j, :] += Cup * nstar[self.i] / nstar[self.j]
@@ -85,12 +101,10 @@ class CE(TemperatureInterpolationRates):
         self.iLevel = atom.levels[self.i]
         self.gij = self.iLevel.g / self.jLevel.g
 
-    def compute_rates(self, atmos, nstar, Cmat):
-        try:
-            C = self.interpolator(atmos.temperature)
-        except AttributeError:
-            self.setup_interpolator()
-            C = self.interpolator(atmos.temperature)
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+        C = weno4(atmos.temperature, self.temperature, self.rates)
+        C[C < 0.0] = 0.0
+        nstar = eqPops.atomicPops[self.atom.element].nStar
         Cdown = C * atmos.ne * self.gij * np.sqrt(atmos.temperature)
         Cmat[self.i, self.j, :] += Cdown
         Cmat[self.j, self.i, :] += Cdown * nstar[self.j] / nstar[self.i]
@@ -156,12 +170,7 @@ class Ar85Cdi(CollisionalRates):
     cdi: Sequence[Sequence[float]]
 
     def __repr__(self):
-        if type(self.cdi) is np.ndarray:
-            cdi = repr(self.cdi.tolist())
-        else:
-            cdi = repr(self.cdi)
-
-        s = 'Ar85Cdi(j=%d, i=%d, cdi=%s)' % (self.j, self.i, cdi)
+        s = 'Ar85Cdi(j=%d, i=%d, cdi=%s)' % (self.j, self.i, sequence_repr(self.cdi))
         return s
 
     def setup(self, atom):
@@ -173,15 +182,17 @@ class Ar85Cdi(CollisionalRates):
         self.jLevel = atom.levels[self.j]
         self.cdi = np.array(self.cdi)
 
-    def compute_rates(self, atmos, nstar, Cmat):
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+        nstar = eqPops.atomicPops[self.atom.element].nStar
         Cup = np.zeros(atmos.Nspace)
-        for m in range(self.cdi.shape[0]):
-            xj = self.cdi[m, 0] * Const.EV / (Const.KBoltzmann * atmos.temperature)
+        cdi = cast(np.ndarray, self.cdi)
+        for m in range(cdi.shape[0]):
+            xj = cdi[m, 0] * Const.EV / (Const.KBoltzmann * atmos.temperature)
             fac = np.exp(-xj) * np.sqrt(xj)
-            fxj = self.cdi[m, 1] + self.cdi[m, 2] * (1.0 + xj) + (self.cdi[m, 3] - xj * (self.cdi[m, 1] + self.cdi[m, 2] * (2.0 + xj))) * fone(xj) + self.cdi[m, 4] * xj * ftwo(xj)
+            fxj = cdi[m, 1] + cdi[m, 2] * (1.0 + xj) + (cdi[m, 3] - xj * (cdi[m, 1] + cdi[m, 2] * (2.0 + xj))) * fone(xj) + cdi[m, 4] * xj * ftwo(xj)
 
             fxj *= fac
-            fac = 6.69e-7 / self.cdi[m, 0]**1.5
+            fac = 6.69e-7 / cdi[m, 0]**1.5
             Cup += fac * fxj * Const.CM_TO_M**3
         Cup[Cup < 0] = 0.0
 
@@ -196,7 +207,7 @@ class Burgess(CollisionalRates):
     fudge: float = 1.0
 
     def __repr__(self):
-        s = 'Burgess(j=%d, i=%d, fudge=%e)' % (self.j, self.i, self.fudge)
+        s = 'Burgess(j=%d, i=%d, fudge=%g)' % (self.j, self.i, self.fudge)
         return s
 
     def setup(self, atom):
@@ -207,7 +218,8 @@ class Burgess(CollisionalRates):
         self.iLevel = atom.levels[self.i]
         self.jLevel = atom.levels[self.j]
 
-    def compute_rates(self, atmos, nstar, Cmat):
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+        nstar = eqPops.atomicPops[self.atom.element].nStar
         dE = (self.jLevel.E_SI - self.iLevel.E_SI) / Const.EV
         zz = self.iLevel.stage
         betaB = 0.25 * (np.sqrt((100.0 * zz + 91.0) / (4.0 * zz + 3.0)) - 5.0)

@@ -3,9 +3,9 @@ from dataclasses import dataclass, field
 from parse import parse
 import numpy as np
 if TYPE_CHECKING:
-    from .atomic_model import AtomicLevel, AtomicLine, AtomicModel, determinate, CompositeLevelError
+    from .atomic_model import AtomicLevel, AtomicLine, AtomicModel
 import string
-from .atomic_table import AtomicTable
+from .atomic_table import PeriodicTable
 from .utils import get_data_path
 from scipy.interpolate import RectBivariateSpline
 from scipy.special import gamma
@@ -28,16 +28,12 @@ class BarklemCrossSectionError(Exception):
     pass
 
 class Barklem:
-    def __init__(self, table: AtomicTable):
-        # Should probably make these static class variables, but also they're tiny
-        # TODO(cmo): Move this to be ResourceReader/Loader based?
-        self.barklem_sp = BarklemTable(get_data_path() + 'Barklem_spdata.dat', (1.0, 1.3))
-        self.barklem_pd = BarklemTable(get_data_path() + 'Barklem_pddata.dat', (1.3, 2.3))
-        self.barklem_df = BarklemTable(get_data_path() + 'Barklem_dfdata.dat', (2.3, 3.3))
+    barklem_sp = BarklemTable(get_data_path() + 'Barklem_spdata.dat', (1.0, 1.3))
+    barklem_pd = BarklemTable(get_data_path() + 'Barklem_pddata.dat', (1.3, 2.3))
+    barklem_df = BarklemTable(get_data_path() + 'Barklem_dfdata.dat', (2.3, 3.3))
 
-        self.atomicTable = table
-
-    def get_active_cross_section(self, atom: 'AtomicModel', line: 'AtomicLine') -> Sequence[float]:
+    @classmethod
+    def get_active_cross_section(cls, atom: 'AtomicModel', line: 'AtomicLine', vals: Sequence[float]) -> Sequence[float]:
         i = line.i
         j = line.j
 
@@ -46,11 +42,13 @@ class Barklem:
         DOrbit = 2
         FOrbit = 3
 
+        result = [0.0, 0.0, 0.0]
+
         # Follows original RH version. Interpolate tables if sigma < 20.0, otherwise
         # assume the provided values are the coefficients
-        if line.vdw.vals[0] < 20.0:
+        if vals[0] < 20.0:
             if atom.levels[i].stage > 0:
-                raise BarklemCrossSectionError()
+                raise BarklemCrossSectionError('Atom is not neutral.')
 
             # Find principal quantum numbers
             # try:
@@ -61,19 +59,19 @@ class Barklem:
             lowerNum = atom.levels[i].L
             upperNum = atom.levels[j].L
             if lowerNum is None or upperNum is None:
-                raise BarklemCrossSectionError()
+                raise BarklemCrossSectionError('L not provided for levels.')
 
             nums = (lowerNum, upperNum)
 
             # Check is a Barklem case applies
             if nums == (SOrbit, POrbit) or nums == (POrbit, SOrbit):
-                table = self.barklem_sp
+                table = cls.barklem_sp
             elif nums == (POrbit, DOrbit) or nums == (DOrbit, POrbit):
-                table = self.barklem_pd
+                table = cls.barklem_pd
             elif nums == (DOrbit, FOrbit) or nums == (FOrbit, DOrbit):
-                table = self.barklem_df
+                table = cls.barklem_df
             else:
-                raise BarklemCrossSectionError()
+                raise BarklemCrossSectionError('Not a valid shell combination.')
 
             Z = atom.levels[j].stage + 1
             # Find index of continuum level
@@ -81,11 +79,9 @@ class Barklem:
             while atom.levels[ic].stage < atom.levels[j].stage + 1:
                 ic += 1
 
-            # atom->E[i] *= (HPLANCK * CLIGHT) / CM_TO_M;
-
             deltaEi = (atom.levels[ic].E - atom.levels[i].E) * Const.HC / Const.CM_TO_M
             deltaEj = (atom.levels[ic].E - atom.levels[j].E) * Const.HC / Const.CM_TO_M
-            E_Rydberg = Const.ERydberg / (1.0 + Const.MElectron / (self.atomicTable[atom.name].weight * Const.Amu))
+            E_Rydberg = Const.ERydberg / (1.0 + Const.MElectron / (atom.element.mass * Const.Amu))
 
             neff1 = Z * np.sqrt(E_Rydberg / deltaEi)
             neff2 = Z * np.sqrt(E_Rydberg / deltaEj)
@@ -94,26 +90,24 @@ class Barklem:
                 neff1, neff2 = neff2, neff1
 
             if not (table.neff1[0] <= neff1 <= table.neff1[-1]):
-                raise BarklemCrossSectionError()
+                raise BarklemCrossSectionError('neff1 outside table.')
             if not (table.neff2[0] <= neff2 <= table.neff2[-1]):
-                raise BarklemCrossSectionError()
+                raise BarklemCrossSectionError('neff2 outside table.')
 
 
-            vals = np.zeros(4)
-            vals[0] = RectBivariateSpline(table.neff1, table.neff2, table.cross)(neff1, neff2)
-            vals[1] = RectBivariateSpline(table.neff1, table.neff2, table.alpha)(neff1, neff2)
+            result[0] = RectBivariateSpline(table.neff1, table.neff2, table.cross)(neff1, neff2)
+            result[1] = RectBivariateSpline(table.neff1, table.neff2, table.alpha)(neff1, neff2)
 
-        reducedMass = Const.Amu / (1.0 / self.atomicTable['H'].weight + 1.0 / self.atomicTable[atom.name].weight)
+        reducedMass = Const.Amu / (1.0 / PeriodicTable[1].mass + 1.0 / atom.element.mass)
         meanVel = np.sqrt(8.0 * Const.KBoltzmann / (np.pi * reducedMass))
         meanCross = Const.RBohr**2 * (meanVel / 1.0e4)**(-vals[1])
 
-        vals[0] *= 2.0 * (4.0 / np.pi)**(vals[1]/2.0) * gamma(4.0 - vals[1] / 2.0) * meanVel * meanCross
+        result[0] = vals[0] * 2.0 * (4.0 / np.pi)**(vals[1]/2.0) * gamma(4.0 - vals[1] / 2.0) * meanVel * meanCross
 
         # Use Unsold for Helium contribution
-        vals[2] = 1.0
-        # vals[3] = 0.0
+        result[2] = 1.0
 
-        return vals
+        return result
 
 
-    
+
