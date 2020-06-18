@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from fractions import Fraction
-from typing import List, Sequence, Optional, Any, Iterator, cast, TYPE_CHECKING
+from typing import List, Tuple, Sequence, Optional, Any, Iterator, cast, TYPE_CHECKING
 import re
 
 import numpy as np
@@ -13,12 +13,12 @@ from .utils import gaunt_bf, sequence_repr
 from .atomic_table import PeriodicTable, Element
 from .barklem import Barklem
 from .zeeman import compute_zeeman_components, ZeemanComponents
+from .broadening import LineBroadening
 
 if TYPE_CHECKING:
     from .atmosphere import Atmosphere
     from .atomic_set import SpeciesStateTable
     from .collisional_rates import CollisionalRates
-    from .broadening import LineBroadening
 
 
 @dataclass
@@ -44,7 +44,7 @@ class AtomicModel:
             c.setup(self)
 
     def __repr__(self):
-        s = 'AtomicModel(element="%s",\n\tlevels=[\n' % repr(self.element)
+        s = 'AtomicModel(element=%s,\n\tlevels=[\n' % repr(self.element)
         for l in self.levels:
             s += '\t\t' + repr(l) + ',\n'
         s += '\t],\n\tlines=[\n'
@@ -62,7 +62,7 @@ class AtomicModel:
     def __hash__(self):
         return hash(repr(self))
 
-    def vBroad(self, atmos: Atmosphere) -> np.ndarray:
+    def vBroad(self, atmos: 'Atmosphere') -> np.ndarray:
         vTherm = 2.0 * Const.KBoltzmann / (Const.Amu * PeriodicTable[self.element].mass)
         vBroad = np.sqrt(vTherm * atmos.temperature + atmos.vturb**2)
         return vBroad
@@ -128,9 +128,6 @@ class AtomicLevel:
 
     def setup(self, atom):
         self.atom = atom
-        if not any([x is None for x in [self.J, self.L, self.S]]):
-            if self.J <= self.L + self.S:
-                self.lsCoupling = True
 
     def __hash__(self):
         return hash((self.E, self.g, self.label, self.stage, self.J, self.L, self.S))
@@ -159,7 +156,7 @@ class AtomicLevel:
         return self.E_SI / Const.EV
 
     def __repr__(self):
-        s = 'AtomicLevel(E=%f, g=%f, label="%s", stage=%d, J=%s, L=%s, S=%s)' % (self.E, self.g, self.label, self.stage, repr(self.J), repr(self.L), repr(self.S))
+        s = 'AtomicLevel(E=%10.3f, g=%g, label="%s", stage=%d, J=%s, L=%s, S=%s)' % (self.E, self.g, self.label, self.stage, repr(self.J), repr(self.L), repr(self.S))
         return s
 
 class LineType(Enum):
@@ -203,7 +200,7 @@ class LinearCoreExpWings(LineQuadrature):
     beta: float = field(init=False)
 
     def __repr__(self):
-        s = '%s(qCore=%.4e, qWing=%.4e, Nlambda=%d)' % (type(self).__name__,
+        s = '%s(qCore=%g, qWing=%g, Nlambda=%d)' % (type(self).__name__,
              self.qCore, self.qWing, self.Nlambda)
         return s
 
@@ -294,7 +291,7 @@ class AtomicLine(AtomicTransition):
         self.broadening.setup(self)
 
     def __repr__(self):
-        s = '%s(j=%d, i=%d, f=%e, type=%s, quadrature=%s, broadening=%s' % (
+        s = '%s(j=%d, i=%d, f=%9.3e, type=%s, quadrature=%s, broadening=%s' % (
                 type(self).__name__,
                 self.j, self.i, self.f, repr(self.type),
                 repr(self.quadrature), repr(self.broadening))
@@ -354,12 +351,11 @@ class AtomicLine(AtomicTransition):
         return (self.iLevel.lsCoupling and self.jLevel.lsCoupling) or (self.gLandeEff is not None)
 
 
-@dataclass(eq=False)
+@dataclass(eq=False, repr=False)
 class VoigtLine(AtomicLine):
 
-    # TODO(cmo): Provide old interface for now to avoid needing to change all of this right now?
-    def damping(self, atmos: Atmosphere, eqPops: SpeciesStateTable):
-        Qs = self.damping(atmos, eqPops)
+    def damping(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable'):
+        Qs = self.broadening.broaden(atmos, eqPops)
 
         vBroad = self.atom.vBroad(atmos)
         cDop = self.lambda0_m / (4.0 * np.pi)
@@ -412,7 +408,7 @@ class ExplicitContinuum(AtomicContinuum):
             self.i, self.j = self.j, self.i
         self.atom = atom
         self.wavelengthGrid = np.asarray(self.wavelengthGrid)
-        if not np.all(np.diff(self.wavelength) > 0.0):
+        if not np.all(np.diff(self.wavelengthGrid) > 0.0):
             raise ValueError('Wavelength array not monotonically increasing in continuum %s' % repr(self))
         self.alphaGrid = np.asarray(self.alphaGrid)
         self.jLevel = atom.levels[self.j]
@@ -450,12 +446,12 @@ class ExplicitContinuum(AtomicContinuum):
 
 @dataclass(eq=False)
 class HydrogenicContinuum(AtomicContinuum):
-    alpha0: float
-    minLambda: float
     NlambdaGen: int
+    alpha0: float
+    minWavelength: float
 
     def __repr__(self):
-        s = 'HydrogenicContinuum(j=%d, i=%d, alpha0=%e, minLambda=%f, NlambdaGen=%d)' % (self.j, self.i, self.alpha0, self.minLambda, self.NlambdaGen)
+        s = 'HydrogenicContinuum(j=%d, i=%d, NlambdaGen=%d, alpha0=%g, minWavelength=%g)' % (self.j, self.i, self.NlambdaGen, self.alpha0, self.minWavelength)
         return s
 
     def setup(self, atom):
@@ -465,7 +461,7 @@ class HydrogenicContinuum(AtomicContinuum):
         self.jLevel: AtomicLevel = atom.levels[self.j]
         self.iLevel: AtomicLevel = atom.levels[self.i]
         if self.minLambda >= self.lambda0:
-            raise ValueError('Minimum wavelength is larger than continuum edge at %f [nm] in continuum %s' % (self.lambda0, repr(self)))
+            raise ValueError('Minimum wavelength is larger than continuum edge at %g [nm] in continuum %s' % (self.lambda0, repr(self)))
 
     def alpha(self, wavelength: np.ndarray) -> np.ndarray:
         Z = self.jLevel.stage
@@ -479,3 +475,7 @@ class HydrogenicContinuum(AtomicContinuum):
 
     def wavelength(self) -> np.ndarray:
         return np.linspace(self.minLambda, self.lambdaEdge, self.NlambdaGen)
+
+    @property
+    def minLambda(self) -> float:
+        return self.minWavelength

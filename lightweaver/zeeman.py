@@ -54,7 +54,7 @@ def lande_factor(J: Fraction, L: int, S: Fraction) -> float:
         return 0.0
     return float(1.5 + (S * (S + 1.0) - L * (L + 1)) / (2.0 * J * (J + 1.0)))
 
-def effective_lande(line: AtomicLine):
+def effective_lande(line: 'AtomicLine'):
     if line.gLandeEff is not None:
         return line.gLandeEff
 
@@ -68,7 +68,7 @@ def effective_lande(line: AtomicLine):
     return 0.5 * (gU + gL) + \
            0.25 * (gU - gL) * (j.J * (j.J + 1.0) - i.J * (i.J + 1.0)) # type: ignore
 
-def compute_zeeman_components(line: AtomicLine) -> Optional[ZeemanComponents]:
+def compute_zeeman_components(line: 'AtomicLine') -> Optional[ZeemanComponents]:
     # Just do basic anomalous Zeeman splitting
     if line.gLandeEff is not None:
         alpha = np.array([-1, 0, 1], dtype=np.int32)

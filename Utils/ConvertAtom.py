@@ -1,5 +1,8 @@
 from lightweaver.atomic_model import *
 from lightweaver.collisional_rates import *
+from lightweaver.broadening import *
+from lightweaver.atomic_table import PeriodicTable
+from lightweaver.barklem import BarklemCrossSectionError
 from typing import List
 from parse import parse
 import os
@@ -58,6 +61,28 @@ def determinate(level: AtomicLevel) -> PrincipalQuantum:
 
     return PrincipalQuantum(J=J, L=L, S=S)
 
+def check_barklem_compatible(vals: List[float],
+                             iLev: AtomicLevel, jLev: AtomicLevel) -> bool:
+
+    if vals[0] >= 20.0:
+        return True
+
+    if iLev.stage > 0:
+        return False
+
+    lowerNum = iLev.L
+    upperNum = jLev.L
+    if upperNum is None or lowerNum is None:
+        return False
+
+    if not ((abs(upperNum - lowerNum) == 1)
+            and (max(upperNum, lowerNum) <= 3)):
+        return False
+
+    # NOTE(cmo): We're not checking the table bounds here, but that should be fine.
+
+    return True
+
 def getNextLine(data):
     if len(data) == 0:
         return None
@@ -86,7 +111,8 @@ def conv_atom(inFile):
         data = fi.readlines()
 
     ID = getNextLine(data)
-    print(Fore.GREEN + 'Reading model atom %s from file %s' % (ID, inFile) + Style.RESET_ALL)
+    element = PeriodicTable[ID]
+    print(Fore.GREEN + '='*40 + '\n' + 'Reading model atom %s from file %s' % (ID, inFile) + Style.RESET_ALL)
     Ns = [maybe_int(d) for d in getNextLine(data).split()]
     Nlevel = Ns[0]
     Nline = Ns[1]
@@ -165,11 +191,24 @@ def conv_atom(inFile):
             vdwApprox = VdwUnsold(vdwParams)
         elif vdw.upper() == 'BARKLEM':
             vdwParams = [vdwParams[0], vdwParams[2]]
-            vdwApprox = VdwBarklem(vdwParams)
+            if check_barklem_compatible(vdwParams, levels[i], levels[j]):
+                vdwApprox = VdwBarklem(vdwParams)
+            else:
+                vdwApprox = VdwUnsold(vdwParams)
         else:
             raise ValueError('Unknown vdw type %s' % vdw)
 
-        lines.append(VoigtLine(j=j, i=i, f=f, type=lineType, NlambdaGen=Nlambda, qCore=qCore, qWing=qWing, vdw=vdwApprox, gRad=gRad, stark=stark, gLandeEff=gLande))
+        if stark <= 0:
+            starkBroaden = MultiplicativeStarkBroadening(stark)
+        else:
+            starkBroaden = QuadraticStarkBroadening(stark)
+
+        broadening = LineBroadening(inelastic=[RadiativeBroadening(gRad)], elastic=[vdwApprox, starkBroaden])
+        if element == PeriodicTable[1]:
+            broadening.elastic.append(HydrogenLinearStarkBroadening())
+
+        quadrature = LinearCoreExpWings(qCore=qCore, qWing=qWing, Nlambda=Nlambda)
+        lines.append(VoigtLine(j=j, i=i, f=f, type=lineType, quadrature=quadrature, broadening=broadening, gLandeEff=gLande))
         lineNLambdas.append(Nlambda)
 
 
@@ -193,10 +232,11 @@ def conv_atom(inFile):
                 l = l.split()
                 wavelengths.append(float(l[0]))
                 alphas.append(float(l[1]))
-            alphaGrid = [list(x) for x in list(zip(wavelengths, alphas))]
-            continua.append(ExplicitContinuum(j=j, i=i, alphaGrid=alphaGrid))
+            wavelengthGrid = wavelengths[::-1]
+            alphaGrid = alphas[::-1]
+            continua.append(ExplicitContinuum(j=j, i=i, wavelengthGrid=wavelengthGrid, alphaGrid=alphaGrid))
         elif wavelengthDep.upper() == 'HYDROGENIC':
-            continua.append(HydrogenicContinuum(j=j, i=i, alpha0=alpha0, minLambda=minLambda, NlambdaGen=Nlambda))
+            continua.append(HydrogenicContinuum(j=j, i=i, alpha0=alpha0, minWavelength=minLambda, NlambdaGen=Nlambda))
         else:
             raise ValueError('Unknown Continuum type %s' % wavelengthDep)
 
@@ -264,7 +304,8 @@ def conv_atom(inFile):
         else:
             print(Fore.YELLOW + "Ignoring unknown collisional string %s" % line[0].upper() + Style.RESET_ALL)
 
-    atom = AtomicModel(name=ID, levels=levels, lines=lines, continua=continua, collisions=collisions)
+    atom = AtomicModel(element=element, levels=levels, lines=lines, continua=continua, collisions=collisions)
+
     # for i, l in enumerate(atom.lines):
     #     l.Nlambda = lineNLambdas[i]
     return repr(atom)
@@ -284,14 +325,17 @@ for i, f in enumerate(files):
         doneFiles.append(baseFiles[i])
     except Exception as e:
         print(Fore.RED +  'Failed: ' + Style.RESET_ALL, f)
-        print(Fore.BLUE + repr(e) + Style.RESET_ALL)
+        print(Fore.BLUE + '->' + repr(e) + Style.RESET_ALL)
+        print('-'*40)
         fails.write('Failed: %s\n' % f)
-        fails.write('%s\n' % repr(e))
-        fails.write('----------\n')
+        fails.write('->%s\n' % repr(e))
+        fails.write('-'*40 + '\n')
 
 with open('rh_atoms.py', 'w') as fi:
     fi.write('from lightweaver.atomic_model import *\n')
     fi.write('from lightweaver.collisional_rates import *\n')
+    fi.write('from lightweaver.broadening import *\n')
+    fi.write('from lightweaver.atomic_table import Element\n')
     for i, a in enumerate(atoms):
         s = clean(doneFiles[i]) + ' = lambda: \\\n'
         s += a

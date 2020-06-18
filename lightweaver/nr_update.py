@@ -55,7 +55,7 @@ def F(self, k, backgroundNe=0.0, atoms=None):
 
 
 def nr_post_update(self, fdCollisionRates=True, hOnly=False, timeDependentData=None):
-    assert self.activeAtoms[0].model.element == PeriodicTable[0]
+    assert self.activeAtoms[0].element == PeriodicTable[1]
     crswVal = self.crswCallback.val
 
     timeDependent = (timeDependentData is not None)
@@ -72,7 +72,7 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False, timeDependentData=N
 
 
     if hOnly:
-        backgroundAtoms = [model for ele, model in self.arguments['spect'].radSet.items() if ele != PeriodicTable[0]]
+        backgroundAtoms = [model for ele, model in self.arguments['spect'].radSet.items() if ele != PeriodicTable[1]]
     else:
         backgroundAtoms = self.arguments['spect'].radSet.passiveAtoms
 

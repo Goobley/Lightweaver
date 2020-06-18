@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from parse import parse
 import numpy as np
 if TYPE_CHECKING:
-    from .atomic_model import AtomicLevel, AtomicLine, AtomicModel, determinate, CompositeLevelError
+    from .atomic_model import AtomicLevel, AtomicLine, AtomicModel
 import string
 from .atomic_table import PeriodicTable
 from .utils import get_data_path
@@ -33,7 +33,7 @@ class Barklem:
     barklem_df = BarklemTable(get_data_path() + 'Barklem_dfdata.dat', (2.3, 3.3))
 
     @classmethod
-    def get_active_cross_section(cls, atom: AtomicModel, line: AtomicLine, vals: Sequence[float]) -> Sequence[float]:
+    def get_active_cross_section(cls, atom: 'AtomicModel', line: 'AtomicLine', vals: Sequence[float]) -> Sequence[float]:
         i = line.i
         j = line.j
 
@@ -48,7 +48,7 @@ class Barklem:
         # assume the provided values are the coefficients
         if vals[0] < 20.0:
             if atom.levels[i].stage > 0:
-                raise BarklemCrossSectionError()
+                raise BarklemCrossSectionError('Atom is not neutral.')
 
             # Find principal quantum numbers
             # try:
@@ -59,7 +59,7 @@ class Barklem:
             lowerNum = atom.levels[i].L
             upperNum = atom.levels[j].L
             if lowerNum is None or upperNum is None:
-                raise BarklemCrossSectionError()
+                raise BarklemCrossSectionError('L not provided for levels.')
 
             nums = (lowerNum, upperNum)
 
@@ -71,15 +71,13 @@ class Barklem:
             elif nums == (DOrbit, FOrbit) or nums == (FOrbit, DOrbit):
                 table = cls.barklem_df
             else:
-                raise BarklemCrossSectionError()
+                raise BarklemCrossSectionError('Not a valid shell combination.')
 
             Z = atom.levels[j].stage + 1
             # Find index of continuum level
             ic = j + 1
             while atom.levels[ic].stage < atom.levels[j].stage + 1:
                 ic += 1
-
-            # atom->E[i] *= (HPLANCK * CLIGHT) / CM_TO_M;
 
             deltaEi = (atom.levels[ic].E - atom.levels[i].E) * Const.HC / Const.CM_TO_M
             deltaEj = (atom.levels[ic].E - atom.levels[j].E) * Const.HC / Const.CM_TO_M
@@ -92,9 +90,9 @@ class Barklem:
                 neff1, neff2 = neff2, neff1
 
             if not (table.neff1[0] <= neff1 <= table.neff1[-1]):
-                raise BarklemCrossSectionError()
+                raise BarklemCrossSectionError('neff1 outside table.')
             if not (table.neff2[0] <= neff2 <= table.neff2[-1]):
-                raise BarklemCrossSectionError()
+                raise BarklemCrossSectionError('neff2 outside table.')
 
 
             result[0] = RectBivariateSpline(table.neff1, table.neff2, table.cross)(neff1, neff2)

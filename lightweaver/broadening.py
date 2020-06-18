@@ -11,6 +11,12 @@ if TYPE_CHECKING:
     from .atomic_set import SpeciesStateTable
 
 @dataclass
+class LineBroadeningResult:
+    Qinelast: np.ndarray
+    Qelast: np.ndarray
+
+
+@dataclass
 class LineBroadener:
     def __repr__(self):
         raise NotImplementedError
@@ -18,14 +24,8 @@ class LineBroadener:
     def setup(self, line: 'AtomicLine'):
         pass
 
-    def broaden(self, atmos: Atmosphere, eqPops: SpeciesStateTable) -> np.ndarray:
+    def broaden(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable') -> np.ndarray:
         raise NotImplementedError
-
-
-@dataclass
-class LineBroadeningResult:
-    Qinelast: np.ndarray
-    Qelast: np.ndarray
 
 
 @dataclass
@@ -49,8 +49,8 @@ class LineBroadening:
             b.setup(line)
 
     @staticmethod
-    def sum_broadening_list(broadeners: List[LineBroadener], atmos: Atmosphere,
-                            eqPops: SpeciesStateTable) -> Optional[np.ndarray]:
+    def sum_broadening_list(broadeners: List[LineBroadener], atmos: 'Atmosphere',
+                            eqPops: 'SpeciesStateTable') -> Optional[np.ndarray]:
         if len(broadeners) == 0:
             return None
 
@@ -59,7 +59,7 @@ class LineBroadening:
             result += b.broaden(atmos, eqPops)
         return result
 
-    def broaden(self, atmos: Atmosphere, eqPops: SpeciesStateTable) -> LineBroadeningResult:
+    def broaden(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable') -> LineBroadeningResult:
         Qinelast = self.sum_broadening_list(self.inelastic, atmos, eqPops)
         Qelast = self.sum_broadening_list(self.elastic, atmos, eqPops)
 
@@ -74,9 +74,9 @@ class LineBroadening:
 @dataclass(eq=False)
 class VdwApprox(LineBroadener):
     vals: Sequence[float]
-    line: AtomicLine = field(init=False)
+    line: 'AtomicLine' = field(init=False)
 
-    def setup(self, line: AtomicLine):
+    def setup(self, line: 'AtomicLine'):
         self.line = line
 
     def __repr__(self):
@@ -99,9 +99,9 @@ class VdwApprox(LineBroadener):
         return True
 
 
-@dataclass(eq=False)
+@dataclass(eq=False, repr=False)
 class VdwUnsold(VdwApprox):
-    def setup(self, line: AtomicLine):
+    def setup(self, line: 'AtomicLine'):
         self.line = line
         if len(self.vals) != 2:
             raise ValueError('VdwUnsold expects 2 coefficients (%s)' % repr(line))
@@ -123,7 +123,7 @@ class VdwUnsold(VdwApprox):
                          * (1.0 + element.mass / PeriodicTable[1].mass))**0.3
 
 
-    def broaden(self, atmos: Atmosphere, eqPops: SpeciesStateTable) -> np.ndarray:
+    def broaden(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable') -> np.ndarray:
         heAbund = eqPops.abundance[PeriodicTable[2]]
         cross = 8.08 * (self.vals[0] * self.vRel35H \
                              + self.vals[1] * heAbund * self.vRel35He) * self.C625
@@ -132,9 +132,9 @@ class VdwUnsold(VdwApprox):
         return broad
 
 
-@dataclass(eq=False)
+@dataclass(eq=False, repr=False)
 class VdwBarklem(VdwApprox):
-    def setup(self, line: AtomicLine):
+    def setup(self, line: 'AtomicLine'):
         self.line = line
         if len(self.vals) != 2:
             raise ValueError('VdwBarklem expects 2 coefficients (%s)' % (repr(line)))
@@ -157,7 +157,7 @@ class VdwBarklem(VdwApprox):
                          * (1.0 + element.mass / PeriodicTable[2].mass))**0.3
 
 
-    def broaden(self, atmos: Atmosphere, eqPops: SpeciesStateTable) -> np.ndarray:
+    def broaden(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable') -> np.ndarray:
         heAbund = eqPops.abundance[PeriodicTable[2]]
         nHGround = eqPops['H'][0, :]
         cross = 8.08 * self.barklemVals[2] * heAbund * self.vRel35He * self.C625
@@ -171,13 +171,13 @@ class VdwBarklem(VdwApprox):
 @dataclass(eq=False)
 class RadiativeBroadening(LineBroadener):
     gamma: float
-    line: AtomicLine = field(init=False)
+    line: 'AtomicLine' = field(init=False)
 
-    def setup(self, line: AtomicLine):
+    def setup(self, line: 'AtomicLine'):
         self.line = line
 
     def __repr__(self):
-        s = 'RadiativeBroadening(gamma=%.4e)' % self.gamma
+        s = '%s(gamma=%g)' % (type(self).__name__, self.gamma)
         return s
 
     def __eq__(self, other):
@@ -195,16 +195,16 @@ class RadiativeBroadening(LineBroadener):
 
         return True
 
-    def broaden(self, atmos: Atmosphere, eqPops: SpeciesStateTable) -> np.ndarray:
+    def broaden(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable') -> np.ndarray:
         return np.ones_like(atmos.temperature) * self.gamma
 
 @dataclass
-class QuadraticStarkBroaden(LineBroadener):
+class QuadraticStarkBroadening(LineBroadener):
     coeff: float
-    line: AtomicLine = field(init=False)
+    line: 'AtomicLine' = field(init=False)
 
     def __repr__(self):
-        s = 'QuadraticStarkBroaden(coeff=%.4e)' % self.coeff
+        s = '%s(coeff=%g)' % (type(self).__name__, self.coeff)
         return s
 
     def __eq__(self, other):
@@ -222,7 +222,7 @@ class QuadraticStarkBroaden(LineBroadener):
 
         return True
 
-    def setup(self, line: AtomicLine):
+    def setup(self, line: 'AtomicLine'):
         self.line = line
         weight = line.atom.element.mass
         C = 8.0 * Const.KBoltzmann / (np.pi * Const.Amu * weight)
@@ -246,17 +246,17 @@ class QuadraticStarkBroaden(LineBroadener):
                 - (neff_l * (5.0 * neff_l**2 + 1.0))**2)
         self.cStark23 = 11.37 * (self.coeff * C4)**(2.0/3.0)
 
-    def broaden(self, atmos: Atmosphere, eqPops: SpeciesStateTable) -> np.ndarray:
+    def broaden(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable') -> np.ndarray:
         vRel = (self.C * atmos.temperature)**(1.0/6.0) * self.Cm
         stark = self.cStark23 * vRel * atmos.ne
         return stark
 
 @dataclass
-class MultiplicativeStarkBroaden(LineBroadener):
+class MultiplicativeStarkBroadening(LineBroadener):
     coeff: float
 
     def __repr__(self):
-        s = 'MultiplicativeStarkBroaden(coeff=%.4e)' % self.coeff
+        s = '%s(coeff=%g)' % (type(self).__name__, self.coeff)
         return s
 
     def __eq__(self, other):
@@ -268,15 +268,15 @@ class MultiplicativeStarkBroaden(LineBroadener):
 
         return True
 
-    def broaden(self, atmos: Atmosphere, eqPops: SpeciesStateTable) -> np.ndarray:
+    def broaden(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable') -> np.ndarray:
         return self.coeff * atmos.ne # type: ignore
 
 @dataclass
-class HydrogenLinearStarkBroaden(LineBroadener):
-    line: AtomicLine = field(init=False)
+class HydrogenLinearStarkBroadening(LineBroadener):
+    line: 'AtomicLine' = field(init=False)
 
     def __repr__(self):
-        s = 'HydrogenLinearStarkBroaden()'
+        s = '%s()' % type(self).__name__
         return s
 
     def __eq__(self, other):
@@ -291,13 +291,13 @@ class HydrogenLinearStarkBroaden(LineBroadener):
 
         return True
 
-    def setup(self, line: AtomicLine):
+    def setup(self, line: 'AtomicLine'):
         self.line = line
 
         if line.atom.element.Z != 1:
-            raise ValueError('HydrogenicLinearStarkBroaden applied to non-Hydrogen line')
+            raise ValueError('HydrogenicLinearStarkBroadening applied to non-Hydrogen line')
 
-    def broaden(self, atmos: Atmosphere, eqPops: SpeciesStateTable) -> np.ndarray:
+    def broaden(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable') -> np.ndarray:
         nUpper = int(np.round(np.sqrt(0.5*self.line.jLevel.g)))
         nLower = int(np.round(np.sqrt(0.5*self.line.iLevel.g)))
 

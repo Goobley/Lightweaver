@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 class CollisionalRates:
     j: int
     i: int
-    atom: AtomicModel = field(init=False)
+    atom: 'AtomicModel' = field(init=False)
 
     def __repr__(self):
         s = 'CollisionalRates(j=%d, i=%d)' % (self.j, self.i)
@@ -26,7 +26,7 @@ class CollisionalRates:
     def setup(self, atom):
         pass
 
-    def compute_rates(self, atmos: Atmosphere, eqPops: SpeciesStateTable, Cmat: np.ndarray):
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
         raise NotImplementedError
 
     def __eq__(self, other: object) -> bool:
@@ -54,7 +54,7 @@ class Omega(TemperatureInterpolationRates):
         self.iLevel = atom.levels[self.i]
         self.C0 = Const.ERydberg / np.sqrt(Const.MElectron) * np.pi * Const.RBohr**2 * np.sqrt(8.0 / (np.pi * Const.KBoltzmann))
 
-    def compute_rates(self, atmos: Atmosphere, eqPops: SpeciesStateTable, Cmat: np.ndarray):
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
         C = weno4(atmos.temperature, self.temperature, self.rates)
         C[C < 0.0] = 0.0
         nstar = eqPops.atomicPops[self.atom.element].nStar
@@ -77,7 +77,7 @@ class CI(TemperatureInterpolationRates):
         self.iLevel = atom.levels[self.i]
         self.dE = self.jLevel.E_SI - self.iLevel.E_SI
 
-    def compute_rates(self, atmos: Atmosphere, eqPops: SpeciesStateTable, Cmat: np.ndarray):
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
         C = weno4(atmos.temperature, self.temperature, self.rates)
         C[C < 0.0] = 0.0
         nstar = eqPops.atomicPops[self.atom.element].nStar
@@ -101,7 +101,7 @@ class CE(TemperatureInterpolationRates):
         self.iLevel = atom.levels[self.i]
         self.gij = self.iLevel.g / self.jLevel.g
 
-    def compute_rates(self, atmos: Atmosphere, eqPops: SpeciesStateTable, Cmat: np.ndarray):
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
         C = weno4(atmos.temperature, self.temperature, self.rates)
         C[C < 0.0] = 0.0
         nstar = eqPops.atomicPops[self.atom.element].nStar
@@ -182,7 +182,7 @@ class Ar85Cdi(CollisionalRates):
         self.jLevel = atom.levels[self.j]
         self.cdi = np.array(self.cdi)
 
-    def compute_rates(self, atmos: Atmosphere, eqPops: SpeciesStateTable, Cmat: np.ndarray):
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
         nstar = eqPops.atomicPops[self.atom.element].nStar
         Cup = np.zeros(atmos.Nspace)
         cdi = cast(np.ndarray, self.cdi)
@@ -207,7 +207,7 @@ class Burgess(CollisionalRates):
     fudge: float = 1.0
 
     def __repr__(self):
-        s = 'Burgess(j=%d, i=%d, fudge=%e)' % (self.j, self.i, self.fudge)
+        s = 'Burgess(j=%d, i=%d, fudge=%g)' % (self.j, self.i, self.fudge)
         return s
 
     def setup(self, atom):
@@ -218,7 +218,7 @@ class Burgess(CollisionalRates):
         self.iLevel = atom.levels[self.i]
         self.jLevel = atom.levels[self.j]
 
-    def compute_rates(self, atmos: Atmosphere, eqPops: SpeciesStateTable, Cmat: np.ndarray):
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
         nstar = eqPops.atomicPops[self.atom.element].nStar
         dE = (self.jLevel.E_SI - self.iLevel.E_SI) / Const.EV
         zz = self.iLevel.stage

@@ -22,8 +22,8 @@ class Element:
         return self.Z == other.Z
 
     def __lt__(self, other):
-        if type(other) is Isotope:
-            return NotImplemented
+        if isinstance(other, Isotope):
+            return self.Z <= other.Z
         return self.Z < other.Z
 
     def __repr__(self):
@@ -54,7 +54,7 @@ class Isotope(Element):
         return False
 
     def __lt__(self, other):
-        if type(other) is Isotope:
+        if isinstance(other, Isotope):
             return (self.Z, self.N) < (other.Z, other.N)
         elif type(other) is Element:
             return self.Z < other.Z
@@ -415,6 +415,7 @@ class KuruczPfTable:
         pf = []
         ionpot = []
         for i in range(99):
+            z = u.unpack_int()
             stages.append(u.unpack_int())
             pf.append(np.array(u.unpack_farray(stages[-1] * self.Tpf.shape[0], u.unpack_double)).reshape(stages[-1], self.Tpf.shape[0]))
             ionpot.append(np.array(u.unpack_farray(stages[-1], u.unpack_double)))
