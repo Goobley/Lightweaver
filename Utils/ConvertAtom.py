@@ -199,7 +199,7 @@ def conv_atom(inFile):
             raise ValueError('Unknown vdw type %s' % vdw)
 
         if stark <= 0:
-            starkBroaden = MultiplicativeStarkBroadening(stark)
+            starkBroaden = MultiplicativeStarkBroadening(abs(stark))
         else:
             starkBroaden = QuadraticStarkBroadening(stark)
 
@@ -279,6 +279,42 @@ def conv_atom(inFile):
             for nt in range(Ntemp):
                 rates.append(float(line[nt+3]))
             collisions.append(CE(j=j, i=i, temperature=temperatureGrid, rates=rates))
+        elif line[0].upper() == 'CP':
+            i1 = int(line[1])
+            i2 = int(line[2])
+            j = max(i1, i2)
+            i = min(i1, i2)
+            rates = []
+            for nt in range(Ntemp):
+                rates.append(float(line[nt+3]))
+            collisions.append(CP(j=j, i=i, temperature=temperatureGrid, rates=rates))
+        elif line[0].upper() == 'CH':
+            i1 = int(line[1])
+            i2 = int(line[2])
+            j = max(i1, i2)
+            i = min(i1, i2)
+            rates = []
+            for nt in range(Ntemp):
+                rates.append(float(line[nt+3]))
+            collisions.append(CH(j=j, i=i, temperature=temperatureGrid, rates=rates))
+        elif line[0].upper() == 'CH0':
+            i1 = int(line[1])
+            i2 = int(line[2])
+            j = max(i1, i2)
+            i = min(i1, i2)
+            rates = []
+            for nt in range(Ntemp):
+                rates.append(float(line[nt+3]))
+            collisions.append(ChargeExchangeNeutralH(j=j, i=i, temperature=temperatureGrid, rates=rates))
+        elif line[0].upper() == 'CH+':
+            i1 = int(line[1])
+            i2 = int(line[2])
+            j = max(i1, i2)
+            i = min(i1, i2)
+            rates = []
+            for nt in range(Ntemp):
+                rates.append(float(line[nt+3]))
+            collisions.append(ChargeExchangeProton(j=j, i=i, temperature=temperatureGrid, rates=rates))
         elif line[0].upper() == 'AR85-CDI':
             i1 = int(line[1])
             i2 = int(line[2])
@@ -313,7 +349,8 @@ def conv_atom(inFile):
 colorama.init()
 fails = open('Fails.txt', 'w')
 path = './Atoms/'
-excludeFiles = ['FeII_big.atom']
+excludeFiles = ['FeII_big.atom', 'He_9_incorrect_translation.atom',
+                'C_I+II_9.atom', 'LiI.atom']
 baseFiles = sorted([f for f in os.listdir(path) if f.endswith('.atom') and f not in excludeFiles])
 # baseFiles = ['He_9.atom']
 files = [path+f for f in baseFiles]

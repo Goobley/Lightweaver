@@ -37,12 +37,10 @@ class CollisionalRates:
 class TemperatureInterpolationRates(CollisionalRates):
     temperature: Sequence[float]
     rates: Sequence[float]
-
-
-@dataclass(eq=False)
-class Omega(TemperatureInterpolationRates):
     def __repr__(self):
-        s = 'Omega(j=%d, i=%d, temperature=%s, rates=%s)' % (self.j, self.i, sequence_repr(self.temperature), sequence_repr(self.rates))
+        s = '%s(j=%d, i=%d, temperature=%s, rates=%s)' % (type(self).__name__,
+                                                          self.j, self.i,
+                                                          sequence_repr(self.temperature), sequence_repr(self.rates))
         return s
 
     def setup(self, atom):
@@ -52,6 +50,18 @@ class Omega(TemperatureInterpolationRates):
         self.atom = atom
         self.jLevel = atom.levels[self.j]
         self.iLevel = atom.levels[self.i]
+        self.temperature = np.asarray(self.temperature)
+        self.rates = np.asarray(self.rates)
+
+@dataclass(eq=False, repr=False)
+class Omega(TemperatureInterpolationRates):
+    '''
+    Collisional (de-)excitation of ions by electrons (dimensionless).
+    Omega as in Seaton's collision strength.
+    Rate scales as 1/(sqrt(T)) exp(DeltaE).
+    '''
+    def setup(self, atom):
+        super().setup(atom)
         self.C0 = Const.ERydberg / np.sqrt(Const.MElectron) * np.pi * Const.RBohr**2 * np.sqrt(8.0 / (np.pi * Const.KBoltzmann))
 
     def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
@@ -62,19 +72,15 @@ class Omega(TemperatureInterpolationRates):
         Cmat[self.i, self.j, :] += Cdown
         Cmat[self.j, self.i, :] += Cdown * nstar[self.j] / nstar[self.i]
 
-@dataclass(eq=False)
+@dataclass(eq=False, repr=False)
 class CI(TemperatureInterpolationRates):
-    def __repr__(self):
-        s = 'CI(j=%d, i=%d, temperature=%s, rates=%s)' % (self.j, self.i, sequence_repr(self.temperature), sequence_repr(self.rates))
-        return s
-
+    '''
+    Collisional ionisation by electrons.
+    Units: s^-1 K^-1/2 m^3
+    Rate scales as sqrt(T) exp(DeltaE)
+    '''
     def setup(self, atom):
-        i, j = self.i, self.j
-        self.i = min(i, j)
-        self.j = max(i, j)
-        self.atom = atom
-        self.jLevel = atom.levels[self.j]
-        self.iLevel = atom.levels[self.i]
+        super().setup(atom)
         self.dE = self.jLevel.E_SI - self.iLevel.E_SI
 
     def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
@@ -86,19 +92,15 @@ class CI(TemperatureInterpolationRates):
         Cmat[self.i, self.j, :] += Cup * nstar[self.i] / nstar[self.j]
 
 
-@dataclass(eq=False)
+@dataclass(eq=False, repr=False)
 class CE(TemperatureInterpolationRates):
-    def __repr__(self):
-        s = 'CE(j=%d, i=%d, temperature=%s, rates=%s)' % (self.j, self.i, repr(self.temperature), repr(self.rates))
-        return s
-
+    '''
+    Collisional (de-)excitation of neutrals by electrons.
+    Units: s^-1 K^-1/2 m^3
+    Rate scales as sqrt(T) exp(DeltaE)
+    '''
     def setup(self, atom):
-        i, j = self.i, self.j
-        self.i = min(i, j)
-        self.j = max(i, j)
-        self.atom = atom
-        self.jLevel = atom.levels[self.j]
-        self.iLevel = atom.levels[self.i]
+        super().setup(atom)
         self.gij = self.iLevel.g / self.jLevel.g
 
     def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
@@ -108,6 +110,66 @@ class CE(TemperatureInterpolationRates):
         Cdown = C * atmos.ne * self.gij * np.sqrt(atmos.temperature)
         Cmat[self.i, self.j, :] += Cdown
         Cmat[self.j, self.i, :] += Cdown * nstar[self.j] / nstar[self.i]
+
+@dataclass(eq=False, repr=False)
+class CP(TemperatureInterpolationRates):
+    '''
+    Collisional (de-)excitation by protons.
+    Units: s^-1 m^3
+    '''
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+        C = weno4(atmos.temperature, self.temperature, self.rates)
+        C[C < 0.0] = 0.0
+        nProton = eqPops['H'][-1, :]
+        Cdown = C * nProton
+        nstar = eqPops.atomicPops[self.atom.element].nStar
+        Cmat[self.i, self.j, :] += Cdown
+        Cmat[self.j, self.i, :] += Cdown * nstar[self.j] / nstar[self.i]
+
+@dataclass(eq=False, repr=False)
+class CH(TemperatureInterpolationRates):
+    '''
+    Collisions with neutral hydrogen.
+    Units: s^-1 m^3
+    '''
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+        C = weno4(atmos.temperature, self.temperature, self.rates)
+        C[C < 0.0] = 0.0
+        nh0 = eqPops['H'][0, :]
+        Cup = C * nh0
+        nstar = eqPops.atomicPops[self.atom.element].nStar
+        Cmat[self.j, self.i, :] += Cup
+        Cmat[self.i, self.j, :] += Cup * nstar[self.i] / nstar[self.j]
+
+@dataclass(eq=False, repr=False)
+class ChargeExchangeNeutralH(TemperatureInterpolationRates):
+    '''
+    Charge exchange with neutral hydrogen.
+    Units: s^-1 m^3
+    Note: downward rate only.
+    '''
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+        C = weno4(atmos.temperature, self.temperature, self.rates)
+        C[C < 0.0] = 0.0
+        nh0 = eqPops['H'][0, :]
+        Cdown = C * nh0
+        nstar = eqPops.atomicPops[self.atom.element].nStar
+        Cmat[self.i, self.j, :] += Cdown
+
+@dataclass(eq=False, repr=False)
+class ChargeExchangeProton(TemperatureInterpolationRates):
+    '''
+    Charge exchange with protons.
+    Units: s^-1 m^3
+    Note: upward rate only.
+    '''
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+        C = weno4(atmos.temperature, self.temperature, self.rates)
+        C[C < 0.0] = 0.0
+        nProton = eqPops['H'][-1, :]
+        Cup = C * nProton
+        nstar = eqPops.atomicPops[self.atom.element].nStar
+        Cmat[self.j, self.i, :] += Cup
 
 def fone(x):
     # return np.where(x <= 50.0, np.exp(x) * exp1(x), 1.0/x)
@@ -167,6 +229,10 @@ def ftwo(x):
 
 @dataclass
 class Ar85Cdi(CollisionalRates):
+    '''
+    Collisional ionisation rates based on Arnaud & Rothenflug (1985, ApJS 60).
+    Units remain in CGS as per paper.
+    '''
     cdi: Sequence[Sequence[float]]
 
     def __repr__(self):
@@ -204,6 +270,11 @@ class Ar85Cdi(CollisionalRates):
 
 @dataclass
 class Burgess(CollisionalRates):
+    '''
+    Collisional ionisation from excited states from Burgess & Chidichimo
+    (1983, MNRAS 203, 1269).
+    Fudge parameter is dimensionless.
+    '''
     fudge: float = 1.0
 
     def __repr__(self):
