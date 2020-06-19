@@ -359,7 +359,7 @@ class VoigtLine(AtomicLine):
 
         vBroad = self.atom.vBroad(atmos)
         cDop = self.lambda0_m / (4.0 * np.pi)
-        aDamp = (Qs.Qinelast + Qs.Qelast) * cDop / vBroad
+        aDamp = (Qs.natural + Qs.Qelast) * cDop / vBroad
         return aDamp, Qs.Qelast
 
 @dataclass(eq=False)

@@ -203,7 +203,7 @@ def conv_atom(inFile):
         else:
             starkBroaden = QuadraticStarkBroadening(stark)
 
-        broadening = LineBroadening(inelastic=[RadiativeBroadening(gRad)], elastic=[vdwApprox, starkBroaden])
+        broadening = LineBroadening(natural=[RadiativeBroadening(gRad)], elastic=[vdwApprox, starkBroaden])
         if element == PeriodicTable[1]:
             broadening.elastic.append(HydrogenLinearStarkBroadening())
 

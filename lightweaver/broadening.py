@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Sequence, List, Optional, cast, TYPE_CHECKING
+from typing import Sequence, List, Optional, cast, Any, TYPE_CHECKING
 import lightweaver.constants as Const
 import numpy as np
 from .atomic_table import PeriodicTable
@@ -12,12 +12,24 @@ if TYPE_CHECKING:
 
 @dataclass
 class LineBroadeningResult:
-    Qinelast: np.ndarray
+    natural: np.ndarray
     Qelast: np.ndarray
+    other: Optional[List] = None
 
 
 @dataclass
 class LineBroadener:
+    def __repr__(self):
+        raise NotImplementedError
+
+    def setup(self, line: 'AtomicLine'):
+        pass
+
+    def broaden(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable') -> Any:
+        raise NotImplementedError
+
+@dataclass
+class StandardLineBroadener(LineBroadener):
     def __repr__(self):
         raise NotImplementedError
 
@@ -30,26 +42,33 @@ class LineBroadener:
 
 @dataclass
 class LineBroadening:
-    inelastic: List[LineBroadener]
-    elastic: List[LineBroadener]
+    natural: List[StandardLineBroadener]
+    elastic: List[StandardLineBroadener]
+    other: Optional[List[LineBroadener]] = None
 
     def __repr__(self):
-        s = 'LineBroadening(inelastic=%s, elastic=%s)' % (repr(self.inelastic), repr(self.elastic))
+        otherStr = '' if self.other is None else ', other=%s' % repr(self.other)
+        s = 'LineBroadening(natural=%s, elastic=%s%s)' % (repr(self.natural), repr(self.elastic), otherStr)
         return s
 
     def __post_init__(self):
-        if len(self.inelastic) == 0 and len(self.elastic) == 0:
-            raise ValueError('No broadening terms provided to LineBroadening')
+        if len(self.natural) == 0 and len(self.elastic) == 0:
+            raise ValueError('No standard broadening terms provided to LineBroadening')
 
     def setup(self, line: 'AtomicLine'):
-        for b in self.inelastic:
+        b: LineBroadener
+        for b in self.natural:
             b.setup(line)
 
         for b in self.elastic:
             b.setup(line)
 
+        if self.other is not None:
+            for b in self.other:
+                b.setup(line)
+
     @staticmethod
-    def sum_broadening_list(broadeners: List[LineBroadener], atmos: 'Atmosphere',
+    def sum_broadening_list(broadeners: List[StandardLineBroadener], atmos: 'Atmosphere',
                             eqPops: 'SpeciesStateTable') -> Optional[np.ndarray]:
         if len(broadeners) == 0:
             return None
@@ -59,20 +78,36 @@ class LineBroadening:
             result += b.broaden(atmos, eqPops)
         return result
 
+    @staticmethod
+    def compute_other_broadening(broadeners: Optional[List[LineBroadener]],
+                                 atmos: 'Atmosphere',
+                                 eqPops: 'SpeciesStateTable') -> Optional[List]:
+
+        if broadeners is None:
+            return None
+        if len(broadeners) == 0:
+            return None
+
+        result = [b.broaden(atmos, eqPops) for b in broadeners]
+        return result
+
     def broaden(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable') -> LineBroadeningResult:
-        Qinelast = self.sum_broadening_list(self.inelastic, atmos, eqPops)
+        natural = self.sum_broadening_list(self.natural, atmos, eqPops)
         Qelast = self.sum_broadening_list(self.elastic, atmos, eqPops)
 
-        if Qinelast is None:
-            Qinelast = np.zeros_like(Qelast)
-        elif Qelast is None:
-            Qelast = np.zeros_like(Qinelast)
+        others = self.compute_other_broadening(self.other, atmos, eqPops)
 
-        return LineBroadeningResult(Qinelast=Qinelast, Qelast=Qelast)
+        if natural is None:
+            natural = np.zeros_like(Qelast)
+        elif Qelast is None:
+            Qelast = np.zeros_like(natural)
+
+        return LineBroadeningResult(natural=natural,
+                                    Qelast=Qelast, other=others)
 
 
 @dataclass(eq=False)
-class VdwApprox(LineBroadener):
+class VdwApprox(StandardLineBroadener):
     vals: Sequence[float]
     line: 'AtomicLine' = field(init=False)
 
@@ -169,7 +204,7 @@ class VdwBarklem(VdwApprox):
 
 
 @dataclass(eq=False)
-class RadiativeBroadening(LineBroadener):
+class RadiativeBroadening(StandardLineBroadener):
     gamma: float
     line: 'AtomicLine' = field(init=False)
 
@@ -199,7 +234,7 @@ class RadiativeBroadening(LineBroadener):
         return np.ones_like(atmos.temperature) * self.gamma
 
 @dataclass
-class QuadraticStarkBroadening(LineBroadener):
+class QuadraticStarkBroadening(StandardLineBroadener):
     coeff: float
     line: 'AtomicLine' = field(init=False)
 
@@ -252,7 +287,7 @@ class QuadraticStarkBroadening(LineBroadener):
         return stark
 
 @dataclass
-class MultiplicativeStarkBroadening(LineBroadener):
+class MultiplicativeStarkBroadening(StandardLineBroadener):
     coeff: float
 
     def __repr__(self):
@@ -272,7 +307,7 @@ class MultiplicativeStarkBroadening(LineBroadener):
         return self.coeff * atmos.ne # type: ignore
 
 @dataclass
-class HydrogenLinearStarkBroadening(LineBroadener):
+class HydrogenLinearStarkBroadening(StandardLineBroadener):
     line: 'AtomicLine' = field(init=False)
 
     def __repr__(self):
