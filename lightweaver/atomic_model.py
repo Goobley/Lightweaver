@@ -59,8 +59,8 @@ class AtomicModel:
         s += '])\n'
         return s
 
-    def __hash__(self):
-        return hash(repr(self))
+    # def __hash__(self):
+    #     return hash(repr(self))
 
     def vBroad(self, atmos: 'Atmosphere') -> np.ndarray:
         vTherm = 2.0 * Const.KBoltzmann / (Const.Amu * PeriodicTable[self.element].mass)
@@ -76,44 +76,6 @@ def reconfigure_atom(atom: AtomicModel):
 
 def element_sort(atom: AtomicModel):
     return atom.element
-
-# TODO(cmo): Tidy up comparisons
-def avoid_recursion_eq(a, b) -> bool:
-    if isinstance(a, np.ndarray):
-        if not np.all(a == b):
-            return False
-    elif isinstance(a, AtomicModel):
-        if a.element != b.element:
-            return False
-        if len(a.levels) != len(b.levels):
-            return False
-        if len(a.lines) != len(b.lines):
-            return False
-        if len(a.continua) != len(b.continua):
-            return False
-        if len(a.collisions) != len(b.collisions):
-            return False
-    else:
-        if a != b:
-            return False
-    return True
-
-
-def model_component_eq(a, b) -> bool:
-    if a is b:
-        return True
-
-    if type(a) is not type(b):
-        if not (isinstance(a, AtomicTransition) and isinstance(b, AtomicTransition)):
-            raise NotImplemented
-        else:
-            return False
-
-    ignoreKeys = ['interpolator']
-    da = a.__dict__
-    db = b.__dict__
-
-    return all([avoid_recursion_eq(da[k], db[k]) for k in da.keys() if k not in ignoreKeys])
 
 @dataclass
 class AtomicLevel:
@@ -257,7 +219,10 @@ class AtomicTransition:
         raise NotImplementedError
 
     def __eq__(self, other: object) -> bool:
-        return model_component_eq(self, other)
+        if other is self:
+            return True
+
+        return repr(self) == repr(other)
 
     def wavelength(self) -> np.ndarray:
         raise NotImplementedError

@@ -506,6 +506,7 @@ cdef class LwAtmosphere:
     def vturb(self):
         return np.asarray(self.vturb)
 
+    # TODO(cmo): Normalise these property names! It's nHTot on PyAtmosphere
     @property
     def nHtot(self):
         return np.asarray(self.nHtot)
@@ -548,7 +549,8 @@ cdef class BackgroundProvider:
     def __init__(self, eqPops, radSet, wavelength):
         pass
 
-    cpdef compute_background(self, LwAtmosphere atmos, f64[:,::1] chi, f64[:,::1] eta, f64[:,::1] sca):
+    # cpdef compute_background(self, LwAtmosphere atmos, f64[:,::1] chi, f64[:,::1] eta, f64[:,::1] sca):
+    cpdef compute_background(self, LwAtmosphere atmos, chi, eta, sca):
         raise NotImplementedError
 
 cdef class BasicBackground(BackgroundProvider):
@@ -587,9 +589,16 @@ cdef class BasicBackground(BackgroundProvider):
         self.wavelength = wavelength
         self.bd.wavelength = f64_view(self.wavelength)
 
-    cpdef compute_background(self, LwAtmosphere atmos, f64[:,::1] chi, f64[:,::1] eta, f64[:,::1] sca):
+    # cpdef compute_background(self, LwAtmosphere atmos, f64[:,::1] chi, f64[:,::1] eta, f64[:,::1] sca):
+    cpdef compute_background(self, LwAtmosphere atmos, chiIn, etaIn, scaIn):
         cdef int Nlambda = self.wavelength.shape[0]
         cdef int Nspace = atmos.Nspace
+        cdef f64[:,::1] chi = chiIn
+        cdef f64[:,::1] eta = etaIn
+        cdef f64[:,::1] sca = scaIn
+
+        # NOTE(cmo): Update hPops in case it changed LTE<->NLTE
+        self.hPops = self.eqPops['H']
 
         self.bd.chi = f64_view_2(chi)
         self.bd.eta = f64_view_2(eta)
@@ -761,14 +770,20 @@ cdef class LwBackground:
         else:
             self.provider = provider(eqPops, radSet, wavelength)
 
-        self.provider.compute_background(atmos, self.chi, self.eta, self.sca)
+        chiPy = np.asarray(self.chi)
+        etaPy = np.asarray(self.eta)
+        scaPy = np.asarray(self.sca)
+        self.provider.compute_background(atmos, chiPy, etaPy, scaPy)
 
         self.background.chi = f64_view_2(self.chi)
         self.background.eta = f64_view_2(self.eta)
         self.background.sca = f64_view_2(self.sca)
 
     cpdef update_background(self, LwAtmosphere atmos):
-        self.provider.compute_background(atmos, self.chi, self.eta, self.sca)
+        chiPy = np.asarray(self.chi)
+        etaPy = np.asarray(self.eta)
+        scaPy = np.asarray(self.sca)
+        self.provider.compute_background(atmos, chiPy, etaPy, scaPy)
 
     def __getstate__(self):
         state = {}
@@ -1761,16 +1776,21 @@ cdef class LwContext:
     cdef public object crswDone
     cdef dict __dict__
 
-    def __init__(self, atmos, spect, eqPops, ngOptions=None, initSol=None, conserveCharge=False, hprd=False, crswCallback=None, Nthreads=1):
+    def __init__(self, atmos, spect, eqPops,
+                 ngOptions=None, initSol=None,
+                 conserveCharge=False, hprd=False,
+                 crswCallback=None, Nthreads=1,
+                 backgroundProvider=None):
         self.__dict__ = {}
-        self.arguments = {'atmos': atmos, 'spect': spect, 'eqPops': eqPops, 'ngOptions': ngOptions, 'initSol': initSol, 'conserveCharge': conserveCharge, 'hprd': hprd, 'Nthreads': Nthreads}
+        self.arguments = {'atmos': atmos, 'spect': spect, 'eqPops': eqPops, 'ngOptions': ngOptions, 'initSol': initSol, 'conserveCharge': conserveCharge, 'hprd': hprd, 'Nthreads': Nthreads, 'backgroundProvider': backgroundProvider}
 
         self.atmos = LwAtmosphere(atmos)
         self.spect = LwSpectrum(spect.wavelength, atmos.Nrays, atmos.Nspace)
         self.conserveCharge = conserveCharge
         self.hprd = hprd
 
-        self.background = LwBackground(self.atmos, eqPops, spect.radSet, spect.wavelength)
+        self.background = LwBackground(self.atmos, eqPops, spect.radSet,
+                                       spect.wavelength, provider=backgroundProvider)
         self.eqPops = eqPops
 
         activeAtoms = spect.radSet.activeAtoms
@@ -2120,7 +2140,10 @@ cdef class LwContext:
         return self.__getstate__()
 
     @staticmethod
-    def construct_from_state_dict_with(sd, atmos=None, spect=None, eqPops=None, ngOptions=None, initSol=None, conserveCharge=None, hprd=None, preserveProfiles=False, fromScratch=False):
+    def construct_from_state_dict_with(sd, atmos=None, spect=None, eqPops=None,
+                                       ngOptions=None, initSol=None, conserveCharge=None,
+                                       hprd=None, preserveProfiles=False, fromScratch=False,
+                                       backgroundProvider=None):
         sd = copy(sd)
         sd['arguments'] = copy(sd['arguments'])
         args = sd['arguments']
@@ -2134,6 +2157,8 @@ cdef class LwContext:
             args['conserveCharge'] = conserveCharge
         if hprd is not None:
             args['hprd'] = hprd
+        if backgroundProvider is not None:
+            args['backgroundProvider'] = backgroundProvider
 
         if atmos is not None:
             args['atmos'] = atmos
