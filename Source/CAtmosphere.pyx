@@ -544,20 +544,14 @@ cdef class LwAtmosphere:
         else:
             raise ValueError('Unknown bc')
 
-<<<<<<< HEAD
 cdef class BackgroundProvider:
     def __init__(self, eqPops, radSet, wavelength):
         pass
 
     cpdef compute_background(self, LwAtmosphere atmos, f64[:,::1] chi, f64[:,::1] eta, f64[:,::1] sca):
-        raise NotImplemented
+        raise NotImplementedError
 
 cdef class BasicBackground(BackgroundProvider):
-=======
-
-cdef class LwBackground:
-    cdef Background background
->>>>>>> master
     cdef BackgroundData bd
     cdef object eqPops
     cdef object radSet
@@ -615,7 +609,6 @@ cdef class LwBackground:
         cdef int k, la
         cdef RayleighScatterer rayH, rayHe
 
-<<<<<<< HEAD
         if 'H' in self.radSet:
             hPops = self.eqPops['H']
             rayH = RayleighScatterer(atmos, self.radSet['H'], hPops)
@@ -631,16 +624,6 @@ cdef class LwBackground:
                 if rayHe.scatter(self.wavelength[la], scaLine):
                     for k in range(atmos.Nspace):
                         sca[la, k] += scaLine[k]
-=======
-    cpdef update_background(self, atmos):
-        cdef LwAtmosphere lwAtmos = atmos
-        self.hPops = self.eqPops['H']
-        self.bd.hPops = f64_view_2(self.hPops)
-
-        basic_background(&self.bd, &lwAtmos.atmos)
-        self.rayleigh_scattering(lwAtmos)
-        self.bf_opacities(lwAtmos)
->>>>>>> master
 
     cpdef bf_opacities(self, LwAtmosphere atmos, f64[:,::1] chi, f64[:,::1] eta):
         atoms = self.radSet.passiveAtoms
@@ -658,7 +641,7 @@ cdef class LwBackground:
         cdef int i, la, k, Z
         cdef f64 nEff, gbf_0, wav, edge, lambdaMin
         for i, c in enumerate(continua):
-            alphaLa = c.compute_alpha(np.asarray(self.wavelength))
+            alphaLa = c.alpha(np.asarray(self.wavelength))
             for la in range(self.wavelength.shape[0]):
                 alpha[la, i] = alphaLa[la]
 
@@ -670,7 +653,7 @@ cdef class LwBackground:
             hc_kla = hc_k / self.wavelength[la]
             for k in range(atmos.Nspace):
                 expla[la, k] = exp(-hc_kla / atmos.temperature[k])
-        
+
         cdef f64 twohnu3_c2
         cdef f64 gijk
         cdef int ci
@@ -678,8 +661,8 @@ cdef class LwBackground:
         cdef f64[:,::1] nStar
         cdef f64[:,::1] n
         for i, c in enumerate(continua):
-            nStar = self.eqPops.atomicPops[c.atom.name].nStar
-            n = self.eqPops.atomicPops[c.atom.name].n
+            nStar = self.eqPops.atomicPops[c.atom.element].nStar
+            n = self.eqPops.atomicPops[c.atom.element].n
 
             ci = c.i
             cj = c.j
@@ -746,7 +729,7 @@ cdef class LwBackground:
     def __reduce__(self):
         return self._reconstruct, (self.__getstate__(),)
 
-    
+
 cdef class LwBackground:
     cdef Background background
     cdef object eqPops
@@ -824,81 +807,6 @@ cdef class LwBackground:
     def sca(self):
         return np.asarray(self.sca)
 
-<<<<<<< HEAD
-=======
-    cpdef rayleigh_scattering(self, atmosphere):
-        cdef LwAtmosphere atmos = atmosphere
-        cdef f64[::1] sca = np.zeros(atmos.Nspace)
-        cdef int k, la
-        cdef RayleighScatterer rayH, rayHe
-
-        if 'H' in self.radSet:
-            hPops = self.eqPops['H']
-            rayH = RayleighScatterer(atmos, self.radSet['H'], hPops)
-            for la in range(self.wavelength.shape[0]):
-                if rayH.scatter(self.wavelength[la], sca):
-                    for k in range(atmos.Nspace):
-                        self.sca[la, k] += sca[k]
-
-        if 'He' in self.radSet:
-            hePops = self.eqPops['He']
-            rayHe = RayleighScatterer(atmos, self.radSet['He'], hePops)
-            for la in range(self.wavelength.shape[0]):
-                if rayHe.scatter(self.wavelength[la], sca):
-                    for k in range(atmos.Nspace):
-                        self.sca[la, k] += sca[k]
-
-    cpdef bf_opacities(self, atmosphere):
-        cdef LwAtmosphere atmos = atmosphere
-        cdef int Nspace = atmos.Nspace
-        atoms = self.radSet.passiveAtoms
-        # print([a.name for a in atoms])
-        if len(atoms) == 0:
-            return
-
-        continua = []
-        cdef f64 sigma0 = 32.0 / (3.0 * sqrt(3.0)) * Const.QElectron**2 / (4.0 * np.pi * Const.Epsilon0) / (Const.MElectron * Const.CLight) * Const.HPlanck / (2.0 * Const.ERydberg)
-        for a in atoms:
-            for c in a.continua:
-                continua.append(c)
-
-        cdef f64[:, ::1] alpha = np.zeros((self.wavelength.shape[0], len(continua)))
-        cdef int i, la, k, Z
-        cdef f64 nEff, gbf_0, wav, edge, lambdaMin
-        for i, c in enumerate(continua):
-            alphaLa = c.alpha(np.asarray(self.wavelength))
-            for la in range(self.wavelength.shape[0]):
-                alpha[la, i] = alphaLa[la]
-
-        cdef f64[:, ::1] expla = np.zeros((self.wavelength.shape[0], atmos.Nspace))
-        cdef f64[::1] temperature = atmos.temperature
-        cdef f64 hc_k = Const.HC / (Const.KBoltzmann * Const.NM_TO_M)
-        cdef f64 twohc = (2.0 * Const.HC) / Const.NM_TO_M**3
-        cdef f64 hc_kla
-        for la in range(self.wavelength.shape[0]):
-            hc_kla = hc_k / self.wavelength[la]
-            for k in range(Nspace):
-                expla[la, k] = exp(-hc_kla / temperature[k])
-
-        cdef f64 twohnu3_c2
-        cdef f64 gijk
-        cdef int ci
-        cdef int cj
-        cdef f64[:,::1] nStar
-        cdef f64[:,::1] n
-        for i, c in enumerate(continua):
-            nStar = self.eqPops.atomicPops[c.atom.element].nStar
-            n = self.eqPops.atomicPops[c.atom.element].n
-
-            ci = c.i
-            cj = c.j
-            for la in range(self.wavelength.shape[0]):
-                twohnu3_c2 = twohc / self.wavelength[la]**3
-                for k in range(Nspace):
-                    gijk = nStar[ci, k] / nStar[cj, k] * expla[la, k]
-                    self.chi[la, k] += alpha[la, i] * (1.0 - expla[la, k]) * n[ci, k]
-                    self.eta[la, k] += twohnu3_c2 * gijk * alpha[la, i] * n[cj, k]
->>>>>>> master
 
 cdef class RayleighScatterer:
     cdef f64 lambdaLimit
