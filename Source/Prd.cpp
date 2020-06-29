@@ -10,22 +10,24 @@ using std::chrono::nanoseconds;
 
 namespace PrdCores
 {
-void total_depop_rate(const Transition* trans, const Atom& atom, F64View Pj)
+void total_depop_elastic_scattering_rate(const Transition* trans, const Atom& atom, F64View PjQj)
 {
+    // NOTE(cmo): Contrary to first appearance when reading the RH paper, this
+    // doesn't return Pj but instread Pj + Qj
     const int Nspace = trans->Rij.shape(0);
 
     for (int k = 0; k < Nspace; ++k)
     {
-        Pj(k) = trans->Qelast(k);
+        PjQj(k) = trans->Qelast(k);
         for (int i = 0; i < atom.C.shape(0); ++i)
-            Pj(k) += atom.C(i, trans->j, k);
+            PjQj(k) += atom.C(i, trans->j, k);
 
         for (auto& t : atom.trans)
         {
             if (t->j == trans->j)
-                Pj(k) += t->Rji(k);
+                PjQj(k) += t->Rji(k);
             if (t->i == trans->j)
-                Pj(k) += t->Rij(k);
+                PjQj(k) += t->Rij(k);
         }
     }
 }
@@ -120,7 +122,7 @@ constexpr int max_fine_grid_size()
     return max(3 * PrdQWing, 2 * PrdQSpread) / PrdDQ + 1;
 }
 
-void prd_scatter(Transition* t, F64View Pj, const Atom& atom, const Atmosphere& atmos, const Spectrum& spect)
+void prd_scatter(Transition* t, F64View PjQj, const Atom& atom, const Atmosphere& atmos, const Spectrum& spect)
 {
     auto& trans = *t;
 
@@ -146,9 +148,15 @@ void prd_scatter(Transition* t, F64View Pj, const Atom& atom, const Atmosphere& 
 
     for (int k = 0; k < atmos.Nspace; ++k)
     {
-        f64 gamma = atom.n(trans.i, k) / atom.n(trans.j, k) * trans.Bij / Pj(k);
+
+        // NOTE(cmo): This isn't gamma as Pj / (Pj + Qj), but instead the whole
+        // prefactor to the scattering integral prefactor for a particular line,
+        // i.e. gamma * n_k B_{kj} / (n_j P_k)
+        // This simplifies into the expression below, remembering that PjQj = Pj + Qj
+        f64 gammaPrefactor = atom.n(trans.i, k) / atom.n(trans.j, k) * trans.Bij / PjQj(k);
         f64 Jbar = trans.Rij(k) / trans.Bij;
 
+        // NOTE(cmo): Local mean intensity (in rest frame if using HPRD).
         if (spect.JRest)
         {
             for (int la = 0; la < Nlambda; ++la)
@@ -165,7 +173,7 @@ void prd_scatter(Transition* t, F64View Pj, const Atom& atom, const Atmosphere& 
                 Jk(la) = spect.J(la + trans.Nblue, k);
             }
         }
-        // Local mean intensity in doppler units
+        // NOTE(cmo): Local wavelength in doppler units
         for (int la = 0; la < Nlambda; ++la)
         {
             qAbs(la) = (trans.wavelength(la) - trans.lambda0) * C::CLight / (trans.lambda0 * atom.vBroad(k));
@@ -175,6 +183,8 @@ void prd_scatter(Transition* t, F64View Pj, const Atom& atom, const Atmosphere& 
         {
             f64 qEmit = qAbs(la);
 
+            // NOTE(cmo): Find integration range around qEmit for which GII is
+            // non-zero. (Resonance PRD case only). Follows Uitenbroek 2001.
             int q0, qN;
             if (abs(qEmit) < PrdQCore)
             {
@@ -199,15 +209,23 @@ void prd_scatter(Transition* t, F64View Pj, const Atom& atom, const Atmosphere& 
                 q0 = qEmit - PrdQSpread;
                 qN = qEmit + PrdQSpread;
             }
+            // NOTE(cmo): Set up fine linear grid over this range.
             int Np = int((f64)(qN - q0) / PrdDQ) + 1;
             qp(0) = q0;
             for (int lap = 1; lap < Np; ++lap)
                 qp(lap) = qp(lap - 1) + PrdDQ;
 
+            // NOTE(cmo): Linearly interpolate mean intensity onto this grid.
             linear(qAbs, Jk, qp.slice(0, Np), JFine);
 
             if (initialiseGii)
             {
+                // NOTE(cmo): Compute gII if needed.
+                // Integration weights for general trapezoidal rule obtained
+                // from averaging extended Simpson's rule with modified
+                // Simpson's rule where both edge regions are treated with
+                // trapezoid rule. Takes accuracy up to O(1/N^3). Explained in
+                // Press et al, Num Rec Sec4.2.
                 wq.fill(PrdDQ);
                 wq(0) = 5.0 / 12.0 * PrdDQ;
                 wq(1) = 13.0 / 12.0 * PrdDQ;
@@ -218,14 +236,20 @@ void prd_scatter(Transition* t, F64View Pj, const Atom& atom, const Atmosphere& 
             }
             F64View gII = trans.gII(la, k);
 
+            // NOTE(cmo): Compute and normalise scattering integral.
             f64 gNorm = 0.0;
             f64 scatInt = 0.0;
             for (int lap = 0; lap < Np; ++lap)
             {
+                // NOTE(cmo): Normalisation of the scattering integral is very
+                // important, as discussed in HM2014 Sec 15.4. Whilst this
+                // procedure may slightly distort the redistribution function,
+                // it ensures that no photons are gained or lost in this
+                // evaluation.
                 gNorm += gII(lap);
                 scatInt += JFine(lap) * gII(lap);
             }
-            trans.rhoPrd(la, k) += gamma * (scatInt / gNorm - Jbar);
+            trans.rhoPrd(la, k) += gammaPrefactor * (scatInt / gNorm - Jbar);
         }
     }
 }
@@ -319,11 +343,11 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<i32> wavelengthIdxs)
             taskData[t].idxs = wavelengthIdxs;
         }
 
-        auto fs_task = [](void* data, scheduler* s, 
+        auto fs_task = [](void* data, scheduler* s,
                           sched_task_partition p, sched_uint threadId)
         {
             auto& td = ((FsTaskData*)data)[threadId];
-            FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates 
+            FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates
                            | FsMode::PrdOnly);
             for (i64 la = p.start; la < p.end; ++la)
             {
@@ -334,7 +358,7 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<i32> wavelengthIdxs)
 
         {
             sched_task formalSolutions;
-            scheduler_add(&ctx.threading.sched, &formalSolutions, 
+            scheduler_add(&ctx.threading.sched, &formalSolutions,
                           fs_task, (void*)taskData, wavelengthIdxs.shape(0), 4);
             scheduler_join(&ctx.threading.sched, &formalSolutions);
         }
@@ -403,15 +427,15 @@ PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
     f64 dRho = 0.0;
     if (ctx.Nthreads <= 1)
     {
-        F64Arr Pj(atmos.Nspace);
+        F64Arr PjQj(atmos.Nspace);
         while (iter < maxIter)
         {
             ++iter;
             dRho = 0.0;
             for (auto& p : prdLines)
             {
-                PrdCores::total_depop_rate(p.line, p.atom, Pj);
-                PrdCores::prd_scatter(p.line, Pj, p.atom, atmos, spect);
+                PrdCores::total_depop_elastic_scattering_rate(p.line, p.atom, PjQj);
+                PrdCores::prd_scatter(p.line, PjQj, p.atom, atmos, spect);
                 p.ng.accelerate(p.line->rhoPrd.flatten());
                 dRho = max(dRho, p.ng.max_change());
             }
@@ -432,7 +456,7 @@ PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
 
         struct PrdTaskData
         {
-            F64Arr Pj;
+            F64Arr PjQj;
             PrdData* line;
             f64 dRho;
             Atmosphere* atmos;
@@ -442,7 +466,7 @@ PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
         for (int i = 0; i < prdLines.size(); ++i)
         {
             auto& p = taskData[i];
-            p.Pj = F64Arr(atmos.Nspace);
+            p.PjQj = F64Arr(atmos.Nspace);
             p.line = &prdLines[i];
             p.dRho = 0.0;
             p.atmos = &atmos;
@@ -456,8 +480,8 @@ PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
             {
                 auto& td = ((PrdTaskData*)data)[lineIdx];
                 auto& p = *td.line;
-                PrdCores::total_depop_rate(p.line, p.atom, td.Pj);
-                PrdCores::prd_scatter(p.line, td.Pj, p.atom, *td.atmos, *td.spect);
+                PrdCores::total_depop_elastic_scattering_rate(p.line, p.atom, td.PjQj);
+                PrdCores::prd_scatter(p.line, td.PjQj, p.atom, *td.atmos, *td.spect);
                 p.ng.accelerate(p.line->rhoPrd.flatten());
                 td.dRho = max(td.dRho, p.ng.max_change());
             }
@@ -481,7 +505,7 @@ PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
 #ifdef CMO_BASIC_PROFILE
             midTimes[iter-1] = hrc::now();
 #endif
-            
+
             formal_sol_prd_update_rates(ctx, idxsForFs);
 
             for (const auto& p : taskData)
@@ -612,7 +636,7 @@ void configure_hprd_coeffs(Context& ctx)
         }
     }
 
-    if (!spect.JRest || 
+    if (!spect.JRest ||
         !(spect.JRest.shape(0) == prdLambdas.size() && spect.JRest.shape(1) == atmos.Nspace)
        )
         spect.JRest = F64Arr2D(0.0, prdLambdas.size(), atmos.Nspace);
@@ -670,7 +694,7 @@ void configure_hprd_coeffs(Context& ctx)
                     }
 
                     int i  = idx;
-                    // NOTE(cmo): If the shift is s.t. spect.wavelength(idx) > prevLambda, then we need to roll back 
+                    // NOTE(cmo): If the shift is s.t. spect.wavelength(idx) > prevLambda, then we need to roll back
                     for (; spect.wavelength(i) > prevLambda && i >= 0; --i);
 
 

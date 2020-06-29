@@ -4,10 +4,9 @@ from typing import Sequence, TYPE_CHECKING, Optional, Union
 import numpy as np
 from .witt import witt
 import lightweaver.constants as Const
-from scipy.interpolate import interp1d
 from numpy.polynomial.legendre import leggauss
 from .utils import ConvergenceError
-from .atomic_table import get_global_atomic_table
+from .atomic_table import PeriodicTable, AtomicAbundance, DefaultAtomicAbundance
 
 class ScaleType(Enum):
     Geometric = 0
@@ -24,7 +23,7 @@ def get_top_pressure(eos: witt, temp, ne=None, rho=None):
         return eos.pg_from_pe(temp, pe)
     elif rho is not None:
         return eos.pg_from_rho(temp, rho)
-    
+
     pgasCgs = np.array([0.70575286, 0.59018545, 0.51286639, 0.43719268, 0.37731009,
         0.33516886, 0.31342915, 0.30604891, 0.30059491, 0.29207645,
         0.2859011 , 0.28119224, 0.27893046, 0.27949676, 0.28299726,
@@ -42,7 +41,7 @@ def get_top_pressure(eos: witt, temp, ne=None, rho=None):
 
     ptop = np.interp(temp, tempCoord, pgasCgs)
     return ptop
-    
+
 @dataclass
 class Atmosphere:
     scale: ScaleType
@@ -63,16 +62,18 @@ class Atmosphere:
         if self.hydrogenPops is not None:
             self.nHTot = np.sum(self.hydrogenPops, axis=0)
 
-    def convert_scales(self, atomicTable=None, logG=2.44, Pgas=None, Pe=None, Ptop=None, PeTop=None):
+    def convert_scales(self, abundance: Optional[AtomicAbundance]=None, logG: float=2.44, Pgas: Optional[np.ndarray]=None,
+                       Pe: Optional[np.ndarray]=None, Ptop: Optional[float]=None, PeTop: Optional[float]=None):
         # TODO(cmo): Seriously, tidy up this function
-        if atomicTable is None:
-            atomicTable = get_global_atomic_table()
+        if abundance is None:
+            abundance = DefaultAtomicAbundance
 
-        if np.any(self.temperature < 2500):
-            raise ValueError('Extremely low temperature (< 2500 K)')
+        if np.any(self.temperature < 2000):
+            # NOTE(cmo): Minimum value was decreased in NICOLE so should be safe
+            raise ValueError('Extremely low temperature (< 2000 K)')
 
-        abundances = np.array([a[1] for a in atomicTable.abund.items()])
-        eos = witt(abund_init=abundances)
+        wittAbundances = np.array([abundance[e] for e in PeriodicTable.elements])
+        eos = witt(abund_init=wittAbundances)
 
         Nspace = self.Nspace
         if self.nHTot is None and self.ne is not None:
@@ -80,9 +81,9 @@ class Atmosphere:
             rho = np.zeros(Nspace)
             for k in range(Nspace):
                 rho[k] = eos.rho_from_pe(self.temperature[k], pe[k])
-            self.nHTot = np.copy(rho / (Const.CM_TO_M**3 / Const.G_TO_KG) / (Const.Amu * atomicTable.weightPerH))
+            self.nHTot = np.copy(rho / (Const.CM_TO_M**3 / Const.G_TO_KG) / (Const.Amu * abundance.massPerH))
         elif self.ne is None and self.nHTot is not None:
-            rho = Const.Amu * atomicTable.weightPerH * self.nHTot * Const.CM_TO_M**3 / Const.G_TO_KG
+            rho = Const.Amu * abundance.massPerH * self.nHTot * Const.CM_TO_M**3 / Const.G_TO_KG
             pe = np.zeros(Nspace)
             for k in range(Nspace):
                 pe[k] = eos.pe_from_rho(self.temperature[k], rho[k])
@@ -137,7 +138,7 @@ class Atmosphere:
                 pgas[0] = Ptop
                 pe[0] = PeTop
                 chi_c[0] = eos.contOpacity(self.temperature[0], pgas[0], pe[0], np.array([5000.0]))
-                avg_mol_weight = lambda k: atomicTable.weightPerH / (atomicTable.totalAbundance + pe[k] / pgas[k])
+                avg_mol_weight = lambda k: abundance.massPerH / (abundance.totalAbundance + pe[k] / pgas[k])
                 rho[0] = Ptop * avg_mol_weight(0) / Avog / eos.BK / self.temperature[0]
                 chi_c[0] /= rho[0]
 
@@ -168,16 +169,16 @@ class Atmosphere:
             # Filled in rho, pgas, and pe, based on EOS
             # Don't think rho is actually needed here
             # Need to fill in ne and nHTot -- based on RH method
-            self.ne = np.copy(pe / (eos.BK * self.temperature) / Const.CM_TO_M**3) 
+            self.ne = np.copy(pe / (eos.BK * self.temperature) / Const.CM_TO_M**3)
             turbPe = 0.5 * Const.MElectron * self.vturb**2
-            turbPg = 0.5 * atomicTable.avgMolWeight * Const.Amu * self.vturb**2
-            self.nHTot = ((pgas - pe) / (eos.BK * self.temperature) / Const.CM_TO_M**3 - self.ne * turbPe) / (atomicTable.totalAbundance * (1.0 + turbPg / (Const.KBoltzmann * self.temperature)))
+            turbPg = 0.5 * abundance.avgMass * Const.Amu * self.vturb**2
+            self.nHTot = ((pgas - pe) / (eos.BK * self.temperature) / Const.CM_TO_M**3 - self.ne * turbPe) / (abundance.totalAbundance * (1.0 + turbPg / (Const.KBoltzmann * self.temperature)))
             if np.any(self.ne < 0) or np.any(self.nHTot < 0):
                 raise ConvergenceError('Negative density (possibly produced by HSE iterations)')
 
 
-        rhoSI = Const.Amu * atomicTable.weightPerH * self.nHTot
-        rho = Const.Amu * atomicTable.weightPerH * self.nHTot * Const.CM_TO_M**3 / Const.G_TO_KG
+        rhoSI = Const.Amu * abundance.massPerH * self.nHTot
+        rho = Const.Amu * abundance.massPerH * self.nHTot * Const.CM_TO_M**3 / Const.G_TO_KG
         pgas = np.zeros_like(self.depthScale)
         pe = np.zeros_like(self.depthScale)
         for k in range(self.depthScale.shape[0]):
@@ -206,7 +207,7 @@ class Atmosphere:
             tau_ref = np.zeros(Nspace)
             height = self.depthScale
 
-            cmass[0] = (self.nHTot[0] * atomicTable.weightPerH + self.ne[0]) * (Const.KBoltzmann * self.temperature[0] / 10**logG)
+            cmass[0] = (self.nHTot[0] * abundance.massPerH + self.ne[0]) * (Const.KBoltzmann * self.temperature[0] / 10**logG)
             tau_ref[0] = 0.5 * chi_c[0] * (height[0] - height[1])
             if tau_ref[0] > 1.0:
                 tau_ref[0] = 0.0
@@ -245,7 +246,7 @@ class Atmosphere:
     def quadrature(self, Nrays: Optional[int]=None, mu: Optional[Sequence[float]]=None, wmu: Optional[Sequence[float]]=None):
 
         if Nrays is not None and mu is None:
-            if Nrays >= 1:        
+            if Nrays >= 1:
                 x, w = leggauss(Nrays)
                 mid, halfWidth = 0.5, 0.5
                 x = mid + halfWidth * x
@@ -295,8 +296,3 @@ class Atmosphere:
             raise AttributeError('Nrays not set, call atmos.rays or .quadrature first')
 
         return self.muz.shape[0]
-
-
-
-
-

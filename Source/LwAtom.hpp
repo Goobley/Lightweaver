@@ -14,6 +14,7 @@ struct Atom
     F64View2D nStar;
     F64View vBroad;
     F64View nTotal;
+    F64View stages;
 
     F64View3D Gamma;
     F64View3D C;
@@ -36,13 +37,13 @@ struct Atom
         namespace C = Constants;
         constexpr f64 pi4_h = 4.0 * C::Pi / C::HPlanck;
         constexpr f64 hc_4pi = 0.25 * C::HC / C::Pi;
-        constexpr f64 pi4_hc = 1.0 / hc_4pi; 
+        constexpr f64 pi4_hc = 1.0 / hc_4pi;
         constexpr f64 hc_k = C::HC / (C::KBoltzmann * C::NM_TO_M);
         gij.fill(0.0);
         wla.fill(0.0);
         for (int kr = 0; kr < Ntrans; ++kr)
         {
-            auto& t = *trans[kr]; 
+            auto& t = *trans[kr];
             if (!t.active(laIdx))
                 continue;
 

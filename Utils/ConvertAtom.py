@@ -1,5 +1,8 @@
 from lightweaver.atomic_model import *
 from lightweaver.collisional_rates import *
+from lightweaver.broadening import *
+from lightweaver.atomic_table import PeriodicTable
+from lightweaver.barklem import BarklemCrossSectionError
 from typing import List
 from parse import parse
 import os
@@ -32,7 +35,7 @@ class CompositeLevelError(Exception):
 def get_oribital_number(orbit: str) -> int:
     orbits = ['S', 'P', 'D', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'Q', 'R', 'T', 'U', 'V', 'W', 'X']
     return orbits.index(orbit)
-    
+
 
 def determinate(level: AtomicLevel) -> PrincipalQuantum:
     endIdx = [level.label.upper().rfind(x) for x in ['E', 'O']]
@@ -57,6 +60,28 @@ def determinate(level: AtomicLevel) -> PrincipalQuantum:
     #     raise CompositeLevelError('J (%f) > L (%d) + S (%f): %s' %(J, L, S, repr(level)))
 
     return PrincipalQuantum(J=J, L=L, S=S)
+
+def check_barklem_compatible(vals: List[float],
+                             iLev: AtomicLevel, jLev: AtomicLevel) -> bool:
+
+    if vals[0] >= 20.0:
+        return True
+
+    if iLev.stage > 0:
+        return False
+
+    lowerNum = iLev.L
+    upperNum = jLev.L
+    if upperNum is None or lowerNum is None:
+        return False
+
+    if not ((abs(upperNum - lowerNum) == 1)
+            and (max(upperNum, lowerNum) <= 3)):
+        return False
+
+    # NOTE(cmo): We're not checking the table bounds here, but that should be fine.
+
+    return True
 
 def getNextLine(data):
     if len(data) == 0:
@@ -86,7 +111,8 @@ def conv_atom(inFile):
         data = fi.readlines()
 
     ID = getNextLine(data)
-    print(Fore.GREEN + 'Reading model atom %s from file %s' % (ID, inFile) + Style.RESET_ALL)
+    element = PeriodicTable[ID]
+    print(Fore.GREEN + '='*40 + '\n' + 'Reading model atom %s from file %s' % (ID, inFile) + Style.RESET_ALL)
     Ns = [maybe_int(d) for d in getNextLine(data).split()]
     Nlevel = Ns[0]
     Nline = Ns[1]
@@ -153,7 +179,7 @@ def conv_atom(inFile):
             lineType = LineType.CRD
         else:
             raise ValueError('Only PRD and VOIGT lines are supported, found type %s' % typ)
-        
+
         # if sym.upper() != 'ASYMM':
         #     print('Only Asymmetric lines are supported, doubling Nlambda')
         #     Nlambda *= 2
@@ -165,11 +191,24 @@ def conv_atom(inFile):
             vdwApprox = VdwUnsold(vdwParams)
         elif vdw.upper() == 'BARKLEM':
             vdwParams = [vdwParams[0], vdwParams[2]]
-            vdwApprox = VdwBarklem(vdwParams)
+            if check_barklem_compatible(vdwParams, levels[i], levels[j]):
+                vdwApprox = VdwBarklem(vdwParams)
+            else:
+                vdwApprox = VdwUnsold(vdwParams)
         else:
             raise ValueError('Unknown vdw type %s' % vdw)
 
-        lines.append(VoigtLine(j=j, i=i, f=f, type=lineType, NlambdaGen=Nlambda, qCore=qCore, qWing=qWing, vdw=vdwApprox, gRad=gRad, stark=stark, gLandeEff=gLande))
+        if stark <= 0:
+            starkBroaden = MultiplicativeStarkBroadening(abs(stark))
+        else:
+            starkBroaden = QuadraticStarkBroadening(stark)
+
+        broadening = LineBroadening(natural=[RadiativeBroadening(gRad)], elastic=[vdwApprox, starkBroaden])
+        if element == PeriodicTable[1]:
+            broadening.elastic.append(HydrogenLinearStarkBroadening())
+
+        quadrature = LinearCoreExpWings(qCore=qCore, qWing=qWing, Nlambda=Nlambda)
+        lines.append(VoigtLine(j=j, i=i, f=f, type=lineType, quadrature=quadrature, broadening=broadening, gLandeEff=gLande))
         lineNLambdas.append(Nlambda)
 
 
@@ -193,10 +232,11 @@ def conv_atom(inFile):
                 l = l.split()
                 wavelengths.append(float(l[0]))
                 alphas.append(float(l[1]))
-            alphaGrid = [list(x) for x in list(zip(wavelengths, alphas))]
-            continua.append(ExplicitContinuum(j=j, i=i, alphaGrid=alphaGrid))
+            wavelengthGrid = wavelengths[::-1]
+            alphaGrid = alphas[::-1]
+            continua.append(ExplicitContinuum(j=j, i=i, wavelengthGrid=wavelengthGrid, alphaGrid=alphaGrid))
         elif wavelengthDep.upper() == 'HYDROGENIC':
-            continua.append(HydrogenicContinuum(j=j, i=i, alpha0=alpha0, minLambda=minLambda, NlambdaGen=Nlambda))
+            continua.append(HydrogenicContinuum(j=j, i=i, alpha0=alpha0, minWavelength=minLambda, NlambdaGen=Nlambda))
         else:
             raise ValueError('Unknown Continuum type %s' % wavelengthDep)
 
@@ -212,7 +252,7 @@ def conv_atom(inFile):
             temperatureGrid = []
             for i in range(Ntemp):
                 temperatureGrid.append(float(line[i+2]))
-        elif line[0].upper() == 'OMEGA': 
+        elif line[0].upper() == 'OMEGA':
             i1 = int(line[1])
             i2 = int(line[2])
             j = max(i1, i2)
@@ -239,6 +279,42 @@ def conv_atom(inFile):
             for nt in range(Ntemp):
                 rates.append(float(line[nt+3]))
             collisions.append(CE(j=j, i=i, temperature=temperatureGrid, rates=rates))
+        elif line[0].upper() == 'CP':
+            i1 = int(line[1])
+            i2 = int(line[2])
+            j = max(i1, i2)
+            i = min(i1, i2)
+            rates = []
+            for nt in range(Ntemp):
+                rates.append(float(line[nt+3]))
+            collisions.append(CP(j=j, i=i, temperature=temperatureGrid, rates=rates))
+        elif line[0].upper() == 'CH':
+            i1 = int(line[1])
+            i2 = int(line[2])
+            j = max(i1, i2)
+            i = min(i1, i2)
+            rates = []
+            for nt in range(Ntemp):
+                rates.append(float(line[nt+3]))
+            collisions.append(CH(j=j, i=i, temperature=temperatureGrid, rates=rates))
+        elif line[0].upper() == 'CH0':
+            i1 = int(line[1])
+            i2 = int(line[2])
+            j = max(i1, i2)
+            i = min(i1, i2)
+            rates = []
+            for nt in range(Ntemp):
+                rates.append(float(line[nt+3]))
+            collisions.append(ChargeExchangeNeutralH(j=j, i=i, temperature=temperatureGrid, rates=rates))
+        elif line[0].upper() == 'CH+':
+            i1 = int(line[1])
+            i2 = int(line[2])
+            j = max(i1, i2)
+            i = min(i1, i2)
+            rates = []
+            for nt in range(Ntemp):
+                rates.append(float(line[nt+3]))
+            collisions.append(ChargeExchangeProton(j=j, i=i, temperature=temperatureGrid, rates=rates))
         elif line[0].upper() == 'AR85-CDI':
             i1 = int(line[1])
             i2 = int(line[2])
@@ -264,15 +340,17 @@ def conv_atom(inFile):
         else:
             print(Fore.YELLOW + "Ignoring unknown collisional string %s" % line[0].upper() + Style.RESET_ALL)
 
-    atom = AtomicModel(name=ID, levels=levels, lines=lines, continua=continua, collisions=collisions)
+    atom = AtomicModel(element=element, levels=levels, lines=lines, continua=continua, collisions=collisions)
+
     # for i, l in enumerate(atom.lines):
     #     l.Nlambda = lineNLambdas[i]
     return repr(atom)
 
 colorama.init()
 fails = open('Fails.txt', 'w')
-path = '/home/osborne/Atoms/'
-excludeFiles = ['FeII_big.atom']
+path = './Atoms/'
+excludeFiles = ['FeII_big.atom', 'He_9_incorrect_translation.atom',
+                'C_I+II_9.atom', 'LiI.atom']
 baseFiles = sorted([f for f in os.listdir(path) if f.endswith('.atom') and f not in excludeFiles])
 # baseFiles = ['He_9.atom']
 files = [path+f for f in baseFiles]
@@ -284,14 +362,17 @@ for i, f in enumerate(files):
         doneFiles.append(baseFiles[i])
     except Exception as e:
         print(Fore.RED +  'Failed: ' + Style.RESET_ALL, f)
-        print(Fore.BLUE + repr(e) + Style.RESET_ALL)
+        print(Fore.BLUE + '->' + repr(e) + Style.RESET_ALL)
+        print('-'*40)
         fails.write('Failed: %s\n' % f)
-        fails.write('%s\n' % repr(e))
-        fails.write('----------\n')
+        fails.write('->%s\n' % repr(e))
+        fails.write('-'*40 + '\n')
 
 with open('rh_atoms.py', 'w') as fi:
     fi.write('from lightweaver.atomic_model import *\n')
     fi.write('from lightweaver.collisional_rates import *\n')
+    fi.write('from lightweaver.broadening import *\n')
+    fi.write('from lightweaver.atomic_table import Element\n')
     for i, a in enumerate(atoms):
         s = clean(doneFiles[i]) + ' = lambda: \\\n'
         s += a
