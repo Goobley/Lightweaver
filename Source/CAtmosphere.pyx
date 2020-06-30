@@ -6,7 +6,7 @@ from libcpp cimport bool as bool_t
 from libcpp.vector cimport vector
 from libc.math cimport sqrt, exp, copysign
 from .atmosphere import BoundaryCondition
-from .atomic_model import AtomicLine, LineType
+from .atomic_model import AtomicLine, LineType, LineProfileState
 from .utils import InitialSolution, ExplodingMatrixError, UnityCrswIterator
 from weno4 import weno4
 import lightweaver.constants as Const
@@ -147,6 +147,7 @@ cdef extern from "Lightweaver.hpp":
 
         void uv(int la, int mu, bool_t toObs, F64View Uji, F64View Vij, F64View Vji)
         void compute_phi(const Atmosphere& atmos, F64View aDamp, F64View vBroad)
+        void compute_wphi(const Atmosphere& atmos)
         void compute_polarised_profiles(const Atmosphere& atmos, F64View aDamp, F64View vBroad, const ZeemanComponents& z)
 
     cdef cppclass Atom:
@@ -287,10 +288,10 @@ cdef class LwAtmosphere:
     cdef f64[::1] muy
     cdef f64[::1] mux
     cdef f64[::1] wmu
-    cdef object atmosObj
+    cdef public object pyAtmos
 
     def __init__(self, atmos):
-        self.atmosObj = atmos
+        self.pyAtmos = atmos
         self.cmass = atmos.cmass
         self.height = atmos.height
         self.tau_ref = atmos.tau_ref
@@ -360,18 +361,18 @@ cdef class LwAtmosphere:
 
     def __getstate__(self):
         state = {}
-        state['atmosObj'] = self.atmosObj
-        state['cmass'] = self.atmosObj.cmass
-        state['height'] = self.atmosObj.height
-        state['tau_ref'] = self.atmosObj.tau_ref
-        state['temperature'] = self.atmosObj.temperature
-        state['ne'] = self.atmosObj.ne
-        state['vlos'] = self.atmosObj.vlos
+        state['pyAtmos'] = self.pyAtmos
+        state['cmass'] = self.pyAtmos.cmass
+        state['height'] = self.pyAtmos.height
+        state['tau_ref'] = self.pyAtmos.tau_ref
+        state['temperature'] = self.pyAtmos.temperature
+        state['ne'] = self.pyAtmos.ne
+        state['vlos'] = self.pyAtmos.vlos
         state['vlosMu'] = np.asarray(self.vlosMu)
         try:
-            state['B'] = self.atmosObj.B
-            state['gammaB'] = self.atmosObj.gammaB
-            state['chiB'] = self.atmosObj.chiB
+            state['B'] = self.pyAtmos.B
+            state['gammaB'] = self.pyAtmos.gammaB
+            state['chiB'] = self.pyAtmos.chiB
             state['cosGamma'] = np.asarray(self.cosGamma)
             state['cos2chi'] = np.asarray(self.cos2chi)
             state['sin2chi'] = np.asarray(self.sin2chi)
@@ -382,19 +383,19 @@ cdef class LwAtmosphere:
             state['cosGamma'] = None
             state['cos2chi'] = None
             state['sin2chi'] = None
-        state['vturb'] = self.atmosObj.vturb
-        state['nHtot'] = self.atmosObj.nHTot
-        state['muz'] = self.atmosObj.muz
-        state['muy'] = self.atmosObj.muy
-        state['mux'] = self.atmosObj.mux
-        state['wmu'] = self.atmosObj.wmu
+        state['vturb'] = self.pyAtmos.vturb
+        state['nHtot'] = self.pyAtmos.nHTot
+        state['muz'] = self.pyAtmos.muz
+        state['muy'] = self.pyAtmos.muy
+        state['mux'] = self.pyAtmos.mux
+        state['wmu'] = self.pyAtmos.wmu
         state['lowerBc'] = LwAtmosphere.enum_bc_to_string(self.atmos.lowerBc)
         state['upperBc'] = LwAtmosphere.enum_bc_to_string(self.atmos.upperBc)
 
         return state
 
     def __setstate__(self, state):
-        self.atmosObj = state['atmosObj']
+        self.pyAtmos = state['pyAtmos']
         self.cmass = state['cmass']
         self.atmos.cmass = f64_view(self.cmass)
         self.height = state['height']
@@ -900,16 +901,6 @@ cdef gII_to_numpy(F64Arr3D gII):
 cdef gII_from_numpy(Transition trans, f64[:,:,::1] gII):
     trans.prdStorage.gII = F64Arr3D(f64_view_3(gII))
 
-# cpdef approx_trans_comp(t1, t2):
-#     return t1.atom.name == t2.atom.name and t1.j == t2.j and t1.i == t2.i
-
-# cpdef fast_trans_in(t1, l):
-#     for t2 in l:
-#         if approx_trans_comp(t1, t2):
-#             return True
-
-#     return False
-
 cdef class LwTransition:
     cdef Transition trans
     cdef f64[:, :, :, ::1] phi
@@ -928,15 +919,17 @@ cdef class LwTransition:
     cdef f64[:, ::1] rhoPrd
     cdef f64[::1] Rij
     cdef f64[::1] Rji
-    cdef object transModel
-    cdef object atmos
+    cdef public object transModel
+    cdef LwAtmosphere atmos
     cdef object spect
-    cdef public object atom
+    cdef public LwAtom atom
 
     def __init__(self, trans, compAtom, atmos, spect):
         self.transModel = trans
-        self.atom = compAtom
-        self.atmos = atmos
+        cdef LwAtom atom = compAtom
+        self.atom = atom
+        cdef LwAtmosphere a = atmos
+        self.atmos = a
         self.spect = spect
         transId = trans.transId
         self.wavelength = spect.transWavelengths[transId]
@@ -946,6 +939,8 @@ cdef class LwTransition:
         self.trans.polarised = False
         self.trans.Nblue = spect.blueIdx[transId]
         cdef int Nlambda = self.wavelength.shape[0]
+        cdef int Nspace = self.atmos.Nspace
+        cdef int Nrays = self.atmos.Nrays
 
         if isinstance(trans, AtomicLine):
             self.trans.type = LINE
@@ -954,17 +949,17 @@ cdef class LwTransition:
             self.trans.Bij = trans.Bij
             self.trans.lambda0 = trans.lambda0
             self.trans.dopplerWidth = Const.CLight / self.trans.lambda0
-            self.Qelast = np.zeros(self.atmos.Nspace)
-            self.aDamp = np.zeros(self.atmos.Nspace)
+            self.Qelast = np.zeros(Nspace)
+            self.aDamp = np.zeros(Nspace)
             self.trans.Qelast = f64_view(self.Qelast)
             self.trans.aDamp = f64_view(self.aDamp)
-            self.phi = np.zeros((Nlambda, self.atmos.Nrays, 2, self.atmos.Nspace))
-            self.wphi = np.zeros(self.atmos.Nspace)
+            self.phi = np.zeros((Nlambda, Nrays, 2, Nspace))
+            self.wphi = np.zeros(Nspace)
             self.trans.phi = f64_view_4(self.phi)
             self.trans.wphi = f64_view(self.wphi)
             self.compute_phi()
             if trans.type == LineType.PRD:
-                self.rhoPrd = np.ones((Nlambda, self.atmos.Nspace))
+                self.rhoPrd = np.ones((Nlambda, Nspace))
                 self.trans.rhoPrd = f64_view_2(self.rhoPrd)
         else:
             self.trans.type = CONTINUUM
@@ -983,15 +978,9 @@ cdef class LwTransition:
         self.trans.Rji = f64_view(self.Rji)
 
     def __getstate__(self):
-        # NOTE(cmo): Due to the way deepcopy/pickle works on the state
-        # dictionary interal memory sharing between numpy arrays with different
-        # ids is not preserved. This can be worked around with
-        # np.copy(stateDict).item() but that puts pickle out, which isn't what
-        # we want. However, instead of using the arrays generated from the
-        # np.asarray methods here, for the ones shared with the AtomicState
-        # object, we should instead fetch them from there
         state = {}
         state['atmos'] = self.atmos
+        state['atom'] = self.atom
         state['spect'] = self.spect
         state['transModel'] = self.transModel
         state['type'] = self.type
@@ -1040,7 +1029,10 @@ cdef class LwTransition:
     def __setstate__(self, state):
         self.transModel = state['transModel']
         trans = self.transModel
-        self.atmos = state['atmos']
+        cdef LwAtmosphere a = state['atmos']
+        self.atmos = a
+        cdef LwAtom atom = state['atom']
+        self.atom = atom
         self.spect = state['spect']
         self.wavelength = state['wavelength']
         self.trans.wavelength = f64_view(self.wavelength)
@@ -1133,24 +1125,37 @@ cdef class LwTransition:
                     np.asarray(self.rhoPrd)[:, k] = np.interp(self.wavelength, prevState['wavelength'], prevState['rhoPrd'][:, k])
 
 
-    cpdef compute_phi(self):
+    def compute_phi(self):
         if self.type == 'Continuum':
             return
 
-        cdef:
-            np.ndarray[np.double_t, ndim=1] Qelast
-            np.ndarray[np.double_t, ndim=1] aDamp
+        cdef Atmosphere* atmos = &self.atmos.atmos
+        callbackUsed = False
+        def default_voigt_callback(f64[::1] aDamp, f64[::1] vBroad):
+            cdef F64View aDampView = f64_view(aDamp)
+            cdef F64View vBroadView = f64_view(vBroad)
+            self.trans.compute_phi(atmos[0], aDampView, vBroadView)
+            nonlocal callbackUsed
+            callbackUsed = True
+            return np.asarray(self.phi)
 
-        cdef LwAtom atom = self.atom
-        aDamp, Qelast = self.transModel.damping(self.atmos, atom.eqPops)
+        state = LineProfileState(wavelength=np.asarray(self.wavelength),
+                                 vlosMu=np.asarray(self.atmos.vlosMu),
+                                 atmos=self.atmos.pyAtmos,
+                                 eqPops=self.atom.eqPops,
+                                 default_voigt_callback=default_voigt_callback,
+                                 vBroad=self.atom.vBroad)
+        profile = self.transModel.compute_phi(state)
 
-        cdef Atmosphere* atmos = atom.atom.atmos
-        cdef int i
-        for i in range(self.Qelast.shape[0]):
-            self.Qelast[i] = Qelast[i]
-            self.aDamp[i] = aDamp[i]
+        cdef f64[:,:,:,::1] phi = profile.phi
+        cdef f64[::1] Qelast = profile.Qelast
+        cdef f64[::1] aDamp = profile.aDamp
+        if not callbackUsed:
+            self.phi[...] = phi
+        self.Qelast[...] = Qelast
+        self.aDamp[...] = aDamp
 
-        self.trans.compute_phi(atmos[0], self.trans.aDamp, atom.atom.vBroad)
+        self.trans.compute_wphi(self.atmos.atmos)
 
     cpdef compute_polarised_profiles(self):
         if self.type == 'Continuum':
@@ -1181,9 +1186,9 @@ cdef class LwTransition:
         self.trans.polarised = True
 
         cdef LwAtom atom = self.atom
-        aDamp, Qelast = self.transModel.damping(self.atmos, atom.eqPops)
+        aDamp, Qelast = self.transModel.damping(self.atmos.pyAtmos, atom.eqPops)
 
-        cdef Atmosphere* atmos = atom.atom.atmos
+        cdef Atmosphere* atmos = &self.atmos.atmos
         cdef int i
         for i in range(self.Qelast.shape[0]):
             self.Qelast[i] = Qelast[i]
@@ -1195,6 +1200,8 @@ cdef class LwTransition:
         self.trans.compute_polarised_profiles(atmos[0], self.trans.aDamp, atom.atom.vBroad, zc.zc)
 
     def uv(self, int la, int mu, bool_t toObs, f64[::1] Uji not None, f64[::1] Vij not None, f64[::1] Vji not None):
+        # TODO(cmo): Allow these to take None, and allocate if they are. Then
+        # return in some UV datastruct
         cdef bint obs = toObs
         cdef F64View cUji = f64_view(Uji)
         cdef F64View cVij = f64_view(Vij)
@@ -1348,16 +1355,16 @@ cdef class LwAtom:
     cdef f64[::1] stages
     cdef public object atomicModel
     cdef public object modelPops
-    cdef object atmos
+    cdef LwAtmosphere atmos
     cdef object eqPops
     cdef list trans
     cdef bool_t detailed
 
-    def __init__(self, atom, cAtmos, atmos, eqPops, spect, background, detailed=False, initSol=None, ngOptions=None, conserveCharge=False):
+    def __init__(self, atom, atmos, eqPops, spect, background, detailed=False, initSol=None, ngOptions=None, conserveCharge=False):
         self.atomicModel = atom
         self.detailed = detailed
-        self.atmos = atmos
-        cdef LwAtmosphere a = cAtmos
+        cdef LwAtmosphere a = atmos
+        self.atmos = a
         self.atom.atmos = &a.atmos
         self.eqPops = eqPops
         modelPops = eqPops.atomicPops[atom.element]
@@ -1424,7 +1431,7 @@ cdef class LwAtom:
             raise ValueError('Zero radiation InitialSolution not currently supported')
 
         if doInitSol and initSol == InitialSolution.EscapeProbability and Ntrans > 0:
-            self.set_pops_escape_probability(cAtmos, background, conserveCharge=conserveCharge)
+            self.set_pops_escape_probability(self.atmos, background, conserveCharge=conserveCharge)
 
         if ngOptions is not None:
             self.atom.ng = Ng(ngOptions.Norder, ngOptions.Nperiod, ngOptions.Ndelay, self.atom.n.flatten())
@@ -1432,21 +1439,12 @@ cdef class LwAtom:
             self.atom.ng = Ng(0,0,0, self.atom.n.flatten())
 
     def __getstate__(self):
-        # NOTE(cmo): Due to the way deepcopy/pickle works on the state
-        # dictionary interal memory sharing between numpy arrays with different
-        # ids is not preserved. This can be worked around with
-        # np.copy(stateDict).item() but that puts pickle out, which isn't what
-        # we want. However, instead of using the arrays generated from the
-        # np.asarray methods here, for the ones shared with the AtomicState
-        # object, we should instead fetch them from there. *cough* I see why
-        # the pytorch people might have been compelled to write
-        # torch.save/load... *cough*
         state = {}
         state['atomicModel'] = self.atomicModel
         state['modelPops'] = self.modelPops
         state['atmos'] = self.atmos
         state['eqPops'] = self.eqPops
-        state['trans'] = [t.__getstate__() for t in self.trans]
+        state['trans'] = self.trans
         state['detailed'] = self.detailed
         state['vBroad'] = np.asarray(self.vBroad)
         state['nTotal'] = self.modelPops.nTotal
@@ -1479,7 +1477,9 @@ cdef class LwAtom:
     def __setstate__(self, state):
         self.atomicModel = state['atomicModel']
         self.modelPops = state['modelPops']
-        self.atmos = state['atmos']
+        cdef LwAtmosphere a = state['atmos']
+        self.atmos = a
+        self.atom.atmos = &a.atmos
         self.eqPops = state['eqPops']
 
         self.detailed = state['detailed']
@@ -1489,11 +1489,7 @@ cdef class LwAtom:
         self.nTotal = state['nTotal']
         self.atom.nTotal = f64_view(self.nTotal)
 
-        self.trans = []
-        for t in state['trans']:
-            self.trans.append(LwTransition.__new__(LwTransition))
-            self.trans[-1].__setstate__(t)
-            self.trans[-1].atom = self
+        self.trans = state['trans']
         cdef LwTransition lt
         for lt in self.trans:
             self.atom.trans.push_back(&lt.trans)
@@ -1548,8 +1544,8 @@ cdef class LwAtom:
         cdef int i
         for i, t in enumerate(self.trans):
             for st in prevState['trans']:
-                if st['transModel'].i == t.i and st['transModel'].j == t.j:
-                    t.load_rates_prd_from_state(st, preserveProfiles=preserveProfiles)
+                if st.transModel.i == t.i and st.transModel.j == t.j:
+                    t.load_rates_prd_from_state(st.__getstate__(), preserveProfiles=preserveProfiles)
                     break
 
     def compute_collisions(self, fillDiagonal=False):
@@ -1737,11 +1733,11 @@ cdef class LwSpectrum:
         if state['JRest'] is not None:
             JRest_from_numpy(self.spect, state['JRest'])
 
-    def interp_J_from_state(self, prevState):
+    def interp_J_from_state(self, prevSpect):
         cdef np.ndarray[np.double_t, ndim=2] J = np.asarray(self.J)
         cdef int k
         for k in range(self.J.shape[1]):
-            J[:, k] = np.interp(self.wavelength, prevState['wavelength'], prevState['J'][:, k])
+            J[:, k] = np.interp(self.wavelength, prevSpect.wavelength, prevSpect.J[:, k])
 
     @property
     def wavelength(self):
@@ -1766,7 +1762,7 @@ cdef class LwContext:
     cdef LwSpectrum spect
     cdef LwBackground background
     cdef LwDepthData depthData
-    cdef public dict arguments
+    cdef public dict kwargs
     cdef public object eqPops
     cdef list activeAtoms
     cdef list detailedAtoms
@@ -1782,7 +1778,7 @@ cdef class LwContext:
                  crswCallback=None, Nthreads=1,
                  backgroundProvider=None):
         self.__dict__ = {}
-        self.arguments = {'atmos': atmos, 'spect': spect, 'eqPops': eqPops, 'ngOptions': ngOptions, 'initSol': initSol, 'conserveCharge': conserveCharge, 'hprd': hprd, 'Nthreads': Nthreads, 'backgroundProvider': backgroundProvider}
+        self.kwargs = {'atmos': atmos, 'spect': spect, 'eqPops': eqPops, 'ngOptions': ngOptions, 'initSol': initSol, 'conserveCharge': conserveCharge, 'hprd': hprd, 'Nthreads': Nthreads, 'backgroundProvider': backgroundProvider}
 
         self.atmos = LwAtmosphere(atmos)
         self.spect = LwSpectrum(spect.wavelength, atmos.Nrays, atmos.Nspace)
@@ -1795,8 +1791,8 @@ cdef class LwContext:
 
         activeAtoms = spect.radSet.activeAtoms
         detailedAtoms = spect.radSet.detailedAtoms
-        self.activeAtoms = [LwAtom(a, self.atmos, atmos, eqPops, spect, self.background, ngOptions=ngOptions, initSol=initSol, conserveCharge=conserveCharge) for a in activeAtoms]
-        self.detailedAtoms = [LwAtom(a, self.atmos, atmos, eqPops, spect, self.background, ngOptions=None, initSol=InitialSolution.Lte, detailed=True) for a in detailedAtoms]
+        self.activeAtoms = [LwAtom(a, self.atmos, eqPops, spect, self.background, ngOptions=ngOptions, initSol=initSol, conserveCharge=conserveCharge) for a in activeAtoms]
+        self.detailedAtoms = [LwAtom(a, self.atmos, eqPops, spect, self.background, ngOptions=None, initSol=InitialSolution.Lte, detailed=True) for a in detailedAtoms]
 
         self.ctx.atmos = &self.atmos.atmos
         self.ctx.spect = &self.spect.spect
@@ -1826,47 +1822,33 @@ cdef class LwContext:
 
     def __getstate__(self):
         state = {}
-        state['arguments'] = self.arguments
+        state['kwargs'] = self.kwargs
         state['eqPops'] = self.eqPops
-        state['activeAtoms'] = [a.__getstate__() for a in self.activeAtoms]
-        state['detailedAtoms'] = [a.__getstate__() for a in self.detailedAtoms]
+        state['activeAtoms'] = self.activeAtoms
+        state['detailedAtoms'] = self.detailedAtoms
         state['conserveCharge'] = self.conserveCharge
         state['hprd'] = self.hprd
-        state['atmos'] = self.atmos.__getstate__()
-        state['spect'] = self.spect.__getstate__()
-        state['background'] = self.background.__getstate__()
+        state['atmos'] = self.atmos
+        state['spect'] = self.spect
+        state['background'] = self.background
         state['crswDone'] = self.crswDone
         if not self.crswDone:
             state['crswCallback'] = self.crswCallback
         else:
             state['crswCallback'] = None
-        state['depthData'] = self.depthData.__getstate__()
+        state['depthData'] = self.depthData
         return state
 
     def __setstate__(self, state):
-        self.arguments = state['arguments']
+        self.kwargs = state['kwargs']
         self.eqPops = state['eqPops']
-        self.atmos = LwAtmosphere.__new__(LwAtmosphere)
-        self.atmos.__setstate__(state['atmos'])
-        self.activeAtoms = []
-        cdef LwAtom atom
-        for s in state['activeAtoms']:
-            self.activeAtoms.append(LwAtom.__new__(LwAtom))
-            atom = self.activeAtoms[-1]
-            atom.__setstate__(s)
-            atom.atom.atmos = &self.atmos.atmos
-        self.detailedAtoms = []
-        for s in state['detailedAtoms']:
-            self.detailedAtoms.append(LwAtom.__new__(LwAtom))
-            atom = self.detailedAtoms[-1]
-            atom.__setstate__(s)
-            atom.atom.atmos = &self.atmos.atmos
+        self.atmos = state['atmos']
+        self.activeAtoms = state['activeAtoms']
+        self.detailedAtoms = state['detailedAtoms']
         self.conserveCharge = state['conserveCharge']
         self.hprd = state['hprd']
-        self.spect = LwSpectrum.__new__(LwSpectrum)
-        self.spect.__setstate__(state['spect'])
-        self.background = LwBackground.__new__(LwBackground)
-        self.background.__setstate__(state['background'])
+        self.spect = state['spect']
+        self.background = state['background']
 
         self.crswDone = state['crswDone']
         if state['crswCallback'] is None:
@@ -1888,11 +1870,10 @@ cdef class LwContext:
             self.configure_hprd_coeffs()
 
         shape = (self.spect.I.shape[0], self.atmos.Nrays, self.atmos.Nspace)
-        self.depthData = LwDepthData.__new__(LwDepthData)
-        self.depthData.__setstate__(state['depthData'])
+        self.depthData = state['depthData']
         self.ctx.depthData = &self.depthData.depthData
 
-        self.setup_threads(state['arguments']['Nthreads'])
+        self.setup_threads(state['kwargs']['Nthreads'])
 
     @property
     def Nthreads(self):
@@ -1959,7 +1940,7 @@ cdef class LwContext:
             self.compute_profiles()
 
         if temperature or ne:
-            self.eqPops.update_lte_atoms_Hmin_pops(self.arguments['atmos'], conserveCharge=self.conserveCharge, updateTotals=True)
+            self.eqPops.update_lte_atoms_Hmin_pops(self.kwargs['atmos'], conserveCharge=self.conserveCharge, updateTotals=True)
 
         if background and any([temperature, ne, vturb, vlos]):
             self.background.update_background(self.atmos)
@@ -2144,9 +2125,12 @@ cdef class LwContext:
                                        ngOptions=None, initSol=None, conserveCharge=None,
                                        hprd=None, preserveProfiles=False, fromScratch=False,
                                        backgroundProvider=None):
+        """
+        stateDict will not be deepcopied by this function -- do that yourself if needed.
+        """
         sd = copy(sd)
-        sd['arguments'] = copy(sd['arguments'])
-        args = sd['arguments']
+        sd['kwargs'] = copy(sd['kwargs'])
+        args = sd['kwargs']
         wavelengthSubset = False
 
         if ngOptions is not None:
@@ -2177,7 +2161,7 @@ cdef class LwContext:
             prevInitSol = args['initSol']
             args['initSol'] = InitialSolution.Lte
 
-        ctx = LwContext(args['atmos'], args['spect'], args['eqPops'], ngOptions=args['ngOptions'], initSol=args['initSol'], conserveCharge=args['conserveCharge'], hprd=args['hprd'])
+        ctx = LwContext(**args)
 
         if fromScratch:
             return ctx
@@ -2185,19 +2169,22 @@ cdef class LwContext:
         if wavelengthSubset:
             ctx.spect.interp_J_from_state(sd['spect'])
 
+        # TODO(cmo): I don't really like the way we use __getstate__ here, for
+        # pickling the new approach is better. Performance implact is probably
+        # negligble...
         cdef LwAtom a
         for a in ctx.activeAtoms:
             for s in sd['activeAtoms']:
-                if a.atomicModel.element == s['atomicModel'].element:
-                    levels = a.atomicModel.levels == s['atomicModel'].levels
+                if a.atomicModel.element == s.atomicModel.element:
+                    levels = a.atomicModel.levels == s.atomicModel.levels
                     if not levels:
                         break
-                    trans = a.atomicModel.lines == s['atomicModel'].lines
-                    trans = trans and a.atomicModel.continua == s['atomicModel'].continua
+                    trans = a.atomicModel.lines == s.atomicModel.lines
+                    trans = trans and a.atomicModel.continua == s.atomicModel.continua
                     popsOnly = False
                     if not trans:
                         popsOnly = True
-                    a.load_pops_rates_prd_from_state(s, popsOnly=popsOnly, preserveProfiles=preserveProfiles)
+                    a.load_pops_rates_prd_from_state(s.__getstate__(), popsOnly=popsOnly, preserveProfiles=preserveProfiles)
                     break
             else:
                 if prevInitSol == InitialSolution.EscapeProbability:
@@ -2206,8 +2193,8 @@ cdef class LwContext:
 
         for a in ctx.detailedAtoms:
             for s in sd['detailedAtoms']:
-                if a.atomicModel == s['atomicModel']:
-                    a.load_pops_rates_prd_from_state(s)
+                if a.atomicModel == s.atomicModel:
+                    a.load_pops_rates_prd_from_state(s.__getstate__())
                     break
 
         return ctx
@@ -2215,7 +2202,7 @@ cdef class LwContext:
     def compute_rays(self, wavelengths=None, mus=None, stokes=False, refinePrd=False):
         state = deepcopy(self.state_dict())
         if wavelengths is not None:
-            spect = state['arguments']['spect'].subset_configuration(wavelengths)
+            spect = state['kwargs']['spect'].subset_configuration(wavelengths)
         else:
             spect = None
 
@@ -2224,12 +2211,12 @@ cdef class LwContext:
             rhoCtx = self.construct_from_state_dict_with(state, spect=spect)
             rhoCtx.prd_redistribute(maxIter=100)
             sd = rhoCtx.state_dict()
-            atmos = sd['arguments']['atmos']
+            atmos = sd['kwargs']['atmos']
             if mus is not None:
                 atmos.rays(mus)
             rayCtx = self.construct_from_state_dict_with(sd)
         else:
-            atmos = state['arguments']['atmos']
+            atmos = state['kwargs']['atmos']
             if mus is not None:
                 atmos.rays(mus)
             rayCtx = self.construct_from_state_dict_with(state, spect=spect)
@@ -2250,17 +2237,17 @@ cdef class LwContext:
         state = deepcopy(self.state_dict())
         if wavelengths is None:
             wavelengths = line.wavelength
-        spect = state['arguments']['spect'].subset_configuration(wavelengths)
+        spect = state['kwargs']['spect'].subset_configuration(wavelengths)
         if refinePrd:
             rhoCtx = self.construct_from_state_dict_with(state, spect=spect)
             rhoCtx.prd_redistribute(maxIter=100)
             sd = rhoCtx.state_dict()
-            atmos = sd['arguments']['atmos']
+            atmos = sd['kwargs']['atmos']
             if mu is not None:
                 atmos.rays(mu)
             rayCtx = self.construct_from_state_dict_with(sd)
         else:
-            atmos = state['arguments']['atmos']
+            atmos = state['kwargs']['atmos']
             if mu is not None:
                 atmos.rays(mu)
             rayCtx = self.construct_from_state_dict_with(state, spect=spect)

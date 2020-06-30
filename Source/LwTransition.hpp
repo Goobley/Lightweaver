@@ -114,6 +114,7 @@ struct Transition
     }
 
     void compute_phi(const Atmosphere& atmos, F64View aDamp, F64View vBroad);
+    void compute_wphi(const Atmosphere& atmos);
     void compute_polarised_profiles(const Atmosphere& atmos, F64View aDamp, F64View vBroad, const ZeemanComponents& z);
 };
 

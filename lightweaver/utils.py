@@ -8,6 +8,7 @@ from enum import Enum, auto
 from astropy import units
 from specutils.utils.wcs_utils import vac_to_air as spec_vac_to_air, air_to_vac as spec_air_to_vac
 from numba import njit
+from scipy import special
 
 @dataclass
 class NgOptions:

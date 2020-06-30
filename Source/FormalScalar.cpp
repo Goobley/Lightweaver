@@ -92,11 +92,8 @@ void Transition::compute_phi(const Atmosphere& atmos, F64View aDamp, F64View vBr
         return;
 
     constexpr f64 sign[] = { -1.0, 1.0 };
-
     // Why is there still no constexpr math in std? :'(
     const f64 sqrtPi = sqrt(C::Pi);
-
-    wphi.fill(0.0);
 
     for (int la = 0; la < wavelength.shape(0); ++la)
     {
@@ -113,6 +110,30 @@ void Transition::compute_phi(const Atmosphere& atmos, F64View aDamp, F64View vBr
                     const f64 vk = (vBase + s * atmos.vlosMu(mu, k)) / vBroad(k);
                     const f64 p = voigt_H(aDamp(k), vk) / (sqrtPi * vBroad(k));
                     phi(la, mu, toObs, k) = p;
+                }
+            }
+        }
+    }
+}
+
+void Transition::compute_wphi(const Atmosphere& atmos)
+{
+    namespace C = Constants;
+    if (type == TransitionType::CONTINUUM)
+        return;
+
+    wphi.fill(0.0);
+    for (int la = 0; la < wavelength.shape(0); ++la)
+    {
+        const f64 wla = wlambda(la);
+        for (int mu = 0; mu < phi.shape(1); ++mu)
+        {
+            const f64 wlamu = wla * 0.5 * atmos.wmu(mu);
+            for (int toObs = 0; toObs < 2; ++toObs)
+            {
+                for (int k = 0; k < atmos.Nspace; ++k)
+                {
+                    const f64 p = phi(la, mu, toObs, k);
                     wphi(k) += p * wlamu;
                 }
             }
@@ -774,7 +795,7 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
             taskData[t].lambdaIterate = lambdaIterate;
         }
 
-        auto fs_task = [](void* data, scheduler* s, 
+        auto fs_task = [](void* data, scheduler* s,
                           sched_task_partition p, sched_uint threadId)
         {
             auto& td = ((FsTaskData*)data)[threadId];
@@ -791,7 +812,7 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
 
         {
             sched_task formalSolutions;
-            scheduler_add(&ctx.threading.sched, &formalSolutions, 
+            scheduler_add(&ctx.threading.sched, &formalSolutions,
                           fs_task, (void*)taskData, Nspect, 4);
             scheduler_join(&ctx.threading.sched, &formalSolutions);
         }

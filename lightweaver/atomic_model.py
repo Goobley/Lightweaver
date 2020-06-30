@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from fractions import Fraction
-from typing import List, Tuple, Sequence, Optional, Any, Iterator, cast, TYPE_CHECKING
+from typing import List, Tuple, Sequence, Optional, Any, Iterator, cast, TYPE_CHECKING, Callable
 import re
 
 import numpy as np
@@ -239,6 +239,21 @@ class AtomicTransition:
     def transId(self) -> Tuple[Element, int, int]:
         return (self.atom.element, self.i, self.j)
 
+@dataclass
+class LineProfileState:
+    wavelength: np.ndarray
+    vlosMu: np.ndarray
+    atmos: 'Atmosphere'
+    eqPops: 'SpeciesStateTable'
+    default_voigt_callback: Callable[[np.ndarray, np.ndarray], np.ndarray]
+    vBroad: Optional[np.ndarray]=None
+
+@dataclass
+class LineProfileResult:
+    phi: np.ndarray
+    aDamp: np.ndarray
+    Qelast: np.ndarray
+
 
 @dataclass(eq=False)
 class AtomicLine(AtomicTransition):
@@ -273,6 +288,9 @@ class AtomicLine(AtomicTransition):
 
     def zeeman_components(self) -> Optional[ZeemanComponents]:
         return compute_zeeman_components(self)
+
+    def compute_phi(self, state: LineProfileState) -> LineProfileResult:
+        raise NotImplementedError
 
     @property
     def overlyingContinuumLevel(self) -> AtomicLevel:
@@ -319,13 +337,25 @@ class AtomicLine(AtomicTransition):
 @dataclass(eq=False, repr=False)
 class VoigtLine(AtomicLine):
 
-    def damping(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable'):
+    def damping(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable',
+                vBroad: Optional[np.ndarray]=None):
         Qs = self.broadening.broaden(atmos, eqPops)
 
-        vBroad = self.atom.vBroad(atmos)
+        if vBroad is None:
+            vBroad = self.atom.vBroad(atmos)
+
         cDop = self.lambda0_m / (4.0 * np.pi)
         aDamp = (Qs.natural + Qs.Qelast) * cDop / vBroad
         return aDamp, Qs.Qelast
+
+    def compute_phi(self, state: LineProfileState) -> LineProfileResult:
+        vBroad = self.atom.vBroad(state.atmos) if state.vBroad is None else state.vBroad
+        aDamp, Qelast = self.damping(state.atmos, state.eqPops, vBroad=vBroad)
+        cb = state.default_voigt_callback
+        # NOTE(cmo): This is affected by mypy #5485, so we ignore typing for now
+        phi = state.default_voigt_callback(aDamp, vBroad) # type: ignore
+
+        return LineProfileResult(phi=phi, aDamp=aDamp, Qelast=Qelast)
 
 @dataclass(eq=False)
 class AtomicContinuum(AtomicTransition):
