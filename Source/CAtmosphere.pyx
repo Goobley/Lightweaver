@@ -1552,7 +1552,7 @@ cdef class LwAtom:
         cdef np.ndarray[np.double_t, ndim=3] C = np.asarray(self.C)
         C.fill(0.0)
         for col in self.atomicModel.collisions:
-            col.compute_rates(self.atmos, self.eqPops, C)
+            col.compute_rates(self.atmos.pyAtmos, self.eqPops, C)
         C[C < 0.0] = 0.0
 
         if not fillDiagonal:
