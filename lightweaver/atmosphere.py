@@ -1,12 +1,14 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
+from copy import copy
 from enum import Enum, auto
-from typing import Sequence, TYPE_CHECKING, Optional, Union
+from typing import Sequence, TYPE_CHECKING, Optional, Union, TypeVar, Type
 import numpy as np
 from .witt import witt
 import lightweaver.constants as Const
 from numpy.polynomial.legendre import leggauss
 from .utils import ConvergenceError
 from .atomic_table import PeriodicTable, AtomicAbundance, DefaultAtomicAbundance
+import astropy.units as u
 
 class ScaleType(Enum):
     Geometric = 0
@@ -43,24 +45,243 @@ def get_top_pressure(eos: witt, temp, ne=None, rho=None):
     return ptop
 
 @dataclass
+class Stratifications:
+    cmass: np.ndarray
+    tauRef: np.ndarray
+
+    def dimensioned_view(self, shape) -> Stratifications:
+        strat = copy(self)
+        strat.cmass = self.cmass.reshape(shape)
+        strat.tauRef = self.tauRef.reshape(shape)
+        return strat
+
+    def unit_view(self) -> Stratifications:
+        strat = copy(self)
+        strat.cmass = self.cmass << u.kg / u.m**2
+        strat.tauRef = self.tauRef << u.dimensionless_unscaled
+        return strat
+
+    def dimensioned_unit_view(self, shape) -> Stratifications:
+        strat = self.dimensioned_view(shape)
+        return strat.unit_view()
+
+@dataclass
+class Layout:
+    Ndim: int
+    x: np.ndarray
+    y: np.ndarray
+    z: np.ndarray
+    vx: np.ndarray
+    vy: np.ndarray
+    vz: np.ndarray
+    stratifications: Optional[Stratifications] = None
+
+    @classmethod
+    def make_1d(cls, params):
+        pass
+
+    @property
+    def Nx(self) -> int:
+        return self.x.shape[0]
+
+    @property
+    def Ny(self) -> int:
+        return self.y.shape[0]
+
+    @property
+    def Nz(self) -> int:
+        return self.z.shape[0]
+
+    @property
+    def vlos(self) -> np.ndarray:
+        return self.vz
+
+    @property
+    def Nspace(self) -> int:
+        if self.Ndim == 1:
+            return self.Nz
+        elif self.Ndim == 2:
+            return self.Nx * self.Nz
+        elif self.Ndim == 3:
+            return self.Nx * self.Ny * self.Nz
+        else:
+            raise ValueError('Invalid Ndim: %d, check geometry initialisation' % self.Ndim)
+
+    @property
+    def tauRef(self):
+        if self.stratifications is not None:
+            return self.stratifications.tauRef
+        else:
+            raise ValueError('tauRef not computed for this Atmosphere')
+
+    @property
+    def cmass(self):
+        if self.stratifications is not None:
+            return self.stratifications.cmass
+        else:
+            raise ValueError('tauRef not computed for this Atmosphere')
+
+    @property
+    def dimensioned_shape(self):
+        if self.Ndim == 1:
+            shape = (self.Nz,)
+        elif self.Ndim == 2:
+            shape = (self.Nx, self.Nz)
+        elif self.Ndim == 3:
+            shape = (self.Nx, self.Ny, self.Nz)
+        else:
+            raise ValueError('Unreasonable Ndim (%d)' % self.Ndim)
+        return shape
+
+    def dimensioned_view(self) ->  Layout:
+        layout = copy(self)
+        shape = self.dimensioned_shape
+        if self.stratifications is not None:
+            layout.stratifications = self.stratifications.dimensioned_view(shape)
+        layout.vx = self.vx.reshape(shape)
+        layout.vy = self.vy.reshape(shape)
+        layout.vz = self.vz.reshape(shape)
+        return layout
+
+    def unit_view(self) -> Layout:
+        layout = copy(self)
+        layout.x = self.x << u.m
+        layout.y = self.y << u.m
+        layout.z = self.z << u.m
+        layout.vx = self.vx << u.m / u.s
+        layout.vy = self.vy << u.m / u.s
+        layout.vz = self.vz << u.m / u.s
+        if self.stratifications is not None:
+            layout.stratifications = self.stratifications.unit_view()
+        return layout
+
+    def dimensioned_unit_view(self) -> Layout:
+        layout = self.dimensioned_view()
+        return layout.unit_view()
+
+@dataclass
 class Atmosphere:
-    scale: ScaleType
-    depthScale: np.ndarray
+    structure: Layout
     temperature: np.ndarray
-    vlos: np.ndarray
     vturb: np.ndarray
-    ne: Optional[np.ndarray] = None
-    hydrogenPops: Optional[np.ndarray] = None
+    ne: np.ndarray
+    nHTot: np.ndarray
+    lowerBc: BoundaryCondition
+    upperBc: BoundaryCondition
     B: Optional[np.ndarray] = None
     gammaB: Optional[np.ndarray] = None
     chiB: Optional[np.ndarray] = None
-    nHTot: Optional[np.ndarray] = None
-    lowerBc: BoundaryCondition = field(default=BoundaryCondition.Thermalised)
-    upperBc: BoundaryCondition = field(default=BoundaryCondition.Zero)
 
-    def __post_init__(self):
-        if self.hydrogenPops is not None:
-            self.nHTot = np.sum(self.hydrogenPops, axis=0)
+    @property
+    def Ndim(self) -> int:
+        return self.structure.Ndim
+
+    @property
+    def Nx(self) -> int:
+        return self.structure.Nx
+
+    @property
+    def Ny(self) -> int:
+        return self.structure.Ny
+
+    @property
+    def Nz(self) -> int:
+        return self.structure.Nz
+
+    @property
+    def vx(self) -> np.ndarray:
+        return self.structure.vx
+
+    @property
+    def vy(self) -> np.ndarray:
+        return self.structure.vz
+
+    @property
+    def vz(self) -> np.ndarray:
+        return self.structure.vz
+
+    @property
+    def vlos(self) -> np.ndarray:
+        return self.structure.vlos
+
+    @property
+    def cmass(self) -> np.ndarray:
+        return self.structure.cmass
+
+    @property
+    def tauRef(self) -> np.ndarray:
+        return self.structure.tauRef
+
+    @property
+    def height(self) -> np.ndarray:
+        return self.structure.z
+
+    def dimensioned_view(self):
+        shape = self.structure.dimensioned_shape
+        atmos = copy(self)
+        atmos.structure = self.structure.dimensioned_view()
+        atmos.temperature = self.temperature.reshape(shape)
+        atmos.vturb = self.vturb.reshape(shape)
+        atmos.ne = self.ne.reshape(shape)
+        atmos.nHTot = self.nHTot.reshape(shape)
+        return atmos
+
+    def unit_view(self):
+        atmos = copy(self)
+        atmos.structure = self.structure.unit_view()
+        atmos.temperature = self.temperature << u.K
+        atmos.vturb = self.vturb << u.m / u.s
+        atmos.ne = self.ne << u.m**(-3)
+        atmos.nHTot = self.nHTot << u.m**(-3)
+        return atmos
+
+    def dimensioned_unit_view(self):
+        atmos = self.dimensioned_view()
+        return atmos.unit_view()
+
+    @classmethod
+    def make_1d(cls, scale: ScaleType, depthScale: np.ndarray,
+                temperature: np.ndarray, vlos: np.ndarray,
+                vturb: np.ndarray, ne: Optional[np.ndarray]=None,
+                hydrogenPops: Optional[np.ndarray]=None,
+                nHTot: Optional[np.ndarray]=None,
+                B: Optional[np.ndarray]=None,
+                gammaB: Optional[np.ndarray]=None,
+                chiB: Optional[np.ndarray]=None,
+                lowerBc: Optional[BoundaryCondition]=None,
+                upperBc: Optional[BoundaryCondition]=None,
+                convertScales=True):
+        if scale == ScaleType.Geometric:
+            depthScale = (depthScale << u.m).value
+        elif scale == ScaleType.ColumnMass:
+            depthScale = (depthScale << u.kg / u.m**2).value
+        temperature = (temperature << u.K).value
+        vlos = (vlos << u.m / u.s).value
+        vturb = (vturb << u.m / u.s).value
+        if ne is not None:
+            ne = (ne << u.m**(-3)).value
+        if hydrogenPops is not None:
+            hydrogenPops = (hydrogenPops << u.m**(-3)).value
+        if nHTot is not None:
+            nHTot = (nHTot << u.m(-3)).value
+        if B is not None:
+            B = (B << u.T).value
+        if gammaB is not None:
+            gammaB = (gammaB << u.rad).value
+        if chiB is not None:
+            chiB = (chiB << u.rad).value
+
+        if lowerBc is None:
+            lowerBc = BoundaryCondition.Thermalised
+        if upperBc is None:
+            upperBc = BoundaryCondition.Zero
+
+        if scale != ScaleType.Geometric and not convertScales:
+            raise ValueError('Height scale must be provided if scale conversion is not applied')
+
+        if nHTot is None and hydrogenPops is not None:
+            pass
+
 
     def convert_scales(self, abundance: Optional[AtomicAbundance]=None, logG: float=2.44, Pgas: Optional[np.ndarray]=None,
                        Pe: Optional[np.ndarray]=None, Ptop: Optional[float]=None, PeTop: Optional[float]=None):
@@ -296,3 +517,14 @@ class Atmosphere:
             raise AttributeError('Nrays not set, call atmos.rays or .quadrature first')
 
         return self.muz.shape[0]
+
+# @dataclass
+# class MagneticAtmosphere(Atmosphere):
+#     B: np.ndarray
+#     gammaB: np.ndarray
+#     chiB: np.ndarray
+
+#     @classmethod
+#     def from_atmos(cls, atmos: Atmosphere, B: np.ndarray, gammaB: np.ndarray, chiB: np.ndarray):
+#         return cls(**asdict(atmos), B=B, gammaB=gammaB, chiB=chiB)
+
