@@ -104,8 +104,8 @@ namespace LwInternal
         return static_cast<FsMode>(static_cast<u32>(a) | static_cast<u32>(b));
     }
 
-    void piecewise_bezier3_1d(FormalData* fd, int mu, bool toObs, f64 wav);
-    void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int mu, bool toObs, f64 wav, bool polarisedFrequency);
+    void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav);
+    void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int la, int mu, bool toObs, f64 wav, bool polarisedFrequency);
     f64 intensity_core(IntensityCoreData& data, int la, FsMode mode);
 }
 #else

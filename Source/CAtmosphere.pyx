@@ -5,7 +5,7 @@ from CmoArray cimport *
 from libcpp cimport bool as bool_t
 from libcpp.vector cimport vector
 from libc.math cimport sqrt, exp, copysign
-from .atmosphere import BoundaryCondition
+from .atmosphere import BoundaryCondition, ZeroRadiation, ThermalisedRadiation
 from .atomic_model import AtomicLine, LineType, LineProfileState
 from .utils import InitialSolution, ExplodingMatrixError, UnityCrswIterator
 from weno4 import weno4
@@ -27,6 +27,7 @@ cdef extern from "Lightweaver.hpp":
     cdef enum RadiationBC:
         ZERO
         THERMALISED
+        CALLABLE
 
     cdef cppclass Atmosphere:
         F64View cmass
@@ -48,6 +49,8 @@ cdef extern from "Lightweaver.hpp":
         F64View muy
         F64View mux
         F64View wmu
+        F64View2D lowerBcData
+        F64View2D upperBcData
         int Nspace
         int Nrays
 
@@ -288,6 +291,9 @@ cdef class LwAtmosphere:
     cdef f64[::1] muy
     cdef f64[::1] mux
     cdef f64[::1] wmu
+    cdef f64[:,::1] lowerBcData
+    cdef f64[:,::1] upperBcData
+
     cdef public object pyAtmos
 
     def __init__(self, atmos):
@@ -340,21 +346,44 @@ cdef class LwAtmosphere:
         self.vlosMu = np.zeros((Nrays, Nspace))
         self.atmos.vlosMu = f64_view_2(self.vlosMu)
 
-        if atmos.lowerBc == BoundaryCondition.Zero:
+        if isinstance(atmos.lowerBc, ZeroRadiation):
             self.atmos.lowerBc = ZERO
-        elif atmos.lowerBc == BoundaryCondition.Thermalised:
+        elif isinstance(atmos.lowerBc, ThermalisedRadiation):
             self.atmos.lowerBc = THERMALISED
         else:
-            raise ValueError('Unknown lowerBc')
+            self.atmos.lowerBc = CALLABLE
 
-        if atmos.upperBc == BoundaryCondition.Zero:
+        if isinstance(atmos.upperBc, ZeroRadiation):
             self.atmos.upperBc = ZERO
-        elif atmos.upperBc == BoundaryCondition.Thermalised:
+        elif isinstance(atmos.upperBc, ThermalisedRadiation):
             self.atmos.upperBc = THERMALISED
         else:
-            raise ValueError('Unknown lowerBc')
+            self.atmos.upperBc = CALLABLE
 
         self.atmos.update_projections()
+
+    def compute_bcs(self, LwSpectrum spect):
+        cdef f64[:,::1] bc
+        if self.atmos.lowerBc == CALLABLE:
+            try:
+                self.lowerBcData
+            except AttributeError:
+                self.lowerBcData = np.zeros((spect.wavelength.shape[0], self.atmos.Nrays))
+                self.atmos.lowerBcData = f64_view_2(self.lowerBcData)
+
+            bc = self.pyAtmos.lowerBc.compute_bc(self.pyAtmos, spect)
+            self.lowerBcData[...] = bc
+
+        if self.atmos.upperBc == CALLABLE:
+            try:
+                self.upperBcData
+            except AttributeError:
+                self.upperBcData = np.zeros((spect.wavelength.shape[0], self.atmos.Nrays))
+                self.atmos.upperBcData = f64_view_2(self.upperBcData)
+
+            bc = self.pyAtmos.upperBc.compute_bc(self.pyAtmos, spect)
+            self.upperBcData[...] = bc
+
 
     def update_projections(self):
         self.atmos.update_projections()
@@ -1914,6 +1943,8 @@ cdef class LwContext:
                 atom.compute_collisions()
             Gamma += crswVal * np.asarray(atom.C)
 
+        self.atmos.compute_bcs(self.spect)
+
         cdef f64 dJ = formal_sol_gamma_matrices(self.ctx, lambdaIterate)
         print('dJ = %.2e' % dJ)
         return dJ
@@ -1927,6 +1958,7 @@ cdef class LwContext:
         #     atom.compute_collisions()
         #     Gamma += atom.C
 
+        self.atmos.compute_bcs(self.spect)
         cdef f64 dJ = formal_sol(self.ctx)
         # cdef f64 dJ = formal_sol_gamma_matrices(self.ctx)
         # print('dJ = %.2e' % dJ)
@@ -2071,6 +2103,7 @@ cdef class LwContext:
     cpdef single_stokes_fs(self, recompute=False):
         self.setup_stokes(recompute=recompute)
 
+        self.atmos.compute_bcs(self.spect)
         cdef f64 dJ = formal_sol_full_stokes(self.ctx)
         return dJ
 

@@ -6,7 +6,8 @@
 enum RadiationBC
 {
     ZERO,
-    THERMALISED
+    THERMALISED,
+    CALLABLE
 };
 
 struct Atmosphere
@@ -30,6 +31,8 @@ struct Atmosphere
     F64View muy;
     F64View mux;
     F64View wmu;
+    F64View2D lowerBcData;
+    F64View2D upperBcData;
     int Nspace;
     int Nrays;
 

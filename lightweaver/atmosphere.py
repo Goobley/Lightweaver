@@ -8,14 +8,27 @@ from numpy.polynomial.legendre import leggauss
 from .utils import ConvergenceError
 from .atomic_table import PeriodicTable, AtomicAbundance, DefaultAtomicAbundance
 
+if TYPE_CHECKING:
+    from .LwCompiled import LwSpectrum
+
 class ScaleType(Enum):
     Geometric = 0
     ColumnMass = auto()
     Tau500 = auto()
 
-class BoundaryCondition(Enum):
-    Zero = auto()
-    Thermalised = auto()
+# class BoundaryCondition(Enum):
+#     Zero = auto()
+#     Thermalised = auto()
+
+class BoundaryCondition:
+    def compute_bc(self, atmos: 'Atmosphere', spect: 'LwSpectrum') -> np.ndarray:
+        raise NotImplementedError
+
+class ZeroRadiation(BoundaryCondition):
+    pass
+
+class ThermalisedRadiation(BoundaryCondition):
+    pass
 
 def get_top_pressure(eos: witt, temp, ne=None, rho=None):
     if ne is not None:
@@ -55,8 +68,8 @@ class Atmosphere:
     gammaB: Optional[np.ndarray] = None
     chiB: Optional[np.ndarray] = None
     nHTot: Optional[np.ndarray] = None
-    lowerBc: BoundaryCondition = field(default=BoundaryCondition.Thermalised)
-    upperBc: BoundaryCondition = field(default=BoundaryCondition.Zero)
+    lowerBc: BoundaryCondition = field(default_factory=ThermalisedRadiation)
+    upperBc: BoundaryCondition = field(default_factory=ZeroRadiation)
 
     def __post_init__(self):
         if self.hydrogenPops is not None:
