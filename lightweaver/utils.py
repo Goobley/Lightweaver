@@ -96,3 +96,8 @@ def sequence_repr(x: Sequence) -> str:
         return repr(x.tolist())
 
     return repr(x)
+
+def view_flatten(x: np.ndarray) -> np.ndarray:
+    y = x.view()
+    y.shape = (x.size,)
+    return y
