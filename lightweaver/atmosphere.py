@@ -10,14 +10,27 @@ from .utils import ConvergenceError
 from .atomic_table import PeriodicTable, AtomicAbundance, DefaultAtomicAbundance
 import astropy.units as u
 
+if TYPE_CHECKING:
+    from .LwCompiled import LwSpectrum
+
 class ScaleType(Enum):
     Geometric = 0
     ColumnMass = auto()
     Tau500 = auto()
 
-class BoundaryCondition(Enum):
-    Zero = auto()
-    Thermalised = auto()
+# class BoundaryCondition(Enum):
+#     Zero = auto()
+#     Thermalised = auto()
+
+class BoundaryCondition:
+    def compute_bc(self, atmos: 'Atmosphere', spect: 'LwSpectrum') -> np.ndarray:
+        raise NotImplementedError
+
+class ZeroRadiation(BoundaryCondition):
+    pass
+
+class ThermalisedRadiation(BoundaryCondition):
+    pass
 
 def get_top_pressure(eos: witt, temp, ne=None, rho=None):
     if ne is not None:

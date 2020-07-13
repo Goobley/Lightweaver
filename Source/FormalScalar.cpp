@@ -216,7 +216,7 @@ void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
     }
 }
 
-void piecewise_linear_1d(FormalData* fd, int mu, bool toObs, f64 wav)
+void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
 {
     JasUnpack((*fd), atmos, I, chi);
     f64 zmu = 0.5 / atmos->muz(mu);
@@ -234,18 +234,32 @@ void piecewise_linear_1d(FormalData* fd, int mu, bool toObs, f64 wav)
     f64 dtau_uw = zmu * (chi(kStart) + chi(kStart + dk)) * abs(height(kStart) - height(kStart + dk));
 
     f64 Iupw = 0.0;
-    if (toObs && atmos->lowerBc == THERMALISED)
+    if (toObs)
     {
-        f64 Bnu[2];
-        int Nspace = atmos->Nspace;
-        planck_nu(2, &atmos->temperature(Nspace - 2), wav, Bnu);
-        Iupw = Bnu[1] - (Bnu[0] - Bnu[1]) / dtau_uw;
+        if (atmos->lowerBc == THERMALISED)
+        {
+            f64 Bnu[2];
+            int Nspace = atmos->Nspace;
+            planck_nu(2, &atmos->temperature(Nspace - 2), wav, Bnu);
+            Iupw = Bnu[1] - (Bnu[0] - Bnu[1]) / dtau_uw;
+        }
+        else if (atmos->lowerBc == CALLABLE)
+        {
+            Iupw = atmos->lowerBcData(la, mu);
+        }
     }
-    else if (!toObs && atmos->upperBc == THERMALISED)
+    else
     {
-        f64 Bnu[2];
-        planck_nu(2, &atmos->temperature(0), wav, Bnu);
-        Iupw = Bnu[0] - (Bnu[1] - Bnu[0]) / dtau_uw;
+        if (atmos->upperBc == THERMALISED)
+        {
+            f64 Bnu[2];
+            planck_nu(2, &atmos->temperature(0), wav, Bnu);
+            Iupw = Bnu[0] - (Bnu[1] - Bnu[0]) / dtau_uw;
+        }
+        else if (atmos->upperBc == CALLABLE)
+        {
+            Iupw = atmos->upperBcData(la, mu);
+        }
     }
 
     piecewise_linear_1d_impl(fd, zmu, toObs, Iupw);
@@ -372,7 +386,7 @@ void piecewise_bezier3_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
 
 namespace LwInternal
 {
-void piecewise_bezier3_1d(FormalData* fd, int mu, bool toObs, f64 wav)
+void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
 {
     JasUnpack((*fd), atmos, chi);
     // This is 1.0 here, as we are normally effectively rolling in the averaging
@@ -392,18 +406,32 @@ void piecewise_bezier3_1d(FormalData* fd, int mu, bool toObs, f64 wav)
     f64 dtau_uw = 0.5 * zmu * (chi(kStart) + chi(kStart + dk)) * abs(height(kStart) - height(kStart + dk));
 
     f64 Iupw = 0.0;
-    if (toObs && atmos->lowerBc == THERMALISED)
+    if (toObs)
     {
-        f64 Bnu[2];
-        int Nspace = atmos->Nspace;
-        planck_nu(2, &atmos->temperature(Nspace - 2), wav, Bnu);
-        Iupw = Bnu[1] - (Bnu[0] - Bnu[1]) / dtau_uw;
+        if (atmos->lowerBc == THERMALISED)
+        {
+            f64 Bnu[2];
+            int Nspace = atmos->Nspace;
+            planck_nu(2, &atmos->temperature(Nspace - 2), wav, Bnu);
+            Iupw = Bnu[1] - (Bnu[0] - Bnu[1]) / dtau_uw;
+        }
+        else if (atmos->lowerBc == CALLABLE)
+        {
+            Iupw = atmos->lowerBcData(la, mu);
+        }
     }
-    else if (!toObs && atmos->upperBc == THERMALISED)
+    else
     {
-        f64 Bnu[2];
-        planck_nu(2, &atmos->temperature(0), wav, Bnu);
-        Iupw = Bnu[0] - (Bnu[1] - Bnu[0]) / dtau_uw;
+        if (atmos->upperBc == THERMALISED)
+        {
+            f64 Bnu[2];
+            planck_nu(2, &atmos->temperature(0), wav, Bnu);
+            Iupw = Bnu[0] - (Bnu[1] - Bnu[0]) / dtau_uw;
+        }
+        else if (atmos->upperBc == CALLABLE)
+        {
+            Iupw = atmos->upperBcData(la, mu);
+        }
     }
 
     piecewise_bezier3_1d_impl(fd, zmu, toObs, Iupw);
@@ -567,8 +595,8 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                 }
             }
 
-            piecewise_bezier3_1d(&fd, mu, toObs, spect.wavelength(la));
-            // piecewise_linear_1d(&fd, mu, toObs, spect.wavelength(la));
+            piecewise_bezier3_1d(&fd, la, mu, toObs, spect.wavelength(la));
+            // piecewise_linear_1d(&fd, la, mu, toObs, spect.wavelength(la));
             spect.I(la, mu) = I(0);
 
             if (updateJ)

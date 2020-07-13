@@ -350,11 +350,11 @@ void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs,
 
 namespace LwInternal
 {
-void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int mu, bool toObs, f64 wav, bool polarisedFrequency)
+void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int la, int mu, bool toObs, f64 wav, bool polarisedFrequency)
 {
     if (!polarisedFrequency)
     {
-        piecewise_bezier3_1d(&fd->fdIntens, mu, toObs, wav);
+        piecewise_bezier3_1d(&fd->fdIntens, la, mu, toObs, wav);
         return;
     }
 
@@ -376,19 +376,32 @@ void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int mu, bool toObs, f64 w
     f64 dtau_uw = 0.5 * zmu * (chi(0, kStart) + chi(0, kStart + dk)) * abs(height(kStart) - height(kStart + dk));
 
     f64 Iupw[4] = { 0.0, 0.0, 0.0, 0.0 };
-    if (toObs && atmos->lowerBc == THERMALISED)
+    if (toObs)
     {
-        f64 Bnu[2];
-        int Nspace = atmos->Nspace;
-        planck_nu(2, &atmos->temperature(Nspace - 2), wav, Bnu);
-        Iupw[0] = Bnu[1] - (Bnu[0] - Bnu[1]) / dtau_uw;
+        if (atmos->lowerBc == THERMALISED)
+        {
+            f64 Bnu[2];
+            int Nspace = atmos->Nspace;
+            planck_nu(2, &atmos->temperature(Nspace - 2), wav, Bnu);
+            Iupw[0] = Bnu[1] - (Bnu[0] - Bnu[1]) / dtau_uw;
+        }
+        else if (atmos->lowerBc == CALLABLE)
+        {
+            Iupw[0] = atmos->lowerBcData(la, mu);
+        }
     }
-    else if (!toObs && atmos->upperBc == THERMALISED)
+    else
     {
-        f64 Bnu[2];
-        planck_nu(2, &atmos->temperature(0), wav, Bnu);
-
-        Iupw[0] = Bnu[0] - (Bnu[1] - Bnu[0]) / dtau_uw;
+        if (atmos->upperBc == THERMALISED)
+        {
+            f64 Bnu[2];
+            planck_nu(2, &atmos->temperature(0), wav, Bnu);
+            Iupw[0] = Bnu[0] - (Bnu[1] - Bnu[0]) / dtau_uw;
+        }
+        else if (atmos->upperBc == CALLABLE)
+        {
+            Iupw[0] = atmos->upperBcData(la, mu);
+        }
     }
 
     piecewise_stokes_bezier3_1d_impl(fd, zmu, toObs, Iupw, polarisedFrequency);
@@ -552,7 +565,7 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ)
             }
 
 #if 1
-            piecewise_stokes_bezier3_1d(&fd, mu, toObs, spect.wavelength(la), polarisedFrequency);
+            piecewise_stokes_bezier3_1d(&fd, la, mu, toObs, spect.wavelength(la), polarisedFrequency);
             spect.I(la, mu) = I(0, 0);
             spect.Quv(0, la, mu) = I(1, 0);
             spect.Quv(1, la, mu) = I(2, 0);
