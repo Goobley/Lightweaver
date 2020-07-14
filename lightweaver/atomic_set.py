@@ -153,6 +153,29 @@ class AtomicState:
         # return hash(repr(self))
         raise NotImplementedError
 
+    def dimensioned_view(self, shape):
+        state = copy(self)
+        state.nStar = self.nStar.reshape(-1, *shape)
+        state.nTotal = self.nTotal.reshape(shape)
+        if self.pops is not None:
+            state.pops = self.pops.reshape(-1, *shape)
+            state.radiativeRates = {k: v.reshape(shape) for k, v in self.radiativeRates.items()}
+        return state
+
+    def unit_view(self):
+        state = copy(self)
+        m3 = u.m**(-3)
+        state.nStar = self.nStar << m3
+        state.nTotal = self.nTotal << m3
+        if self.pops is not None:
+            state.pops = self.pops << m3
+            state.radiativeRates = {k: v << u.s**-1 for k, v in self.radiativeRates.items()}
+        return state
+
+    def dimensioned_unit_view(shape):
+        state = self.dimensioned_view(shape)
+        return state.unit_view()
+
     def update_nTotal(self, atmos: Atmosphere):
         self.nTotal[:] = self.abundance * atmos.nHTot # type: ignore
 
@@ -237,6 +260,20 @@ class AtomicStateTable:
     def __iter__(self):
         return iter(sorted(self.atoms.values(), key=element_sort))
 
+    def dimensioned_view(self, shape):
+        table = copy(self)
+        table.atoms = {a.element: a.dimensioned_view(shape) for a in self.atoms}
+        return table
+
+    def unit_view(self):
+        table = copy(self)
+        table.atoms = {a.element: a.unit_view() for a in self.atoms}
+        return table
+
+    def dimensioned_unit_view(self, shape):
+        table = self.dimensioned_view()
+        return table.unit_view()
+
 
 @dataclass
 class SpeciesStateTable:
@@ -246,6 +283,27 @@ class SpeciesStateTable:
     molecularTable: MolecularTable
     molecularPops: List[np.ndarray]
     HminPops: np.ndarray
+
+    def dimensioned_view(self):
+        shape = self.atmosphere.structure.dimensioned_shape
+        table = copy(self)
+        table.atmosphere = self.atmosphere.dimensioned_view()
+        table.atomicPops = self.atomicPops.dimensioned_view(shape)
+        table.molecularPops = [m.reshape(shape) for m in self.molecularPops]
+        table.HminPops = self.HminPops.reshape(shape)
+        return table
+
+    def unit_view(self):
+        table = copy(self)
+        table.atmosphere = self.atmosphere.unit_view()
+        table.atomicPops = self.atomicPops.unit_view()
+        table.molecularPops = [(m << u.m**(-3)) for m in self.molecularPops]
+        table.HminPops = self.HminPops << u.m**(-3)
+        return table
+
+    def dimensioned_unit_view(self):
+        table = self.dimensioned_view()
+        return table.unit_view()
 
     def __getitem__(self, name: Union[int, Tuple[int, int], str, Element]) -> np.ndarray:
         if name == 'H-':

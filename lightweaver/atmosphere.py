@@ -155,6 +155,8 @@ class Layout:
 
     @property
     def vlos(self) -> np.ndarray:
+        if self.Ndim > 1:
+            raise ValueError('vlos is ambiguous when Ndim > 1, use vx, vy, or vz instead.')
         return self.vz
 
     @property
@@ -339,8 +341,12 @@ class Atmosphere:
 
         if lowerBc is None:
             lowerBc = ThermalisedRadiation()
+        elif isinstance(lowerBc, PeriodicRadiation):
+            raise ValueError('Cannot set periodic boundary conditions for 1D atmosphere')
         if upperBc is None:
             upperBc = ZeroRadiation()
+        elif isinstance(upperBc, PeriodicRadiation):
+            raise ValueError('Cannot set periodic boundary conditions for 1D atmosphere')
 
         if scale != ScaleType.Geometric and not convertScales:
             raise ValueError('Height scale must be provided if scale conversion is not applied')
@@ -580,8 +586,12 @@ class Atmosphere:
 
         if zLowerBc is None:
             zLowerBc = ThermalisedRadiation()
+        elif isinstance(zLowerBc, PeriodicRadiation):
+            raise ValueError('Cannot set periodic boundary conditions for z-axis.')
         if zUpperBc is None:
             zUpperBc = ZeroRadiation()
+        elif isinstance(zUpperBc, PeriodicRadiation):
+            raise ValueError('Cannot set periodic boundary conditions for z-axis.')
         if xUpperBc is None:
             xUpperBc = PeriodicRadiation()
         if xLowerBc is None:

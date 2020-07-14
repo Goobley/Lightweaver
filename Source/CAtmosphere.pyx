@@ -24,18 +24,34 @@ ctypedef Array1NonOwn[np.int32_t] I32View
 ctypedef Array1NonOwn[bool_t] BoolView
 
 cdef extern from "Lightweaver.hpp":
-    cdef enum RadiationBC:
+    cdef enum RadiationBc:
         ZERO
         THERMALISED
+        PERIODIC
         CALLABLE
 
+    cdef cppclass AtmosphericBoundaryCondition:
+        RadiationBc type
+
+        AtmosphericBoundaryCondition()
+        AtmosphericBoundaryCondition(RadiationBc typ, int Nmu, int Nwave)
+
     cdef cppclass Atmosphere:
-        F64View cmass
+        int Nspace
+        int Nrays
+        int Ndim
+        int Nx
+        int Ny
+        int Nz
+        F64View x
+        F64View y
+        F64View z
         F64View height
-        F64View tau_ref
         F64View temperature
         F64View ne
-        F64View vlos
+        F64View vx
+        F64View vy
+        F64View vz
         F64View2D vlosMu
         F64View B
         F64View gammaB
@@ -44,18 +60,18 @@ cdef extern from "Lightweaver.hpp":
         F64View2D cos2chi
         F64View2D sin2chi
         F64View vturb
-        F64View nHtot
+        F64View nHTot
         F64View muz
         F64View muy
         F64View mux
         F64View wmu
-        F64View2D lowerBcData
-        F64View2D upperBcData
-        int Nspace
-        int Nrays
 
-        RadiationBC lowerBc
-        RadiationBC upperBc
+        AtmosphericBoundaryCondition xLowerBc
+        AtmosphericBoundaryCondition xUpperBc
+        AtmosphericBoundaryCondition yLowerBc
+        AtmosphericBoundaryCondition yUpperBc
+        AtmosphericBoundaryCondition zLowerBc
+        AtmosphericBoundaryCondition zUpperBc
 
         void update_projections()
 
@@ -272,12 +288,14 @@ cdef class LwDepthData:
 
 cdef class LwAtmosphere:
     cdef Atmosphere atmos
-    cdef f64[::1] cmass
-    cdef f64[::1] height
-    cdef f64[::1] tau_ref
+    cdef f64[::1] x
+    cdef f64[::1] y
+    cdef f64[::1] z
     cdef f64[::1] temperature
     cdef f64[::1] ne
-    cdef f64[::1] vlos
+    cdef f64[::1] vx
+    cdef f64[::1] vy
+    cdef f64[::1] vz
     cdef f64[:,::1] vlosMu
     cdef f64[::1] B
     cdef f64[::1] gammaB
@@ -286,13 +304,11 @@ cdef class LwAtmosphere:
     cdef f64[:,::1] cos2chi
     cdef f64[:,::1] sin2chi
     cdef f64[::1] vturb
-    cdef f64[::1] nHtot
+    cdef f64[::1] nHTot
     cdef f64[::1] muz
     cdef f64[::1] muy
     cdef f64[::1] mux
     cdef f64[::1] wmu
-    cdef f64[:,::1] lowerBcData
-    cdef f64[:,::1] upperBcData
 
     cdef public object pyAtmos
 
@@ -305,7 +321,7 @@ cdef class LwAtmosphere:
         self.ne = atmos.ne
         self.vlos = atmos.vlos
         self.vturb = atmos.vturb
-        self.nHtot = atmos.nHTot
+        self.nHTot = atmos.nHTot
         self.muz = atmos.muz
         self.muy = atmos.muy
         self.mux = atmos.mux
@@ -317,7 +333,7 @@ cdef class LwAtmosphere:
         self.atmos.ne = f64_view(self.ne)
         self.atmos.vlos = f64_view(self.vlos)
         self.atmos.vturb = f64_view(self.vturb)
-        self.atmos.nHtot = f64_view(self.nHtot)
+        self.atmos.nHTot = f64_view(self.nHTot)
         self.atmos.muz = f64_view(self.muz)
         self.atmos.muy = f64_view(self.muy)
         self.atmos.mux = f64_view(self.mux)
@@ -413,7 +429,7 @@ cdef class LwAtmosphere:
             state['cos2chi'] = None
             state['sin2chi'] = None
         state['vturb'] = self.pyAtmos.vturb
-        state['nHtot'] = self.pyAtmos.nHTot
+        state['nHTot'] = self.pyAtmos.nHTot
         state['muz'] = self.pyAtmos.muz
         state['muy'] = self.pyAtmos.muy
         state['mux'] = self.pyAtmos.mux
@@ -454,8 +470,8 @@ cdef class LwAtmosphere:
             self.atmos.sin2chi = f64_view_2(self.sin2chi)
         self.vturb = state['vturb']
         self.atmos.vturb = f64_view(self.vturb)
-        self.nHtot = state['nHtot']
-        self.atmos.nHtot = f64_view(self.nHtot)
+        self.nHTot = state['nHTot']
+        self.atmos.nHTot = f64_view(self.nHTot)
         self.muz = state['muz']
         self.atmos.muz = f64_view(self.muz)
         self.muy = state['muy']
@@ -481,16 +497,36 @@ cdef class LwAtmosphere:
         return self.atmos.Nrays
 
     @property
-    def cmass(self):
-        return np.asarray(self.cmass)
+    def Ndim(self):
+        return self.atmos.Ndim
+
+    @property
+    def Nx(self):
+        return self.atmos.Nx
+
+    @property
+    def Ny(self):
+        return self.atmos.Ny
+
+    @property
+    def Nz(self):
+        return self.atmos.Nz
+
+    @property
+    def x(self):
+        return np.asarray(self.x)
+
+    @property
+    def y(self):
+        return np.asarray(self.y)
+
+    @property
+    def z(self):
+        return np.asarray(self.z)
 
     @property
     def height(self):
-        return np.asarray(self.height)
-
-    @property
-    def tau_ref(self):
-        return np.asarray(self.tau_ref)
+        return np.asarray(self.z)
 
     @property
     def temperature(self):
@@ -501,8 +537,22 @@ cdef class LwAtmosphere:
         return np.asarray(self.ne)
 
     @property
+    def vx(self):
+        return np.asarray(self.vx)
+
+    @property
+    def vy(self):
+        return np.asarray(self.vy)
+
+    @property
+    def vz(self):
+        return np.asarray(self.vz)
+
+    @property
     def vlos(self):
-        return np.asarray(self.vlos)
+        if self.pyAtmos.Ndim > 1:
+            raise ValueError('vlos is ambiguous when Ndim > 1, use vx, vy, or vz instead.')
+        return np.asarray(self.vz)
 
     @property
     def vlosMu(self):
@@ -536,10 +586,9 @@ cdef class LwAtmosphere:
     def vturb(self):
         return np.asarray(self.vturb)
 
-    # TODO(cmo): Normalise these property names! It's nHTot on PyAtmosphere
     @property
-    def nHtot(self):
-        return np.asarray(self.nHtot)
+    def nHTot(self):
+        return np.asarray(self.nHTot)
 
     @property
     def muz(self):

@@ -426,4 +426,4 @@ nh = np.array([
  [1.2887E+17, 1.7545E+12, 3.8349E+11, 3.0146E+11, 3.2285E+11, 3.7897E+15],
 ]).T
 
-Falc82: Callable[[], Atmosphere] = lambda: Atmosphere(ScaleType.ColumnMass, depthScale=cmass*Const.G_TO_KG / Const.CM_TO_M**2, temperature=np.copy(temp), ne=ne / Const.CM_TO_M**3, vlos=vel * Const.KM_TO_M, vturb=vturb * Const.KM_TO_M, hydrogenPops=nh / Const.CM_TO_M**3)
+Falc82: Callable[[], Atmosphere] = lambda: Atmosphere.make_1d(ScaleType.ColumnMass, depthScale=cmass*Const.G_TO_KG / Const.CM_TO_M**2, temperature=np.copy(temp), ne=ne / Const.CM_TO_M**3, vlos=vel * Const.KM_TO_M, vturb=vturb * Const.KM_TO_M, hydrogenPops=nh / Const.CM_TO_M**3)
