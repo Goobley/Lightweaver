@@ -27,7 +27,7 @@ void configure_hprd_coeffs(Context& ctx);
 
 namespace EscapeProbability
 {
-void gamma_matrices_escape_prob(Atom* a, Background& background, 
+void gamma_matrices_escape_prob(Atom* a, Background& background,
                                 const Atmosphere& atmos);
 }
 

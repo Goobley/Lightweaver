@@ -378,29 +378,29 @@ void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int la, int mu, bool toOb
     f64 Iupw[4] = { 0.0, 0.0, 0.0, 0.0 };
     if (toObs)
     {
-        if (atmos->lowerBc == THERMALISED)
+        if (atmos->zLowerBc.type == THERMALISED)
         {
             f64 Bnu[2];
             int Nspace = atmos->Nspace;
             planck_nu(2, &atmos->temperature(Nspace - 2), wav, Bnu);
             Iupw[0] = Bnu[1] - (Bnu[0] - Bnu[1]) / dtau_uw;
         }
-        else if (atmos->lowerBc == CALLABLE)
+        else if (atmos->zLowerBc.type == CALLABLE)
         {
-            Iupw[0] = atmos->lowerBcData(la, mu);
+            Iupw[0] = atmos->zLowerBc.bcData(la, mu);
         }
     }
     else
     {
-        if (atmos->upperBc == THERMALISED)
+        if (atmos->zUpperBc.type == THERMALISED)
         {
             f64 Bnu[2];
             planck_nu(2, &atmos->temperature(0), wav, Bnu);
             Iupw[0] = Bnu[0] - (Bnu[1] - Bnu[0]) / dtau_uw;
         }
-        else if (atmos->upperBc == CALLABLE)
+        else if (atmos->zUpperBc.type == CALLABLE)
         {
-            Iupw[0] = atmos->upperBcData(la, mu);
+            Iupw[0] = atmos->zUpperBc.bcData(la, mu);
         }
     }
 

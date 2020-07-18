@@ -236,29 +236,29 @@ void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
     f64 Iupw = 0.0;
     if (toObs)
     {
-        if (atmos->lowerBc == THERMALISED)
+        if (atmos->zLowerBc.type == THERMALISED)
         {
             f64 Bnu[2];
             int Nspace = atmos->Nspace;
             planck_nu(2, &atmos->temperature(Nspace - 2), wav, Bnu);
             Iupw = Bnu[1] - (Bnu[0] - Bnu[1]) / dtau_uw;
         }
-        else if (atmos->lowerBc == CALLABLE)
+        else if (atmos->zLowerBc.type == CALLABLE)
         {
-            Iupw = atmos->lowerBcData(la, mu);
+            Iupw = atmos->zLowerBc.bcData(la, mu);
         }
     }
     else
     {
-        if (atmos->upperBc == THERMALISED)
+        if (atmos->zUpperBc.type == THERMALISED)
         {
             f64 Bnu[2];
             planck_nu(2, &atmos->temperature(0), wav, Bnu);
             Iupw = Bnu[0] - (Bnu[1] - Bnu[0]) / dtau_uw;
         }
-        else if (atmos->upperBc == CALLABLE)
+        else if (atmos->zUpperBc.type == CALLABLE)
         {
-            Iupw = atmos->upperBcData(la, mu);
+            Iupw = atmos->zUpperBc.bcData(la, mu);
         }
     }
 
@@ -408,29 +408,29 @@ void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
     f64 Iupw = 0.0;
     if (toObs)
     {
-        if (atmos->lowerBc == THERMALISED)
+        if (atmos->zLowerBc.type == THERMALISED)
         {
             f64 Bnu[2];
             int Nspace = atmos->Nspace;
             planck_nu(2, &atmos->temperature(Nspace - 2), wav, Bnu);
             Iupw = Bnu[1] - (Bnu[0] - Bnu[1]) / dtau_uw;
         }
-        else if (atmos->lowerBc == CALLABLE)
+        else if (atmos->zLowerBc.type == CALLABLE)
         {
-            Iupw = atmos->lowerBcData(la, mu);
+            Iupw = atmos->zLowerBc.bcData(la, mu);
         }
     }
     else
     {
-        if (atmos->upperBc == THERMALISED)
+        if (atmos->zUpperBc.type == THERMALISED)
         {
             f64 Bnu[2];
             planck_nu(2, &atmos->temperature(0), wav, Bnu);
             Iupw = Bnu[0] - (Bnu[1] - Bnu[0]) / dtau_uw;
         }
-        else if (atmos->upperBc == CALLABLE)
+        else if (atmos->zUpperBc.type == CALLABLE)
         {
-            Iupw = atmos->upperBcData(la, mu);
+            Iupw = atmos->zUpperBc.bcData(la, mu);
         }
     }
 
@@ -595,8 +595,22 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                 }
             }
 
-            piecewise_bezier3_1d(&fd, la, mu, toObs, spect.wavelength(la));
-            // piecewise_linear_1d(&fd, la, mu, toObs, spect.wavelength(la));
+            switch (atmos.Ndim)
+            {
+                case 1:
+                {
+                    piecewise_bezier3_1d(&fd, la, mu, toObs, spect.wavelength(la));
+                    // piecewise_linear_1d(&fd, la, mu, toObs, spect.wavelength(la));
+                } break;
+
+                case 2:
+                {
+                    piecewise_linear_2d(&fd, la, mu, toObs, spect.wavelength(la));
+                } break;
+
+                default:
+                    printf("Unexpected Ndim!");
+            }
             spect.I(la, mu) = I(0);
 
             if (updateJ)

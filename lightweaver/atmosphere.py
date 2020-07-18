@@ -26,6 +26,9 @@ class BoundaryCondition:
     def compute_bc(self, atmos: 'Atmosphere', spect: 'LwSpectrum') -> np.ndarray:
         raise NotImplementedError
 
+class NoBc(BoundaryCondition):
+    pass
+
 class ZeroRadiation(BoundaryCondition):
     pass
 
@@ -65,19 +68,19 @@ class Stratifications:
     cmass: np.ndarray
     tauRef: np.ndarray
 
-    def dimensioned_view(self, shape) -> Stratifications:
+    def dimensioned_view(self, shape) -> 'Stratifications':
         strat = copy(self)
         strat.cmass = self.cmass.reshape(shape)
         strat.tauRef = self.tauRef.reshape(shape)
         return strat
 
-    def unit_view(self) -> Stratifications:
+    def unit_view(self) -> 'Stratifications':
         strat = copy(self)
         strat.cmass = self.cmass << u.kg / u.m**2
         strat.tauRef = self.tauRef << u.dimensionless_unscaled
         return strat
 
-    def dimensioned_unit_view(self, shape) -> Stratifications:
+    def dimensioned_unit_view(self, shape) -> 'Stratifications':
         strat = self.dimensioned_view(shape)
         return strat.unit_view()
 
@@ -101,13 +104,12 @@ class Layout:
     @classmethod
     def make_1d(cls, z: np.ndarray, vz: np.ndarray,
                 lowerBc: BoundaryCondition, upperBc: BoundaryCondition,
-                stratifications: Optional[Stratifications]=None) -> Layout:
+                stratifications: Optional[Stratifications]=None) -> 'Layout':
 
-        Bc = BoundaryCondition
-        return cls(Ndim=1, x=np.ndarray(()), y=np.ndarray(()),
-                   z=z, vx=np.ndarray(()), vy=np.ndarray(()),
-                   vz=vz, xLowerBc=Bc(), xUpperBc=Bc(),
-                   yLowerBc=Bc(), yUpperBc=Bc(),
+        return cls(Ndim=1, x=np.array(()), y=np.array(()),
+                   z=z, vx=np.array(()), vy=np.array(()),
+                   vz=vz, xLowerBc=NoBc(), xUpperBc=NoBc(),
+                   yLowerBc=NoBc(), yUpperBc=NoBc(),
                    zLowerBc=lowerBc, zUpperBc=upperBc,
                    stratifications=stratifications)
 
@@ -116,13 +118,13 @@ class Layout:
                 vx: np.ndarray, vz: np.ndarray,
                 xLowerBc: BoundaryCondition, xUpperBc: BoundaryCondition,
                 zLowerBc: BoundaryCondition, zUpperBc: BoundaryCondition,
-                stratifications: Optional[Stratifications]=None) -> Layout:
+                stratifications: Optional[Stratifications]=None) -> 'Layout':
 
         Bc = BoundaryCondition
-        return cls(Ndim=2, x=x, y=np.ndarray(()), z=z,
-                   vx=vx, vy=np.ndarray(()), vz=vz,
+        return cls(Ndim=2, x=x, y=np.array(()), z=z,
+                   vx=vx, vy=np.array(()), vz=vz,
                    xLowerBc=xLowerBc, xUpperBc=xUpperBc,
-                   yLowerBc=Bc(), yUpperBc=Bc(),
+                   yLowerBc=NoBc(), yUpperBc=NoBc(),
                    zLowerBc=zLowerBc, zUpperBc=zUpperBc,
                    stratifications=stratifications)
 
@@ -132,7 +134,7 @@ class Layout:
                 xLowerBc: BoundaryCondition, xUpperBc: BoundaryCondition,
                 yLowerBc: BoundaryCondition, yUpperBc: BoundaryCondition,
                 zLowerBc: BoundaryCondition, zUpperBc: BoundaryCondition,
-                stratifications: Optional[Stratifications]=None) -> Layout:
+                stratifications: Optional[Stratifications]=None) -> 'Layout':
 
         return cls(Ndim=3, x=x, y=y, z=z,
                    vx=vx, vy=vy, vz=vz,
@@ -196,7 +198,7 @@ class Layout:
             raise ValueError('Unreasonable Ndim (%d)' % self.Ndim)
         return shape
 
-    def dimensioned_view(self) ->  Layout:
+    def dimensioned_view(self) ->  'Layout':
         layout = copy(self)
         shape = self.dimensioned_shape
         if self.stratifications is not None:
@@ -206,7 +208,7 @@ class Layout:
         layout.vz = self.vz.reshape(shape)
         return layout
 
-    def unit_view(self) -> Layout:
+    def unit_view(self) -> 'Layout':
         layout = copy(self)
         layout.x = self.x << u.m
         layout.y = self.y << u.m
@@ -218,7 +220,7 @@ class Layout:
             layout.stratifications = self.stratifications.unit_view()
         return layout
 
-    def dimensioned_unit_view(self) -> Layout:
+    def dimensioned_unit_view(self) -> 'Layout':
         layout = self.dimensioned_view()
         return layout.unit_view()
 
@@ -276,6 +278,29 @@ class Atmosphere:
     @property
     def height(self) -> np.ndarray:
         return self.structure.z
+
+    @property
+    def x(self) -> np.ndarray:
+        return self.structure.x
+
+    @property
+    def y(self) -> np.ndarray:
+        return self.structure.y
+
+    @property
+    def z(self) -> np.ndarray:
+        return self.structure.z
+
+    @property
+    def Nspace(self):
+        return self.structure.Nspace
+
+    @property
+    def Nrays(self):
+        if self.muz is None:
+            raise AttributeError('Nrays not set, call atmos.rays or .quadrature first')
+
+        return self.muz.shape[0]
 
     def dimensioned_view(self):
         shape = self.structure.dimensioned_shape
@@ -565,7 +590,7 @@ class Atmosphere:
         if ne is not None:
             ne = (ne << u.m**(-3)).value
         if nHTot is not None:
-            nHTot = (nHTot << u.m(-3)).value
+            nHTot = (nHTot << u.m**(-3)).value
         if B is not None:
             B = (B << u.T).value
             flatB = view_flatten(B)
@@ -672,6 +697,29 @@ class Atmosphere:
         self.muy = np.zeros_like(self.muz)
         self.mux = np.sqrt(1.0 - self.muz**2)
 
+    def angle_set_a4(self):
+        mux_A4 = [0.88191710, 0.33333333, 0.33333333]
+        muy_A4 = [0.33333333, 0.88191710, 0.33333333]
+        wmu_A4 = [0.33333333, 0.33333333, 0.33333333]
+
+        Nrays = len(mux_A4) * 2;
+        self.mux = np.zeros(Nrays)
+        self.mux[:Nrays // 2] = mux_A4
+        self.muy = np.zeros(Nrays)
+        self.muy[:Nrays // 2] = muy_A4
+        self.wmu = np.zeros(Nrays)
+        wnorm = 0.5 / sum(wmu_A4)
+        self.wmu[:Nrays // 2] = wmu_A4
+        self.wmu[Nrays // 2:] = wmu_A4
+        self.wmu *= wnorm
+
+        for mu in range(Nrays // 2):
+            self.mux[Nrays // 2 + mu] = -self.mux[mu]
+            self.muy[Nrays // 2 + mu] = self.muy[mu]
+
+        self.muz = np.sqrt(1.0 - (self.mux**2 + self.muy**2))
+
+
     def rays(self, mu: Union[float, Sequence[float]]):
         if isinstance(mu, float):
             mu = [mu]
@@ -681,23 +729,6 @@ class Atmosphere:
         self.muy = np.zeros_like(self.muz)
         self.mux = np.sqrt(1.0 - self.muz**2)
 
-    @property
-    def Nspace(self):
-        if self.depthScale is not None:
-            return self.depthScale.shape[0]
-        elif self.cmass is not None:
-            return self.cmass.shape[0]
-        elif self.height is not None:
-            return self.height.shape[0]
-        elif self.tau_ref is not None:
-            return self.tau_ref.shape[0]
-
-    @property
-    def Nrays(self):
-        if self.muz is None:
-            raise AttributeError('Nrays not set, call atmos.rays or .quadrature first')
-
-        return self.muz.shape[0]
 
 # @dataclass
 # class MagneticAtmosphere(Atmosphere):

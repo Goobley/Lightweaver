@@ -5,6 +5,7 @@
 
 enum RadiationBc
 {
+    UNINITIALISED,
     ZERO,
     THERMALISED,
     PERIODIC,
@@ -25,6 +26,13 @@ struct AtmosphericBoundaryCondition
     {
         if (type == RadiationBc::CALLABLE)
             bcData = F64Arr2D(Nmu, Nwave);
+    }
+
+    void set_bc_data(F64View2D data)
+    {
+        for (int mu = 0; mu < bcData.shape(0); ++mu)
+            for (int la = 0; la < bcData.shape(1); ++la)
+                bcData(mu, la) = data(mu, la);
     }
 };
 

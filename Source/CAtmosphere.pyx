@@ -5,7 +5,7 @@ from CmoArray cimport *
 from libcpp cimport bool as bool_t
 from libcpp.vector cimport vector
 from libc.math cimport sqrt, exp, copysign
-from .atmosphere import BoundaryCondition, ZeroRadiation, ThermalisedRadiation
+from .atmosphere import BoundaryCondition, ZeroRadiation, ThermalisedRadiation, PeriodicRadiation, NoBc
 from .atomic_model import AtomicLine, LineType, LineProfileState
 from .utils import InitialSolution, ExplodingMatrixError, UnityCrswIterator
 from weno4 import weno4
@@ -25,6 +25,7 @@ ctypedef Array1NonOwn[bool_t] BoolView
 
 cdef extern from "Lightweaver.hpp":
     cdef enum RadiationBc:
+        UNINITIALISED
         ZERO
         THERMALISED
         PERIODIC
@@ -32,9 +33,11 @@ cdef extern from "Lightweaver.hpp":
 
     cdef cppclass AtmosphericBoundaryCondition:
         RadiationBc type
+        F64Arr2D bcData
 
         AtmosphericBoundaryCondition()
         AtmosphericBoundaryCondition(RadiationBc typ, int Nmu, int Nwave)
+        void set_bc_data(F64View2D data)
 
     cdef cppclass Atmosphere:
         int Nspace
@@ -285,6 +288,19 @@ cdef class LwDepthData:
     def eta(self):
         return np.asarray(self.eta)
 
+def BC_to_enum(bc):
+    if isinstance(bc, ZeroRadiation):
+        return ZERO
+    elif isinstance(bc, ThermalisedRadiation):
+        return THERMALISED
+    elif isinstance(bc, PeriodicRadiation):
+        return PERIODIC
+    elif isinstance(bc, NoBc):
+        return UNINITIALISED
+    elif isinstance(bc, BoundaryCondition):
+        return CALLABLE
+    else:
+        raise ValueError('Argument is not a BoundaryCondition.')
 
 cdef class LwAtmosphere:
     cdef Atmosphere atmos
@@ -309,29 +325,43 @@ cdef class LwAtmosphere:
     cdef f64[::1] muy
     cdef f64[::1] mux
     cdef f64[::1] wmu
+    # TODO(cmo): I don't really like storing Nwave here, but I don't know how
+    # much of a choice we have.
+    cdef int Nwave
 
     cdef public object pyAtmos
 
-    def __init__(self, atmos):
+    def __init__(self, atmos, Nwavelengths):
+        cdef int Nwave = Nwavelengths
+        self.Nwave = Nwave
         self.pyAtmos = atmos
-        self.cmass = atmos.cmass
-        self.height = atmos.height
-        self.tau_ref = atmos.tau_ref
+
+        self.x = atmos.x
+        self.y = atmos.y
+        self.z = atmos.z
+
         self.temperature = atmos.temperature
         self.ne = atmos.ne
-        self.vlos = atmos.vlos
+
+        self.vz = atmos.vz
+        self.vx = atmos.vx
+        self.vy = atmos.vy
+
         self.vturb = atmos.vturb
         self.nHTot = atmos.nHTot
         self.muz = atmos.muz
         self.muy = atmos.muy
         self.mux = atmos.mux
         self.wmu = atmos.wmu
-        self.atmos.cmass = f64_view(self.cmass)
-        self.atmos.height = f64_view(self.height)
-        self.atmos.tau_ref = f64_view(self.tau_ref)
+        self.atmos.z = f64_view(self.z)
+        self.atmos.height = f64_view(self.z)
+        self.atmos.x = f64_view(self.x)
+        self.atmos.y = f64_view(self.y)
         self.atmos.temperature = f64_view(self.temperature)
         self.atmos.ne = f64_view(self.ne)
-        self.atmos.vlos = f64_view(self.vlos)
+        self.atmos.vx = f64_view(self.vx)
+        self.atmos.vy = f64_view(self.vy)
+        self.atmos.vz = f64_view(self.vz)
         self.atmos.vturb = f64_view(self.vturb)
         self.atmos.nHTot = f64_view(self.nHTot)
         self.atmos.muz = f64_view(self.muz)
@@ -343,6 +373,15 @@ cdef class LwAtmosphere:
         self.atmos.Nspace = Nspace
         cdef int Nrays = atmos.Nrays
         self.atmos.Nrays = Nrays
+
+        cdef int Ndim = atmos.Ndim
+        self.atmos.Ndim = Ndim
+        cdef int Nx = atmos.Nx
+        self.atmos.Nx = Nx
+        cdef int Ny = atmos.Ny
+        self.atmos.Ny = Ny
+        cdef int Nz = atmos.Nz
+        self.atmos.Nz = Nz
 
         if atmos.B is not None:
             self.B = atmos.B
@@ -362,44 +401,52 @@ cdef class LwAtmosphere:
         self.vlosMu = np.zeros((Nrays, Nspace))
         self.atmos.vlosMu = f64_view_2(self.vlosMu)
 
-        if isinstance(atmos.lowerBc, ZeroRadiation):
-            self.atmos.lowerBc = ZERO
-        elif isinstance(atmos.lowerBc, ThermalisedRadiation):
-            self.atmos.lowerBc = THERMALISED
-        else:
-            self.atmos.lowerBc = CALLABLE
-
-        if isinstance(atmos.upperBc, ZeroRadiation):
-            self.atmos.upperBc = ZERO
-        elif isinstance(atmos.upperBc, ThermalisedRadiation):
-            self.atmos.upperBc = THERMALISED
-        else:
-            self.atmos.upperBc = CALLABLE
-
+        self.configure_bcs(atmos)
         self.atmos.update_projections()
+
+    def configure_bcs(self, atmos):
+        cdef int Nrays = atmos.Nrays
+        s = atmos.structure
+        self.atmos.xLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.xLowerBc), Nrays, self.Nwave)
+        self.atmos.xUpperBc = AtmosphericBoundaryCondition(BC_to_enum(s.xUpperBc), Nrays, self.Nwave)
+        self.atmos.yLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.yLowerBc), Nrays, self.Nwave)
+        self.atmos.yUpperBc = AtmosphericBoundaryCondition(BC_to_enum(s.yUpperBc), Nrays, self.Nwave)
+        self.atmos.zLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.zLowerBc), Nrays, self.Nwave)
+        self.atmos.zUpperBc = AtmosphericBoundaryCondition(BC_to_enum(s.zUpperBc), Nrays, self.Nwave)
 
     def compute_bcs(self, LwSpectrum spect):
         cdef f64[:,::1] bc
-        if self.atmos.lowerBc == CALLABLE:
-            try:
-                self.lowerBcData
-            except AttributeError:
-                self.lowerBcData = np.zeros((spect.wavelength.shape[0], self.atmos.Nrays))
-                self.atmos.lowerBcData = f64_view_2(self.lowerBcData)
+        cdef int mu, la
+        cdef F64View2D data
+        if self.atmos.zLowerBc.type == CALLABLE:
+            bc = self.pyAtmos.zLowerBc.compute_bc(self.pyAtmos, spect)
+            data = f64_view_2(bc)
+            self.atmos.zLowerBc.set_bc_data(data)
 
-            bc = self.pyAtmos.lowerBc.compute_bc(self.pyAtmos, spect)
-            self.lowerBcData[...] = bc
+        if self.atmos.zUpperBc.type == CALLABLE:
+            bc = self.pyAtmos.zUpperBc.compute_bc(self.pyAtmos, spect)
+            data = f64_view_2(bc)
+            self.atmos.zUpperBc.set_bc_data(data)
 
-        if self.atmos.upperBc == CALLABLE:
-            try:
-                self.upperBcData
-            except AttributeError:
-                self.upperBcData = np.zeros((spect.wavelength.shape[0], self.atmos.Nrays))
-                self.atmos.upperBcData = f64_view_2(self.upperBcData)
+        if self.atmos.xLowerBc.type == CALLABLE:
+            bc = self.pyAtmos.xLowerBc.compute_bc(self.pyAtmos, spect)
+            data = f64_view_2(bc)
+            self.atmos.xLowerBc.set_bc_data(data)
 
-            bc = self.pyAtmos.upperBc.compute_bc(self.pyAtmos, spect)
-            self.upperBcData[...] = bc
+        if self.atmos.xUpperBc.type == CALLABLE:
+            bc = self.pyAtmos.xUpperBc.compute_bc(self.pyAtmos, spect)
+            data = f64_view_2(bc)
+            self.atmos.xUpperBc.set_bc_data(data)
 
+        if self.atmos.yLowerBc.type == CALLABLE:
+            bc = self.pyAtmos.yLowerBc.compute_bc(self.pyAtmos, spect)
+            data = f64_view_2(bc)
+            self.atmos.yLowerBc.set_bc_data(data)
+
+        if self.atmos.yUpperBc.type == CALLABLE:
+            bc = self.pyAtmos.yUpperBc.compute_bc(self.pyAtmos, spect)
+            data = f64_view_2(bc)
+            self.atmos.yUpperBc.set_bc_data(data)
 
     def update_projections(self):
         self.atmos.update_projections()
@@ -407,12 +454,14 @@ cdef class LwAtmosphere:
     def __getstate__(self):
         state = {}
         state['pyAtmos'] = self.pyAtmos
-        state['cmass'] = self.pyAtmos.cmass
-        state['height'] = self.pyAtmos.height
-        state['tau_ref'] = self.pyAtmos.tau_ref
+        state['x'] = self.pyAtmos.x
+        state['y'] = self.pyAtmos.y
+        state['z'] = self.pyAtmos.z
         state['temperature'] = self.pyAtmos.temperature
         state['ne'] = self.pyAtmos.ne
-        state['vlos'] = self.pyAtmos.vlos
+        state['vx'] = self.pyAtmos.vx
+        state['vy'] = self.pyAtmos.vy
+        state['vz'] = self.pyAtmos.vz
         state['vlosMu'] = np.asarray(self.vlosMu)
         try:
             state['B'] = self.pyAtmos.B
@@ -434,25 +483,33 @@ cdef class LwAtmosphere:
         state['muy'] = self.pyAtmos.muy
         state['mux'] = self.pyAtmos.mux
         state['wmu'] = self.pyAtmos.wmu
-        state['lowerBc'] = LwAtmosphere.enum_bc_to_string(self.atmos.lowerBc)
-        state['upperBc'] = LwAtmosphere.enum_bc_to_string(self.atmos.upperBc)
+        state['Nwave'] = self.Nwave
+        state['Ndim'] = self.Ndim
+        state['Nx'] = self.Nx
+        state['Ny'] = self.Ny
+        state['Nz'] = self.Nz
 
         return state
 
     def __setstate__(self, state):
         self.pyAtmos = state['pyAtmos']
-        self.cmass = state['cmass']
-        self.atmos.cmass = f64_view(self.cmass)
-        self.height = state['height']
-        self.atmos.height = f64_view(self.height)
-        self.tau_ref = state['tau_ref']
-        self.atmos.tau_ref = f64_view(self.tau_ref)
+        self.x = state['x']
+        self.atmos.x = f64_view(self.x)
+        self.y = state['y']
+        self.atmos.y = f64_view(self.y)
+        self.z = state['z']
+        self.atmos.z = f64_view(self.z)
+        self.atmos.height = f64_view(self.z)
         self.temperature = state['temperature']
         self.atmos.temperature = f64_view(self.temperature)
         self.ne = state['ne']
         self.atmos.ne = f64_view(self.ne)
-        self.vlos = state['vlos']
-        self.atmos.vlos = f64_view(self.vlos)
+        self.vx = state['vx']
+        self.atmos.vx = f64_view(self.vx)
+        self.vy = state['vy']
+        self.atmos.vy = f64_view(self.vy)
+        self.vz = state['vz']
+        self.atmos.vz = f64_view(self.vz)
         self.vlosMu = state['vlosMu']
         self.atmos.vlosMu = f64_view_2(self.vlosMu)
         if state['B'] is not None:
@@ -485,8 +542,18 @@ cdef class LwAtmosphere:
         self.atmos.Nspace = Nspace
         cdef int Nrays = self.vlosMu.shape[0]
         self.atmos.Nrays = Nrays
-        self.atmos.lowerBc = LwAtmosphere.bc_string_to_c(state['lowerBc'])
-        self.atmos.upperBc = LwAtmosphere.bc_string_to_c(state['upperBc'])
+        cdef int Nwave = state['Nwave']
+        self.Nwave = Nwave
+        cdef int Ndim = state['Ndim']
+        self.atmos.Ndim = Ndim
+        cdef int Nx = state['Nx']
+        self.atmos.Nx = Nx
+        cdef int Ny = state['Ny']
+        self.atmos.Ny = Ny
+        cdef int Nz = state['Nz']
+        self.atmos.Nz = Nz
+
+        self.configure_bcs(self.pyAtmos)
 
     @property
     def Nspace(self):
@@ -606,23 +673,6 @@ cdef class LwAtmosphere:
     def wmu(self):
         return np.asarray(self.wmu)
 
-    @staticmethod
-    cdef bc_string_to_c(str bc):
-        if bc == 'Zero':
-            return ZERO
-        elif bc == 'Thermalised':
-            return THERMALISED
-        else:
-            raise ValueError('Unknown bc')
-
-    @staticmethod
-    cdef enum_bc_to_string(RadiationBC bc):
-        if bc == ZERO:
-            return 'Zero'
-        elif bc == THERMALISED:
-            return 'Thermalised'
-        else:
-            raise ValueError('Unknown bc')
 
 cdef class BackgroundProvider:
     def __init__(self, eqPops, radSet, wavelength):
@@ -1858,7 +1908,7 @@ cdef class LwContext:
         self.__dict__ = {}
         self.kwargs = {'atmos': atmos, 'spect': spect, 'eqPops': eqPops, 'ngOptions': ngOptions, 'initSol': initSol, 'conserveCharge': conserveCharge, 'hprd': hprd, 'Nthreads': Nthreads, 'backgroundProvider': backgroundProvider}
 
-        self.atmos = LwAtmosphere(atmos)
+        self.atmos = LwAtmosphere(atmos, spect.wavelength.shape[0])
         self.spect = LwSpectrum(spect.wavelength, atmos.Nrays, atmos.Nspace)
         self.conserveCharge = conserveCharge
         self.hprd = hprd

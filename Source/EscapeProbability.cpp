@@ -16,7 +16,7 @@ void compute_phi_mu_1(const Transition& t, const Atmosphere& atmos, int lt, F64V
     // const f64 wla = t.wlambda(la);
     for (int k = 0; k < atmos.Nspace; ++k)
     {
-        const f64 vk = (vBase + atmos.vlos(k)) / vBroad(k);
+        const f64 vk = (vBase + atmos.vz(k)) / vBroad(k);
         const f64 p = voigt_H(t.aDamp(k), vk) / (sqrtPi * vBroad(k));
         phi(k) = p;
         // wphi(k) += p * wla;

@@ -605,7 +605,7 @@ class RadiativeSet:
 
 def hminus_pops(atmos: Atmosphere, hPops: AtomicState) -> np.ndarray:
     CI = (Const.HPlanck / (2.0 * np.pi * Const.MElectron)) * (Const.HPlanck / Const.KBoltzmann)
-    Nspace = atmos.depthScale.shape[0]
+    Nspace = atmos.Nspace
     HminPops = np.zeros(Nspace)
 
     for k in range(Nspace):
@@ -656,7 +656,7 @@ def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable, 
     fn0 = np.zeros(Nnuclei)
 
     CI = (Const.HPlanck / (2.0 * np.pi * Const.MElectron)) * (Const.HPlanck / Const.KBoltzmann)
-    Nspace = atmos.depthScale.shape[0]
+    Nspace = atmos.Nspace
     HminPops = np.zeros(Nspace)
     molPops = [np.zeros(Nspace) for mol in molecules]
     maxIter = 0

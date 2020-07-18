@@ -74,20 +74,20 @@ def read_multi_atmos(filename: str) -> Tuple[MultiMetadata, Atmosphere]:
     hPops /= C.CM_TO_M**3
 
     meta = MultiMetadata(atmosName, logG)
-    atmos = Atmosphere(scale=scaleType,
-                       depthScale=dscale,
-                       temperature=temp,
-                       vlos=vlos,
-                       vturb=vturb,
-                       ne=ne,
-                       hydrogenPops=hPops)
+    atmos = Atmosphere.make_1d(scale=scaleType,
+                               depthScale=dscale,
+                               temperature=temp,
+                               vlos=vlos,
+                               vturb=vturb,
+                               ne=ne,
+                               hydrogenPops=hPops)
 
     return (meta, atmos)
 
-    
 
 
-    
+
+
 
 
 

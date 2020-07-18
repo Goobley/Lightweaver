@@ -4,6 +4,7 @@
 #include "Atmosphere.cpp"
 #include "Background.cpp"
 #include "FormalScalar.cpp"
+#include "FormalScalar2d.cpp"
 #include "FormalStokes.cpp"
 #include "UpdatePopulations.cpp"
 #include "Prd.cpp"
