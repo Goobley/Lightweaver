@@ -121,8 +121,8 @@ cdef extern from "Lightweaver.hpp":
 
     cdef cppclass Spectrum:
         F64View wavelength
-        F64View2D I
-        F64View3D Quv
+        F64View3D I
+        F64View4D Quv
         F64View2D J
         F64Arr2D JRest
 
@@ -1811,23 +1811,23 @@ cdef JRest_from_numpy(Spectrum spect, f64[:,::1] JRest):
 cdef class LwSpectrum:
     cdef Spectrum spect
     cdef f64[::1] wavelength
-    cdef f64[:,::1] I
+    cdef f64[:,:,::1] I
     cdef f64[:,::1] J
-    cdef f64[:,:,::1] Quv
+    cdef f64[:,:,:,::1] Quv
 
-    def __init__(self, wavelength, Nrays, Nspace):
+    def __init__(self, wavelength, Nrays, Nspace, Noutgoing):
         self.wavelength = wavelength
         cdef int Nspect = self.wavelength.shape[0]
-        self.I = np.zeros((Nspect, Nrays))
+        self.I = np.zeros((Nspect, Nrays, Noutgoing))
         self.J = np.zeros((Nspect, Nspace))
 
         self.spect.wavelength = f64_view(self.wavelength)
-        self.spect.I = f64_view_2(self.I)
+        self.spect.I = f64_view_3(self.I)
         self.spect.J = f64_view_2(self.J)
 
     def setup_stokes(self):
-        self.Quv = np.zeros((3, self.I.shape[0], self.I.shape[1]))
-        self.spect.Quv = f64_view_3(self.Quv)
+        self.Quv = np.zeros((3, self.I.shape[0], self.I.shape[1], self.I.shape[2]))
+        self.spect.Quv = f64_view_4(self.Quv)
 
     def __getstate__(self):
         state = {}
@@ -1850,13 +1850,13 @@ cdef class LwSpectrum:
         self.wavelength = state['wavelength']
         self.spect.wavelength = f64_view(self.wavelength)
         self.I = state['I']
-        self.spect.I = f64_view_2(self.I)
+        self.spect.I = f64_view_3(self.I)
         self.J = state['J']
         self.spect.J = f64_view_2(self.J)
 
         if state['Quv'] is not None:
             self.Quv = state['Quv']
-            self.spect.Quv = f64_view_3(self.Quv)
+            self.spect.Quv = f64_view_4(self.Quv)
 
         if state['JRest'] is not None:
             JRest_from_numpy(self.spect, state['JRest'])
@@ -1909,7 +1909,8 @@ cdef class LwContext:
         self.kwargs = {'atmos': atmos, 'spect': spect, 'eqPops': eqPops, 'ngOptions': ngOptions, 'initSol': initSol, 'conserveCharge': conserveCharge, 'hprd': hprd, 'Nthreads': Nthreads, 'backgroundProvider': backgroundProvider}
 
         self.atmos = LwAtmosphere(atmos, spect.wavelength.shape[0])
-        self.spect = LwSpectrum(spect.wavelength, atmos.Nrays, atmos.Nspace)
+        self.spect = LwSpectrum(spect.wavelength, atmos.Nrays,
+                                atmos.Nspace, atmos.Noutgoing)
         self.conserveCharge = conserveCharge
         self.hprd = hprd
 

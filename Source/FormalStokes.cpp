@@ -565,11 +565,22 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ)
             }
 
 #if 1
-            piecewise_stokes_bezier3_1d(&fd, la, mu, toObs, spect.wavelength(la), polarisedFrequency);
-            spect.I(la, mu) = I(0, 0);
-            spect.Quv(0, la, mu) = I(1, 0);
-            spect.Quv(1, la, mu) = I(2, 0);
-            spect.Quv(2, la, mu) = I(3, 0);
+            switch (atmos.Ndim)
+            {
+                case 1:
+                {
+                    piecewise_stokes_bezier3_1d(&fd, la, mu, toObs, spect.wavelength(la), polarisedFrequency);
+                    spect.I(la, mu, 0) = I(0, 0);
+                    spect.Quv(0, la, mu, 0) = I(1, 0);
+                    spect.Quv(1, la, mu, 0) = I(2, 0);
+                    spect.Quv(2, la, mu, 0) = I(3, 0);
+                } break;
+
+                default:
+                {
+                    printf("Unexpected Ndim %d\n", atmos.Ndim);
+                } break;
+            }
 #else
             // NOTE(cmo): Checking with the normal FS and just using the first row of ezach of the matrices does indeed
             // produce the correct result

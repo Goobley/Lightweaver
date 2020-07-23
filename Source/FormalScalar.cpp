@@ -601,17 +601,20 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                 {
                     piecewise_bezier3_1d(&fd, la, mu, toObs, spect.wavelength(la));
                     // piecewise_linear_1d(&fd, la, mu, toObs, spect.wavelength(la));
+                    spect.I(la, mu, 0) = I(0);
                 } break;
 
                 case 2:
                 {
                     piecewise_linear_2d(&fd, la, mu, toObs, spect.wavelength(la));
+                    auto I2 = I.reshape(atmos.Nx, atmos.Nz);
+                    for (int j = 0; j < atmos.Nx; ++j)
+                        spect.I(la, mu, j) = I2(j, 0);
                 } break;
 
                 default:
                     printf("Unexpected Ndim!");
             }
-            spect.I(la, mu) = I(0);
 
             if (updateJ)
             {
@@ -726,6 +729,7 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
     // feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
     JasUnpack(*ctx, atmos, spect, background, depthData);
     JasUnpack(ctx, activeAtoms, detailedAtoms);
+    build_intersection_list(&atmos);
 
     const int Nspace = atmos.Nspace;
     const int Nspect = spect.wavelength.shape(0);

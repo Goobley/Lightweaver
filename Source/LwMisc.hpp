@@ -69,8 +69,8 @@ struct Background
 struct Spectrum
 {
     F64View wavelength;
-    F64View2D I;
-    F64View3D Quv;
+    F64View3D I;
+    F64View4D Quv;
     F64View2D J;
     BoolArr prdActive;
     std::vector<int> prdIdxs;

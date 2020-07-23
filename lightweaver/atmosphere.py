@@ -18,10 +18,6 @@ class ScaleType(Enum):
     ColumnMass = auto()
     Tau500 = auto()
 
-# class BoundaryCondition(Enum):
-#     Zero = auto()
-#     Thermalised = auto()
-
 class BoundaryCondition:
     def compute_bc(self, atmos: 'Atmosphere', spect: 'LwSpectrum') -> np.ndarray:
         raise NotImplementedError
@@ -156,6 +152,10 @@ class Layout:
         return self.z.shape[0]
 
     @property
+    def Noutgoing(self) -> int:
+        return max(1, self.Nx, self.Nx * self.Ny)
+
+    @property
     def vlos(self) -> np.ndarray:
         if self.Ndim > 1:
             raise ValueError('vlos is ambiguous when Ndim > 1, use vx, vy, or vz instead.')
@@ -203,9 +203,12 @@ class Layout:
         shape = self.dimensioned_shape
         if self.stratifications is not None:
             layout.stratifications = self.stratifications.dimensioned_view(shape)
-        layout.vx = self.vx.reshape(shape)
-        layout.vy = self.vy.reshape(shape)
-        layout.vz = self.vz.reshape(shape)
+        if self.vx.size > 0:
+            layout.vx = self.vx.reshape(shape)
+        if self.vy.size > 0:
+            layout.vy = self.vy.reshape(shape)
+        if self.vz.size > 0:
+            layout.vz = self.vz.reshape(shape)
         return layout
 
     def unit_view(self) -> 'Layout':
@@ -250,6 +253,10 @@ class Atmosphere:
     @property
     def Nz(self) -> int:
         return self.structure.Nz
+
+    @property
+    def Noutgoing(self) -> int:
+        return self.structure.Noutgoing
 
     @property
     def vx(self) -> np.ndarray:
@@ -310,6 +317,10 @@ class Atmosphere:
         atmos.vturb = self.vturb.reshape(shape)
         atmos.ne = self.ne.reshape(shape)
         atmos.nHTot = self.nHTot.reshape(shape)
+        if self.B is not None:
+            atmos.B = self.B.reshape(shape)
+            atmos.chiB = self.chiB.reshape(shape)
+            atmos.gammaB = self.gammaB.reshape(shape)
         return atmos
 
     def unit_view(self):
@@ -319,6 +330,10 @@ class Atmosphere:
         atmos.vturb = self.vturb << u.m / u.s
         atmos.ne = self.ne << u.m**(-3)
         atmos.nHTot = self.nHTot << u.m**(-3)
+        if self.B is not None:
+            atmos.B = self.B << u.T
+            atmos.chiB = self.chiB << u.rad
+            atmos.gammaB = self.gammaB << u.rad
         return atmos
 
     def dimensioned_unit_view(self):
@@ -718,6 +733,10 @@ class Atmosphere:
             self.muy[Nrays // 2 + mu] = self.muy[mu]
 
         self.muz = np.sqrt(1.0 - (self.mux**2 + self.muy**2))
+        # self.wmu = np.concatenate((self.wmu, [1e-20]))
+        # self.muz = np.concatenate((self.muz, [1.0]))
+        # self.mux = np.concatenate((self.mux, [0.0]))
+        # self.muy = np.concatenate((self.muy, [0.0]))
 
 
     def rays(self, mu: Union[float, Sequence[float]]):
