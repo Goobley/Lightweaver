@@ -202,6 +202,8 @@ f64 interp_param(const IntersectionData& grid, const IntersectionResult& loc,
         case InterpolationAxis::None:
         {
             int x = int(loc.fractionalX);
+            if (x == -1)
+                x = param.shape(0) - 1;
             int z = int(loc.fractionalZ);
 
             f64 result = param(x, z);
@@ -484,20 +486,30 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
             auto dwIntersection = intersections(mu, (int)toObs, j, k).dwIntersection;
             f64 chiDw = interp_param(gridData, dwIntersection, chi);
             f64 dtauDw = 0.5 * abs(dwIntersection.distance) * (chi(j, k) + chiDw);
+            f64 temperatureDw = interp_param(gridData, dwIntersection, temperature);
             f64 Bnu[2];
             int Nz = atmos->Nz;
             if (toObs)
             {
-                planck_nu(2, &temperature(j, k-1), wav, Bnu);
+                f64 temp[2];
+                temp[0] = temperature(j, k);
+                temp[1] = temperatureDw;
+                planck_nu(2, temp, wav, Bnu);
                 I(j, k) = Bnu[1] - (Bnu[0] - Bnu[1]) / dtauDw;
             }
             else
             {
-                planck_nu(2, &temperature(j, k), wav, Bnu);
-                I(j, k) = Bnu[0] - (Bnu[1] - Bnu[0]) / dtauDw;
+                f64 temp[2];
+                temp[0] = temperature(j, k);
+                temp[1] = temperatureDw;
+                planck_nu(2, temp, wav, Bnu);
+                // I(j, k) = Bnu[0] - (Bnu[1] - Bnu[0]) / dtauDw;
+                I(j, k) = Bnu[1] - (Bnu[0] - Bnu[1]) / dtauDw;
             }
         }
         // TODO(cmo): Handle other Bcs!
+        if (computeOperator)
+            Psi(j, k) = 0.0;
     }
     k += dk;
 
@@ -560,8 +572,338 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
         }
     }
 
+
     if (computeOperator)
+    {
+        // for (int k = 0; k < atmos->Nspace; ++k)
+        //     if (fd->Psi(k) <= 0.0)
+        //     {
+        //         printf("%d, %e\n", k, fd->Psi(k));
+        //         assert(false);
+        //     }
+
         for (int k = 0; k < atmos->Nspace; ++k)
             fd->Psi(k) /= fd->chi(k);
+
+    }
+}
+
+f64 besser_control_point(f64 hM, f64 hP, f64 yM, f64 yO, f64 yP)
+{
+    const f64 dM = (yO - yM) / hM;
+    const f64 dP = (yP - yO) / hP;
+
+    if (dM * dP <= 0)
+        return yO;
+
+    f64 yOp = (hM * dP + hP * dM) / (hM + hP);
+    f64 cM = yO - 0.5 * hM * yOp;
+    f64 cP = yO + 0.5 * hP * yOp;
+
+    // NOTE(cmo): We know dM and dP have the same sign, so if dM is positive, M < O < P
+    f64 minYMO = yM;
+    f64 maxYMO = yO;
+    f64 minYOP = yO;
+    f64 maxYOP = yP;
+    if (dM < 0)
+    {
+        minYMO = yO;
+        maxYMO = yM;
+        minYOP = yP;
+        maxYOP = yO;
+    }
+
+    if (cM < minYMO || cM > maxYMO)
+        return yM;
+
+    if (cP < minYOP || cP > maxYOP)
+    {
+        cP = yP;
+        yOp = (cP - yO) / (0.5 * hP);
+        cM = yO - 0.5 * hM * yOp;
+    }
+
+    return cM;
+}
+
+struct BesserCoeffs
+{
+    f64 M;
+    f64 O;
+    f64 C;
+    f64 edt;
+};
+
+BesserCoeffs besser_coeffs(f64 t)
+{
+    if (t < 0.14)
+    {
+        f64 m = (t * (t * (t * (t * (t * (t * ((140.0 - 18.0 * t) * t - 945.0) + 5400.0) - 25200.0) + 90720.0) - 226800.0) + 302400.0)) / 907200.0;
+        f64 o = (t * (t * (t * (t * (t * (t * ((10.0 - t) * t - 90.0) + 720.0) - 5040.0) + 30240.0) - 151200.0) + 604800.0)) / 1814400.0;
+        f64 c = (t * (t * (t * (t * (t * (t * ((35.0 - 4.0 * t) * t - 270.0) + 1800.0) - 10080.0) + 45360.0) - 151200.0) + 302400.0)) / 907200.0;
+        f64 edt = 1.0 - t + 0.5 * square(t) - cube(t) / 6.0 + t * cube(t) / 24.0 - square(t) * cube(t) / 120.0 + cube(t) * cube(t) / 720.0;
+        return BesserCoeffs{m, o, c, edt};
+    }
+    else
+    {
+        f64 t2 = square(t);
+        f64 edt = exp(-t);
+        f64 m = (2.0 - edt * (t2 + 2.0 * t + 2.0)) / t2;
+        f64 o = 1.0 - 2.0 * (edt + t - 1.0) / t2;
+        f64 c = 2.0 * (t - 2.0 + edt * (t + 2.0)) / t2;
+        return BesserCoeffs{m, o, c, edt};
+    }
+}
+
+void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
+{
+    // NOTE(cmo): Implmentation of BESSER method following Stepan & Trujillo Bueno (2013) A&A, 557, A143. This is a 2D variant for scalar intensity, but following the same limiting principles, used to integrate chi and S.
+    auto& atmos = fd->atmos;
+    // printf(".............................................\n");
+    // printf("%d %d %d %d\n", atmos->Nspace, atmos->Nx, atmos->Ny, atmos->Nz);
+    assert(bool(atmos->intersections));
+
+    if (atmos->xLowerBc.type != PERIODIC || atmos->xUpperBc.type != PERIODIC)
+    {
+        printf("Only supporting periodic x BCs for now!\n");
+        assert(false);
+    }
+
+    f64 muz = If toObs Then atmos->muz(mu) Else -atmos->muz(mu) End;
+    // NOTE(cmo): We invert the sign of mux, because for muz it is done
+    // implicitly, and both need to be the additive inverse so the ray for
+    // !toObs is the opposite of the toObs ray.
+    f64 mux = If toObs Then atmos->mux(mu) Else -atmos->mux(mu) End;
+
+
+    // NOTE(cmo): As always, assume toObs
+    int dk = -1;
+    int kStart = atmos->Nz - 1;
+    int kEnd = 0;
+    if (!toObs)
+    {
+        dk = 1;
+        kStart = 0;
+        kEnd = atmos->Nz - 1;
+    }
+
+    // NOTE(cmo): Assume mux >= 0 and correct if not
+    // NOTE(cmo): L->R
+    int dj = 1;
+    int jStart = 0;
+    int jEnd = atmos->Nx - 1;
+    if (mux < 0)
+    {
+        dj = -1;
+        jStart = jEnd;
+        jEnd = 0;
+    }
+    // printf("%s, %d, %d\n", If toObs Then "toObs" Else "away" End, kStart, kEnd);
+    // printf(".............................................\n");
+
+    F64View2D I = fd->I.reshape(atmos->Nx, atmos->Nz);
+    I.fill(0.0);
+    F64View2D chi = fd->chi.reshape(atmos->Nx, atmos->Nz);
+    F64View2D S = fd->S.reshape(atmos->Nx, atmos->Nz);
+    F64View2D Psi;
+    const bool computeOperator = bool(fd->Psi);
+    if (computeOperator)
+        Psi = fd->Psi.reshape(atmos->Nx, atmos->Nz);
+    F64View2D temperature = atmos->temperature.reshape(atmos->Nx, atmos->Nz);
+
+    RadiationBc bcType = If toObs
+                         Then atmos->zLowerBc.type
+                         Else atmos->zUpperBc.type End;
+    IntersectionData gridData {atmos->x,
+                               atmos->z,
+                               mux,
+                               muz,
+                               atmos->x(0) - (atmos->x(1) - atmos->x(0)),
+                               toObs,
+                               dj,
+                               jStart,
+                               jEnd,
+                               dk,
+                               kStart,
+                               kEnd};
+
+    auto& intersections = atmos->intersections.intersections;
+    int k = kStart;
+    // NOTE(cmo): Handle BC in starting plane
+    for (int j = jStart; j != jEnd + dj; j += dj)
+    {
+        // I(j, k) = 0.0;
+
+        if (bcType == THERMALISED)
+        {
+            auto dwIntersection = intersections(mu, (int)toObs, j, k).dwIntersection;
+            f64 chiDw = interp_param(gridData, dwIntersection, chi);
+            f64 dtauDw = 0.5 * abs(dwIntersection.distance) * (chi(j, k) + chiDw);
+            f64 temperatureDw = interp_param(gridData, dwIntersection, temperature);
+            f64 Bnu[2];
+            int Nz = atmos->Nz;
+            if (toObs)
+            {
+                f64 temp[2];
+                temp[0] = temperature(j, k);
+                temp[1] = temperatureDw;
+                planck_nu(2, temp, wav, Bnu);
+                I(j, k) = Bnu[1] - (Bnu[0] - Bnu[1]) / dtauDw;
+            }
+            else
+            {
+                f64 temp[2];
+                temp[0] = temperature(j, k);
+                temp[1] = temperatureDw;
+                planck_nu(2, temp, wav, Bnu);
+                // I(j, k) = Bnu[0] - (Bnu[1] - Bnu[0]) / dtauDw;
+                I(j, k) = Bnu[1] - (Bnu[0] - Bnu[1]) / dtauDw;
+            }
+        }
+        // TODO(cmo): Handle other Bcs!
+        if (computeOperator)
+            Psi(j, k) = 0.0;
+    }
+    k += dk;
+
+    for (; k != kEnd; k += dk)
+    {
+        for (int j = jStart; j != jEnd + dj; j += dj)
+        {
+            int substepIdx = intersections(mu, (int)toObs, j, k).substepIdx;
+            auto uwIntersection = intersections(mu, (int)toObs, j, k).uwIntersection;
+            auto dwIntersection = intersections(mu, (int)toObs, j, k).uwIntersection;
+            f64 origDistance = abs(uwIntersection.distance);
+            if (substepIdx < 0)
+            {
+                f64 dsUw = abs(uwIntersection.distance);
+                f64 dsDw = abs(dwIntersection.distance);
+
+                f64 chiDw = interp_param(gridData, dwIntersection, chi);
+                f64 chiUw = interp_param(gridData, uwIntersection, chi);
+                f64 chiLocal = chi(j, k);
+                f64 chiC = besser_control_point(dsUw, dsDw, chiUw, chiLocal, chiDw);
+                f64 dtau = (1.0 / 3.0) * (chiUw + chiLocal + chiC) * dsUw;
+
+                f64 Suw = interp_param(gridData, uwIntersection, S);
+                f64 Sdw = interp_param(gridData, dwIntersection, S);
+                f64 SLocal = S(j, k);
+                f64 SC = besser_control_point(dsUw, dsDw, Suw, SLocal, Sdw);
+
+                f64 Iuw = interp_param(gridData, uwIntersection, I);
+                auto coeffs = besser_coeffs(dtau);
+
+                I(j, k) = coeffs.edt * Iuw + coeffs.M * Suw + coeffs.O * SLocal + coeffs.C * SC;
+
+                if (computeOperator)
+                    Psi(j, k) = coeffs.O + coeffs.C;
+            }
+            else
+            {
+                auto& substeps = atmos->intersections.substeps[substepIdx];
+                f64 Iuw = interp_param(gridData, uwIntersection, I);
+                f64 accumDist = 0.0;
+                for (const auto& step : substeps.steps)
+                {
+                    f64 chiUw = interp_param(gridData, uwIntersection, chi);
+                    f64 chiDw = interp_param(gridData, step, chi);
+                    f64 dtau = 0.5 * (chiUw + chiDw) * abs(step.distance - accumDist);
+                    f64 Suw = interp_param(gridData, uwIntersection, S);
+                    f64 Sdw = interp_param(gridData, step, S);
+                    accumDist += abs(step.distance);
+
+                    f64 w[2];
+                    w2(dtau, w);
+                    f64 c1 = (Suw - Sdw) / dtau;
+                    Iuw = (1.0 - w[0]) * Iuw + w[0] * Sdw + w[1] * c1;
+                    uwIntersection = step;
+                }
+                f64 chiUw = interp_param(gridData, uwIntersection, chi);
+                f64 dtau = 0.5 * (chiUw + chi(j, k)) * abs(origDistance - accumDist);
+                f64 Suw = interp_param(gridData, uwIntersection, S);
+
+                f64 w[2];
+                w2(dtau, w);
+                f64 c1 = (Suw - S(j, k)) / dtau;
+                I(j, k) = (1.0 - w[0]) * Iuw + w[0] * S(j, k) + w[1] * c1;
+
+                if (computeOperator)
+                    Psi(j, k) = w[0] - w[1] / dtau;
+            }
+
+        }
+    }
+    k = kEnd;
+
+    for (int j = jStart; j != jEnd + dj; j += dj)
+    {
+        // auto uwIntersection = uw_intersection_2d(gridData, j, k);
+        int substepIdx = intersections(mu, (int)toObs, j, k).substepIdx;
+        auto uwIntersection = intersections(mu, (int)toObs, j, k).uwIntersection;
+        f64 origDistance = abs(uwIntersection.distance);
+        if (substepIdx < 0)
+        {
+            f64 chiUw = interp_param(gridData, uwIntersection, chi);
+            f64 dtau = 0.5 * (chiUw + chi(j, k)) * abs(uwIntersection.distance);
+            f64 Suw = interp_param(gridData, uwIntersection, S);
+            f64 Iuw = interp_param(gridData, uwIntersection, I);
+
+            f64 w[2];
+            w2(dtau, w);
+            f64 c1 = (Suw - S(j, k)) / dtau;
+            I(j, k) = (1.0 - w[0]) * Iuw + w[0] * S(j, k) + w[1] * c1;
+
+            if (computeOperator)
+                Psi(j, k) = w[0] - w[1] / dtau;
+        }
+        else
+        {
+            auto& substeps = atmos->intersections.substeps[substepIdx];
+            f64 Iuw = interp_param(gridData, uwIntersection, I);
+            f64 accumDist = 0.0;
+            for (const auto& step : substeps.steps)
+            {
+                f64 chiUw = interp_param(gridData, uwIntersection, chi);
+                f64 chiDw = interp_param(gridData, step, chi);
+                f64 dtau = 0.5 * (chiUw + chiDw) * abs(step.distance - accumDist);
+                f64 Suw = interp_param(gridData, uwIntersection, S);
+                f64 Sdw = interp_param(gridData, step, S);
+                accumDist += abs(step.distance);
+
+                f64 w[2];
+                w2(dtau, w);
+                f64 c1 = (Suw - Sdw) / dtau;
+                Iuw = (1.0 - w[0]) * Iuw + w[0] * Sdw + w[1] * c1;
+                uwIntersection = step;
+            }
+            f64 chiUw = interp_param(gridData, uwIntersection, chi);
+            f64 dtau = 0.5 * (chiUw + chi(j, k)) * abs(origDistance - accumDist);
+            f64 Suw = interp_param(gridData, uwIntersection, S);
+
+            f64 w[2];
+            w2(dtau, w);
+            f64 c1 = (Suw - S(j, k)) / dtau;
+            I(j, k) = (1.0 - w[0]) * Iuw + w[0] * S(j, k) + w[1] * c1;
+
+            if (computeOperator)
+                Psi(j, k) = w[0] - w[1] / dtau;
+        }
+
+    }
+
+
+    if (computeOperator)
+    {
+        // for (int k = 0; k < atmos->Nspace; ++k)
+        //     if (fd->Psi(k) <= 0.0)
+        //     {
+        //         printf("%d, %e\n", k, fd->Psi(k));
+        //         assert(false);
+        //     }
+
+        for (int k = 0; k < atmos->Nspace; ++k)
+            fd->Psi(k) /= fd->chi(k);
+
+    }
 }
 }

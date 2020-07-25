@@ -606,7 +606,8 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
 
                 case 2:
                 {
-                    piecewise_linear_2d(&fd, la, mu, toObs, spect.wavelength(la));
+                    // piecewise_linear_2d(&fd, la, mu, toObs, spect.wavelength(la));
+                    piecewise_besser_2d(&fd, la, mu, toObs, spect.wavelength(la));
                     auto I2 = I.reshape(atmos.Nx, atmos.Nz);
                     for (int j = 0; j < atmos.Nx; ++j)
                         spect.I(la, mu, j) = I2(j, 0);

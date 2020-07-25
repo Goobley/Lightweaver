@@ -717,15 +717,29 @@ class Atmosphere:
         muy_A4 = [0.33333333, 0.88191710, 0.33333333]
         wmu_A4 = [0.33333333, 0.33333333, 0.33333333]
 
-        Nrays = len(mux_A4) * 2;
+        mux_A8 = [0.95118973, 0.78679579, 0.57735027,
+                  0.21821789, 0.78679579, 0.57735027,
+                  0.21821789, 0.57735027, 0.21821789, 0.21821789]
+        muy_A8 = [0.21821789, 0.57735027, 0.78679579,
+                  0.95118973, 0.21821789, 0.57735027,
+                  0.78679579, 0.21821789, 0.57735027, 0.21821789]
+        wmu_A8 = [0.12698138, 0.09138353, 0.09138353,
+                  0.12698138, 0.09138353, 0.07075469,
+                  0.09138353, 0.09138353, 0.09138353, 0.12698138]
+
+        mux = mux_A8
+        muy = muy_A8
+        wmu = wmu_A8
+
+        Nrays = len(mux) * 2;
         self.mux = np.zeros(Nrays)
-        self.mux[:Nrays // 2] = mux_A4
+        self.mux[:Nrays // 2] = mux
         self.muy = np.zeros(Nrays)
-        self.muy[:Nrays // 2] = muy_A4
+        self.muy[:Nrays // 2] = muy
         self.wmu = np.zeros(Nrays)
-        wnorm = 0.5 / sum(wmu_A4)
-        self.wmu[:Nrays // 2] = wmu_A4
-        self.wmu[Nrays // 2:] = wmu_A4
+        wnorm = 0.5 / sum(wmu)
+        self.wmu[:Nrays // 2] = wmu
+        self.wmu[Nrays // 2:] = wmu
         self.wmu *= wnorm
 
         for mu in range(Nrays // 2):
