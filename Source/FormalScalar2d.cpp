@@ -955,13 +955,14 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
                     f64 chiDw = interp_param(gridData, dwStep, chi);
                     f64 chiC = besser_control_point(dsUw, dsDw, chiUw, chiLocal, chiDw);
 
-                    f64 dtau = (1.0 / 3.0) * (chiUw + chiLocal + chiC) * dsUw;
+                    f64 dtauUw = (1.0 / 3.0) * (chiUw + chiLocal + chiC) * dsUw;
+                    f64 dtauDw = (0.5) * (chiLocal + chiDw) * dsDw;
 
                     f64 Suw = interp_param(gridData, uwIntersection, S);
                     f64 SLocal = interp_param(gridData, step, S);
                     f64 Sdw = interp_param(gridData, dwStep, S);
-                    f64 SC = besser_control_point(dsUw, dsDw, Suw, SLocal, Sdw);
-                    auto coeffs = besser_coeffs(dtau);
+                    f64 SC = besser_control_point(dtauUw, dtauDw, Suw, SLocal, Sdw);
+                    auto coeffs = besser_coeffs(dtauUw);
 
                     Iuw = coeffs.edt * Iuw + coeffs.M * Suw + coeffs.O * SLocal + coeffs.C * SC;
 
@@ -976,13 +977,14 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
                 f64 chiDw = chi(k, j);
                 f64 chiC = besser_control_point(dsUw, dsDw, chiUw, chiLocal, chiDw);
 
-                f64 dtau = (1.0 / 3.0) * (chiUw + chiLocal + chiC) * dsUw;
+                f64 dtauUw = (1.0 / 3.0) * (chiUw + chiLocal + chiC) * dsUw;
+                f64 dtauDw = (0.5) * (chiLocal + chiDw) * dsDw;
 
                 f64 Suw = interp_param(gridData, uwIntersection, S);
                 f64 SLocal = interp_param(gridData, step, S);
                 f64 Sdw = S(k, j);
-                f64 SC = besser_control_point(dsUw, dsDw, Suw, SLocal, Sdw);
-                auto coeffs = besser_coeffs(dtau);
+                f64 SC = besser_control_point(dtauUw, dtauDw, Suw, SLocal, Sdw);
+                auto coeffs = besser_coeffs(dtauUw);
 
                 Iuw = coeffs.edt * Iuw + coeffs.M * Suw + coeffs.O * SLocal + coeffs.C * SC;
 
@@ -993,13 +995,14 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
                 chiUw = interp_param(gridData, uw, chi);
                 chiLocal = chi(k, j);
                 chiDw = interp_param(gridData, dw, chi);
-                dtau = (1.0 / 3.0) * (chiUw + chiLocal + chiC) * dsUw;
+                dtauUw = (1.0 / 3.0) * (chiUw + chiLocal + chiC) * dsUw;
+                dtauDw = (0.5) * (chiLocal + chiDw) * dsDw;
 
                 Suw = interp_param(gridData, uw, S);
                 SLocal = S(k, j);
                 Sdw = interp_param(gridData, dw, S);
-                SC = besser_control_point(dsUw, dsDw, Suw, SLocal, Sdw);
-                coeffs = besser_coeffs(dtau);
+                SC = besser_control_point(dtauUw, dtauDw, Suw, SLocal, Sdw);
+                coeffs = besser_coeffs(dtauUw);
 
                 I(k, j) = coeffs.edt * Iuw + coeffs.M * Suw + coeffs.O * SLocal + coeffs.C * SC;
 
