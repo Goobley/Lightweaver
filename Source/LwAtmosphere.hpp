@@ -70,22 +70,22 @@ bool approx_equal(T a, T b, T eps)
 struct IntersectionResult
 {
     InterpolationAxis axis;
-    f64 fractionalX;
     f64 fractionalZ;
+    f64 fractionalX;
     f64 distance;
 
     static constexpr f64 PlaneTol = 1e-6;
 
     IntersectionResult() : axis(InterpolationAxis::None),
-                           fractionalX(0.0),
                            fractionalZ(0.0),
+                           fractionalX(0.0),
                            distance(0.0)
     {}
 
-    IntersectionResult(InterpolationAxis a, f64 fracX, f64 fracZ, f64 dist)
+    IntersectionResult(InterpolationAxis a, f64 fracZ, f64 fracX, f64 dist)
         : axis(a),
-          fractionalX(fracX),
           fractionalZ(fracZ),
+          fractionalX(fracX),
           distance(dist)
     {
         switch (axis)

@@ -191,9 +191,9 @@ class Layout:
         if self.Ndim == 1:
             shape = (self.Nz,)
         elif self.Ndim == 2:
-            shape = (self.Nx, self.Nz)
+            shape = (self.Nz, self.Nx)
         elif self.Ndim == 3:
-            shape = (self.Nx, self.Ny, self.Nz)
+            shape = (self.Nz, self.Ny, self.Nx)
         else:
             raise ValueError('Unreasonable Ndim (%d)' % self.Ndim)
         return shape
@@ -727,9 +727,13 @@ class Atmosphere:
                   0.12698138, 0.09138353, 0.07075469,
                   0.09138353, 0.09138353, 0.09138353, 0.12698138]
 
-        mux = mux_A8
-        muy = muy_A8
-        wmu = wmu_A8
+        mux_test = [1.0 / np.sqrt(3)]
+        muy_test = [1.0 / np.sqrt(3)]
+        wmu_test = [1.0]
+
+        mux = mux_A4
+        muy = muy_A4
+        wmu = wmu_A4
 
         Nrays = len(mux) * 2;
         self.mux = np.zeros(Nrays)
