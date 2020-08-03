@@ -284,6 +284,7 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<i32> wavelengthIdxs)
         JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
         JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
         JasPack(iCore, I, S, Ieff);
+        iCore.formal_solver = ctx.formalSolver.solver;
 
         for (auto& a : activeAtoms)
         {

@@ -1,5 +1,7 @@
+#define CMO_FORMAL_INTERFACE_IMPL
 #include "Lightweaver.hpp"
 
+#include "FormalInterface.cpp"
 #include "LuSolve.cpp"
 #include "Atmosphere.cpp"
 #include "Background.cpp"

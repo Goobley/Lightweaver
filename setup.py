@@ -9,6 +9,7 @@ setup(name='lightweaver', version='0.1.0', packages=['lightweaver'],
         ["Source/LightweaverAmalgamated.cpp", "Source/CAtmosphere.pyx"],
         include_dirs=[np.get_include()],
         extra_compile_args=["-std=c++17", "-Wno-sign-compare", "-march=native", "-mavx2", "-funroll-loops"],
+        libraries=['dl'],
         language="c++"
 )], language_level=3))
 

@@ -2,6 +2,7 @@
 #define CMO_LW_INTERNAL_HPP
 #include "Constants.hpp"
 #include "CmoArray.hpp"
+#include "LwFormalInterface.hpp"
 #include <vector>
 
 struct Atmosphere;
@@ -32,6 +33,7 @@ namespace LwInternal
 
     struct IntensityCoreData
     {
+        LwFsFn formal_solver;
         Atmosphere* atmos;
         Spectrum* spect;
         FormalData* fd;
@@ -104,10 +106,11 @@ namespace LwInternal
         return static_cast<FsMode>(static_cast<u32>(a) | static_cast<u32>(b));
     }
 
+    void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav);
+    void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav);
     void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav);
     void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav);
     void piecewise_parabolic_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav);
-    void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav);
     void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int la, int mu, bool toObs, f64 wav, bool polarisedFrequency);
     f64 intensity_core(IntensityCoreData& data, int la, FsMode mode);
     void build_intersection_list(Atmosphere* atmos);

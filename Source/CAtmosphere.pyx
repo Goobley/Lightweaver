@@ -23,6 +23,16 @@ ctypedef np.int8_t i8
 ctypedef Array1NonOwn[np.int32_t] I32View
 ctypedef Array1NonOwn[bool_t] BoolView
 
+cdef extern from "LwFormalInterface.hpp":
+    cdef cppclass FormalSolver:
+        int Ndim
+        int width
+        const char* name;
+
+    cdef cppclass FormalSolverManager:
+        vector[FormalSolver] formalSolvers;
+        void load_fs_from_path(const char* path)
+
 cdef extern from "Lightweaver.hpp":
     cdef enum RadiationBc:
         UNINITIALISED
@@ -211,6 +221,8 @@ cdef extern from "Lightweaver.hpp":
         int Nthreads
         void initialise_threads()
         void update_threads()
+        FormalSolver formalSolver
+        int formalSolverIdx
 
     cdef cppclass PrdIterData:
         int iter
@@ -230,7 +242,6 @@ cdef extern from "Lightweaver.hpp":
 
 cdef extern from "Lightweaver.hpp" namespace "EscapeProbability":
     cdef void gamma_matrices_escape_prob(Atom* a, Background& background, const Atmosphere& atmos)
-
 
 cdef class LwDepthData:
     cdef object shape
@@ -1904,7 +1915,8 @@ cdef class LwContext:
                  ngOptions=None, initSol=None,
                  conserveCharge=False, hprd=False,
                  crswCallback=None, Nthreads=1,
-                 backgroundProvider=None):
+                 backgroundProvider=None,
+                 formalSolver=None):
         self.__dict__ = {}
         self.kwargs = {'atmos': atmos, 'spect': spect, 'eqPops': eqPops, 'ngOptions': ngOptions, 'initSol': initSol, 'conserveCharge': conserveCharge, 'hprd': hprd, 'Nthreads': Nthreads, 'backgroundProvider': backgroundProvider}
 
@@ -1946,6 +1958,17 @@ cdef class LwContext:
         shape = (self.spect.I.shape[0], self.atmos.Nrays, self.atmos.Nspace)
         self.depthData = LwDepthData(*shape)
         self.ctx.depthData = &self.depthData.depthData
+
+        cdef LwFormalSolverManager fsMan = FormalSolvers
+        cdef int fsIdx
+        if formalSolver is not None:
+            fsIdx = fsMan.names.index(formalSolver)
+        else:
+            fsIdx = fsMan.default_formal_solver(self.ctx.atmos.Ndim)
+        self.ctx.formalSolverIdx = fsIdx
+
+        cdef FormalSolver fs = fsMan.manager.formalSolvers[fsIdx]
+        self.ctx.formalSolver = fs
 
         self.setup_threads(Nthreads)
 
@@ -2442,3 +2465,41 @@ cdef class LwContext:
         result = {'contFn': np.asarray(contFn), 'SLine': np.asarray(SLine), 'tau': np.asarray(tau), 'chiTot': np.asarray(chiTot), 'chiLine': np.asarray(chiLine), 'chiBg': np.asarray(chiBg), 'etaLine': np.asarray(etaLine)}
 
         return result
+
+cdef class LwFormalSolverManager:
+    cdef FormalSolverManager manager
+    cdef public list paths
+    cdef public list names
+
+    def __init__(self):
+        self.paths = []
+        self.names = []
+        cdef int i
+        cdef int size
+        cdef const char* name
+
+        for i in range(self.manager.formalSolvers.size()):
+            name = self.manager.formalSolvers[i].name
+            self.names.append(name.decode('UTF-8'))
+
+    def load_fs_from_path(self, str path):
+        if path in self.paths:
+            raise ValueError('Tried to load a pre-existing path')
+
+        self.paths.append(path)
+        byteStore = path.encode('UTF-8')
+        cdef const char* cPath = byteStore
+        self.manager.load_fs_from_path(cPath)
+        cdef const char* name = self.manager.formalSolvers[self.manager.formalSolvers.size()-1].name
+        self.names.append(name.decode('UTF-8'))
+
+    def default_formal_solver(self, Ndim):
+        if Ndim == 1:
+            return self.names.index('piecewise_bezier3_1d')
+        elif Ndim == 2:
+            return self.names.index('piecewise_besser_2d')
+        else:
+            raise ValueError()
+
+
+FormalSolvers = LwFormalSolverManager()

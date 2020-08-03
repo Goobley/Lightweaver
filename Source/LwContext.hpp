@@ -3,6 +3,7 @@
 
 #include "ThreadStorage.hpp"
 #include "LwInternal.hpp"
+#include "LwFormalInterface.hpp"
 #include "LwMisc.hpp"
 #include "LwAtmosphere.hpp"
 #include "LwTransition.hpp"
@@ -25,6 +26,8 @@ struct Context
     DepthData* depthData;
     int Nthreads;
     LwInternal::ThreadData threading;
+    FormalSolver formalSolver;
+    int formalSolverIdx;
 
     void initialise_threads()
     {

@@ -216,56 +216,6 @@ void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
     }
 }
 
-void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
-{
-    JasUnpack((*fd), atmos, I, chi);
-    f64 zmu = 0.5 / atmos->muz(mu);
-    auto height = atmos->height;
-
-    int dk = -1;
-    int kStart = atmos->Nspace - 1;
-    int kEnd = 0;
-    if (!toObs)
-    {
-        dk = 1;
-        kStart = 0;
-        kEnd = atmos->Nspace - 1;
-    }
-    f64 dtau_uw = zmu * (chi(kStart) + chi(kStart + dk)) * abs(height(kStart) - height(kStart + dk));
-
-    f64 Iupw = 0.0;
-    if (toObs)
-    {
-        if (atmos->zLowerBc.type == THERMALISED)
-        {
-            f64 Bnu[2];
-            int Nspace = atmos->Nspace;
-            planck_nu(2, &atmos->temperature(Nspace - 2), wav, Bnu);
-            Iupw = Bnu[1] - (Bnu[0] - Bnu[1]) / dtau_uw;
-        }
-        else if (atmos->zLowerBc.type == CALLABLE)
-        {
-            Iupw = atmos->zLowerBc.bcData(la, mu);
-        }
-    }
-    else
-    {
-        if (atmos->zUpperBc.type == THERMALISED)
-        {
-            f64 Bnu[2];
-            planck_nu(2, &atmos->temperature(0), wav, Bnu);
-            Iupw = Bnu[0] - (Bnu[1] - Bnu[0]) / dtau_uw;
-        }
-        else if (atmos->zUpperBc.type == CALLABLE)
-        {
-            Iupw = atmos->zUpperBc.bcData(la, mu);
-        }
-    }
-
-    piecewise_linear_1d_impl(fd, zmu, toObs, Iupw);
-}
-
-
 void piecewise_bezier3_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
 {
     JasUnpack((*fd), atmos, chi, S, I, Psi);
@@ -528,6 +478,55 @@ void piecewise_besser_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
 
 namespace LwInternal
 {
+void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
+{
+    JasUnpack((*fd), atmos, I, chi);
+    f64 zmu = 0.5 / atmos->muz(mu);
+    auto height = atmos->height;
+
+    int dk = -1;
+    int kStart = atmos->Nspace - 1;
+    int kEnd = 0;
+    if (!toObs)
+    {
+        dk = 1;
+        kStart = 0;
+        kEnd = atmos->Nspace - 1;
+    }
+    f64 dtau_uw = zmu * (chi(kStart) + chi(kStart + dk)) * abs(height(kStart) - height(kStart + dk));
+
+    f64 Iupw = 0.0;
+    if (toObs)
+    {
+        if (atmos->zLowerBc.type == THERMALISED)
+        {
+            f64 Bnu[2];
+            int Nspace = atmos->Nspace;
+            planck_nu(2, &atmos->temperature(Nspace - 2), wav, Bnu);
+            Iupw = Bnu[1] - (Bnu[0] - Bnu[1]) / dtau_uw;
+        }
+        else if (atmos->zLowerBc.type == CALLABLE)
+        {
+            Iupw = atmos->zLowerBc.bcData(la, mu);
+        }
+    }
+    else
+    {
+        if (atmos->zUpperBc.type == THERMALISED)
+        {
+            f64 Bnu[2];
+            planck_nu(2, &atmos->temperature(0), wav, Bnu);
+            Iupw = Bnu[0] - (Bnu[1] - Bnu[0]) / dtau_uw;
+        }
+        else if (atmos->zUpperBc.type == CALLABLE)
+        {
+            Iupw = atmos->zUpperBc.bcData(la, mu);
+        }
+    }
+
+    piecewise_linear_1d_impl(fd, zmu, toObs, Iupw);
+}
+
 void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
 {
     JasUnpack((*fd), atmos, chi);
@@ -723,6 +722,7 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
     JasUnpack(*data, activeAtoms, detailedAtoms, JDag);
     JasUnpack(data, chiTot, etaTot, Uji, Vij, Vji);
     JasUnpack(data, I, S, Ieff, PsiStar);
+    const LwFsFn formal_solver = data.formal_solver;
     const int Nspace = atmos.Nspace;
     const int Nrays = atmos.Nrays;
     const int Nspect = spect.wavelength.shape(0);
@@ -794,22 +794,24 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                 {
                     // piecewise_bezier3_1d(&fd, la, mu, toObs, spect.wavelength(la));
                     // piecewise_besser_1d(&fd, la, mu, toObs, spect.wavelength(la));
-                    piecewise_linear_1d(&fd, la, mu, toObs, spect.wavelength(la));
+                    // piecewise_linear_1d(&fd, la, mu, toObs, spect.wavelength(la));
+                    formal_solver(&fd, la, mu, toObs, spect.wavelength(la));
                     spect.I(la, mu, 0) = I(0);
                 } break;
 
                 case 2:
                 {
                     // piecewise_linear_2d(&fd, la, mu, toObs, spect.wavelength(la));
-                    piecewise_besser_2d(&fd, la, mu, toObs, spect.wavelength(la));
+                    // piecewise_besser_2d(&fd, la, mu, toObs, spect.wavelength(la));
                     // piecewise_parabolic_2d(&fd, la, mu, toObs, spect.wavelength(la));
+                    formal_solver(&fd, la, mu, toObs, spect.wavelength(la));
                     auto I2 = I.reshape(atmos.Nz, atmos.Nx);
                     for (int j = 0; j < atmos.Nx; ++j)
                         spect.I(la, mu, j) = I2(0, j);
                 } break;
 
                 default:
-                    printf("Unexpected Ndim!");
+                    printf("Unexpected Ndim!\n");
             }
 
             if (updateJ)
@@ -953,6 +955,7 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
         JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
         JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
         JasPack(iCore, I, S, Ieff, PsiStar);
+        iCore.formal_solver = ctx.formalSolver.solver;
 
         if (spect.JRest)
             spect.JRest.fill(0.0);
@@ -1126,6 +1129,7 @@ f64 formal_sol_update_rates(Context& ctx)
     JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
     JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
     JasPack(iCore, I, S, Ieff);
+    iCore.formal_solver = ctx.formalSolver.solver;
 
     if (spect.JRest)
         spect.JRest.fill(0.0);
@@ -1177,6 +1181,7 @@ f64 formal_sol_update_rates_fixed_J(Context& ctx)
     JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
     JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
     JasPack(iCore, I, S, Ieff);
+    iCore.formal_solver = ctx.formalSolver.solver;
 
     for (auto& a : activeAtoms)
     {
@@ -1225,6 +1230,7 @@ f64 formal_sol(Context& ctx)
     JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
     JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
     JasPack(iCore, I, S, Ieff);
+    iCore.formal_solver = ctx.formalSolver.solver;
 
     FsMode mode = FsMode::FsOnly;
     for (int la = 0; la < Nspect; ++la)
