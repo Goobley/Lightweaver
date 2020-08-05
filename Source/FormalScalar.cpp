@@ -66,25 +66,6 @@ inline int fedisableexcept(unsigned int excepts)
 }
 #endif
 
-void planck_nu(long Nspace, double* T, double lambda, double* Bnu)
-{
-    namespace C = Constants;
-    constexpr f64 hc_k = C::HC / (C::KBoltzmann * C::NM_TO_M);
-    const f64 hc_kla = hc_k / lambda;
-    constexpr f64 twoh_c2 = (2.0 * C::HC) / cube(C::NM_TO_M);
-    const f64 twohnu3_c2 = twoh_c2 / cube(lambda);
-    constexpr f64 MAX_EXPONENT = 150.0;
-
-    for (int k = 0; k < Nspace; k++)
-    {
-        f64 hc_Tkla = hc_kla / T[k];
-        if (hc_Tkla <= MAX_EXPONENT)
-            Bnu[k] = twohnu3_c2 / (exp(hc_Tkla) - 1.0);
-        else
-            Bnu[k] = 0.0;
-    }
-}
-
 void Transition::compute_phi(const Atmosphere& atmos, F64View aDamp, F64View vBroad)
 {
     namespace C = Constants;

@@ -67,6 +67,23 @@ bool approx_equal(T a, T b, T eps)
     }
 }
 
+struct IntersectionData
+{
+    F64View x;
+    F64View z;
+    f64 mux;
+    f64 muz;
+    f64 xWrapVal;
+    bool toObs;
+    int xStep;
+    int xStart;
+    int xEnd;
+    int zStep;
+    int zStart;
+    int zEnd;
+};
+
+
 struct IntersectionResult
 {
     InterpolationAxis axis;
@@ -122,6 +139,7 @@ struct InterpolationStencil
 {
     IntersectionResult uwIntersection;
     IntersectionResult dwIntersection;
+    int longCharIdx;
     int substepIdx;
 };
 

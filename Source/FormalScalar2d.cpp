@@ -11,21 +11,21 @@ using namespace LwInternal;
 
 namespace LwInternal
 {
-struct IntersectionData
-{
-    F64View x;
-    F64View z;
-    f64 mux;
-    f64 muz;
-    f64 xWrapVal;
-    bool toObs;
-    int xStep;
-    int xStart;
-    int xEnd;
-    int zStep;
-    int zStart;
-    int zEnd;
-};
+// struct IntersectionData
+// {
+//     F64View x;
+//     F64View z;
+//     f64 mux;
+//     f64 muz;
+//     f64 xWrapVal;
+//     bool toObs;
+//     int xStep;
+//     int xStart;
+//     int xEnd;
+//     int zStep;
+//     int zStart;
+//     int zEnd;
+// };
 
 // enum class InterpolationAxis
 // {
@@ -81,35 +81,23 @@ f64 directional_fmodulo(const IntersectionData& grid, f64 x)
                                     grid.x(grid.x.shape(0) - 1) - grid.xWrapVal);
 }
 
-// NOTE(cmo): This gives the intersection downwind of the point (xp, zp)
+f64 grid_fmod_x(const IntersectionData& grid, f64 x)
+{
+    return grid.x(0) + fmod_pos(x - grid.x(0), grid.x(grid.x.shape(0) - 1) - grid.x(0));
+}
+
 IntersectionResult dw_intersection_2d(const IntersectionData& grid, int zp, int xp)
 {
-    bool wraparound = false;
-    Ray ray{grid.x(xp), grid.z(zp), grid.mux, grid.muz};
-    f64 tx = 0.0;
-    // if (xp == grid.xEnd - grid.xStep)
-    if (xp == 4 && zp == 1)
-        int BreakHere = 1;
     if (xp == grid.xEnd)
-    {
-        tx = x_plane_intersection(grid.x(xp) + grid.xStep
-                                  * abs(grid.x(xp - grid.xStep) - grid.x(xp)),
-                                  ray);
-        wraparound = true;
-    }
-    else
-    {
-        tx = x_plane_intersection(grid.x(xp + grid.xStep), ray);
-    }
+        xp = grid.xStart;
+
+    Ray ray{grid.x(xp), grid.z(zp), grid.mux, grid.muz};
+    f64 tx = x_plane_intersection(grid.x(xp + grid.xStep), ray);
     f64 tz = z_plane_intersection(grid.z(zp + grid.zStep), ray);
-    if (tx * tz < 0)
-        int BreakHere = 1;
 
     if (abs(tx) < abs(tz))
     {
         f64 fracX = xp + grid.xStep;
-        if (wraparound)
-            fracX = directional_modulo_index(grid, fracX);
         f64 fracZ = zp + grid.zStep * (tx / tz);
         return IntersectionResult(InterpolationAxis::Z, fracZ, fracX, tx);
     }
@@ -117,62 +105,24 @@ IntersectionResult dw_intersection_2d(const IntersectionData& grid, int zp, int 
     {
         f64 fracZ = zp + grid.zStep;
         f64 fracX = xp + grid.xStep * (tz / tx);
-        if (wraparound)
-        {
-            tx = tz;
-            f64 xIntersection = ray.ox + ray.mux * tx;
-            xIntersection = directional_fmodulo(grid, xIntersection);
-            if (xIntersection < grid.x(0))
-            {
-                fracX = (xIntersection - grid.xWrapVal) / (grid.x(0) - grid.xWrapVal) - 1.0;
-                if (fracX < -1.0)
-                {
-                    int BreakHere = 1;
-                    assert(false);
-                }
-            }
-            else
-            {
-                int xpIdx = hunt(grid.x, xIntersection);
-                if (grid.x(xpIdx) == xIntersection)
-                    return IntersectionResult(InterpolationAxis::None, fracZ, (f64)xpIdx, tz);
-
-                xpIdx += 1;
-                int xmIdx = xpIdx - 1;
-                fracX = xmIdx + abs(grid.x(xmIdx) - xIntersection)
-                                / abs(grid.x(xmIdx) - grid.x(xpIdx));
-            }
-        }
         return IntersectionResult(InterpolationAxis::X, fracZ, fracX, tz);
     }
     else
     {
-        f64 fracZ = zp + grid.zStep;
         f64 fracX = xp + grid.xStep;
-        if (wraparound)
-            fracX = (f64)directional_modulo_index(grid, fracX);
-        return IntersectionResult(InterpolationAxis::None, fracZ, fracX, tz);
+        f64 fracZ = zp + grid.zStep;
+        return IntersectionResult(InterpolationAxis::None, fracZ, fracX, tx);
     }
 }
 
 IntersectionResult uw_intersection_2d(const IntersectionData& grid, int zp, int xp)
 {
-    bool wraparound = false;
-    Ray ray{grid.x(xp), grid.z(zp), grid.mux, grid.muz};
-    f64 tx = 0.0;
-    // if (xp == grid.xStart || xp == grid.xStart + grid.xStep)
     if (xp == grid.xStart)
-    {
-        wraparound = true;
-        tx = std::numeric_limits<f64>::infinity();
-    }
-    else
-    {
-        tx = x_plane_intersection(grid.x(xp - grid.xStep), ray);
-    }
+        xp = grid.xEnd;
+
+    Ray ray{grid.x(xp), grid.z(zp), grid.mux, grid.muz};
+    f64 tx = x_plane_intersection(grid.x(xp - grid.xStep), ray);
     f64 tz = z_plane_intersection(grid.z(zp - grid.zStep), ray);
-    if (std::isfinite(tx) && tx * tz < 0)
-        int BreakHere = 1;
 
     if (abs(tx) < abs(tz))
     {
@@ -183,46 +133,80 @@ IntersectionResult uw_intersection_2d(const IntersectionData& grid, int zp, int 
     else if (abs(tz) < abs(tx))
     {
         f64 fracZ = zp - grid.zStep;
-        f64 fracX = 0.0;
-        if (!wraparound)
-        {
-            fracX = xp - grid.xStep * (tz / tx);
-        }
-        else
-        {
-            tx = tz;
-            f64 xIntersection = ray.ox + ray.mux * tx;
-            xIntersection = directional_fmodulo(grid, xIntersection);
-            if (xIntersection < grid.x(0))
-            {
-                fracX = (xIntersection - grid.xWrapVal) / (grid.x(0) - grid.xWrapVal) - 1.0;
-                if (fracX < -1.0)
-                {
-                    int BreakHere = 1;
-                    assert(false);
-                }
-            }
-            else
-            {
-                int xpIdx = hunt(grid.x, xIntersection);
-                if (grid.x(xpIdx) == xIntersection)
-                    return IntersectionResult(InterpolationAxis::None, fracZ, (f64)xpIdx, tz);
-
-                xpIdx += 1;
-                int xmIdx = xpIdx - 1;
-                fracX = xmIdx + abs(grid.x(xmIdx) - xIntersection)
-                                / abs(grid.x(xmIdx) - grid.x(xpIdx));
-            }
-        }
+        f64 fracX = xp - grid.xStep * (tz / tx);
         return IntersectionResult(InterpolationAxis::X, fracZ, fracX, tz);
     }
     else
     {
-        f64 fracZ = zp - grid.zStep;
         f64 fracX = xp - grid.xStep;
-        return IntersectionResult(InterpolationAxis::None, fracZ, fracX, tz);
+        f64 fracZ = zp - grid.zStep;
+        return IntersectionResult(InterpolationAxis::None, fracZ, fracX, tx);
     }
 }
+
+f64 frac_idx(const F64View& param, f64 fracIdx)
+{
+    int xm = int(fracIdx);
+    int xp = xm + 1;
+
+    if (xm == fracIdx)
+        return param(xm);
+
+    f64 frac = fracIdx - xm;
+    return (1.0 - frac) * param(xm) + frac * param(xp);
+}
+
+IntersectionResult uw_intersection_2d_frac_x(const IntersectionData& grid, IntersectionResult start)
+{
+    if (start.axis != InterpolationAxis::Z)
+    {
+        printf("Shouldn't be here as z intersection has been hit\n");
+        assert(false);
+    }
+
+    // NOTE(cmo): Based on the test above, we know, x must be at an intersection
+    // i.e. fracX is an integer, and we must not be at an intersection in z, so
+    // fracZ is non-integer in R+
+    int xp = int(start.fractionalX);
+    if (xp == grid.xStart)
+        xp = grid.xEnd;
+
+    f64 startX = grid.x(xp);
+    f64 startZ = frac_idx(grid.z, start.fractionalZ);
+
+    int zPlaneIdx = If grid.zStep > 0 Then int(start.fractionalZ) Else int(start.fractionalZ) - grid.zStep End;
+
+    Ray ray{startX, startZ, grid.mux, grid.muz};
+    f64 tx = x_plane_intersection(grid.x(xp - grid.xStep), ray);
+    f64 tz = z_plane_intersection(grid.z(zPlaneIdx), ray);
+
+    if (abs(tx) < abs(tz))
+    {
+        f64 fracX = xp - grid.xStep;
+        // NOTE(cmo): The calculation of fracZ is wrong here, it doesn't take into account starting from a non-integer fracZ
+        // this sounds correct on paper...
+        // it's not in practice
+        // f64 fracThroughZ = start.fractionalZ - int(start.fractionalZ);
+        // f64 fracZ = start.fractionalZ - (1.0 - fracThroughZ) * grid.zStep * (tx / tz);
+        // The below appears correct, and the intent of the above (but not wrong :P)
+        f64 fracThroughZ = abs(zPlaneIdx - start.fractionalZ);
+        f64 fracZ = start.fractionalZ - fracThroughZ * grid.zStep * (tx / tz);
+        return IntersectionResult(InterpolationAxis::Z, fracZ, fracX, tx);
+    }
+    else if (abs(tz) < abs(tx))
+    {
+        f64 fracZ = zPlaneIdx;
+        f64 fracX = xp - grid.xStep * (tz / tx);
+        return IntersectionResult(InterpolationAxis::X, fracZ, fracX, tz);
+    }
+    else
+    {
+        f64 fracX = xp - grid.xStep;
+        f64 fracZ = zPlaneIdx;
+        return IntersectionResult(InterpolationAxis::None, fracZ, fracX, tx);
+    }
+}
+
 
 f64 interp_param(const IntersectionData& grid, const IntersectionResult& loc,
                  const F64View2D& param)
@@ -336,13 +320,6 @@ f64 frac_loc_1d(const F64View1D& view, f64 wrapVal, f64 idx)
     return result;
 }
 
-// struct InterpolationStencil
-// {
-//     IntersectionResult uwIntersection;
-//     IntersectionResult dwIntersection;
-//     bool longChar;
-// };
-
 void build_intersection_list(Atmosphere* atmos)
 {
     if (atmos->Ndim != 2)
@@ -408,7 +385,7 @@ void build_intersection_list(Atmosphere* atmos)
                 IntersectionResult uw(InterpolationAxis::None, k, j, 0.0);
                 auto dw = dw_intersection_2d(gridData, k, j);
                 dw.distance = abs(dw.distance);
-                intersections(mu, toObsI, k, j) = InterpolationStencil{uw, dw, -1};
+                intersections(mu, toObsI, k, j) = InterpolationStencil{uw, dw, -1, -1};
             }
             k += dk;
 
@@ -416,49 +393,40 @@ void build_intersection_list(Atmosphere* atmos)
             {
                 for (int j = jStart; j != jEnd + dj; j += dj)
                 {
-                    if (j == 4 && k == 14)
-                        int BreakHere = 1;
                     auto uw = uw_intersection_2d(gridData, k, j);
                     auto dw = dw_intersection_2d(gridData, k, j);
                     uw.distance = abs(uw.distance);
                     dw.distance = abs(dw.distance);
-                    bool longChar = (j == jStart);
+                    bool longChar = (j == jStart && uw.axis == InterpolationAxis::Z);
                     int longCharIdx = -1;
+                    int substepIdx = -1;
+
                     if (longChar)
                     {
-                        // if (uw.fractionalX < 0.0)
-                        // {
-                        //     // NOTE(cmo): We intersect within the ghost cell, so no passing through any extra planes
+                        atmos->intersections.substeps.emplace_back(SubstepIntersections{});
+                        auto& substeps = atmos->intersections.substeps.back();
+                        longCharIdx = atmos->intersections.substeps.size() - 1;
 
-                        // }
-                        // else
-                        assert(uw.axis != InterpolationAxis::Z);
-                        if (uw.fractionalX > 0.0)
+                        auto locToUpwind = uw;
+                        while (true)
                         {
-                            atmos->intersections.substeps.emplace_back(SubstepIntersections{});
-                            auto& substeps = atmos->intersections.substeps.back();
-                            longCharIdx = atmos->intersections.substeps.size() - 1;
-
-                            int zp = int(uw.fractionalZ);
-                            f64 zInt = gridData.z(zp);
-                            f64 xInt = frac_loc_1d(gridData.x, gridData.xWrapVal, uw.fractionalX);
-                            Ray ray{xInt, zInt, gridData.mux, gridData.muz};
-
-                            int xp = int(uw.fractionalX + gridData.xStep);
-                            f64 accumDist = 0.0;
-                            while (xp != gridData.xEnd + gridData.xStep)
+                            auto uuw = uw_intersection_2d_frac_x(gridData, locToUpwind);
+                            uuw.distance = abs(uuw.distance);
+                            substeps.steps.emplace_back(uuw);
+                            if (uuw.axis != InterpolationAxis::Z)
                             {
-                                // Compute intersection with plane at gridData.x(xp)
-                                f64 tx = x_plane_intersection(gridData.x(xp), ray);
-                                f64 fracZ = zp + gridData.zStep * abs(tx / uw.distance);
-                                tx = abs(tx) - accumDist;
-                                substeps.steps.emplace_back(IntersectionResult(InterpolationAxis::Z, fracZ, f64(xp), tx));
-                                xp += gridData.xStep;
-                                accumDist += tx;
+                                // NOTE(cmo): As we filled dw->uw, it makes
+                                // sense to reverse the vector now.
+
+                                // TODO(cmo): Make this a useful contiguous buffer for solving the RTE along
+                                std::reverse(std::begin(substeps.steps), std::end(substeps.steps));
+                                break;
                             }
+                            locToUpwind = uuw;
                         }
                     }
-                    intersections(mu, toObsI, k, j) = InterpolationStencil{uw, dw, longCharIdx};
+                    intersections(mu, toObsI, k, j) = InterpolationStencil{uw, dw,
+                                                                           longCharIdx, substepIdx};
                 }
             }
 
@@ -468,11 +436,152 @@ void build_intersection_list(Atmosphere* atmos)
                 auto uw = uw_intersection_2d(gridData, k, j);
                 uw.distance = abs(uw.distance);
                 IntersectionResult dw(InterpolationAxis::None, k, j, 0.0);
-                intersections(mu, toObsI, k, j) = InterpolationStencil{uw, dw, -1};
+                intersections(mu, toObsI, k, j) = InterpolationStencil{uw, dw, -1, -1};
             }
         }
     }
 }
+
+// void build_intersection_list(Atmosphere* atmos)
+// {
+//     if (atmos->Ndim != 2)
+//         return;
+
+//     if (atmos->xLowerBc.type != PERIODIC || atmos->xUpperBc.type != PERIODIC)
+//     {
+//         printf("Only supporting periodic x BCs for now!\n");
+//         assert(false);
+//     }
+
+//     atmos->intersections.init(atmos->Nrays, atmos->Nz, atmos->Nx);
+//     auto& intersections = atmos->intersections.intersections;
+
+//     for (int mu = 0; mu < atmos->muz.shape(0); ++mu)
+//     {
+//         for (int toObsI = 0; toObsI < 2; ++toObsI)
+//         {
+//             bool toObs = (bool)toObsI;
+//             f64 muz = If toObs Then atmos->muz(mu) Else -atmos->muz(mu) End;
+//             f64 mux = If toObs Then atmos->mux(mu) Else -atmos->mux(mu) End;
+
+//             // NOTE(cmo): As always, assume toObs
+//             int dk = -1;
+//             int kStart = atmos->Nz - 1;
+//             int kEnd = 0;
+//             if (!toObs)
+//             {
+//                 dk = 1;
+//                 kStart = 0;
+//                 kEnd = atmos->Nz - 1;
+//             }
+
+//             // NOTE(cmo): Assume mux >= 0 and correct if not
+//             // NOTE(cmo): L->R
+//             int dj = 1;
+//             int jStart = 0;
+//             int jEnd = atmos->Nx - 1;
+//             if (mux < 0)
+//             {
+//                 dj = -1;
+//                 jStart = jEnd;
+//                 jEnd = 0;
+//             }
+
+//             IntersectionData gridData {atmos->x,
+//                                     atmos->z,
+//                                     mux,
+//                                     muz,
+//                                     atmos->x(0) - (atmos->x(1) - atmos->x(0)),
+//                                     toObs,
+//                                     dj,
+//                                     jStart,
+//                                     jEnd,
+//                                     dk,
+//                                     kStart,
+//                                     kEnd};
+
+//             int k = kStart;
+//             // NOTE(cmo): Handle BC in starting plane
+//             for (int j = jStart; j != jEnd + dj; j += dj)
+//             {
+//                 IntersectionResult uw(InterpolationAxis::None, k, j, 0.0);
+//                 auto dw = dw_intersection_2d(gridData, k, j);
+//                 dw.distance = abs(dw.distance);
+//                 intersections(mu, toObsI, k, j) = InterpolationStencil{uw, dw, -1};
+//             }
+//             k += dk;
+
+//             for (; k != kEnd; k += dk)
+//             {
+//                 for (int j = jStart; j != jEnd + dj; j += dj)
+//                 {
+//                     if (j == 4 && k == 14)
+//                         int BreakHere = 1;
+//                     auto uw = uw_intersection_2d(gridData, k, j);
+//                     auto dw = dw_intersection_2d(gridData, k, j);
+//                     uw.distance = abs(uw.distance);
+//                     dw.distance = abs(dw.distance);
+//                     bool longChar = (j == jStart);
+//                     int longCharIdx = -1;
+//                     if (longChar)
+//                     {
+//                         // if (uw.fractionalX < 0.0)
+//                         // {
+//                         //     // NOTE(cmo): We intersect within the ghost cell, so no passing through any extra planes
+
+//                         // }
+//                         // else
+//                         assert(uw.axis != InterpolationAxis::Z);
+//                         if (uw.fractionalX > 0.0)
+//                         {
+//                             atmos->intersections.substeps.emplace_back(SubstepIntersections{});
+//                             auto& substeps = atmos->intersections.substeps.back();
+//                             longCharIdx = atmos->intersections.substeps.size() - 1;
+
+//                             int zp = int(uw.fractionalZ);
+//                             f64 zInt = gridData.z(zp);
+//                             f64 xInt = frac_loc_1d(gridData.x, gridData.xWrapVal, uw.fractionalX);
+//                             // f64 tz = (gridData.z(zp) - gridData.z(k)) / gridData.muz;
+//                             // f64 xRealInt = gridData.x(j) + gridData.mux * tz;
+//                             // f64 xGridInt = directional_fmodulo(gridData, xRealInt);
+//                             Ray ray{xInt, zInt, gridData.mux, gridData.muz};
+
+//                             int xm = std::round(uw.fractionalX);
+//                             int xp = std::round(uw.fractionalX + gridData.xStep);
+//                             f64 accumDist = 0.0;
+//                             // while (xp != gridData.xEnd + gridData.xStep)
+//                             while (accumDist < uw.distance)
+//                             {
+//                                 // Compute intersection with plane at gridData.x(xp)
+//                                 // f64 tx = x_plane_intersection(gridData.x(xp), ray);
+//                                 f64 tx = (gridData.x(xp) - gridData.x(xm)) / gridData.mux;
+//                                 f64 fracZ = zp + gridData.zStep * abs(tx / uw.distance);
+//                                 accumDist += abs(tx);
+//                                 if (accumDist >= uw.distance)
+//                                     break;
+//                                 tx = abs(tx) - accumDist;
+//                                 substeps.steps.emplace_back(IntersectionResult(InterpolationAxis::Z, fracZ, f64(xp), abs(tx)));
+//                                 xm = xp;
+//                                 xp += gridData.xStep;
+//                                 xp = directional_modulo_index(gridData, xp);
+//                             }
+//                         }
+//                     }
+//                     intersections(mu, toObsI, k, j) = InterpolationStencil{uw, dw, longCharIdx};
+//                 }
+//             }
+
+//             k = kEnd;
+//             for (int j = jStart; j != jEnd + dj; j += dj)
+//             {
+//                 auto uw = uw_intersection_2d(gridData, k, j);
+//                 uw.distance = abs(uw.distance);
+//                 IntersectionResult dw(InterpolationAxis::None, k, j, 0.0);
+//                 intersections(mu, toObsI, k, j) = InterpolationStencil{uw, dw, -1};
+//             }
+//         }
+//     }
+// }
 
 void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
 {

@@ -31,7 +31,7 @@ cdef extern from "LwFormalInterface.hpp":
 
     cdef cppclass FormalSolverManager:
         vector[FormalSolver] formalSolvers;
-        void load_fs_from_path(const char* path)
+        bool_t load_fs_from_path(const char* path)
 
 cdef extern from "Lightweaver.hpp":
     cdef enum RadiationBc:
@@ -2489,7 +2489,10 @@ cdef class LwFormalSolverManager:
         self.paths.append(path)
         byteStore = path.encode('UTF-8')
         cdef const char* cPath = byteStore
-        self.manager.load_fs_from_path(cPath)
+        cdef bool_t success = self.manager.load_fs_from_path(cPath)
+        if not success:
+            raise ValueError('Failed to load Formal Solver from library at %s' % path)
+
         cdef const char* name = self.manager.formalSolvers[self.manager.formalSolvers.size()-1].name
         self.names.append(name.decode('UTF-8'))
 

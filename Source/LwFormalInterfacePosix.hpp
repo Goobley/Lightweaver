@@ -23,9 +23,11 @@ bool load_library(PlatformSharedLibrary* lib, const char* path)
     void* handle = dlopen(path, RTLD_LAZY);
     if (!handle)
     {
+        lib->handle = nullptr;
         return false;
     }
     lib->handle = handle;
+    return true;
 }
 
 template <typename F>

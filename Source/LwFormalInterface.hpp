@@ -33,7 +33,7 @@ struct FormalSolverManager
 
     FormalSolverManager();
     ~FormalSolverManager();
-    void load_fs_from_path(const char* path);
+    bool load_fs_from_path(const char* path);
 };
 
 #else
