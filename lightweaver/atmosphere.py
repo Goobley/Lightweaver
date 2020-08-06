@@ -731,9 +731,9 @@ class Atmosphere:
         muy_test = [1.0 / np.sqrt(3)]
         wmu_test = [1.0]
 
-        mux = mux_A4
-        muy = muy_A4
-        wmu = wmu_A4
+        mux = mux_A8
+        muy = muy_A8
+        wmu = wmu_A8
 
         Nrays = len(mux) * 2;
         self.mux = np.zeros(Nrays)
