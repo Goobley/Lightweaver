@@ -6,9 +6,10 @@ import numpy as np
 from .witt import witt
 import lightweaver.constants as Const
 from numpy.polynomial.legendre import leggauss
-from .utils import ConvergenceError, view_flatten
+from .utils import ConvergenceError, view_flatten, get_data_path
 from .atomic_table import PeriodicTable, AtomicAbundance, DefaultAtomicAbundance
 import astropy.units as u
+import pickle
 
 if TYPE_CHECKING:
     from .LwCompiled import LwSpectrum
@@ -687,30 +688,65 @@ class Atmosphere:
                    mu: Optional[Sequence[float]]=None,
                    wmu: Optional[Sequence[float]]=None):
 
-        if Nrays is not None and mu is None:
-            if Nrays >= 1:
-                x, w = leggauss(Nrays)
-                mid, halfWidth = 0.5, 0.5
-                x = mid + halfWidth * x
-                w *= halfWidth
+        if self.Ndim == 1:
+            if Nrays is not None and mu is None:
+                if Nrays >= 1:
+                    x, w = leggauss(Nrays)
+                    mid, halfWidth = 0.5, 0.5
+                    x = mid + halfWidth * x
+                    w *= halfWidth
 
-                self.muz = x
-                self.wmu = w
+                    self.muz = x
+                    self.wmu = w
+                else:
+                    raise ValueError('Unsupported Nrays=%d' % Nrays)
+            elif Nrays is not None and mu is not None:
+                if wmu is None:
+                    raise ValueError('Must provide wmu when providing mu')
+                if Nrays != len(mu):
+                    raise ValueError('mu must be Nrays long if Nrays is provided')
+                if len(mu) != len(wmu):
+                    raise ValueError('mu and wmu must be the same shape')
+
+                self.muz = np.array(mu)
+                self.wmu = np.array(wmu)
+
+            self.muy = np.zeros_like(self.muz)
+            self.mux = np.sqrt(1.0 - self.muz**2)
+        else:
+            with open(get_data_path() + 'Quadratures.pickle', 'rb') as pkl:
+                quads = pickle.load(pkl)
+
+            rays = {int(q.split('n')[1]): q for q in quads}
+            if Nrays not in rays:
+                raise ValueError('For multidimensional cases Nrays must be in %s' % repr(rays))
+
+            quad = quads[rays[Nrays]]
+
+            if self.Ndim == 2:
+                Nrays *= 2
+                theta = np.deg2rad(quad[:, 1])
+                chi = np.deg2rad(quad[:, 2])
+                # polar coords:
+                # x = sin theta cos chi
+                # y = sin theta sin chi
+                # z = cos theta
+                self.mux = np.zeros(Nrays)
+                self.mux[:Nrays // 2] = np.sin(theta) * np.cos(chi)
+                self.mux[Nrays // 2:] = -np.sin(theta) * np.cos(chi)
+                self.muz = np.zeros(Nrays)
+                self.muz[:Nrays // 2] = np.cos(theta)
+                self.muz[Nrays // 2:] = np.cos(theta)
+                self.wmu = np.zeros(Nrays)
+                self.wmu[:Nrays // 2] = quad[:, 0]
+                self.wmu[Nrays // 2:] = quad[:, 0]
+                self.wmu /= np.sum(self.wmu)
+                self.muy = np.sqrt(1.0 - (self.mux**2 + self.muz**2))
+
             else:
-                raise ValueError('Unsupported Nrays=%d' % Nrays)
-        elif Nrays is not None and mu is not None:
-            if wmu is None:
-                raise ValueError('Must provide wmu when providing mu')
-            if Nrays != len(mu):
-                raise ValueError('mu must be Nrays long if Nrays is provided')
-            if len(mu) != len(wmu):
-                raise ValueError('mu and wmu must be the same shape')
+                raise NotImplementedError()
 
-            self.muz = np.array(mu)
-            self.wmu = np.array(wmu)
 
-        self.muy = np.zeros_like(self.muz)
-        self.mux = np.sqrt(1.0 - self.muz**2)
 
     def angle_set_a4(self):
         mux_A4 = [0.88191710, 0.33333333, 0.33333333]
