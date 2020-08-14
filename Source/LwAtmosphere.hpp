@@ -20,19 +20,19 @@ struct AtmosphericBoundaryCondition
     AtmosphericBoundaryCondition() : type(RadiationBc::ZERO), bcData()
     {}
 
-    AtmosphericBoundaryCondition(RadiationBc typ, int Nmu, int Nwave)
+    AtmosphericBoundaryCondition(RadiationBc typ, int Nwave, int Nspace)
         : type(typ),
           bcData()
     {
         if (type == RadiationBc::CALLABLE)
-            bcData = F64Arr2D(Nmu, Nwave);
+            bcData = F64Arr2D(Nwave, Nspace);
     }
 
     void set_bc_data(F64View2D data)
     {
-        for (int mu = 0; mu < bcData.shape(0); ++mu)
-            for (int la = 0; la < bcData.shape(1); ++la)
-                bcData(mu, la) = data(mu, la);
+        for (int la = 0; la < bcData.shape(0); ++la)
+            for (int k = 0; k < bcData.shape(1); ++k)
+                bcData(la, k) = data(la, k);
     }
 };
 

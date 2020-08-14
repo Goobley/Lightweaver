@@ -46,7 +46,7 @@ cdef extern from "Lightweaver.hpp":
         F64Arr2D bcData
 
         AtmosphericBoundaryCondition()
-        AtmosphericBoundaryCondition(RadiationBc typ, int Nmu, int Nwave)
+        AtmosphericBoundaryCondition(RadiationBc typ, int Nwave, int Nspace)
         void set_bc_data(F64View2D data)
 
     cdef cppclass Atmosphere:
@@ -416,14 +416,16 @@ cdef class LwAtmosphere:
         self.atmos.update_projections()
 
     def configure_bcs(self, atmos):
-        cdef int Nrays = atmos.Nrays
+        cdef int Nx = atmos.Nx
+        cdef int Ny = atmos.Ny
+        cdef int Nz = atmos.Nz
         s = atmos.structure
-        self.atmos.xLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.xLowerBc), Nrays, self.Nwave)
-        self.atmos.xUpperBc = AtmosphericBoundaryCondition(BC_to_enum(s.xUpperBc), Nrays, self.Nwave)
-        self.atmos.yLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.yLowerBc), Nrays, self.Nwave)
-        self.atmos.yUpperBc = AtmosphericBoundaryCondition(BC_to_enum(s.yUpperBc), Nrays, self.Nwave)
-        self.atmos.zLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.zLowerBc), Nrays, self.Nwave)
-        self.atmos.zUpperBc = AtmosphericBoundaryCondition(BC_to_enum(s.zUpperBc), Nrays, self.Nwave)
+        self.atmos.xLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.xLowerBc), self.Nwave, Nx)
+        self.atmos.xUpperBc = AtmosphericBoundaryCondition(BC_to_enum(s.xUpperBc), self.Nwave, Nx)
+        self.atmos.yLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.yLowerBc), self.Nwave, Ny)
+        self.atmos.yUpperBc = AtmosphericBoundaryCondition(BC_to_enum(s.yUpperBc), self.Nwave, Ny)
+        self.atmos.zLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.zLowerBc), self.Nwave, Nz)
+        self.atmos.zUpperBc = AtmosphericBoundaryCondition(BC_to_enum(s.zUpperBc), self.Nwave, Nz)
 
     def compute_bcs(self, LwSpectrum spect):
         cdef f64[:,::1] bc
@@ -1884,15 +1886,15 @@ cdef class LwSpectrum:
 
     @property
     def I(self):
-        return np.asarray(self.I)
+        return np.squeeze(np.asarray(self.I))
 
     @property
     def J(self):
-        return np.asarray(self.J)
+        return np.squeeze(np.asarray(self.J))
 
     @property
     def Quv(self):
-        return np.asarray(self.Quv)
+        return np.squeeze(np.asarray(self.Quv))
 
 
 cdef class LwContext:

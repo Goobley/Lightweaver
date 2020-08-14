@@ -188,8 +188,6 @@ f64 interp_param(const IntersectionData& grid, const IntersectionResult& loc,
         case InterpolationAxis::None:
         {
             int x = int(loc.fractionalX);
-            // if (x == -1)
-            //     x = param.shape(1) - 1;
             int z = int(loc.fractionalZ);
 
             f64 result = param(z, x);
@@ -200,23 +198,10 @@ f64 interp_param(const IntersectionData& grid, const IntersectionResult& loc,
         {
             int xm, xp, z;
             f64 frac;
-
-            // if (loc.fractionalX < 0.0)
-            // {
-            //     xm = grid.x.shape(0) - 1;
-            //     xp = 0;
-            //     frac = loc.fractionalX + 1.0;
-            //     z = int(loc.fractionalZ);
-            //     if (frac < 0.0)
-            //         printf("%f\n", frac);
-            // }
-            // else
-            // {
-                xm = int(loc.fractionalX);
-                xp = xm + 1;
-                frac = loc.fractionalX - xm;
-                z = int(loc.fractionalZ);
-            // }
+            xm = int(loc.fractionalX);
+            xp = xm + 1;
+            frac = loc.fractionalX - xm;
+            z = int(loc.fractionalZ);
 
             f64 result = (1.0 - frac) * param(z, xm) + frac * param(z, xp);
             return result;
@@ -228,47 +213,10 @@ f64 interp_param(const IntersectionData& grid, const IntersectionResult& loc,
             int zp = zm + 1;
             f64 frac = loc.fractionalZ - zm;
             int x = int(loc.fractionalX);
-            // if (x == -1)
-            //     x = param.shape(1) - 1;
 
             f64 result = (1.0 - frac) * param(zm, x) + frac * param(zp, x);
             return result;
         } break;
-    }
-}
-
-
-void compute_interpolation_weights(const Intersections& intersections)
-{
-    struct WenoWeights
-    {
-    };
-    struct WenoData
-    {
-        F64Arr q2dm;
-        F64Arr q2d;
-        F64Arr q2dp;
-        F64Arr q3d;
-        F64Arr q3dp;
-        F64Arr q3dpp;
-    };
-    const auto& inter = intersections.intersections;
-    for (int k = 0; k < inter.shape(0); ++k)
-    {
-        for (int j = 0; j < inter.shape(1); ++j)
-        {
-            for (int toObsI = 0; toObsI < 2; ++toObsI)
-            {
-                for (int mu = 0; mu < inter.shape(3); ++mu)
-                {
-                    const auto& uw = inter(mu, toObsI, k, j).uwIntersection;
-                    const auto& dw = inter(mu, toObsI, k, j).dwIntersection;
-
-
-
-                }
-            }
-        }
     }
 }
 
@@ -277,9 +225,14 @@ void build_intersection_list(Atmosphere* atmos)
     if (atmos->Ndim != 2)
         return;
 
-    if (atmos->xLowerBc.type != PERIODIC || atmos->xUpperBc.type != PERIODIC)
+    bool periodic = false;
+    if (atmos->xLowerBc.type == PERIODIC && atmos->xUpperBc.type == PERIODIC)
     {
-        printf("Only supporting periodic x BCs for now!\n");
+        periodic = true;
+    }
+    else if (! (atmos->xLowerBc.type == CALLABLE && atmos->xUpperBc.type == CALLABLE))
+    {
+        printf("Mixed boundary types not supported on x-axis!\n");
         assert(false);
     }
 
@@ -349,7 +302,9 @@ void build_intersection_list(Atmosphere* atmos)
                     auto dw = dw_intersection_2d(gridData, k, j);
                     uw.distance = abs(uw.distance);
                     dw.distance = abs(dw.distance);
-                    bool longChar = (j == jStart && uw.axis == InterpolationAxis::Z);
+                    bool longChar = (periodic &&
+                                     j == jStart &&
+                                     uw.axis == InterpolationAxis::Z);
                     int longCharIdx = -1;
                     int substepIdx = -1;
 
@@ -402,9 +357,14 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
     // printf("%d %d %d %d\n", atmos->Nspace, atmos->Nx, atmos->Ny, atmos->Nz);
     assert(bool(atmos->intersections));
 
-    if (atmos->xLowerBc.type != PERIODIC || atmos->xUpperBc.type != PERIODIC)
+    bool periodic = false;
+    if (atmos->xLowerBc.type == PERIODIC && atmos->xUpperBc.type == PERIODIC)
     {
-        printf("Only supporting periodic x BCs for now!\n");
+        periodic = true;
+    }
+    else if (! (atmos->xLowerBc.type == CALLABLE && atmos->xUpperBc.type == CALLABLE))
+    {
+        printf("Mixed boundary types not supported on x-axis!\n");
         assert(false);
     }
 
@@ -449,6 +409,26 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
     if (computeOperator)
         Psi = fd->Psi.reshape(atmos->Nz, atmos->Nx);
     F64View2D temperature = atmos->temperature.reshape(atmos->Nz, atmos->Nx);
+
+    if (!periodic)
+    {
+        if (mux > 0)
+        {
+            for (int k = 0; k < atmos->Nz; ++k)
+            {
+                I(k, 0) = atmos->xLowerBc.bcData(la, mu);
+                Psi(k, 0) = 0.0;
+            }
+        }
+        else if (mux < 0)
+        {
+            for (int k = 0; k < atmos->Nz; ++k)
+            {
+                I(k, atmos->Nx-1) = atmos->xUpperBc.bcData(la, mu);
+                Psi(k, atmos->Nx-1) = 0.0;
+            }
+        }
+    }
 
     RadiationBc bcType = If toObs
                          Then atmos->zLowerBc.type
@@ -655,9 +635,14 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
     // printf("%d %d %d %d\n", atmos->Nspace, atmos->Nx, atmos->Ny, atmos->Nz);
     assert(bool(atmos->intersections));
 
-    if (atmos->xLowerBc.type != PERIODIC || atmos->xUpperBc.type != PERIODIC)
+    bool periodic = false;
+    if (atmos->xLowerBc.type == PERIODIC && atmos->xUpperBc.type == PERIODIC)
     {
-        printf("Only supporting periodic x BCs for now!\n");
+        periodic = true;
+    }
+    else if (! (atmos->xLowerBc.type == CALLABLE && atmos->xUpperBc.type == CALLABLE))
+    {
+        printf("Mixed boundary types not supported on x-axis!\n");
         assert(false);
     }
 
@@ -703,6 +688,26 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
         Psi = fd->Psi.reshape(atmos->Nz, atmos->Nx);
     Psi.fill(0.0);
     F64View2D temperature = atmos->temperature.reshape(atmos->Nz, atmos->Nx);
+
+    if (!periodic)
+    {
+        if (mux > 0)
+        {
+            for (int k = 0; k < atmos->Nz; ++k)
+            {
+                I(k, 0) = atmos->xLowerBc.bcData(la, k);
+                Psi(k, 0) = 0.0;
+            }
+        }
+        else if (mux < 0)
+        {
+            for (int k = 0; k < atmos->Nz; ++k)
+            {
+                I(k, atmos->Nx-1) = atmos->xUpperBc.bcData(la, k);
+                Psi(k, atmos->Nx-1) = 0.0;
+            }
+        }
+    }
 
     RadiationBc bcType = If toObs
                          Then atmos->zLowerBc.type

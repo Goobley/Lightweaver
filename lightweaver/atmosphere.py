@@ -300,6 +300,30 @@ class Atmosphere:
         return self.structure.z
 
     @property
+    def zLowerBc(self) -> BoundaryCondition:
+        return self.structure.zLowerBc
+
+    @property
+    def zUpperBc(self) -> BoundaryCondition:
+        return self.structure.zUpperBc
+
+    @property
+    def yLowerBc(self) -> BoundaryCondition:
+        return self.structure.yLowerBc
+
+    @property
+    def yUpperBc(self) -> BoundaryCondition:
+        return self.structure.yUpperBc
+
+    @property
+    def xLowerBc(self) -> BoundaryCondition:
+        return self.structure.xLowerBc
+
+    @property
+    def xUpperBc(self) -> BoundaryCondition:
+        return self.structure.xUpperBc
+
+    @property
     def Nspace(self):
         return self.structure.Nspace
 
