@@ -784,11 +784,6 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
                 f64 SC = besser_control_point(dtauUw, dtauDw, Suw, SLocal, Sdw);
 
                 f64 Iuw = interp_param(gridData, uwIntersection, I);
-                if (Iuw < 0.0)
-                {
-                    printf("uw neg %d, %d, %d\n", k, j, mu);
-                    assert(false);
-                }
                 auto coeffs = besser_coeffs(dtauUw);
 
                 I(k, j) = coeffs.edt * Iuw + coeffs.M * Suw + coeffs.O * SLocal + coeffs.C * SC;

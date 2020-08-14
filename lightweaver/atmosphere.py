@@ -372,7 +372,7 @@ class Atmosphere:
         if hydrogenPops is not None:
             hydrogenPops = (hydrogenPops << u.m**(-3)).value
         if nHTot is not None:
-            nHTot = (nHTot << u.m(-3)).value
+            nHTot = (nHTot << u.m**(-3)).value
         if B is not None:
             B = (B << u.T).value
         if gammaB is not None:

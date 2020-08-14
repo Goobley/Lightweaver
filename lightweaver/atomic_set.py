@@ -306,7 +306,7 @@ class SpeciesStateTable:
         return table.unit_view()
 
     def __getitem__(self, name: Union[int, Tuple[int, int], str, Element]) -> np.ndarray:
-        if name == 'H-':
+        if isinstance(name, str) and  name == 'H-':
             return self.HminPops
         else:
             if name in self.molecularTable:
