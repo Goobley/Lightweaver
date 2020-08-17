@@ -178,7 +178,7 @@ IntersectionResult uw_intersection_2d_frac_x(const IntersectionData& grid, Inter
 }
 
 
-f64 interp_param(const IntersectionData& grid, const IntersectionResult& loc,
+f64 interp_param_lin(const IntersectionData& grid, const IntersectionResult& loc,
                  const F64View2D& param)
 {
     // TODO(cmo): This is only linear for now. Probably copy out small range to
@@ -220,135 +220,181 @@ f64 interp_param(const IntersectionData& grid, const IntersectionResult& loc,
     }
 }
 
-void build_intersection_list(Atmosphere* atmos)
+f64 besser_control_point(f64 hM, f64 hP, f64 yM, f64 yO, f64 yP)
 {
-    if (atmos->Ndim != 2)
-        return;
+    // TODO(cmo): This doesn't necessarily work as we don't actually assume h is
+    // positive, so the tests later (dM < 0.0) are wrong
+    const f64 deltaMO = (yO - yM);
+    const f64 dM = (yO - yM) / hM;
+    const f64 dP = (yP - yO) / hP;
 
-    bool periodic = false;
-    if (atmos->xLowerBc.type == PERIODIC && atmos->xUpperBc.type == PERIODIC)
+    if (dM * dP <= 0.0)
+        return yO;
+
+    f64 yOp = (hM * dP + hP * dM) / (hM + hP);
+    f64 cM = yO - 0.5 * hM * yOp;
+    f64 cP = yO + 0.5 * hP * yOp;
+
+    // NOTE(cmo): We know dM and dP have the same sign, so if deltaMO is positive, M < O < P
+    f64 minYMO = yM;
+    f64 maxYMO = yO;
+    f64 minYOP = yO;
+    f64 maxYOP = yP;
+    if (deltaMO < 0.0)
     {
-        periodic = true;
+        minYMO = yO;
+        maxYMO = yM;
+        minYOP = yP;
+        maxYOP = yO;
     }
-    else if (! (atmos->xLowerBc.type == CALLABLE && atmos->xUpperBc.type == CALLABLE))
+
+    if (cM < minYMO || cM > maxYMO)
+        return yM;
+
+    if (cP < minYOP || cP > maxYOP)
     {
-        printf("Mixed boundary types not supported on x-axis!\n");
-        assert(false);
+        cP = yP;
+        yOp = (cP - yO) / (0.5 * hP);
+        cM = yO - 0.5 * hM * yOp;
     }
 
-    atmos->intersections.init(atmos->Nrays, atmos->Nz, atmos->Nx);
-    auto& intersections = atmos->intersections.intersections;
+    return cM;
+}
 
-    for (int mu = 0; mu < atmos->muz.shape(0); ++mu)
+
+f64 interp_param(const IntersectionData& grid, const IntersectionResult& loc,
+                        const F64View2D& param)
+{
+    switch (loc.axis)
     {
-        for (int toObsI = 0; toObsI < 2; ++toObsI)
+        case InterpolationAxis::None:
         {
-            bool toObs = (bool)toObsI;
-            f64 muz = If toObs Then atmos->muz(mu) Else -atmos->muz(mu) End;
-            f64 mux = If toObs Then atmos->mux(mu) Else -atmos->mux(mu) End;
+            int x = int(loc.fractionalX);
+            int z = int(loc.fractionalZ);
 
-            // NOTE(cmo): As always, assume toObs
-            int dk = -1;
-            int kStart = atmos->Nz - 1;
-            int kEnd = 0;
-            if (!toObs)
+            f64 result = param(z, x);
+            return result;
+        } break;
+
+        case InterpolationAxis::X:
+        {
+            int xm, xp, z;
+            f64 frac;
+            xm = int(loc.fractionalX);
+            xp = xm + 1;
+            frac = loc.fractionalX - xm;
+            z = int(loc.fractionalZ);
+
+            if (grid.xStep < 0)
             {
-                dk = 1;
-                kStart = 0;
-                kEnd = atmos->Nz - 1;
-            }
-
-            // NOTE(cmo): Assume mux >= 0 and correct if not
-            // NOTE(cmo): L->R
-            int dj = 1;
-            int jStart = 0;
-            int jEnd = atmos->Nx - 1;
-            if (mux < 0)
-            {
-                dj = -1;
-                jStart = jEnd;
-                jEnd = 0;
-            }
-
-            IntersectionData gridData {atmos->x,
-                                    atmos->z,
-                                    mux,
-                                    muz,
-                                    atmos->x(0) - (atmos->x(1) - atmos->x(0)),
-                                    toObs,
-                                    dj,
-                                    jStart,
-                                    jEnd,
-                                    dk,
-                                    kStart,
-                                    kEnd};
-
-            int k = kStart;
-            // NOTE(cmo): Handle BC in starting plane
-            for (int j = jStart; j != jEnd + dj; j += dj)
-            {
-                IntersectionResult uw(InterpolationAxis::None, k, j, 0.0);
-                auto dw = dw_intersection_2d(gridData, k, j);
-                dw.distance = abs(dw.distance);
-                intersections(mu, toObsI, k, j) = InterpolationStencil{uw, dw, -1, -1};
-            }
-            k += dk;
-
-            for (; k != kEnd; k += dk)
-            {
-                for (int j = jStart; j != jEnd + dj; j += dj)
+                // NOTE(cmo): xStep is negative so our upwind 3 point stencil is xm+2, xm+1, xm
+                // M = xm
+                // O = xp
+                // P = xp - dx
+                if (xp == grid.xStart)
                 {
-                    auto uw = uw_intersection_2d(gridData, k, j);
-                    auto dw = dw_intersection_2d(gridData, k, j);
-                    uw.distance = abs(uw.distance);
-                    dw.distance = abs(dw.distance);
-                    bool longChar = (periodic &&
-                                     j == jStart &&
-                                     uw.axis == InterpolationAxis::Z);
-                    int longCharIdx = -1;
-                    int substepIdx = -1;
-
-                    if (longChar)
-                    {
-                        atmos->intersections.substeps.emplace_back(SubstepIntersections{});
-                        auto& substeps = atmos->intersections.substeps.back();
-                        longCharIdx = atmos->intersections.substeps.size() - 1;
-
-                        auto locToUpwind = uw;
-                        while (true)
-                        {
-                            auto uuw = uw_intersection_2d_frac_x(gridData, locToUpwind);
-                            uuw.distance = abs(uuw.distance);
-                            substeps.steps.emplace_back(uuw);
-                            if (uuw.axis != InterpolationAxis::Z)
-                            {
-                                // NOTE(cmo): As we filled dw->uw, it makes
-                                // sense to reverse the vector now.
-
-                                // TODO(cmo): Make this a useful contiguous buffer for solving the RTE along
-                                std::reverse(std::begin(substeps.steps), std::end(substeps.steps));
-                                substeps.steps.emplace_back(uw);
-                                break;
-                            }
-                            locToUpwind = uuw;
-                        }
-                    }
-                    intersections(mu, toObsI, k, j) = InterpolationStencil{uw, dw,
-                                                                           longCharIdx, substepIdx};
+                    f64 result = (1.0 - frac) * param(z, xm) + frac * param(z, xp);
+                    return result;
                 }
+                f64 xM = grid.x(xm);
+                f64 hM = grid.x(xp) - grid.x(xm);
+                f64 hP = grid.x(xp-grid.xStep) - grid.x(xp);
+                f64 yM = param(z, xm);
+                f64 yO = param(z, xp);
+                f64 yP = param(z, xp-grid.xStep);
+
+                f64 cM = besser_control_point(hM, hP, yM, yO, yP);
+                f64 u = frac;
+
+                f64 result = square(1.0 - u) * yM + 2.0 * u * (1.0 - u) * cM + square(u) * yO;
+                return result;
+            }
+            else
+            {
+                // NOTE(cmo): Stencil is xm-1, xm, xm+1
+                // M = xp
+                // O = xm
+                // P = xm - dx
+                if (xm == grid.xStart)
+                {
+                    f64 result = (1.0 - frac) * param(z, xm) + frac * param(z, xp);
+                    return result;
+                }
+                f64 xM = grid.x(xp);
+                f64 hM = grid.x(xm) - grid.x(xp);
+                f64 hP = grid.x(xm-grid.xStep) - grid.x(xm);
+                f64 yM = param(z, xp);
+                f64 yO = param(z, xm);
+                f64 yP = param(z, xm-grid.xStep);
+
+                f64 cM = besser_control_point(hM, hP, yM, yO, yP);
+                f64 u = 1.0 - frac;
+
+                f64 result = square(1.0 - u) * yM + 2.0 * u * (1.0 - u) * cM + square(u) * yO;
+                return result;
             }
 
-            k = kEnd;
-            for (int j = jStart; j != jEnd + dj; j += dj)
+        } break;
+
+        case InterpolationAxis::Z:
+        {
+            int zm = int(loc.fractionalZ);
+            int zp = zm + 1;
+            f64 frac = loc.fractionalZ - zm;
+            int x = int(loc.fractionalX);
+
+            if (grid.zStep < 0)
             {
-                auto uw = uw_intersection_2d(gridData, k, j);
-                uw.distance = abs(uw.distance);
-                IntersectionResult dw(InterpolationAxis::None, k, j, 0.0);
-                intersections(mu, toObsI, k, j) = InterpolationStencil{uw, dw, -1, -1};
+                // NOTE(cmo): zStep is negative so our upwind 3 point stencil is zm+2, zm+1, zm
+                // M = zm
+                // O = zp
+                // P = zp - dz
+                if (zp == grid.zStart)
+                {
+                    f64 result = (1.0 - frac) * param(zm, x) + frac * param(zp, x);
+                    return result;
+                }
+                f64 xM = grid.z(zm);
+                f64 hM = grid.z(zp) - grid.z(zm);
+                f64 hP = grid.z(zp-grid.zStep) - grid.z(zp);
+                f64 yM = param(zm, x);
+                f64 yO = param(zp, x);
+                f64 yP = param(zp-grid.zStep, x);
+
+                f64 cM = besser_control_point(hM, hP, yM, yO, yP);
+                f64 u = frac;
+
+                f64 result = square(1.0 - u) * yM + 2.0 * u * (1.0 - u) * cM + square(u) * yO;
+                return result;
             }
-        }
+            else
+            {
+                // NOTE(cmo): Stencil is zm-1, zm, zm+1
+                // M = zp
+                // O = zm
+                // P = zm - dz
+                if (zm == grid.xStart)
+                {
+                    f64 result = (1.0 - frac) * param(zm, x) + frac * param(zp, x);
+                    return result;
+                }
+                f64 xM = grid.z(zp);
+                f64 hM = grid.z(zm) - grid.z(zp);
+                f64 hP = grid.z(zm-grid.xStep) - grid.z(zm);
+                f64 yM = param(zp, x);
+                f64 yO = param(zm, x);
+                f64 yP = param(zm-grid.zStep, x);
+
+                f64 cM = besser_control_point(hM, hP, yM, yO, yP);
+                f64 u = 1.0 - frac;
+
+                f64 result = square(1.0 - u) * yM + 2.0 * u * (1.0 - u) * cM + square(u) * yO;
+                return result;
+            }
+        } break;
     }
 }
+
 
 void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
 {
@@ -558,43 +604,6 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
     }
 }
 
-f64 besser_control_point(f64 hM, f64 hP, f64 yM, f64 yO, f64 yP)
-{
-    const f64 dM = (yO - yM) / hM;
-    const f64 dP = (yP - yO) / hP;
-
-    if (dM * dP <= 0.0)
-        return yO;
-
-    f64 yOp = (hM * dP + hP * dM) / (hM + hP);
-    f64 cM = yO - 0.5 * hM * yOp;
-    f64 cP = yO + 0.5 * hP * yOp;
-
-    // NOTE(cmo): We know dM and dP have the same sign, so if dM is positive, M < O < P
-    f64 minYMO = yM;
-    f64 maxYMO = yO;
-    f64 minYOP = yO;
-    f64 maxYOP = yP;
-    if (dM < 0.0)
-    {
-        minYMO = yO;
-        maxYMO = yM;
-        minYOP = yP;
-        maxYOP = yO;
-    }
-
-    if (cM < minYMO || cM > maxYMO)
-        return yM;
-
-    if (cP < minYOP || cP > maxYOP)
-    {
-        cP = yP;
-        yOp = (cP - yO) / (0.5 * hP);
-        cM = yO - 0.5 * hM * yOp;
-    }
-
-    return cM;
-}
 
 struct BesserCoeffs
 {
@@ -966,4 +975,134 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
     }
 }
 
+}
+
+void build_intersection_list(Atmosphere* atmos)
+{
+    if (atmos->Ndim != 2)
+        return;
+
+    bool periodic = false;
+    if (atmos->xLowerBc.type == PERIODIC && atmos->xUpperBc.type == PERIODIC)
+    {
+        periodic = true;
+    }
+    else if (! (atmos->xLowerBc.type == CALLABLE && atmos->xUpperBc.type == CALLABLE))
+    {
+        printf("Mixed boundary types not supported on x-axis!\n");
+        assert(false);
+    }
+
+    atmos->intersections.init(atmos->Nrays, atmos->Nz, atmos->Nx);
+    auto& intersections = atmos->intersections.intersections;
+
+    for (int mu = 0; mu < atmos->muz.shape(0); ++mu)
+    {
+        for (int toObsI = 0; toObsI < 2; ++toObsI)
+        {
+            bool toObs = (bool)toObsI;
+            f64 muz = If toObs Then atmos->muz(mu) Else -atmos->muz(mu) End;
+            f64 mux = If toObs Then atmos->mux(mu) Else -atmos->mux(mu) End;
+
+            // NOTE(cmo): As always, assume toObs
+            int dk = -1;
+            int kStart = atmos->Nz - 1;
+            int kEnd = 0;
+            if (!toObs)
+            {
+                dk = 1;
+                kStart = 0;
+                kEnd = atmos->Nz - 1;
+            }
+
+            // NOTE(cmo): Assume mux >= 0 and correct if not
+            // NOTE(cmo): L->R
+            int dj = 1;
+            int jStart = 0;
+            int jEnd = atmos->Nx - 1;
+            if (mux < 0)
+            {
+                dj = -1;
+                jStart = jEnd;
+                jEnd = 0;
+            }
+
+            IntersectionData gridData {atmos->x,
+                                    atmos->z,
+                                    mux,
+                                    muz,
+                                    atmos->x(0) - (atmos->x(1) - atmos->x(0)),
+                                    toObs,
+                                    dj,
+                                    jStart,
+                                    jEnd,
+                                    dk,
+                                    kStart,
+                                    kEnd};
+
+            int k = kStart;
+            // NOTE(cmo): Handle BC in starting plane
+            for (int j = jStart; j != jEnd + dj; j += dj)
+            {
+                IntersectionResult uw(InterpolationAxis::None, k, j, 0.0);
+                auto dw = dw_intersection_2d(gridData, k, j);
+                dw.distance = abs(dw.distance);
+                intersections(mu, toObsI, k, j) = InterpolationStencil{uw, dw, -1, -1};
+            }
+            k += dk;
+
+            for (; k != kEnd; k += dk)
+            {
+                for (int j = jStart; j != jEnd + dj; j += dj)
+                {
+                    auto uw = uw_intersection_2d(gridData, k, j);
+                    auto dw = dw_intersection_2d(gridData, k, j);
+                    uw.distance = abs(uw.distance);
+                    dw.distance = abs(dw.distance);
+                    bool longChar = (periodic &&
+                                     j == jStart &&
+                                     uw.axis == InterpolationAxis::Z);
+                    int longCharIdx = -1;
+                    int substepIdx = -1;
+
+                    if (longChar)
+                    {
+                        atmos->intersections.substeps.emplace_back(SubstepIntersections{});
+                        auto& substeps = atmos->intersections.substeps.back();
+                        longCharIdx = atmos->intersections.substeps.size() - 1;
+
+                        auto locToUpwind = uw;
+                        while (true)
+                        {
+                            auto uuw = uw_intersection_2d_frac_x(gridData, locToUpwind);
+                            uuw.distance = abs(uuw.distance);
+                            substeps.steps.emplace_back(uuw);
+                            if (uuw.axis != InterpolationAxis::Z)
+                            {
+                                // NOTE(cmo): As we filled dw->uw, it makes
+                                // sense to reverse the vector now.
+
+                                // TODO(cmo): Make this a useful contiguous buffer for solving the RTE along
+                                std::reverse(std::begin(substeps.steps), std::end(substeps.steps));
+                                substeps.steps.emplace_back(uw);
+                                break;
+                            }
+                            locToUpwind = uuw;
+                        }
+                    }
+                    intersections(mu, toObsI, k, j) = InterpolationStencil{uw, dw,
+                                                                           longCharIdx, substepIdx};
+                }
+            }
+
+            k = kEnd;
+            for (int j = jStart; j != jEnd + dj; j += dj)
+            {
+                auto uw = uw_intersection_2d(gridData, k, j);
+                uw.distance = abs(uw.distance);
+                IntersectionResult dw(InterpolationAxis::None, k, j, 0.0);
+                intersections(mu, toObsI, k, j) = InterpolationStencil{uw, dw, -1, -1};
+            }
+        }
+    }
 }

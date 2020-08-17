@@ -209,5 +209,7 @@ struct Atmosphere
     void update_projections();
 };
 
+void build_intersection_list(Atmosphere* atmos);
+
 #else
 #endif

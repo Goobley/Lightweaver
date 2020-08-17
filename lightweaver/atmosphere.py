@@ -532,6 +532,8 @@ class Atmosphere:
                             break
                     else:
                         raise ConvergenceError('No convergence in HSE at depth point %d, last change %2.4e' % (k, change))
+            nHTot = np.copy(rho / (Const.CM_TO_M**3 / Const.G_TO_KG) / (Const.Amu * abundance.massPerH))
+            ne = np.copy(pe / (eos.BK * temperature) / Const.CM_TO_M**3)
 
         # NOTE(cmo): Compute final pgas, pe from EOS that will be used for
         # background opacity.

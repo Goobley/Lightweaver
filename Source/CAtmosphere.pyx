@@ -87,6 +87,7 @@ cdef extern from "Lightweaver.hpp":
         AtmosphericBoundaryCondition zUpperBc
 
         void update_projections()
+    cdef void build_intersection_list(Atmosphere* atmos)
 
 cdef extern from "Lightweaver.hpp" namespace "PrdCores":
     cdef int max_fine_grid_size()
@@ -413,7 +414,7 @@ cdef class LwAtmosphere:
         self.atmos.vlosMu = f64_view_2(self.vlosMu)
 
         self.configure_bcs(atmos)
-        self.atmos.update_projections()
+        self.update_projections()
 
     def configure_bcs(self, atmos):
         cdef int Nx = atmos.Nx
@@ -463,6 +464,7 @@ cdef class LwAtmosphere:
 
     def update_projections(self):
         self.atmos.update_projections()
+        build_intersection_list(&self.atmos)
 
     def __getstate__(self):
         state = {}
@@ -2199,7 +2201,7 @@ cdef class LwContext:
         return maxDelta
 
     cpdef update_projections(self):
-        self.atmos.atmos.update_projections()
+        self.atmos.update_projections()
 
     cpdef setup_stokes(self, recompute=False):
         try:

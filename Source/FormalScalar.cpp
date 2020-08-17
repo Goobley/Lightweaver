@@ -908,7 +908,7 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
     // feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
     JasUnpack(*ctx, atmos, spect, background, depthData);
     JasUnpack(ctx, activeAtoms, detailedAtoms);
-    build_intersection_list(&atmos);
+    // build_intersection_list(&atmos);
 
     const int Nspace = atmos.Nspace;
     const int Nspect = spect.wavelength.shape(0);
