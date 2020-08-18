@@ -32,8 +32,31 @@ FormalSolverManager::FormalSolverManager()
 
 FormalSolverManager::~FormalSolverManager()
 {
-    // for (const auto& lib : libs)
-    // {
-    //     close_library(lib);
-    // }
+}
+
+InterpFnManager::InterpFnManager()
+{
+    fns.emplace_back(InterpFn(2, "interp_linear_2d", interp_linear_2d));
+    fns.emplace_back(InterpFn(2, "interp_besser_2d", interp_besser_2d));
+}
+
+InterpFnManager::~InterpFnManager()
+{
+}
+
+bool InterpFnManager::load_fn_from_path(const char* path)
+{
+    PlatformSharedLibrary lib{};
+    if (!load_library(&lib, path))
+        return false;
+
+    libs.emplace_back(lib);
+
+    InterpProvider interp_provider = load_function<InterpProvider>(lib, "interp_fn_provider");
+    if (!interp_provider)
+        return false;
+
+    InterpFn interp = interp_provider();
+    fns.emplace_back(interp);
+    return true;
 }

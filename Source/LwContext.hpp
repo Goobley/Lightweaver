@@ -27,7 +27,7 @@ struct Context
     int Nthreads;
     LwInternal::ThreadData threading;
     FormalSolver formalSolver;
-    int formalSolverIdx;
+    InterpFn interpFn;
 
     void initialise_threads()
     {

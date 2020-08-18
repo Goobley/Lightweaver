@@ -330,6 +330,7 @@ void IntensityCoreFactory::initialise(Context* ctx)
     background = ctx->background;
     depthData = ctx->depthData;
     formal_solver = ctx->formalSolver.solver;
+    interp = ctx->interpFn;
     // if (ctx->Nthreads <= 1)
     //     return;
 
@@ -361,6 +362,7 @@ IntensityCoreData* IntensityCoreFactory::new_intensity_core(bool psiOperator)
     fd.chi = as.chiTot;
     fd.S = as.S;
     fd.I = as.I;
+    fd.interp = interp.interp_2d;
     if (psiOperator)
         fd.Psi = as.PsiStar;
 

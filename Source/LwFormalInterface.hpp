@@ -2,6 +2,7 @@
 #define CMO_LW_FORMAL_INTERFACE_HPP
 
 #include "Constants.hpp"
+#include "LwAtmosphere.hpp"
 #ifdef _WIN32
     #include "LwFormalInterfaceWin.hpp"
 #else
@@ -34,6 +35,36 @@ struct FormalSolverManager
     FormalSolverManager();
     ~FormalSolverManager();
     bool load_fs_from_path(const char* path);
+};
+
+typedef f64(*Interp2d)(const IntersectionData& grid, const IntersectionResult& loc,
+                       const F64View2D& param);
+
+struct InterpFn
+{
+    int Ndim;
+    const char* name;
+    Interp2d interp_2d;
+    InterpFn() : Ndim(),
+                 name(""),
+                 interp_2d(nullptr)
+    {}
+    InterpFn(int _Ndim, const char* _name, Interp2d interp) : Ndim(_Ndim),
+                                                              name(_name),
+                                                              interp_2d(interp)
+    {}
+};
+
+typedef InterpFn(*InterpProvider)();
+
+struct InterpFnManager
+{
+    std::vector<InterpFn> fns;
+    std::vector<PlatformSharedLibrary> libs;
+
+    InterpFnManager();
+    ~InterpFnManager();
+    bool load_fn_from_path(const char* path);
 };
 
 #else

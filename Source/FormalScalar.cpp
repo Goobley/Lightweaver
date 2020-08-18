@@ -931,6 +931,7 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
         fd.S = S;
         fd.Psi = PsiStar;
         fd.I = I;
+        fd.interp = ctx.interpFn.interp_2d;
         IntensityCoreData iCore;
         JasPackPtr(iCore, atmos, spect, fd, background, depthData);
         JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
@@ -1105,6 +1106,7 @@ f64 formal_sol_update_rates(Context& ctx)
     fd.chi = chiTot;
     fd.S = S;
     fd.I = I;
+    fd.interp = ctx.interpFn.interp_2d;
     IntensityCoreData iCore;
     JasPackPtr(iCore, atmos, spect, fd, background, depthData);
     JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
@@ -1157,6 +1159,7 @@ f64 formal_sol_update_rates_fixed_J(Context& ctx)
     fd.chi = chiTot;
     fd.S = S;
     fd.I = I;
+    fd.interp = ctx.interpFn.interp_2d;
     IntensityCoreData iCore;
     JasPackPtr(iCore, atmos, spect, fd, background, depthData);
     JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
@@ -1206,6 +1209,7 @@ f64 formal_sol(Context& ctx)
     fd.chi = chiTot;
     fd.S = S;
     fd.I = I;
+    fd.interp = ctx.interpFn.interp_2d;
     IntensityCoreData iCore;
     JasPackPtr(iCore, atmos, spect, fd, background, depthData);
     JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);

@@ -34,7 +34,6 @@ template <typename F>
 F load_function(PlatformSharedLibrary lib, const char* name)
 {
     F f = (F)dlsym(lib.handle, name);
-    if (!f)
         return nullptr;
 
     return f;

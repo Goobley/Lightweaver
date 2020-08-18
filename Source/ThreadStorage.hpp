@@ -105,6 +105,7 @@ struct IntensityCoreFactory
     Background* background;
     DepthData* depthData;
     LwFsFn formal_solver;
+    InterpFn interp;
     std::vector<AtomStorageFactory> activeAtoms;
     std::vector<AtomStorageFactory> detailedAtoms;
     std::vector<std::unique_ptr<IntensityCoreStorage>> arrayStorage;

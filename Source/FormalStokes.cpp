@@ -644,6 +644,7 @@ f64 formal_sol_full_stokes(Context& ctx, bool updateJ)
     fd.fdIntens.chi = fd.chi(0);
     fd.fdIntens.S = fd.S(0);
     fd.fdIntens.I = fd.I(0);
+    fd.fdIntens.interp = ctx.interpFn.interp_2d;
     StokesCoreData core;
     JasPackPtr(core, atmos, spect, fd, background);
     JasPackPtr(core, activeAtoms, detailedAtoms, JDag);

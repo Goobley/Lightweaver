@@ -20,6 +20,7 @@ namespace LwInternal
         F64View S;
         F64View I;
         F64View Psi;
+        Interp2d interp;
     };
 
     struct FormalDataStokes
@@ -113,7 +114,8 @@ namespace LwInternal
     void piecewise_parabolic_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav);
     void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int la, int mu, bool toObs, f64 wav, bool polarisedFrequency);
     f64 intensity_core(IntensityCoreData& data, int la, FsMode mode);
-    // f64 interp_param(const IntersectionData&, const IntersectionResult&, const F64View2D&);
+    f64 interp_linear_2d(const IntersectionData&, const IntersectionResult&, const F64View2D&);
+    f64 interp_besser_2d(const IntersectionData&, const IntersectionResult&, const F64View2D&);
 }
 #else
 #endif

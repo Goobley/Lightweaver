@@ -178,8 +178,8 @@ IntersectionResult uw_intersection_2d_frac_x(const IntersectionData& grid, Inter
 }
 
 
-f64 interp_param_lin(const IntersectionData& grid, const IntersectionResult& loc,
-                 const F64View2D& param)
+f64 interp_linear_2d(const IntersectionData& grid, const IntersectionResult& loc,
+                     const F64View2D& param)
 {
     // TODO(cmo): This is only linear for now. Probably copy out small range to
     // contiguous buffer in future.
@@ -222,8 +222,6 @@ f64 interp_param_lin(const IntersectionData& grid, const IntersectionResult& loc
 
 f64 besser_control_point(f64 hM, f64 hP, f64 yM, f64 yO, f64 yP)
 {
-    // TODO(cmo): This doesn't necessarily work as we don't actually assume h is
-    // positive, so the tests later (dM < 0.0) are wrong
     const f64 deltaMO = (yO - yM);
     const f64 dM = (yO - yM) / hM;
     const f64 dP = (yP - yO) / hP;
@@ -262,8 +260,8 @@ f64 besser_control_point(f64 hM, f64 hP, f64 yM, f64 yO, f64 yP)
 }
 
 
-f64 interp_param(const IntersectionData& grid, const IntersectionResult& loc,
-                        const F64View2D& param)
+f64 interp_besser_2d(const IntersectionData& grid, const IntersectionResult& loc,
+                     const F64View2D& param)
 {
     switch (loc.axis)
     {
@@ -399,6 +397,7 @@ f64 interp_param(const IntersectionData& grid, const IntersectionResult& loc,
 void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
 {
     auto& atmos = fd->atmos;
+    auto& interp_param = fd->interp;
     // printf(".............................................\n");
     // printf("%d %d %d %d\n", atmos->Nspace, atmos->Nx, atmos->Ny, atmos->Nz);
     assert(bool(atmos->intersections));
@@ -640,6 +639,7 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
 {
     // NOTE(cmo): Implmentation of BESSER method following Stepan & Trujillo Bueno (2013) A&A, 557, A143. This is a 2D variant for scalar intensity, but following the same limiting principles, used to integrate chi and S.
     auto& atmos = fd->atmos;
+    auto& interp_param = fd->interp;
     // printf(".............................................\n");
     // printf("%d %d %d %d\n", atmos->Nspace, atmos->Nx, atmos->Ny, atmos->Nz);
     assert(bool(atmos->intersections));

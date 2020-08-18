@@ -33,6 +33,15 @@ cdef extern from "LwFormalInterface.hpp":
         vector[FormalSolver] formalSolvers;
         bool_t load_fs_from_path(const char* path)
 
+    cdef cppclass InterpFn:
+        int Ndim
+        const char* name
+        InterpFn()
+
+    cdef cppclass InterpFnManager:
+        vector[InterpFn] fns
+        bool_t load_fn_from_path(const char* path)
+
 cdef extern from "Lightweaver.hpp":
     cdef enum RadiationBc:
         UNINITIALISED
@@ -220,10 +229,10 @@ cdef extern from "Lightweaver.hpp":
         Background* background
         DepthData* depthData
         int Nthreads
+        FormalSolver formalSolver
+        InterpFn interpFn
         void initialise_threads()
         void update_threads()
-        FormalSolver formalSolver
-        int formalSolverIdx
 
     cdef cppclass PrdIterData:
         int iter
@@ -1920,9 +1929,10 @@ cdef class LwContext:
                  conserveCharge=False, hprd=False,
                  crswCallback=None, Nthreads=1,
                  backgroundProvider=None,
-                 formalSolver=None):
+                 formalSolver=None,
+                 interpFn=None):
         self.__dict__ = {}
-        self.kwargs = {'atmos': atmos, 'spect': spect, 'eqPops': eqPops, 'ngOptions': ngOptions, 'initSol': initSol, 'conserveCharge': conserveCharge, 'hprd': hprd, 'Nthreads': Nthreads, 'backgroundProvider': backgroundProvider}
+        self.kwargs = {'atmos': atmos, 'spect': spect, 'eqPops': eqPops, 'ngOptions': ngOptions, 'initSol': initSol, 'conserveCharge': conserveCharge, 'hprd': hprd, 'Nthreads': Nthreads, 'backgroundProvider': backgroundProvider, 'formalSolver': formalSolver, 'interpFn': interpFn}
 
         self.atmos = LwAtmosphere(atmos, spect.wavelength.shape[0])
         self.spect = LwSpectrum(spect.wavelength, atmos.Nrays,
@@ -1963,17 +1973,8 @@ cdef class LwContext:
         self.depthData = LwDepthData(*shape)
         self.ctx.depthData = &self.depthData.depthData
 
-        cdef LwFormalSolverManager fsMan = FormalSolvers
-        cdef int fsIdx
-        if formalSolver is not None:
-            fsIdx = fsMan.names.index(formalSolver)
-        else:
-            fsIdx = fsMan.default_formal_solver(self.ctx.atmos.Ndim)
-        self.ctx.formalSolverIdx = fsIdx
-
-        cdef FormalSolver fs = fsMan.manager.formalSolvers[fsIdx]
-        self.ctx.formalSolver = fs
-
+        self.set_formal_solver(formalSolver)
+        self.set_interp_fn(interpFn)
         self.setup_threads(Nthreads)
 
     def __getstate__(self):
@@ -2028,8 +2029,36 @@ cdef class LwContext:
         shape = (self.spect.I.shape[0], self.atmos.Nrays, self.atmos.Nspace)
         self.depthData = state['depthData']
         self.ctx.depthData = &self.depthData.depthData
+        self.set_formal_solver(self.kwargs['formalSolver'])
+        self.set_interp_fn(self.kwargs['interpFn'])
 
         self.setup_threads(state['kwargs']['Nthreads'])
+
+    def set_formal_solver(self, formalSolver):
+        cdef LwFormalSolverManager fsMan = FormalSolvers
+        cdef int fsIdx
+        if formalSolver is not None:
+            fsIdx = fsMan.names.index(formalSolver)
+        else:
+            fsIdx = fsMan.default_formal_solver(self.ctx.atmos.Ndim)
+        cdef FormalSolver fs = fsMan.manager.formalSolvers[fsIdx]
+        self.ctx.formalSolver = fs
+
+    def set_interp_fn(self, interpFn):
+        cdef LwInterpFnManager interpMan = InterpFns
+        cdef int interpIdx
+        cdef InterpFn
+        try:
+            if interpFn is not None:
+                interpIdx = interpMan.names.index(interpFn)
+            else:
+                interpIdx = interpMan.default_interp(self.ctx.atmos.Ndim)
+            interp = interpMan.manager.fns[interpIdx]
+            self.ctx.interpFn = interp
+            return
+        except:
+            pass
+        # self.ctx.interpFn = InterpFn()
 
     @property
     def Nthreads(self):
@@ -2508,5 +2537,41 @@ cdef class LwFormalSolverManager:
         else:
             raise ValueError()
 
+cdef class LwInterpFnManager:
+    cdef InterpFnManager manager
+    cdef public list paths
+    cdef public list names
+
+    def __init__(self):
+        self.paths = []
+        self.names = []
+        cdef int i
+        cdef int size
+        cdef const char* name
+
+        for i in range(self.manager.fns.size()):
+            name = self.manager.fns[i].name
+            self.names.append(name.decode('UTF-8'))
+
+    def load_fs_from_path(self, str path):
+        if path in self.paths:
+            raise ValueError('Tried to load a pre-existing path')
+
+        self.paths.append(path)
+        byteStore = path.encode('UTF-8')
+        cdef const char* cPath = byteStore
+        cdef bool_t success = self.manager.load_fn_from_path(cPath)
+        if not success:
+            raise ValueError('Failed to load interpolation function from library at %s' % path)
+
+        cdef const char* name = self.manager.fns[self.manager.fns.size()-1].name
+        self.names.append(name.decode('UTF-8'))
+
+    def default_interp(self, Ndim):
+        if Ndim == 2:
+            return self.names.index('interp_besser_2d')
+        else:
+            raise ValueError("Unexpected Ndim")
 
 FormalSolvers = LwFormalSolverManager()
+InterpFns = LwInterpFnManager()
