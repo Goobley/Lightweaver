@@ -819,14 +819,40 @@ class Atmosphere:
         # self.muy = np.concatenate((self.muy, [0.0]))
 
 
-    def rays(self, mu: Union[float, Sequence[float]]):
-        if isinstance(mu, float):
-            mu = [mu]
+    def rays(self, muz: Union[float, Sequence[float]],
+             mux: Optional[Union[float, Sequence[float]]]=None,
+             muy: Optional[Union[float, Sequence[float]]]=None):
 
-        self.muz = np.array(mu)
-        self.wmu = np.zeros_like(self.muz)
-        self.muy = np.zeros_like(self.muz)
-        self.mux = np.sqrt(1.0 - self.muz**2)
+        if isinstance(muz, float):
+            muz = [muz]
+        if isinstance(mux, float):
+            mux = [mux]
+        if isinstance(muy, float):
+            muy = [muy]
+
+        if mux is None and muy is None:
+            self.muz = np.array(muz)
+            self.wmu = np.zeros_like(self.muz)
+            self.muy = np.zeros_like(self.muz)
+            self.mux = np.sqrt(1.0 - self.muz**2)
+        elif muy is None:
+            self.muz = np.array(muz)
+            self.wmu = np.zeros_like(self.muz)
+            self.mux = np.array(mux)
+            self.muy = np.sqrt(1.0 - (self.muz**2 + self.mux**2))
+        elif mux is None:
+            self.muz = np.array(muz)
+            self.wmu = np.zeros_like(self.muz)
+            self.muy = np.array(muy)
+            self.mux = np.sqrt(1.0 - (self.muz**2 + self.muy**2))
+        else:
+            self.muz = np.array(muz)
+            self.mux = np.array(mux)
+            self.muy = np.array(muy)
+            self.wmu = np.zeros_like(muz)
+
+            if not np.allclose(self.muz**2 + self.mux**2 + self.muy**2, 1):
+                raise ValueError('mux**2 + muy**2 + muz**2 != 1.0')
 
 
 # @dataclass

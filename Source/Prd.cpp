@@ -279,6 +279,7 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<i32> wavelengthIdxs)
         fd.chi = chiTot;
         fd.S = S;
         fd.I = I;
+        fd.interp = ctx.interpFn.interp_2d;
         IntensityCoreData iCore;
         JasPackPtr(iCore, atmos, spect, fd, background, depthData);
         JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);

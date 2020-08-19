@@ -2407,7 +2407,10 @@ cdef class LwContext:
         else:
             atmos = state['kwargs']['atmos']
             if mus is not None:
-                atmos.rays(mus)
+                if isinstance(mus, dict):
+                    atmos.rays(**mus)
+                else:
+                    atmos.rays(mus)
             rayCtx = self.construct_from_state_dict_with(state, spect=spect)
 
         if stokes:
