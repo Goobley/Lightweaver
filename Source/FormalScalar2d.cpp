@@ -371,14 +371,14 @@ f64 interp_besser_2d(const IntersectionData& grid, const IntersectionResult& loc
                 // M = zp
                 // O = zm
                 // P = zm - dz
-                if (zm == grid.xStart)
+                if (zm == grid.zStart)
                 {
                     f64 result = (1.0 - frac) * param(zm, x) + frac * param(zp, x);
                     return result;
                 }
                 f64 xM = grid.z(zp);
                 f64 hM = grid.z(zm) - grid.z(zp);
-                f64 hP = grid.z(zm-grid.xStep) - grid.z(zm);
+                f64 hP = grid.z(zm-grid.zStep) - grid.z(zm);
                 f64 yM = param(zp, x);
                 f64 yO = param(zm, x);
                 f64 yP = param(zm-grid.zStep, x);
