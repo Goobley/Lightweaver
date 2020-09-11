@@ -6,13 +6,6 @@ struct PlatformSharedLibrary
     void* handle;
 };
 
-namespace LwInternal
-{
-bool load_library(PlatformSharedLibrary* lib, const char* path);
-template <typename F> F load_function(PlatformSharedLibrary lib, const char* name);
-void close_library(PlatformSharedLibrary lib);
-}
-
 #ifdef CMO_FORMAL_INTERFACE_IMPL
 #include <dlfcn.h>
 
@@ -34,7 +27,6 @@ template <typename F>
 F load_function(PlatformSharedLibrary lib, const char* name)
 {
     F f = (F)dlsym(lib.handle, name);
-        return nullptr;
 
     return f;
 }

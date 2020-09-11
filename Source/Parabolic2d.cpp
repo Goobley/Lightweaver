@@ -251,7 +251,15 @@ void piecewise_parabolic_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
 
     if (atmos->xLowerBc.type != PERIODIC || atmos->xUpperBc.type != PERIODIC)
     {
-        printf("Only supporting periodic x BCs for now!\n");
+        // printf("%d, %d, %d, %d, %d, %d\n", atmos->zLowerBc.type,
+        //                                    atmos->zUpperBc.type,
+        //                                    atmos->xLowerBc.type,
+        //                                    atmos->xUpperBc.type,
+        //                                    atmos->yLowerBc.type,
+        //                                    atmos->yUpperBc.type
+        // );
+        printf("Only supporting periodic x BCs for now! %d, %d\n", atmos->xLowerBc.type,
+                                                                   atmos->xUpperBc.type);
         assert(false);
     }
 

@@ -9,13 +9,19 @@ bool FormalSolverManager::load_fs_from_path(const char* path)
 {
     PlatformSharedLibrary lib{};
     if (!load_library(&lib, path))
+    {
+        printf("Fail1\n");
         return false;
+    }
 
     libs.emplace_back(lib);
 
     FsProvider fs_provider = load_function<FsProvider>(lib, "fs_provider");
     if (!fs_provider)
+    {
+        printf("Fail2\n");
         return false;
+    }
 
     FormalSolver fs = fs_provider();
     formalSolvers.emplace_back(fs);

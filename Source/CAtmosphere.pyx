@@ -20,6 +20,7 @@ include 'CmoArrayHelper.pyx'
 np.import_array()
 
 ctypedef np.int8_t i8
+# ctypedef Array1NonOwn[np.int32_t] I32View
 ctypedef Array1NonOwn[np.int32_t] I32View
 ctypedef Array1NonOwn[bool_t] BoolView
 

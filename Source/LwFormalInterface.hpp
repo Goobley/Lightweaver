@@ -3,6 +3,15 @@
 
 #include "Constants.hpp"
 #include "LwAtmosphere.hpp"
+
+struct PlatformSharedLibrary;
+namespace LwInternal
+{
+bool load_library(PlatformSharedLibrary* lib, const char* path);
+template <typename F> F load_function(PlatformSharedLibrary lib, const char* name);
+void close_library(PlatformSharedLibrary lib);
+}
+
 #ifdef _WIN32
     #include "LwFormalInterfaceWin.hpp"
 #else

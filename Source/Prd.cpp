@@ -255,7 +255,7 @@ void prd_scatter(Transition* t, F64View PjQj, const Atom& atom, const Atmosphere
 }
 }
 
-f64 formal_sol_prd_update_rates(Context& ctx, ConstView<i32> wavelengthIdxs)
+f64 formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelengthIdxs)
 {
     using namespace LwInternal;
     JasUnpack(*ctx, atmos, spect, background, depthData);
@@ -334,7 +334,7 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<i32> wavelengthIdxs)
             IntensityCoreData* core;
             f64 dJ;
             i64 dJIdx;
-            ConstView<i32> idxs;
+            ConstView<int> idxs;
         };
         FsTaskData* taskData = (FsTaskData*)malloc(ctx.Nthreads * sizeof(FsTaskData));
         for (int t = 0; t < ctx.Nthreads; ++t)
@@ -378,7 +378,7 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<i32> wavelengthIdxs)
 
 f64 formal_sol_prd_update_rates(Context& ctx, const std::vector<int>& wavelengthIdxs)
 {
-    return formal_sol_prd_update_rates(ctx, ConstView<i32>(wavelengthIdxs.data(), wavelengthIdxs.size()));
+    return formal_sol_prd_update_rates(ctx, ConstView<int>(wavelengthIdxs.data(), wavelengthIdxs.size()));
 }
 
 PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)

@@ -1,10 +1,8 @@
 #include "LuSolve.hpp"
 #include "Constants.hpp"
+#include "LwMisc.hpp"
 #include <cmath>
 #include <exception>
-
-typedef Jasnah::Array1NonOwn<i32> I32View;
-typedef Jasnah::Array1Own<i32> I32Arr;
 
 
 void lu_decompose(F64View2D A, I32View index, f64* d)
@@ -58,7 +56,7 @@ void lu_decompose(F64View2D A, I32View index, f64* d)
             *d = -(*d);
             vv(iMax) = vv(j);
         }
-        index(j) = iMax; 
+        index(j) = iMax;
         if (A(j,j) == 0.0)
             A(j,j) = Tiny;
 

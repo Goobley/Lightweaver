@@ -2,8 +2,8 @@
 #include "Lightweaver.hpp"
 #include "JasPP.hpp"
 #include "Utils.hpp"
-#define PLYGHT_IMPL
-#include "Plyght/Plyght.hpp"
+// #define PLYGHT_IMPL
+// #include "Plyght/Plyght.hpp"
 
 #include <limits>
 

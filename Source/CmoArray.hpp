@@ -54,6 +54,9 @@ struct Array1NonOwn
     Array1NonOwn(const Array1NonOwn<typename std::remove_const<T>::type>& other) : data(other.data()), Ndim(other.Ndim), dim0(other.dim0)
     {}
 
+    // Array1NonOwn&
+    // operator=(const Array1NonOwn other) = default;
+
     Array1NonOwn&
     operator=(const Array1NonOwn& other) = default;
 
@@ -572,7 +575,7 @@ struct Array2Own
     {}
     Array2Own(const Array2Own& other) = default;
     Array2Own(Array2Own&& other) = default;
-    
+
     Array2Own&
     operator=(const Array2NonOwn<T>& other)
     {
@@ -1156,7 +1159,7 @@ struct Array4NonOwn
     std::array<i64, 3> dimProd;
     Array4NonOwn() : data(nullptr), Ndim(4), dim{0}, dimProd{0}
     {}
-    Array4NonOwn(T* data_, i64 dim0, i64 dim1, i64 dim2, i64 dim3) : data(data_), Ndim(4), dim{dim0, dim1, dim2, dim3}, 
+    Array4NonOwn(T* data_, i64 dim0, i64 dim1, i64 dim2, i64 dim3) : data(data_), Ndim(4), dim{dim0, dim1, dim2, dim3},
                                                                                  dimProd{dim1*dim2*dim3, dim2*dim3, dim3}
     {}
     Array4NonOwn(const Array4NonOwn& other) = default;
@@ -1351,10 +1354,10 @@ struct Array4Own
     Array4Own(i64 dim0, i64 dim1, i64 dim2, i64 dim3) : dataStore(dim0*dim1*dim2*dim3), Ndim(4), dim{dim0, dim1, dim2, dim3},
                                                                     dimProd{dim1*dim2*dim3, dim2*dim3, dim3}
     {}
-    Array4Own(T val, i64 dim0, i64 dim1, i64 dim2, i64 dim3) : dataStore(dim0*dim1*dim2*dim3, val), Ndim(4), dim{dim0, dim1, dim2, dim3}, 
+    Array4Own(T val, i64 dim0, i64 dim1, i64 dim2, i64 dim3) : dataStore(dim0*dim1*dim2*dim3, val), Ndim(4), dim{dim0, dim1, dim2, dim3},
                                                                               dimProd{dim1*dim2*dim3, dim2*dim3, dim3}
     {}
-    Array4Own(const Array4NonOwn<T>& other) : dataStore(other.data, other.data+other.dim[0]*other.dimProd[0]), 
+    Array4Own(const Array4NonOwn<T>& other) : dataStore(other.data, other.data+other.dim[0]*other.dimProd[0]),
                                               Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
     {}
 
@@ -1573,7 +1576,7 @@ struct Array5NonOwn
     std::array<i64, 4> dimProd;
     Array5NonOwn() : data(nullptr), Ndim(5), dim{0}, dimProd{0}
     {}
-    Array5NonOwn(T* data_, i64 dim0, i64 dim1, i64 dim2, i64 dim3, i64 dim4) : data(data_), Ndim(5), dim{dim0,dim1,dim2,dim3,dim4}, 
+    Array5NonOwn(T* data_, i64 dim0, i64 dim1, i64 dim2, i64 dim3, i64 dim4) : data(data_), Ndim(5), dim{dim0,dim1,dim2,dim3,dim4},
                                                                                               dimProd{dim1*dim2*dim3*dim4, dim2*dim3*dim4, dim3*dim4, dim4}
     {}
     Array5NonOwn(const Array5NonOwn& other) = default;
@@ -1773,13 +1776,13 @@ struct Array5Own
     std::array<i64, 4> dimProd;
     Array5Own() : dataStore(), Ndim(5), dim{}, dimProd{}
     {}
-    Array5Own(i64 d0, i64 d1, i64 d2, i64 d3, i64 d4) : dataStore(d0*d1*d2*d3*d4), Ndim(5), dim{d0,d1,d2,d3,d4}, 
+    Array5Own(i64 d0, i64 d1, i64 d2, i64 d3, i64 d4) : dataStore(d0*d1*d2*d3*d4), Ndim(5), dim{d0,d1,d2,d3,d4},
                                                                        dimProd{d1*d2*d3*d4, d2*d3*d4, d3*d4, d4}
     {}
-    Array5Own(T val, i64 d0, i64 d1, i64 d2, i64 d3, i64 d4) : dataStore(d0*d1*d2*d3*d4, val), Ndim(5), dim{d0,d1,d2,d3,d4}, 
+    Array5Own(T val, i64 d0, i64 d1, i64 d2, i64 d3, i64 d4) : dataStore(d0*d1*d2*d3*d4, val), Ndim(5), dim{d0,d1,d2,d3,d4},
                                                                               dimProd{d1*d2*d3*d4, d2*d3*d4, d3*d4, d4}
     {}
-    Array5Own(const Array5NonOwn<T>& other) : dataStore(other.data, other.data+other.dim[0]*other.dimProd[0]), Ndim(other.Ndim), 
+    Array5Own(const Array5NonOwn<T>& other) : dataStore(other.data, other.data+other.dim[0]*other.dimProd[0]), Ndim(other.Ndim),
                                               dim(other.dim), dimProd(other.dimProd)
     {}
     Array5Own(const Array5Own& other) = default;

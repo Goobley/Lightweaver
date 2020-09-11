@@ -726,6 +726,13 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
 
     // NOTE(cmo): If we only have continua then opacity is angle independent
     const bool continuaOnly = continua_only(data, la);
+    // printf("Core: %d, %d\n", atmos.xLowerBc.type, atmos.xUpperBc.type);
+    //     printf("%d, %d, %d, %d, %d, %d\n", atmos.zLowerBc.type,
+    //                                        atmos.zUpperBc.type,
+    //                                        atmos.xLowerBc.type,
+    //                                        atmos.xUpperBc.type,
+    //                                        atmos.yLowerBc.type,
+    //                                        atmos.yUpperBc.type);
 
     f64 dJMax = 0.0;
     for (int mu = 0; mu < Nrays; ++mu)
