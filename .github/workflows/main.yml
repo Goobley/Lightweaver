@@ -6,8 +6,6 @@ on:
     types:
     - published
 
-runs-on: ubuntu-latest
-
 jobs:
   build_sdist:
     name: Build SDist
