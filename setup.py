@@ -1,7 +1,8 @@
-from distutils.core import setup, Extension
+from setuptools import setup, Extension
 from Cython.Build import cythonize
 import numpy as np
 import platform
+import os
 
 posixArgs = ["-std=c++17", "-Wno-sign-compare", "-march=native", "-mavx2", "-funroll-loops"]
 posixLibs = ['dl']
@@ -21,8 +22,9 @@ setup(
     packages=['lightweaver'],
     ext_modules=cythonize([
         Extension(
-            "lightweaver.LwCompiled",
-            ["Source/LightweaverAmalgamated.cpp", "Source/CAtmosphere.pyx"],
+            'lightweaver.LwCompiled',
+            ['Source/LightweaverAmalgamated.cpp', 'Source/CAtmosphere.pyx'],
+            # depends=['Source/'+ f for f in os.listdir('Source/')],
             include_dirs=[np.get_include()],
             libraries=libs,
             extra_compile_args=compileArgs,
