@@ -1,6 +1,6 @@
 name: BuildWheels
 
-on:
+runs-on:
   workflow_dispatch:
   release:
     types:
