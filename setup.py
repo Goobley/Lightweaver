@@ -4,7 +4,16 @@ import numpy as np
 import platform
 import os
 
-posixArgs = ["-std=c++17", "-Wno-sign-compare", "-march=native", "-mavx2", "-funroll-loops"]
+posixArgs = ["-std=c++17", "-Wno-sign-compare", "-funroll-loops"]
+if 'LW_CI_BUILD'  in os.environ:
+    # NOTE(cmo): Compile for sandy bridge or newer when building on CI
+    posixArgs += ["-march=corei7-avx", "-mtune=corei7-avx"]
+else:
+    # NOTE(cmo): Local compile
+    posixArgs += ["-march=native", "-mtune=native"]
+
+# TODO(cmo): Find similar architecture args for MSVC
+
 posixLibs = ['dl']
 msvcArgs = ["/std:c++17"]
 msvcLibs = []
