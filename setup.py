@@ -15,16 +15,22 @@ else:
     compileArgs = posixArgs
     libs = posixLibs
 
-setup(name='lightweaver', version='0.1.0', packages=['lightweaver'],
- ext_modules=cythonize([
-    Extension(
-        "lightweaver.LwCompiled",
-        ["Source/LightweaverAmalgamated.cpp", "Source/CAtmosphere.pyx"],
-        include_dirs=[np.get_include()],
-        libraries=libs,
-        extra_compile_args=compileArgs,
-        language="c++"
-)], language_level=3))
+setup(
+    name='lightweaver',
+    version='0.1.0',
+    packages=['lightweaver'],
+    ext_modules=cythonize([
+        Extension(
+            "lightweaver.LwCompiled",
+            ["Source/LightweaverAmalgamated.cpp", "Source/CAtmosphere.pyx"],
+            include_dirs=[np.get_include()],
+            libraries=libs,
+            extra_compile_args=compileArgs,
+            language="c++")],
+        language_level=3),
+    author='Chris Osborne',
+    include_package_data=True
+    )
 
 # set -x CXX "/home/osborne/gcc-8/bin/g++8 -pthread"; set -x CC "/home/osborne/gcc-8/bin/g++8 -pthread"; set -x LDSHARED "/home/osborne/gcc-8/bin/g++8 -pthread -shared"; set -x DISTUTILS_DEBUG 1; and sudo -HE python3.7 -m pip install -vvv -e .
 
