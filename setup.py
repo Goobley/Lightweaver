@@ -27,19 +27,24 @@ else:
 
 setup(
     name='lightweaver',
-    version='0.1.0',
+    version='0.2.0',
     packages=['lightweaver'],
     ext_modules=cythonize([
         Extension(
             'lightweaver.LwCompiled',
             ['Source/LightweaverAmalgamated.cpp', 'Source/CAtmosphere.pyx'],
-            # depends=['Source/'+ f for f in os.listdir('Source/')],
             include_dirs=[np.get_include()],
             libraries=libs,
             extra_compile_args=compileArgs,
             language="c++")],
         language_level=3),
+    install_requires=['numpy', 'scipy', 'matplotlib', 'numba', 'parse',
+                      'jupyterlab', 'specutils', 'tqdm', 'weno4'],
     author='Chris Osborne',
+    author_email='c.osborne.1@research.gla.ac.uk',
+    license='MIT',
+    url='http://github.com/Goobley/Lightweaver',
+    description='Non-LTE Radiative Transfer Framework in Python',
     include_package_data=True
     )
 
