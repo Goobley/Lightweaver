@@ -27,7 +27,8 @@ else:
 
 setup(
     name='lightweaver',
-    version='0.2.0',
+    setup_requires=['setuptools_scm'],
+    use_scm_version=True,
     packages=['lightweaver'],
     ext_modules=cythonize([
         Extension(
