@@ -324,6 +324,12 @@ def BC_to_enum(bc):
     else:
         raise ValueError('Argument is not a BoundaryCondition.')
 
+cdef verify_bc_array_sizes(AtmosphericBoundaryCondition* abc, f64[:,::1] pyArr, str location):
+    cdef int dim0 = abc.bcData.shape(0)
+    cdef int dim1 = abc.bcData.shape(1)
+    if dim0 != pyArr.shape[0] or dim1 != pyArr.shape[1]:
+        raise ValueError('BC returned from python does not match expected shape for %s (%d, %d)' % (location, dim0, dim1))
+
 cdef class LwAtmosphere:
     cdef Atmosphere atmos
     cdef f64[::1] x
@@ -427,16 +433,20 @@ cdef class LwAtmosphere:
         self.update_projections()
 
     def configure_bcs(self, atmos):
-        cdef int Nx = atmos.Nx
-        cdef int Ny = atmos.Ny
+        cdef int Nx = max(atmos.Nx, 1)
+        cdef int Ny = max(atmos.Ny, 1)
         cdef int Nz = atmos.Nz
+
+        cdef int Nbcx = Nz * Ny
+        cdef int Nbcy = Nz * Nx
+        cdef int Nbcz = Nx * Ny
         s = atmos.structure
-        self.atmos.xLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.xLowerBc), self.Nwave, Nx)
-        self.atmos.xUpperBc = AtmosphericBoundaryCondition(BC_to_enum(s.xUpperBc), self.Nwave, Nx)
-        self.atmos.yLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.yLowerBc), self.Nwave, Ny)
-        self.atmos.yUpperBc = AtmosphericBoundaryCondition(BC_to_enum(s.yUpperBc), self.Nwave, Ny)
-        self.atmos.zLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.zLowerBc), self.Nwave, Nz)
-        self.atmos.zUpperBc = AtmosphericBoundaryCondition(BC_to_enum(s.zUpperBc), self.Nwave, Nz)
+        self.atmos.xLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.xLowerBc), self.Nwave, Nbcx)
+        self.atmos.xUpperBc = AtmosphericBoundaryCondition(BC_to_enum(s.xUpperBc), self.Nwave, Nbcx)
+        self.atmos.yLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.yLowerBc), self.Nwave, Nbcy)
+        self.atmos.yUpperBc = AtmosphericBoundaryCondition(BC_to_enum(s.yUpperBc), self.Nwave, Nbcy)
+        self.atmos.zLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.zLowerBc), self.Nwave, Nbcz)
+        self.atmos.zUpperBc = AtmosphericBoundaryCondition(BC_to_enum(s.zUpperBc), self.Nwave, Nbcz)
 
     def compute_bcs(self, LwSpectrum spect):
         cdef f64[:,::1] bc
@@ -444,31 +454,37 @@ cdef class LwAtmosphere:
         cdef F64View2D data
         if self.atmos.zLowerBc.type == CALLABLE:
             bc = self.pyAtmos.zLowerBc.compute_bc(self.pyAtmos, spect)
+            verify_bc_array_sizes(&self.atmos.zLowerBc, bc, 'zLowerBc')
             data = f64_view_2(bc)
             self.atmos.zLowerBc.set_bc_data(data)
 
         if self.atmos.zUpperBc.type == CALLABLE:
             bc = self.pyAtmos.zUpperBc.compute_bc(self.pyAtmos, spect)
+            verify_bc_array_sizes(&self.atmos.zUpperBc, bc, 'zUpperBc')
             data = f64_view_2(bc)
             self.atmos.zUpperBc.set_bc_data(data)
 
         if self.atmos.xLowerBc.type == CALLABLE:
             bc = self.pyAtmos.xLowerBc.compute_bc(self.pyAtmos, spect)
+            verify_bc_array_sizes(&self.atmos.xLowerBc, bc, 'xLowerBc')
             data = f64_view_2(bc)
             self.atmos.xLowerBc.set_bc_data(data)
 
         if self.atmos.xUpperBc.type == CALLABLE:
             bc = self.pyAtmos.xUpperBc.compute_bc(self.pyAtmos, spect)
+            verify_bc_array_sizes(&self.atmos.xUpperBc, bc, 'xUpperBc')
             data = f64_view_2(bc)
             self.atmos.xUpperBc.set_bc_data(data)
 
         if self.atmos.yLowerBc.type == CALLABLE:
             bc = self.pyAtmos.yLowerBc.compute_bc(self.pyAtmos, spect)
+            verify_bc_array_sizes(&self.atmos.yLowerBc, bc, 'yLowerBc')
             data = f64_view_2(bc)
             self.atmos.yLowerBc.set_bc_data(data)
 
         if self.atmos.yUpperBc.type == CALLABLE:
             bc = self.pyAtmos.yUpperBc.compute_bc(self.pyAtmos, spect)
+            verify_bc_array_sizes(&self.atmos.yUpperBc, bc, 'yUpperBc')
             data = f64_view_2(bc)
             self.atmos.yUpperBc.set_bc_data(data)
 
@@ -2389,7 +2405,8 @@ cdef class LwContext:
 
         return ctx
 
-    def compute_rays(self, wavelengths=None, mus=None, stokes=False, refinePrd=False):
+    def compute_rays(self, wavelengths=None, mus=None, stokes=False,
+                     refinePrd=False, squeeze=True):
         state = deepcopy(self.state_dict())
         if wavelengths is not None:
             spect = state['kwargs']['spect'].subset_configuration(wavelengths)
@@ -2403,7 +2420,10 @@ cdef class LwContext:
             sd = rhoCtx.state_dict()
             atmos = sd['kwargs']['atmos']
             if mus is not None:
-                atmos.rays(mus)
+                if isinstance(mus, dict):
+                    atmos.rays(**mus)
+                else:
+                    atmos.rays(mus)
             rayCtx = self.construct_from_state_dict_with(sd)
         else:
             atmos = state['kwargs']['atmos']
@@ -2417,14 +2437,18 @@ cdef class LwContext:
         if stokes:
             rayCtx.single_stokes_fs()
             Iwav = np.asarray(rayCtx.spect.I)
+            if squeeze:
+                Iwav = np.squeeze(Iwav)
             Iquv = np.zeros((4, *Iwav.shape))
             Iquv[0, :] = Iwav
             Iquv[1:, :] = np.asarray(rayCtx.spect.Quv)
             return Iquv
         else:
             rayCtx.formal_sol()
-            Iwav = rayCtx.spect.I
-            return np.asarray(Iwav)
+            Iwav = np.asarray(rayCtx.spect.I)
+            if squeeze:
+                Iwav = np.squeeze(Iwav)
+            return Iwav
 
     def contrib_fn(self, line, wavelengths=None, mu=None, refinePrd=False):
         state = deepcopy(self.state_dict())

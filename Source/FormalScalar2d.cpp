@@ -482,9 +482,10 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
             jStart += dj;
     }
 
-    RadiationBc bcType = If toObs
-                         Then atmos->zLowerBc.type
-                         Else atmos->zUpperBc.type End;
+    auto& currentBc = If toObs
+                      Then atmos->zLowerBc
+                      Else atmos->zUpperBc End;
+    RadiationBc bcType = currentBc.type;
     IntersectionData gridData {atmos->x,
                                atmos->z,
                                mux,
@@ -503,34 +504,49 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
     // NOTE(cmo): Handle BC in starting plane
     for (int j = jStart; j != jEnd + dj; j += dj)
     {
-        // I(j, k) = 0.0;
+        I(j, k) = 0.0;
 
-        if (bcType == THERMALISED)
+        switch (bcType)
         {
-            auto dwIntersection = intersections(mu, (int)toObs, k, j).dwIntersection;
-            f64 chiDw = interp_param(gridData, dwIntersection, chi);
-            f64 dtauDw = 0.5 * abs(dwIntersection.distance) * (chi(k, j) + chiDw);
-            f64 temperatureDw = interp_param(gridData, dwIntersection, temperature);
-            f64 Bnu[2];
-            int Nz = atmos->Nz;
-            if (toObs)
+            case THERMALISED:
             {
-                f64 temp[2];
-                temp[0] = temperatureDw;
-                temp[1] = temperature(k, j);
-                planck_nu(2, temp, wav, Bnu);
-                I(k, j) = Bnu[1] - (Bnu[0] - Bnu[1]) / dtauDw;
-            }
-            else
+                auto dwIntersection = intersections(mu, (int)toObs, k, j).dwIntersection;
+                f64 chiDw = interp_param(gridData, dwIntersection, chi);
+                f64 dtauDw = 0.5 * abs(dwIntersection.distance) * (chi(k, j) + chiDw);
+                f64 temperatureDw = interp_param(gridData, dwIntersection, temperature);
+                f64 Bnu[2];
+                int Nz = atmos->Nz;
+                if (toObs)
+                {
+                    f64 temp[2];
+                    temp[0] = temperatureDw;
+                    temp[1] = temperature(k, j);
+                    planck_nu(2, temp, wav, Bnu);
+                    I(k, j) = Bnu[1] - (Bnu[0] - Bnu[1]) / dtauDw;
+                }
+                else
+                {
+                    f64 temp[2];
+                    temp[0] = temperature(k, j);
+                    temp[1] = temperatureDw;
+                    planck_nu(2, temp, wav, Bnu);
+                    I(k, j) = Bnu[0] - (Bnu[1] - Bnu[0]) / dtauDw;
+                }
+            } break;
+
+            case CALLABLE:
             {
-                f64 temp[2];
-                temp[0] = temperature(k, j);
-                temp[1] = temperatureDw;
-                planck_nu(2, temp, wav, Bnu);
-                I(k, j) = Bnu[0] - (Bnu[1] - Bnu[0]) / dtauDw;
-            }
+                I(k, j) = currentBc.bcData(la, j);
+            } break;
+
+            case ZERO: break;
+
+            default:
+            {
+                printf("Unsupported z-boundary type");
+            } break;
         }
-        // TODO(cmo): Handle other Bcs!
+
         if (computeOperator)
             Psi(k, j) = 0.0;
     }
@@ -726,9 +742,10 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
             jStart += dj;
     }
 
-    RadiationBc bcType = If toObs
-                         Then atmos->zLowerBc.type
-                         Else atmos->zUpperBc.type End;
+    auto& currentBc = If toObs
+                      Then atmos->zLowerBc
+                      Else atmos->zUpperBc End;
+    RadiationBc bcType = currentBc.type;
     IntersectionData gridData {atmos->x,
                                atmos->z,
                                mux,
@@ -749,32 +766,47 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
     {
         I(k, j) = 0.0;
 
-        if (bcType == THERMALISED)
+        switch (bcType)
         {
-            auto dwIntersection = intersections(mu, (int)toObs, k, j).dwIntersection;
-            f64 chiDw = interp_param(gridData, dwIntersection, chi);
-            f64 dtauDw = 0.5 * abs(dwIntersection.distance) * (chi(k, j) + chiDw);
-            f64 temperatureDw = interp_param(gridData, dwIntersection, temperature);
-            f64 Bnu[2];
-            int Nz = atmos->Nz;
-            if (toObs)
+            case THERMALISED:
             {
-                f64 temp[2];
-                temp[0] = temperatureDw;
-                temp[1] = temperature(k, j);
-                planck_nu(2, temp, wav, Bnu);
-                I(k, j) = Bnu[1] - (Bnu[0] - Bnu[1]) / dtauDw;
-            }
-            else
+                auto dwIntersection = intersections(mu, (int)toObs, k, j).dwIntersection;
+                f64 chiDw = interp_param(gridData, dwIntersection, chi);
+                f64 dtauDw = 0.5 * abs(dwIntersection.distance) * (chi(k, j) + chiDw);
+                f64 temperatureDw = interp_param(gridData, dwIntersection, temperature);
+                f64 Bnu[2];
+                int Nz = atmos->Nz;
+                if (toObs)
+                {
+                    f64 temp[2];
+                    temp[0] = temperatureDw;
+                    temp[1] = temperature(k, j);
+                    planck_nu(2, temp, wav, Bnu);
+                    I(k, j) = Bnu[1] - (Bnu[0] - Bnu[1]) / dtauDw;
+                }
+                else
+                {
+                    f64 temp[2];
+                    temp[0] = temperature(k, j);
+                    temp[1] = temperatureDw;
+                    planck_nu(2, temp, wav, Bnu);
+                    I(k, j) = Bnu[0] - (Bnu[1] - Bnu[0]) / dtauDw;
+                }
+            } break;
+
+            case CALLABLE:
             {
-                f64 temp[2];
-                temp[0] = temperature(k, j);
-                temp[1] = temperatureDw;
-                planck_nu(2, temp, wav, Bnu);
-                I(k, j) = Bnu[0] - (Bnu[1] - Bnu[0]) / dtauDw;
-            }
+                I(k, j) = currentBc.bcData(la, j);
+            } break;
+
+            case ZERO: break;
+
+            default:
+            {
+                printf("Unsupported z-boundary type");
+            } break;
         }
-        // TODO(cmo): Handle other Bcs!
+
         if (computeOperator)
             Psi(k, j) = 0.0;
     }
