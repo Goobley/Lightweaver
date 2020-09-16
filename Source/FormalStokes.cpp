@@ -2,6 +2,7 @@
 #include "Bezier.hpp"
 #include "JasPP.hpp"
 #include <string.h>
+#include <exception>
 
 using namespace LwInternal;
 
@@ -20,8 +21,10 @@ void Transition::compute_polarised_profiles(
     const f64 larmor = C::QElectron / (4.0 * C::Pi * C::MElectron) * (lambda0 * C::NM_TO_M);
     const f64 sqrtPi = sqrt(C::Pi);
 
-    assert((bool)atmos.B && "Must provide magnetic field when computing polarised profiles");
-    assert((bool)atmos.cosGamma && "Must call Atmosphere::update_projections before computing polarised profiles");
+    if (!(bool)atmos.B)
+        throw std::runtime_error("Must provide magnetic field when computing polarised profiles");
+    if (!(bool)atmos.cosGamma)
+        throw std::runtime_error("Must call Atmosphere::update_projections before computing polarised profiles");
     F64Arr vB(atmos.Nspace);
     F64Arr sv(atmos.Nspace);
     for (int k = 0; k < atmos.Nspace; ++k)
@@ -619,7 +622,7 @@ f64 formal_sol_full_stokes(Context& ctx, bool updateJ)
     JasUnpack(ctx, activeAtoms, detailedAtoms);
 
     if (!atmos.B)
-        assert(false && "Magnetic field required");
+        throw std::runtime_error("Magnetic field required");
 
     const int Nspace = atmos.Nspace;
     const int Nrays = atmos.Nrays;

@@ -191,7 +191,7 @@ cdef extern from "Lightweaver.hpp":
         void uv(int la, int mu, bool_t toObs, F64View Uji, F64View Vij, F64View Vji)
         void compute_phi(const Atmosphere& atmos, F64View aDamp, F64View vBroad)
         void compute_wphi(const Atmosphere& atmos)
-        void compute_polarised_profiles(const Atmosphere& atmos, F64View aDamp, F64View vBroad, const ZeemanComponents& z)
+        void compute_polarised_profiles(const Atmosphere& atmos, F64View aDamp, F64View vBroad, const ZeemanComponents& z) except +
 
     cdef cppclass Atom:
         Atmosphere* atmos
@@ -244,8 +244,8 @@ cdef extern from "Lightweaver.hpp":
     cdef f64 formal_sol_update_rates(Context& ctx)
     cdef f64 formal_sol_update_rates_fixed_J(Context& ctx)
     cdef f64 formal_sol(Context& ctx)
-    cdef f64 formal_sol_full_stokes(Context& ctx)
-    cdef f64 formal_sol_full_stokes(Context& ctx, bool_t updateJ)
+    cdef f64 formal_sol_full_stokes(Context& ctx) except +
+    cdef f64 formal_sol_full_stokes(Context& ctx, bool_t updateJ) except +
     cdef PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
     cdef void stat_eq(Atom* atom) except +
     cdef void time_dependent_update(Atom* atomIn, F64View2D nOld, f64 dt) except +

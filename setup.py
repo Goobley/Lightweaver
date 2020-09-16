@@ -40,7 +40,7 @@ setup(
             language="c++")],
         language_level=3),
     install_requires=['numpy', 'scipy', 'matplotlib', 'numba', 'parse',
-                      'jupyterlab', 'specutils', 'tqdm', 'weno4'],
+                      'specutils', 'tqdm', 'weno4'],
     author='Chris Osborne',
     author_email='c.osborne.1@research.gla.ac.uk',
     license='MIT',

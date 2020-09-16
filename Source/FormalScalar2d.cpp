@@ -5,6 +5,7 @@
 // #define PLYGHT_IMPL
 // #include "Plyght/Plyght.hpp"
 
+#include <cstdlib>
 #include <limits>
 
 using namespace LwInternal;
@@ -131,7 +132,7 @@ IntersectionResult uw_intersection_2d_frac_x(const IntersectionData& grid, Inter
     if (start.axis != InterpolationAxis::Z)
     {
         printf("Shouldn't be here as z intersection has been hit\n");
-        assert(false);
+        std::abort();
     }
 
     // NOTE(cmo): Based on the test above, we know, x must be at an intersection
@@ -409,8 +410,8 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
     }
     else if (! (atmos->xLowerBc.type == CALLABLE && atmos->xUpperBc.type == CALLABLE))
     {
-        printf("Mixed boundary types not supported on x-axis!\n");
-        assert(false);
+        printf("Mixed boundary types not supported on x-axis, and must be CALLABLE or PERIODIC!\n");
+        std::abort();
     }
 
     f64 muz = If toObs Then atmos->muz(mu) Else -atmos->muz(mu) End;
@@ -473,6 +474,12 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
                 Psi(k, atmos->Nx-1) = 0.0;
             }
         }
+
+        // NOTE(cmo): Account for fixed BCs -> we don't want to touch I(k, jStart),
+        // unless mux == 0, i.e. muz == 1.0, in which case we still need to trace
+        // the vertical
+        if (mux != 0.0)
+            jStart += dj;
     }
 
     RadiationBc bcType = If toObs
@@ -590,13 +597,6 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
 
     if (computeOperator)
     {
-        // for (int k = 0; k < atmos->Nspace; ++k)
-        //     if (fd->Psi(k) <= 0.0)
-        //     {
-        //         printf("%d, %e\n", k, fd->Psi(k));
-        //         assert(false);
-        //     }
-
         for (int k = 0; k < atmos->Nspace; ++k)
             fd->Psi(k) /= fd->chi(k);
 
@@ -614,6 +614,8 @@ struct BesserCoeffs
 
 BesserCoeffs besser_coeffs(f64 t)
 {
+    // TODO(cmo): Possibly reduce the number of terms in these a bit, they could
+    // end up being more costly than system exp
     if (t < 0.14)
     // if (t < 0.05)
     {
@@ -651,8 +653,8 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
     }
     else if (! (atmos->xLowerBc.type == CALLABLE && atmos->xUpperBc.type == CALLABLE))
     {
-        printf("Mixed boundary types not supported on x-axis!\n");
-        assert(false);
+        printf("Mixed boundary types not supported on x-axis, and must be CALLABLE or PERIODIC!\n");
+        std::abort();
     }
 
     f64 muz = If toObs Then atmos->muz(mu) Else -atmos->muz(mu) End;
@@ -716,6 +718,12 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
                 Psi(k, atmos->Nx-1) = 0.0;
             }
         }
+
+        // NOTE(cmo): Account for fixed BCs -> we don't want to touch I(k, jStart),
+        // unless mux == 0, i.e. muz == 1.0, in which case we still need to trace
+        // the vertical
+        if (mux != 0.0)
+            jStart += dj;
     }
 
     RadiationBc bcType = If toObs
@@ -990,7 +998,7 @@ void build_intersection_list(Atmosphere* atmos)
     else if (! (atmos->xLowerBc.type == CALLABLE && atmos->xUpperBc.type == CALLABLE))
     {
         printf("Mixed boundary types not supported on x-axis!\n");
-        assert(false);
+        std::abort();
     }
 
     atmos->intersections.init(atmos->Nrays, atmos->Nz, atmos->Nx);

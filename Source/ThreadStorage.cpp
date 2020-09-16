@@ -577,7 +577,9 @@ void ThreadData::initialise(Context* ctx)
         return;
 
     if (schedMemory)
-        assert(false && "Tried to re initialise_threads for a Context");
+    {
+        throw std::runtime_error("Tried to re- initialise_threads for a Context");
+    }
 
     sched_size memNeeded;
     scheduler_init(&sched, &memNeeded, ctx->Nthreads, nullptr);
