@@ -4,6 +4,10 @@ import numpy as np
 import platform
 import os
 
+def readme():
+    with open('README.md', 'r') as f:
+        return f.read()
+
 posixArgs = ["-std=c++17", "-Wno-sign-compare", "-funroll-loops"]
 if 'LW_CI_BUILD'  in os.environ:
     # NOTE(cmo): Compile for sandy bridge or newer when building on CI
@@ -46,7 +50,9 @@ setup(
     license='MIT',
     url='http://github.com/Goobley/Lightweaver',
     description='Non-LTE Radiative Transfer Framework in Python',
-    include_package_data=True
+    include_package_data=True,
+    long_description=readme(),
+    long_description_content_type='text/markdown'
     )
 
 # set -x CXX "/home/osborne/gcc-8/bin/g++8 -pthread"; set -x CC "/home/osborne/gcc-8/bin/g++8 -pthread"; set -x LDSHARED "/home/osborne/gcc-8/bin/g++8 -pthread -shared"; set -x DISTUTILS_DEBUG 1; and sudo -HE python3.7 -m pip install -vvv -e .

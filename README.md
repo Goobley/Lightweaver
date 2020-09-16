@@ -1,6 +1,6 @@
 # Lightweaver
 
-**C. Osborne (University of Glasgow) & I. Milić (NSO/CU Boulder), 2019--2020**
+**C. Osborne (University of Glasgow) & I. Milić (NSO/CU Boulder), 2019-2020**
 
 **MIT License**
 
