@@ -403,7 +403,6 @@ class KuruczPfTable:
         if atomicAbundance is None:
             atomicAbundance = DefaultAtomicAbundance
         self.atomicAbundance = atomicAbundance
-        # TODO(cmo): replace this with a proper default path:
         kuruczPfPath = get_data_path() + 'pf_Kurucz.input' if kuruczPfPath is None else kuruczPfPath
         with open(kuruczPfPath, 'rb') as f:
             s = f.read()
