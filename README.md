@@ -20,7 +20,7 @@ The preceding concepts are inspired by the well-recieved machine learning framew
 ## Installation
 
 For most users precompiled python wheels (supporting modern Linux, Mac, and Windows 10 systems) can be installed from `pip` and are the easiest way to get started with Lightweaver.
-Lightweaver requires python 3.7+, and it is recommended to be run inside a virtual environment using `conda`.
+Lightweaver requires python 3.8+, and it is recommended to be run inside a virtual environment using `conda`.
 In this case a new virtual environment can be created with:
 ```
 conda create -n Lightweaver python=3.8
