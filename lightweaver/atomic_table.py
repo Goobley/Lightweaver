@@ -308,7 +308,7 @@ class KuruczPf:
 
     def lte_ionisation(self, atmos: 'Atmosphere') -> np.ndarray:
         Nstage = self.ionPot.shape[0]
-        Nspace = atmos.depthScale.shape[0]
+        Nspace = atmos.Nspace
 
         C1 = (Const.HPlanck / (2.0 * np.pi * Const.MElectron)) * Const.HPlanck / Const.KBoltzmann
 
@@ -334,7 +334,7 @@ class KuruczPf:
         return pops
 
     def fjk(self, atmos: 'Atmosphere', k: int) -> Tuple[np.ndarray, np.ndarray]:
-        Nspace: int = atmos.depthScale.shape[0]
+        Nspace: int = atmos.Nspace
         T: float = atmos.temperature[k]
         ne: float = atmos.ne[k]
 
@@ -366,7 +366,7 @@ class KuruczPf:
         return fjk, dfjk
 
     def fj(self, atmos: 'Atmosphere') -> Tuple[np.ndarray, np.ndarray]:
-        Nspace: int = atmos.depthScale.shape[0]
+        Nspace: int = atmos.Nspace
         T = atmos.temperature
         ne = atmos.ne
 
@@ -403,7 +403,6 @@ class KuruczPfTable:
         if atomicAbundance is None:
             atomicAbundance = DefaultAtomicAbundance
         self.atomicAbundance = atomicAbundance
-        # TODO(cmo): replace this with a proper default path:
         kuruczPfPath = get_data_path() + 'pf_Kurucz.input' if kuruczPfPath is None else kuruczPfPath
         with open(kuruczPfPath, 'rb') as f:
             s = f.read()

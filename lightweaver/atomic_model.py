@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from fractions import Fraction
-from typing import List, Tuple, Sequence, Optional, Any, Iterator, cast, TYPE_CHECKING
+from typing import List, Tuple, Sequence, Optional, Any, Iterator, cast, TYPE_CHECKING, Callable
 import re
 
 import numpy as np
@@ -59,8 +59,8 @@ class AtomicModel:
         s += '])\n'
         return s
 
-    def __hash__(self):
-        return hash(repr(self))
+    # def __hash__(self):
+    #     return hash(repr(self))
 
     def vBroad(self, atmos: 'Atmosphere') -> np.ndarray:
         vTherm = 2.0 * Const.KBoltzmann / (Const.Amu * PeriodicTable[self.element].mass)
@@ -76,44 +76,6 @@ def reconfigure_atom(atom: AtomicModel):
 
 def element_sort(atom: AtomicModel):
     return atom.element
-
-# TODO(cmo): Tidy up comparisons
-def avoid_recursion_eq(a, b) -> bool:
-    if isinstance(a, np.ndarray):
-        if not np.all(a == b):
-            return False
-    elif isinstance(a, AtomicModel):
-        if a.element != b.element:
-            return False
-        if len(a.levels) != len(b.levels):
-            return False
-        if len(a.lines) != len(b.lines):
-            return False
-        if len(a.continua) != len(b.continua):
-            return False
-        if len(a.collisions) != len(b.collisions):
-            return False
-    else:
-        if a != b:
-            return False
-    return True
-
-
-def model_component_eq(a, b) -> bool:
-    if a is b:
-        return True
-
-    if type(a) is not type(b):
-        if not (isinstance(a, AtomicTransition) and isinstance(b, AtomicTransition)):
-            raise NotImplemented
-        else:
-            return False
-
-    ignoreKeys = ['interpolator']
-    da = a.__dict__
-    db = b.__dict__
-
-    return all([avoid_recursion_eq(da[k], db[k]) for k in da.keys() if k not in ignoreKeys])
 
 @dataclass
 class AtomicLevel:
@@ -257,7 +219,10 @@ class AtomicTransition:
         raise NotImplementedError
 
     def __eq__(self, other: object) -> bool:
-        return model_component_eq(self, other)
+        if other is self:
+            return True
+
+        return repr(self) == repr(other)
 
     def wavelength(self) -> np.ndarray:
         raise NotImplementedError
@@ -273,6 +238,21 @@ class AtomicTransition:
     @property
     def transId(self) -> Tuple[Element, int, int]:
         return (self.atom.element, self.i, self.j)
+
+@dataclass
+class LineProfileState:
+    wavelength: np.ndarray
+    vlosMu: np.ndarray
+    atmos: 'Atmosphere'
+    eqPops: 'SpeciesStateTable'
+    default_voigt_callback: Callable[[np.ndarray, np.ndarray], np.ndarray]
+    vBroad: Optional[np.ndarray]=None
+
+@dataclass
+class LineProfileResult:
+    phi: np.ndarray
+    aDamp: np.ndarray
+    Qelast: np.ndarray
 
 
 @dataclass(eq=False)
@@ -308,6 +288,9 @@ class AtomicLine(AtomicTransition):
 
     def zeeman_components(self) -> Optional[ZeemanComponents]:
         return compute_zeeman_components(self)
+
+    def compute_phi(self, state: LineProfileState) -> LineProfileResult:
+        raise NotImplementedError
 
     @property
     def overlyingContinuumLevel(self) -> AtomicLevel:
@@ -354,13 +337,25 @@ class AtomicLine(AtomicTransition):
 @dataclass(eq=False, repr=False)
 class VoigtLine(AtomicLine):
 
-    def damping(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable'):
+    def damping(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable',
+                vBroad: Optional[np.ndarray]=None):
         Qs = self.broadening.broaden(atmos, eqPops)
 
-        vBroad = self.atom.vBroad(atmos)
+        if vBroad is None:
+            vBroad = self.atom.vBroad(atmos)
+
         cDop = self.lambda0_m / (4.0 * np.pi)
         aDamp = (Qs.natural + Qs.Qelast) * cDop / vBroad
         return aDamp, Qs.Qelast
+
+    def compute_phi(self, state: LineProfileState) -> LineProfileResult:
+        vBroad = self.atom.vBroad(state.atmos) if state.vBroad is None else state.vBroad
+        aDamp, Qelast = self.damping(state.atmos, state.eqPops, vBroad=vBroad)
+        cb = state.default_voigt_callback
+        # NOTE(cmo): This is affected by mypy #5485, so we ignore typing for now
+        phi = state.default_voigt_callback(aDamp, vBroad) # type: ignore
+
+        return LineProfileResult(phi=phi, aDamp=aDamp, Qelast=Qelast)
 
 @dataclass(eq=False)
 class AtomicContinuum(AtomicTransition):

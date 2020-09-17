@@ -84,7 +84,7 @@ struct IntensityCoreStorage
     IntensityCoreData core;
     FormalData formal;
 
-    IntensityCoreStorage(int Nspace) 
+    IntensityCoreStorage(int Nspace)
         : I(F64Arr(0.0, Nspace)),
           S(F64Arr(0.0, Nspace)),
           JDag(F64Arr(0.0, Nspace)),
@@ -104,11 +104,13 @@ struct IntensityCoreFactory
     Spectrum* spect;
     Background* background;
     DepthData* depthData;
+    LwFsFn formal_solver;
+    InterpFn interp;
     std::vector<AtomStorageFactory> activeAtoms;
     std::vector<AtomStorageFactory> detailedAtoms;
     std::vector<std::unique_ptr<IntensityCoreStorage>> arrayStorage;
 
-    IntensityCoreFactory() : atmos(nullptr), 
+    IntensityCoreFactory() : atmos(nullptr),
                              spect(nullptr),
                              background(nullptr),
                              depthData(nullptr)

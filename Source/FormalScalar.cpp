@@ -66,25 +66,6 @@ inline int fedisableexcept(unsigned int excepts)
 }
 #endif
 
-void planck_nu(long Nspace, double* T, double lambda, double* Bnu)
-{
-    namespace C = Constants;
-    constexpr f64 hc_k = C::HC / (C::KBoltzmann * C::NM_TO_M);
-    const f64 hc_kla = hc_k / lambda;
-    constexpr f64 twoh_c2 = (2.0 * C::HC) / cube(C::NM_TO_M);
-    const f64 twohnu3_c2 = twoh_c2 / cube(lambda);
-    constexpr f64 MAX_EXPONENT = 150.0;
-
-    for (int k = 0; k < Nspace; k++)
-    {
-        f64 hc_Tkla = hc_kla / T[k];
-        if (hc_Tkla <= MAX_EXPONENT)
-            Bnu[k] = twohnu3_c2 / (exp(hc_Tkla) - 1.0);
-        else
-            Bnu[k] = 0.0;
-    }
-}
-
 void Transition::compute_phi(const Atmosphere& atmos, F64View aDamp, F64View vBroad)
 {
     namespace C = Constants;
@@ -92,11 +73,8 @@ void Transition::compute_phi(const Atmosphere& atmos, F64View aDamp, F64View vBr
         return;
 
     constexpr f64 sign[] = { -1.0, 1.0 };
-
     // Why is there still no constexpr math in std? :'(
     const f64 sqrtPi = sqrt(C::Pi);
-
-    wphi.fill(0.0);
 
     for (int la = 0; la < wavelength.shape(0); ++la)
     {
@@ -113,6 +91,30 @@ void Transition::compute_phi(const Atmosphere& atmos, F64View aDamp, F64View vBr
                     const f64 vk = (vBase + s * atmos.vlosMu(mu, k)) / vBroad(k);
                     const f64 p = voigt_H(aDamp(k), vk) / (sqrtPi * vBroad(k));
                     phi(la, mu, toObs, k) = p;
+                }
+            }
+        }
+    }
+}
+
+void Transition::compute_wphi(const Atmosphere& atmos)
+{
+    namespace C = Constants;
+    if (type == TransitionType::CONTINUUM)
+        return;
+
+    wphi.fill(0.0);
+    for (int la = 0; la < wavelength.shape(0); ++la)
+    {
+        const f64 wla = wlambda(la);
+        for (int mu = 0; mu < phi.shape(1); ++mu)
+        {
+            const f64 wlamu = wla * 0.5 * atmos.wmu(mu);
+            for (int toObs = 0; toObs < 2; ++toObs)
+            {
+                for (int k = 0; k < atmos.Nspace; ++k)
+                {
+                    const f64 p = phi(la, mu, toObs, k);
                     wphi(k) += p * wlamu;
                 }
             }
@@ -194,42 +196,6 @@ void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
             Psi(k) /= chi(k);
     }
 }
-
-void piecewise_linear_1d(FormalData* fd, int mu, bool toObs, f64 wav)
-{
-    JasUnpack((*fd), atmos, I, chi);
-    f64 zmu = 0.5 / atmos->muz(mu);
-    auto height = atmos->height;
-
-    int dk = -1;
-    int kStart = atmos->Nspace - 1;
-    int kEnd = 0;
-    if (!toObs)
-    {
-        dk = 1;
-        kStart = 0;
-        kEnd = atmos->Nspace - 1;
-    }
-    f64 dtau_uw = zmu * (chi(kStart) + chi(kStart + dk)) * abs(height(kStart) - height(kStart + dk));
-
-    f64 Iupw = 0.0;
-    if (toObs && atmos->lowerBc == THERMALISED)
-    {
-        f64 Bnu[2];
-        int Nspace = atmos->Nspace;
-        planck_nu(2, &atmos->temperature(Nspace - 2), wav, Bnu);
-        Iupw = Bnu[1] - (Bnu[0] - Bnu[1]) / dtau_uw;
-    }
-    else if (!toObs && atmos->upperBc == THERMALISED)
-    {
-        f64 Bnu[2];
-        planck_nu(2, &atmos->temperature(0), wav, Bnu);
-        Iupw = Bnu[0] - (Bnu[1] - Bnu[0]) / dtau_uw;
-    }
-
-    piecewise_linear_1d_impl(fd, zmu, toObs, Iupw);
-}
-
 
 void piecewise_bezier3_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
 {
@@ -349,9 +315,200 @@ void piecewise_bezier3_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
     }
 }
 
+f64 besser_control_point_1d(f64 hM, f64 hP, f64 yM, f64 yO, f64 yP)
+{
+    const f64 dM = (yO - yM) / hM;
+    const f64 dP = (yP - yO) / hP;
+
+    if (dM * dP <= 0.0)
+        return yO;
+
+    f64 yOp = (hM * dP + hP * dM) / (hM + hP);
+    f64 cM = yO - 0.5 * hM * yOp;
+    f64 cP = yO + 0.5 * hP * yOp;
+
+    // NOTE(cmo): We know dM and dP have the same sign, so if dM is positive, M < O < P
+    f64 minYMO = yM;
+    f64 maxYMO = yO;
+    f64 minYOP = yO;
+    f64 maxYOP = yP;
+    if (dM < 0.0)
+    {
+        minYMO = yO;
+        maxYMO = yM;
+        minYOP = yP;
+        maxYOP = yO;
+    }
+
+    if (cM < minYMO || cM > maxYMO)
+        return yM;
+
+    if (cP < minYOP || cP > maxYOP)
+    {
+        cP = yP;
+        yOp = (cP - yO) / (0.5 * hP);
+        cM = yO - 0.5 * hM * yOp;
+    }
+
+    return cM;
+}
+
+struct BesserCoeffs1d
+{
+    f64 M;
+    f64 O;
+    f64 C;
+    f64 edt;
+};
+
+BesserCoeffs1d besser_coeffs_1d(f64 t)
+{
+    if (t < 0.14)
+    // if (t < 0.05)
+    {
+        f64 m = (t * (t * (t * (t * (t * (t * ((140.0 - 18.0 * t) * t - 945.0) + 5400.0) - 25200.0) + 90720.0) - 226800.0) + 302400.0)) / 907200.0;
+        f64 o = (t * (t * (t * (t * (t * (t * ((10.0 - t) * t - 90.0) + 720.0) - 5040.0) + 30240.0) - 151200.0) + 604800.0)) / 1814400.0;
+        f64 c = (t * (t * (t * (t * (t * (t * ((35.0 - 4.0 * t) * t - 270.0) + 1800.0) - 10080.0) + 45360.0) - 151200.0) + 302400.0)) / 907200.0;
+        f64 edt = 1.0 - t + 0.5 * square(t) - cube(t) / 6.0 + t * cube(t) / 24.0 - square(t) * cube(t) / 120.0 + cube(t) * cube(t) / 720.0 - cube(t) * cube(t) * t / 5040.0;
+        return BesserCoeffs1d{m, o, c, edt};
+    }
+    else
+    {
+        f64 t2 = square(t);
+        f64 edt = exp(-t);
+        f64 m = (2.0 - edt * (t2 + 2.0 * t + 2.0)) / t2;
+        f64 o = 1.0 - 2.0 * (edt + t - 1.0) / t2;
+        f64 c = 2.0 * (t - 2.0 + edt * (t + 2.0)) / t2;
+        return BesserCoeffs1d{m, o, c, edt};
+    }
+}
+
+void piecewise_besser_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
+{
+    JasUnpack((*fd), atmos, chi, S, I, Psi);
+    const auto& height = atmos->height;
+    const int Ndep = atmos->Nspace;
+    bool computeOperator = bool(Psi);
+
+    /* --- Distinguish between rays going from BOTTOM to TOP
+            (to_obs == TRUE), and vice versa --      -------------- */
+
+    int dk = -1;
+    int k_start = Ndep - 1;
+    int k_end = 0;
+    if (!toObs)
+    {
+        dk = 1;
+        k_start = 0;
+        k_end = Ndep - 1;
+    }
+
+    /* --- Boundary conditions --                        -------------- */
+    f64 I_upw = Istart;
+
+    I(k_start) = I_upw;
+    if (computeOperator)
+        Psi(k_start) = 0.0;
+
+    int k = k_start + dk;
+
+    for (; k != k_end; k += dk)
+    {
+        f64 ds_uw = abs(height(k) - height(k - dk)) * zmu;
+        f64 ds_dw = abs(height(k + dk) - height(k)) * zmu;
+
+        f64 chi_uw = chi(k - dk);
+        f64 chiLocal = chi(k);
+        f64 chi_dw = chi(k + dk);
+        f64 chiC = besser_control_point_1d(ds_uw, ds_dw, chi_uw, chiLocal, chi_dw);
+
+        f64 dtauUw = (1.0 / 3.0) * (chi_uw + chiC + chiLocal) * ds_uw;
+        f64 dtauDw = 0.5 * (chiLocal + chi_dw) * ds_dw;
+
+        f64 Suw = S(k - dk);
+        f64 SLocal = S(k);
+        f64 Sdw = S(k + dk);
+        f64 SC = besser_control_point_1d(dtauUw, dtauDw, Suw, SLocal, Sdw);
+
+        auto coeffs = besser_coeffs_1d(dtauUw);
+        I(k) = I_upw * coeffs.edt + coeffs.M * Suw + coeffs.O * SLocal + coeffs.C * SC;
+        if (computeOperator)
+            Psi(k) = coeffs.O + coeffs.C;
+
+        I_upw = I(k);
+    }
+    // Piecewise linear on end
+    k = k_end;
+    f64 dtau_uw = 0.5 * zmu * (chi(k) + chi(k - dk)) * abs(height(k) - height(k - dk));
+    // NOTE(cmo): See note in the linear formal solver if wondering why -w[1] is
+    // used in I(k). Basically, the derivative (dS_uw) was taken in the other
+    // direction there. In some ways this is nicer, as the operator and I take
+    // the same form, but it doesn't really make any significant difference
+    f64 dS_uw = (S(k) - S(k - dk)) / dtau_uw;
+    f64 w[2];
+    w2(dtau_uw, w);
+    I(k) = (1.0 - w[0]) * I_upw + w[0] * S(k) - w[1] * dS_uw;
+
+    if (computeOperator)
+    {
+        Psi(k) = w[0] - w[1] / dtau_uw;
+        for (int k = 0; k < Psi.shape(0); ++k)
+            Psi(k) /= chi(k);
+    }
+}
+
 namespace LwInternal
 {
-void piecewise_bezier3_1d(FormalData* fd, int mu, bool toObs, f64 wav)
+void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
+{
+    JasUnpack((*fd), atmos, I, chi);
+    f64 zmu = 0.5 / atmos->muz(mu);
+    auto height = atmos->height;
+
+    int dk = -1;
+    int kStart = atmos->Nspace - 1;
+    int kEnd = 0;
+    if (!toObs)
+    {
+        dk = 1;
+        kStart = 0;
+        kEnd = atmos->Nspace - 1;
+    }
+    f64 dtau_uw = zmu * (chi(kStart) + chi(kStart + dk)) * abs(height(kStart) - height(kStart + dk));
+
+    f64 Iupw = 0.0;
+    if (toObs)
+    {
+        if (atmos->zLowerBc.type == THERMALISED)
+        {
+            f64 Bnu[2];
+            int Nspace = atmos->Nspace;
+            planck_nu(2, &atmos->temperature(Nspace - 2), wav, Bnu);
+            Iupw = Bnu[1] - (Bnu[0] - Bnu[1]) / dtau_uw;
+        }
+        else if (atmos->zLowerBc.type == CALLABLE)
+        {
+            Iupw = atmos->zLowerBc.bcData(la, 0);
+        }
+    }
+    else
+    {
+        if (atmos->zUpperBc.type == THERMALISED)
+        {
+            f64 Bnu[2];
+            planck_nu(2, &atmos->temperature(0), wav, Bnu);
+            Iupw = Bnu[0] - (Bnu[1] - Bnu[0]) / dtau_uw;
+        }
+        else if (atmos->zUpperBc.type == CALLABLE)
+        {
+            Iupw = atmos->zUpperBc.bcData(la, 0);
+        }
+    }
+
+    piecewise_linear_1d_impl(fd, zmu, toObs, Iupw);
+}
+
+void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
 {
     JasUnpack((*fd), atmos, chi);
     // This is 1.0 here, as we are normally effectively rolling in the averaging
@@ -371,21 +528,86 @@ void piecewise_bezier3_1d(FormalData* fd, int mu, bool toObs, f64 wav)
     f64 dtau_uw = 0.5 * zmu * (chi(kStart) + chi(kStart + dk)) * abs(height(kStart) - height(kStart + dk));
 
     f64 Iupw = 0.0;
-    if (toObs && atmos->lowerBc == THERMALISED)
+    if (toObs)
     {
-        f64 Bnu[2];
-        int Nspace = atmos->Nspace;
-        planck_nu(2, &atmos->temperature(Nspace - 2), wav, Bnu);
-        Iupw = Bnu[1] - (Bnu[0] - Bnu[1]) / dtau_uw;
+        if (atmos->zLowerBc.type == THERMALISED)
+        {
+            f64 Bnu[2];
+            int Nspace = atmos->Nspace;
+            planck_nu(2, &atmos->temperature(Nspace - 2), wav, Bnu);
+            Iupw = Bnu[1] - (Bnu[0] - Bnu[1]) / dtau_uw;
+        }
+        else if (atmos->zLowerBc.type == CALLABLE)
+        {
+            Iupw = atmos->zLowerBc.bcData(la, 0);
+        }
     }
-    else if (!toObs && atmos->upperBc == THERMALISED)
+    else
     {
-        f64 Bnu[2];
-        planck_nu(2, &atmos->temperature(0), wav, Bnu);
-        Iupw = Bnu[0] - (Bnu[1] - Bnu[0]) / dtau_uw;
+        if (atmos->zUpperBc.type == THERMALISED)
+        {
+            f64 Bnu[2];
+            planck_nu(2, &atmos->temperature(0), wav, Bnu);
+            Iupw = Bnu[0] - (Bnu[1] - Bnu[0]) / dtau_uw;
+        }
+        else if (atmos->zUpperBc.type == CALLABLE)
+        {
+            Iupw = atmos->zUpperBc.bcData(la, 0);
+        }
     }
 
     piecewise_bezier3_1d_impl(fd, zmu, toObs, Iupw);
+}
+
+void piecewise_besser_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
+{
+    JasUnpack((*fd), atmos, chi);
+    // This is 1.0 here, as we are normally effectively rolling in the averaging
+    // factor for dtau, whereas it's explicit in this solver
+    f64 zmu = 1.0 / atmos->muz(mu);
+    auto height = atmos->height;
+
+    int dk = -1;
+    int kStart = atmos->Nspace - 1;
+    int kEnd = 0;
+    if (!toObs)
+    {
+        dk = 1;
+        kStart = 0;
+        kEnd = atmos->Nspace - 1;
+    }
+    f64 dtau_uw = 0.5 * zmu * (chi(kStart) + chi(kStart + dk)) * abs(height(kStart) - height(kStart + dk));
+
+    f64 Iupw = 0.0;
+    if (toObs)
+    {
+        if (atmos->zLowerBc.type == THERMALISED)
+        {
+            f64 Bnu[2];
+            int Nspace = atmos->Nspace;
+            planck_nu(2, &atmos->temperature(Nspace - 2), wav, Bnu);
+            Iupw = Bnu[1] - (Bnu[0] - Bnu[1]) / dtau_uw;
+        }
+        else if (atmos->zLowerBc.type == CALLABLE)
+        {
+            Iupw = atmos->zLowerBc.bcData(la, 0);
+        }
+    }
+    else
+    {
+        if (atmos->zUpperBc.type == THERMALISED)
+        {
+            f64 Bnu[2];
+            planck_nu(2, &atmos->temperature(0), wav, Bnu);
+            Iupw = Bnu[0] - (Bnu[1] - Bnu[0]) / dtau_uw;
+        }
+        else if (atmos->zUpperBc.type == CALLABLE)
+        {
+            Iupw = atmos->zUpperBc.bcData(la, 0);
+        }
+    }
+
+    piecewise_besser_1d_impl(fd, zmu, toObs, Iupw);
 }
 
 bool continua_only(const IntensityCoreData& data, int la)
@@ -481,6 +703,7 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
     JasUnpack(*data, activeAtoms, detailedAtoms, JDag);
     JasUnpack(data, chiTot, etaTot, Uji, Vij, Vji);
     JasUnpack(data, I, S, Ieff, PsiStar);
+    const LwFsFn formal_solver = data.formal_solver;
     const int Nspace = atmos.Nspace;
     const int Nrays = atmos.Nrays;
     const int Nspect = spect.wavelength.shape(0);
@@ -503,6 +726,13 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
 
     // NOTE(cmo): If we only have continua then opacity is angle independent
     const bool continuaOnly = continua_only(data, la);
+    // printf("Core: %d, %d\n", atmos.xLowerBc.type, atmos.xUpperBc.type);
+    //     printf("%d, %d, %d, %d, %d, %d\n", atmos.zLowerBc.type,
+    //                                        atmos.zUpperBc.type,
+    //                                        atmos.xLowerBc.type,
+    //                                        atmos.xUpperBc.type,
+    //                                        atmos.yLowerBc.type,
+    //                                        atmos.yUpperBc.type);
 
     f64 dJMax = 0.0;
     for (int mu = 0; mu < Nrays; ++mu)
@@ -546,9 +776,31 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                 }
             }
 
-            piecewise_bezier3_1d(&fd, mu, toObs, spect.wavelength(la));
-            // piecewise_linear_1d(&fd, mu, toObs, spect.wavelength(la));
-            spect.I(la, mu) = I(0);
+            switch (atmos.Ndim)
+            {
+                case 1:
+                {
+                    // piecewise_bezier3_1d(&fd, la, mu, toObs, spect.wavelength(la));
+                    // piecewise_besser_1d(&fd, la, mu, toObs, spect.wavelength(la));
+                    // piecewise_linear_1d(&fd, la, mu, toObs, spect.wavelength(la));
+                    formal_solver(&fd, la, mu, toObs, spect.wavelength(la));
+                    spect.I(la, mu, 0) = I(0);
+                } break;
+
+                case 2:
+                {
+                    // piecewise_linear_2d(&fd, la, mu, toObs, spect.wavelength(la));
+                    // piecewise_besser_2d(&fd, la, mu, toObs, spect.wavelength(la));
+                    // piecewise_parabolic_2d(&fd, la, mu, toObs, spect.wavelength(la));
+                    formal_solver(&fd, la, mu, toObs, spect.wavelength(la));
+                    auto I2 = I.reshape(atmos.Nz, atmos.Nx);
+                    for (int j = 0; j < atmos.Nx; ++j)
+                        spect.I(la, mu, j) = I2(0, j);
+                } break;
+
+                default:
+                    printf("Unexpected Ndim!\n");
+            }
 
             if (updateJ)
             {
@@ -663,6 +915,7 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
     // feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
     JasUnpack(*ctx, atmos, spect, background, depthData);
     JasUnpack(ctx, activeAtoms, detailedAtoms);
+    // build_intersection_list(&atmos);
 
     const int Nspace = atmos.Nspace;
     const int Nspect = spect.wavelength.shape(0);
@@ -685,11 +938,13 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
         fd.S = S;
         fd.Psi = PsiStar;
         fd.I = I;
+        fd.interp = ctx.interpFn.interp_2d;
         IntensityCoreData iCore;
         JasPackPtr(iCore, atmos, spect, fd, background, depthData);
         JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
         JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
         JasPack(iCore, I, S, Ieff, PsiStar);
+        iCore.formal_solver = ctx.formalSolver.solver;
 
         if (spect.JRest)
             spect.JRest.fill(0.0);
@@ -774,7 +1029,7 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
             taskData[t].lambdaIterate = lambdaIterate;
         }
 
-        auto fs_task = [](void* data, scheduler* s, 
+        auto fs_task = [](void* data, scheduler* s,
                           sched_task_partition p, sched_uint threadId)
         {
             auto& td = ((FsTaskData*)data)[threadId];
@@ -791,7 +1046,7 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
 
         {
             sched_task formalSolutions;
-            scheduler_add(&ctx.threading.sched, &formalSolutions, 
+            scheduler_add(&ctx.threading.sched, &formalSolutions,
                           fs_task, (void*)taskData, Nspect, 4);
             scheduler_join(&ctx.threading.sched, &formalSolutions);
         }
@@ -858,11 +1113,13 @@ f64 formal_sol_update_rates(Context& ctx)
     fd.chi = chiTot;
     fd.S = S;
     fd.I = I;
+    fd.interp = ctx.interpFn.interp_2d;
     IntensityCoreData iCore;
     JasPackPtr(iCore, atmos, spect, fd, background, depthData);
     JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
     JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
     JasPack(iCore, I, S, Ieff);
+    iCore.formal_solver = ctx.formalSolver.solver;
 
     if (spect.JRest)
         spect.JRest.fill(0.0);
@@ -909,11 +1166,13 @@ f64 formal_sol_update_rates_fixed_J(Context& ctx)
     fd.chi = chiTot;
     fd.S = S;
     fd.I = I;
+    fd.interp = ctx.interpFn.interp_2d;
     IntensityCoreData iCore;
     JasPackPtr(iCore, atmos, spect, fd, background, depthData);
     JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
     JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
     JasPack(iCore, I, S, Ieff);
+    iCore.formal_solver = ctx.formalSolver.solver;
 
     for (auto& a : activeAtoms)
     {
@@ -957,11 +1216,13 @@ f64 formal_sol(Context& ctx)
     fd.chi = chiTot;
     fd.S = S;
     fd.I = I;
+    fd.interp = ctx.interpFn.interp_2d;
     IntensityCoreData iCore;
     JasPackPtr(iCore, atmos, spect, fd, background, depthData);
     JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
     JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
     JasPack(iCore, I, S, Ieff);
+    iCore.formal_solver = ctx.formalSolver.solver;
 
     FsMode mode = FsMode::FsOnly;
     for (int la = 0; la < Nspect; ++la)

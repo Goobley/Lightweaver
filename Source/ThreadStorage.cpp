@@ -31,7 +31,7 @@ Transition* TransitionStorageFactory::copy_transition()
     t->lambda0 = trans->lambda0;
     t->dopplerWidth = trans->dopplerWidth;
     t->active = trans->active;
-    
+
     if (t->type == LINE)
     {
         t->Aji = trans->Aji;
@@ -69,7 +69,7 @@ Transition* TransitionStorageFactory::copy_transition()
 
 void TransitionStorageFactory::erase(Transition* trans)
 {
-    auto storageEntry = std::find_if(std::begin(tStorage), 
+    auto storageEntry = std::find_if(std::begin(tStorage),
                                      std::end(tStorage),
                                     [trans](const auto& other)
                                     {
@@ -100,7 +100,7 @@ void TransitionStorageFactory::accumulate_rates(const std::vector<size_t>& indic
     const int Nspace = trans->Rij.shape(0);
     trans->zero_rates();
     for (auto i : indices)
-    { 
+    {
         const auto& t = tStorage[i];
         for (int k = 0; k < Nspace; ++k)
         {
@@ -126,8 +126,8 @@ void TransitionStorageFactory::accumulate_prd_rates(const std::vector<size_t>& i
     accumulate_rates(indices);
 }
 
-AtomStorageFactory::AtomStorageFactory(Atom* a, bool detail) 
-    : atom(a),         
+AtomStorageFactory::AtomStorageFactory(Atom* a, bool detail)
+    : atom(a),
       detailedStatic(detail)
 {
     tStorage.reserve(atom->trans.size());
@@ -183,7 +183,7 @@ Atom* AtomStorageFactory::copy_atom()
 
 void AtomStorageFactory::erase(Atom* atom)
 {
-    auto storageEntry = std::find_if(std::begin(aStorage), 
+    auto storageEntry = std::find_if(std::begin(aStorage),
                                      std::end(aStorage),
                                     [atom](const auto& other)
                                     {
@@ -267,7 +267,7 @@ void AtomStorageFactory::accumulate_Gamma_rates_parallel(scheduler* s)
 
 }
 
-void AtomStorageFactory::accumulate_Gamma_rates_parallel(scheduler* s, 
+void AtomStorageFactory::accumulate_Gamma_rates_parallel(scheduler* s,
                                                          const std::vector<size_t>& indices)
 {
     struct AccData
@@ -329,6 +329,8 @@ void IntensityCoreFactory::initialise(Context* ctx)
     spect = ctx->spect;
     background = ctx->background;
     depthData = ctx->depthData;
+    formal_solver = ctx->formalSolver.solver;
+    interp = ctx->interpFn;
     // if (ctx->Nthreads <= 1)
     //     return;
 
@@ -360,6 +362,7 @@ IntensityCoreData* IntensityCoreFactory::new_intensity_core(bool psiOperator)
     fd.chi = as.chiTot;
     fd.S = as.S;
     fd.I = as.I;
+    fd.interp = interp.interp_2d;
     if (psiOperator)
         fd.Psi = as.PsiStar;
 
@@ -381,18 +384,20 @@ IntensityCoreData* IntensityCoreFactory::new_intensity_core(bool psiOperator)
         as.activeAtoms.emplace_back(atom.copy_atom());
     }
     iCore.activeAtoms = &as.activeAtoms;
-    
+
     as.detailedAtoms.reserve(detailedAtoms.size());
     for (auto& atom : detailedAtoms)
         as.detailedAtoms.emplace_back(atom.copy_atom());
     iCore.detailedAtoms = &as.detailedAtoms;
+
+    iCore.formal_solver = formal_solver;
 
     return &iCore;
 }
 
 void IntensityCoreFactory::erase(IntensityCoreData* core)
 {
-    auto storageEntry = std::find_if(std::begin(arrayStorage), 
+    auto storageEntry = std::find_if(std::begin(arrayStorage),
                                      std::end(arrayStorage),
                                     [core](const auto& other)
                                     {
@@ -459,13 +464,13 @@ void IntensityCoreFactory::accumulate_Gamma_rates_parallel(Context& ctx)
 
     {
         sched_task accumulation;
-        scheduler_add(&ctx.threading.sched, &accumulation, acc_task, 
+        scheduler_add(&ctx.threading.sched, &accumulation, acc_task,
                       (void*)taskData.data(), Njobs, 1);
         scheduler_join(&ctx.threading.sched, &accumulation);
     }
 }
 
-void IntensityCoreFactory::accumulate_Gamma_rates_parallel(Context& ctx, 
+void IntensityCoreFactory::accumulate_Gamma_rates_parallel(Context& ctx,
                                                            const std::vector<size_t>& indices)
 {
     struct AccData
@@ -493,7 +498,7 @@ void IntensityCoreFactory::accumulate_Gamma_rates_parallel(Context& ctx,
 
     {
         sched_task accumulation;
-        scheduler_add(&ctx.threading.sched, &accumulation, acc_task, 
+        scheduler_add(&ctx.threading.sched, &accumulation, acc_task,
                       (void*)taskData.data(), Njobs, 1);
         scheduler_join(&ctx.threading.sched, &accumulation);
     }
@@ -572,7 +577,9 @@ void ThreadData::initialise(Context* ctx)
         return;
 
     if (schedMemory)
-        assert(false && "Tried to re initialise_threads for a Context");
+    {
+        throw std::runtime_error("Tried to re- initialise_threads for a Context");
+    }
 
     sched_size memNeeded;
     scheduler_init(&sched, &memNeeded, ctx->Nthreads, nullptr);

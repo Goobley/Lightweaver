@@ -1,8 +1,8 @@
 #include "Lightweaver.hpp"
 #include "Bezier.hpp"
 #include "JasPP.hpp"
-#include <x86intrin.h>
 #include <string.h>
+#include <exception>
 
 using namespace LwInternal;
 
@@ -21,8 +21,10 @@ void Transition::compute_polarised_profiles(
     const f64 larmor = C::QElectron / (4.0 * C::Pi * C::MElectron) * (lambda0 * C::NM_TO_M);
     const f64 sqrtPi = sqrt(C::Pi);
 
-    assert((bool)atmos.B && "Must provide magnetic field when computing polarised profiles");
-    assert((bool)atmos.cosGamma && "Must call Atmosphere::update_projections before computing polarised profiles");
+    if (!(bool)atmos.B)
+        throw std::runtime_error("Must provide magnetic field when computing polarised profiles");
+    if (!(bool)atmos.cosGamma)
+        throw std::runtime_error("Must call Atmosphere::update_projections before computing polarised profiles");
     F64Arr vB(atmos.Nspace);
     F64Arr sv(atmos.Nspace);
     for (int k = 0; k < atmos.Nspace; ++k)
@@ -350,11 +352,11 @@ void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs,
 
 namespace LwInternal
 {
-void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int mu, bool toObs, f64 wav, bool polarisedFrequency)
+void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int la, int mu, bool toObs, f64 wav, bool polarisedFrequency)
 {
     if (!polarisedFrequency)
     {
-        piecewise_bezier3_1d(&fd->fdIntens, mu, toObs, wav);
+        piecewise_bezier3_1d(&fd->fdIntens, la, mu, toObs, wav);
         return;
     }
 
@@ -376,19 +378,32 @@ void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int mu, bool toObs, f64 w
     f64 dtau_uw = 0.5 * zmu * (chi(0, kStart) + chi(0, kStart + dk)) * abs(height(kStart) - height(kStart + dk));
 
     f64 Iupw[4] = { 0.0, 0.0, 0.0, 0.0 };
-    if (toObs && atmos->lowerBc == THERMALISED)
+    if (toObs)
     {
-        f64 Bnu[2];
-        int Nspace = atmos->Nspace;
-        planck_nu(2, &atmos->temperature(Nspace - 2), wav, Bnu);
-        Iupw[0] = Bnu[1] - (Bnu[0] - Bnu[1]) / dtau_uw;
+        if (atmos->zLowerBc.type == THERMALISED)
+        {
+            f64 Bnu[2];
+            int Nspace = atmos->Nspace;
+            planck_nu(2, &atmos->temperature(Nspace - 2), wav, Bnu);
+            Iupw[0] = Bnu[1] - (Bnu[0] - Bnu[1]) / dtau_uw;
+        }
+        else if (atmos->zLowerBc.type == CALLABLE)
+        {
+            Iupw[0] = atmos->zLowerBc.bcData(la, mu);
+        }
     }
-    else if (!toObs && atmos->upperBc == THERMALISED)
+    else
     {
-        f64 Bnu[2];
-        planck_nu(2, &atmos->temperature(0), wav, Bnu);
-
-        Iupw[0] = Bnu[0] - (Bnu[1] - Bnu[0]) / dtau_uw;
+        if (atmos->zUpperBc.type == THERMALISED)
+        {
+            f64 Bnu[2];
+            planck_nu(2, &atmos->temperature(0), wav, Bnu);
+            Iupw[0] = Bnu[0] - (Bnu[1] - Bnu[0]) / dtau_uw;
+        }
+        else if (atmos->zUpperBc.type == CALLABLE)
+        {
+            Iupw[0] = atmos->zUpperBc.bcData(la, mu);
+        }
     }
 
     piecewise_stokes_bezier3_1d_impl(fd, zmu, toObs, Iupw, polarisedFrequency);
@@ -552,11 +567,22 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ)
             }
 
 #if 1
-            piecewise_stokes_bezier3_1d(&fd, mu, toObs, spect.wavelength(la), polarisedFrequency);
-            spect.I(la, mu) = I(0, 0);
-            spect.Quv(0, la, mu) = I(1, 0);
-            spect.Quv(1, la, mu) = I(2, 0);
-            spect.Quv(2, la, mu) = I(3, 0);
+            switch (atmos.Ndim)
+            {
+                case 1:
+                {
+                    piecewise_stokes_bezier3_1d(&fd, la, mu, toObs, spect.wavelength(la), polarisedFrequency);
+                    spect.I(la, mu, 0) = I(0, 0);
+                    spect.Quv(0, la, mu, 0) = I(1, 0);
+                    spect.Quv(1, la, mu, 0) = I(2, 0);
+                    spect.Quv(2, la, mu, 0) = I(3, 0);
+                } break;
+
+                default:
+                {
+                    printf("Unexpected Ndim %d\n", atmos.Ndim);
+                } break;
+            }
 #else
             // NOTE(cmo): Checking with the normal FS and just using the first row of ezach of the matrices does indeed
             // produce the correct result
@@ -596,7 +622,7 @@ f64 formal_sol_full_stokes(Context& ctx, bool updateJ)
     JasUnpack(ctx, activeAtoms, detailedAtoms);
 
     if (!atmos.B)
-        assert(false && "Magnetic field required");
+        throw std::runtime_error("Magnetic field required");
 
     const int Nspace = atmos.Nspace;
     const int Nrays = atmos.Nrays;
@@ -620,6 +646,7 @@ f64 formal_sol_full_stokes(Context& ctx, bool updateJ)
     fd.fdIntens.chi = fd.chi(0);
     fd.fdIntens.S = fd.S(0);
     fd.fdIntens.I = fd.I(0);
+    fd.fdIntens.interp = ctx.interpFn.interp_2d;
     StokesCoreData core;
     JasPackPtr(core, atmos, spect, fd, background);
     JasPackPtr(core, activeAtoms, detailedAtoms, JDag);

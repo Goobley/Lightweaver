@@ -8,6 +8,7 @@ from enum import Enum, auto
 from astropy import units
 from specutils.utils.wcs_utils import vac_to_air as spec_vac_to_air, air_to_vac as spec_air_to_vac
 from numba import njit
+from scipy import special
 
 @dataclass
 class NgOptions:
@@ -52,13 +53,13 @@ def get_data_path():
     global _LwCodeLocation
     if _LwCodeLocation is None:
         _LwCodeLocation, _ = os.path.split(__file__)
-    return _LwCodeLocation + '/../Data/'
+    return _LwCodeLocation + '/Data/'
 
 def get_default_molecule_path():
     global _LwCodeLocation
     if _LwCodeLocation is None:
         _LwCodeLocation, _ = os.path.split(__file__)
-    return _LwCodeLocation + '/../Molecules/'
+    return _LwCodeLocation + '/Data/DefaultMolecules/'
 
 def vac_to_air(wavelength: np.ndarray) -> np.ndarray:
     return spec_vac_to_air(wavelength * units.nm, method='edlen1966').value
@@ -95,3 +96,8 @@ def sequence_repr(x: Sequence) -> str:
         return repr(x.tolist())
 
     return repr(x)
+
+def view_flatten(x: np.ndarray) -> np.ndarray:
+    y = x.view()
+    y.shape = (x.size,)
+    return y

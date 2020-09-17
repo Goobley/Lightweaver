@@ -1,0 +1,4 @@
+include README.md
+include LCIENSE
+include environment.yml
+recursive-include lightweaver/Data/ *

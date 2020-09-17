@@ -15,10 +15,10 @@ class dum: # Just a container for the PF
     npi = 0
     pf  = 0
     eion = 0
-    
+
     def __init__(self):
         pass
-    
+
 # ----------------------------------------------------------------------------------------
 
 
@@ -38,7 +38,7 @@ class witt:
 
     """
     # Some definitions (from NIST)
-    
+
     BK = 1.3806488E-16          # Boltzmann [erg K]
     EE = 4.80320441E-10         # Electron charge
     HH = 6.62606957E-27         # Planck [erg s]
@@ -48,24 +48,24 @@ class witt:
     EV = 1.602176565E-12        # Electron Volt to erg
     CM1_TO_EV = HH*CC/EV        # CM^-1 to eV
     ME = 9.10938188E-28         # mass of electron
-    
+
     saha_fac =  ((2.0 * PI * ME * BK) / (HH*HH))**1.5
 
     # Default abundances
-    
-    ABUND = 10.0**np.float64( [-0.04048,-1.07,-10.95,-10.89, -9.44, -3.48, -3.99, 
-                               -3.11, -7.48, -3.95,  -5.71, -4.46, -5.57, -4.49, -6.59, -4.83, 
-                               -6.54, -5.48, -6.82,  -5.68, -8.94, -7.05, -8.04, -6.37, -6.65, 
-                               -4.50, -7.12, -5.79,  -7.83, -7.44, -9.16, -8.63, -9.67, -8.69, 
-                               -9.41, -8.81, -9.44,  -9.14, -9.80, -9.54,-10.62,-10.12,-20.00, 
-                               -10.20,-10.92,-10.35, -11.10,-10.18,-10.58,-10.04,-11.04, -9.80, 
-                               -10.53, -9.81,-10.92,  -9.91,-10.82,-10.49,-11.33,-10.54,-20.00, 
-                               -11.04,-11.53,-10.92, -11.94,-10.94,-11.78,-11.11,-12.04,-10.96, 
-                               -11.28,-11.16,-11.91, -10.93,-11.77,-10.59,-10.69,-10.24,-11.03, 
-                               -10.95,-11.14,-10.19, -11.33,-20.00,-20.00,-20.00,-20.00,-20.00, 
-                               -20.00,-11.92,-20.00, -12.51,-20.00,-20.00,-20.00,-20.00,-20.00, 
+
+    ABUND = 10.0**np.float64( [-0.04048,-1.07,-10.95,-10.89, -9.44, -3.48, -3.99,
+                               -3.11, -7.48, -3.95,  -5.71, -4.46, -5.57, -4.49, -6.59, -4.83,
+                               -6.54, -5.48, -6.82,  -5.68, -8.94, -7.05, -8.04, -6.37, -6.65,
+                               -4.50, -7.12, -5.79,  -7.83, -7.44, -9.16, -8.63, -9.67, -8.69,
+                               -9.41, -8.81, -9.44,  -9.14, -9.80, -9.54,-10.62,-10.12,-20.00,
+                               -10.20,-10.92,-10.35, -11.10,-10.18,-10.58,-10.04,-11.04, -9.80,
+                               -10.53, -9.81,-10.92,  -9.91,-10.82,-10.49,-11.33,-10.54,-20.00,
+                               -11.04,-11.53,-10.92, -11.94,-10.94,-11.78,-11.11,-12.04,-10.96,
+                               -11.28,-11.16,-11.91, -10.93,-11.77,-10.59,-10.69,-10.24,-11.03,
+                               -10.95,-11.14,-10.19, -11.33,-20.00,-20.00,-20.00,-20.00,-20.00,
+                               -20.00,-11.92,-20.00, -12.51,-20.00,-20.00,-20.00,-20.00,-20.00,
                                -20.00,-20.00])
-    
+
 
     AMASS = np.float64([1.008,  4.003,  6.941,  9.012, 10.811, 12.011, 14.007, 15.999,
                         18.998, 20.179, 22.990, 24.305, 26.982, 28.086, 30.974, 32.060,
@@ -81,9 +81,9 @@ class witt:
                         227.000,232.038,230.040,238.029,237.048,242.000,242.000,245.000,
                         248.000,252.000,253.000])
 
-    
+
     # Energy of a 6 level H atom in erg and corresponding g-values
-    
+
     eH = np.float64((0.0, 82258.211, 97491.219, 102822.76, 105290.508, 109677.617)) * HH * CC
     gH = np.float64((2.0, 8.0, 18.0, 32.0, 50.0, 1.0))
     # ----------------------------------------------------------------------------------------
@@ -93,43 +93,43 @@ class witt:
         # Reads Kurucz's partition functions and ionization potentials from a file
         # Taken from RH (Uitenbroek 2001)
         #
-        
+
         ff = open(ifile,'rb')
         f = ff.read()
         ff.close()
-        
+
         data = xdrlib.Unpacker(f)
         npf = data.unpack_uint()
-        
-        nelem = 99        
-        
+
+        nelem = 99
+
         self.tpf = np.float64(data.unpack_farray(npf, data.unpack_double))
         self.el = [None] * nelem
-    
+
         for ii in range(nelem):
             pti = data.unpack_uint()
             nstage = data.unpack_uint()
-    
+
             self.el[ii] = dum()
-            
+
             self.el[ii].pf =  np.float64(data.unpack_farray(npf*nstage, data.unpack_double)).reshape((nstage, npf))
             self.el[ii].eion =  np.float64(data.unpack_farray(nstage, data.unpack_double)) * self.HH*self.CC
-            
-            
+
+
             self.el[ii].nstage = nstage
             self.el[ii].npf = pti
-    
+
             if(to_EV): self.el[ii].eion /= self.EV
-        
+
     # ----------------------------------------------------------------------------------------
 
     def acota(self, x, x0, x1):
-        
+
         if(x < x0): x = x0
         if(x > x1): x = x1
 
         return x
-    
+
     # ----------------------------------------------------------------------------------------
 
     def acotasig(self, x, x0, x1):
@@ -141,12 +141,12 @@ class witt:
             x = self.acota(x, x0, x1)
 
         return x
-    
+
     # ----------------------------------------------------------------------------------------
 
     def sign(self, a, b):
         return abs(a) * (b / abs(b))
-    
+
     # ----------------------------------------------------------------------------------------
 
     def __init__(self, abund_init = [], verbose = False, prec = 1.e-5, pf_file='pf_Kurucz.input'):
@@ -155,10 +155,10 @@ class witt:
         self.prec = 1.e-5
         self.ncontr = 28 # number of species contributing as electron donnors (sorted)
         self.dtype = 'float64'
-        
+
         # Replace default abundances ?
         nabund = len(abund_init)
-        
+
         if(nabund > 0):
             self.ABUND[0:nabund] = abund_init
             if(self.verbose): print('witt::__init__: replacing default abundances with user provided values')
@@ -167,16 +167,16 @@ class witt:
         self.ABUND /= self.abtot
         self.abtot = 1.0
         self.ab_others = self.ABUND[1::].sum() / self.ABUND[0]
-        
+
         self.avw = (self.ABUND * self.AMASS).sum()
 
         self.muH = self.avw/ self.AMASS[0] / self.ABUND[0]
         self.rho_from_H = self.muH * self.AMASS[0]*self.AMU / self.BK
-        
+
         self.avw *=  self.AMU
-        
+
         # init arrays for later
-        
+
         self.alfai = np.zeros(self.ncontr, dtype=self.dtype)
         self.chi1  = np.zeros(self.ncontr, dtype=self.dtype)
         self.chi2  = np.zeros(self.ncontr, dtype=self.dtype)
@@ -186,31 +186,30 @@ class witt:
 
         # Init PF
 
-        # TODO(cmo): Move this to be ResourceReader/Loader based?
         DATA_PATH = get_data_path() + pf_file
 
         self.init_pf_data(DATA_PATH, True)
-        
-        
-        
+
+
+
     # ----------------------------------------------------------------------------------------
 
     def nsaha(self, t, xne, u0, u1, eion):
         # operates with t, xne and eion in EV
         return 2.0 * self.saha_fac * (u1 / u0) * t**1.5 * exp(-eion*self.EV / (t*self.BK)) / xne
-    
+
     # ----------------------------------------------------------------------------------------
 
     def saha(self, theta, eion, u1, u2, pe):
         # Operates with theta, eion in eV and pe
         return u2*exp(2.302585093*(9.0804625434325867-theta*eion))/(u1*pe*theta**2.5)
-    
+
     # ----------------------------------------------------------------------------------------
 
     def init_pe_from_pg(self, t, pg):
 
         # Assume that only H is a electron donnor
-        
+
         nu = self.ABUND[0]
         saha = 10.0**( -0.4771+2.5*log10(t)-log10(pg)-(13.6*5040.0/t))
         aaa = 1.0 + saha
@@ -226,14 +225,14 @@ class witt:
     def pe_from_pg(self, t, pg, get_fe = False):
 
         dif = 1.1
-        pe = self.init_pe_from_pg(t, pg) # Init Pe assuming only H and increase it 10% 
+        pe = self.init_pe_from_pg(t, pg) # Init Pe assuming only H and increase it 10%
         ope = pe
         it = 0
 
         while((abs(dif) > self.prec) and (it < 250)):
             pe = (ope + pe)*0.5
             ope = pe
-            
+
             pe,fe = self.pe_pg(t, pe, pg, get_fe=True)
             dif = 2.0 * abs(pe-ope) / (pe+ope)
             it += 1
@@ -248,10 +247,10 @@ class witt:
     def pe_from_rho(self, t, rho):
 
         # fraction of atoms
-        
+
         xna = rho / self.avw
         BKT = self.BK * t
-        
+
         # now estimate Pgas and iterate
 
         if(t > 8000): a = 0.5;
@@ -262,12 +261,12 @@ class witt:
         xne = a * xna /(1.0 - a)
         Pgas = (xna+xne)*BKT
 
-        
+
         # Iterate
 
         it = 0
         dif = 1.0
-        
+
         while((it < 250) and (abs(dif) > self.prec)):
             oPgas = Pgas
             Pe = self.pe_from_pg(t, Pgas)
@@ -277,13 +276,13 @@ class witt:
             Pgas  *= xna/xna_guessed
 
         return Pe#, Pgas
-            
+
     # ----------------------------------------------------------------------------------------
 
     def pg_from_rho(self, temp, rho):
-        
+
         xna = (rho / self.avw)
-        
+
         if(temp > 8000): a = 0.5;
         elif(temp > 4000): a = 0.1;
         elif(temp > 2000): a = 0.01;
@@ -291,7 +290,7 @@ class witt:
 
         xne = a * xna /(1.0 - a)
         pgas = (xna+xne)*self.BK*temp
-        
+
         Pe = self.pe_from_pg(temp, pgas)
         irho = self.rho_from_pe(temp, Pe)
 
@@ -304,9 +303,9 @@ class witt:
             it+=1
 
         pgas = self.pg_from_pe(temp, Pe)
-        
+
         return pgas
-            
+
     # ----------------------------------------------------------------------------------------
 
     def rho_from_pe(self,temp, pe):
@@ -321,31 +320,31 @@ class witt:
 
         pe, fe_out = self.pe_from_pg(temp, pg, True)
         rho = pe * self.rho_from_H / (fe_out * temp)
-        
+
         return rho
     # ----------------------------------------------------------------------------------------
 
-    
+
     def molecb(self, X):
         Y = np.empty(2, dtype=self.dtype); dy = np.empty(2, dtype=self.dtype)
         Y[0]=-11.206998+X*(2.7942767+X*(7.9196803E-2-X*2.4790744E-2)) # H2
         Y[1]=-12.533505+X*(4.9251644+X*(-5.6191273E-2+X*3.2687661E-3)) # H
         dx=(-X*X)/5040.
-                                                                        
-        dy[0]=dx*(2.7942767+X*(2*7.9196803e-2-X*3*2.4790744e-2)) 
+
+        dy[0]=dx*(2.7942767+X*(2*7.9196803e-2-X*3*2.4790744e-2))
         dy[1]=dx*(4.9251644+X*(-2*5.6191273e-2-X*3*3.2687661e-3))
-        
+
         return Y, dy
-    
+
     # ----------------------------------------------------------------------------------------
 
     def pe_pg(self, t, pe, pgas, get_fe=False):
-        
+
         g1 = 0.; theta = 5040.0/t
-     
-        
+
+
         # Init some values
-        
+
         if(pe < 0.0):
             pe = 1.e-15
             g4 = 0.0
@@ -365,7 +364,7 @@ class witt:
         g2 = self.saha(theta, self.el[0].eion[0], u[0], u[1], pe) # p(h+)/p(h)
         g3 = self.saha(theta, 0.754, 1.0, u[0], pe)        # p(h)/p(h-)
         g3 = 1.0 / self.acota(g3, 1.e-30, 1.0e30)
-        
+
 
         #
         # Now count electrons contributed by the first
@@ -374,34 +373,34 @@ class witt:
         for ii in range(1, self.ncontr):
             alfai = self.ABUND[ii] / self.ABUND[0] # relative to H abundance
             u = self.partition_f(ii, t, only=3)
-            
+
             a = self.saha(theta, self.el[ii].eion[0], u[0], u[1], pe)
             b = self.saha(theta, self.el[ii].eion[1], u[1], u[2], pe)
-            
+
             c = 1.+a*(1.+b)
             g1 += alfai/c*a*(1.+2.*b)
 
 
         # All the math...
-        
+
         a=1.+g2+g3
         b=2.*(1.+g2/g5*g4)
         c=g5
-        d=g2-g3 
+        d=g2-g3
         e=g2/g5*g4
 
         a = self.acotasig(a, 1.e-15, 1.e15);
         d = self.acotasig(d, 1.e-15, 1.e15);
-        
+
         c1=c*b*b+a*d*b-e*a*a
         c2=2.0*a*e-d*b+a*b*g1
-        c3=-(e+b*g1)                                                         
-        f1=0.5*c2/c1                                      
-        f1=-f1+self.sign(1.,c1)*sqrt(f1*f1-c3/c1) 
-        f5=(1.-a*f1)/b 
-        f4=e*f5 
-        f3=g3*f1 
-        f2=g2*f1 
+        c3=-(e+b*g1)
+        f1=0.5*c2/c1
+        f1=-f1+self.sign(1.,c1)*sqrt(f1*f1-c3/c1)
+        f5=(1.-a*f1)/b
+        f4=e*f5
+        f3=g3*f1
+        f2=g2*f1
         fe = self.acota(f2-f3+f4+g1, 1.e-30, 1.e30)
         phtot = pe/fe
 
@@ -410,7 +409,7 @@ class witt:
 
         if(f5 <= 1.e-4):
             diff = 1.0; const6=g5/pe*f1*f1; const7=f2-f3+g1; it = 0
-            
+
             while((diff > 1.e-5) and (it < 5)):
                 of5 = f5
                 f5=phtot*const6
@@ -419,37 +418,37 @@ class witt:
                 phtot=pe/fe
                 diff = 0.5 * fabs(f5-of5) / (f5 + of5)
                 it += 1
-     
+
         # Recompute pe
-        
+
         pe = pgas / (1.+(f1+f2+f3+f4+f5+self.ab_others)/fe)
-        
+
         if(pe <= 0.0):
             pe = 1.e-15
 
         if(get_fe): return pe, fe
         return pe
-    
-    
+
+
     # ----------------------------------------------------------------------------------------
 
     def Boltzmann(self, t, u, glow, e_pot):
         # Gives the ratio between the total population of a ionization stage and a given level
         # The energy levels must be in Erg.
         return (glow / u) * exp(-(e_pot) / (self.BK*t))
-    
+
     # ----------------------------------------------------------------------------------------
 
     def getH6pop(self, t, pgas, pe):
 
-        
+
         # Solve ionization for H
 
         n, u = self.getXparts(0, t, pgas, pe, divide_by_u = False, return_u = True)
 
-        
+
         # Define output array
-        
+
         res = np.empty(6, dtype='float64')
         res[-1] = n[1] # number of protons
 
@@ -460,20 +459,20 @@ class witt:
         for ii in range(5):
             ratios[ii] = self.Boltzmann(t, u[0], self.gH[ii], self.eH[ii])
 
-            
+
         # particle conservation (with 6 levels in H this line has no effect)
 
         #ratios /= ratios.sum()
 
-        
+
         # Multiply the neutral H population by the ratios of level populations
 
         res[0:5] = n[0] * ratios
 
 
         return res
-        
-    
+
+
     # ----------------------------------------------------------------------------------------
 
     def _itep1(self, x, y, xx):
@@ -484,7 +483,7 @@ class witt:
              y: array of input y values
              xx: scalar x value where the interpolated value of "y must be calculated
         """
-        
+
         if(xx <= x[0]): return y[0]
         elif(xx >= x[-1]): return y[-1]
         else:
@@ -497,84 +496,84 @@ class witt:
             u0 = 1.0 - u1
 
             return u0 * y[p0] + u1 * y[p1]
-        
-    
+
+
     # ----------------------------------------------------------------------------------------
 
     def partition_f(self, n, t, only=0):
         """
         Computes the partition function of element "n" for a given temperature
-        
+
         input:
              n: Atomic number of the atom -1 (H is 0).
              t: Temperature in K.
         Keywords:
              only: (=int) only return this number first levels of the atom.
                    The default is to return all the levels
-      
+
 
         """
         nn = self.el[n].nstage
-        
+
         if(only > 0):
             nn = min(nn, only)
             res = np.zeros(only, dtype='float64')
         else:
             res = np.zeros(nn, dtype='float64')
-            
+
         for ii in range(nn):
             res[ii] = self._itep1( self.tpf, self.el[n].pf[ii], t)
-        
+
         return res
-    
+
     # ----------------------------------------------------------------------------------------
 
     def pg_from_pe(self, t, pe, get_fe=False):
-        
+
         pg, dum = self.gasc(t, pe)
         if(get_fe): return pg, dum[-1]
-        
+
         return pg
-    
+
     # ----------------------------------------------------------------------------------------
 
     def gasc(self, t, pe):
 
         pp = np.zeros(self.ncontr+6, dtype = self.dtype)
-        
+
         theta = 5040. / t
         cmol, dmol = self.molecb(theta)
 
         g4 = 10.0**cmol[0]; g5 = 10.0**cmol[1]
 
-        
+
         # First H
-        
+
         u = self.partition_f(0, t)
         g2 = self.saha(theta, self.el[0].eion[0], u[0], u[1], pe) # p(h+)/p(h)
         g3 = 1.0 / self.saha(theta, 0.754, 1.0, u[0], pe)        # p(h)/p(h-)
         g1 = 0.0
-        
-        
+
+
         # Other contributions
 
-        for ii in range(1, self.ncontr):            
+        for ii in range(1, self.ncontr):
             alfai = self.ABUND[ii] / self.ABUND[0] # relative to H abundance
             u = self.partition_f(ii, t, only=3)
-            
+
             a = self.saha(theta, self.el[ii].eion[0], u[0], u[1], pe)
             b = self.saha(theta, self.el[ii].eion[1], u[1], u[2], pe)
-            
+
             c=1.+a*(1.+b) # fraction of n0/ntot
-            
+
             pp[ii]=alfai/c # abund /ntot (partial pressure of neutral species ii)
-            
+
             # 1*n1 + 2*n2 + ... j*n_j so we count how many electrons
-            # come from each ionized species 
+            # come from each ionized species
 
             g1 += pp[ii]*a*(1.+2.*b)
 
-                                                                                     
+
         a=1.+g2+g3
         e=g2/g5*g4
         b=2.0*(1.0 + e)
@@ -586,7 +585,7 @@ class witt:
         f1=0.5*c2/c1
         f1=-f1+self.sign(1.0,c1)*sqrt(f1*f1-c3/c1)
         f5=(1.0-a*f1)/b
-       
+
         f4=e*f5
         f3=g3*f1
         f2=g2*f1
@@ -596,7 +595,7 @@ class witt:
         # Refinement by Wittmann
         if(f5 <= 1.e-5):
             diff = 1.0; const6=g5/pe*f1*f1; const7=f2-f3+g1; it = 0
-            
+
             while((diff > 1.e-5) and (it < 5)):
                 of5 = f5
                 f5=phtot*const6
@@ -607,7 +606,7 @@ class witt:
                 it += 1
 
         pg=pe*(1.0+(f1+f2+f3+f4+f5+self.ab_others)/fe)
-        
+
         # Store the partial pressures of H too
 
         pp[self.ncontr+0] = f1    #  p(h)/p(h')
@@ -617,7 +616,7 @@ class witt:
         pp[self.ncontr+4] = phtot #  p(h') (total hydrogen!)
         pp[self.ncontr+5] = fe #  p(h') (total hydrogen!)
 
-        
+
         return pg, pp
 
     # ----------------------------------------------------------------------------------------
@@ -626,18 +625,18 @@ class witt:
 
         # Precompute partial densities of atoms, electrons
         # and partial density of iatom with the abundance
-        
+
         TBK = t * self.BK; xna = (pg-pe) / TBK; xne = pe / TBK
         n_tot = xna * self.ABUND[iatom] / self.abtot
-        
-        
-    
+
+
+
         # Partition function
 
         u = self.partition_f(iatom, t, only=only)
         nLev = u.size
-        
-        
+
+
         # Solve saha and get the partial density of each ionized stage
 
         xpa = np.empty(nLev, dtype='float64')
@@ -650,14 +649,14 @@ class witt:
             xpa[0] = 1.0 + xpa[0]*xpa[ii]
 
         xpa[0] = 1.0 / xpa[0]
-            
+
         for ii in range(1, nLev):
             xpa[ii] *= xpa[ii-1]
 
 
         # Now that we have the ratios between ionized stages, multiply by the partial
         # density of iatom. Divide by the partition function if needed
-            
+
         if(divide_by_u):
             xpa[:] *= n_tot / u[:]
         else:
@@ -665,24 +664,24 @@ class witt:
 
         if(return_u): return xpa, u
         else: return xpa
-    
+
     # ----------------------------------------------------------------------------------------
 
     def getBackgroundPartials(self, t, pg, pe, divide_by_u = True):
 
         n = np.empty(17, dtype='float64')
         tbk = t * self.BK
-        
+
         # --- He/He+/He++ ---
 
         xpa = self.getXparts(1, t, pg, pe, divide_by_u = divide_by_u)
         n[3] = xpa[0]; n[4] = xpa[1]; n[5] = xpa[2]
-        
+
         # --- C ---
 
         xpa = self.getXparts(5, t, pg, pe, divide_by_u = divide_by_u)
         n[6] = xpa[0]
-        
+
 
         # --- Al ---
 
@@ -703,11 +702,11 @@ class witt:
 
 
         # --- Mg/Mg+ ---
-        
+
         xpa = self.getXparts(11, t, pg, pe, divide_by_u = divide_by_u)
         n[12] = xpa[0]; n[13] = xpa[1]
 
-        
+
         # --- Fe ---
 
         xpa = self.getXparts(25, t, pg, pe, divide_by_u = divide_by_u)
@@ -730,7 +729,7 @@ class witt:
 
         if(divide_by_u): pfH = 0.5
         else: pfH = 1.0
-        
+
         dum, pp = self.gasc(t, pe)
         n[0] = pp[self.ncontr+0]*pp[self.ncontr+4] / tbk * pfH # H / pf[H]
         n[1] = pp[self.ncontr+1]*pp[self.ncontr+4] / tbk       # H+/ 1.0
@@ -738,24 +737,24 @@ class witt:
 
 
         return n
-    
+
     # ----------------------------------------------------------------------------------------
 
     def contOpacity(self, iT, Pgas, Pe, w):
 
         # Some definitions
-        
+
         TK = iT * self.BK; TKEV = TK / self.EV
         HTK = self.HH/TK; TLOG = log(iT);
         xna = (Pgas-Pe) / TK; xne = Pe / TK
 
-        
+
         # Partial densities of background absorvers,
         # divided by the partition functions
 
         n = self.getBackgroundPartials(iT, Pgas, Pe, divide_by_u = True)
 
-        
+
         # get background opacity
 
         opac, scat = cop(iT,  TKEV, TK, HTK, TLOG, xna, xne, w, n[0], n[1],
@@ -763,7 +762,7 @@ class witt:
                               n[12], n[13], n[14], n[15], n[16])
 
         return opac
-        
+
 
 
 
@@ -802,13 +801,13 @@ def COULFF(TLOG, FREQLG, NZ):
     GAMLOG=10.39638-TLOG/1.15129+Z4LOG[NZ-1]
     IGAM=min(int(GAMLOG+7.),10)
     if(IGAM<1): IGAM=1
-    
+
     #  HVKTLG=2*log10(HVKT) #
 
     HVKTLG=(FREQLG-TLOG)/1.15129-20.63764
     IHVKT=min(int(HVKTLG+9.),11)
     if(IHVKT<1): IHVKT=1
-    
+
     P=GAMLOG-(IGAM-7);
     Q=HVKTLG-(IHVKT-9);
     return (1.-P)*((1.-Q)*A0[IHVKT-1,IGAM-1]+Q*A0[IHVKT, IGAM-1])+P*((1.-Q)*A0[IHVKT-1,IGAM]+Q*A0[IHVKT,IGAM])
@@ -823,17 +822,17 @@ C1 = np.float64((-2.268e10,4.077e8,1.035e8,4.593e7,2.371e7,1.229e7))
 @njit(cache=True)
 def COULX(N, freq, Z):
     n=(N+1.0)**2
-    
+
     if(freq>=(Z*Z*3.28805e15/n)):
         FREQ1=freq*1.e-10
         CLX=0.2815/FREQ1/FREQ1/FREQ1/n/n/(N+1.0)*Z*Z*Z*Z
-        
+
         if(N>=6):
             return CLX
-        
+
         CLX*=(A1[N]+(B1[N]+C1[N]*(Z*Z/FREQ1))*(Z*Z/FREQ1))
         return CLX
-  
+
     return 0.0
 
 # ----------------------------------------------------------------------------------------
@@ -843,19 +842,19 @@ def HOP( XNE,  XH1,  XH2,  FREQ,  FREQLG, T,  TLOG,  TKEV,  STIM,  EHVKT):
 
     CONT = np.empty(8)
     BOLT = np.empty(8)
-   
+
     FREQ3=(FREQ*1.E-10)**3
     CFREE=3.6919E-22/FREQ3
 
     n1 = (np.arange(8)+1.0)**2
     BOLT = np.exp(-13.595*(1.-1./n1)/TKEV)*2.*n1*XH1
-  
-  
+
+
     FREET=XNE*CFREE*XH2/sqrt(T)
     XR=XH1/13.595*TKEV
     BOLTEX=exp(-13.427/TKEV)*XR
     EXLIM=exp(-13.595/TKEV)*XR
-    
+
     for N in range(8):
         CONT[N]=COULX(N,FREQ,1.0)
 
@@ -864,10 +863,10 @@ def HOP( XNE,  XH1,  XH2,  FREQ,  FREQLG, T,  TLOG,  TKEV,  STIM,  EHVKT):
         BOLTEX=EXLIM/EHVKT
     H=(CONT[6]*BOLT[6]+CONT[7]*BOLT[7]+(BOLTEX-EXLIM)*C+
        COULFF(TLOG,FREQLG,1)*FREET)*STIM
-    
+
 
     H += (CONT[0:6]*BOLT[0:6]).sum()*(1.-EHVKT)
-        
+
     return H
 
 # ----------------------------------------------------------------------------------------
@@ -880,14 +879,14 @@ def HRAYOP(XH1,  FREQ):
     WW=WAVE*WAVE
     WW2 = WW*WW
     SIG=(5.799e-13+1.422e-6/WW+2.784/(WW2))/(WW2)
-  
+
     return SIG*XH1*2.0
 
 # ----------------------------------------------------------------------------------------
 
 @njit(cache=True)
 def H2PLOP(XH1, XH2, FREQ, FREQLG, FREQ15, TKEV, STIM):
-  
+
   if(FREQ > 3.28805E15):
       return 0.0
 
@@ -896,31 +895,31 @@ def H2PLOP(XH1, XH2, FREQ, FREQLG, FREQ15, TKEV, STIM):
   ES=-7.342E-3+(-2.409+(1.028+(-0.4230+(0.1224-0.01351*FREQ15)*
 			       FREQ15)*FREQ15)*FREQ15)*FREQ15
   return exp(-ES/TKEV+FR)*2.*XH1*XH2*STIM
-  
- 
+
+
 # ----------------------------------------------------------------------------------------
 
 @njit(cache=True)
 def HMINOP( XH1,  XHMIN,  FREQ,  T, TKEV,  XNE,  EHVKT):
-    
+
     FREQ1=FREQ*1.E-10
     B=(1.3727E-15+4.3748/FREQ)/FREQ1
     C=-2.5993E-7/FREQ1**2
-    
+
     if(FREQ <= 1.8259E14): HMINBF=0.
     elif(FREQ >= 2.111E14): HMINBF=6.801E-10+(5.358E-3+(1.481E3+(-5.519E7+4.808E11/FREQ1)/FREQ1)/FREQ1)/FREQ1
     else: HMINBF=3.695E-6+(-1.251E-1+1.052E3/FREQ1)/FREQ1
-    
+
     HMINFF=(B+C/T)*XH1*XNE*2.E-20
-    
-    
+
+
     #
     # We use the number density / partition function for H-.
     # The partition function for H- is 1
     #
     if(T < 7730.): HMIN=XHMIN
     else: HMIN=exp(0.7552/TKEV)/(2.*2.4148E15*T*sqrt(T))*XH1*XNE
-    
+
     H=HMINBF*(1-EHVKT)*HMIN*1.E-10
     return H+HMINFF
 
@@ -935,10 +934,10 @@ CHI0 = np.float64((0.,19.819,20.615,20.964,21.217,22.718,22.920,23.006,
 
 @njit(cache=True)
 def HE1OP( XHE1,  XHE2,  XNE,  FREQ,  FREQLG, T,  TKEV,  TLOG,  EHVKT,  STIM):
-  
+
     TRANS = np.zeros(10)
     BOLT=np.exp(-CHI0/TKEV)*G0*XHE1
-  
+
     FREET=XNE*1.E-10*XHE2*1.E-10/sqrt(T)*1.E-10
     XRLOG=log(XHE1*(2./13.595)*TKEV)
     BOLTEX=exp(-23.730/TKEV+XRLOG)
@@ -946,28 +945,28 @@ def HE1OP( XHE1,  XHE2,  XNE,  FREQ,  FREQLG, T,  TKEV,  TLOG,  EHVKT,  STIM):
     FREQ3=(FREQ*1.E-10)**3
     CFREE=3.6919E8/FREQ3
     C=2.815E-1/FREQ3
-  
+
     for NMIN in range(10):
         if(HEFREQ0[NMIN] <= FREQ): break
 
     dum = np.float64((33.32-2.*FREQLG, -390.026+(21.035-0.318*FREQLG)*FREQLG, 26.83-1.91*FREQLG, 61.21-2.9*FREQLG, 81.35-3.5*FREQLG, 12.69-1.54*FREQLG, 23.85-1.86*FREQLG, 49.30-2.60*FREQLG,85.20-3.69*FREQLG, 58.81-2.89*FREQLG ))
-        
+
     TRANS[NMIN::] = np.exp(dum[NMIN::])
 
-    
+
     EX = BOLTEX
     if(FREQ < 2.055E14): EX=EXLIM/EHVKT
-    
+
     HE1=(EX-EXLIM)*C;
     HE1 += (TRANS*BOLT).sum()
-    
+
     return (HE1+COULFF(TLOG,FREQLG,1)*FREET*CFREE)*STIM
 
 # ----------------------------------------------------------------------------------------
 
 @njit(cache=True)
 def HE2OP(  XHE2,  XHE3,  XNE,  FREQ,  FREQLG, T,  TKEV,  TLOG,  EHVKT,  STIM):
-    
+
     #
     #   REQUIRES FUNCTIONS COULX AND COULFF
     #   FREQUENCIES ARE 4X HYDROGEN,CHI ARE FOR ION POT=54.403
@@ -976,28 +975,28 @@ def HE2OP(  XHE2,  XHE3,  XNE,  FREQ,  FREQLG, T,  TKEV,  TLOG,  EHVKT,  STIM):
 
     N12 = (np.arange(9)+1.0)**2
     BOLT=np.exp(-(54.403-54.403/N12)/TKEV)*2.*N12*XHE2
-  
+
     FREET=XNE*XHE3/sqrt(T)
     XR=XHE2/13.595*TKEV
     BOLTEX=exp(-53.859/TKEV)*XR
     EXLIM=exp(-54.403/TKEV)*XR
-    
+
     for N in range(9): CONT[N]=COULX(N,FREQ,2.0)
-  
+
     FREQ3=(FREQ*1.E-5)**3
     CFREE=3.6919E-07/FREQ3*4.0
     C=2.815E14*2.0*2.0/FREQ3
     EX=BOLTEX
-  
+
     if(FREQ < 1.31522E14): EX=EXLIM/EHVKT
     HE2=(EX-EXLIM)*C
 
     HE2 += (CONT*BOLT).sum()
     HE2=(HE2+COULFF(TLOG,FREQLG,2)*CFREE*FREET)*STIM
-  
+
     if(HE2 >= 1.E-20): return HE2
     else:              return 0.0
-  
+
 
 # ----------------------------------------------------------------------------------------
 
@@ -1043,11 +1042,11 @@ TLG0=np.float64((8.29405,8.51719,8.69951,8.85367, 8.98720,9.10498,9.21034))
 def Mg1OP(FREQ,  FREQLG,  T,  TLOG):
     NT=min(6,int(floor(T/1000.))-3)
     if(NT<1): NT=1
-  
+
     DT=(TLOG-TLG0[NT-1])/(TLG0[NT]-TLG0[NT-1])
     for N in range(7):
         if(FREQ > FREQMG[N]): break
-        
+
     D=(FREQLG-FLOG0[N])/(FLOG0[N+1]-FLOG0[N])
     if(N > 1): N=2*N-1
     D1=1.0-D
@@ -1060,18 +1059,18 @@ def Mg1OP(FREQ,  FREQLG,  T,  TLOG):
 
 @njit(cache=True)
 def C1OP( FREQ,  TKEV):
-    
-  # CROSS-SECTION TIMES THE PARTITION FUNCTION  
+
+  # CROSS-SECTION TIMES THE PARTITION FUNCTION
   C1240=5.*exp(-1.264/TKEV)
   C1444=exp(-2.683/TKEV)
   X1444=0.0
   X1240=0.0
   X1100=0.0
-  
+
   if(FREQ >= 2.7254E15): X1100=SEATON(2.7254E15,1.219E-17,2.0E0,3.317E0,FREQ)
   if(FREQ >= 2.4196E15): X1240=SEATON(2.4196E15,1.030E-17,1.5E0,2.789E0,FREQ)
   if(FREQ >= 2.0761E15): X1444=SEATON(2.0761E15,9.590E-18,1.5E0,3.501E0,FREQ)
-  
+
   return X1100*9.+X1240*C1240+X1444*C1444
 
 # ----------------------------------------------------------------------------------------
@@ -1080,7 +1079,7 @@ def C1OP( FREQ,  TKEV):
 def Al1OP(FREQ):
     if(FREQ > 1.443E15): return 2.1E-17*((1.443E15/FREQ)**3)*6.0
     else: return 0.0
-    
+
 # ----------------------------------------------------------------------------------------
 
 PEACH1 = np.float64(( 38.136,38.138,38.140,38.141,38.143,38.144,38.144,38.145,38.145,#/* 1200 */
@@ -1111,17 +1110,17 @@ def Si1OP(FREQ, FREQLG, T, TLOG):
     NT=min(8,int(floor(T/1000.))-3)
     if(NT<1): NT=1
     DT=(TLOG-TLG1[NT-1])/(TLG1[NT]-TLG1[NT-1])
-    
+
     for N in range(9):
         if(FREQ > FREQSI1[N]): break
-    
+
     D=(FREQLG-FLOG1[N])/(FLOG1[N+1]-FLOG1[N])
-    
+
     if(N>1): N=2*N-1
     DD=1.-D
     XWL1=PEACH1[N+1,NT-1]*D+PEACH1[N,NT-1]*DD
     XWL2=PEACH1[N+1,NT  ]*D+PEACH1[N,NT  ]*DD
-    
+
     return exp(-(XWL1*(1.-DT)+XWL2*DT))*9.
 
 # ----------------------------------------------------------------------------------------
@@ -1159,36 +1158,36 @@ def Fe1OP(FREQ, HKT):
     XSECT[idx] = 3.e-18/(1.+XXX[idx]**4)
 
     return (XSECT*BOLT).sum()
-    
+
 # ----------------------------------------------------------------------------------------
 
 @njit(cache=True)
 def COOLOP(XC1,XMg1,XAl1,XSi1,XFe1,STIM,FREQ,FREQLG,T,TLOG,TKEV,HKT):
     #     Si I, Mg I, Al I, C I, Fe I
-    
+
     return ( C1OP(FREQ,TKEV          )*XC1 +
 	     Mg1OP(FREQ,FREQLG,T,TLOG)*XMg1+
 	     Al1OP(FREQ              )*XAl1+
 	     Si1OP(FREQ,FREQLG,T,TLOG)*XSi1+
              Fe1OP(FREQ,HKT          )*XFe1)*STIM
-    
+
 # ----------------------------------------------------------------------------------------
 
 @njit(cache=True)
 def N1OP( FREQ,  TKEV):
 
     # CROSS-SECTION TIMES PARTITION FUNCTION
-  
+
   C1130=6.*exp(-3.575/TKEV)
   C1020=10.*exp(-2.384/TKEV)
   X1130=0.
   X1020=0.
   X853=0.
-  
+
   if(FREQ >= 3.517915E15): X853 =SEATON(3.517915E15,1.142E-17,2.0E0,4.29E0,FREQ)
   if(FREQ >= 2.941534E15): X1020=SEATON(2.941534E15,4.410E-18,1.5E0,3.85E0,FREQ)
   if(FREQ >= 2.653317E15): X1130=SEATON(2.653317E15,4.200E-18,1.5E0,4.34E0,FREQ)
-  
+
   return X853*4.+X1020*C1020+X1130*C1130
 
 # ----------------------------------------------------------------------------------------
@@ -1204,11 +1203,11 @@ def O1OP( FREQ):
 def Mg2OP( FREQ,  TKEV):
 
   #    CROSS-SECTION TIMES PARTITION FUNCTION
-    
+
   C1169=6.*exp(-4.43/TKEV)
   X1169=0.0
   X824=0.0
-  
+
   if(FREQ >= 3.635492E15): X824 =SEATON(3.635492E15,1.40E-19,4.E0,6.7E0,FREQ)
   if(FREQ >= 2.564306E15): X1169=5.11E-19*(2.564306E15/FREQ)**3
 
@@ -1241,47 +1240,47 @@ def Si2OP( FREQ,  FREQLG,  T,  TLOG):
     NT=min(5,int(floor(T/2000.))-4)
     if(NT<1): NT=1
     DT=(TLOG-TLG2[NT-1])/(TLG2[NT]-TLG2[NT-1])
-    
+
     for N in range(7):
         if(FREQ>FREQSI2[N]):
             break
-        
+
     D=(FREQLG-FLOG2[N])/(FLOG2[N+1]-FLOG2[N])
-    
+
     if(N>1): N=2*N-2
     if(N==13): N=12
-    
+
     D1=1.-D
     XWL1=PEACH2[N+1,NT-1]*D+PEACH2[N,NT-1]*D1
     XWL2=PEACH2[N+1,NT  ]*D+PEACH2[N,NT  ]*D1
-    
+
     return exp(XWL1*(1.-DT)+XWL2*DT)*6.
 
 # ----------------------------------------------------------------------------------------
 
 @njit(cache=True)
 def Ca2OP( FREQ,  TKEV):
-    
+
     C1218=10.*exp(-1.697/TKEV)
     C1420=6.*exp(-3.142/TKEV)
     X1044=0.; X1218=0.; X1420=0.
-  
+
     if(FREQ>=2.870454e15):
         XXX=(2.870454e15/FREQ)**3
         X1044=1.08e-19*XXX
-        
+
     if(FREQ>=2.460127e15): X1218=1.64e-17*sqrt(2.460127e15/FREQ)
     if(FREQ>=2.110779e15): X1420=SEATON(2.110779e15,4.13e-18,3.,0.69, FREQ)
-        
+
     return X1044+X1218*C1218+X1420*C1420
 
 # ----------------------------------------------------------------------------------------
 
 @njit(cache=True)
 def LUKEOP( XN1,  XO1,  XMg2,  XSi2,  XCa2, STIM,  FREQ,  FREQLG,  T,  TLOG,  TKEV):
-    
+
     #    N I, O I, Si II, Mg II, Ca II
-    
+
     return ( N1OP(FREQ,TKEV          )*XN1 +
 	     O1OP(FREQ               )*XO1 +
 	     Mg2OP(FREQ,TKEV         )*XMg2+
@@ -1305,27 +1304,27 @@ def ELECOP( XNE):
 @njit(cache=True)
 def H2RAOP(  XH1,  FREQ,  T,  TKEV,  TLOG):
 
-  
+
   WW=(2.997925E18/min(FREQ,2.922E15))**2
   WW2 = WW*WW
-  
+
   SIG=(8.14E-13+1.28e-6/WW+1.61e0/WW2)/WW2
   ARG=4.477/TKEV-4.6628E1+(1.8031E-3+(-5.023E-7+(8.1424E-11-5.0501E-15*T)*T)*T)*T-1.5*TLOG
   H1=XH1*2.0
-  
+
   if(ARG > -80.0): return exp(ARG)*H1*H1*SIG
   else: return 0.0
-  
+
 # ----------------------------------------------------------------------------------------
 
 @njit(cache=True)
 def cop( T,  TKEV,  TK,  HKT,  TLOG, XNA,  XNE,  WLGRID, H1,  H2,  HMIN,  HE1,  HE2,
 	 HE3,  C1,  AL1,  SI1,  SI2,CA1,  CA2,  MG1,  MG2,  FE1, N1,  O1):
-    
+
     nW = len(WLGRID)
     OPACITY = np.zeros(nW)
     SCATTER = np.zeros(nW)
-    
+
     for iWL in range(nW):
         FREQ=2.997925E18/WLGRID[iWL]
         FREQLG=log(FREQ)
@@ -1334,7 +1333,7 @@ def cop( T,  TKEV,  TK,  HKT,  TLOG, XNA,  XNE,  WLGRID, H1,  H2,  HMIN,  HE1,  
         STIM=1.0-EHVKT
 
         ACOOL = 0.0; ALUKE = 0.0
-        
+
         AHYD = HOP(XNE,H1,H2,FREQ,FREQLG,T,TLOG,TKEV,STIM,EHVKT)
         AH2P = H2PLOP(H1,H2,FREQ,FREQLG,FREQ15,TKEV,STIM)
         AHMIN = HMINOP(H1,HMIN,FREQ,T,TKEV,XNE,EHVKT)
@@ -1343,19 +1342,19 @@ def cop( T,  TKEV,  TK,  HKT,  TLOG, XNA,  XNE,  WLGRID, H1,  H2,  HMIN,  HE1,  
         AHE2 = HE2OP(HE2, HE3,XNE,FREQ,FREQLG,T, TKEV, TLOG, EHVKT,STIM)
         AHEMIN = HEMIOP(HE1,FREQ,T,XNE)
         SIGHE = HERAOP(HE1,FREQ)
-        
+
         if(T < 12000.):
             ACOOL = COOLOP(C1 ,MG1, AL1,SI1, FE1,STIM,FREQ,FREQLG,T,TLOG,TKEV,HKT)
         if(T < 30000.):
             ALUKE = LUKEOP( N1, O1, MG2, SI2, CA2,STIM,FREQ,FREQLG,T,TLOG,TKEV)
-    
+
         AHOT = HOTOP()
         SIGEL = ELECOP(XNE)
         SIGH2 = H2RAOP(H1,FREQ,T,TKEV,TLOG)
-        
+
         A=AHYD+AHMIN+AH2P+AHE1+AHE2+AHEMIN+ACOOL+ALUKE+AHOT
         B=SIGH+SIGHE+SIGEL+SIGH2
-        
+
         OPACITY[iWL]=A+B
         SCATTER[iWL]=B
 

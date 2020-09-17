@@ -3,6 +3,7 @@
 #include "Constants.hpp"
 #include "CmoArray.hpp"
 #include "JasPP.hpp"
+#include <algorithm>
 
 template <typename T, typename U>
 inline int hunt(int len, T first, U val)

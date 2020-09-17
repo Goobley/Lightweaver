@@ -22,12 +22,11 @@ f64 formal_sol_full_stokes(Context& ctx, bool updateJ=true);
 PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol);
 void stat_eq(Atom* atom);
 void time_dependent_update(Atom* atomIn, F64View2D nOld, f64 dt);
-void planck_nu(long Nspace, double *T, double lambda, double *Bnu);
 void configure_hprd_coeffs(Context& ctx);
 
 namespace EscapeProbability
 {
-void gamma_matrices_escape_prob(Atom* a, Background& background, 
+void gamma_matrices_escape_prob(Atom* a, Background& background,
                                 const Atmosphere& atmos);
 }
 

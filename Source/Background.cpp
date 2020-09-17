@@ -5,7 +5,7 @@
 #include "Lightweaver.hpp"
 #include "Utils.hpp"
 
-typedef Jasnah::Array1Own<i32> I32Arr;
+// typedef Jasnah::Array1Own<i32> I32Arr;
 
 double Gaunt_bf(double lambda, double n_eff, int charge) {
   /* --- M. J. Seaton (1960), Rep. Prog. Phys. 23, 313 -- ----------- */
@@ -94,8 +94,8 @@ struct SplineInterpolator
                 f64 fx = (x(n) - xTable(j)) / hj;
                 f64 fx1 = 1.0 - fx;
 
-                y(n) = fx1 * yTable(j) + fx * yTable(j+1) 
-                       + (fx1 * (square(fx1) - 1.0) * M(j) 
+                y(n) = fx1 * yTable(j) + fx * yTable(j+1)
+                       + (fx1 * (square(fx1) - 1.0) * M(j)
                           + fx * (square(fx) - 1.0) * M(j+1))
                        * square(hj) / 6.0;
             }
@@ -115,8 +115,8 @@ struct SplineInterpolator
         f64 fx = (x - xTable(j)) / hj;
         f64 fx1 = 1.0 - fx;
 
-        return fx1 * yTable(j) + fx * yTable(j+1) 
-               + (fx1 * (square(fx1) - 1.0) * M(j) 
+        return fx1 * yTable(j) + fx * yTable(j+1)
+               + (fx1 * (square(fx1) - 1.0) * M(j)
                   + fx * (square(fx) - 1.0) * M(j+1))
                * square(hj) / 6.0;
     }
@@ -291,12 +291,12 @@ struct H2Opacity
 
 
     H2Opacity(const Atmosphere& a, F64View H2, F64View2D H)
-        : computeMinus(a.Nspace == H2.shape(0)), 
-          computePlus(a.Nspace == H.shape(1)), 
-          atmos(a), 
-          thetaIndex(a.Nspace), 
-          tempIndex(a.Nspace), 
-          nH2(H2), 
+        : computeMinus(a.Nspace == H2.shape(0)),
+          computePlus(a.Nspace == H.shape(1)),
+          atmos(a),
+          thetaIndex(a.Nspace),
+          tempIndex(a.Nspace),
+          nH2(H2),
           nH(H)
     {
         namespace C = Constants;
@@ -401,7 +401,7 @@ struct H2Opacity
 
         f64 sigmaRH2;
         if (lambda <= lambdaRH2[N_RAYLEIGH_H2-1])
-            sigmaRH2 = linear(F64View(const_cast<f64*>(lambdaRH2), N_RAYLEIGH_H2), 
+            sigmaRH2 = linear(F64View(const_cast<f64*>(lambdaRH2), N_RAYLEIGH_H2),
                               F64View(const_cast<f64*>(sigma), N_RAYLEIGH_H2),
                               lambda);
         else
@@ -1365,7 +1365,7 @@ void basic_background(BackgroundData* bd, Atmosphere* atmosphere)
 
     }
 
-    // NOTE(cmo): Still needed: Rayleigh for H, Rayleigh for He, bf opacities from atomic models 
+    // NOTE(cmo): Still needed: Rayleigh for H, Rayleigh for He, bf opacities from atomic models
     // NOTE(cmo): At end, add sca * scaFudge to chi
     // NOTE(cmo): This is all done in Cython in this implementation
 }

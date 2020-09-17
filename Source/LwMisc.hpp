@@ -26,6 +26,25 @@ inline std::complex<f64> voigt_HF(f64 a, f64 v)
     return w(z);
 }
 
+inline void planck_nu(int Nspace, f64* T, f64 lambda, f64* Bnu)
+{
+    namespace C = Constants;
+    constexpr f64 hc_k = C::HC / (C::KBoltzmann * C::NM_TO_M);
+    const f64 hc_kla = hc_k / lambda;
+    constexpr f64 twoh_c2 = (2.0 * C::HC) / cube(C::NM_TO_M);
+    const f64 twohnu3_c2 = twoh_c2 / cube(lambda);
+    constexpr f64 MAX_EXPONENT = 150.0;
+
+    for (int k = 0; k < Nspace; k++)
+    {
+        f64 hc_Tkla = hc_kla / T[k];
+        if (hc_Tkla <= MAX_EXPONENT)
+            Bnu[k] = twohnu3_c2 / (exp(hc_Tkla) - 1.0);
+        else
+            Bnu[k] = 0.0;
+    }
+}
+
 namespace Prd
 {
     struct RhoInterpCoeffs
@@ -69,8 +88,8 @@ struct Background
 struct Spectrum
 {
     F64View wavelength;
-    F64View2D I;
-    F64View3D Quv;
+    F64View3D I;
+    F64View4D Quv;
     F64View2D J;
     BoolArr prdActive;
     std::vector<int> prdIdxs;

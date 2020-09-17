@@ -1,9 +1,12 @@
+#define CMO_FORMAL_INTERFACE_IMPL
 #include "Lightweaver.hpp"
 
+#include "FormalInterface.cpp"
 #include "LuSolve.cpp"
 #include "Atmosphere.cpp"
 #include "Background.cpp"
 #include "FormalScalar.cpp"
+#include "FormalScalar2d.cpp"
 #include "FormalStokes.cpp"
 #include "UpdatePopulations.cpp"
 #include "Prd.cpp"

@@ -72,14 +72,14 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False, timeDependentData=N
 
 
     if hOnly:
-        backgroundAtoms = [model for ele, model in self.arguments['spect'].radSet.items() if ele != PeriodicTable[1]]
+        backgroundAtoms = [model for ele, model in self.kwargs['spect'].radSet.items() if ele != PeriodicTable[1]]
     else:
-        backgroundAtoms = self.arguments['spect'].radSet.passiveAtoms
+        backgroundAtoms = self.kwargs['spect'].radSet.passiveAtoms
 
     backgroundNe = np.zeros_like(self.atmos.ne)
     for idx, atomModel in enumerate(backgroundAtoms):
         lteStages = np.array([l.stage for l in atomModel.levels])
-        atom = self.arguments['eqPops'].atomicPops[atomModel.element]
+        atom = self.kwargs['eqPops'].atomicPops[atomModel.element]
         backgroundNe += (lteStages[:, None] * atom.n[:, :]).sum(axis=0)
 
     neStart = np.copy(self.atmos.ne)
@@ -182,6 +182,6 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False, timeDependentData=N
     # NOTE(cmo): If we're here then conserveCharge has to be True, but we don't
     # actually want to mess with n_e, that's the point in this function. Should
     # handle LTE atoms here if we want to include their effects
-    self.eqPops.update_lte_atoms_Hmin_pops(self.arguments['atmos'], conserveCharge=False, quiet=True)
+    self.eqPops.update_lte_atoms_Hmin_pops(self.atmos.pyAtmos, conserveCharge=False, quiet=True)
     print('    NR Update dPops: %.2e (%d, k: %d)' % (maxChange, maxIdx, maxk))
     return maxChange

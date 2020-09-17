@@ -1,0 +1,77 @@
+J/A+A/636/A24   Polarised radiative transfer angular quadratures (Stepan+, 2020)
+================================================================================
+Near optimal angular quadratures for polarised radiative transfer.
+    Stepan J., Jaume Bestard J., Trujillo Bueno J.
+    <Astron. Astrophys. 636, A24 (2020)>
+    =2020A&A...636A..24S        (SIMBAD/NED BibCode)
+================================================================================
+ADC_Keywords: Polarization
+Keywords: methods: numerical - polarisation - radiative transfer
+
+Abstract:
+    In three-dimensional (3D) radiative transfer (RT) problems, the tensor
+    product quadratures are generally not optimal in terms of the number
+    of discrete ray directions needed for a given accuracy of the angular
+    integration of the radiation field. In this paper, we derive a new set
+    of angular quadrature rules that are more suitable for solving 3D RT
+    problems with the short- and long-characteristics formal solvers.
+    These quadratures are more suitable than the currently used ones for
+    the numerical calculation of the radiation field tensors that are
+    relevant in the problem of the generation and transfer of polarised
+    radiation without assuming local thermodynamical equilibrium
+    (non-LTE). We show that our new quadratures can save up to about 30%
+    of computing time with respect to the Gaussian-trapezoidal product
+
+Description:
+    Quadrature for unpolarised and polarised radiations.
+
+File Summary:
+--------------------------------------------------------------------------------
+ FileName      Lrecl  Records   Explanations
+--------------------------------------------------------------------------------
+ReadMe            80        .   This file
+il3n1.dat         47        1  *Quadrature for unpolarised radiation,
+                                 Unpolarised case for L=3 and n=1
+il7n3.dat         64        3  *Quadrature for unpolarised radiation,
+                                 Unpolarised case for L=7 and n=3
+il9n6.dat         64        6  *Quadrature for unpolarised radiation,
+                                 Unpolarised case for L=9 and n=6
+il11n7.dat        64        7  *Quadrature for unpolarised radiation,
+                                 Unpolarised case for L=11 and n=7
+il13n10.dat       64       10  *Quadrature for unpolarised radiation,
+                                 Unpolarised case for L=13 and n=10
+il15n11.dat       64       11  *Quadrature for unpolarised radiation,
+                                 Unpolarised case for L=15 and n=11
+iql3n3.dat        64        3  *Quadrature for polarised radiation,
+                                 Polarised case for L=3 and n=3
+iql5n4.dat        64        4  *Quadrature for polarised radiation,
+                                 Polarised case for L=5 and n=4
+iql7n7.dat        64        7  *Quadrature for polarised radiation,
+                                 Polarised case for L=7 and n=7
+iql9n8.dat        64        8  *Quadrature for polarised radiation,
+                                 Polarised case for L=9 and n=8
+iql11n11.dat      64       11  *Quadrature for polarised radiation,
+                                 Polarised case for L=11 and n=11
+iql13n14.dat      64       14  *Quadrature for polarised radiation,
+                                 Polarised case for L=13 and n=13
+iql15n18.dat      64       18  *Quadrature for polarised radiation,
+                                 Polarised case for L=15 and n=18
+--------------------------------------------------------------------------------
+Note on *.dat:
+   LX: quadrature for the order L=X, nY: quadrature with n=Y rays per octant.
+--------------------------------------------------------------------------------
+
+Byte-by-byte Description of file: *.dat
+--------------------------------------------------------------------------------
+   Bytes Format Units   Label     Explanations
+--------------------------------------------------------------------------------
+   1- 20 F20.18 ---     weight    Normalized weights over the whole sphere
+  22- 42 F21.18 deg     incl      Inclination measured from the positive Z-axis
+  44- 64 F21.18 deg     azim      Azimuth measured from the positive X-axis
+--------------------------------------------------------------------------------
+
+History:
+    From electronic version of the journal
+
+================================================================================
+(End)                                        Patricia Vannier [CDS]  12-Mar-2020

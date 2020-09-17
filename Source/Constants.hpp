@@ -52,7 +52,14 @@ constexpr double MEGABARN_TO_M2 = 1.0E-22;
 #include <cmath>
 typedef int8_t i8;
 typedef int16_t i16;
-typedef int32_t i32;
+#ifdef _WIN32
+    // NOTE(cmo): Fix for silly Windows types and int not being compatible with
+    // long (which is correct due to C++ standard, but npy_int32 is defined to
+    // long on Win32 and we need compatibility).
+    typedef long i32;
+#else
+    typedef int32_t i32;
+#endif
 typedef int64_t i64;
 typedef long long int longboi;
 typedef float f32;
@@ -86,19 +93,23 @@ T cube(T val)
     return val * val * val;
 }
 
-template <typename T>
-constexpr
-T max(T a, T b)
-{
-    return a < b ? b : a;
-}
+#include <algorithm>
+using std::min;
+using std::max;
 
-template <typename T>
-constexpr
-T min(T a, T b)
-{
-    return a < b ? a : b;
-}
+// template <typename T>
+// constexpr
+// T max(T a, T b)
+// {
+//     return a < b ? b : a;
+// }
+
+// template <typename T>
+// constexpr
+// T min(T a, T b)
+// {
+//     return a < b ? a : b;
+// }
 
 template <typename T, typename U>
 constexpr

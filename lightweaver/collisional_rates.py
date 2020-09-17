@@ -1,4 +1,3 @@
-from .atomic_model import model_component_eq
 from .utils import sequence_repr
 import lightweaver.constants as Const
 from dataclasses import dataclass, field
@@ -30,7 +29,10 @@ class CollisionalRates:
         raise NotImplementedError
 
     def __eq__(self, other: object) -> bool:
-        return model_component_eq(self, other)
+        if other is self:
+            return True
+
+        return repr(self) == repr(other)
 
 
 @dataclass(eq=False)

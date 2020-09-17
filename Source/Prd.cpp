@@ -255,7 +255,7 @@ void prd_scatter(Transition* t, F64View PjQj, const Atom& atom, const Atmosphere
 }
 }
 
-f64 formal_sol_prd_update_rates(Context& ctx, ConstView<i32> wavelengthIdxs)
+f64 formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelengthIdxs)
 {
     using namespace LwInternal;
     JasUnpack(*ctx, atmos, spect, background, depthData);
@@ -279,11 +279,13 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<i32> wavelengthIdxs)
         fd.chi = chiTot;
         fd.S = S;
         fd.I = I;
+        fd.interp = ctx.interpFn.interp_2d;
         IntensityCoreData iCore;
         JasPackPtr(iCore, atmos, spect, fd, background, depthData);
         JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
         JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
         JasPack(iCore, I, S, Ieff);
+        iCore.formal_solver = ctx.formalSolver.solver;
 
         for (auto& a : activeAtoms)
         {
@@ -332,7 +334,7 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<i32> wavelengthIdxs)
             IntensityCoreData* core;
             f64 dJ;
             i64 dJIdx;
-            ConstView<i32> idxs;
+            ConstView<int> idxs;
         };
         FsTaskData* taskData = (FsTaskData*)malloc(ctx.Nthreads * sizeof(FsTaskData));
         for (int t = 0; t < ctx.Nthreads; ++t)
@@ -376,7 +378,7 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<i32> wavelengthIdxs)
 
 f64 formal_sol_prd_update_rates(Context& ctx, const std::vector<int>& wavelengthIdxs)
 {
-    return formal_sol_prd_update_rates(ctx, ConstView<i32>(wavelengthIdxs.data(), wavelengthIdxs.size()));
+    return formal_sol_prd_update_rates(ctx, ConstView<int>(wavelengthIdxs.data(), wavelengthIdxs.size()));
 }
 
 PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
