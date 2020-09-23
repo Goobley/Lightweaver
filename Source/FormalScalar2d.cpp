@@ -1091,14 +1091,12 @@ void build_intersection_list(Atmosphere* atmos)
             }
             k += dk;
 
-            for (; k != kEnd; k += dk)
+            for (; k != kEnd + dk; k += dk)
             {
                 for (int j = jStart; j != jEnd + dj; j += dj)
                 {
                     auto uw = uw_intersection_2d(gridData, k, j);
-                    auto dw = dw_intersection_2d(gridData, k, j);
                     uw.distance = abs(uw.distance);
-                    dw.distance = abs(dw.distance);
                     bool longChar = (periodic &&
                                      j == jStart &&
                                      uw.axis == InterpolationAxis::Z);
@@ -1130,18 +1128,19 @@ void build_intersection_list(Atmosphere* atmos)
                             locToUpwind = uuw;
                         }
                     }
+                    IntersectionResult dw;
+                    if (k != kEnd)
+                    {
+                        dw = dw_intersection_2d(gridData, k, j);
+                        dw.distance = abs(dw.distance);
+                    }
+                    else
+                    {
+                        dw = IntersectionResult(InterpolationAxis::None, k, j, 0.0);
+                    }
                     intersections(mu, toObsI, k, j) = InterpolationStencil{uw, dw,
                                                                            longCharIdx, substepIdx};
                 }
-            }
-
-            k = kEnd;
-            for (int j = jStart; j != jEnd + dj; j += dj)
-            {
-                auto uw = uw_intersection_2d(gridData, k, j);
-                uw.distance = abs(uw.distance);
-                IntersectionResult dw(InterpolationAxis::None, k, j, 0.0);
-                intersections(mu, toObsI, k, j) = InterpolationStencil{uw, dw, -1, -1};
             }
         }
     }

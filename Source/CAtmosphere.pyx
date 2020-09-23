@@ -2597,7 +2597,7 @@ cdef class LwInterpFnManager:
 
     def default_interp(self, Ndim):
         if Ndim == 2:
-            return self.names.index('interp_besser_2d')
+            return self.names.index('interp_linear_2d')
         else:
             raise ValueError("Unexpected Ndim")
 
