@@ -15,27 +15,72 @@ if TYPE_CHECKING:
     from .LwCompiled import LwSpectrum
 
 class ScaleType(Enum):
+    '''
+    Atmospheric scales used in the definition of 1D atmospheres to allow the
+    correct conversion to a height based system.
+    Options:
+        - `Geometric`
+        - `ColumnMass`
+        - `Tau500`
+    '''
     Geometric = 0
     ColumnMass = auto()
     Tau500 = auto()
 
 class BoundaryCondition:
+    '''
+    Base class for boundary conditions.
+
+    Defines the interface; do not use directly.
+    '''
     def compute_bc(self, atmos: 'Atmosphere', spect: 'LwSpectrum') -> np.ndarray:
         raise NotImplementedError
 
 class NoBc(BoundaryCondition):
+    '''
+    Indicates no boundary condition on the axis because it is invalid for the
+    current simulation.
+    Used only by the backend.
+    '''
     pass
 
 class ZeroRadiation(BoundaryCondition):
+    '''
+    Zero radiation boundary condition.
+    Commonly used for coronal situations.
+    '''
     pass
 
 class ThermalisedRadiation(BoundaryCondition):
+    '''
+    Thermalised radiation (blackbody) boundary condition.
+    Commonly used for photospheric situations.
+    '''
     pass
 
 class PeriodicRadiation(BoundaryCondition):
+    '''
+    Periodic boundary condition.
+    Commonly used on the x-axis in 2D simulations.
+    '''
     pass
 
 def get_top_pressure(eos: witt, temp, ne=None, rho=None):
+    '''
+    Return a pressure for the top of atmosphere.
+    For internal use.
+
+    In order this is deduced from:
+        - the electron density `ne`, if provided
+        - the mass density `rho`, if provided
+        - the electron pressure present in FALC
+
+    Returns
+    -------
+    pressure : float
+        pressure IN CGS [dyn cm-2]
+
+    '''
     if ne is not None:
         pe = ne * Const.CM_TO_M**3 * eos.BK * temp
         return eos.pg_from_pe(temp, pe)
@@ -62,27 +107,100 @@ def get_top_pressure(eos: witt, temp, ne=None, rho=None):
 
 @dataclass
 class Stratifications:
+    '''
+    Stores the optional derived z-stratifications of an atmospheric model.
+
+    Attributes
+    ----------
+    cmass : np.ndarray
+        Column mass in kg m-2.
+    tauRef : np.ndarray
+        Reference optical depth at 500 nm.
+    '''
     cmass: np.ndarray
     tauRef: np.ndarray
 
     def dimensioned_view(self, shape) -> 'Stratifications':
+        '''
+        Makes an instance of `Stratifications` reshaped to the provided
+        shape for multi-dimensional atmospheres.
+        For internal use.
+
+        Parameters
+        ----------
+        shape : tuple
+            Shape to reform the stratifications, provided by
+            `Layout.dimensioned_shape`.
+
+        Returns
+        -------
+        stratifications : Stratifications
+            Reshaped stratifications.
+        '''
         strat = copy(self)
         strat.cmass = self.cmass.reshape(shape)
         strat.tauRef = self.tauRef.reshape(shape)
         return strat
 
     def unit_view(self) -> 'Stratifications':
+        '''
+        Makes an instance of `Stratifications`  with the correct `astropy.units`
+        For internal use.
+
+        Returns
+        -------
+        stratifications : Stratifications
+            The same data with units applied.
+        '''
         strat = copy(self)
         strat.cmass = self.cmass << u.kg / u.m**2
         strat.tauRef = self.tauRef << u.dimensionless_unscaled
         return strat
 
     def dimensioned_unit_view(self, shape) -> 'Stratifications':
+        '''
+        Makes an instance of `Stratifications` reshaped to the provided shape
+        with the correct `astropy.units` for multi-dimensional atmospheres.
+        For internal use.
+
+        Parameters
+        ----------
+        shape : tuple
+            Shape to reform the stratifications, provided by
+            `Layout.dimensioned_shape`.
+
+        Returns
+        -------
+        stratifications : Stratifications
+            Reshaped stratifications with units.
+        '''
         strat = self.dimensioned_view(shape)
         return strat.unit_view()
 
 @dataclass
 class Layout:
+    '''
+    Storage for basic atmospheric parameters whose presence is determined by problem dimensionality, boundary conditions and optional stratifications.
+
+    Attributes
+    ----------
+    Ndim : int
+        Number of dimensions in model.
+
+    x : np.ndarray
+        Ordinates of grid points along the x-axis (present for Ndim >= 2) [m].
+    y : np.ndarray
+        Ordinates of grid points along the y-axis (present for Ndim == 3) [m].
+    z : np.ndarray
+        Ordinates of grid points along the z-axis (present for all Ndim) [m].
+    vx : np.ndarray
+        x component of plasma velocity (present for Ndim >= 2) [m/s].
+    vy : np.ndarray
+        y component of plasma velocity (present for Ndim == 3) [m/s].
+    vz : np.ndarray
+        z component of plasma velocity (present for all Ndim) [m/s]. Aliased to `vlos` when `Ndim==1`
+    '''
+
     Ndim: int
     x: np.ndarray
     y: np.ndarray
@@ -102,6 +220,9 @@ class Layout:
     def make_1d(cls, z: np.ndarray, vz: np.ndarray,
                 lowerBc: BoundaryCondition, upperBc: BoundaryCondition,
                 stratifications: Optional[Stratifications]=None) -> 'Layout':
+        '''
+        Construct 1D Layout.
+        '''
 
         return cls(Ndim=1, x=np.array(()), y=np.array(()),
                    z=z, vx=np.array(()), vy=np.array(()),
@@ -116,6 +237,9 @@ class Layout:
                 xLowerBc: BoundaryCondition, xUpperBc: BoundaryCondition,
                 zLowerBc: BoundaryCondition, zUpperBc: BoundaryCondition,
                 stratifications: Optional[Stratifications]=None) -> 'Layout':
+        '''
+        Construct 2D Layout.
+        '''
 
         Bc = BoundaryCondition
         return cls(Ndim=2, x=x, y=np.array(()), z=z,
@@ -132,6 +256,9 @@ class Layout:
                 yLowerBc: BoundaryCondition, yUpperBc: BoundaryCondition,
                 zLowerBc: BoundaryCondition, zUpperBc: BoundaryCondition,
                 stratifications: Optional[Stratifications]=None) -> 'Layout':
+        '''
+        Construct 3D Layout.
+        '''
 
         return cls(Ndim=3, x=x, y=y, z=z,
                    vx=vx, vy=vy, vz=vz,
@@ -142,18 +269,30 @@ class Layout:
 
     @property
     def Nx(self) -> int:
+        '''
+        Number of grid points along the x-axis.
+        '''
         return self.x.shape[0]
 
     @property
     def Ny(self) -> int:
+        '''
+        Number of grid points along the y-axis.
+        '''
         return self.y.shape[0]
 
     @property
     def Nz(self) -> int:
+        '''
+        Number of grid points along the z-axis.
+        '''
         return self.z.shape[0]
 
     @property
     def Noutgoing(self) -> int:
+        '''
+        Number of grid points at which the outgoing radiation is computed.
+        '''
         return max(1, self.Nx, self.Nx * self.Ny)
 
     @property
@@ -164,6 +303,9 @@ class Layout:
 
     @property
     def Nspace(self) -> int:
+        '''
+        Number of spatial points present in the grid.
+        '''
         if self.Ndim == 1:
             return self.Nz
         elif self.Ndim == 2:
@@ -175,6 +317,9 @@ class Layout:
 
     @property
     def tauRef(self):
+        '''
+        Alias to `self.stratifications.tauRef`, if computed.
+        '''
         if self.stratifications is not None:
             return self.stratifications.tauRef
         else:
@@ -182,6 +327,9 @@ class Layout:
 
     @property
     def cmass(self):
+        '''
+        Alias to `self.stratifications.cmass`, if computed.
+        '''
         if self.stratifications is not None:
             return self.stratifications.cmass
         else:
@@ -189,6 +337,10 @@ class Layout:
 
     @property
     def dimensioned_shape(self):
+        '''
+        Tuple defining the shape to which the arrays of atmospheric paramters
+        can be reshaped to be indexed in a 1/2/3D fashion.
+        '''
         if self.Ndim == 1:
             shape = (self.Nz,)
         elif self.Ndim == 2:
@@ -200,6 +352,11 @@ class Layout:
         return shape
 
     def dimensioned_view(self) ->  'Layout':
+        '''
+        Returns a view over the contents of Layout reshaped so all data has
+        the correct (1/2/3D) dimensionality for the atmospheric model, as
+        these are all stored under a flat scheme.
+        '''
         layout = copy(self)
         shape = self.dimensioned_shape
         if self.stratifications is not None:
@@ -213,6 +370,10 @@ class Layout:
         return layout
 
     def unit_view(self) -> 'Layout':
+        '''
+        Returns a view over the contents of the Layout with the correct
+        `astropy.units`.
+        '''
         layout = copy(self)
         layout.x = self.x << u.m
         layout.y = self.y << u.m
@@ -225,6 +386,11 @@ class Layout:
         return layout
 
     def dimensioned_unit_view(self) -> 'Layout':
+        '''
+        Returns a view over the contents of Layout reshaped so all data has
+        the correct (1/2/3D) dimensionality for the atmospheric model, and
+        the correct `astropy.units`.
+        '''
         layout = self.dimensioned_view()
         return layout.unit_view()
 
@@ -710,6 +876,7 @@ class Atmosphere:
                     gammaB=flatGammaB, chiB=flatChiB)
         return atmos
 
+
     def quadrature(self, Nrays: Optional[int]=None,
                    mu: Optional[Sequence[float]]=None,
                    wmu: Optional[Sequence[float]]=None):
@@ -773,52 +940,6 @@ class Atmosphere:
                 raise NotImplementedError()
 
 
-
-    def angle_set_a4(self):
-        mux_A4 = [0.88191710, 0.33333333, 0.33333333]
-        muy_A4 = [0.33333333, 0.88191710, 0.33333333]
-        wmu_A4 = [0.33333333, 0.33333333, 0.33333333]
-
-        mux_A8 = [0.95118973, 0.78679579, 0.57735027,
-                  0.21821789, 0.78679579, 0.57735027,
-                  0.21821789, 0.57735027, 0.21821789, 0.21821789]
-        muy_A8 = [0.21821789, 0.57735027, 0.78679579,
-                  0.95118973, 0.21821789, 0.57735027,
-                  0.78679579, 0.21821789, 0.57735027, 0.21821789]
-        wmu_A8 = [0.12698138, 0.09138353, 0.09138353,
-                  0.12698138, 0.09138353, 0.07075469,
-                  0.09138353, 0.09138353, 0.09138353, 0.12698138]
-
-        mux_test = [1.0 / np.sqrt(3)]
-        muy_test = [1.0 / np.sqrt(3)]
-        wmu_test = [1.0]
-
-        mux = mux_A8
-        muy = muy_A8
-        wmu = wmu_A8
-
-        Nrays = len(mux) * 2;
-        self.mux = np.zeros(Nrays)
-        self.mux[:Nrays // 2] = mux
-        self.muy = np.zeros(Nrays)
-        self.muy[:Nrays // 2] = muy
-        self.wmu = np.zeros(Nrays)
-        wnorm = 0.5 / sum(wmu)
-        self.wmu[:Nrays // 2] = wmu
-        self.wmu[Nrays // 2:] = wmu
-        self.wmu *= wnorm
-
-        for mu in range(Nrays // 2):
-            self.mux[Nrays // 2 + mu] = -self.mux[mu]
-            self.muy[Nrays // 2 + mu] = self.muy[mu]
-
-        self.muz = np.sqrt(1.0 - (self.mux**2 + self.muy**2))
-        # self.wmu = np.concatenate((self.wmu, [1e-20]))
-        # self.muz = np.concatenate((self.muz, [1.0]))
-        # self.mux = np.concatenate((self.mux, [0.0]))
-        # self.muy = np.concatenate((self.muy, [0.0]))
-
-
     def rays(self, muz: Union[float, Sequence[float]],
              mux: Optional[Union[float, Sequence[float]]]=None,
              muy: Optional[Union[float, Sequence[float]]]=None):
@@ -853,15 +974,3 @@ class Atmosphere:
 
             if not np.allclose(self.muz**2 + self.mux**2 + self.muy**2, 1):
                 raise ValueError('mux**2 + muy**2 + muz**2 != 1.0')
-
-
-# @dataclass
-# class MagneticAtmosphere(Atmosphere):
-#     B: np.ndarray
-#     gammaB: np.ndarray
-#     chiB: np.ndarray
-
-#     @classmethod
-#     def from_atmos(cls, atmos: Atmosphere, B: np.ndarray, gammaB: np.ndarray, chiB: np.ndarray):
-#         return cls(**asdict(atmos), B=B, gammaB=gammaB, chiB=chiB)
-
