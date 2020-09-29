@@ -463,7 +463,7 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
         // Nrays to represent half the unit sphere, but we want the half split
         // by the y-z plane, rather than the half split by the x-y plane that
         // toObs splits by by default.
-        int muIdx = mu % (atmos->Nrays / 2) + toObsI * (atmos->Nrays / 2);
+        int muIdx = (mu % (atmos->Nrays / 2)) * 2 + toObsI;
         if (mux > 0)
         {
             for (int k = 0; k < atmos->Nz; ++k)
@@ -729,7 +729,7 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
         // Nrays to represent half the unit sphere, but we want the half split
         // by the y-z plane, rather than the half split by the x-y plane that
         // toObs splits by by default.
-        int muIdx = mu % (atmos->Nrays / 2) + toObsI * (atmos->Nrays / 2);
+        int muIdx = (mu % (atmos->Nrays / 2)) * 2 + toObsI;
 
         if (mux > 0)
         {
