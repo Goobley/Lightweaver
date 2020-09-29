@@ -488,7 +488,7 @@ void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
         }
         else if (atmos->zLowerBc.type == CALLABLE)
         {
-            Iupw = atmos->zLowerBc.bcData(la, 0);
+            Iupw = atmos->zLowerBc.bcData(la, mu, 0);
         }
     }
     else
@@ -501,7 +501,7 @@ void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
         }
         else if (atmos->zUpperBc.type == CALLABLE)
         {
-            Iupw = atmos->zUpperBc.bcData(la, 0);
+            Iupw = atmos->zUpperBc.bcData(la, mu, 0);
         }
     }
 
@@ -539,7 +539,7 @@ void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
         }
         else if (atmos->zLowerBc.type == CALLABLE)
         {
-            Iupw = atmos->zLowerBc.bcData(la, 0);
+            Iupw = atmos->zLowerBc.bcData(la, mu, 0);
         }
     }
     else
@@ -552,7 +552,7 @@ void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
         }
         else if (atmos->zUpperBc.type == CALLABLE)
         {
-            Iupw = atmos->zUpperBc.bcData(la, 0);
+            Iupw = atmos->zUpperBc.bcData(la, mu, 0);
         }
     }
 
@@ -590,7 +590,7 @@ void piecewise_besser_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
         }
         else if (atmos->zLowerBc.type == CALLABLE)
         {
-            Iupw = atmos->zLowerBc.bcData(la, 0);
+            Iupw = atmos->zLowerBc.bcData(la, mu, 0);
         }
     }
     else
@@ -603,7 +603,7 @@ void piecewise_besser_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
         }
         else if (atmos->zUpperBc.type == CALLABLE)
         {
-            Iupw = atmos->zUpperBc.bcData(la, 0);
+            Iupw = atmos->zUpperBc.bcData(la, mu, 0);
         }
     }
 
@@ -895,6 +895,12 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                         }
                     }
                 }
+            }
+            if (storeDepthData)
+            {
+                auto& depth = *data.depthData;
+                for (int k = 0; k < Nspace; ++k)
+                    depth.I(la, mu, toObsI, k) = I(k);
             }
         }
     }

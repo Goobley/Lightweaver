@@ -14,6 +14,7 @@ struct DepthData
     bool fill;
     F64View4D chi;
     F64View4D eta;
+    F64View4D I;
 };
 
 struct Context
