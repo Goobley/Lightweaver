@@ -855,7 +855,7 @@ class Atmosphere:
             if not np.allclose(self.muz**2 + self.mux**2 + self.muy**2, 1):
                 raise ValueError('mux**2 + muy**2 + muz**2 != 1.0')
 
-        if self.wmu is not None:
+        if wmu is not None:
             self.wmu = np.array(wmu)
 
             if not np.isclose(self.wmu.sum(), 1.0):
