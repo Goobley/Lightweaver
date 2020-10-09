@@ -66,35 +66,85 @@ inline int fedisableexcept(unsigned int excepts)
 }
 #endif
 
-void Transition::compute_phi(const Atmosphere& atmos, F64View aDamp, F64View vBroad)
+void Transition::compute_phi_la(const Atmosphere& atmos, const F64View& aDamp,
+                                const F64View& vBroad, int lt)
 {
     namespace C = Constants;
-    if (type == TransitionType::CONTINUUM)
-        return;
 
     constexpr f64 sign[] = { -1.0, 1.0 };
     // Why is there still no constexpr math in std? :'(
     const f64 sqrtPi = sqrt(C::Pi);
 
-    for (int la = 0; la < wavelength.shape(0); ++la)
+    const f64 vBase = (wavelength(lt) - lambda0) * C::CLight / lambda0;
+    const f64 wla = wlambda(lt);
+    for (int mu = 0; mu < phi.shape(1); ++mu)
     {
-        const f64 vBase = (wavelength(la) - lambda0) * C::CLight / lambda0;
-        const f64 wla = wlambda(la);
-        for (int mu = 0; mu < phi.shape(1); ++mu)
+        const f64 wlamu = wla * 0.5 * atmos.wmu(mu);
+        for (int toObs = 0; toObs < 2; ++toObs)
         {
-            const f64 wlamu = wla * 0.5 * atmos.wmu(mu);
-            for (int toObs = 0; toObs < 2; ++toObs)
+            const f64 s = sign[toObs];
+            for (int k = 0; k < atmos.Nspace; ++k)
             {
-                const f64 s = sign[toObs];
-                for (int k = 0; k < atmos.Nspace; ++k)
-                {
-                    const f64 vk = (vBase + s * atmos.vlosMu(mu, k)) / vBroad(k);
-                    const f64 p = voigt_H(aDamp(k), vk) / (sqrtPi * vBroad(k));
-                    phi(la, mu, toObs, k) = p;
-                }
+                const f64 vk = (vBase + s * atmos.vlosMu(mu, k)) / vBroad(k);
+                const f64 p = voigt_H(aDamp(k), vk) / (sqrtPi * vBroad(k));
+                phi(lt, mu, toObs, k) = p;
             }
         }
     }
+}
+
+void Transition::compute_phi(const Atmosphere& atmos, F64View aDamp, F64View vBroad)
+{
+    if (type == TransitionType::CONTINUUM)
+        return;
+
+    if (bound_parallel_compute_phi)
+    {
+        bound_parallel_compute_phi(atmos, aDamp, vBroad);
+        return;
+    }
+
+    for (int la = 0; la < wavelength.shape(0); ++la)
+    {
+        compute_phi_la(atmos, aDamp, vBroad, la);
+    }
+}
+
+void Transition::compute_phi_parallel(LwInternal::ThreadData* threading, const Atmosphere& atmos,
+                                      F64View aDamp, F64View vBroad)
+{
+    if (type == TransitionType::CONTINUUM)
+        return;
+
+    struct LineProfileData
+    {
+        Transition* t;
+        const Atmosphere* atmos;
+        F64View* aDamp;
+        F64View* vBroad;
+    };
+
+    LineProfileData* data = (LineProfileData*)malloc(sizeof(LineProfileData));
+    data->t = this;
+    data->atmos = &atmos;
+    data->aDamp = &aDamp;
+    data->vBroad = &vBroad;
+    auto compute_profile = [](void* data, scheduler* s,
+                               sched_task_partition p, sched_uint threadId)
+    {
+        LineProfileData* d = (LineProfileData*)data;
+        for (i64 la = p.start; la < p.end; ++la)
+            d->t->compute_phi_la(*(d->atmos), *(d->aDamp), *(d->vBroad), la);
+    };
+
+    {
+        sched_task lineProfile;
+        scheduler_add(&threading->sched, &lineProfile, compute_profile,
+                      (void*)data, wavelength.shape(0), 1);
+        scheduler_join(&threading->sched, &lineProfile);
+    }
+
+    free(data);
 }
 
 void Transition::compute_wphi(const Atmosphere& atmos)

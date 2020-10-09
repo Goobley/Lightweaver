@@ -37,7 +37,7 @@ struct Context
 
     void update_threads()
     {
-        threading.clear();
+        threading.clear(this);
         threading.initialise(this);
     }
 };

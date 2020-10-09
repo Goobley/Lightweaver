@@ -1147,7 +1147,6 @@ cdef class LwTransition:
             self.wphi = np.zeros(Nspace)
             self.trans.phi = f64_view_4(self.phi)
             self.trans.wphi = f64_view(self.wphi)
-            self.compute_phi()
             if trans.type == LineType.PRD:
                 self.rhoPrd = np.ones((Nlambda, Nspace))
                 self.trans.rhoPrd = f64_view_2(self.rhoPrd)
@@ -1809,7 +1808,7 @@ cdef class LwAtom:
     cpdef setup_wavelength(self, int la):
         self.atom.setup_wavelength(la)
 
-    def update_profiles(self, polarised=False):
+    def compute_profiles(self, polarised=False):
         np.asarray(self.vBroad)[:] = self.atomicModel.vBroad(self.atmos)
         for t in self.trans:
             if polarised and t.polarisable:
@@ -2015,6 +2014,8 @@ cdef class LwContext:
         self.set_interp_fn(interpFn)
         self.setup_threads(Nthreads)
 
+        self.compute_profiles()
+
     def __getstate__(self):
         state = {}
         state['kwargs'] = self.kwargs
@@ -2119,7 +2120,7 @@ cdef class LwContext:
     cpdef compute_profiles(self, polarised=False):
         atoms = self.activeAtoms + self.detailedAtoms
         for atom in atoms:
-            atom.update_profiles(polarised=polarised)
+            atom.compute_profiles(polarised=polarised)
 
     cpdef formal_sol_gamma_matrices(self, fixCollisionalRates=False, lambdaIterate=False):
         cdef LwAtom atom

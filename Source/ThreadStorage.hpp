@@ -161,7 +161,7 @@ struct ThreadData
 
 
     void initialise(Context* ctx);
-    void clear();
+    void clear(Context* ctx);
 
     ~ThreadData()
     {
