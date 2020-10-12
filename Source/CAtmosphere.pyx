@@ -249,7 +249,13 @@ cdef extern from "Lightweaver.hpp":
     cdef f64 formal_sol_full_stokes(Context& ctx, bool_t updateJ) except +
     cdef PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
     cdef void stat_eq(Atom* atom) except +
+    cdef void parallel_stat_eq(Context* ctx) except +
+    cdef void parallel_stat_eq(Context* ctx, int chunkSize) except +
     cdef void time_dependent_update(Atom* atomIn, F64View2D nOld, f64 dt) except +
+    cdef void parallel_time_dep_update(Context* ctx, const vector[F64View2D]&,
+                                       f64 dt) except +
+    cdef void parallel_time_dep_update(Context* ctx, const vector[F64View2D]&,
+                                       f64 dt, int chunkSize) except +
     cdef void configure_hprd_coeffs(Context& ctx)
 
 cdef extern from "Lightweaver.hpp" namespace "EscapeProbability":
@@ -2175,7 +2181,7 @@ cdef class LwContext:
         if self.hprd and hprd:
             self.update_hprd_coeffs()
 
-    cpdef time_dep_update(self, f64 dt, prevTimePops=None):
+    cpdef time_dep_update(self, f64 dt, prevTimePops=None, int chunkSize=20):
         atoms = self.activeAtoms
 
         cdef LwAtom atom
@@ -2183,18 +2189,32 @@ cdef class LwContext:
         cdef f64 delta
         cdef f64 maxDelta = 0.0
         cdef bool_t accelerated
+        cdef vector[F64View2D] prevTimePopsVec
 
         if prevTimePops is None:
             # TODO(cmo): Do we need to preserve the previous J too, or can we just reset I and J to 0 if needed? (to prevent NaN poisoning)
             prevTimePops = [np.copy(atom.n) for atom in atoms]
 
+        for atom in atoms:
+            a = &atom.atom
+            if not a.ng.init:
+                a.ng.accelerate(a.n.flatten())
+
+        try:
+            if self.Nthreads > 1:
+                prevTimePopsVec.reserve(len(prevTimePops))
+                for i in range(len(atoms)):
+                    prevTimePopsVec.push_back(f64_view_2(prevTimePops[i]))
+                parallel_time_dep_update(&self.ctx, prevTimePopsVec, dt, chunkSize)
+            else:
+                for i, atom in enumerate(atoms):
+                    a = &atom.atom
+                    time_dependent_update(a, f64_view_2(prevTimePops[i]), dt)
+        except:
+            raise ExplodingMatrixError('Singular Matrix')
+
         for i, atom in enumerate(atoms):
             a = &atom.atom
-
-            try:
-                time_dependent_update(a, f64_view_2(prevTimePops[i]), dt)
-            except:
-                raise ExplodingMatrixError('Singular Matrix')
             accelerated = a.ng.accelerate(a.n.flatten())
             delta = a.ng.max_change()
             maxDelta = max(maxDelta, delta)
@@ -2235,7 +2255,7 @@ cdef class LwContext:
         for atom in self.activeAtoms:
             atom.atom.ng.clear()
 
-    cpdef stat_equil(self):
+    cpdef stat_equil(self, int chunkSize=20):
         atoms = self.activeAtoms
 
         cdef LwAtom atom
@@ -2251,10 +2271,19 @@ cdef class LwContext:
             a = &atom.atom
             if not a.ng.init:
                 a.ng.accelerate(a.n.flatten())
-            try:
-                stat_eq(a)
-            except:
-                raise ExplodingMatrixError('Singular Matrix')
+
+        try:
+            if self.Nthreads > 1:
+                parallel_stat_eq(&self.ctx, chunkSize)
+            else:
+                for atom in atoms:
+                    a = &atom.atom
+                    stat_eq(a)
+        except:
+            raise ExplodingMatrixError('Singular Matrix')
+
+        for atom in atoms:
+            a = &atom.atom
             accelerated = a.ng.accelerate(a.n.flatten())
             delta = a.ng.max_change()
             s = '    %s delta = %6.4e' % (atom.atomicModel.element.name, delta)
