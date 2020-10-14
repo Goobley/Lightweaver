@@ -8,6 +8,8 @@ from libc.math cimport sqrt, exp, copysign
 from .atmosphere import BoundaryCondition, ZeroRadiation, ThermalisedRadiation, PeriodicRadiation, NoBc
 from .atomic_model import AtomicLine, LineType, LineProfileState
 from .utils import InitialSolution, ExplodingMatrixError, UnityCrswIterator
+from .atomic_table import PeriodicTable
+from .atomic_set import lte_pops
 from weno4 import weno4
 import lightweaver.constants as Const
 import time
@@ -132,6 +134,7 @@ cdef extern from "Ng.hpp":
         Ng(int nOrder, int nPeriod, int nDelay, F64View sol)
         bool_t accelerate(F64View sol)
         f64 max_change()
+        f64 relative_change_from_prev(F64View newSol)
         void clear()
 
 cdef extern from "Lightweaver.hpp":
@@ -240,6 +243,10 @@ cdef extern from "Lightweaver.hpp":
         int iter
         f64 dRho
 
+    cdef cppclass NrTimeDependentData:
+        f64 dt
+        vector[F64View2D] nPrev
+
     cdef f64 formal_sol_gamma_matrices(Context& ctx)
     cdef f64 formal_sol_gamma_matrices(Context& ctx, bool_t lambdaIterate)
     cdef f64 formal_sol_update_rates(Context& ctx)
@@ -256,6 +263,21 @@ cdef extern from "Lightweaver.hpp":
                                        f64 dt) except +
     cdef void parallel_time_dep_update(Context* ctx, const vector[F64View2D]&,
                                        f64 dt, int chunkSize) except +
+    cdef void nr_post_update(Context* ctx, vector[Atom*]* atoms,
+                             const vector[F64View3D]& dC,
+                             F64View backgroundNe,
+                             const NrTimeDependentData& timeDepData,
+                             f64 crswVal)
+    cdef void parallel_nr_post_update(Context* ctx, vector[Atom*]* atoms,
+                                      const vector[F64View3D]& dC,
+                                      F64View backgroundNe,
+                                      const NrTimeDependentData& timeDepData,
+                                      f64 crswVal)
+    cdef void parallel_nr_post_update(Context* ctx, vector[Atom*]* atoms,
+                                      const vector[F64View3D]& dC,
+                                      F64View backgroundNe,
+                                      const NrTimeDependentData& timeDepData,
+                                      f64 crswVal, int chunkSize)
     cdef void configure_hprd_coeffs(Context& ctx)
 
 cdef extern from "Lightweaver.hpp" namespace "EscapeProbability":
@@ -1961,7 +1983,7 @@ cdef class LwContext:
     cdef public object eqPops
     cdef list activeAtoms
     cdef list detailedAtoms
-    cdef bool_t conserveCharge
+    cdef public bool_t conserveCharge
     cdef bool_t hprd
     cdef public object crswCallback
     cdef public object crswDone
@@ -2116,6 +2138,10 @@ cdef class LwContext:
         if prevValue != value:
             self.update_threads()
 
+    @property
+    def hprd(self):
+        return self.hprd
+
     cdef setup_threads(self, int Nthreads):
         self.ctx.Nthreads = Nthreads
         self.ctx.initialise_threads()
@@ -2181,8 +2207,57 @@ cdef class LwContext:
         if self.hprd and hprd:
             self.update_hprd_coeffs()
 
-    cpdef time_dep_update(self, f64 dt, prevTimePops=None, int chunkSize=20):
+    cpdef rel_diff_pops(self, printUpdate=True):
+        cdef LwAtom atom
+        cdef Atom* a
+        cdef f64 delta
+        cdef f64 maxDelta = 0.0
+        cdef int i
         atoms = self.activeAtoms
+
+        for i, atom in enumerate(atoms):
+            a = &atom.atom
+            delta = a.ng.relative_change_from_prev(a.n.flatten())
+            maxDelta = max(maxDelta, delta)
+            if printUpdate:
+                s = '    %s delta = %6.4e' % (atom.atomicModel.element.name, delta)
+                print(s)
+
+        return maxDelta
+
+    cpdef rel_diff_ng_accelerate(self, printUpdate=True):
+        cdef LwAtom atom
+        cdef Atom* a
+        cdef f64 delta
+        cdef f64 maxDelta = 0.0
+        cdef int i
+        atoms = self.activeAtoms
+
+        for i, atom in enumerate(atoms):
+            a = &atom.atom
+            accelerated = a.ng.accelerate(a.n.flatten())
+            delta = a.ng.max_change()
+            maxDelta = max(maxDelta, delta)
+            if printUpdate:
+                s = '    %s delta = %6.4e' % (atom.atomicModel.element.name, delta)
+                if accelerated:
+                    s += ' (accelerated)'
+                print(s)
+
+        return maxDelta
+
+    cpdef time_dep_update(self, f64 dt, prevTimePops=None, ngUpdate=None,
+                          printUpdate=None, int chunkSize=20):
+        atoms = self.activeAtoms
+
+        if ngUpdate is None:
+            if self.conserveCharge:
+                ngUpdate = False
+            else:
+                ngUpdate = True
+
+        if printUpdate is None:
+            printUpdate = ngUpdate
 
         cdef LwAtom atom
         cdef Atom* a
@@ -2192,7 +2267,6 @@ cdef class LwContext:
         cdef vector[F64View2D] prevTimePopsVec
 
         if prevTimePops is None:
-            # TODO(cmo): Do we need to preserve the previous J too, or can we just reset I and J to 0 if needed? (to prevent NaN poisoning)
             prevTimePops = [np.copy(atom.n) for atom in atoms]
 
         for atom in atoms:
@@ -2213,16 +2287,10 @@ cdef class LwContext:
         except:
             raise ExplodingMatrixError('Singular Matrix')
 
-        for i, atom in enumerate(atoms):
-            a = &atom.atom
-            accelerated = a.ng.accelerate(a.n.flatten())
-            delta = a.ng.max_change()
-            maxDelta = max(maxDelta, delta)
-            s = '    %s delta = %6.4e' % (atom.atomicModel.element.name, delta)
-            if accelerated:
-                s += ' (accelerated)'
-            print(s)
-
+        if ngUpdate:
+            maxDelta = self.rel_diff_ng_accelerate(printUpdate=printUpdate)
+        else:
+            maxDelta = self.rel_diff_pops(printUpdate=printUpdate)
 
         return maxDelta, prevTimePops
 
@@ -2235,27 +2303,12 @@ cdef class LwContext:
         np.asarray(self.spect.I).fill(0.0)
         np.asarray(self.spect.J).fill(0.0)
 
-    cpdef time_dep_conserve_charge(self, prevTimePops):
-        cdef np.ndarray[np.double_t, ndim=1] deltaNe
-        cdef LwAtom atom
-        cdef int i, k
-
-        atoms = self.activeAtoms
-        for i, atom in enumerate(atoms):
-            deltaNe = np.sum((np.asarray(atom.n) - prevTimePops[i]) * np.asarray(atom.stages)[:, None], axis=0)
-            for k in range(self.atmos.Nspace):
-                self.atmos.ne[k] += deltaNe[k]
-
-            for k in range(self.atmos.Nspace):
-                if self.atmos.ne[k] < 1e6:
-                    self.atmos.ne[k] = 1e6
-
     cpdef clear_ng(self):
         cdef LwAtom atom
         for atom in self.activeAtoms:
             atom.atom.ng.clear()
 
-    cpdef stat_equil(self, int chunkSize=20):
+    cpdef stat_equil(self, printUpdate=True, int chunkSize=20):
         atoms = self.activeAtoms
 
         cdef LwAtom atom
@@ -2282,20 +2335,51 @@ cdef class LwContext:
         except:
             raise ExplodingMatrixError('Singular Matrix')
 
-        for atom in atoms:
-            a = &atom.atom
-            accelerated = a.ng.accelerate(a.n.flatten())
-            delta = a.ng.max_change()
-            s = '    %s delta = %6.4e' % (atom.atomicModel.element.name, delta)
-            if accelerated:
-                s += ' (accelerated)'
-            print(s)
-            maxDelta = max(maxDelta, delta)
-
         if self.conserveCharge:
-            self.nr_post_update()
+            neStart = np.copy(self.atmos.ne)
+            self.nr_post_update(ngUpdate=False, printUpdate=False)
+
+        maxDelta = self.rel_diff_ng_accelerate(printUpdate=printUpdate)
+        if self.conserveCharge:
+            neDiff = ((np.asarray(self.atmos.ne) - neStart)
+                      / np.asarray(self.atmos.ne)).max()
+            maxDelta = max(maxDelta, neDiff)
+            if printUpdate:
+                print('    ne delta = %6.4e' % neDiff)
 
         return maxDelta
+
+    def _nr_post_update_impl(self, atoms, dC, f64[::1] backgroundNe,
+                             timeDependentData=None, int chunkSize=5):
+        crswVal = self.crswCallback.val
+        cdef f64 crsw = crswVal
+        cdef vector[Atom*] atomVec
+        cdef vector[F64View3D] dCVec
+        cdef Atom* a
+        cdef LwAtom atom
+        cdef NrTimeDependentData td
+        cdef int i
+
+        if timeDependentData is not None:
+            td.dt = timeDependentData['dt']
+            td.nPrev.reserve(len(timeDependentData['nPrev']))
+            for i in range(len(timeDependentData['nPrev'])):
+                td.nPrev.push_back(f64_view_2(timeDependentData['nPrev'][i]))
+
+        atomVec.reserve(len(atoms))
+        for atom in atoms:
+            atomVec.push_back(&atom.atom)
+        dCVec.reserve(len(dC))
+        for c in dC:
+            dCVec.push_back(f64_view_3(c))
+
+        try:
+            if self.Nthreads > 1:
+                parallel_nr_post_update(&self.ctx, &atomVec, dCVec, f64_view(backgroundNe), td, crsw, chunkSize);
+            else:
+                nr_post_update(&self.ctx, &atomVec, dCVec, f64_view(backgroundNe), td, crsw);
+        except:
+            raise ExplodingMatrixError('Singular Matrix')
 
     cpdef update_projections(self):
         self.atmos.update_projections()
