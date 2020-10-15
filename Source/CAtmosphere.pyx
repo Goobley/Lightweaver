@@ -124,6 +124,40 @@ cdef extern from "Background.hpp":
     cdef void basic_background(BackgroundData* bg, Atmosphere* atmos)
     cdef f64 Gaunt_bf(f64, f64, int)
 
+cdef extern from "FastBackground.hpp":
+    cdef cppclass BackgroundContinuum:
+        int i
+        int j
+        int laStart
+        int laEnd
+        F64View alpha
+        BackgroundContinuum(int i, int j, f64 minLambda, f64 lambdaEdge,
+                            F64View crossSection, F64View globalWavelength)
+
+    cdef cppclass ResonantRayleighLine:
+        f64 Aji
+        f64 gRatio
+        f64 lambda0
+        f64 lambdaMax
+        ResonantRayleighLine(f64 A, f64 gjgi, f64 lambda0, f64 lambdaMax)
+
+    cdef cppclass BackgroundAtom:
+        F64View2D n;
+        F64View2D nStar;
+        vector[BackgroundContinuum] continua;
+        vector[ResonantRayleighLine] resonanceScatterers;
+        BackgroundAtom()
+
+    cdef cppclass FastBackgroundContext:
+        int Nthreads
+        void initialise(int numThreads)
+        void basic_background(BackgroundData* bd, Atmosphere* atmos)
+        void bf_opacities(BackgroundData* bd, vector[BackgroundAtom]* atoms,
+                          Atmosphere* atmos)
+        void rayleigh_scatter(BackgroundData* bd, vector[BackgroundAtom]* atoms,
+                              Atmosphere* atmos)
+
+
 cdef extern from "Ng.hpp":
     cdef cppclass Ng:
         int Norder
@@ -947,6 +981,177 @@ cdef class BasicBackground(BackgroundProvider):
 
         self.wavelength = state['wavelength']
         self.bd.wavelength = f64_view(self.wavelength)
+
+    @classmethod
+    def _reconstruct(cls, state):
+        o = cls.__new__(cls)
+        o.__setstate__(state)
+        return o
+
+    def __reduce__(self):
+        return self._reconstruct, (self.__getstate__(),)
+
+cdef class FastBackground(BackgroundProvider):
+    cdef BackgroundData bd
+    cdef object eqPops
+    cdef object radSet
+
+    cdef f64[::1] chPops
+    cdef f64[::1] ohPops
+    cdef f64[::1] h2Pops
+    cdef f64[::1] hMinusPops
+    cdef f64[:,::1] hPops
+    cdef f64[::1] wavelength
+
+    cdef FastBackgroundContext ctx
+    cdef int Nthreads
+
+    def __init__(self, eqPops, radSet, wavelength, Nthreads=1):
+        super().__init__(eqPops, radSet, wavelength)
+        self.eqPops = eqPops
+        self.radSet = radSet
+
+        if 'CH' in eqPops:
+            self.chPops = eqPops['CH']
+            self.bd.chPops = f64_view(self.chPops)
+        if 'OH' in eqPops:
+            self.ohPops = eqPops['OH']
+            self.bd.ohPops = f64_view(self.ohPops)
+        if 'H2' in eqPops:
+            self.h2Pops = eqPops['H2']
+            self.bd.h2Pops = f64_view(self.h2Pops)
+
+        self.hMinusPops = eqPops['H-']
+        self.bd.hMinusPops = f64_view(self.hMinusPops)
+        self.hPops = eqPops['H']
+        self.bd.hPops = f64_view_2(self.hPops)
+
+        self.wavelength = wavelength
+        self.bd.wavelength = f64_view(self.wavelength)
+
+        self.Nthreads = Nthreads
+        self.ctx.initialise(self.Nthreads)
+
+    cpdef compute_background(self, LwAtmosphere atmos, chiIn, etaIn, scaIn):
+        cdef int Nlambda = self.wavelength.shape[0]
+        cdef int Nspace = atmos.Nspace
+        cdef f64[:,::1] chi = chiIn
+        cdef f64[:,::1] eta = etaIn
+        cdef f64[:,::1] sca = scaIn
+
+        # NOTE(cmo): Update hPops in case it changed LTE<->NLTE
+        self.hPops = self.eqPops['H']
+
+        # TODO(cmo): How UV fudge works here is a problem for future me.
+
+        self.bd.chi = f64_view_2(chi)
+        self.bd.eta = f64_view_2(eta)
+        self.bd.scatt = f64_view_2(sca)
+
+        cdef vector[BackgroundAtom] atoms
+        cdef BackgroundAtom* atom
+        passiveAtoms = self.radSet.passiveAtoms
+        # NOTE(cmo): This length should always be enough, but it's a tiny
+        # amount of memory
+        atoms.reserve(len(passiveAtoms) + 2)
+        # NOTE(cmo): Make sure all arrays remain backed by memory
+        storage = []
+        for a in passiveAtoms:
+            atoms.push_back(BackgroundAtom())
+            atom = &atoms.back();
+            atom.n = f64_view_2(self.eqPops.atomicPops[a.element].n)
+            atom.nStar = f64_view_2(self.eqPops.atomicPops[a.element].nStar)
+            atom.continua.reserve(len(a.continua))
+            for c in a.continua:
+                alpha = c.alpha(np.asarray(self.wavelength))
+                storage.append(alpha)
+                atom.continua.push_back(BackgroundContinuum(c.i, c.j, c.minLambda, c.lambdaEdge,
+                                                            f64_view(alpha),
+                                                            self.bd.wavelength))
+            if a.element == PeriodicTable[1] or a.element == PeriodicTable[2]:
+                atom.resonanceScatterers.reserve(len(a.lines))
+                for l in a.lines:
+                    if l.i == 0:
+                        atom.resonanceScatterers.push_back(
+                            ResonantRayleighLine(l.Aji,
+                                                 l.jLevel.g / l.iLevel.g,
+                                                 l.lambda0,
+                                                 l.wavelength()[-1])
+                                                 )
+        for a in self.radSet.activeAtoms + self.radSet.detailedAtoms:
+            if a.element == PeriodicTable[1] or a.element == PeriodicTable[2]:
+                atoms.push_back(BackgroundAtom())
+                atom = &atoms.back();
+                atom.n = f64_view_2(self.eqPops.atomicPops[a.element].n)
+                atom.nStar = f64_view_2(self.eqPops.atomicPops[a.element].nStar)
+                atom.resonanceScatterers.reserve(len(a.lines))
+                for l in a.lines:
+                    if l.i == 0:
+                        atom.resonanceScatterers.push_back(
+                            ResonantRayleighLine(l.Aji,
+                                                 l.jLevel.g / l.iLevel.g,
+                                                 l.lambda0,
+                                                 l.wavelength()[-1])
+                                                 )
+
+        self.ctx.basic_background(&self.bd, &atmos.atmos)
+        self.ctx.rayleigh_scatter(&self.bd, &atoms, &atmos.atmos)
+        self.ctx.bf_opacities(&self.bd, &atoms, &atmos.atmos)
+
+        cdef int la, k
+        for la in range(Nlambda):
+            for k in range(Nspace):
+                chi[la, k] += sca[la, k]
+
+    def __getstate__(self):
+        state = {}
+        state['eqPops'] = self.eqPops
+        state['radSet'] = self.radSet
+        if 'CH' is self.eqPops:
+            state['chPops'] = self.eqPops['CH']
+        else:
+            state['chPops'] = None
+
+        if 'OH' in self.eqPops:
+            state['ohPops'] = self.eqPops['OH']
+        else:
+            state['ohPops'] = None
+
+        if 'H2' in self.eqPops:
+            state['h2Pops'] = self.eqPops['H2']
+        else:
+            state['h2Pops'] = None
+
+        state['hMinusPops'] = self.eqPops['H-']
+        state['hPops'] = self.eqPops['H']
+        state['wavelength'] = np.asarray(self.wavelength)
+        state['Nthreads'] = self.Nthreads
+
+        return state
+
+    def __setstate__(self, state):
+        self.eqPops = state['eqPops']
+        self.radSet = state['radSet']
+
+        if state['chPops'] is not None:
+            self.chPops = state['chPops']
+            self.bd.chPops = f64_view(self.chPops)
+        if state['ohPops'] is not None:
+            self.ohPops = state['ohPops']
+            self.bd.ohPops = f64_view(self.h2Pops)
+        if state['h2Pops'] is not None:
+            self.h2Pops = state['h2Pops']
+            self.bd.h2Pops = f64_view(self.h2Pops)
+
+        self.hMinusPops = state['hMinusPops']
+        self.bd.hMinusPops = f64_view(self.hMinusPops)
+        self.hPops = state['hPops']
+        self.bd.hPops = f64_view_2(self.hPops)
+
+        self.wavelength = state['wavelength']
+        self.bd.wavelength = f64_view(self.wavelength)
+        self.Nthreads = state['Nthreads']
+        self.ctx.initialise(self.Nthreads)
 
     @classmethod
     def _reconstruct(cls, state):

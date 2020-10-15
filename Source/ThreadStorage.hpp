@@ -155,6 +155,7 @@ struct ThreadData
     void* schedMemory;
 
     ThreadData() : threadDataFactory(),
+                   intensityCores(),
                    sched(),
                    schedMemory(nullptr)
     {}

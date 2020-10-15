@@ -5,6 +5,7 @@
 #include "LuSolve.cpp"
 #include "Atmosphere.cpp"
 #include "Background.cpp"
+#include "FastBackground.cpp"
 #include "FormalScalar.cpp"
 #include "FormalScalar2d.cpp"
 #include "FormalStokes.cpp"

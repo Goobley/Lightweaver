@@ -1261,17 +1261,24 @@ bool CH_bf_opac(const Atmosphere& atmos, f64 lambda, F64View CH, F64View chi, F6
     return true;
 }
 
-void basic_background(BackgroundData* bd, Atmosphere* atmosphere)
+void basic_background(BackgroundData* bd, Atmosphere* atmosphere,
+                      int laStart, int laEnd)
 {
     JasUnpack((*bd), chPops, ohPops, h2Pops, hMinusPops, hPops);
     JasUnpack((*bd), wavelength, chi, eta, scatt);
     const auto& atmos = *atmosphere;
-
-    chi.fill(0.0);
-    eta.fill(0.0);
-    scatt.fill(0.0);
-
     const int Nlambda = wavelength.shape(0);
+
+    if (laStart < 0 && laEnd < 0)
+    {
+        // NOTE(cmo): This suggests we're running in single thread. Otherwise we
+        // will simply assume that someone else is going to zero these for us.
+        laStart = 0;
+        laEnd = Nlambda;
+        chi.fill(0.0);
+        eta.fill(0.0);
+        scatt.fill(0.0);
+    }
 
     F64Arr chiAccum(atmos.Nspace);
     F64Arr etaAccum(atmos.Nspace);
@@ -1279,7 +1286,7 @@ void basic_background(BackgroundData* bd, Atmosphere* atmosphere)
 
     thomson_scattering(atmos, scaAccum);
 
-    for (int la = 0; la < Nlambda; ++la)
+    for (int la = laStart; la < laEnd; ++la)
         for (int k = 0; k < atmos.Nspace; ++k)
             scatt(la, k) += scaAccum(k);
 
@@ -1287,7 +1294,7 @@ void basic_background(BackgroundData* bd, Atmosphere* atmosphere)
 
     auto hMinus = HMinusOpacity(atmos, hMinusPops, hPops);
     auto h2 = H2Opacity(atmos, h2Pops, hPops);
-    for (int la = 0; la < Nlambda; ++la)
+    for (int la = laStart; la < laEnd; ++la)
     {
         f64 lambda = wavelength(la);
         auto etaLa = eta(la);

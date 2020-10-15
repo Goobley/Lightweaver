@@ -19,7 +19,8 @@ struct BackgroundData
     F64View2D scatt;
 };
 
-void basic_background(BackgroundData* bd, Atmosphere* atmos);
+void basic_background(BackgroundData* bd, Atmosphere* atmos,
+                      int laStart=-1, int laEnd=-1);
 f64 Gaunt_bf(f64 lambda, f64 n_eff, int charge);
 
 #endif
