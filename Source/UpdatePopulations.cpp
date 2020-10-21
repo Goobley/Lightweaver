@@ -89,6 +89,14 @@ void parallel_stat_eq(Context* ctx, int chunkSize)
                         (void*)(&threadData[a]), ctx->atmos->Nspace, chunkSize);
     for (int a = 0; a < Natom; ++a)
         scheduler_join(&ctx->threading.sched, &atomTasks[a]);
+    for (int a = 0; a < Natom; ++a)
+    {
+        if (!sched_task_done(&atomTasks[a]))
+        {
+            printf("Scheduler failed to finish atom task %d\n", a);
+            scheduler_wait(&ctx->threading.sched);
+        }
+    }
 
     bool throwNeeded = false;
     for (int a = 0; a < Natom; ++a)
@@ -183,6 +191,15 @@ void parallel_time_dep_update(Context* ctx, const std::vector<F64View2D>& oldPop
                         (void*)(&threadData[a]), ctx->atmos->Nspace, chunkSize);
     for (int a = 0; a < Natom; ++a)
         scheduler_join(&ctx->threading.sched, &atomTasks[a]);
+    for (int a = 0; a < Natom; ++a)
+    {
+        if (!sched_task_done(&atomTasks[a]))
+        {
+            printf("Scheduler failed to finish atom task %d\n", a);
+            scheduler_wait(&ctx->threading.sched);
+        }
+    }
+
 
     bool throwNeeded = false;
     for (int a = 0; a < Natom; ++a)
@@ -423,6 +440,11 @@ void parallel_nr_post_update(Context* ctx, std::vector<Atom*>* atoms,
         scheduler_add(&ctx->threading.sched, &nrUpdate, update_handler,
                         (void*)threadData.data(), ctx->atmos->Nspace, chunkSize);
         scheduler_join(&ctx->threading.sched, &nrUpdate);
+        if (!sched_task_done(&nrUpdate))
+        {
+            printf("Scheduler failed to finish nrUpdate\n");
+            scheduler_wait(&ctx->threading.sched);
+        }
     }
 
     bool throwNeeded = false;

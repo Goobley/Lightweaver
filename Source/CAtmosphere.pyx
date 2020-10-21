@@ -301,17 +301,17 @@ cdef extern from "Lightweaver.hpp":
                              const vector[F64View3D]& dC,
                              F64View backgroundNe,
                              const NrTimeDependentData& timeDepData,
-                             f64 crswVal)
+                             f64 crswVal) except +
     cdef void parallel_nr_post_update(Context* ctx, vector[Atom*]* atoms,
                                       const vector[F64View3D]& dC,
                                       F64View backgroundNe,
                                       const NrTimeDependentData& timeDepData,
-                                      f64 crswVal)
+                                      f64 crswVal) except +
     cdef void parallel_nr_post_update(Context* ctx, vector[Atom*]* atoms,
                                       const vector[F64View3D]& dC,
                                       F64View backgroundNe,
                                       const NrTimeDependentData& timeDepData,
-                                      f64 crswVal, int chunkSize)
+                                      f64 crswVal, int chunkSize) except +
     cdef void configure_hprd_coeffs(Context& ctx)
 
 cdef extern from "Lightweaver.hpp" namespace "EscapeProbability":
