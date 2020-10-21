@@ -363,7 +363,6 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelengthIdxs)
             scheduler_add(&ctx.threading.sched, &formalSolutions,
                           fs_task, (void*)taskData, wavelengthIdxs.shape(0), 4);
             scheduler_join(&ctx.threading.sched, &formalSolutions);
-            scheduler_wait(&ctx.threading.sched);
         }
 
         f64 dJMax = 0.0;
@@ -504,7 +503,6 @@ PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
                 sched_task prdScatter;
                 scheduler_add(&ctx.threading.sched, &prdScatter, prd_task, (void*)taskData.data(), prdLines.size(), 1);
                 scheduler_join(&ctx.threading.sched, &prdScatter);
-                scheduler_wait(&ctx.threading.sched);
             }
 #ifdef CMO_BASIC_PROFILE
             midTimes[iter-1] = hrc::now();

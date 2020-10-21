@@ -142,7 +142,6 @@ void Transition::compute_phi_parallel(LwInternal::ThreadData* threading, const A
         scheduler_add(&threading->sched, &lineProfile, compute_profile,
                       (void*)data, wavelength.shape(0), 1);
         scheduler_join(&threading->sched, &lineProfile);
-        scheduler_wait(&threading->sched);
     }
 
     free(data);
@@ -1106,7 +1105,6 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
             scheduler_add(&ctx.threading.sched, &formalSolutions,
                           fs_task, (void*)taskData, Nspect, 4);
             scheduler_join(&ctx.threading.sched, &formalSolutions);
-            scheduler_wait(&ctx.threading.sched);
         }
 #ifdef CMO_BASIC_PROFILE
         hrc::time_point midTime = hrc::now();
