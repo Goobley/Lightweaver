@@ -10,10 +10,12 @@ from collections import OrderedDict
 import numpy as np
 from scipy.linalg import solve
 from scipy.optimize import newton_krylov
+from numba import njit
 
-def lte_pops(atomicModel: AtomicModel, temperature: np.ndarray,
-             ne: np.ndarray, nTotal: np.ndarray, debye: bool=True) -> np.ndarray:
-    Nlevel = len(atomicModel.levels)
+@njit
+def lte_pops_impl(temperature, ne, nTotal, stages, energies,
+                  gs, nStar=None, debye=True, computeDiff=False):
+    Nlevel = stages.shape[0]
     Nspace = ne.shape[0]
     c1 = (Const.HPlanck / (2.0 * np.pi * Const.MElectron)) * (Const.HPlanck / Const.KBoltzmann)
 
@@ -22,39 +24,71 @@ def lte_pops(atomicModel: AtomicModel, temperature: np.ndarray,
         c2 = np.sqrt(8.0 * np.pi / Const.KBoltzmann) * (Const.QElectron**2 / (4.0 * np.pi * Const.Epsilon0))**1.5
         nDebye = np.zeros(Nlevel)
         for i in range(1, Nlevel):
-            stage = atomicModel.levels[i].stage
+            stage = stages[i]
             Z = stage
-            for m in range(1, stage - atomicModel.levels[0].stage + 1):
+            for m in range(1, stage - stages[0] + 1):
                 nDebye[i] += Z
                 Z += 1
 
-    dEion = c2 * np.sqrt(ne / temperature)
-    cNe_T = 0.5 * ne * (c1 / temperature)**1.5
-    total = np.ones(Nspace)
+    if nStar is None:
+        nStar = np.empty((Nlevel, Nspace))
 
-    nStar = np.zeros((Nlevel, Nspace))
-    ground = atomicModel.levels[0]
-    for i in range(1, Nlevel):
-        dE = atomicModel.levels[i].E_SI - ground.E_SI
-        gi0 = atomicModel.levels[i].g / ground.g
-        dZ = atomicModel.levels[i].stage - ground.stage
+    if computeDiff:
+        prev = np.empty(Nlevel)
+    # NOTE(cmo): Will remain 0 and be returned as second return value if
+    # computeDiff is not set to True
+    maxDiff = 0.0
+
+    # NOTE(cmo): For some reason this is consistently faster with these hoisted
+    # from below, despite the allocations this causes
+    dE = energies - energies[0]
+    gi0 = gs / gs[0]
+    dZ = stages - stages[0]
+
+    for k in range(Nspace):
         if debye:
-            dE_kT = (dE - nDebye[i] * dEion) / (Const.KBoltzmann * temperature)
+            dEion = c2 * np.sqrt(ne[k] / temperature[k])
         else:
-            dE_kT = dE / (Const.KBoltzmann * temperature)
+            dEion = 0.0
+        cNe_T = 0.5 * ne[k] * (c1 / temperature[k])**1.5
+        total = 1.0
+        if computeDiff:
+            for i in range(Nlevel):
+                prev[i] = nStar[i, k]
+        for i in range(1, Nlevel):
+            dE_kT = (dE[i] - nDebye[i] * dEion) / (Const.KBoltzmann * temperature[k])
+            neFactor = cNe_T**dZ[i]
 
-        nst = gi0 * np.exp(-dE_kT)
-        nStar[i, :] = nst
-        nStar[i, :] /= cNe_T**dZ
-        total += nStar[i]
+            nst = gi0[i] * np.exp(-dE_kT)
+            nStar[i, k] = nst
+            nStar[i, k] /= neFactor
+            total += nStar[i, k]
+        nStar[0, k] = nTotal[k] / total
 
-    nStar[0] = nTotal / total
+        for i in range(1, Nlevel):
+            nStar[i, k] *= nStar[0, k]
 
-    for i in range(1, Nlevel):
-        nStar[i] *= nStar[0]
+        if computeDiff:
+            for i in range(Nlevel):
+                maxDiff = max((nStar[i, k] - prev[i]) / nStar[i, k], maxDiff)
 
-    return nStar
+    return nStar, maxDiff
 
+def lte_pops(atomicModel: AtomicModel, temperature: np.ndarray,
+             ne: np.ndarray, nTotal: np.ndarray, nStar=None, debye: bool=True) -> np.ndarray:
+    stages = np.array([l.stage for l in atomicModel.levels])
+    energies = np.array([l.E_SI for l in atomicModel.levels])
+    gs = np.array([l.g for l in atomicModel.levels])
+    return lte_pops_impl(temperature, ne, nTotal, stages, energies, gs, nStar=nStar, debye=debye)[0]
+
+def update_lte_pops_inplace(atomicModel: AtomicModel, temperature: np.ndarray,
+                            ne: np.ndarray, nTotal: np.ndarray,
+                            nStar: np.ndarray, debye: bool=True) -> Tuple[np.ndarray, float]:
+    stages = np.array([l.stage for l in atomicModel.levels])
+    energies = np.array([l.E_SI for l in atomicModel.levels])
+    gs = np.array([l.g for l in atomicModel.levels])
+    return lte_pops_impl(temperature, ne, nTotal, stages, energies, gs,
+                         debye=debye, nStar=nStar, computeDiff=True)
 
 class LteNeIterator:
     def __init__(self, atoms: Iterable[AtomicModel], temperature: np.ndarray,
@@ -328,7 +362,8 @@ class SpeciesStateTable:
 
         return False
 
-    def update_lte_atoms_Hmin_pops(self, atmos: Atmosphere, conserveCharge=False, updateTotals=False, maxIter=2000, quiet=False):
+    def update_lte_atoms_Hmin_pops(self, atmos: Atmosphere, conserveCharge=False,
+                                   updateTotals=False, maxIter=2000, quiet=False, tol=1e-3):
         if updateTotals:
             for atom in self.atomicPops:
                 atom.update_nTotal(atmos)
@@ -336,12 +371,11 @@ class SpeciesStateTable:
             maxDiff = 0.0
             maxName = '--'
             ne = np.zeros_like(atmos.ne)
-            for atom in self.atomicPops:
-                prevNStar = np.copy(atom.nStar)
-                newNStar = lte_pops(atom.model, atmos.temperature, atmos.ne, atom.nTotal, debye=True)
-                deltaNStar = newNStar - prevNStar
-                atom.nStar[:] = newNStar
+            diffs = [update_lte_pops_inplace(atom.model, atmos.temperature,
+                                             atmos.ne, atom.nTotal, atom.nStar,
+                                             debye=True)[1] for atom in self.atomicPops]
 
+            for j, atom in enumerate(self.atomicPops):
                 if conserveCharge:
                     stages = np.array([l.stage for l in atom.model.levels])
                     if atom.pops is None:
@@ -349,14 +383,14 @@ class SpeciesStateTable:
                     else:
                         ne += np.sum(atom.n * stages[:, None], axis=0)
 
-                diff = np.nanmax(1.0 - prevNStar / atom.nStar)
+                diff = diffs[j]
                 if diff > maxDiff:
                     maxDiff = diff
                     maxName = atom.name
             if conserveCharge:
                 ne[ne < 1e6] = 1e6
                 atmos.ne[:] = ne
-            if maxDiff < 1e-3:
+            if maxDiff < tol:
                 if not quiet:
                     print('LTE Iterations %d (%s slowest convergence)' % (i+1, maxName))
                 break
@@ -606,12 +640,10 @@ class RadiativeSet:
 def hminus_pops(atmos: Atmosphere, hPops: AtomicState) -> np.ndarray:
     CI = (Const.HPlanck / (2.0 * np.pi * Const.MElectron)) * (Const.HPlanck / Const.KBoltzmann)
     Nspace = atmos.Nspace
-    HminPops = np.zeros(Nspace)
 
-    for k in range(Nspace):
-        PhiHmin = 0.25 * (CI / atmos.temperature[k])**1.5 \
-                    * np.exp(Const.E_ION_HMIN / (Const.KBoltzmann * atmos.temperature[k]))
-        HminPops[k] = atmos.ne[k] * np.sum(hPops.n[:, k]) * PhiHmin
+    PhiHmin = 0.25 * (CI / atmos.temperature)**1.5 \
+                * np.exp(Const.E_ION_HMIN / (Const.KBoltzmann * atmos.temperature))
+    HminPops = atmos.ne * np.sum(hPops.n, axis=0) * PhiHmin
 
     return HminPops
 

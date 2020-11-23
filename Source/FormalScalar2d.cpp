@@ -458,11 +458,17 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
 
     if (!periodic)
     {
+        int toObsI = int(toObs);
+        // NOTE(cmo): The idea behind this indexing scheme is that we still want
+        // Nrays to represent half the unit sphere, but we want the half split
+        // by the y-z plane, rather than the half split by the x-y plane that
+        // toObs splits by by default.
+        int muIdx = (mu % (atmos->Nrays / 2)) * 2 + toObsI;
         if (mux > 0)
         {
             for (int k = 0; k < atmos->Nz; ++k)
             {
-                I(k, 0) = atmos->xLowerBc.bcData(la, mu);
+                I(k, 0) = atmos->xLowerBc.bcData(la, muIdx, k);
                 Psi(k, 0) = 0.0;
             }
         }
@@ -470,7 +476,7 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
         {
             for (int k = 0; k < atmos->Nz; ++k)
             {
-                I(k, atmos->Nx-1) = atmos->xUpperBc.bcData(la, mu);
+                I(k, atmos->Nx-1) = atmos->xUpperBc.bcData(la, muIdx, k);
                 Psi(k, atmos->Nx-1) = 0.0;
             }
         }
@@ -536,7 +542,7 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
 
             case CALLABLE:
             {
-                I(k, j) = currentBc.bcData(la, j);
+                I(k, j) = currentBc.bcData(la, mu, j);
             } break;
 
             case ZERO: break;
@@ -718,11 +724,18 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
 
     if (!periodic)
     {
+        int toObsI = int(toObs);
+        // NOTE(cmo): The idea behind this indexing scheme is that we still want
+        // Nrays to represent half the unit sphere, but we want the half split
+        // by the y-z plane, rather than the half split by the x-y plane that
+        // toObs splits by by default.
+        int muIdx = (mu % (atmos->Nrays / 2)) * 2 + toObsI;
+
         if (mux > 0)
         {
             for (int k = 0; k < atmos->Nz; ++k)
             {
-                I(k, 0) = atmos->xLowerBc.bcData(la, k);
+                I(k, 0) = atmos->xLowerBc.bcData(la, muIdx, k);
                 Psi(k, 0) = 0.0;
             }
         }
@@ -730,7 +743,7 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
         {
             for (int k = 0; k < atmos->Nz; ++k)
             {
-                I(k, atmos->Nx-1) = atmos->xUpperBc.bcData(la, k);
+                I(k, atmos->Nx-1) = atmos->xUpperBc.bcData(la, muIdx, k);
                 Psi(k, atmos->Nx-1) = 0.0;
             }
         }
@@ -796,7 +809,7 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
 
             case CALLABLE:
             {
-                I(k, j) = currentBc.bcData(la, j);
+                I(k, j) = currentBc.bcData(la, mu, j);
             } break;
 
             case ZERO: break;

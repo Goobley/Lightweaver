@@ -942,7 +942,8 @@ class Atmosphere:
 
     def rays(self, muz: Union[float, Sequence[float]],
              mux: Optional[Union[float, Sequence[float]]]=None,
-             muy: Optional[Union[float, Sequence[float]]]=None):
+             muy: Optional[Union[float, Sequence[float]]]=None,
+             wmu: Optional[Union[float, Sequence[float]]]=None):
 
         if isinstance(muz, float):
             muz = [muz]
@@ -974,3 +975,21 @@ class Atmosphere:
 
             if not np.allclose(self.muz**2 + self.mux**2 + self.muy**2, 1):
                 raise ValueError('mux**2 + muy**2 + muz**2 != 1.0')
+
+        if wmu is not None:
+            self.wmu = np.array(wmu)
+
+            if not np.isclose(self.wmu.sum(), 1.0):
+                raise ValueError('sum of wmus is not 1.0')
+
+
+# @dataclass
+# class MagneticAtmosphere(Atmosphere):
+#     B: np.ndarray
+#     gammaB: np.ndarray
+#     chiB: np.ndarray
+
+#     @classmethod
+#     def from_atmos(cls, atmos: Atmosphere, B: np.ndarray, gammaB: np.ndarray, chiB: np.ndarray):
+#         return cls(**asdict(atmos), B=B, gammaB=gammaB, chiB=chiB)
+

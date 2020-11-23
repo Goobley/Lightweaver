@@ -15,24 +15,25 @@ enum RadiationBc
 struct AtmosphericBoundaryCondition
 {
     RadiationBc type;
-    F64Arr2D bcData;
+    F64Arr3D bcData;
 
     AtmosphericBoundaryCondition() : type(RadiationBc::ZERO), bcData()
     {}
 
-    AtmosphericBoundaryCondition(RadiationBc typ, int Nwave, int Nspace)
+    AtmosphericBoundaryCondition(RadiationBc typ, int Nwave, int Nmu, int Nspace)
         : type(typ),
           bcData()
     {
         if (type == RadiationBc::CALLABLE)
-            bcData = F64Arr2D(Nwave, Nspace);
+            bcData = F64Arr3D(Nwave, Nmu, Nspace);
     }
 
-    void set_bc_data(F64View2D data)
+    void set_bc_data(F64View3D data)
     {
         for (int la = 0; la < bcData.shape(0); ++la)
-            for (int k = 0; k < bcData.shape(1); ++k)
-                bcData(la, k) = data(la, k);
+            for (int mu = 0; mu < bcData.shape(1); ++mu)
+                for (int k = 0; k < bcData.shape(2); ++k)
+                    bcData(la, mu, k) = data(la, mu, k);
     }
 };
 

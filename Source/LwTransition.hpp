@@ -4,12 +4,18 @@
 #include "CmoArray.hpp"
 #include "LwAtmosphere.hpp"
 #include "LwMisc.hpp"
+#include <functional>
 
 enum TransitionType
 {
     LINE,
     CONTINUUM
 };
+
+namespace LwInternal
+{
+    struct ThreadData;
+}
 
 struct Transition
 {
@@ -114,6 +120,9 @@ struct Transition
     }
 
     void compute_phi(const Atmosphere& atmos, F64View aDamp, F64View vBroad);
+    void compute_phi_la(const Atmosphere& atmos, const F64View& aDamp, const F64View& vBroad, int lt);
+    void compute_phi_parallel(LwInternal::ThreadData* threading, const Atmosphere& atmos, F64View aDamp, F64View vBroad);
+    std::function<void(const Atmosphere&, F64View, F64View)> bound_parallel_compute_phi;
     void compute_wphi(const Atmosphere& atmos);
     void compute_polarised_profiles(const Atmosphere& atmos, F64View aDamp, F64View vBroad, const ZeemanComponents& z);
 };

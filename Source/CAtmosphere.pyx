@@ -8,6 +8,8 @@ from libc.math cimport sqrt, exp, copysign
 from .atmosphere import BoundaryCondition, ZeroRadiation, ThermalisedRadiation, PeriodicRadiation, NoBc
 from .atomic_model import AtomicLine, LineType, LineProfileState
 from .utils import InitialSolution, ExplodingMatrixError, UnityCrswIterator
+from .atomic_table import PeriodicTable
+from .atomic_set import lte_pops
 from weno4 import weno4
 import lightweaver.constants as Const
 import time
@@ -53,11 +55,11 @@ cdef extern from "Lightweaver.hpp":
 
     cdef cppclass AtmosphericBoundaryCondition:
         RadiationBc type
-        F64Arr2D bcData
+        F64Arr3D bcData
 
         AtmosphericBoundaryCondition()
-        AtmosphericBoundaryCondition(RadiationBc typ, int Nwave, int Nspace)
-        void set_bc_data(F64View2D data)
+        AtmosphericBoundaryCondition(RadiationBc typ, int Nwave, int Nmu, int Nspace)
+        void set_bc_data(F64View3D data)
 
     cdef cppclass Atmosphere:
         int Nspace
@@ -122,6 +124,40 @@ cdef extern from "Background.hpp":
     cdef void basic_background(BackgroundData* bg, Atmosphere* atmos)
     cdef f64 Gaunt_bf(f64, f64, int)
 
+cdef extern from "FastBackground.hpp":
+    cdef cppclass BackgroundContinuum:
+        int i
+        int j
+        int laStart
+        int laEnd
+        F64View alpha
+        BackgroundContinuum(int i, int j, f64 minLambda, f64 lambdaEdge,
+                            F64View crossSection, F64View globalWavelength)
+
+    cdef cppclass ResonantRayleighLine:
+        f64 Aji
+        f64 gRatio
+        f64 lambda0
+        f64 lambdaMax
+        ResonantRayleighLine(f64 A, f64 gjgi, f64 lambda0, f64 lambdaMax)
+
+    cdef cppclass BackgroundAtom:
+        F64View2D n;
+        F64View2D nStar;
+        vector[BackgroundContinuum] continua;
+        vector[ResonantRayleighLine] resonanceScatterers;
+        BackgroundAtom()
+
+    cdef cppclass FastBackgroundContext:
+        int Nthreads
+        void initialise(int numThreads)
+        void basic_background(BackgroundData* bd, Atmosphere* atmos)
+        void bf_opacities(BackgroundData* bd, vector[BackgroundAtom]* atoms,
+                          Atmosphere* atmos)
+        void rayleigh_scatter(BackgroundData* bd, vector[BackgroundAtom]* atoms,
+                              Atmosphere* atmos)
+
+
 cdef extern from "Ng.hpp":
     cdef cppclass Ng:
         int Norder
@@ -132,6 +168,7 @@ cdef extern from "Ng.hpp":
         Ng(int nOrder, int nPeriod, int nDelay, F64View sol)
         bool_t accelerate(F64View sol)
         f64 max_change()
+        f64 relative_change_from_prev(F64View newSol)
         void clear()
 
 cdef extern from "Lightweaver.hpp":
@@ -221,6 +258,7 @@ cdef extern from "Lightweaver.hpp":
         bool_t fill
         F64View4D chi
         F64View4D eta
+        F64View4D I
 
     cdef cppclass Context:
         Atmosphere* atmos
@@ -239,6 +277,10 @@ cdef extern from "Lightweaver.hpp":
         int iter
         f64 dRho
 
+    cdef cppclass NrTimeDependentData:
+        f64 dt
+        vector[F64View2D] nPrev
+
     cdef f64 formal_sol_gamma_matrices(Context& ctx)
     cdef f64 formal_sol_gamma_matrices(Context& ctx, bool_t lambdaIterate)
     cdef f64 formal_sol_update_rates(Context& ctx)
@@ -248,7 +290,28 @@ cdef extern from "Lightweaver.hpp":
     cdef f64 formal_sol_full_stokes(Context& ctx, bool_t updateJ) except +
     cdef PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
     cdef void stat_eq(Atom* atom) except +
+    cdef void parallel_stat_eq(Context* ctx) except +
+    cdef void parallel_stat_eq(Context* ctx, int chunkSize) except +
     cdef void time_dependent_update(Atom* atomIn, F64View2D nOld, f64 dt) except +
+    cdef void parallel_time_dep_update(Context* ctx, const vector[F64View2D]&,
+                                       f64 dt) except +
+    cdef void parallel_time_dep_update(Context* ctx, const vector[F64View2D]&,
+                                       f64 dt, int chunkSize) except +
+    cdef void nr_post_update(Context* ctx, vector[Atom*]* atoms,
+                             const vector[F64View3D]& dC,
+                             F64View backgroundNe,
+                             const NrTimeDependentData& timeDepData,
+                             f64 crswVal) except +
+    cdef void parallel_nr_post_update(Context* ctx, vector[Atom*]* atoms,
+                                      const vector[F64View3D]& dC,
+                                      F64View backgroundNe,
+                                      const NrTimeDependentData& timeDepData,
+                                      f64 crswVal) except +
+    cdef void parallel_nr_post_update(Context* ctx, vector[Atom*]* atoms,
+                                      const vector[F64View3D]& dC,
+                                      F64View backgroundNe,
+                                      const NrTimeDependentData& timeDepData,
+                                      f64 crswVal, int chunkSize) except +
     cdef void configure_hprd_coeffs(Context& ctx)
 
 cdef extern from "Lightweaver.hpp" namespace "EscapeProbability":
@@ -259,6 +322,7 @@ cdef class LwDepthData:
     cdef DepthData depthData
     cdef f64[:,:,:,::1] chi
     cdef f64[:,:,:,::1] eta
+    cdef f64[:,:,:,::1] I
 
     def __init__(self, Nlambda, Nmu, Nspace):
         self.shape = (Nlambda, Nmu, 2, Nspace)
@@ -271,9 +335,11 @@ cdef class LwDepthData:
         try:
             s['chi'] = np.copy(np.asarray(self.chi))
             s['eta'] = np.copy(np.asarray(self.eta))
+            s['I'] = np.copy(np.asarray(self.I))
         except AttributeError:
             s['chi'] = None
             s['eta'] = None
+            s['I'] = None
 
         return s
 
@@ -285,6 +351,8 @@ cdef class LwDepthData:
             self.depthData.chi = f64_view_4(self.chi)
             self.eta = s['eta']
             self.depthData.eta = f64_view_4(self.eta)
+            self.I = s['I']
+            self.depthData.I = f64_view_4(self.I)
 
     @property
     def fill(self):
@@ -301,6 +369,8 @@ cdef class LwDepthData:
             self.depthData.chi = f64_view_4(self.chi)
             self.eta = np.zeros(self.shape)
             self.depthData.eta = f64_view_4(self.eta)
+            self.I = np.zeros(self.shape)
+            self.depthData.I = f64_view_4(self.I)
 
     @property
     def chi(self):
@@ -309,6 +379,10 @@ cdef class LwDepthData:
     @property
     def eta(self):
         return np.asarray(self.eta)
+
+    @property
+    def I(self):
+        return np.asarray(self.I)
 
 def BC_to_enum(bc):
     if isinstance(bc, ZeroRadiation):
@@ -324,11 +398,12 @@ def BC_to_enum(bc):
     else:
         raise ValueError('Argument is not a BoundaryCondition.')
 
-cdef verify_bc_array_sizes(AtmosphericBoundaryCondition* abc, f64[:,::1] pyArr, str location):
+cdef verify_bc_array_sizes(AtmosphericBoundaryCondition* abc, f64[:,:,::1] pyArr, str location):
     cdef int dim0 = abc.bcData.shape(0)
     cdef int dim1 = abc.bcData.shape(1)
-    if dim0 != pyArr.shape[0] or dim1 != pyArr.shape[1]:
-        raise ValueError('BC returned from python does not match expected shape for %s (%d, %d)' % (location, dim0, dim1))
+    cdef int dim2 = abc.bcData.shape(2)
+    if dim0 != pyArr.shape[0] or dim1 != pyArr.shape[1] or dim2 != pyArr.shape[2]:
+        raise ValueError('BC returned from python does not match expected shape for %s (%d, %d, %d), got %s' % (location, dim0, dim1, dim2, repr(pyArr.shape)))
 
 cdef class LwAtmosphere:
     cdef Atmosphere atmos
@@ -440,52 +515,60 @@ cdef class LwAtmosphere:
         cdef int Nbcx = Nz * Ny
         cdef int Nbcy = Nz * Nx
         cdef int Nbcz = Nx * Ny
+
+        cdef int Nrays = self.Nrays
         s = atmos.structure
-        self.atmos.xLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.xLowerBc), self.Nwave, Nbcx)
-        self.atmos.xUpperBc = AtmosphericBoundaryCondition(BC_to_enum(s.xUpperBc), self.Nwave, Nbcx)
-        self.atmos.yLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.yLowerBc), self.Nwave, Nbcy)
-        self.atmos.yUpperBc = AtmosphericBoundaryCondition(BC_to_enum(s.yUpperBc), self.Nwave, Nbcy)
-        self.atmos.zLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.zLowerBc), self.Nwave, Nbcz)
-        self.atmos.zUpperBc = AtmosphericBoundaryCondition(BC_to_enum(s.zUpperBc), self.Nwave, Nbcz)
+        self.atmos.xLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.xLowerBc),
+                                                           self.Nwave, Nrays, Nbcx)
+        self.atmos.xUpperBc = AtmosphericBoundaryCondition(BC_to_enum(s.xUpperBc),
+                                                           self.Nwave, Nrays, Nbcx)
+        self.atmos.yLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.yLowerBc),
+                                                           self.Nwave, Nrays, Nbcy)
+        self.atmos.yUpperBc = AtmosphericBoundaryCondition(BC_to_enum(s.yUpperBc),
+                                                           self.Nwave, Nrays, Nbcy)
+        self.atmos.zLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.zLowerBc),
+                                                           self.Nwave, Nrays, Nbcz)
+        self.atmos.zUpperBc = AtmosphericBoundaryCondition(BC_to_enum(s.zUpperBc),
+                                                           self.Nwave, Nrays, Nbcz)
 
     def compute_bcs(self, LwSpectrum spect):
-        cdef f64[:,::1] bc
+        cdef f64[:,:,::1] bc
         cdef int mu, la
-        cdef F64View2D data
+        cdef F64View3D data
         if self.atmos.zLowerBc.type == CALLABLE:
             bc = self.pyAtmos.zLowerBc.compute_bc(self.pyAtmos, spect)
             verify_bc_array_sizes(&self.atmos.zLowerBc, bc, 'zLowerBc')
-            data = f64_view_2(bc)
+            data = f64_view_3(bc)
             self.atmos.zLowerBc.set_bc_data(data)
 
         if self.atmos.zUpperBc.type == CALLABLE:
             bc = self.pyAtmos.zUpperBc.compute_bc(self.pyAtmos, spect)
             verify_bc_array_sizes(&self.atmos.zUpperBc, bc, 'zUpperBc')
-            data = f64_view_2(bc)
+            data = f64_view_3(bc)
             self.atmos.zUpperBc.set_bc_data(data)
 
         if self.atmos.xLowerBc.type == CALLABLE:
             bc = self.pyAtmos.xLowerBc.compute_bc(self.pyAtmos, spect)
             verify_bc_array_sizes(&self.atmos.xLowerBc, bc, 'xLowerBc')
-            data = f64_view_2(bc)
+            data = f64_view_3(bc)
             self.atmos.xLowerBc.set_bc_data(data)
 
         if self.atmos.xUpperBc.type == CALLABLE:
             bc = self.pyAtmos.xUpperBc.compute_bc(self.pyAtmos, spect)
             verify_bc_array_sizes(&self.atmos.xUpperBc, bc, 'xUpperBc')
-            data = f64_view_2(bc)
+            data = f64_view_3(bc)
             self.atmos.xUpperBc.set_bc_data(data)
 
         if self.atmos.yLowerBc.type == CALLABLE:
             bc = self.pyAtmos.yLowerBc.compute_bc(self.pyAtmos, spect)
             verify_bc_array_sizes(&self.atmos.yLowerBc, bc, 'yLowerBc')
-            data = f64_view_2(bc)
+            data = f64_view_3(bc)
             self.atmos.yLowerBc.set_bc_data(data)
 
         if self.atmos.yUpperBc.type == CALLABLE:
             bc = self.pyAtmos.yUpperBc.compute_bc(self.pyAtmos, spect)
             verify_bc_array_sizes(&self.atmos.yUpperBc, bc, 'yUpperBc')
-            data = f64_view_2(bc)
+            data = f64_view_3(bc)
             self.atmos.yUpperBc.set_bc_data(data)
 
     def update_projections(self):
@@ -908,6 +991,177 @@ cdef class BasicBackground(BackgroundProvider):
     def __reduce__(self):
         return self._reconstruct, (self.__getstate__(),)
 
+cdef class FastBackground(BackgroundProvider):
+    cdef BackgroundData bd
+    cdef object eqPops
+    cdef object radSet
+
+    cdef f64[::1] chPops
+    cdef f64[::1] ohPops
+    cdef f64[::1] h2Pops
+    cdef f64[::1] hMinusPops
+    cdef f64[:,::1] hPops
+    cdef f64[::1] wavelength
+
+    cdef FastBackgroundContext ctx
+    cdef int Nthreads
+
+    def __init__(self, eqPops, radSet, wavelength, Nthreads=1):
+        super().__init__(eqPops, radSet, wavelength)
+        self.eqPops = eqPops
+        self.radSet = radSet
+
+        if 'CH' in eqPops:
+            self.chPops = eqPops['CH']
+            self.bd.chPops = f64_view(self.chPops)
+        if 'OH' in eqPops:
+            self.ohPops = eqPops['OH']
+            self.bd.ohPops = f64_view(self.ohPops)
+        if 'H2' in eqPops:
+            self.h2Pops = eqPops['H2']
+            self.bd.h2Pops = f64_view(self.h2Pops)
+
+        self.hMinusPops = eqPops['H-']
+        self.bd.hMinusPops = f64_view(self.hMinusPops)
+        self.hPops = eqPops['H']
+        self.bd.hPops = f64_view_2(self.hPops)
+
+        self.wavelength = wavelength
+        self.bd.wavelength = f64_view(self.wavelength)
+
+        self.Nthreads = Nthreads
+        self.ctx.initialise(self.Nthreads)
+
+    cpdef compute_background(self, LwAtmosphere atmos, chiIn, etaIn, scaIn):
+        cdef int Nlambda = self.wavelength.shape[0]
+        cdef int Nspace = atmos.Nspace
+        cdef f64[:,::1] chi = chiIn
+        cdef f64[:,::1] eta = etaIn
+        cdef f64[:,::1] sca = scaIn
+
+        # NOTE(cmo): Update hPops in case it changed LTE<->NLTE
+        self.hPops = self.eqPops['H']
+
+        # TODO(cmo): How UV fudge works here is a problem for future me.
+
+        self.bd.chi = f64_view_2(chi)
+        self.bd.eta = f64_view_2(eta)
+        self.bd.scatt = f64_view_2(sca)
+
+        cdef vector[BackgroundAtom] atoms
+        cdef BackgroundAtom* atom
+        passiveAtoms = self.radSet.passiveAtoms
+        # NOTE(cmo): This length should always be enough, but it's a tiny
+        # amount of memory
+        atoms.reserve(len(passiveAtoms) + 2)
+        # NOTE(cmo): Make sure all arrays remain backed by memory
+        storage = []
+        for a in passiveAtoms:
+            atoms.push_back(BackgroundAtom())
+            atom = &atoms.back();
+            atom.n = f64_view_2(self.eqPops.atomicPops[a.element].n)
+            atom.nStar = f64_view_2(self.eqPops.atomicPops[a.element].nStar)
+            atom.continua.reserve(len(a.continua))
+            for c in a.continua:
+                alpha = c.alpha(np.asarray(self.wavelength))
+                storage.append(alpha)
+                atom.continua.push_back(BackgroundContinuum(c.i, c.j, c.minLambda, c.lambdaEdge,
+                                                            f64_view(alpha),
+                                                            self.bd.wavelength))
+            if a.element == PeriodicTable[1] or a.element == PeriodicTable[2]:
+                atom.resonanceScatterers.reserve(len(a.lines))
+                for l in a.lines:
+                    if l.i == 0:
+                        atom.resonanceScatterers.push_back(
+                            ResonantRayleighLine(l.Aji,
+                                                 l.jLevel.g / l.iLevel.g,
+                                                 l.lambda0,
+                                                 l.wavelength()[-1])
+                                                 )
+        for a in self.radSet.activeAtoms + self.radSet.detailedAtoms:
+            if a.element == PeriodicTable[1] or a.element == PeriodicTable[2]:
+                atoms.push_back(BackgroundAtom())
+                atom = &atoms.back();
+                atom.n = f64_view_2(self.eqPops.atomicPops[a.element].n)
+                atom.nStar = f64_view_2(self.eqPops.atomicPops[a.element].nStar)
+                atom.resonanceScatterers.reserve(len(a.lines))
+                for l in a.lines:
+                    if l.i == 0:
+                        atom.resonanceScatterers.push_back(
+                            ResonantRayleighLine(l.Aji,
+                                                 l.jLevel.g / l.iLevel.g,
+                                                 l.lambda0,
+                                                 l.wavelength()[-1])
+                                                 )
+
+        self.ctx.basic_background(&self.bd, &atmos.atmos)
+        self.ctx.rayleigh_scatter(&self.bd, &atoms, &atmos.atmos)
+        self.ctx.bf_opacities(&self.bd, &atoms, &atmos.atmos)
+
+        cdef int la, k
+        for la in range(Nlambda):
+            for k in range(Nspace):
+                chi[la, k] += sca[la, k]
+
+    def __getstate__(self):
+        state = {}
+        state['eqPops'] = self.eqPops
+        state['radSet'] = self.radSet
+        if 'CH' is self.eqPops:
+            state['chPops'] = self.eqPops['CH']
+        else:
+            state['chPops'] = None
+
+        if 'OH' in self.eqPops:
+            state['ohPops'] = self.eqPops['OH']
+        else:
+            state['ohPops'] = None
+
+        if 'H2' in self.eqPops:
+            state['h2Pops'] = self.eqPops['H2']
+        else:
+            state['h2Pops'] = None
+
+        state['hMinusPops'] = self.eqPops['H-']
+        state['hPops'] = self.eqPops['H']
+        state['wavelength'] = np.asarray(self.wavelength)
+        state['Nthreads'] = self.Nthreads
+
+        return state
+
+    def __setstate__(self, state):
+        self.eqPops = state['eqPops']
+        self.radSet = state['radSet']
+
+        if state['chPops'] is not None:
+            self.chPops = state['chPops']
+            self.bd.chPops = f64_view(self.chPops)
+        if state['ohPops'] is not None:
+            self.ohPops = state['ohPops']
+            self.bd.ohPops = f64_view(self.h2Pops)
+        if state['h2Pops'] is not None:
+            self.h2Pops = state['h2Pops']
+            self.bd.h2Pops = f64_view(self.h2Pops)
+
+        self.hMinusPops = state['hMinusPops']
+        self.bd.hMinusPops = f64_view(self.hMinusPops)
+        self.hPops = state['hPops']
+        self.bd.hPops = f64_view_2(self.hPops)
+
+        self.wavelength = state['wavelength']
+        self.bd.wavelength = f64_view(self.wavelength)
+        self.Nthreads = state['Nthreads']
+        self.ctx.initialise(self.Nthreads)
+
+    @classmethod
+    def _reconstruct(cls, state):
+        o = cls.__new__(cls)
+        o.__setstate__(state)
+        return o
+
+    def __reduce__(self):
+        return self._reconstruct, (self.__getstate__(),)
+
 
 cdef class LwBackground:
     cdef Background background
@@ -1126,7 +1380,6 @@ cdef class LwTransition:
             self.wphi = np.zeros(Nspace)
             self.trans.phi = f64_view_4(self.phi)
             self.trans.wphi = f64_view(self.wphi)
-            self.compute_phi()
             if trans.type == LineType.PRD:
                 self.rhoPrd = np.ones((Nlambda, Nspace))
                 self.trans.rhoPrd = f64_view_2(self.rhoPrd)
@@ -1788,7 +2041,7 @@ cdef class LwAtom:
     cpdef setup_wavelength(self, int la):
         self.atom.setup_wavelength(la)
 
-    def update_profiles(self, polarised=False):
+    def compute_profiles(self, polarised=False):
         np.asarray(self.vBroad)[:] = self.atomicModel.vBroad(self.atmos)
         for t in self.trans:
             if polarised and t.polarisable:
@@ -1935,7 +2188,7 @@ cdef class LwContext:
     cdef public object eqPops
     cdef list activeAtoms
     cdef list detailedAtoms
-    cdef bool_t conserveCharge
+    cdef public bool_t conserveCharge
     cdef bool_t hprd
     cdef public object crswCallback
     cdef public object crswDone
@@ -1993,6 +2246,8 @@ cdef class LwContext:
         self.set_formal_solver(formalSolver)
         self.set_interp_fn(interpFn)
         self.setup_threads(Nthreads)
+
+        self.compute_profiles()
 
     def __getstate__(self):
         state = {}
@@ -2088,6 +2343,10 @@ cdef class LwContext:
         if prevValue != value:
             self.update_threads()
 
+    @property
+    def hprd(self):
+        return self.hprd
+
     cdef setup_threads(self, int Nthreads):
         self.ctx.Nthreads = Nthreads
         self.ctx.initialise_threads()
@@ -2098,7 +2357,7 @@ cdef class LwContext:
     cpdef compute_profiles(self, polarised=False):
         atoms = self.activeAtoms + self.detailedAtoms
         for atom in atoms:
-            atom.update_profiles(polarised=polarised)
+            atom.compute_profiles(polarised=polarised)
 
     cpdef formal_sol_gamma_matrices(self, fixCollisionalRates=False, lambdaIterate=False):
         cdef LwAtom atom
@@ -2153,34 +2412,95 @@ cdef class LwContext:
         if self.hprd and hprd:
             self.update_hprd_coeffs()
 
-    cpdef time_dep_update(self, f64 dt, prevTimePops=None):
+    cpdef rel_diff_pops(self, printUpdate=True):
+        cdef LwAtom atom
+        cdef Atom* a
+        cdef f64 delta
+        cdef f64 maxDelta = 0.0
+        cdef int i
         atoms = self.activeAtoms
+
+        for i, atom in enumerate(atoms):
+            a = &atom.atom
+            delta = a.ng.relative_change_from_prev(a.n.flatten())
+            maxDelta = max(maxDelta, delta)
+            if printUpdate:
+                s = '    %s delta = %6.4e' % (atom.atomicModel.element.name, delta)
+                print(s)
+
+        return maxDelta
+
+    cpdef rel_diff_ng_accelerate(self, printUpdate=True):
+        cdef LwAtom atom
+        cdef Atom* a
+        cdef f64 delta
+        cdef f64 maxDelta = 0.0
+        cdef int i
+        atoms = self.activeAtoms
+
+        for i, atom in enumerate(atoms):
+            a = &atom.atom
+            accelerated = a.ng.accelerate(a.n.flatten())
+            delta = a.ng.max_change()
+            maxDelta = max(maxDelta, delta)
+            if printUpdate:
+                s = '    %s delta = %6.4e' % (atom.atomicModel.element.name, delta)
+                if accelerated:
+                    s += ' (accelerated)'
+                print(s)
+
+        return maxDelta
+
+    cpdef time_dep_update(self, f64 dt, prevTimePops=None, ngUpdate=None,
+                          printUpdate=None, int chunkSize=20):
+        atoms = self.activeAtoms
+
+        if ngUpdate is None:
+            if self.conserveCharge:
+                ngUpdate = False
+            else:
+                ngUpdate = True
+
+        if printUpdate is None:
+            printUpdate = ngUpdate
 
         cdef LwAtom atom
         cdef Atom* a
         cdef f64 delta
         cdef f64 maxDelta = 0.0
         cdef bool_t accelerated
+        cdef vector[F64View2D] prevTimePopsVec
 
         if prevTimePops is None:
-            # TODO(cmo): Do we need to preserve the previous J too, or can we just reset I and J to 0 if needed? (to prevent NaN poisoning)
             prevTimePops = [np.copy(atom.n) for atom in atoms]
 
-        for i, atom in enumerate(atoms):
+        for atom in atoms:
             a = &atom.atom
+            if not a.ng.init:
+                a.ng.accelerate(a.n.flatten())
 
-            try:
-                time_dependent_update(a, f64_view_2(prevTimePops[i]), dt)
-            except:
-                raise ExplodingMatrixError('Singular Matrix')
-            accelerated = a.ng.accelerate(a.n.flatten())
-            delta = a.ng.max_change()
-            maxDelta = max(maxDelta, delta)
-            s = '    %s delta = %6.4e' % (atom.atomicModel.element.name, delta)
-            if accelerated:
-                s += ' (accelerated)'
-            print(s)
+        try:
+            # if self.Nthreads > 1:
+            # HACK(cmo): Due to extremely difficult to debug crashes, and the
+            # tiny performance effect we're disabling parallel population
+            # updates. This is fine as the compiled single threaded version is
+            # still used.
+            if False:
+                prevTimePopsVec.reserve(len(prevTimePops))
+                for i in range(len(atoms)):
+                    prevTimePopsVec.push_back(f64_view_2(prevTimePops[i]))
+                parallel_time_dep_update(&self.ctx, prevTimePopsVec, dt, chunkSize)
+            else:
+                for i, atom in enumerate(atoms):
+                    a = &atom.atom
+                    time_dependent_update(a, f64_view_2(prevTimePops[i]), dt)
+        except:
+            raise ExplodingMatrixError('Singular Matrix')
 
+        if ngUpdate:
+            maxDelta = self.rel_diff_ng_accelerate(printUpdate=printUpdate)
+        else:
+            maxDelta = self.rel_diff_pops(printUpdate=printUpdate)
 
         return maxDelta, prevTimePops
 
@@ -2193,27 +2513,12 @@ cdef class LwContext:
         np.asarray(self.spect.I).fill(0.0)
         np.asarray(self.spect.J).fill(0.0)
 
-    cpdef time_dep_conserve_charge(self, prevTimePops):
-        cdef np.ndarray[np.double_t, ndim=1] deltaNe
-        cdef LwAtom atom
-        cdef int i, k
-
-        atoms = self.activeAtoms
-        for i, atom in enumerate(atoms):
-            deltaNe = np.sum((np.asarray(atom.n) - prevTimePops[i]) * np.asarray(atom.stages)[:, None], axis=0)
-            for k in range(self.atmos.Nspace):
-                self.atmos.ne[k] += deltaNe[k]
-
-            for k in range(self.atmos.Nspace):
-                if self.atmos.ne[k] < 1e6:
-                    self.atmos.ne[k] = 1e6
-
     cpdef clear_ng(self):
         cdef LwAtom atom
         for atom in self.activeAtoms:
             atom.atom.ng.clear()
 
-    cpdef stat_equil(self):
+    cpdef stat_equil(self, printUpdate=True, int chunkSize=20):
         atoms = self.activeAtoms
 
         cdef LwAtom atom
@@ -2229,22 +2534,72 @@ cdef class LwContext:
             a = &atom.atom
             if not a.ng.init:
                 a.ng.accelerate(a.n.flatten())
-            try:
-                stat_eq(a)
-            except:
-                raise ExplodingMatrixError('Singular Matrix')
-            accelerated = a.ng.accelerate(a.n.flatten())
-            delta = a.ng.max_change()
-            s = '    %s delta = %6.4e' % (atom.atomicModel.element.name, delta)
-            if accelerated:
-                s += ' (accelerated)'
-            print(s)
-            maxDelta = max(maxDelta, delta)
+
+        try:
+            # if self.Nthreads > 1:
+            # HACK(cmo): Due to extremely difficult to debug crashes, and the
+            # tiny performance effect we're disabling parallel population
+            # updates. This is fine as the compiled single threaded version is
+            # still used.
+            if False:
+                parallel_stat_eq(&self.ctx, chunkSize)
+            else:
+                for atom in atoms:
+                    a = &atom.atom
+                    stat_eq(a)
+        except:
+            raise ExplodingMatrixError('Singular Matrix')
 
         if self.conserveCharge:
-            self.nr_post_update()
+            neStart = np.copy(self.atmos.ne)
+            self.nr_post_update(ngUpdate=False, printUpdate=False)
+
+        maxDelta = self.rel_diff_ng_accelerate(printUpdate=printUpdate)
+        if self.conserveCharge:
+            neDiff = ((np.asarray(self.atmos.ne) - neStart)
+                      / np.asarray(self.atmos.ne)).max()
+            maxDelta = max(maxDelta, neDiff)
+            if printUpdate:
+                print('    ne delta = %6.4e' % neDiff)
 
         return maxDelta
+
+    def _nr_post_update_impl(self, atoms, dC, f64[::1] backgroundNe,
+                             timeDependentData=None, int chunkSize=5):
+        crswVal = self.crswCallback.val
+        cdef f64 crsw = crswVal
+        cdef vector[Atom*] atomVec
+        cdef vector[F64View3D] dCVec
+        cdef Atom* a
+        cdef LwAtom atom
+        cdef NrTimeDependentData td
+        cdef int i
+
+        if timeDependentData is not None:
+            td.dt = timeDependentData['dt']
+            td.nPrev.reserve(len(timeDependentData['nPrev']))
+            for i in range(len(timeDependentData['nPrev'])):
+                td.nPrev.push_back(f64_view_2(timeDependentData['nPrev'][i]))
+
+        atomVec.reserve(len(atoms))
+        for atom in atoms:
+            atomVec.push_back(&atom.atom)
+        dCVec.reserve(len(dC))
+        for c in dC:
+            dCVec.push_back(f64_view_3(c))
+
+        try:
+            # if self.Nthreads > 1:
+            # HACK(cmo): Due to extremely difficult to debug crashes, and the
+            # tiny performance effect we're disabling parallel population
+            # updates. This is fine as the compiled single threaded version is
+            # still used.
+            if False:
+                parallel_nr_post_update(&self.ctx, &atomVec, dCVec, f64_view(backgroundNe), td, crsw, chunkSize);
+            else:
+                nr_post_update(&self.ctx, &atomVec, dCVec, f64_view(backgroundNe), td, crsw);
+        except:
+            raise ExplodingMatrixError('Singular Matrix')
 
     cpdef update_projections(self):
         self.atmos.update_projections()

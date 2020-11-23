@@ -54,22 +54,24 @@ def F(self, k, backgroundNe=0.0, atoms=None):
     return F
 
 
-def nr_post_update(self, fdCollisionRates=True, hOnly=False, timeDependentData=None):
-    assert self.activeAtoms[0].element == PeriodicTable[1]
-    crswVal = self.crswCallback.val
+def nr_post_update(self, fdCollisionRates=True, hOnly=False,
+                   timeDependentData=None, chunkSize=5,
+                   ngUpdate=None, printUpdate=None):
+    if self.activeAtoms[0].element != PeriodicTable[1]:
+        raise ValueError('Calling nr_post_update without Hydrogen active.')
+
+    if ngUpdate is None:
+        if self.conserveCharge:
+            ngUpdate = True
+        else:
+            ngUpdate = False
+
+    if printUpdate is None:
+        printUpdate = ngUpdate
 
     timeDependent = (timeDependentData is not None)
     atoms = self.activeAtoms[:1] if hOnly else self.activeAtoms
-
-    Nlevel = 0
-    for atom in atoms:
-        Nlevel += atom.Nlevel
-    Neqn = Nlevel + 1
-
-    Nspace = self.atmos.Nspace
-    stages = [np.array([l.stage for l in atom.atomicModel.levels])
-              for atom in atoms]
-
+    crswVal = self.crswCallback.val
 
     if hOnly:
         backgroundAtoms = [model for ele, model in self.kwargs['spect'].radSet.items() if ele != PeriodicTable[1]]
@@ -84,8 +86,8 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False, timeDependentData=N
 
     neStart = np.copy(self.atmos.ne)
 
+    dC = []
     if fdCollisionRates:
-        dC = []
         for atom in atoms:
             atom.compute_collisions(fillDiagonal=True)
             Cprev = np.copy(atom.C)
@@ -100,6 +102,34 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False, timeDependentData=N
             atom.nStar[:] = nStarPrev
             dC.append(crswVal * (atom.C - Cprev) / pert)
             atom.C[:] = Cprev
+
+    self._nr_post_update_impl(atoms, dC, backgroundNe,
+                              timeDependentData=timeDependentData, chunkSize=chunkSize)
+    self.eqPops.update_lte_atoms_Hmin_pops(self.atmos.pyAtmos, conserveCharge=False, quiet=True)
+
+    if ngUpdate:
+        maxDelta = self.rel_diff_ng_accelerate(printUpdate=printUpdate)
+    else:
+        maxDelta = self.rel_diff_pops(printUpdate=printUpdate)
+    neDiff = ((np.asarray(self.atmos.ne) - neStart)
+                / np.asarray(self.atmos.ne)).max()
+    maxDelta = max(maxDelta, neDiff)
+    if printUpdate:
+        print('    ne delta = %6.4e' % neDiff)
+    return maxDelta
+
+
+    # -----------------------------------
+    Nlevel = 0
+    for atom in atoms:
+        Nlevel += atom.Nlevel
+    Neqn = Nlevel + 1
+
+    Nspace = self.atmos.Nspace
+    stages = [np.array([l.stage for l in atom.atomicModel.levels])
+              for atom in atoms]
+
+
 
     maxChange = 0.0
     maxIdx = -1
@@ -148,6 +178,8 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False, timeDependentData=N
             start += Nlevel
 
         dF[-1, -1] = 1.0
+        # print(dF)
+        # raise ValueError()
         Fg *= -1.0
 
         update = solve(dF, Fg)

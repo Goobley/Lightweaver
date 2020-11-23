@@ -13,6 +13,7 @@ from .nr_update import nr_post_update, F, Ftd
 from .LwCompiled import LwContext
 from .version import version as __version__
 
+# NOTE(cmo): This is here to make it easier to retroactively monkeypatch
 class Context(LwContext):
 
     def __init__(self, *args, **kwargs):

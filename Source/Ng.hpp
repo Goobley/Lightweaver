@@ -16,12 +16,12 @@ struct Ng
     int count;
     bool init;
 
-    Ng() : len(0), Norder(0), Nperiod(0), Ndelay(0), 
+    Ng() : len(0), Norder(0), Nperiod(0), Ndelay(0),
            previous{}, count(0), init(false)
     {}
 
     Ng(int nOrder, int nPeriod, int nDelay, F64View sol)
-       : len(sol.shape(0)), Norder(nOrder), Nperiod(nPeriod), 
+       : len(sol.shape(0)), Norder(nOrder), Nperiod(nPeriod),
          Ndelay(max(nDelay, nPeriod+2)),
          previous(0.0, Norder+2, len), count(0), init(true)
     {
@@ -57,8 +57,8 @@ struct Ng
             previous(idx, k) = sol(k);
         count += 1;
 
-        if (!((Norder > 0) 
-              && (count >= Ndelay) 
+        if (!((Norder > 0)
+              && (count >= Ndelay)
               && ((count - Ndelay) % Nperiod) == 0)
            )
             return false;
@@ -81,40 +81,17 @@ struct Ng
         for (int j = 0; j < Norder; ++j)
         {
             for (int k = 0; k < len; ++k)
-                b(j) += weight(k) 
-                        * Delta(0, k) 
+                b(j) += weight(k)
+                        * Delta(0, k)
                         * (Delta(0, k) - Delta(j+1, k));
-            
+
             for (int i = 0; i < Norder; ++i)
                 for (int k = 0; k < len; ++k)
-                    A(i,j) += weight(k) 
-                              * (Delta(j+1, k) - Delta(0, k)) 
+                    A(i,j) += weight(k)
+                              * (Delta(j+1, k) - Delta(0, k))
                               * (Delta(i+1, k) - Delta(0, k));
         }
-        // printf("------------------\n");
-        // printf("A\n");
-        // for (int i = 0; i < Norder; ++i)
-        // {
-        //     for (int j = 0; j < Norder; ++j)
-        //         printf("%f, ", A(i,j));
-        //     printf("\n");
-        // }
-        // printf("------------------\n");
-        // printf("b\n");
-        // for (int i = 0; i < Norder; ++i)
-        // {
-        //     printf("%f, ", b(i));
-        //     printf("\n");
-        // }
         solve_lin_eq(A, b);
-        // printf("------------------\n");
-        // printf("b\n");
-        // for (int i = 0; i < Norder; ++i)
-        // {
-        //     printf("%f, ", b(i));
-        //     printf("\n");
-        // }
-        // printf("------------------\n");
 
         int i0 = storage_index(count - 1);
         for (int i = 0; i < Norder; ++i)
@@ -127,6 +104,26 @@ struct Ng
             previous(i0, k) = sol(k);
 
         return true;
+    }
+
+    inline f64 relative_change_from_prev(F64View newSol)
+    {
+        if (!init || count < 1)
+            return 0.0;
+
+        auto sol = previous(storage_index(count-1));
+        if (newSol.shape(0) != len)
+            return 0.0;
+
+        f64 dMax = 0.0;
+        for (int k = 0; k < len; ++k)
+        {
+            if (newSol(k) != 0.0)
+            {
+                dMax = max(dMax, abs((newSol(k) - sol(k)) / newSol(k)));
+            }
+        }
+        return dMax;
     }
 
     inline f64 max_change()
