@@ -396,6 +396,46 @@ class Layout:
 
 @dataclass
 class Atmosphere:
+    '''
+    Storage for all atmospheric data. These arrays will be shared directly
+    with the backend, so a modification here also modifies the data seen by
+    the backend. Be careful to modify these arrays _in place_, as their data
+    is shared by direct memory reference. Use the class methods to construct
+    atmospheres of different dimensionality.
+
+    Attributes
+    ----------
+    structure : Layout
+        A layout structure holding the atmospheric stratification, and
+        velocity description.
+
+    temperature : np.ndarray
+        The atmospheric temperature structure.
+
+    vturb : np.ndarray
+        The atmospheric microturbulent velocity structure.
+
+    ne : np.ndarray
+        The electron density structure in the atmosphere.
+
+    nHTot : np.ndarray
+        The total hydrogen number density distribution throughout the
+        atmosphere.
+
+    B : np.ndarray
+        The magnitude of the stratified magnetic field throughout the
+        atmosphere (Tesla).
+
+    gammaB : np.ndarray
+        Co-altitude of magnetic field vector (radians) throughout the
+        atmosphere from the local vertical.
+
+    chiB : np.ndarray
+        Azimuth of magnetic field vector (radians) in the x-y plane, measured
+        from the x-axis.
+
+
+    '''
     structure: Layout
     temperature: np.ndarray
     vturb: np.ndarray
