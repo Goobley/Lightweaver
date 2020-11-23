@@ -2480,7 +2480,12 @@ cdef class LwContext:
                 a.ng.accelerate(a.n.flatten())
 
         try:
-            if self.Nthreads > 1:
+            # if self.Nthreads > 1:
+            # HACK(cmo): Due to extremely difficult to debug crashes, and the
+            # tiny performance effect we're disabling parallel population
+            # updates. This is fine as the compiled single threaded version is
+            # still used.
+            if False:
                 prevTimePopsVec.reserve(len(prevTimePops))
                 for i in range(len(atoms)):
                     prevTimePopsVec.push_back(f64_view_2(prevTimePops[i]))
@@ -2531,7 +2536,12 @@ cdef class LwContext:
                 a.ng.accelerate(a.n.flatten())
 
         try:
-            if self.Nthreads > 1:
+            # if self.Nthreads > 1:
+            # HACK(cmo): Due to extremely difficult to debug crashes, and the
+            # tiny performance effect we're disabling parallel population
+            # updates. This is fine as the compiled single threaded version is
+            # still used.
+            if False:
                 parallel_stat_eq(&self.ctx, chunkSize)
             else:
                 for atom in atoms:
@@ -2579,7 +2589,12 @@ cdef class LwContext:
             dCVec.push_back(f64_view_3(c))
 
         try:
-            if self.Nthreads > 1:
+            # if self.Nthreads > 1:
+            # HACK(cmo): Due to extremely difficult to debug crashes, and the
+            # tiny performance effect we're disabling parallel population
+            # updates. This is fine as the compiled single threaded version is
+            # still used.
+            if False:
                 parallel_nr_post_update(&self.ctx, &atomVec, dCVec, f64_view(backgroundNe), td, crsw, chunkSize);
             else:
                 nr_post_update(&self.ctx, &atomVec, dCVec, f64_view(backgroundNe), td, crsw);
