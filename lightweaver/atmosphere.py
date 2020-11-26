@@ -199,6 +199,18 @@ class Layout:
         y component of plasma velocity (present for Ndim == 3) [m/s].
     vz : np.ndarray
         z component of plasma velocity (present for all Ndim) [m/s]. Aliased to `vlos` when `Ndim==1`
+    xLowerBc : BoundaryCondition
+        Boundary condition for the plane of minimal x-coordinate.
+    xUpperBc : BoundaryCondition
+        Boundary condition for the plane of maximal x-coordinate.
+    yLowerBc : BoundaryCondition
+        Boundary condition for the plane of minimal y-coordinate.
+    yUpperBc : BoundaryCondition
+        Boundary condition for the plane of maximal y-coordinate.
+    zLowerBc : BoundaryCondition
+        Boundary condition for the plane of minimal z-coordinate.
+    zUpperBc : BoundaryCondition
+        Boundary condition for the plane of maximal z-coordinate.
     '''
 
     Ndim: int
@@ -408,34 +420,26 @@ class Atmosphere:
     structure : Layout
         A layout structure holding the atmospheric stratification, and
         velocity description.
-
     temperature : np.ndarray
         The atmospheric temperature structure.
-
     vturb : np.ndarray
         The atmospheric microturbulent velocity structure.
-
     ne : np.ndarray
         The electron density structure in the atmosphere.
-
     nHTot : np.ndarray
         The total hydrogen number density distribution throughout the
         atmosphere.
-
-    B : np.ndarray
+    B : np.ndarray, optional
         The magnitude of the stratified magnetic field throughout the
         atmosphere (Tesla).
-
-    gammaB : np.ndarray
+    gammaB : np.ndarray, optional
         Co-altitude of magnetic field vector (radians) throughout the
         atmosphere from the local vertical.
-
-    chiB : np.ndarray
+    chiB : np.ndarray, optional
         Azimuth of magnetic field vector (radians) in the x-y plane, measured
         from the x-axis.
-
-
     '''
+
     structure: Layout
     temperature: np.ndarray
     vturb: np.ndarray
@@ -447,46 +451,93 @@ class Atmosphere:
 
     @property
     def Ndim(self) -> int:
+        '''
+        Ndim : int
+            The dimensionality (1, 2, or 3) of the atmospheric model.
+        '''
         return self.structure.Ndim
 
     @property
     def Nx(self) -> int:
+        '''
+        Nx : int
+            The number of points in the x-direction discretisation.
+        '''
         return self.structure.Nx
 
     @property
     def Ny(self) -> int:
+        '''
+        Ny : int
+            The number of points in the y-direction discretisation.
+        '''
         return self.structure.Ny
 
     @property
     def Nz(self) -> int:
+        '''
+        Nz : int
+            The number of points in the y-direction discretisation.
+        '''
         return self.structure.Nz
 
     @property
     def Noutgoing(self) -> int:
+        '''
+        Noutgoing : int
+            The number of cells at the top of the atmosphere (that each produce a
+            spectrum).
+        '''
         return self.structure.Noutgoing
 
     @property
     def vx(self) -> np.ndarray:
+        '''
+        vx : np.ndarray
+            x component of plasma velocity (present for Ndim >= 2) [m/s].
+        '''
         return self.structure.vx
 
     @property
     def vy(self) -> np.ndarray:
-        return self.structure.vz
+        '''
+        vy : np.ndarray
+            y component of plasma velocity (present for Ndim == 3) [m/s].
+        '''
+        return self.structure.vy
 
     @property
     def vz(self) -> np.ndarray:
+        '''
+        vz : np.ndarray
+            z component of plasma velocity (present for all Ndim) [m/s]. Aliased
+            to `vlos` when `Ndim==1`
+        '''
         return self.structure.vz
 
     @property
     def vlos(self) -> np.ndarray:
+        '''
+        vz : np.ndarray
+            z component of plasma velocity (present for all Ndim) [m/s]. Only
+            available when Ndim==1`.
+        '''
         return self.structure.vlos
 
     @property
     def cmass(self) -> np.ndarray:
+        '''
+        cmass : np.ndarray
+            Column mass [kg m-2].
+        '''
         return self.structure.cmass
 
     @property
     def tauRef(self) -> np.ndarray:
+        '''
+        tauRef : np.ndarray
+            Reference optical depth at 500 nm.
+        '''
         return self.structure.tauRef
 
     @property
@@ -495,52 +546,101 @@ class Atmosphere:
 
     @property
     def x(self) -> np.ndarray:
+        '''
+        x : np.ndarray
+            Ordinates of grid points along the x-axis (present for Ndim >= 2) [m].
+        '''
         return self.structure.x
 
     @property
     def y(self) -> np.ndarray:
+        '''
+        y : np.ndarray
+            Ordinates of grid points along the y-axis (present for Ndim == 3) [m].
+        '''
         return self.structure.y
 
     @property
     def z(self) -> np.ndarray:
+        '''
+        z : np.ndarray
+            Ordinates of grid points along the z-axis (present for all Ndim) [m].
+        '''
         return self.structure.z
 
     @property
     def zLowerBc(self) -> BoundaryCondition:
+        '''
+        zLowerBc : BoundaryCondition
+            Boundary condition for the plane of minimal z-coordinate.
+        '''
         return self.structure.zLowerBc
 
     @property
     def zUpperBc(self) -> BoundaryCondition:
+        '''
+        zUpperBc : BoundaryCondition
+            Boundary condition for the plane of maximal z-coordinate.
+        '''
         return self.structure.zUpperBc
 
     @property
     def yLowerBc(self) -> BoundaryCondition:
+        '''
+        yLowerBc : BoundaryCondition
+            Boundary condition for the plane of minimal y-coordinate.
+        '''
         return self.structure.yLowerBc
 
     @property
     def yUpperBc(self) -> BoundaryCondition:
+        '''
+        yUpperBc : BoundaryCondition
+            Boundary condition for the plane of maximal y-coordinate.
+        '''
         return self.structure.yUpperBc
 
     @property
     def xLowerBc(self) -> BoundaryCondition:
+        '''
+        xLowerBc : BoundaryCondition
+            Boundary condition for the plane of minimal x-coordinate.
+        '''
         return self.structure.xLowerBc
 
     @property
     def xUpperBc(self) -> BoundaryCondition:
+        '''
+        xUpperBc : BoundaryCondition
+            Boundary condition for the plane of maximal x-coordinate.
+        '''
         return self.structure.xUpperBc
 
     @property
     def Nspace(self):
+        '''
+        Nspace : int
+            Total number of points in the atmospheric spatial discretistaion.
+        '''
         return self.structure.Nspace
 
     @property
     def Nrays(self):
+        '''
+        Nrays : int
+            Number of rays in angular discretisation used.
+        '''
         if self.muz is None:
             raise AttributeError('Nrays not set, call atmos.rays or .quadrature first')
 
         return self.muz.shape[0]
 
     def dimensioned_view(self):
+        '''
+        Returns a view over the contents of Layout reshaped so all data has
+        the correct (1/2/3D) dimensionality for the atmospheric model, as
+        these are all stored under a flat scheme.
+        '''
         shape = self.structure.dimensioned_shape
         atmos = copy(self)
         atmos.structure = self.structure.dimensioned_view()
@@ -555,6 +655,10 @@ class Atmosphere:
         return atmos
 
     def unit_view(self):
+        '''
+        Returns a view over the contents of the Layout with the correct
+        `astropy.units`.
+        '''
         atmos = copy(self)
         atmos.structure = self.structure.unit_view()
         atmos.temperature = self.temperature << u.K
@@ -568,6 +672,11 @@ class Atmosphere:
         return atmos
 
     def dimensioned_unit_view(self):
+        '''
+        Returns a view over the contents of Layout reshaped so all data has
+        the correct (1/2/3D) dimensionality for the atmospheric model, and
+        the correct `astropy.units`.
+        '''
         atmos = self.dimensioned_view()
         return atmos.unit_view()
 
@@ -590,6 +699,109 @@ class Atmosphere:
                 Ptop: Optional[float]=None,
                 PeTop: Optional[float]=None,
                 verbose: bool=False):
+        '''
+        Constructor for 1D Atmosphere objects. Optionally will use an
+        equation of state (EOS) to estimate missing parameters.
+
+        If sufficient information is provided (i.e. all required parameters
+        and ne and (hydrogenPops or nHTot)) then the EOS is not invoked to
+        estimate any thermodynamic properties. If both of nHTot and
+        hydrogenPops are omitted, then the electron pressure will be used
+        with the Wittmann equation of state to estimate the mass density, and
+        the hydrogen number density will be inferred from this and the
+        abundances. If, instead, ne is omitted, then the mass density will be
+        used with the Wittmann EOS to estimate the electron pressure.
+        If both of these are omitted then the EOS will be used to estimate
+        both. If:
+            - Pgas is provided, then this gas pressure will define the
+            atmospheric stratification and will be used with the EOS.
+            - Pe is provided, then this electron pressure will define the
+            atmospheric stratification and will be used with the EOS.
+            - Ptop is provided, then this gas pressure at the top of the
+            atmosphere will be used with the log gravitational acceleration
+            logG, and the EOS to estimate the missing parameters assuming
+            hydrostatic equilibrium.
+            - PeTop is provided, then this electron pressure at the top of
+            the atmosphere will be used with the log gravitational
+            acceleration logG, and the EOS to estimate the missing parameters
+            assuming hydrostatic equilibrium.
+            - If all of Pgas, Pe, Ptop, PeTop are omitted then Ptop will be
+            estimated from the gas pressure in the FALC model at the
+            temperature at the top boundary. The hydrostatic reconstruction
+            will then continue as usual.
+        convertScales will substantially slow down this function due to the
+        slow calculation of background opacities used to compute tauRef. If
+        an atmosphere is constructed with a Geometric stratification, and an
+        estimate of tauRef is not required before running the main RT module,
+        then this can be set to False.
+        All of these parameters can be provided as astropy Quantities, and
+        will be converted in the constructor.
+
+        Parameters
+        ----------
+        scale : ScaleType
+            The type of stratification used along the z-axis.
+        depthScale : np.ndarray
+            The z-coordinates used along the chosen stratification. The
+            stratification is expected to start at the top of the atmosphere
+            (closest to the observer), and descend along the observer's line
+            of sight.
+        temperature : np.ndarray
+            Temperature structure of the atmosphere [K].
+        vlos : np.ndarray
+            Velocity structure of the atmosphere along z [m/s].
+        vturb : np.ndarray
+            Microturbulent velocity structure of the atmosphere [m/s].
+        ne : np.ndarray
+            Electron density structure of the atmosphere [m-3].
+        hydrogenPops : np.ndarray, optional
+            Detailed (per level) hydrogen number density structure of the
+            atmosphere [m-3], 2D array [Nlevel, Nspace].
+        nHTot : np.ndarray, optional
+            Total hydrogen number density structure of the atmosphere [m-3]
+        B : np.ndarray, optional.
+            Magnetic field strength [T].
+        gammaB : np.ndarray, optional
+            Co-altitude of magnetic field vector [radians].
+        chiB : np.ndarray, optional
+            Azimuth of magnetic field vector (in x-y plane, from x) [radians].
+        lowerBc : BoundaryCondition, optional
+            Boundary condition for incoming radiation at the minimal z
+            coordinate (default: ThermalisedRadiation).
+        upperBc : BoundaryCondition, optional
+            Boundary condition for incoming radiation at the maximal z
+            coordinate (default: ZeroRadiation).
+        convertScales : bool, optional
+            Whether to automatically compute tauRef and cmass for an
+            atmosphere given in a stratification of m (default: True).
+        abundance: AtomicAbundance, optional
+            An instance of AtomicAbundance giving the abundances of each
+            atomic species in the given atmosphere, only used if the EOS is
+            invoked. (default: DefaultAtomicAbundance)
+        logG: float, optional
+            The log10 of the magnitude of gravitational acceleration [m/s2]
+            (default: 2.44).
+        Pgas: np.ndarray, optional
+            The gas pressure stratification of the atmosphere [Pa],
+            optionally used by the EOS.
+        Pe: np.ndarray, optional
+            The electron pressure stratification of the atmosphere [Pa],
+            optionally used by the EOS.
+        Ptop: np.ndarray, optional
+            The gas pressure at the top of the atmosphere [Pa], optionally
+            used by the EOS for a hydrostatic reconstruction.
+        Petop: np.ndarray, optional
+            The electron pressure at the top of the atmosphere [Pa],
+            optionally used by the EOS for a hydrostatic reconstruction.
+        verbose: bool, optional
+            Explain decisions made with the EOS to estimate missing
+            parameters (if invoked) through print calls (default: False).
+
+        Raises
+        ------
+        ValueError if incorrect arguments or unable to construct estimate
+        missing parameters.
+        '''
         if scale == ScaleType.Geometric:
             depthScale = (depthScale << u.m).value
         elif scale == ScaleType.ColumnMass:
@@ -828,6 +1040,69 @@ class Atmosphere:
                 zLowerBc: Optional[BoundaryCondition]=None,
                 abundance: Optional[AtomicAbundance]=None,
                 verbose=False):
+        '''
+        Constructor for 2D Atmosphere objects.
+
+        No provision for estimating parameters using hydrostatic equilibrium
+        is provided, but one of ne, or nHTot can be omitted and inferred by
+        use of the Wittmann equation of state.
+        The atmosphere must be defined on a geometric stratification.
+        All atmospheric parameters are expected in a 2D [z, x] array.
+
+        Parameters
+        ----------
+        height : np.ndarray
+            The z-coordinates of the atmospheric grid. The stratification is
+            expected to start at the top of the atmosphere (closest to the
+            observer), and descend along the observer's line of sight.
+        x : np.ndarray
+            The (horizontal) x-coordinates of the atmospheric grid.
+        temperature : np.ndarray
+            Temperature structure of the atmosphere [K].
+        vx : np.ndarray
+            x-component of the atmospheric velocity [m/s].
+        vz : np.ndarray
+            z-component of the atmospheric velocity [m/s].
+        vturb : np.ndarray
+            Microturbulent velocity structure [m/s].
+        ne : np.ndarray
+            Electron density structure of the atmosphere [m-3].
+        nHTot : np.ndarray, optional
+            Total hydrogen number density structure of the atmosphere [m-3].
+        B : np.ndarray, optional.
+            Magnetic field strength [T].
+        gammaB : np.ndarray, optional
+            Co-altitude of magnetic field vector [radians].
+        chiB : np.ndarray, optional
+            Azimuth of magnetic field vector (in x-y plane, from x) [radians].
+        xLowerBc : BoundaryCondition, optional
+            Boundary condition for incoming radiation at the minimal x
+            coordinate (default: PeriodicRadiation).
+        xUpperBc : BoundaryCondition, optional
+            Boundary condition for incoming radiation at the maximal x
+            coordinate (default: PeriodicRadiation).
+        zLowerBc : BoundaryCondition, optional
+            Boundary condition for incoming radiation at the minimal z
+            coordinate (default: ThermalisedRadiation).
+        zUpperBc : BoundaryCondition, optional
+            Boundary condition for incoming radiation at the maximal z
+            coordinate (default: ZeroRadiation).
+        convertScales : bool, optional
+            Whether to automatically compute tauRef and cmass for an
+            atmosphere given in a stratification of m (default: True).
+        abundance: AtomicAbundance, optional
+            An instance of AtomicAbundance giving the abundances of each
+            atomic species in the given atmosphere, only used if the EOS is
+            invoked. (default: DefaultAtomicAbundance)
+        verbose: bool, optional
+            Explain decisions made with the EOS to estimate missing
+            parameters (if invoked) through print calls (default: False).
+
+        Raises
+        ------
+        ValueError if incorrect arguments or unable to construct estimate
+        missing parameters.
+        '''
 
         x = (x << u.m).value
         height = (height << u.m).value
@@ -920,6 +1195,46 @@ class Atmosphere:
     def quadrature(self, Nrays: Optional[int]=None,
                    mu: Optional[Sequence[float]]=None,
                    wmu: Optional[Sequence[float]]=None):
+        '''
+        Compute the angular quadrature for solving the RTE and Kinetic
+        Equilibrium in a given atmosphere.
+
+        Procedure varies with dimensionality.
+        1D:
+            If a number of rays is given (typically 3 or 5), then the
+            Gauss-Legendre quadrature for this set is used.
+            If mu and wmu are instead given then these will be validated and
+            used.
+        2+D:
+            If the number of rays selected is in the list of near optimal
+            quadratures for unpolarised radiation provided by Stepan et al
+            2020 (A&A, 646 A24), then this is used. Otherwise an exception is
+            raised.
+
+            The available quadratures are:
+            Points | Order
+            --------------
+               1   |  3
+               3   |  7
+               6   |  9
+               7   |  11
+               10  |  13
+               11  |  15
+
+        Parameters
+        ----------
+        Nrays : int, optional
+            The number of rays to use in the quadrature. See notes above.
+        mu : sequence of float, optional
+            The cosine of the angle made between the between each of the set
+            of rays and the z axis, only used in 1D.
+        wmu : sequence of float, optional
+            The integration weights for each mu, must be provided if mu is provided.
+
+        Raises
+        ------
+        ValueError on incorrect input.
+        '''
 
         if self.Ndim == 1:
             if Nrays is not None and mu is None:
@@ -984,6 +1299,31 @@ class Atmosphere:
              mux: Optional[Union[float, Sequence[float]]]=None,
              muy: Optional[Union[float, Sequence[float]]]=None,
              wmu: Optional[Union[float, Sequence[float]]]=None):
+        '''
+        Set up the rays on the Atmosphere for computing the intensity in a
+        particular direction (or set of directions).
+
+        If only the z angle is set then the ray is assumed in the x-z plane.
+        If either muz or muy is omitted then this angle is inferred by
+        normalisation of the projection.
+
+        Parameters
+        ----------
+        muz : float or sequence of float, optional
+            The angular projections along the z axis.
+        mux : float or sequence of float, optional
+            The angular projections along the x axis.
+        muy : float or sequence of float, optional
+            The angular projections along the y axis.
+        wmu : float or sequence of float, optional
+            The integration weights for the given ray if J is to be
+            integrated for angle set.
+
+        Raises
+        ------
+        ValueError if the angular projections or integration weights are
+        incorrectly normalised.
+        '''
 
         if isinstance(muz, float):
             muz = [muz]
