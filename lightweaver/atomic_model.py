@@ -318,6 +318,10 @@ class AtomicTransition:
 
     @property
     def transId(self) -> Tuple[Element, int, int]:
+        '''
+        Unique identifier (transition ID) for transition (assuming one copy
+        of each Element), used in creating a SpectrumConfiguration etc.
+        '''
         return (self.atom.element, self.i, self.j)
 
 @dataclass
@@ -508,6 +512,26 @@ class VoigtLine(AtomicLine):
 
     def damping(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable',
                 vBroad: Optional[np.ndarray]=None):
+        '''
+        Computes the damping parameter and elastic collision rate.
+
+        Parameters
+        ----------
+        atmos : Atmosphere
+            The atmosphere to consider.
+        eqPops : SpeciesStateTable
+            The populations in this atmosphere.
+        vBroad : np.ndarray, optional
+            The broadening velocity, will be used if passed, or computed
+            using atom.vBroad if not.
+
+        Returns
+        -------
+        aDamp : np.ndarray
+            The Voigt damping parameter.
+        Qelast : np.ndarray
+            The rate of elastic collisions broadening the line -- needed for PRD.
+        '''
         Qs = self.broadening.broaden(atmos, eqPops)
 
         if vBroad is None:
@@ -518,6 +542,23 @@ class VoigtLine(AtomicLine):
         return aDamp, Qs.Qelast
 
     def compute_phi(self, state: LineProfileState) -> LineProfileResult:
+        '''
+        Computes the line profile.
+
+        In the case of a VoigtLine the line profile simply uses the
+        default_voigt_callback from the backend.
+
+        Parameters
+        ----------
+        state : LineProfileState
+            The information from the backend
+
+        Returns
+        -------
+        result : LineProfileResult
+            The line profile, as well as the damping parameter 'a' and and
+            the broadening velocity.
+        '''
         vBroad = self.atom.vBroad(state.atmos) if state.vBroad is None else state.vBroad
         aDamp, Qelast = self.damping(state.atmos, state.eqPops, vBroad=vBroad)
         cb = state.default_voigt_callback
@@ -528,6 +569,9 @@ class VoigtLine(AtomicLine):
 
 @dataclass(eq=False)
 class AtomicContinuum(AtomicTransition):
+    '''
+    Base class for atomic continua.
+    '''
 
     def setup(self, atom: AtomicModel):
         pass
@@ -540,30 +584,68 @@ class AtomicContinuum(AtomicTransition):
         return hash(repr(self))
 
     def alpha(self, wavelength: np.ndarray) -> np.ndarray:
+        '''
+        Returns the cross-section as a function of wavelength
+
+        Parameters
+        ----------
+        wavelength : np.ndarray
+            The wavelengths at which to compute the cross-section
+
+        Returns
+        -------
+        alpha : np.ndarray
+            The cross-section for each wavelength
+        '''
         raise NotImplementedError
 
     def wavelength(self) -> np.ndarray:
+        '''
+        The wavelength grid on which this continuum's cross section is defined.
+        '''
         raise NotImplementedError
 
     @property
     def minLambda(self) -> float:
+        '''
+        The minimum wavelength at which this transition contributes.
+        '''
         raise NotImplementedError
 
     @property
     def lambda0(self) -> float:
+        '''
+        The maximum (edge) wavelength at which this transition contributes [nm].
+        '''
         return self.lambda0_m / Const.NM_TO_M
 
     @property
     def lambdaEdge(self) -> float:
+        '''
+        The maximum (edge) wavelength at which this transition contributes [nm].
+        '''
         return self.lambda0
 
     @property
     def lambda0_m(self) -> float:
+        '''
+        The maximum (edge) wavelength at which this transition contributes [m].
+        '''
         deltaE = self.jLevel.E_SI - self.iLevel.E_SI
         return Const.HC / deltaE
 
 @dataclass(eq=False)
 class ExplicitContinuum(AtomicContinuum):
+    '''
+    Specific version of atomic continuum with tabulated cross-section against
+    wavelength. Interpolated using weno4.
+    Attributes
+    ----------
+    wavelengthGrid : list of float
+        Wavelengths at which cross-section is tabulated [nm].
+    alphaGrid : list of float
+        Tabulated cross-sections [m2].
+    '''
     wavelengthGrid: Sequence[float]
     alphaGrid: Sequence[float]
 
@@ -588,6 +670,19 @@ class ExplicitContinuum(AtomicContinuum):
         return s
 
     def alpha(self, wavelength: np.ndarray) -> np.ndarray:
+        '''
+        Computes cross-section as a function of wavelength.
+
+        Parameters
+        ----------
+        wavelength : np.ndarray
+            Wavelengths at which to compute the cross-section [nm].
+
+        Returns
+        -------
+        alpha : np.ndarray
+            Cross-section at associated wavelength.
+        '''
         alpha = weno4(wavelength, self.wavelengthGrid, self.alphaGrid, left=0.0, right=0.0)
         alpha[wavelength < self.minLambda] = 0.0
         alpha[wavelength > self.lambdaEdge] = 0.0
@@ -595,6 +690,11 @@ class ExplicitContinuum(AtomicContinuum):
         return alpha
 
     def wavelength(self) -> np.ndarray:
+        '''
+        Returns the wavelength grid at which this transition needs to be
+        computed to be correctly integrated. Specific handling is added to
+        ensure that it is treated properly close to the edge.
+        '''
         grid = cast(np.ndarray, self.wavelengthGrid)
         edge = self.lambdaEdge
         result = np.copy(grid[(grid >= self.minLambda) & (grid <= edge)])
@@ -606,10 +706,28 @@ class ExplicitContinuum(AtomicContinuum):
 
     @property
     def minLambda(self) -> float:
+        '''
+        The minimum wavelength at which this transition contributes.
+        '''
         return self.wavelengthGrid[0]
 
 @dataclass(eq=False)
 class HydrogenicContinuum(AtomicContinuum):
+    '''
+    Specific case of a Hydrogenic continuum, approximately falling off as
+    1/nu**3 towards higher frequencies (additional effects from Gaunt
+    factor).
+
+    Attributes
+    ----------
+    NlambaGen : int
+        The number of points to generate for the wavelength grid.
+    alpha0 : float
+        The cross-section at the edge wavelength [m2].
+    minWavelength : float
+        The minimum wavelength below which this transition is assumed to no
+        longer contribute [nm].
+    '''
     NlambdaGen: int
     alpha0: float
     minWavelength: float
@@ -628,6 +746,19 @@ class HydrogenicContinuum(AtomicContinuum):
             raise ValueError('Minimum wavelength is larger than continuum edge at %g [nm] in continuum %s' % (self.lambda0, repr(self)))
 
     def alpha(self, wavelength: np.ndarray) -> np.ndarray:
+        '''
+        Computes cross-section as a function of wavelength.
+
+        Parameters
+        ----------
+        wavelength : np.ndarray
+            Wavelengths at which to compute the cross-section [nm].
+
+        Returns
+        -------
+        alpha : np.ndarray
+            Cross-section at associated wavelength.
+        '''
         Z = self.jLevel.stage
         nEff = Z * np.sqrt(Const.ERydberg / (self.jLevel.E_SI - self.iLevel.E_SI))
         gbf0 = gaunt_bf(self.lambda0, nEff, Z)
@@ -638,8 +769,15 @@ class HydrogenicContinuum(AtomicContinuum):
         return alpha
 
     def wavelength(self) -> np.ndarray:
+        '''
+        Returns the wavelength grid at which this transition needs to be
+        computed to be correctly integrated.
+        '''
         return np.linspace(self.minLambda, self.lambdaEdge, self.NlambdaGen)
 
     @property
     def minLambda(self) -> float:
+        '''
+        The minimum wavelength at which this transition contributes.
+        '''
         return self.minWavelength

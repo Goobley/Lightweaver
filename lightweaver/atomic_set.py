@@ -76,6 +76,30 @@ def lte_pops_impl(temperature, ne, nTotal, stages, energies,
 
 def lte_pops(atomicModel: AtomicModel, temperature: np.ndarray,
              ne: np.ndarray, nTotal: np.ndarray, nStar=None, debye: bool=True) -> np.ndarray:
+    '''
+    Compute the LTE populations for a given atomic model under given
+    thermodynamic conditions.
+
+    Parameters
+    ----------
+    atomicModel : AtomicModel
+        The atomic model to consider.
+    temperature : np.ndarray
+        The temperature structure in the atmosphere.
+    ne : np.ndarray
+        The electron density in the atmosphere.
+    nTotal : np.ndarray
+        The total population of the species at each point in the atmosphere.
+    nStar : np.ndarray, optional
+        An optional array to store the result in.
+    debye : bool, optional
+        Whether to consider Debye shielding (default: True).1
+
+    Returns
+    -------
+    ltePops : np.ndarray
+        The ltePops for the species.
+    '''
     stages = np.array([l.stage for l in atomicModel.levels])
     energies = np.array([l.E_SI for l in atomicModel.levels])
     gs = np.array([l.g for l in atomicModel.levels])
@@ -129,6 +153,31 @@ class LteNeIterator:
 
 @dataclass
 class SpectrumConfiguration:
+    '''
+    Container for the configuration of common wavelength grid and species
+    active at each wavelength.
+
+    Attributes
+    ----------
+    radSet : RadiativeSet
+        The set of atoms involved in the creation of this simulation.
+    wavelength : np.ndarray
+        The common wavelength array used for this simulation.
+    models : list of AtomicModel
+        The models for the active and detailed static atoms present in this
+        simulation.
+    transWavelengths : Dict[(Element, i, j), np.ndarray]
+        The local wavelength grid for each transition stored in a dictionary
+        by transition ID.
+    blueIdx : Dict[(Element, i, j), int]
+        The index at which each local grid starts in the global wavelength
+        array.
+    activeTrans : Dict[(Element, i, j), bool]
+        Whether this transition is ever active (contributing in either an
+        active or detailed static sense) over the range of wavelength.
+    activeWavelengths : Dict[(Element, i, j), np.ndarray]
+        A mask of the wavelengths at which this transition is active.
+    '''
     radSet: 'RadiativeSet'
     wavelength: np.ndarray
     models: List[AtomicModel]
@@ -138,6 +187,21 @@ class SpectrumConfiguration:
     activeWavelengths: Dict[Tuple[Element, int, int], np.ndarray]
 
     def subset_configuration(self, wavelengths) -> 'SpectrumConfiguration':
+        '''
+        Computes a SpectrumConfiguration for a sub-region of the global wavelength array.
+
+        This is typically used for computing a final formal solution on a single ray through the atmosphere. In this situation all lines are set to contribute throughout the entire grid, to avoid situations where small jumps in intensity occur from lines being cut off.
+
+        Parameters
+        ----------
+        wavelengths : np.ndarray
+            The grid on which to produce the new SpectrumConfiguration.
+
+        Returns
+        -------
+        spectrumConfig : SpectrumConfiguration
+            The subset spectrum configuration.
+        '''
         Nblue = np.searchsorted(self.wavelength, wavelengths[0])
         Nred = min(np.searchsorted(self.wavelength, wavelengths[-1])+1, self.wavelength.shape[0])
 
@@ -163,6 +227,29 @@ class SpectrumConfiguration:
 
 @dataclass
 class AtomicState:
+    '''
+    Container for the state of an atomic model during a simulation.
+
+    This hold both the model, as well as the simulations properties such as abundance, populations and radiative rates.
+
+    Attributes
+    ----------
+    model : AtomicModel
+        The python model of the atom.
+    abundance : float
+        The abundance of the species as a fraction of H abundance.
+    nStar : np.ndarray
+        The LTE populations of the species.
+    nTotal : np.ndarray
+        The total species population at each point in the atmosphere.
+    detailed : bool
+        Whether the species has detailed populations.
+    pops : np.ndarray, optional
+        The NLTE populations for the species, if detailed is True.
+    radiativeRates: Dict[(int, int), np.ndarray], optional
+        If detailed the radiative rates for the species will be present here,
+        stored under (i, j) and (j, i) for each transition.
+    '''
     model: AtomicModel
     abundance: float
     nStar: np.ndarray
@@ -188,6 +275,22 @@ class AtomicState:
         raise NotImplementedError
 
     def dimensioned_view(self, shape):
+        '''
+        Returns a view over the contents of AtomicState reshaped so all data
+        has the correct (1/2/3D) dimensionality for the atmospheric model, as
+        these are all stored under a flat scheme.
+
+        Parameters
+        ----------
+        shape : tuple
+            The shape to reshape to, this can be obtained from Atmosphere.structure.dimensioned_shape
+
+        Returns
+        -------
+        state : AtomicState
+            An instance of self with the arrays reshaped to the appropriate
+            dimensionality.
+        '''
         state = copy(self)
         state.nStar = self.nStar.reshape(-1, *shape)
         state.nTotal = self.nTotal.reshape(shape)
@@ -197,6 +300,10 @@ class AtomicState:
         return state
 
     def unit_view(self):
+        '''
+        Returns a view over the contents of the AtomicState with the correct
+        `astropy.units`.
+        '''
         state = copy(self)
         m3 = u.m**(-3)
         state.nStar = self.nStar << m3
@@ -207,22 +314,50 @@ class AtomicState:
         return state
 
     def dimensioned_unit_view(shape):
+        '''
+        Returns a view over the contents of AtomicState reshaped so all data
+        has the correct (1/2/3D) dimensionality for the atmospheric model,
+        and the correct `astropy.units`.
+
+        Parameters
+        ----------
+        shape : tuple
+            The shape to reshape to, this can be obtained from Atmosphere.structure.dimensioned_shape
+
+        Returns
+        -------
+        state : AtomicState
+            An instance of self with the arrays reshaped to the appropriate
+            dimensionality.
+        '''
         state = self.dimensioned_view(shape)
         return state.unit_view()
 
     def update_nTotal(self, atmos: Atmosphere):
+        '''
+        Update nTotal assuming either the abundance or nHTot have changed.
+        '''
         self.nTotal[:] = self.abundance * atmos.nHTot # type: ignore
 
     @property
     def element(self) -> Element:
+        '''
+        The element associated with this model.
+        '''
         return self.model.element
 
     @property
     def mass(self) -> float:
+        '''
+        The mass of the element associated with this model.
+        '''
         return self.element.mass
 
     @property
     def n(self) -> np.ndarray:
+        '''
+        The NLTE populations, if present, or the LTE populations.
+        '''
         if self.pops is None:
             return self.nStar
         return self.pops
@@ -236,6 +371,9 @@ class AtomicState:
 
     @property
     def name(self) -> str:
+        '''
+        The name of the element associated with this model.
+        '''
         return self.model.element.name
 
     def fjk(self, atmos, k):
@@ -269,11 +407,25 @@ class AtomicState:
         return fj, dfj
 
     def set_n_to_lte(self):
+        '''
+        Reset the NLTE populations to LTE.
+        '''
         if self.pops is not None:
             self.pops[:] = self.nStar
 
 
 class AtomicStateTable:
+    '''
+    Container for AtomicStates.
+
+    The __getitem__ on this class is intended to be smart, and should work
+    correctly with ints, strings, or Elements and return the associated
+    AtomicState.
+    This object is not normally constructed directly by the user, but will
+    instead be interacted with as a means of transporting information to and
+    from the backend.
+
+    '''
     def __init__(self, atoms: List[AtomicState]):
         self.atoms = {a.element: a for a in atoms}
 
@@ -295,22 +447,85 @@ class AtomicStateTable:
         return iter(sorted(self.atoms.values(), key=element_sort))
 
     def dimensioned_view(self, shape):
+        '''
+        Returns a view over the contents of AtomicStateTable reshaped so all data
+        has the correct (1/2/3D) dimensionality for the atmospheric model, as
+        these are all stored under a flat scheme.
+
+        Parameters
+        ----------
+        shape : tuple
+            The shape to reshape to, this can be obtained from Atmosphere.structure.dimensioned_shape
+
+        Returns
+        -------
+        state : AtomicStateTable
+            An instance of self with the arrays reshaped to the appropriate
+            dimensionality.
+        '''
         table = copy(self)
         table.atoms = {a.element: a.dimensioned_view(shape) for a in self.atoms}
         return table
 
     def unit_view(self):
+        '''
+        Returns a view over the contents of the AtomicStateTable with the correct
+        `astropy.units`.
+        '''
         table = copy(self)
         table.atoms = {a.element: a.unit_view() for a in self.atoms}
         return table
 
     def dimensioned_unit_view(self, shape):
-        table = self.dimensioned_view()
+        '''
+        Returns a view over the contents of AtomicStateTable reshaped so all data
+        has the correct (1/2/3D) dimensionality for the atmospheric model,
+        and the correct `astropy.units`.
+
+        Parameters
+        ----------
+        shape : tuple
+            The shape to reshape to, this can be obtained from Atmosphere.structure.dimensioned_shape
+
+        Returns
+        -------
+        state : AtomicStateTable
+            An instance of self with the arrays reshaped to the appropriate
+            dimensionality.
+        '''
+        table = self.dimensioned_view(shape)
         return table.unit_view()
 
 
 @dataclass
 class SpeciesStateTable:
+    '''
+    Container for the species populations in the simulation. Similar to
+    AtomicStateTable but also holding the molecular populations and the
+    atmosphere object.
+
+    The __getitem__ is intended to be smart, returning in order of priority
+    on the name match (int, str, Element), H- populations, molecular
+    populations, NLTE atomic populations, LTE atomic populations.
+    This object is not normally constructed directly by the user, but will
+    instead be interacted with as a means of transporting information to and
+    from the backend.
+
+    Attributes
+    ----------
+    atmosphere : Atmosphere
+        The atmosphere object.
+    abundance : AtomicAbundance
+        The abundance of all species present in the atmosphere.
+    atomicPops : AtomicStateTable
+        The atomic populations state container.
+    molecularTable : MolecularTable
+        The molecules present in the simulation.
+    molecularPops : list of np.ndarray
+        The populations of each molecule in the molecularTable
+    HminPops : np.ndarray
+        H- ion populations throughout the atmosphere.
+    '''
     atmosphere: Atmosphere
     abundance: AtomicAbundance
     atomicPops: AtomicStateTable
@@ -319,6 +534,11 @@ class SpeciesStateTable:
     HminPops: np.ndarray
 
     def dimensioned_view(self):
+        '''
+        Returns a view over the contents of SpeciesStateTable reshaped so all data
+        has the correct (1/2/3D) dimensionality for the atmospheric model, as
+        these are all stored under a flat scheme.
+        '''
         shape = self.atmosphere.structure.dimensioned_shape
         table = copy(self)
         table.atmosphere = self.atmosphere.dimensioned_view()
@@ -328,6 +548,10 @@ class SpeciesStateTable:
         return table
 
     def unit_view(self):
+        '''
+        Returns a view over the contents of the SpeciesStateTable with the correct
+        `astropy.units`.
+        '''
         table = copy(self)
         table.atmosphere = self.atmosphere.unit_view()
         table.atomicPops = self.atomicPops.unit_view()
@@ -336,6 +560,11 @@ class SpeciesStateTable:
         return table
 
     def dimensioned_unit_view(self):
+        '''
+        Returns a view over the contents of SpeciesStateTable reshaped so all data
+        has the correct (1/2/3D) dimensionality for the atmospheric model,
+        and the correct `astropy.units`.
+        '''
         table = self.dimensioned_view()
         return table.unit_view()
 
@@ -364,6 +593,30 @@ class SpeciesStateTable:
 
     def update_lte_atoms_Hmin_pops(self, atmos: Atmosphere, conserveCharge=False,
                                    updateTotals=False, maxIter=2000, quiet=False, tol=1e-3):
+        '''
+        Under the assumption that the atmosphere has changed, update the LTE
+        atomic populations and the H- populations.
+
+        Parameters
+        ----------
+        atmos : Atmosphere
+            The atmosphere object.
+        conserveCharge : bool
+            Whether to conserveCharge and adjust the electron density in
+            atmos based on the change in ionisation of the non-detailed
+            species (default: False).
+        updateTotals : bool, optional
+            Whether to update the totals of each species from the abundance
+            and total hydrogen density (default: False).
+        maxIter : int, optional
+            The maximum number of iterations to take looking for a stable
+            solution (default: 2000).
+        quiet : bool, optional
+            Whether to print information about the update (default: False)
+        tol : float, optional
+            The tolerance of relative change at which to consider the
+            populations converged (default: 1e-3)
+        '''
         if updateTotals:
             for atom in self.atomicPops:
                 atom.update_nTotal(atmos)
@@ -402,6 +655,37 @@ class SpeciesStateTable:
 
 
 class RadiativeSet:
+    '''
+    Used to configure the atomic models present in the simulation and then
+    set up the global wavelength grid and initial populations.
+    All atoms start passive.
+
+    Parameters
+    ----------
+    atoms : list of AtomicModel
+        The atomic models to be used in the simulation (active, detailed, and
+        background).
+    abundance : AtomicAbundance, optional
+        The abundance to be used for each species.
+
+    Attributes
+    ----------
+    abundance : AtomicAbundance
+        The abundances in use.
+    elements : list of Elements
+        The elements present in the simulation.
+    atoms : Dict[Element, AtomicModel]
+        Mapping from Element to associated model.
+    passiveSet : set of Elements
+        Set of atoms (designmated by their Elements) set to passive in the
+        simulation.
+    detailedStaticSet : set of Elements
+        Set of atoms (designmated by their Elements) set to "detailed static" in the
+        simulation.
+    activeSet : set of Elements
+        Set of atoms (designmated by their Elements) set to active in the
+        simulation.
+    '''
     def __init__(self, atoms: List[AtomicModel], abundance: AtomicAbundance=DefaultAtomicAbundance):
         self.abundance = abundance
         self.elements = [a.element for a in atoms]
@@ -417,31 +701,52 @@ class RadiativeSet:
         return PeriodicTable[x] in self.elements
 
     def is_active(self, name: Union[int, Tuple[int, int], str, Element]) -> bool:
+        '''
+        Check if an atom (designated by int, (int, int), str, or Element) is
+        active.
+        '''
         x = PeriodicTable[name]
         return x in self.activeSet
 
     def is_passive(self, name: Union[int, Tuple[int, int], str, Element]) -> bool:
+        '''
+        Check if an atom (designated by int, (int, int), str, or Element) is
+        passive.
+        '''
         x = PeriodicTable[name]
         return x in self.passiveSet
 
     def is_detailed(self, name: Union[int, Tuple[int, int], str, Element]) -> bool:
+        '''
+        Check if an atom (designated by int, (int, int), str, or Element) is
+        passive.
+        '''
         x = PeriodicTable[name]
         return x in self.detailedStaticSet
 
     @property
     def activeAtoms(self) -> List[AtomicModel]:
+        '''
+        List of AtomicModels set to active.
+        '''
         activeAtoms : List[AtomicModel] = [self.atoms[e] for e in self.activeSet]
         activeAtoms = sorted(activeAtoms, key=element_sort)
         return activeAtoms
 
     @property
     def detailedAtoms(self) -> List[AtomicModel]:
+        '''
+        List of AtomicModels set to detailed static.
+        '''
         detailedAtoms : List[AtomicModel] = [self.atoms[e] for e in self.detailedStaticSet]
         detailedAtoms = sorted(detailedAtoms, key=element_sort)
         return detailedAtoms
 
     @property
     def passiveAtoms(self) -> List[AtomicModel]:
+        '''
+        List of AtomicModels set to passive.
+        '''
         passiveAtoms : List[AtomicModel] = [self.atoms[e] for e in self.passiveSet]
         passiveAtoms = sorted(passiveAtoms, key=element_sort)
         return passiveAtoms
@@ -454,6 +759,9 @@ class RadiativeSet:
         return iter(self.atoms.values())
 
     def set_active(self, *args: str):
+        '''
+        Set one (or multiple) atoms active.
+        '''
         names = set(args)
         xs = [PeriodicTable[name] for name in names]
         for x in xs:
@@ -462,6 +770,9 @@ class RadiativeSet:
             self.passiveSet.discard(x)
 
     def set_detailed_static(self, *args: str):
+        '''
+        Set one (or multiple) atoms to detailed static
+        '''
         names = set(args)
         xs = [PeriodicTable[name] for name in names]
         for x in xs:
@@ -470,6 +781,9 @@ class RadiativeSet:
             self.passiveSet.discard(x)
 
     def set_passive(self, *args: str):
+        '''
+        Set one (or multiple) atoms passive.
+        '''
         names = set(args)
         xs = [PeriodicTable[name] for name in names]
         for x in xs:
@@ -481,6 +795,28 @@ class RadiativeSet:
                                mols: Optional[MolecularTable]=None,
                                nlteStartingPops: Optional[Dict[Element, np.ndarray]]=None,
                                direct: bool=False) -> SpeciesStateTable:
+        '''
+        Compute the starting populations for the simulation with all NLTE
+        atoms in LTE or otherwise using the provided populations.
+        Additionally computes a self-consistent LTE electron density.
+
+        Parameters
+        ----------
+        atmos : Atmosphere
+            The atmosphere for which to compute the populations.
+        mols : MolecularTable, optional
+            Molecules to be included in the populations (default: None)
+        nlteStartingPops : Dict[Element, np.ndarray], optional
+            Starting population override for any active or detailed static
+            species.
+        direct : bool
+            Whether to use the direct electron density solver (essentially, Lambda iteration for the fixpoint), this may require many more iterations than the Newton-Krylov solver used otherwise, but may also be more robust.
+
+        Returns
+        -------
+        eqPops : SpeciesStatTable
+            The configured initial populations.
+        '''
         if mols is None:
             mols = MolecularTable([])
 
@@ -555,6 +891,25 @@ class RadiativeSet:
     def compute_eq_pops(self, atmos: Atmosphere,
                         mols: Optional[MolecularTable]=None,
                         nlteStartingPops: Optional[Dict[Element, np.ndarray]]=None):
+        '''
+        Compute the starting populations for the simulation with all NLTE
+        atoms in LTE or otherwise using the provided populations.
+
+        Parameters
+        ----------
+        atmos : Atmosphere
+            The atmosphere for which to compute the populations.
+        mols : MolecularTable, optional
+            Molecules to be included in the populations (default: None)
+        nlteStartingPops : Dict[Element, np.ndarray], optional
+            Starting population override for any active or detailed static
+            species.
+
+        Returns
+        -------
+        eqPops : SpeciesStatTable
+            The configured initial populations.
+        '''
         if mols is None:
             mols = MolecularTable([])
 
@@ -596,6 +951,21 @@ class RadiativeSet:
         return eqPops
 
     def compute_wavelength_grid(self, extraWavelengths: Optional[np.ndarray]=None, lambdaReference=500.0) -> SpectrumConfiguration:
+        '''
+        Compute the global wavelength grid from the current configuration of
+        the RadiativeSet.
+        Parameters
+        ----------
+        extraWavelengths : np.ndarray, optional
+            Extra wavelengths to add to the global array [nm].
+        lambdaReference : float, optional
+            If a difference reference wavelength is to be used then it should
+            be specified here to ensure it is in the global array.
+        Returns
+        -------
+        spect : SpectrumConfiguration
+            The configured wavelength grids needed to set up the backend.
+        '''
         if len(self.activeSet) == 0 and len(self.detailedStaticSet) == 0:
             raise ValueError('Need at least one atom active or in detailed calculation with static populations.')
         extraGrids = []
@@ -638,6 +1008,22 @@ class RadiativeSet:
 
 
 def hminus_pops(atmos: Atmosphere, hPops: AtomicState) -> np.ndarray:
+    '''
+    Compute the H- ion populations for a given atmosphere
+
+    Parameters
+    ----------
+    atmos : Atmosphere
+        The atmosphere object.
+
+    hPops : AtomicState
+        The hydrogen populations state associated with atmos.
+
+    Returns
+    -------
+    HminPops : np.ndarray
+        The H- populations.
+    '''
     CI = (Const.HPlanck / (2.0 * np.pi * Const.MElectron)) * (Const.HPlanck / Const.KBoltzmann)
     Nspace = atmos.Nspace
 
@@ -647,7 +1033,33 @@ def hminus_pops(atmos: Atmosphere, hPops: AtomicState) -> np.ndarray:
 
     return HminPops
 
-def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable, atomicPops: AtomicStateTable, abundance: AtomicAbundance) -> SpeciesStateTable:
+def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable,
+                                  atomicPops: AtomicStateTable, abundance: AtomicAbundance)
+                                  -> SpeciesStateTable:
+    '''
+    Compute the molecular populations from the current atmospheric model and
+    atomic populations.
+
+    This method assumes that the number of electrons bound in molecules is
+    insignificant, and neglects this.
+    Intended for internal use.
+
+    Parameters
+    ----------
+    atmos : Atmosphere
+        The model atmosphere of the simulation.
+    molecules : MolecularTable
+        The molecules to consider.
+    atomicPops : AtomicStateTable
+        The atomic populations.
+    abundance : AtomicAbundance
+        The abundance of each species in the simulation.
+
+    Returns
+    -------
+    state : SpeciesState
+        The combined state object of atomic and molecular populations.
+    '''
     nucleiSet: Set[Element] = set()
     for mol in molecules:
         nucleiSet |= set(mol.elements)
