@@ -1034,8 +1034,8 @@ def hminus_pops(atmos: Atmosphere, hPops: AtomicState) -> np.ndarray:
     return HminPops
 
 def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable,
-                                  atomicPops: AtomicStateTable, abundance: AtomicAbundance)
-                                  -> SpeciesStateTable:
+                                  atomicPops: AtomicStateTable,
+                                  abundance: AtomicAbundance) -> SpeciesStateTable:
     '''
     Compute the molecular populations from the current atmospheric model and
     atomic populations.

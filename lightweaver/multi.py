@@ -8,10 +8,33 @@ from .atmosphere import Atmosphere, ScaleType
 
 @dataclass
 class MultiMetadata:
+    '''
+    Metadata that is stored in a MULTI atmosphere, but doesn't really belong
+    in a Lightweaver atmosphere.
+    '''
     name: str
     logG: float
 
 def read_multi_atmos(filename: str) -> Tuple[MultiMetadata, Atmosphere]:
+    '''
+    Load a MULTI atmosphere definition from a file for use in Lightweaver.
+
+    Parameters
+    ----------
+    filename : str
+        The path to load the file from.
+
+    Returns
+    -------
+    meta : MultiMetadata
+        Additional metadata from the MULTI metadata that doesn't appear in a Lightweaver atmosphere (name, gravitational acceleration used).
+    atmos : Atmosphere
+        The atmosphere loaded into the standard Lightweaver format.
+
+    Raises
+    ------
+    ValueError if file isn't found, or cannot be parsed correctly.
+    '''
     try:
         with open(filename, 'r') as f:
             lines = f.readlines()
