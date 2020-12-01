@@ -6,18 +6,34 @@ from dataclasses import dataclass
 if TYPE_CHECKING:
     from .atomic_model import AtomicLine
 
-def fraction_range(start: Fraction, stop: Fraction, step: Fraction=Fraction(1,1)) -> Iterator[Fraction]:
+def fraction_range(start: Fraction, stop: Fraction,
+                   step: Fraction=Fraction(1,1)) -> Iterator[Fraction]:
+    '''
+    Works like range, but with Fractions. Does no checking, so best to make
+    sure the range you're asking for is sane and divides down properly.
+    '''
     while start < stop:
         yield start
         start += step
 
 @dataclass
 class ZeemanComponents:
+    '''
+    Storage for communicating the Zeeman components between functions, also
+    shared with the backend, giving a slightly tighter contract than usual:
+    all arrays must be contiguous and alpha must be of dtype np.int32.
+    '''
     alpha: np.ndarray
     strength: np.ndarray
     shift: np.ndarray
 
 def zeeman_strength(Ju: Fraction, Mu: Fraction, Jl: Fraction, Ml: Fraction) -> float:
+    '''
+    Computes the strength of a Zeeman component, following del Toro Iniesta
+    (p. 137) albeit larger by a factor of 2 which is corrected by
+    normalisation.
+    Takes J upper and lower (u and l respectively), and M upper and lower.
+    '''
     alpha  = int(Ml - Mu)
     dJ = int(Ju - Jl)
 
@@ -50,11 +66,18 @@ def zeeman_strength(Ju: Fraction, Mu: Fraction, Jl: Fraction, Ml: Fraction) -> f
     return float(s)
 
 def lande_factor(J: Fraction, L: int, S: Fraction) -> float:
+    '''
+    Computes the Lande g-factor for an atomic level from the J, L, and S
+    quantum numbers.
+    '''
     if J == 0.0:
         return 0.0
     return float(1.5 + (S * (S + 1.0) - L * (L + 1)) / (2.0 * J * (J + 1.0)))
 
 def effective_lande(line: 'AtomicLine'):
+    '''
+    Computes the effective Lande g-factor for an atomic line.
+    '''
     if line.gLandeEff is not None:
         return line.gLandeEff
 
@@ -69,14 +92,36 @@ def effective_lande(line: 'AtomicLine'):
            0.25 * (gU - gL) * (j.J * (j.J + 1.0) - i.J * (i.J + 1.0)) # type: ignore
 
 def compute_zeeman_components(line: 'AtomicLine') -> Optional[ZeemanComponents]:
-    # Just do basic anomalous Zeeman splitting
+    '''
+    Computes, if possible, the set of Zeeman components for an atomic line.
+
+    If gLandeEff is specified on the line, then basic three-component Zeeman
+    splitting will be computed directly.
+    Otherwise, if both the lower and upper levels of the line support
+    LS-coupling (i.e. J, L, and S all specified, and J <= L + S), then the
+    LS-coupling formalism is applied to compute the components of "anomalous"
+    Zeeman splitting.
+    If neither of these cases are fulfilled, then None is returned.
+
+    Parameters
+    ----------
+    line : AtomicLine
+        The line to attempt to compute the Zeeman components from.
+
+    Returns
+    -------
+    components : ZeemanComponents or None
+        The Zeeman splitting components, if possible.
+    '''
+    # NOTE(cmo): Just do basic three-component Zeeman splitting if an effective
+    # Lande g-factor is specified on the line.
     if line.gLandeEff is not None:
         alpha = np.array([-1, 0, 1], dtype=np.int32)
         strength = np.ones(3)
         shift = alpha * line.gLandeEff
         return ZeemanComponents(alpha, strength, shift)
 
-    # Do LS coupling
+    # NOTE(cmo): Do LS coupling ("anomalous" Zeeman splitting)
     if line.iLevel.lsCoupling and line.jLevel.lsCoupling:
         # Mypy... you're a pain sometimes... (even if you are technically correct)
         Jl = cast(Fraction, line.iLevel.J)
