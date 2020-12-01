@@ -37,7 +37,7 @@ setup(
     ext_modules=cythonize([
         Extension(
             'lightweaver.LwCompiled',
-            ['Source/LightweaverAmalgamated.cpp', 'Source/CAtmosphere.pyx'],
+            ['Source/LightweaverAmalgamated.cpp', 'Source/LwMiddleLayer.pyx'],
             include_dirs=[np.get_include()],
             libraries=libs,
             extra_compile_args=compileArgs,
