@@ -26,6 +26,7 @@ ctypedef np.int8_t i8
 ctypedef Array1NonOwn[np.int32_t] I32View
 ctypedef Array1NonOwn[bool_t] BoolView
 
+# NOTE(cmo): Define everything we need from the C++ code.
 cdef extern from "LwFormalInterface.hpp":
     cdef cppclass FormalSolver:
         int Ndim
@@ -318,6 +319,12 @@ cdef extern from "Lightweaver.hpp" namespace "EscapeProbability":
     cdef void gamma_matrices_escape_prob(Atom* a, Background& background, const Atmosphere& atmos)
 
 cdef class LwDepthData:
+    '''
+    Simple object to lazily hold data that isn't usually stored during the
+    Formal Solution (full angularly dependent emissivity, opacity, and
+    intensity at every point), due to the high memory cost. This is a part of
+    the Context and doesn't need to be instantiated directly.
+    '''
     cdef object shape
     cdef DepthData depthData
     cdef f64[:,:,:,::1] chi
@@ -356,6 +363,10 @@ cdef class LwDepthData:
 
     @property
     def fill(self):
+        '''
+        Set this to True to fill the arrays, this will take care of
+        allocating the space if not previously done.
+        '''
         return bool(self.depthData.fill)
 
     @fill.setter
@@ -374,17 +385,30 @@ cdef class LwDepthData:
 
     @property
     def chi(self):
+        '''
+        Full depth dependent opacity [Nlambda, Nmu, Up/Down, Nspace].
+        '''
         return np.asarray(self.chi)
 
     @property
     def eta(self):
+        '''
+        Full depth dependent emissivity [Nlambda, Nmu, Up/Down, Nspace].
+        '''
         return np.asarray(self.eta)
 
     @property
     def I(self):
+        '''
+        Full depth dependent intensity [Nlambda, Nmu, Up/Down, Nspace].
+        '''
         return np.asarray(self.I)
 
 def BC_to_enum(bc):
+    '''
+    Returns the C++ enum associated with the type of python BoundaryCondition
+    object.
+    '''
     if isinstance(bc, ZeroRadiation):
         return ZERO
     elif isinstance(bc, ThermalisedRadiation):
@@ -406,6 +430,10 @@ cdef verify_bc_array_sizes(AtmosphericBoundaryCondition* abc, f64[:,:,::1] pyArr
         raise ValueError('BC returned from python does not match expected shape for %s (%d, %d, %d), got %s' % (location, dim0, dim1, dim2, repr(pyArr.shape)))
 
 cdef class LwAtmosphere:
+    '''
+    Storage for the C++ class, ensuring all of the arrays remained pinned
+    from python. Usually constructed by the Context.
+    '''
     cdef Atmosphere atmos
     cdef f64[::1] x
     cdef f64[::1] y
@@ -681,132 +709,256 @@ cdef class LwAtmosphere:
 
     @property
     def Nspace(self):
+        '''
+        The number of points in the atmosphere.
+        '''
         return self.atmos.Nspace
 
     @property
     def Nrays(self):
+        '''
+        The number of rays in the angular quadrature.
+        '''
         return self.atmos.Nrays
 
     @property
     def Ndim(self):
+        '''
+        The dimensionality of the atmosphere.
+        '''
         return self.atmos.Ndim
 
     @property
     def Nx(self):
+        '''
+        The number of points along the x dimension.
+        '''
         return self.atmos.Nx
 
     @property
     def Ny(self):
+        '''
+        The number of points along the y dimension.
+        '''
         return self.atmos.Ny
 
     @property
     def Nz(self):
+        '''
+        The number of points along the z dimension.
+        '''
         return self.atmos.Nz
 
     @property
     def x(self):
+        '''
+        The x grid.
+        '''
         return np.asarray(self.x)
 
     @property
     def y(self):
+        '''
+        The y grid.
+        '''
         return np.asarray(self.y)
 
     @property
     def z(self):
+        '''
+        The z grid.
+        '''
         return np.asarray(self.z)
 
     @property
     def height(self):
+        '''
+        The z (altitude) grid.
+        '''
         return np.asarray(self.z)
 
     @property
     def temperature(self):
+        '''
+        The temperature structure of the atmospheric model (flat array).
+        '''
         return np.asarray(self.temperature)
 
     @property
     def ne(self):
+        '''
+        The electron density structure of the atmospheric model (flat array).
+        '''
         return np.asarray(self.ne)
 
     @property
     def vx(self):
+        '''
+        The x-velocity structure of the atmospheric model (flat array).
+        '''
         return np.asarray(self.vx)
 
     @property
     def vy(self):
+        '''
+        The y-velocity structure of the atmospheric model (flat array).
+        '''
         return np.asarray(self.vy)
 
     @property
     def vz(self):
+        '''
+        The z-velocity structure of the atmospheric model (flat array).
+        '''
         return np.asarray(self.vz)
 
     @property
     def vlos(self):
+        '''
+        The z-velocity structure of the atmospheric model for 1D atmospheres
+        (flat array).
+        '''
         if self.pyAtmos.Ndim > 1:
             raise ValueError('vlos is ambiguous when Ndim > 1, use vx, vy, or vz instead.')
         return np.asarray(self.vz)
 
     @property
     def vlosMu(self):
+        '''
+        The projected line of sight veloctity for each ray in the atmosphere.
+        '''
         return np.asarray(self.vlosMu)
 
     @property
     def B(self):
+        '''
+        The magnetic field structure for the atmosphereic model (flat array).
+        '''
         return np.asarray(self.B)
 
     @property
     def gammaB(self):
+        '''
+        Magnetic field co-altitude.
+        '''
         return np.asarray(self.gammaB)
 
     @property
     def chiB(self):
+        '''
+        Magnetic field azimuth
+        '''
         return np.asarray(self.chiB)
 
     @property
     def cosGamma(self):
+        '''
+        cosine of gammaB
+        '''
         return np.asarray(self.cosGamma)
 
     @property
     def cos2chi(self):
+        '''
+        cosine of 2*chi
+        '''
         return np.asarray(self.cos2chi)
 
     @property
     def sin2chi(self):
+        '''
+        sine of 2*chi
+        '''
         return np.asarray(self.sin2chi)
 
     @property
     def vturb(self):
+        '''
+        Microturbelent velocity structure of the atmospheric model.
+        '''
         return np.asarray(self.vturb)
 
     @property
     def nHTot(self):
+        '''
+        Total hydrogen number density strucutre.
+        '''
         return np.asarray(self.nHTot)
 
     @property
     def muz(self):
+        '''
+        Cosine of angle with z-axis for each ray.
+        '''
         return np.asarray(self.muz)
 
     @property
     def muy(self):
+        '''
+        Cosine of angle with y-axis for each ray.
+        '''
         return np.asarray(self.muy)
 
     @property
     def mux(self):
+        '''
+        Cosine of angle with x-axis for each ray.
+        '''
         return np.asarray(self.mux)
 
     @property
     def wmu(self):
+        '''
+        Integration weights for angular quadrature.
+        '''
         return np.asarray(self.wmu)
 
 
 cdef class BackgroundProvider:
+    '''
+    Base class for implementing background packages. Inherit from this to
+    implement a new background scheme.
+
+    Parameters
+    ---------
+    eqPops : SpeciesStateTable
+        The populations of all species present in the simulation.
+    radSet : RadiativeSet
+        The atomic models and configuration data.
+    wavelength : np.ndarray
+        The array of wavelengths at which to compute the background.
+
+    '''
     def __init__(self, eqPops, radSet, wavelength):
         pass
 
     # cpdef compute_background(self, LwAtmosphere atmos, f64[:,::1] chi, f64[:,::1] eta, f64[:,::1] sca):
     cpdef compute_background(self, LwAtmosphere atmos, chi, eta, sca):
+        '''
+        The function called by the backend to compute the background.
+
+        Parameters
+        ----------
+        atmos : LwAtmosphere
+            The atmospheric model.
+        chi : np.ndarray
+            Array in which to store the background opacity [Nlambda, Nspace].
+        eta : np.ndarray
+            Array in which to store the background emissivity [Nlambda,
+            Nspace].
+        sca : np.ndarray
+            Array in which to store the background scattering [Nlambda,
+            Nspace].
+        '''
         raise NotImplementedError
 
 cdef class BasicBackground(BackgroundProvider):
+    '''
+    Basic background implementation used by default in Lightweaver;
+    equivalent to RH's treatment i.e. H- opacity, CH, OH, H2 continuum
+    opacities if present, continua from all passive atoms in the
+    RadiativeSet, Thomson and Rayleigh scattering (from H and He).
+    '''
     cdef BackgroundData bd
     cdef object eqPops
     cdef object radSet
@@ -992,6 +1144,10 @@ cdef class BasicBackground(BackgroundProvider):
         return self._reconstruct, (self.__getstate__(),)
 
 cdef class FastBackground(BackgroundProvider):
+    '''
+    A faster implementation (due to C++ implementations) of BasicBackground
+    supporting multiple threads.
+    '''
     cdef BackgroundData bd
     cdef object eqPops
     cdef object radSet
@@ -1164,6 +1320,12 @@ cdef class FastBackground(BackgroundProvider):
 
 
 cdef class LwBackground:
+    '''
+    Storage and driver for the background computations in Lightweaver. The
+    storage is allocated and managed by this class, before being passed to
+    C++ when necessary. This class is also responsible for calling the
+    BackgroundProvider instance used (by default BasicBackground).
+    '''
     cdef Background background
     cdef object eqPops
     cdef object radSet
@@ -1204,6 +1366,16 @@ cdef class LwBackground:
         self.background.sca = f64_view_2(self.sca)
 
     cpdef update_background(self, LwAtmosphere atmos):
+        '''
+        Recompute the background opacities, perhaps in the case where, for
+        example, the atmospheric parameters have been updated.
+
+        Parameters
+        ----------
+        atmos : LwAtmosphere
+            The atmosphere in which to compute the background opacities and
+            emissivities.
+        '''
         chiPy = np.asarray(self.chi)
         etaPy = np.asarray(self.eta)
         scaPy = np.asarray(self.sca)
@@ -1236,18 +1408,30 @@ cdef class LwBackground:
 
     @property
     def chi(self):
+        '''
+        The background opacity [Nlambda, Nspace].
+        '''
         return np.asarray(self.chi)
 
     @property
     def eta(self):
+        '''
+        The background eta [Nlambda, Nspace].
+        '''
         return np.asarray(self.eta)
 
     @property
     def sca(self):
+        '''
+        The background scattering [Nlambda, Nspace].
+        '''
         return np.asarray(self.sca)
 
 
 cdef class RayleighScatterer:
+    '''
+    For computing Rayleigh scattering, used by BasicBackground.
+    '''
     cdef f64 lambdaLimit
     cdef LwAtmosphere atmos
     cdef f64 C
