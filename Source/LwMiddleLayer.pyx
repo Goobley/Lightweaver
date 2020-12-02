@@ -433,6 +433,13 @@ cdef class LwAtmosphere:
     '''
     Storage for the C++ class, ensuring all of the arrays remained pinned
     from python. Usually constructed by the Context.
+
+    Parameters
+    ----------
+    atmos : Atmosphere
+        The python atmosphere object.
+    Nwavelengths : int
+        The number of wavelengths used in the wavelength grid.
     '''
     cdef Atmosphere atmos
     cdef f64[::1] x
@@ -600,6 +607,9 @@ cdef class LwAtmosphere:
             self.atmos.yUpperBc.set_bc_data(data)
 
     def update_projections(self):
+        '''
+        Update all arrays of projected terms in the atmospheric model.
+        '''
         self.atmos.update_projections()
         build_intersection_list(&self.atmos)
 
@@ -1509,6 +1519,27 @@ cdef gII_from_numpy(Transition trans, f64[:,:,::1] gII):
     trans.prdStorage.gII = F64Arr3D(f64_view_3(gII))
 
 cdef class LwTransition:
+    '''
+    Storage and access to transition data used by backend. Instantiated by
+    Context.
+
+    Parameters
+    ----------
+    trans : AtomicTransition
+        The transition model object.
+    compAtom : LwAtom
+        The computational atom to which this computational transition
+        belongs.
+    atmos : LwAtmosphere
+        The computational atmosphere in which this transition is to be used.
+    spect : SpectrumConfiguration
+        The spectral configuration of the simulation.
+
+    Attributes
+    ----------
+    transModel : AtomicTransition
+        The transition model object.
+    '''
     cdef Transition trans
     cdef f64[:, :, :, ::1] phi
     cdef f64[:, :, :, ::1] phiQ
@@ -1732,6 +1763,12 @@ cdef class LwTransition:
 
 
     def compute_phi(self):
+        '''
+        Computes the line profile phi (phi_num in the technical report), by
+        calling compute_phi on the line object. Provides a callback to the
+        default Voigt implementation used in the backend.
+        Does nothing if called on a continuum.
+        '''
         if self.type == 'Continuum':
             return
 
@@ -1764,6 +1801,15 @@ cdef class LwTransition:
         self.trans.compute_wphi(self.atmos.atmos)
 
     cpdef compute_polarised_profiles(self):
+        '''
+        Compute the polarised line profiles (all of phi, phi_{Q, U, V}, and
+        psi_{Q, U, V}) for a Voigt line, this currently doesn't support
+        non-standard line profile types, but could do so quite simply by
+        following compute_phi.
+        Does nothing if the transitions is a continuum or the line is not
+        polarisable.
+        By calling this and iterating the Context as usual, a field
+        '''
         if self.type == 'Continuum':
             return
 
@@ -1805,7 +1851,22 @@ cdef class LwTransition:
 
         self.trans.compute_polarised_profiles(atmos[0], self.trans.aDamp, atom.atom.vBroad, zc.zc)
 
-    def uv(self, int la, int mu, bool_t toObs, f64[::1] Uji not None, f64[::1] Vij not None, f64[::1] Vji not None):
+    def uv(self, int la, int mu, bool_t toObs, f64[::1] Uji not None,
+           f64[::1] Vij not None, f64[::1] Vji not None):
+        '''
+        Thin wrapper for computing U and V using the core. Must be called
+        after `atom.setup_wavelength(la)`, and Uji, Vij, Vji must tbe the
+        proper size, as no verification is performed.
+
+        Parameters
+        ----------
+        la : int
+            The wavelength index at which to compute U and V.
+        mu : int
+            The angle index at which to compute U and V.
+        Uji, Vij, Vji : np.ndarray
+            Storage arrays for the result.
+        '''
         # TODO(cmo): Allow these to take None, and allocate if they are. Then
         # return in some UV datastruct
         cdef bint obs = toObs
@@ -1817,50 +1878,83 @@ cdef class LwTransition:
 
     @property
     def jLevel(self):
+        '''
+        Access the upper level on the model object.
+        '''
         return self.transModel.jLevel
 
     @property
     def iLevel(self):
+        '''
+        Access the lower level on the model object.
+        '''
         return self.transModel.iLevel
 
     @property
     def j(self):
+        '''
+        Index of upper level.
+        '''
         return self.transModel.j
 
     @property
     def i(self):
+        '''
+        Index of lower level.
+        '''
         return self.transModel.i
 
     @property
     def Aji(self):
+        '''
+        Einstein A for transition.
+        '''
         return self.trans.Aji
 
     @property
     def Bji(self):
+        '''
+        Einstein Bji for transition.
+        '''
         return self.trans.Bji
 
     @property
     def Bij(self):
+        '''
+        Einstein Bij for transition.
+        '''
         return self.trans.Bij
 
     @property
     def Nblue(self):
+        '''
+        Index into global wavelength grid where this transition's local grid
+        starts.
+        '''
         return self.trans.Nblue
 
     @property
-    def dopplerWidth(self):
-        return self.trans.dopplerWidth
-
-    @property
     def lambda0(self):
+        '''
+        Line rest wavelength or continuum edge wavelength.
+        '''
         return self.trans.lambda0
 
     @property
     def wphi(self):
+        '''
+        Multiplicative inverse of integrated line profile at each location in
+        the atmosphere, used to ensure terms based on integration across the
+        entire line profile (e.g. in the Gamma matrix) are correctly
+        normalised.
+        '''
         return np.asarray(self.wphi)
 
     @property
     def phi(self):
+        '''
+        Numerical line profile. AttributeError for continua.
+        '''
         return np.asarray(self.phi)
 
     @property
@@ -1889,48 +1983,85 @@ cdef class LwTransition:
 
     @property
     def Rij(self):
+        '''
+        Upwards radiative rates for the transition throughout the atmosphere.
+        '''
         return np.asarray(self.Rij)
 
     @property
     def Rji(self):
+        '''
+        Downward radiative rates for the transition throughout the atmosphere.
+        '''
         return np.asarray(self.Rji)
 
     @property
     def rhoPrd(self):
+        '''
+        Ratio of emission to absorption profiles throughout the atmosphere,
+        in the case of PRD lines.
+        '''
         return np.asarray(self.rhoPrd)
 
     @property
     def alpha(self):
+        '''
+        The wavelength-dependent cross-section for a continuum.
+        AttributeError for lines.
+        '''
         return np.asarray(self.alpha)
 
     @property
     def wavelength(self):
+        '''
+        The transition's local wavelength grid.
+        '''
         return np.asarray(self.wavelength)
 
     @property
     def active(self):
+        '''
+        The active wavelength mask for this transition.
+        '''
         return np.asarray(self.active).astype(np.bool)
 
     @property
     def Qelast(self):
+        '''
+        The elastic collision rate for this transition in the atmosphere,
+        needed for PRD.
+        '''
         return np.asarray(self.Qelast)
 
     @property
     def aDamp(self):
+        '''
+        The Voigt damping parameter for this transition in the atmosphere.
+        '''
         return np.asarray(self.aDamp)
 
     @property
     def polarisable(self):
+        '''
+        The polarisability of the transition, based on model data.
+        '''
         return self.transModel.polarisable
 
     @property
     def type(self):
+        '''
+        The type of transition (Line or Continuum) as a str.
+        '''
         if self.trans.type == LINE:
             return 'Line'
         else:
             return 'Continuum'
 
 cdef class LwZeemanComponents:
+    '''
+    Stores the Zeeman components to be passed to the backend, only exists
+    transiently.
+    '''
     cdef ZeemanComponents zc
     cdef np.int32_t[::1] alpha
     cdef f64[::1] shift
@@ -1946,6 +2077,41 @@ cdef class LwZeemanComponents:
         self.zc.strength = f64_view(self.strength)
 
 cdef class LwAtom:
+    '''
+    Storage and access to computational atomic data used by backend. Sets up
+    the computations transitions (LwTransition) present on the model.
+    Instantiated by Context.
+
+    Attributes
+    ----------
+    atomicModel : AtomicModel
+        The atomic model object associated with this computational atom.
+    modelPops : AtomicState
+        The population data for this species, in a python accessible form.
+
+    Parameters
+    ----------
+    atom : AtomicModel
+        The atomic model object associated with this computational atom.
+    atmos : LwAtmosphere
+        The computational atmosphere to be used in the simulation.
+    eqPops : SpeciesStateTable
+        The population of species present in the simulation.
+    spect : SpectrumConfiguration
+        The configuration of the spectral grids.
+    background : LwBackground
+        The background opacity terms, currently only used in the case of
+        escape probability initial solution.
+    detailed : bool, optional
+        Whether the atom is in detailed static or fully active mode (default:
+        False).
+    initSol : InitialSolution, optional
+        The initial solution to use for the atomic populations (default: LTE).
+    ngOptions : NgOptions, optional
+        The Ng acceleration options (default: None)
+    conserveCharge : bool, optional
+        Whether to conserve charge whilst setting populations from escape probability (ignored otherwise) (default: False).
+    '''
     cdef Atom atom
     cdef f64[::1] vBroad
     cdef f64[:,:,::1] Gamma
@@ -1966,7 +2132,8 @@ cdef class LwAtom:
     cdef list trans
     cdef bool_t detailed
 
-    def __init__(self, atom, atmos, eqPops, spect, background, detailed=False, initSol=None, ngOptions=None, conserveCharge=False):
+    def __init__(self, atom, atmos, eqPops, spect, background,
+                 detailed=False, initSol=None, ngOptions=None, conserveCharge=False):
         self.atomicModel = atom
         self.detailed = detailed
         cdef LwAtmosphere a = atmos
@@ -2223,9 +2390,23 @@ cdef class LwAtom:
                     self.atmos.ne[k] = 1e6
 
     cpdef setup_wavelength(self, int la):
+        '''
+        Initialise the wavelength dependent arrays for the wavelength at
+        index la.
+        '''
         self.atom.setup_wavelength(la)
 
     def compute_profiles(self, polarised=False):
+        '''
+        Compute the line profiles for the spectral lines on the model.
+
+        Parameters
+        ----------
+        polarised : bool, optional
+            If True, and the lines are polarised, then the full Stokes line
+            profiles will be computed, otherwise the scalar case will be
+            computed (default: False).
+        '''
         np.asarray(self.vBroad)[:] = self.atomicModel.vBroad(self.atmos)
         for t in self.trans:
             if polarised and t.polarisable:
@@ -2235,42 +2416,74 @@ cdef class LwAtom:
 
     @property
     def Nlevel(self):
+        '''
+        The number of levels in the atomic model.
+        '''
         return self.atom.Nlevel
 
     @property
     def Ntrans(self):
+        '''
+        The number of transitions in the atomic model.
+        '''
         return self.atom.Ntrans
 
     @property
     def vBroad(self):
+        '''
+        The broadening velocity associated with this atomic model in this
+        atmosphere.
+        '''
         return np.asarray(self.vBroad)
 
     @property
     def Gamma(self):
+        '''
+        The Gamma iteration matrix [Nlevel, Nlevel, Nspace].
+        '''
         return np.asarray(self.Gamma)
 
     @property
     def C(self):
+        '''
+        The collisional rates matrix [Nlevel, Nlevel, Nspace]. This is filled
+        s.t. C_{ji} is C[i, j] to facilitate addition to Gamma.
+        '''
         return np.asarray(self.C)
 
     @property
     def nTotal(self):
+        '''
+        The total number density of the model throughout the atmosphere.
+        '''
         return np.asarray(self.nTotal)
 
     @property
     def n(self):
+        '''
+        The atomic populations (NLTE if in use) [Nlevel, Nspace].
+        '''
         return np.asarray(self.n)
 
     @property
     def nStar(self):
+        '''
+        The LTE populations for this species in this atmosphere [Nlevel, Nspace].
+        '''
         return np.asarray(self.nStar)
 
     @property
     def trans(self):
+        '''
+        List of computational transitions (LwTransition).
+        '''
         return self.trans
 
     @property
     def element(self):
+        '''
+        The element identifier for this atomic model.
+        '''
         return self.atomicModel.element
 
 cdef JRest_to_numpy(F64Arr2D JRest):
@@ -2287,6 +2500,23 @@ cdef JRest_from_numpy(Spectrum spect, f64[:,::1] JRest):
     spect.JRest = F64Arr2D(f64_view_2(JRest))
 
 cdef class LwSpectrum:
+    '''
+    Storage and access to spectrum data used by backend. Instantiated by
+    Context.
+
+    Parameters
+    ----------
+    wavelength : np.ndarray
+        The wavelength grid used in the simulation [nm].
+    Nrays : int
+        The number of rays in the angular quadrature.
+    Nspace : int
+        The number of points in the atmospheric model.
+    Noutgoing : int
+        The number of outgoing point in the atmosphere, essentially
+        max(Ny*Nx, Nx, 1), (when used in an array these elements will be
+        ordered as a flattened array of [Ny, Nx]).
+    '''
     cdef Spectrum spect
     cdef f64[::1] wavelength
     cdef f64[:,:,::1] I
@@ -2347,22 +2577,90 @@ cdef class LwSpectrum:
 
     @property
     def wavelength(self):
+        '''
+        Wavelength grid used [nm].
+        '''
         return np.asarray(self.wavelength)
 
     @property
     def I(self):
+        '''
+        Intensity [J/s/m2/sr/Hz], shape is squeeze([Nlambda, Nmu, Noutgoing]).
+        '''
         return np.squeeze(np.asarray(self.I))
 
     @property
     def J(self):
+        '''
+        Angle-averaged intensity [J/s/m2/sr/Hz], shape is squeeze([Nlambda, Nspace]).
+        '''
         return np.squeeze(np.asarray(self.J))
 
     @property
     def Quv(self):
+        '''
+        Q, U and V Stokes parameters [J/s/m2/sr/Hz], shape is squeeze([3,
+        Nlambda, Nmu, Noutgoing]).
+        '''
         return np.squeeze(np.asarray(self.Quv))
 
 
 cdef class LwContext:
+    '''
+    Context that configures and drives the backend. Whilst the class is named
+    LwContext (to avoid cython collisions) it is exposed from the lightweaver
+    package as Context.
+
+    Attributes
+    ----------
+    kwargs : dict
+        A dictionary of all inputs provided to the context, stored as the
+        under the argument names to `__init__`.
+    eqPops : SpeciesStateTable
+        The populations of each species in the simulation.
+    conserveCharge : bool
+        Whether charge is being conserved in the calculations.
+    crswCallback : CrswIterator
+        The object controlling the value of the Collisional Radiative
+        Switching term.
+    crswDone : bool
+        Indicates whether CRSW is done (i.e. the parameter has reached 1).
+
+    Parameters
+    ----------
+    atmos : Atmosphere
+        The atmospheric structure object.
+    spect : SpectrumConfiguration
+        The configuration of wavelength grids and active atoms/transitions.
+    eqPops : SpeciesStateTable
+        The initial populations and storage for these populations during the
+        simulation.
+    ngOptions : NgOptions, optional
+        The parameters for Ng acceleration in the simulation (default: No
+        acceleration).
+    initSol : InitialSolution, optional
+        The starting solution for the population of all active species
+        (default: LTE).
+    conserveCharge : bool, optional
+        Whether to conserve charge in the simulation (default: False).
+    hprd : bool, optional
+        Whether to use the Hybrid PRD method to account for velocity shifts in the atmosphere (if PRD is used otherwise, then it is angle-averaged).
+    crswCallback : CrswIterator, optional
+        An instance of CrswIterator (or derived thereof) to control
+        collisional radiative swtiching (default: None for UnityCrswIterator
+        i.e. no CRSW).
+    Nthreads : int, optional
+        Number of threads to use in the computation of the formal solution,
+        default 1.
+    backgroundProvider : BackgroundProvider, optional
+        Implementation for the background, if non-standard. Must follow the
+        BackgroundProvider interface.
+    formalSolver : str, optional
+        Name of formalSolver registered with the FormalSolvers object.
+    interpFn : str, optional
+        Name of interpolation function to use in the multi-dimensional formal
+        solver. Must be registered with InterpFns.
+    '''
     cdef Context ctx
     cdef LwAtmosphere atmos
     cdef LwSpectrum spect
@@ -2491,6 +2789,9 @@ cdef class LwContext:
         self.setup_threads(state['kwargs']['Nthreads'])
 
     def set_formal_solver(self, formalSolver):
+        '''
+        For internal use. Set the formal solver through the constructor.
+        '''
         cdef LwFormalSolverManager fsMan = FormalSolvers
         cdef int fsIdx
         if formalSolver is not None:
@@ -2501,6 +2802,10 @@ cdef class LwContext:
         self.ctx.formalSolver = fs
 
     def set_interp_fn(self, interpFn):
+        '''
+        For internal use. Set the interpolation function through the
+        constructor.
+        '''
         cdef LwInterpFnManager interpMan = InterpFns
         cdef int interpIdx
         cdef InterpFn
@@ -2518,6 +2823,11 @@ cdef class LwContext:
 
     @property
     def Nthreads(self):
+        '''
+        The number of threads used by the formal solver. A new value can be
+        assigned to this, and the necessary support structures will be
+        automatically allocated.
+        '''
         return self.ctx.Nthreads
 
     @Nthreads.setter
@@ -2529,21 +2839,63 @@ cdef class LwContext:
 
     @property
     def hprd(self):
+        '''
+        Whether PRD calculations are using the Hybrid PRD mode.
+        '''
         return self.hprd
 
     cdef setup_threads(self, int Nthreads):
+        '''
+        Internal.
+        '''
         self.ctx.Nthreads = Nthreads
         self.ctx.initialise_threads()
 
     cpdef update_threads(self):
+        '''
+        Internal.
+        '''
         self.ctx.update_threads()
 
     cpdef compute_profiles(self, polarised=False):
+        '''
+        Compute the line profiles for the spectral lines on all active and
+        detailed atoms.
+
+        Parameters
+        ----------
+        polarised : bool, optional
+            If True, and the lines are polarised, then the full Stokes line
+            profiles will be computed, otherwise the scalar case will be
+            computed (default: False).
+        '''
         atoms = self.activeAtoms + self.detailedAtoms
         for atom in atoms:
             atom.compute_profiles(polarised=polarised)
 
     cpdef formal_sol_gamma_matrices(self, fixCollisionalRates=False, lambdaIterate=False):
+        '''
+        Compute the formal solution across all wavelengths and fill in the
+        Gamma matrix for each active atom, allowing the populations to then
+        be updated using the radiative information.
+
+        Will use Nthreads for the formal solution.
+
+        Parameters
+        ----------
+        fixCollisionalRates : bool, optional
+            Whether to not recompute the collisional rates (default: False
+            i.e. recompute them).
+        lambdaIterate : bool, optional
+            Whether to use Lambda iteration (setting the approximate Lambda
+            term to zero), may be useful in certain unstable situations
+            (default: False)
+
+        Returns
+        -------
+        dJ : float
+            The maximum relative change in J in the atmosphere.
+        '''
         cdef LwAtom atom
         cdef np.ndarray[np.double_t, ndim=3] Gamma
         cdef f64 crswVal = self.crswCallback()
@@ -2566,6 +2918,17 @@ cdef class LwContext:
         return dJ
 
     cpdef formal_sol(self):
+        '''
+        Compute the formal solution across all wavelengths (single threaded,
+        rarely used due to the almost insignificant cost of the Gamma terms
+        in `formal_sol_gamma_matrices`, but currently still used by
+        `compute_rays`)
+
+        Returns
+        -------
+        dJ : float
+            The maximum relative change in J in the atmosphere.
+        '''
         # cdef LwAtom atom
         # cdef np.ndarray[np.double_t, ndim=3] Gamma
         # for atom in self.activeAtoms:
@@ -2580,7 +2943,32 @@ cdef class LwContext:
         # print('dJ = %.2e' % dJ)
         return dJ
 
-    cpdef update_deps(self, temperature=True, ne=True, vturb=True, vlos=True, B=True, background=True, hprd=True):
+    cpdef update_deps(self, temperature=True, ne=True, vturb=True,
+                      vlos=True, B=True, background=True, hprd=True):
+        '''
+        Update various dependent parameters in the simulation after changes
+        to different components. If a component has not been adjust then its
+        associated argument can be set to False. By default, all standard
+        dependent components are recomputed (e.g. projected velocities, line
+        profiles, LTE populations, background terms).
+
+        Parameters
+        ----------
+        temperature : bool, optional
+            Whether the temperature has been modified.
+        ne : bool, optional
+            Whether the electron density has been modified.
+        vturb : bool, optional
+            Whether the microturbulent velocity has been modified.
+        vlos : bool, optional
+            Whether the bulk velocity field has been modified.
+        B : bool, optional
+            Whether the magnetic field has been modified.
+        background : bool, optional
+            Whether the background needs updating.
+        hprd : bool, optional
+            Whether the hybrid PRD terms need updating.
+        '''
         if vlos or B:
             self.atmos.update_projections()
 

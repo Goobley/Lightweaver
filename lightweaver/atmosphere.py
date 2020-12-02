@@ -34,6 +34,28 @@ class BoundaryCondition:
     Defines the interface; do not use directly.
     '''
     def compute_bc(self, atmos: 'Atmosphere', spect: 'LwSpectrum') -> np.ndarray:
+        '''
+        Called when the radiation boundary condition is needed by the backend.
+
+        Parameters
+        ----------
+        atmos : Atmosphere
+            The atmospheric object in which to compute the radiation.
+        spect : LwSpectrum
+            The computational spectrum object provided by the Context.
+
+        Returns
+        -------
+        result : np.ndarray
+            This function needs to return a contiguous array of shape [Nwave,
+            Nrays, Nbc], where Nwave is the number of wavelengths in the
+            wavelength grid, Nrays is the number of rays in the angular
+            quadrature (also including up/down directions) ordered as per
+            [mu[0] down, mu[0] up, mu[1] down...], Nbc is the number of
+            spatial positions the boundary condition needs to be defined at
+            ordered in a flattened [Nz, Ny, Nx] fashion. (dtype: <f8)
+
+        '''
         raise NotImplementedError
 
 class NoBc(BoundaryCondition):
