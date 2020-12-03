@@ -841,7 +841,7 @@ class RadiativeSet:
                     # NOTE(cmo): Take into account NLTE pops if provided
                     if a.element in nlteStartingPops:
                         if nlteStartingPops[a.element].shape != nStar:
-                            raise ValueError('Starting populations provided for %s do not match model.' % e)
+                            raise ValueError('Starting populations provided for %s do not match model.' % a.element)
                         nStar = nlteStartingPops[a.element]
 
                     stages = np.array([l.stage for l in a.levels])

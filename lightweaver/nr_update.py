@@ -37,6 +37,12 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False,
     printUpdate : bool, optional
         Whether to print information on the size of the update (default:
         None, to apply automatic behaviour).
+
+    Returns
+    -------
+    dPops : float
+        The maximum relative change of any of the NLTE populations in the
+        atmosphere.
     '''
     if self.activeAtoms[0].element != PeriodicTable[1]:
         raise ValueError('Calling nr_post_update without Hydrogen active.')

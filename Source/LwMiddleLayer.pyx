@@ -2985,6 +2985,9 @@ cdef class LwContext:
             self.update_hprd_coeffs()
 
     cpdef rel_diff_pops(self, printUpdate=True):
+        '''
+        Internal.
+        '''
         cdef LwAtom atom
         cdef Atom* a
         cdef f64 delta
@@ -3003,6 +3006,9 @@ cdef class LwContext:
         return maxDelta
 
     cpdef rel_diff_ng_accelerate(self, printUpdate=True):
+        '''
+        Internal.
+        '''
         cdef LwAtom atom
         cdef Atom* a
         cdef f64 delta
@@ -3025,6 +3031,43 @@ cdef class LwContext:
 
     cpdef time_dep_update(self, f64 dt, prevTimePops=None, ngUpdate=None,
                           printUpdate=None, int chunkSize=20):
+        '''
+        Update the populations of active atoms using the current values of
+        their Gamma matrices. This function solves the time-dependent kinetic
+        equilibrium equations (ignoring advective terms). Currently uses a
+        fully implicit (theta = 0) integrator.
+
+        Parameters
+        ----------
+        dt : float
+            The timestep length [s].
+        prevTimePops : list of np.ndarray or None
+            The NLTE populations for each active atom at the start of the
+            timestep (order matching that of Context.activeAtoms). This does
+            not need to be provided the first time time_dep_update is called
+            for a timestep, as if this parameter is None then this list will
+            be constructed, and returned as the second return value, and can
+            then be passed in again for additional iterations on a timestep.
+        ngUpdate : bool, optional
+            Whether to apply Ng Acceleration (default: None, to apply automatic
+            behaviour), will only accelerate if the counter on the Ng accelerator
+            has seen enough steps since the previous acceleration (set in Context
+            initialisation).
+        printUpdate : bool, optional
+            Whether to print information on the size of the update (default:
+            None, to apply automatic behaviour).
+        chunkSize : int, optional
+            Not currently used.
+
+        Returns
+        -------
+        dPops : float
+            The maximum relative change of any of the NLTE populations in the
+            atmosphere.
+        prevTimePops : list of np.ndarray
+            The input needed as `prevTimePops` if this function is to be called
+            again for this timestep.
+        '''
         atoms = self.activeAtoms
 
         if ngUpdate is None:
@@ -3077,6 +3120,16 @@ cdef class LwContext:
         return maxDelta, prevTimePops
 
     cpdef time_dep_restore_prev_pops(self, prevTimePops):
+        '''
+        Restore the populations to their state prior to the time-dependent
+        updates for this timestep. Also resets I and J to 0. May be useful in
+        cases where a problem was encountered.
+
+        Parameters
+        ----------
+        prevTimePops : list of np.ndarray
+            `prevTimePops` returned by time_dep_update.
+        '''
         cdef LwAtom atom
         cdef int i
         for i, atom in enumerate(self.activeAtoms):
@@ -3086,11 +3139,33 @@ cdef class LwContext:
         np.asarray(self.spect.J).fill(0.0)
 
     cpdef clear_ng(self):
+        '''
+        Resets Ng acceleration objects on all active atoms.
+        '''
         cdef LwAtom atom
         for atom in self.activeAtoms:
             atom.atom.ng.clear()
 
     cpdef stat_equil(self, printUpdate=True, int chunkSize=20):
+        '''
+        Update the populations of active atoms using the current values of
+        their Gamma matrices. This function solves the time-independent statistical
+        equilibrium equations.
+
+        Parameters
+        ----------
+        printUpdate : bool, optional
+            Whether to print information on the size of the update (default:
+            None, to apply automatic behaviour).
+        chunkSize : int, optional
+            Not currently used.
+
+        Returns
+        -------
+        dPops : float
+            The maximum relative change of any of the NLTE populations in the
+            atmosphere.
+        '''
         atoms = self.activeAtoms
 
         cdef LwAtom atom
@@ -3174,9 +3249,21 @@ cdef class LwContext:
             raise ExplodingMatrixError('Singular Matrix')
 
     cpdef update_projections(self):
+        '''
+        Update all arrays of projected terms in the atmospheric model.
+        '''
         self.atmos.update_projections()
 
     cpdef setup_stokes(self, recompute=False):
+        '''
+        Configure the Context for Full Stokes radiative transfer.
+
+        Parameters
+        ----------
+        recompute : bool, optional
+            If previously called, and called again with `recompute = True`
+            the line profiles will be recomputed.
+        '''
         try:
             if self.atmos.B.shape[0] == 0:
                 raise ValueError('Please specify B-field')
@@ -3201,6 +3288,21 @@ cdef class LwContext:
         self.spect.setup_stokes()
 
     cpdef single_stokes_fs(self, recompute=False):
+        '''
+        Compute a full Stokes formal solution across all wakelengths in the
+        grid, setting up the Context first (it is rarely necessary to call
+        setup_stokes directly).
+
+        The full Stokes formal solution is not currently multi-threaded, as
+        it is usually only called once at the end of a simulation, however
+        this could easily be changed.
+
+        Parameters
+        ----------
+        recompute : bool, optional
+            If previously called, and called again with `recompute = True`
+            the line profiles will be recomputed.
+        '''
         self.setup_stokes(recompute=recompute)
 
         self.atmos.compute_bcs(self.spect)
@@ -3213,9 +3315,17 @@ cdef class LwContext:
         return prdIter.dRho, prdIter.iter
 
     cdef configure_hprd_coeffs(self):
+        '''
+        Internal.
+        '''
         configure_hprd_coeffs(self.ctx)
 
     cpdef update_hprd_coeffs(self):
+        '''
+        Update the values of the H-PRD coefficients, this needs to be called
+        if changes are made to the atmospheric structure to ensure that the
+        interpolation parameters are correct.
+        '''
         self.configure_hprd_coeffs()
         # NOTE(cmo): configure_hprd_coeffs throws away all of the interpolation
         # stuff stored on each line, and allocates a new block for it, this
@@ -3227,30 +3337,45 @@ cdef class LwContext:
 
     @property
     def activeAtoms(self):
+        '''
+        All active computational atomic models (LwAtom).
+        '''
         return self.activeAtoms
 
     @property
     def spect(self):
+        '''
+        The spectrum storage object (LwSpectrum).
+        '''
         return self.spect
 
     @property
     def atmos(self):
+        '''
+        The atmospheric model storage object (LwAtmosphere).
+        '''
         return self.atmos
 
     @property
     def background(self):
+        '''
+        The background storage object (LwBackground).
+        '''
         return self.background
 
     @property
     def depthData(self):
+        '''
+        Configuration and storage for full depth-dependent data of large
+        parameters (LwDepthData).
+        '''
         return self.depthData
 
-    @property
-    def pops(self):
-        # return self.arguments['eqPops']
-        return self.eqPops
-
     def state_dict(self):
+        '''
+        Return the state dictionary for the Context, which can be used to
+        serialise the entire Context and/or reconstruct it.
+        '''
         return self.__getstate__()
 
     @staticmethod
@@ -3259,7 +3384,49 @@ cdef class LwContext:
                                        hprd=None, preserveProfiles=False, fromScratch=False,
                                        backgroundProvider=None):
         """
-        stateDict will not be deepcopied by this function -- do that yourself if needed.
+        Construct a new Context informed by a state dictionary with changes
+        provided to this function. This function is primarily aimed at making
+        similar versions of a Context, as this can be duplicated much more
+        easily by `deepcopy` or `pickle.loads(pickle.dumps(ctx))`. For
+        example, wanting to replace the SpectrumConfiguration to run a
+        different set of active atoms in the same atmospheric model.
+        N.B. stateDict will not be deepcopied by this function -- do that
+        yourself if needed.
+
+        Parameters
+        ----------
+        sd : dict
+            The state dictionary, from Context.state_dict.
+        atmos : Atmosphere, optional
+            Atmospheric model to use instead of the one present in stateDict.
+        spect : SpectrumConfiguration, optional
+            Spectral configuration to use instead of the one present in
+            stateDict.
+        eqPops : SpeciesStateTable, optional
+            Species population object to use instead of the one present in
+            stateDict.
+        ngOptions : NgOptions, optional
+            Ng acceleration options to use.
+        initSol : InitialSolution, optional
+            Initial solution to use, only matters if `fromScratch` is True.
+        conserveCharge : bool, optional
+            Whether to conserve charge.
+        hprd : bool, optional
+            Whether to use Hybrid-PRD.
+        preserveProfiles : bool, optional
+            Whether to copy the current line profiles, or compute new ones
+            (default: recompute).
+        fromScratch : bool, optional
+            Whether to construct the new Context, but not make any
+            modifications, such as copying profiles and rates.
+        backgroundProvider : BackgroundProvider, optional
+            The background package to use instead of the one present in
+            stateDict.
+
+        Returns
+        -------
+        ctx : Context
+            The new context object for the simulation.
         """
         sd = copy(sd)
         sd['kwargs'] = copy(sd['kwargs'])
@@ -3334,6 +3501,41 @@ cdef class LwContext:
 
     def compute_rays(self, wavelengths=None, mus=None, stokes=False,
                      refinePrd=False, squeeze=True):
+        '''
+        Compute the formal solution through a converged simulation for a
+        particular ray (or set of rays). The wavelength range can be adjusted
+        to focus on particular lines.
+
+        Parameters
+        ----------
+        wavelengths : np.ndarray, optional
+            The wavelengths at which to compute the solution (default: None,
+            i.e. the original grid).
+        mus : float or sequence of float or dict
+            The cosines of the angles between the rays and the z-axis to use,
+            if a float or sequence of float then these are taken as muz. If a
+            dict, then it is expected to be dictionary unpackable
+            (double-splat) into atmos.rays, and can then be used for
+            multi-dimensional atmospheres.
+        stokes : bool, optional
+            Whether to compute a full Stokes solution (default: False).
+        refinePrd : bool, optional
+            Whether to update the rhoPrd term by reevaluating the scattering
+            integral on the new wavelength grid. This can sometimes visually
+            improve the final solution, but is quite computationally costly.
+            (default: False i.e. not reevaluated, instead if the wavelength
+            grid is different, rhoPrd is interpolated onto the new grid).
+        squeeze : bool, optional
+            Whether to squeeze singular dimensions from the output array
+            (default: True).
+
+        Returns
+        -------
+        intensity : np.ndarray
+            The outgoing intensity for the chosen rays. If `stokes=True` then
+            the first dimension indicates, in order, the I, Q, U, V
+            components.
+        '''
         state = deepcopy(self.state_dict())
         if wavelengths is not None:
             spect = state['kwargs']['spect'].subset_configuration(wavelengths)
@@ -3455,6 +3657,20 @@ cdef class LwContext:
         return result
 
 cdef class LwFormalSolverManager:
+    '''
+    Storage and enumeration of the different formal solvers loaded for use in
+    Lightweaver. There is no need to instantiate this class directly, instead
+    there is a single instance of it instantiated as `FormalSolvers`, which
+    should be used.
+
+    Attributes
+    ----------
+    paths : list of str
+        The currently loaded paths.
+    names : list of str
+        The names of all available formal solvers, each of which can be
+        passed to the Context constructor.
+    '''
     cdef FormalSolverManager manager
     cdef public list paths
     cdef public list names
@@ -3471,6 +3687,15 @@ cdef class LwFormalSolverManager:
             self.names.append(name.decode('UTF-8'))
 
     def load_fs_from_path(self, str path):
+        '''
+        Attempt to load a formal solver, following the Lightweaver API, from
+        a shared library at `path`.
+
+        Parameters
+        ----------
+        path : str
+            The path from which to load the formal solver.
+        '''
         if path in self.paths:
             raise ValueError('Tried to load a pre-existing path')
 
@@ -3485,6 +3710,19 @@ cdef class LwFormalSolverManager:
         self.names.append(name.decode('UTF-8'))
 
     def default_formal_solver(self, Ndim):
+        '''
+        Returns the name of the default formal solver for a given dimensionality.
+
+        Parameters
+        ----------
+        Ndim : int
+            The dimensionality of the simulation.
+
+        Returns
+        -------
+        name : str
+            The name of the default formal solver.
+        '''
         if Ndim == 1:
             return self.names.index('piecewise_bezier3_1d')
         elif Ndim == 2:
@@ -3493,6 +3731,20 @@ cdef class LwFormalSolverManager:
             raise ValueError()
 
 cdef class LwInterpFnManager:
+    '''
+    Storage and enumeration of the different interpolation functions for
+    multi-dimensional formal solvers loaded for use in Lightweaver. There is
+    no need to instantiate this class directly, instead there is a single
+    instance of it instantiated as `InterpFns`, which should be used.
+
+    Attributes
+    ----------
+    paths : list of str
+        The currently loaded paths.
+    names : list of str
+        The names of all available interpolation functions, each of which can
+        be passed to the Context constructor.
+    '''
     cdef InterpFnManager manager
     cdef public list paths
     cdef public list names
@@ -3508,7 +3760,16 @@ cdef class LwInterpFnManager:
             name = self.manager.fns[i].name
             self.names.append(name.decode('UTF-8'))
 
-    def load_fs_from_path(self, str path):
+    def load_interp_fn_from_path(self, str path):
+        '''
+        Attempt to load an interpolation function, following the Lightweaver
+        API, from a shared library at `path`.
+
+        Parameters
+        ----------
+        path : str
+            The path from which to load the interpolation function.
+        '''
         if path in self.paths:
             raise ValueError('Tried to load a pre-existing path')
 
@@ -3523,6 +3784,20 @@ cdef class LwInterpFnManager:
         self.names.append(name.decode('UTF-8'))
 
     def default_interp(self, Ndim):
+        '''
+        Returns the name of the default interpolation function for a given
+        dimensionality.
+
+        Parameters
+        ----------
+        Ndim : int
+            The dimensionality of the simulation.
+
+        Returns
+        -------
+        name : str
+            The name of the default interpolation function.
+        '''
         if Ndim == 2:
             return self.names.index('interp_linear_2d')
         else:
