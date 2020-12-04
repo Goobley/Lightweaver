@@ -49,13 +49,18 @@ class Barklem:
                                  vals: Sequence[float]) -> Sequence[float]:
         '''
         Returns the cross section data for use in the Van der Waals collisional broadening routines.
-        See
-         Anstee & O'Mara 1995, MNRAS 276, 859-866
-         Barklem & O'Mara 1998, MNRAS 300, 863-871
-         Unsold:
-         Traving 1960, "Uber die Theorie der Druckverbreiterung
-           von Spektrallinien", p 91-97
-         Mihalas 1978, p. 282ff, and Table 9-1/
+        See:
+
+          - Anstee & O'Mara 1995, MNRAS 276, 859-866
+
+          - Barklem & O'Mara 1998, MNRAS 300, 863-871
+
+          - Unsold:
+
+            - Traving 1960, "Uber die Theorie der Druckverbreiterung
+              von Spektrallinien", p 91-97
+
+            - Mihalas 1978, p. 282ff, and Table 9-1/
 
         Returns
         -------

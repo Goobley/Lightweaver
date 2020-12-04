@@ -9,7 +9,7 @@ from .multi import read_multi_atmos
 from .utils import NgOptions, InitialSolution, voigt_H, planck, gaunt_bf, ConvergenceError, \
                    ExplodingMatrixError, get_data_path, get_default_molecule_path, vac_to_air, \
                    air_to_vac, convert_specific_intensity, CrswIterator, UnityCrswIterator
-from .nr_update import nr_post_update, F, Ftd
+from .nr_update import nr_post_update
 from .LwCompiled import LwContext
 from .version import version as __version__
 
@@ -20,5 +20,3 @@ class Context(LwContext):
         super().__init__(*args, **kwargs)
 
 setattr(Context, 'nr_post_update', nr_post_update)
-setattr(Context, 'F', F)
-setattr(Context, 'Ftd', Ftd)

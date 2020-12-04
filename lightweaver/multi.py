@@ -33,7 +33,8 @@ def read_multi_atmos(filename: str) -> Tuple[MultiMetadata, Atmosphere]:
 
     Raises
     ------
-    ValueError if file isn't found, or cannot be parsed correctly.
+    ValueError
+        if file isn't found, or cannot be parsed correctly.
     '''
     try:
         with open(filename, 'r') as f:

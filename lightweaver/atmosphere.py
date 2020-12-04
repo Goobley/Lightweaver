@@ -19,9 +19,13 @@ class ScaleType(Enum):
     Atmospheric scales used in the definition of 1D atmospheres to allow the
     correct conversion to a height based system.
     Options:
+
         - `Geometric`
+
         - `ColumnMass`
+
         - `Tau500`
+
     '''
     Geometric = 0
     ColumnMass = auto()
@@ -135,7 +139,7 @@ class Stratifications:
     Attributes
     ----------
     cmass : np.ndarray
-        Column mass in kg m-2.
+        Column mass [kg m-2].
     tauRef : np.ndarray
         Reference optical depth at 500 nm.
     '''
@@ -433,7 +437,7 @@ class Atmosphere:
     '''
     Storage for all atmospheric data. These arrays will be shared directly
     with the backend, so a modification here also modifies the data seen by
-    the backend. Be careful to modify these arrays _in place_, as their data
+    the backend. Be careful to modify these arrays *in place*, as their data
     is shared by direct memory reference. Use the class methods to construct
     atmospheres of different dimensionality.
 
@@ -735,22 +739,28 @@ class Atmosphere:
         used with the Wittmann EOS to estimate the electron pressure.
         If both of these are omitted then the EOS will be used to estimate
         both. If:
+
             - Pgas is provided, then this gas pressure will define the
-            atmospheric stratification and will be used with the EOS.
+              atmospheric stratification and will be used with the EOS.
+
             - Pe is provided, then this electron pressure will define the
-            atmospheric stratification and will be used with the EOS.
+              atmospheric stratification and will be used with the EOS.
+
             - Ptop is provided, then this gas pressure at the top of the
-            atmosphere will be used with the log gravitational acceleration
-            logG, and the EOS to estimate the missing parameters assuming
-            hydrostatic equilibrium.
+              atmosphere will be used with the log gravitational acceleration
+              logG, and the EOS to estimate the missing parameters assuming
+              hydrostatic equilibrium.
+
             - PeTop is provided, then this electron pressure at the top of
-            the atmosphere will be used with the log gravitational
-            acceleration logG, and the EOS to estimate the missing parameters
-            assuming hydrostatic equilibrium.
+              the atmosphere will be used with the log gravitational
+              acceleration logG, and the EOS to estimate the missing parameters
+              assuming hydrostatic equilibrium.
+
             - If all of Pgas, Pe, Ptop, PeTop are omitted then Ptop will be
-            estimated from the gas pressure in the FALC model at the
-            temperature at the top boundary. The hydrostatic reconstruction
-            will then continue as usual.
+              estimated from the gas pressure in the FALC model at the
+              temperature at the top boundary. The hydrostatic reconstruction
+              will then continue as usual.
+
         convertScales will substantially slow down this function due to the
         slow calculation of background opacities used to compute tauRef. If
         an atmosphere is constructed with a Geometric stratification, and an
@@ -821,8 +831,9 @@ class Atmosphere:
 
         Raises
         ------
-        ValueError if incorrect arguments or unable to construct estimate
-        missing parameters.
+        ValueError
+            if incorrect arguments or unable to construct estimate missing
+            parameters.
         '''
         if scale == ScaleType.Geometric:
             depthScale = (depthScale << u.m).value
@@ -1122,8 +1133,9 @@ class Atmosphere:
 
         Raises
         ------
-        ValueError if incorrect arguments or unable to construct estimate
-        missing parameters.
+        ValueError
+            if incorrect arguments or unable to construct estimate missing
+            parameters.
         '''
 
         x = (x << u.m).value
@@ -1222,11 +1234,13 @@ class Atmosphere:
         Equilibrium in a given atmosphere.
 
         Procedure varies with dimensionality.
+
         1D:
             If a number of rays is given (typically 3 or 5), then the
             Gauss-Legendre quadrature for this set is used.
             If mu and wmu are instead given then these will be validated and
             used.
+
         2+D:
             If the number of rays selected is in the list of near optimal
             quadratures for unpolarised radiation provided by Stepan et al
@@ -1234,14 +1248,17 @@ class Atmosphere:
             raised.
 
             The available quadratures are:
-            Points | Order
-            --------------
-               1   |  3
-               3   |  7
-               6   |  9
-               7   |  11
-               10  |  13
-               11  |  15
+
+            +--------+-------+
+            | Points | Order |
+            +========+=======+
+            |   1    |  3    |
+            |   3    |  7    |
+            |   6    |  9    |
+            |   7    |  11   |
+            |   10   |  13   |
+            |   11   |  15   |
+            +--------+-------+
 
         Parameters
         ----------
@@ -1255,7 +1272,8 @@ class Atmosphere:
 
         Raises
         ------
-        ValueError on incorrect input.
+        ValueError
+            on incorrect input.
         '''
 
         if self.Ndim == 1:
@@ -1343,8 +1361,9 @@ class Atmosphere:
 
         Raises
         ------
-        ValueError if the angular projections or integration weights are
-        incorrectly normalised.
+        ValueError
+            if the angular projections or integration weights are incorrectly
+            normalised.
         '''
 
         if isinstance(muz, float):

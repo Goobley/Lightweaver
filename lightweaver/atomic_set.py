@@ -954,6 +954,7 @@ class RadiativeSet:
         '''
         Compute the global wavelength grid from the current configuration of
         the RadiativeSet.
+
         Parameters
         ----------
         extraWavelengths : np.ndarray, optional
@@ -961,6 +962,7 @@ class RadiativeSet:
         lambdaReference : float, optional
             If a difference reference wavelength is to be used then it should
             be specified here to ensure it is in the global array.
+
         Returns
         -------
         spect : SpectrumConfiguration
