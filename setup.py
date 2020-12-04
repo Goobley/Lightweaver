@@ -12,6 +12,11 @@ posixArgs = ["-std=c++17", "-Wno-sign-compare", "-funroll-loops"]
 if 'LW_CI_BUILD'  in os.environ:
     # NOTE(cmo): Compile for sandy bridge or newer when building on CI
     posixArgs += ["-march=corei7-avx", "-mtune=corei7-avx"]
+    if 'LW_DOCS' in os.environ:
+        # NOTE(cmo): I don't really want to rebuild the library to get the
+        # docstrings out of it, but it seems like the easiest option for now,
+        # so just build it with O0.
+        posixArgs += ['-O0']
 else:
     # NOTE(cmo): Local compile
     posixArgs += ["-march=native", "-mtune=native"]
