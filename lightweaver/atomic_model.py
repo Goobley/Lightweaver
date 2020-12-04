@@ -23,6 +23,22 @@ if TYPE_CHECKING:
 
 @dataclass
 class AtomicModel:
+    '''
+    Container class for the complete description of a model atom.
+
+    Attributes
+    ----------
+    element : Element
+        The element or ion represented by this model.
+    levels : list of AtomicLevel
+        The levels in use in this model.
+    lines :  list of AtomicLine
+        The atomic lines present in this model.
+    continua : list of AtomicContinuum
+        The atomic continua present in this model.
+    collisions : list of CollisionalRates
+        The collisional rates present in this model.
+    '''
     element: Element
     levels: Sequence['AtomicLevel']
     lines: Sequence['AtomicLine']
@@ -63,15 +79,25 @@ class AtomicModel:
     #     return hash(repr(self))
 
     def vBroad(self, atmos: 'Atmosphere') -> np.ndarray:
+        '''
+        Computes the atomic broadening velocity structure for a given
+        atmosphere from the thermal motions and microturbulent velocity.
+        '''
         vTherm = 2.0 * Const.KBoltzmann / (Const.Amu * PeriodicTable[self.element].mass)
         vBroad = np.sqrt(vTherm * atmos.temperature + atmos.vturb**2)
         return vBroad
 
     @property
     def transitions(self) -> Sequence['AtomicTransition']:
+        '''
+        List of all atomic transitions present on the model.
+        '''
         return self.lines + self.continua # type: ignore
 
 def reconfigure_atom(atom: AtomicModel):
+    '''
+    Re-perform all atomic set up after modifying parameters.
+    '''
     atom.__post_init__()
 
 def element_sort(atom: AtomicModel):
@@ -79,6 +105,28 @@ def element_sort(atom: AtomicModel):
 
 @dataclass
 class AtomicLevel:
+    '''
+    Description of atomic level in model atom.
+
+    Attributes
+    ----------
+    E : float
+        Energy above ground state [cm-1]
+    g : float
+        Statistical weight of level
+    label : str
+        Name for level
+    stage : int
+        Ionisation of level with 0 being neutral
+    atom : AtomicModel
+        AtomicModel that holds this level, will be initialised by the atom.
+    J : Fraction, optional
+        Total quantum angular momentum.
+    L : int, optional
+        Orbital angular momentum.
+    S : Fraction, optional
+        Spin.
+    '''
     E: float
     g: float
     label: str
@@ -101,6 +149,10 @@ class AtomicLevel:
 
     @property
     def lsCoupling(self) -> bool:
+        '''
+        Returns whether the L-S coupling formalism can be applied to this
+        level.
+        '''
         if all(x is not None for x in (self.J, self.L, self.S)):
             J = cast(Fraction, self.J)
             L = cast(int, self.L)
@@ -111,10 +163,16 @@ class AtomicLevel:
 
     @property
     def E_SI(self):
+        '''
+        Returns E in Joule.
+        '''
         return self.E * Const.HC / Const.CM_TO_M
 
     @property
     def E_eV(self):
+        '''
+        Returns E in electron volt.
+        '''
         return self.E_SI / Const.EV
 
     def __repr__(self):
@@ -122,6 +180,9 @@ class AtomicLevel:
         return s
 
 class LineType(Enum):
+    '''
+    Enum to show if the line should be treated in CRD or PRD.
+    '''
     CRD = 0
     PRD = auto()
 
@@ -136,13 +197,23 @@ class LineType(Enum):
 
 @dataclass
 class LineQuadrature:
+    '''
+    Describes the wavelength quadrature to be used for integrating properties
+    associated with a line.
+    '''
     def setup(self, line: 'AtomicLine'):
         pass
 
     def doppler_units(self, line: 'AtomicLine') -> np.ndarray:
+        '''
+        Return the quadrature in Doppler units.
+        '''
         raise NotImplementedError
 
     def wavelength(self, line: 'AtomicLine', vMicroChar: float=Const.VMICRO_CHAR) -> np.ndarray:
+        '''
+        Return the quadrature in nm.
+        '''
         raise NotImplementedError
 
     def __repr__(self):
@@ -154,7 +225,17 @@ class LineQuadrature:
 @dataclass
 class LinearCoreExpWings(LineQuadrature):
     """
-    RH-Style line quadrature.
+    RH-Style line quadrature, with approximately linear core spacing and
+    exponential wing spacing, by using a function of the form
+    q(n) = a*(n + (exp(b*n)-1))
+    with n \in [0, N) satisfying the following conditions:
+
+     - q[0] = 0
+
+     - q[(N-1)/2] = qcore
+
+     - q[N-1] = qwing.
+
     """
     qCore: float
     qWing: float
@@ -206,6 +287,10 @@ class LinearCoreExpWings(LineQuadrature):
 
 @dataclass
 class AtomicTransition:
+    '''
+    Basic storage class for atomic transitions. Both lines and continua are
+    derived from this.
+    '''
     j: int
     i: int
     atom: AtomicModel = field(init=False)
@@ -237,10 +322,37 @@ class AtomicTransition:
 
     @property
     def transId(self) -> Tuple[Element, int, int]:
+        '''
+        Unique identifier (transition ID) for transition (assuming one copy
+        of each Element), used in creating a SpectrumConfiguration etc.
+        '''
         return (self.atom.element, self.i, self.j)
 
 @dataclass
 class LineProfileState:
+    '''
+    Dataclass used to communicate line profile calculations from the backend
+    to the frontend whilst allowing the backend to provide an overrideable
+    optimised voigt implementation for the default case.
+
+    Attributes
+    ----------
+    wavelength : np.ndarray
+        Wavelengths at which to compute the line profile [nm]
+    vlosMu : np.ndarray
+        Bulk velocity projected onto each ray in the angular integration scheme [m/s] in an array of [Nmu, Nspace].
+    atmos : Atmosphere
+        The associated atmosphere.
+    eqPops : SpeciesStateTable
+        The associated populations for each species present in the simulation.
+    default_voigt_callback : callable
+        Computes the Voigt profile for the default case, takes the damping
+        parameter aDamp and broadening velocity vBroad as arguments, and
+        returns the line profile phi (in this case phi_num in the tech report).
+    vBroad : np.ndarray, optional
+        Cache to avoid recomputing vBroad every time. May be None.
+    '''
+
     wavelength: np.ndarray
     vlosMu: np.ndarray
     atmos: 'Atmosphere'
@@ -250,6 +362,11 @@ class LineProfileState:
 
 @dataclass
 class LineProfileResult:
+    '''
+    Dataclass for returning the line profile and associated data that needs
+    to be saved (damping parameter and elastic collision rate) from the
+    frontend to the backend.
+    '''
     phi: np.ndarray
     aDamp: np.ndarray
     Qelast: np.ndarray
@@ -257,6 +374,25 @@ class LineProfileResult:
 
 @dataclass(eq=False)
 class AtomicLine(AtomicTransition):
+    '''
+    Base class for atomic lines, holding their specialised information over
+    transitions.
+
+    Attributes
+    ----------
+    f : float
+        Oscillator strength.
+    type : LineType
+        Should the line be treated in PRD or CRD.
+    quadrature : LineQuadrature
+        Wavelength quadrature for integrating line properties over.
+    broadening : LineBroadening
+        Object describing the broadening processes to be used in conjunction
+        with the quadrature to generate the line profile.
+    gLandeEff : float, optional
+        Optionally override LS-coupling (if available for this transition),
+        and just directly set the effective Lande g factor (if it isn't).
+    '''
     f: float
     type: LineType
     quadrature: LineQuadrature
@@ -284,16 +420,35 @@ class AtomicLine(AtomicTransition):
         return hash(repr(self))
 
     def wavelength(self, vMicroChar=Const.VMICRO_CHAR) -> np.ndarray:
+        '''
+        Returns the wavelength grid for this transition based on the
+        LineQuadrature.
+
+        Parameters
+        ----------
+        vMicroChar : float, optional
+            Characterisitc microturbulent velocity to assume when computing
+            the line quadrature (default 3e3 m/s).
+        '''
         return self.quadrature.wavelength(self, vMicroChar=vMicroChar)
 
     def zeeman_components(self) -> Optional[ZeemanComponents]:
+        '''
+        Returns the Zeeman components of a line, if possible or None.
+        '''
         return compute_zeeman_components(self)
 
     def compute_phi(self, state: LineProfileState) -> LineProfileResult:
+        '''
+        Compute the line profile, intended to be called from the backend.
+        '''
         raise NotImplementedError
 
     @property
     def overlyingContinuumLevel(self) -> AtomicLevel:
+        '''
+        Find the first overlying continuum level.
+        '''
         Z = self.jLevel.stage + 1
         j = self.j
         ic = j + 1
@@ -307,15 +462,24 @@ class AtomicLine(AtomicTransition):
 
     @property
     def lambda0(self) -> float:
+        '''
+        Return the line rest wavelength [nm].
+        '''
         return self.lambda0_m / Const.NM_TO_M
 
     @property
     def lambda0_m(self) -> float:
+        '''
+        Return the line rest wavelength [m].
+        '''
         deltaE = self.jLevel.E_SI - self.iLevel.E_SI
         return Const.HC / deltaE
 
     @property
     def Aji(self) -> float:
+        '''
+        Return the Einstein A coefficient for this line.
+        '''
         gRatio = self.iLevel.g / self.jLevel.g
         C: float = 2 * np.pi * (Const.QElectron / Const.Epsilon0) \
            * (Const.QElectron / Const.MElectron) / Const.CLight
@@ -323,22 +487,55 @@ class AtomicLine(AtomicTransition):
 
     @property
     def Bji(self) -> float:
+        '''
+        Return the Einstein B_{ji} coefficient for this line.
+        '''
         return self.lambda0_m**3 / (2.0 * Const.HC) * self.Aji
 
     @property
     def Bij(self) -> float:
+        '''
+        Return the Einstein B_{ij} coefficient for this line.
+        '''
         return self.jLevel.g / self.iLevel.g * self.Bji
 
     @property
     def polarisable(self) -> bool:
+        '''
+        Return whether sufficient information is available to compute full
+        Stokes solutions for this line.
+        '''
         return (self.iLevel.lsCoupling and self.jLevel.lsCoupling) or (self.gLandeEff is not None)
 
 
 @dataclass(eq=False, repr=False)
 class VoigtLine(AtomicLine):
+    '''
+    Specialised line profile for the default case of a Voigt profile.
+    '''
 
     def damping(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable',
                 vBroad: Optional[np.ndarray]=None):
+        '''
+        Computes the damping parameter and elastic collision rate.
+
+        Parameters
+        ----------
+        atmos : Atmosphere
+            The atmosphere to consider.
+        eqPops : SpeciesStateTable
+            The populations in this atmosphere.
+        vBroad : np.ndarray, optional
+            The broadening velocity, will be used if passed, or computed
+            using atom.vBroad if not.
+
+        Returns
+        -------
+        aDamp : np.ndarray
+            The Voigt damping parameter.
+        Qelast : np.ndarray
+            The rate of elastic collisions broadening the line -- needed for PRD.
+        '''
         Qs = self.broadening.broaden(atmos, eqPops)
 
         if vBroad is None:
@@ -349,6 +546,23 @@ class VoigtLine(AtomicLine):
         return aDamp, Qs.Qelast
 
     def compute_phi(self, state: LineProfileState) -> LineProfileResult:
+        '''
+        Computes the line profile.
+
+        In the case of a VoigtLine the line profile simply uses the
+        default_voigt_callback from the backend.
+
+        Parameters
+        ----------
+        state : LineProfileState
+            The information from the backend
+
+        Returns
+        -------
+        result : LineProfileResult
+            The line profile, as well as the damping parameter 'a' and and
+            the broadening velocity.
+        '''
         vBroad = self.atom.vBroad(state.atmos) if state.vBroad is None else state.vBroad
         aDamp, Qelast = self.damping(state.atmos, state.eqPops, vBroad=vBroad)
         cb = state.default_voigt_callback
@@ -359,6 +573,9 @@ class VoigtLine(AtomicLine):
 
 @dataclass(eq=False)
 class AtomicContinuum(AtomicTransition):
+    '''
+    Base class for atomic continua.
+    '''
 
     def setup(self, atom: AtomicModel):
         pass
@@ -371,30 +588,68 @@ class AtomicContinuum(AtomicTransition):
         return hash(repr(self))
 
     def alpha(self, wavelength: np.ndarray) -> np.ndarray:
+        '''
+        Returns the cross-section as a function of wavelength
+
+        Parameters
+        ----------
+        wavelength : np.ndarray
+            The wavelengths at which to compute the cross-section
+
+        Returns
+        -------
+        alpha : np.ndarray
+            The cross-section for each wavelength
+        '''
         raise NotImplementedError
 
     def wavelength(self) -> np.ndarray:
+        '''
+        The wavelength grid on which this continuum's cross section is defined.
+        '''
         raise NotImplementedError
 
     @property
     def minLambda(self) -> float:
+        '''
+        The minimum wavelength at which this transition contributes.
+        '''
         raise NotImplementedError
 
     @property
     def lambda0(self) -> float:
+        '''
+        The maximum (edge) wavelength at which this transition contributes [nm].
+        '''
         return self.lambda0_m / Const.NM_TO_M
 
     @property
     def lambdaEdge(self) -> float:
+        '''
+        The maximum (edge) wavelength at which this transition contributes [nm].
+        '''
         return self.lambda0
 
     @property
     def lambda0_m(self) -> float:
+        '''
+        The maximum (edge) wavelength at which this transition contributes [m].
+        '''
         deltaE = self.jLevel.E_SI - self.iLevel.E_SI
         return Const.HC / deltaE
 
 @dataclass(eq=False)
 class ExplicitContinuum(AtomicContinuum):
+    '''
+    Specific version of atomic continuum with tabulated cross-section against
+    wavelength. Interpolated using weno4.
+    Attributes
+    ----------
+    wavelengthGrid : list of float
+        Wavelengths at which cross-section is tabulated [nm].
+    alphaGrid : list of float
+        Tabulated cross-sections [m2].
+    '''
     wavelengthGrid: Sequence[float]
     alphaGrid: Sequence[float]
 
@@ -419,6 +674,19 @@ class ExplicitContinuum(AtomicContinuum):
         return s
 
     def alpha(self, wavelength: np.ndarray) -> np.ndarray:
+        '''
+        Computes cross-section as a function of wavelength.
+
+        Parameters
+        ----------
+        wavelength : np.ndarray
+            Wavelengths at which to compute the cross-section [nm].
+
+        Returns
+        -------
+        alpha : np.ndarray
+            Cross-section at associated wavelength.
+        '''
         alpha = weno4(wavelength, self.wavelengthGrid, self.alphaGrid, left=0.0, right=0.0)
         alpha[wavelength < self.minLambda] = 0.0
         alpha[wavelength > self.lambdaEdge] = 0.0
@@ -426,6 +694,11 @@ class ExplicitContinuum(AtomicContinuum):
         return alpha
 
     def wavelength(self) -> np.ndarray:
+        '''
+        Returns the wavelength grid at which this transition needs to be
+        computed to be correctly integrated. Specific handling is added to
+        ensure that it is treated properly close to the edge.
+        '''
         grid = cast(np.ndarray, self.wavelengthGrid)
         edge = self.lambdaEdge
         result = np.copy(grid[(grid >= self.minLambda) & (grid <= edge)])
@@ -437,10 +710,28 @@ class ExplicitContinuum(AtomicContinuum):
 
     @property
     def minLambda(self) -> float:
+        '''
+        The minimum wavelength at which this transition contributes.
+        '''
         return self.wavelengthGrid[0]
 
 @dataclass(eq=False)
 class HydrogenicContinuum(AtomicContinuum):
+    '''
+    Specific case of a Hydrogenic continuum, approximately falling off as
+    1/nu**3 towards higher frequencies (additional effects from Gaunt
+    factor).
+
+    Attributes
+    ----------
+    NlambaGen : int
+        The number of points to generate for the wavelength grid.
+    alpha0 : float
+        The cross-section at the edge wavelength [m2].
+    minWavelength : float
+        The minimum wavelength below which this transition is assumed to no
+        longer contribute [nm].
+    '''
     NlambdaGen: int
     alpha0: float
     minWavelength: float
@@ -459,6 +750,19 @@ class HydrogenicContinuum(AtomicContinuum):
             raise ValueError('Minimum wavelength is larger than continuum edge at %g [nm] in continuum %s' % (self.lambda0, repr(self)))
 
     def alpha(self, wavelength: np.ndarray) -> np.ndarray:
+        '''
+        Computes cross-section as a function of wavelength.
+
+        Parameters
+        ----------
+        wavelength : np.ndarray
+            Wavelengths at which to compute the cross-section [nm].
+
+        Returns
+        -------
+        alpha : np.ndarray
+            Cross-section at associated wavelength.
+        '''
         Z = self.jLevel.stage
         nEff = Z * np.sqrt(Const.ERydberg / (self.jLevel.E_SI - self.iLevel.E_SI))
         gbf0 = gaunt_bf(self.lambda0, nEff, Z)
@@ -469,8 +773,15 @@ class HydrogenicContinuum(AtomicContinuum):
         return alpha
 
     def wavelength(self) -> np.ndarray:
+        '''
+        Returns the wavelength grid at which this transition needs to be
+        computed to be correctly integrated.
+        '''
         return np.linspace(self.minLambda, self.lambdaEdge, self.NlambdaGen)
 
     @property
     def minLambda(self) -> float:
+        '''
+        The minimum wavelength at which this transition contributes.
+        '''
         return self.minWavelength

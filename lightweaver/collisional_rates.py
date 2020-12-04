@@ -14,6 +14,9 @@ if TYPE_CHECKING:
 
 @dataclass
 class CollisionalRates:
+    '''
+    Base class for all CollisionalRates.
+    '''
     j: int
     i: int
     atom: 'AtomicModel' = field(init=False)
@@ -37,6 +40,10 @@ class CollisionalRates:
 
 @dataclass(eq=False)
 class TemperatureInterpolationRates(CollisionalRates):
+    '''
+    Base class for rates defined by interpolating a coefficient on a
+    temperature grid.
+    '''
     temperature: Sequence[float]
     rates: Sequence[float]
     def __repr__(self):

@@ -100,6 +100,18 @@ def equilibrium_constant_sauval_tatum(tempRange, Ediss, eqc):
 
 
 class Molecule:
+    '''
+    Simple class for working with RH molecule definitions.
+
+    Parameters
+    ----------
+    filePath : str
+        Path from which to load molecular data. Use
+        `get_default_molecule_path` for the path to the default RH
+        distribution of molecule files (C2, CH, CN, CO, CaH, H2+, H2, H2O,
+        HF, LiH, MgH, N2, NH, NO, O2, OH, SiO, TiO) all of which have the
+        '.molecule' extension.
+    '''
     def __init__(self, filePath: str):
         with open(filePath, 'r') as f:
             lines = f.readlines()
@@ -154,6 +166,10 @@ class Molecule:
             raise ValueError('Unknown molecular equilibrium constant fit method %s in molecule %s' % (fitStr, self.name))
 
 class MolecularTable:
+    '''
+    Stores a set of molecular models, can be indexed by model name to return
+    the associated model (as a string).
+    '''
     def __init__(self, paths: Optional[List[str]]=None):
 
         self.molecules: List[Molecule] = []

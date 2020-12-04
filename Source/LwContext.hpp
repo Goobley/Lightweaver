@@ -14,6 +14,7 @@ struct DepthData
     bool fill;
     F64View4D chi;
     F64View4D eta;
+    F64View4D I;
 };
 
 struct Context
@@ -36,7 +37,7 @@ struct Context
 
     void update_threads()
     {
-        threading.clear();
+        threading.clear(this);
         threading.initialise(this);
     }
 };

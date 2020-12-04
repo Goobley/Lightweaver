@@ -32,7 +32,9 @@ class witt:
 
     Coded in python by J. de la Cruz Rodriguez (ISP-SU 2017)
     Messed with by C. Osborne (University of Glasgow 2019-2020)
-        Don't blame Jaime for EOS bugs in Lightweaver!
+
+    Don't blame Jaime for EOS bugs in Lightweaver!
+    **N.B. Everything in here is CGS.**
 
     Dependencies: pf_Kurucz.input containing the partition function data.
 

@@ -3,73 +3,62 @@ from .atomic_set import lte_pops
 from scipy.linalg import solve
 from .atomic_table import PeriodicTable
 
-def Ftd(self, k, dt, nPrev, backgroundNe=0.0, atoms=None):
-    Nlevel = 0
-    if atoms is None:
-        atoms = self.activeAtoms
+def nr_post_update(self, fdCollisionRates=True, hOnly=False,
+                   timeDependentData=None, chunkSize=5,
+                   ngUpdate=None, printUpdate=None):
+    '''
+    Compute the Newton-Raphson terms for updating the electron density
+    through charge conservation. Is attached to the Context object.
 
-    for atom in atoms:
-        Nlevel += atom.Nlevel
-    Neqn = Nlevel + 1
+    Parameters
+    ----------
+    fdCollisionRates : bool, optional
+        Whether to use a finite difference approximation to the collisional
+        rates to find the population gradient WRT ne (default: True i.e. use
+        finite-difference, if False, collisional rates are ignored for this
+        process.)
+    hOnly : bool, optional
+        Ignore atoms other than Hydrogen (the primary electron contributor)
+        (default: False)
+    timeDependentData : dict, optional
+        The presence of this argument indicates that the time-dependent
+        formalism should be used. Should contain the keys 'dt' with a
+        floating point timestep, and 'nPrev' with a list of population
+        vectors from the start of the time integration step, in the order of
+        the active atoms. This latter term can be obtained from the previous
+        state provied by `Context.time_dep_update`.
+    chunkSize : int, optional
+        Not currently used.
+    ngUpdate : bool, optional
+        Whether to apply Ng Acceleration (default: None, to apply automatic
+        behaviour), will only accelerate if the counter on the Ng accelerator
+        has seen enough steps since the previous acceleration (set in Context
+        initialisation).
+    printUpdate : bool, optional
+        Whether to print information on the size of the update (default:
+        None, to apply automatic behaviour).
 
-    stages = [np.array([l.stage for l in atom.atomicModel.levels])
-              for atom in atoms]
+    Returns
+    -------
+    dPops : float
+        The maximum relative change of any of the NLTE populations in the
+        atmosphere.
+    '''
+    if self.activeAtoms[0].element != PeriodicTable[1]:
+        raise ValueError('Calling nr_post_update without Hydrogen active.')
 
-    F = np.zeros(Neqn)
-    F[-1] = self.atmos.ne[k]
-    start = 0
-    theta = 1.0
-    for idx, atom in enumerate(atoms):
-        F[start:start+atom.Nlevel] = theta * dt * (atom.Gamma[:, :, k] @ atom.n[:, k]) \
-                                      - (atom.n[:, k] - nPrev[idx][:, k])
-        F[start + atom.Nlevel - 1] = np.sum(atom.n[:, k]) - atom.nTotal[k]
-        F[-1] -= stages[idx] @ atom.n[:, k]
-        start += atom.Nlevel
-    F[-1] -= backgroundNe
+    if ngUpdate is None:
+        if self.conserveCharge:
+            ngUpdate = True
+        else:
+            ngUpdate = False
 
-    return F
-
-def F(self, k, backgroundNe=0.0, atoms=None):
-    Nlevel = 0
-    if atoms is None:
-        atoms = self.activeAtoms
-
-    for atom in atoms:
-        Nlevel += atom.Nlevel
-    Neqn = Nlevel + 1
-
-    stages = [np.array([l.stage for l in atom.atomicModel.levels])
-              for atom in atoms]
-
-    F = np.zeros(Neqn)
-    F[-1] = self.atmos.ne[k]
-    start = 0
-    for idx, atom in enumerate(atoms):
-        F[start:start+atom.Nlevel] = -(atom.Gamma[:, :, k] @ atom.n[:, k])
-        F[start + atom.Nlevel - 1] = np.sum(atom.n[:, k]) - atom.nTotal[k]
-        F[-1] -= stages[idx] @ atom.n[:, k]
-        start += atom.Nlevel
-    F[-1] -= backgroundNe
-
-    return F
-
-
-def nr_post_update(self, fdCollisionRates=True, hOnly=False, timeDependentData=None):
-    assert self.activeAtoms[0].element == PeriodicTable[1]
-    crswVal = self.crswCallback.val
+    if printUpdate is None:
+        printUpdate = ngUpdate
 
     timeDependent = (timeDependentData is not None)
     atoms = self.activeAtoms[:1] if hOnly else self.activeAtoms
-
-    Nlevel = 0
-    for atom in atoms:
-        Nlevel += atom.Nlevel
-    Neqn = Nlevel + 1
-
-    Nspace = self.atmos.Nspace
-    stages = [np.array([l.stage for l in atom.atomicModel.levels])
-              for atom in atoms]
-
+    crswVal = self.crswCallback.val
 
     if hOnly:
         backgroundAtoms = [model for ele, model in self.kwargs['spect'].radSet.items() if ele != PeriodicTable[1]]
@@ -84,8 +73,8 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False, timeDependentData=N
 
     neStart = np.copy(self.atmos.ne)
 
+    dC = []
     if fdCollisionRates:
-        dC = []
         for atom in atoms:
             atom.compute_collisions(fillDiagonal=True)
             Cprev = np.copy(atom.C)
@@ -101,87 +90,17 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False, timeDependentData=N
             dC.append(crswVal * (atom.C - Cprev) / pert)
             atom.C[:] = Cprev
 
-    maxChange = 0.0
-    maxIdx = -1
-    maxk = -1
-    dF = np.zeros((Neqn, Neqn))
-    Fnew = np.zeros(Neqn)
-    theta = 1.0
-    for k in range(Nspace):
-        dF[...] = 0.0
-        if timeDependent:
-            Fg = self.Ftd(k, dt=timeDependentData['dt'],
-                          nPrev=timeDependentData['nPrev'],
-                          backgroundNe=backgroundNe[k], atoms=atoms)
-        else:
-            Fg = self.F(k, backgroundNe=backgroundNe[k], atoms=atoms)
-
-        start = 0
-        for idx, atom in enumerate(atoms):
-            Nlevel = atom.Nlevel
-            dF[start:start+Nlevel, start:start+Nlevel] = -atom.Gamma[:, :, k]
-            if timeDependent:
-                dF[start:start+Nlevel, start:start+Nlevel] *= -theta * timeDependentData['dt']
-                dF[start:start+Nlevel, start:start+Nlevel] -= np.eye(Nlevel)
-
-            for t in atom.trans:
-                if t.type == 'Continuum':
-                    # dF[start + t.i, Neqn-1] -= (t.Rji[k] / self.atmos.ne[k]) * atom.n[t.j, k]
-                    preconRji = atom.Gamma[t.i, t.j, k] - crswVal * atom.C[t.i, t.j, k]
-                    entry = -(preconRji / self.atmos.ne[k]) * atom.n[t.j, k]
-                    if timeDependent:
-                        entry *= -theta * timeDependentData['dt']
-                    dF[start + t.i, Neqn-1] += entry
-
-
-            if fdCollisionRates:
-                for i in range(Nlevel):
-                    entry = -dC[idx][i, :, k] @ atom.n[:, k]
-                    if timeDependent:
-                        entry *= -theta * timeDependentData['dt']
-                    dF[start + i, Neqn-1] += entry
-
-            dF[start+Nlevel-1, :] = 0.0
-            dF[start+Nlevel-1, start:start+Nlevel] = 1.0
-
-            dF[-1, start:start+Nlevel] = -stages[idx]
-            start += Nlevel
-
-        dF[-1, -1] = 1.0
-        Fg *= -1.0
-
-        update = solve(dF, Fg)
-        # if k == 40:
-        #     print('------ %d ------' % k)
-        #     print(Fg)
-        #     print(dF)
-        #     print(update)
-        #     # print(atom.n[:, k], self.atmos.ne[k])
-        #     print(dF @ update)
-        #     print('------------')
-        #     # raise ValueError
-
-        start = 0
-        for atom in atoms:
-            atom.n[:, k] += update[start:start+atom.Nlevel]
-            start += atom.Nlevel
-        self.atmos.ne[k] += update[-1]
-
-        Fnew[:] = 0.0
-        start = 0
-        for atom in atoms:
-            Fnew[start:start+atom.Nlevel] = atom.n[:, k]
-            start += atom.Nlevel
-        Fnew[-1] = self.atmos.ne[k]
-
-        if np.max(np.abs(update/Fnew)) > maxChange:
-            maxChange = np.max(np.abs(update/Fnew))
-            maxIdx = np.argmax(np.abs(update/Fnew))
-            maxk = k
-
-    # NOTE(cmo): If we're here then conserveCharge has to be True, but we don't
-    # actually want to mess with n_e, that's the point in this function. Should
-    # handle LTE atoms here if we want to include their effects
+    self._nr_post_update_impl(atoms, dC, backgroundNe,
+                              timeDependentData=timeDependentData, chunkSize=chunkSize)
     self.eqPops.update_lte_atoms_Hmin_pops(self.atmos.pyAtmos, conserveCharge=False, quiet=True)
-    print('    NR Update dPops: %.2e (%d, k: %d)' % (maxChange, maxIdx, maxk))
-    return maxChange
+
+    if ngUpdate:
+        maxDelta = self.rel_diff_ng_accelerate(printUpdate=printUpdate)
+    else:
+        maxDelta = self.rel_diff_pops(printUpdate=printUpdate)
+    neDiff = ((np.asarray(self.atmos.ne) - neStart)
+                / np.asarray(self.atmos.ne)).max()
+    maxDelta = max(maxDelta, neDiff)
+    if printUpdate:
+        print('    ne delta = %6.4e' % neDiff)
+    return maxDelta

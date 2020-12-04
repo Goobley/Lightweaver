@@ -587,10 +587,59 @@ void ThreadData::initialise(Context* ctx)
     scheduler_start(&sched, schedMemory);
 
     intensityCores.initialise(&threadDataFactory, ctx->Nthreads);
+    for (Atom* a : ctx->activeAtoms)
+    {
+        for (Transition* t : a->trans)
+        {
+            if (t->type == TransitionType::LINE)
+            {
+                t->bound_parallel_compute_phi = [this, t](const Atmosphere& atmos,
+                                                       F64View aDamp, F64View vBroad)
+                {
+                    t->compute_phi_parallel(this, atmos, aDamp, vBroad);
+                };
+            }
+        }
+    }
+    for (Atom* a : ctx->detailedAtoms)
+    {
+        for (Transition* t : a->trans)
+        {
+            if (t->type == TransitionType::LINE)
+            {
+                t->bound_parallel_compute_phi = [this, t](const Atmosphere& atmos,
+                                                       F64View aDamp, F64View vBroad)
+                {
+                    t->compute_phi_parallel(this, atmos, aDamp, vBroad);
+                };
+            }
+        }
+    }
 }
 
-void ThreadData::clear()
+void ThreadData::clear(Context* ctx)
 {
+    for (Atom* a : ctx->activeAtoms)
+    {
+        for (Transition* t : a->trans)
+        {
+            if (t->type == TransitionType::LINE)
+            {
+                t->bound_parallel_compute_phi = std::function<void(const Atmosphere&, F64View, F64View)>();
+            }
+        }
+    }
+    for (Atom* a : ctx->detailedAtoms)
+    {
+        for (Transition* t : a->trans)
+        {
+            if (t->type == TransitionType::LINE)
+            {
+                t->bound_parallel_compute_phi = std::function<void(const Atmosphere&, F64View, F64View)>();
+            }
+        }
+    }
+
     if (schedMemory)
     {
         scheduler_stop(&sched, 1);

@@ -15,6 +15,9 @@ import os
 DeltaNeff = 0.1
 
 class BarklemTable:
+    '''
+    Storage for each table of Barklem data for Van der Waals approximation.
+    '''
     def __init__(self, path: str, neff0: Tuple[float, float]):
         data = np.genfromtxt(path, comments='c')
         shape = data.shape
@@ -25,15 +28,46 @@ class BarklemTable:
         self.neff2 = neff0[1] + np.arange(shape[1]) * DeltaNeff
 
 class BarklemCrossSectionError(Exception):
+    '''
+    Raised if the Barklem cross-section cannot be applied to the atom in
+    question.
+    '''
     pass
 
 class Barklem:
+    '''
+    Storage for all three Barklem cross-section cases and application via the
+    `get_active_cross_section` function.
+    '''
     barklem_sp = BarklemTable(get_data_path() + 'Barklem_spdata.dat', (1.0, 1.3))
     barklem_pd = BarklemTable(get_data_path() + 'Barklem_pddata.dat', (1.3, 2.3))
     barklem_df = BarklemTable(get_data_path() + 'Barklem_dfdata.dat', (2.3, 3.3))
 
     @classmethod
-    def get_active_cross_section(cls, atom: 'AtomicModel', line: 'AtomicLine', vals: Sequence[float]) -> Sequence[float]:
+    def get_active_cross_section(cls, atom: 'AtomicModel',
+                                 line: 'AtomicLine',
+                                 vals: Sequence[float]) -> Sequence[float]:
+        '''
+        Returns the cross section data for use in the Van der Waals collisional broadening routines.
+        See:
+
+          - Anstee & O'Mara 1995, MNRAS 276, 859-866
+
+          - Barklem & O'Mara 1998, MNRAS 300, 863-871
+
+          - Unsold:
+
+            - Traving 1960, "Uber die Theorie der Druckverbreiterung
+              von Spektrallinien", p 91-97
+
+            - Mihalas 1978, p. 282ff, and Table 9-1/
+
+        Returns
+        -------
+        result : list of 3 float
+            Barklem cross-section, Barklem alpha, Helium contribution
+            following Unsold (always 1.0)
+        '''
         i = line.i
         j = line.j
 
@@ -108,6 +142,3 @@ class Barklem:
         result[2] = 1.0
 
         return result
-
-
-

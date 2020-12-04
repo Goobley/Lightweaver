@@ -155,13 +155,14 @@ struct ThreadData
     void* schedMemory;
 
     ThreadData() : threadDataFactory(),
+                   intensityCores(),
                    sched(),
                    schedMemory(nullptr)
     {}
 
 
     void initialise(Context* ctx);
-    void clear();
+    void clear(Context* ctx);
 
     ~ThreadData()
     {
