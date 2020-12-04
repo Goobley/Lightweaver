@@ -46,6 +46,6 @@ jobs:
     - uses: actions/download-artifact@v2
       with:
         name: docs
-        path: docs.tar
+        path: docs
 
     - run: tar -xvf docs.tar
