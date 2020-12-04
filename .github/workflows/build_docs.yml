@@ -48,4 +48,6 @@ jobs:
         name: docs
         path: NewDocs
 
-    - run:  cp -a --verbose NewDocs/_build/html docs
+    - run: tar -xvf NewDocs/docs.tar NewDocs/docs
+
+    - run:  cp -a --verbose NewDocs/docs/_build/html docs
