@@ -25,9 +25,9 @@ jobs:
         LW_DOCS: true
 
     - run: |
-      cd docs
-      make html
-      touch _build/html/.nojekyll
+        cd docs
+        make html
+        touch _build/html/.nojekyll
 
     - run: tar -cvf docs.tar docs/_build/html
 
