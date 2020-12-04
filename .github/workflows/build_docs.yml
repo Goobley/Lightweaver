@@ -50,6 +50,7 @@ jobs:
 
     - run: |
         cd NewDocs
+        ls
         tar -xvf NewDocs/docs.tar
 
     - run:  cp -a --verbose NewDocs/docs/_build/html docs
