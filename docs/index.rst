@@ -10,9 +10,7 @@ Welcome to Lightweaver's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-.. automodule:: lightweaver.atmosphere
-   :members:
-
+   lightweaver-api
 
 
 Indices and tables
