@@ -1,0 +1,440 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>lightweaver.utils &mdash; Lightweaver  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Lightweaver
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../auto_examples/index.html">Lightweaver Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../lightweaver-api.html">Lightweaver API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Lightweaver</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>lightweaver.utils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for lightweaver.utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">lightweaver.constants</span> <span class="k">as</span> <span class="nn">C</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span><span class="p">,</span> <span class="n">deepcopy</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span>
+<span class="kn">from</span> <span class="nn">specutils.utils.wcs_utils</span> <span class="kn">import</span> <span class="n">vac_to_air</span> <span class="k">as</span> <span class="n">spec_vac_to_air</span><span class="p">,</span> <span class="n">air_to_vac</span> <span class="k">as</span> <span class="n">spec_air_to_vac</span>
+<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">njit</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">special</span>
+
+<div class="viewcode-block" id="NgOptions"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.NgOptions">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">NgOptions</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Container for the options related to Ng acceleration.</span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Norder : int, optional</span>
+<span class="sd">        The order of the extrapolation to use (default: 0, i.e. none).</span>
+<span class="sd">    Nperiod : int, optional</span>
+<span class="sd">        The number of iterations to run between extrapolations.</span>
+<span class="sd">    Ndelay : int, optional</span>
+<span class="sd">        The number of iterations to run before starting acceleration.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">Norder</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">Nperiod</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">Ndelay</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="InitialSolution"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.InitialSolution">[docs]</a><span class="k">class</span> <span class="nc">InitialSolution</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Initial solutions to use for atomic populations, either LTE, Zero</span>
+<span class="sd">    radiation (not yet supported), or second order escape probability.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">Lte</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">Zero</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">EscapeProbability</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="voigt_H"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.voigt_H">[docs]</a><span class="k">def</span> <span class="nf">voigt_H</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Scalar Voigt profile.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    a : float or array-like</span>
+<span class="sd">        The a damping parameter to be used in the Voigt profile.</span>
+<span class="sd">    v : float or array-like</span>
+<span class="sd">        The position in the line profile in Doppler units.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">v</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">a</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">special</span><span class="o">.</span><span class="n">wofz</span><span class="p">(</span><span class="n">z</span><span class="p">)</span><span class="o">.</span><span class="n">real</span></div>
+
+<div class="viewcode-block" id="planck"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.planck">[docs]</a><span class="nd">@njit</span>
+<span class="k">def</span> <span class="nf">planck</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="n">wav</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Planck black-body function B_nu(T) from wavelength.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    temp : float or array-like</span>
+<span class="sd">        Temperature [K]</span>
+<span class="sd">    wav : float or array-like</span>
+<span class="sd">        The wavelength at which to compute B_nu [nm].</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    result : float or array-like</span>
+<span class="sd">        B_nu(T)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">hc_Tkla</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">HC</span> <span class="o">/</span> <span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">KBoltzmann</span> <span class="o">*</span> <span class="n">C</span><span class="o">.</span><span class="n">NM_TO_M</span> <span class="o">*</span> <span class="n">wav</span><span class="p">)</span> <span class="o">/</span> <span class="n">temp</span>
+    <span class="n">twohnu3_c2</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">C</span><span class="o">.</span><span class="n">HC</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">NM_TO_M</span> <span class="o">*</span> <span class="n">wav</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span>
+
+    <span class="k">return</span> <span class="n">twohnu3_c2</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">hc_Tkla</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="gaunt_bf"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.gaunt_bf">[docs]</a><span class="k">def</span> <span class="nf">gaunt_bf</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span> <span class="n">nEff</span><span class="p">,</span> <span class="n">charge</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Gaunt factor for bound-free transitions, from Seaton (1960), Rep. Prog.</span>
+<span class="sd">    Phys. 23, 313, as used in RH.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    wvl : float or array-like</span>
+<span class="sd">        The wavelength at which to compute the Gaunt factor [nm].</span>
+<span class="sd">    nEff : float</span>
+<span class="sd">        Principal quantum number.</span>
+<span class="sd">    charge : float</span>
+<span class="sd">        Charge of free state.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    result : float or array-like</span>
+<span class="sd">        Gaunt factor for bound-free transitions.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># /* --- M. J. Seaton (1960), Rep. Prog. Phys. 23, 313 -- ----------- */</span>
+    <span class="c1"># Copied from RH, ensuring vectorisation support</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">HC</span> <span class="o">/</span> <span class="p">(</span><span class="n">wvl</span> <span class="o">*</span> <span class="n">C</span><span class="o">.</span><span class="n">NM_TO_M</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">ERydberg</span> <span class="o">*</span> <span class="n">charge</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">x3</span> <span class="o">=</span> <span class="n">x</span><span class="o">**</span><span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">3.0</span><span class="p">)</span>
+    <span class="n">nsqx</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">nEff</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="mf">0.1728</span> <span class="o">*</span> <span class="n">x3</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">nsqx</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.0496</span> <span class="o">*</span> <span class="n">x3</span><span class="o">**</span><span class="mi">2</span> \
+            <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">nsqx</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">nsqx</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConvergenceError"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.ConvergenceError">[docs]</a><span class="k">class</span> <span class="nc">ConvergenceError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Raised by some iteration schemes, can also be used in user code.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="ExplodingMatrixError"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.ExplodingMatrixError">[docs]</a><span class="k">class</span> <span class="nc">ExplodingMatrixError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Raised by the linear system matrix solver in the case of unsolvable</span>
+<span class="sd">    systems.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">pass</span></div>
+
+<span class="n">_LwCodeLocation</span> <span class="o">=</span> <span class="kc">None</span>
+<div class="viewcode-block" id="get_data_path"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.get_data_path">[docs]</a><span class="k">def</span> <span class="nf">get_data_path</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Returns the location of the Lightweaver support data.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">global</span> <span class="n">_LwCodeLocation</span>
+    <span class="k">if</span> <span class="n">_LwCodeLocation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_LwCodeLocation</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_LwCodeLocation</span> <span class="o">+</span> <span class="s1">&#39;/Data/&#39;</span></div>
+
+<div class="viewcode-block" id="get_default_molecule_path"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.get_default_molecule_path">[docs]</a><span class="k">def</span> <span class="nf">get_default_molecule_path</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Returns the location of the default molecules taken from RH.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">global</span> <span class="n">_LwCodeLocation</span>
+    <span class="k">if</span> <span class="n">_LwCodeLocation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_LwCodeLocation</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_LwCodeLocation</span> <span class="o">+</span> <span class="s1">&#39;/Data/DefaultMolecules/&#39;</span></div>
+
+<div class="viewcode-block" id="vac_to_air"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.vac_to_air">[docs]</a><span class="k">def</span> <span class="nf">vac_to_air</span><span class="p">(</span><span class="n">wavelength</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Convert vacuum wavelength to air.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    wavelength : float or array-like or astropy.Quantity</span>
+<span class="sd">        If no units then the wavelength is assumed to be in [nm], otherwise the provided units are used.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    result : float or array-like or astropy.Quantity</span>
+<span class="sd">        The converted wavelength in [nm].</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">spec_vac_to_air</span><span class="p">(</span><span class="n">wavelength</span> <span class="o">&lt;&lt;</span> <span class="n">units</span><span class="o">.</span><span class="n">nm</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;edlen1966&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span></div>
+
+<div class="viewcode-block" id="air_to_vac"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.air_to_vac">[docs]</a><span class="k">def</span> <span class="nf">air_to_vac</span><span class="p">(</span><span class="n">wavelength</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Convert air wavelength to vacuum.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    wavelength : float or array-like or astropy.Quantity</span>
+<span class="sd">        If no units then the wavelength is assumed to be in [nm], otherwise the provided units are used.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    result : float or array-like or astropy.Quantity</span>
+<span class="sd">        The converted wavelength in [nm].</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">spec_air_to_vac</span><span class="p">(</span><span class="n">wavelength</span> <span class="o">&lt;&lt;</span> <span class="n">units</span><span class="o">.</span><span class="n">nm</span><span class="p">,</span> <span class="n">scheme</span><span class="o">=</span><span class="s1">&#39;iteration&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;edlen1966&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span></div>
+
+<div class="viewcode-block" id="convert_specific_intensity"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.convert_specific_intensity">[docs]</a><span class="k">def</span> <span class="nf">convert_specific_intensity</span><span class="p">(</span><span class="n">wavelength</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                               <span class="n">specInt</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">outUnits</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">units</span><span class="o">.</span><span class="n">quantity</span><span class="o">.</span><span class="n">Quantity</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Convert a specific intensity between different units.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    wavelength : np.ndarray or astropy.Quantity</span>
+<span class="sd">        If no units are provided then this is assumed to be in nm.</span>
+<span class="sd">    specInt : np.ndarray or astropy.Quantity</span>
+<span class="sd">        If no units are provided then this is assumed to be in J/s/m2/sr/Hz,</span>
+<span class="sd">        the default for Lightweaver.</span>
+<span class="sd">    outUnits : str or astropy.Unit</span>
+<span class="sd">        The units to convert specInt to e.g. &#39;erg/s/cm2/sr/A&#39;</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    result : astropy.Quantity</span>
+<span class="sd">        specInt converted to the desired units.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wavelength</span><span class="p">,</span> <span class="n">units</span><span class="o">.</span><span class="n">Quantity</span><span class="p">):</span>
+        <span class="n">wavelength</span> <span class="o">=</span> <span class="n">wavelength</span> <span class="o">&lt;&lt;</span> <span class="n">units</span><span class="o">.</span><span class="n">nm</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">specInt</span><span class="p">,</span> <span class="n">units</span><span class="o">.</span><span class="n">Quantity</span><span class="p">):</span>
+        <span class="n">specInt</span> <span class="o">=</span> <span class="n">specInt</span> <span class="o">&lt;&lt;</span> <span class="n">units</span><span class="o">.</span><span class="n">J</span> <span class="o">/</span> <span class="n">units</span><span class="o">.</span><span class="n">s</span> <span class="o">/</span> <span class="n">units</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">units</span><span class="o">.</span><span class="n">sr</span> <span class="o">/</span> <span class="n">units</span><span class="o">.</span><span class="n">Hz</span>
+
+    <span class="k">return</span> <span class="n">specInt</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">outUnits</span><span class="p">,</span> <span class="n">equivalencies</span><span class="o">=</span><span class="n">units</span><span class="o">.</span><span class="n">spectral_density</span><span class="p">(</span><span class="n">wavelength</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="CrswIterator"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.CrswIterator">[docs]</a><span class="k">class</span> <span class="nc">CrswIterator</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Basic iterator to be used for controlling the scale of the collisional</span>
+<span class="sd">    radiative switching (of Hummer &amp; Voels) multiplicative paramter. Can be</span>
+<span class="sd">    inherited to provide different behaviour. By default starts from a factor</span>
+<span class="sd">    of 1e3 and scales this factor by 0.1**(1.0/value) each iteration, as is</span>
+<span class="sd">    the default behaviour in RH.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initVal</span><span class="o">=</span><span class="mf">1e3</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">=</span> <span class="n">initVal</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">*</span> <span class="mf">0.1</span><span class="o">**</span><span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">val</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">val</span></div>
+
+<div class="viewcode-block" id="UnityCrswIterator"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.UnityCrswIterator">[docs]</a><span class="k">class</span> <span class="nc">UnityCrswIterator</span><span class="p">(</span><span class="n">CrswIterator</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    A specific case representing no collisional radiative switching (i.e.</span>
+<span class="sd">    parameter always 1).</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">val</span></div>
+
+<div class="viewcode-block" id="sequence_repr"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.sequence_repr">[docs]</a><span class="k">def</span> <span class="nf">sequence_repr</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Uniform representation of arrays and lists as lists for use in</span>
+<span class="sd">    round-tripping AtomicModels.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+
+    <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="view_flatten"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.view_flatten">[docs]</a><span class="k">def</span> <span class="nf">view_flatten</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Return a flattened view over an array, will raise an Exception if it</span>
+<span class="sd">    cannot be represented as a flat array without copy.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
+    <span class="n">y</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">,)</span>
+    <span class="k">return</span> <span class="n">y</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, C. Osborne
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

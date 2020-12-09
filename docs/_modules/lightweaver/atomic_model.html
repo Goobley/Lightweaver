@@ -1,0 +1,989 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>lightweaver.atomic_model &mdash; Lightweaver  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Lightweaver
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../auto_examples/index.html">Lightweaver Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../lightweaver-api.html">Lightweaver API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Lightweaver</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>lightweaver.atomic_model</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for lightweaver.atomic_model</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
+<span class="kn">from</span> <span class="nn">fractions</span> <span class="kn">import</span> <span class="n">Fraction</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Callable</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">weno4</span> <span class="kn">import</span> <span class="n">weno4</span>
+<span class="kn">from</span> <span class="nn">parse</span> <span class="kn">import</span> <span class="n">parse</span>
+
+<span class="kn">import</span> <span class="nn">lightweaver.constants</span> <span class="k">as</span> <span class="nn">Const</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">gaunt_bf</span><span class="p">,</span> <span class="n">sequence_repr</span>
+<span class="kn">from</span> <span class="nn">.atomic_table</span> <span class="kn">import</span> <span class="n">PeriodicTable</span><span class="p">,</span> <span class="n">Element</span>
+<span class="kn">from</span> <span class="nn">.barklem</span> <span class="kn">import</span> <span class="n">Barklem</span>
+<span class="kn">from</span> <span class="nn">.zeeman</span> <span class="kn">import</span> <span class="n">compute_zeeman_components</span><span class="p">,</span> <span class="n">ZeemanComponents</span>
+<span class="kn">from</span> <span class="nn">.broadening</span> <span class="kn">import</span> <span class="n">LineBroadening</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.atmosphere</span> <span class="kn">import</span> <span class="n">Atmosphere</span>
+    <span class="kn">from</span> <span class="nn">.atomic_set</span> <span class="kn">import</span> <span class="n">SpeciesStateTable</span>
+    <span class="kn">from</span> <span class="nn">.collisional_rates</span> <span class="kn">import</span> <span class="n">CollisionalRates</span>
+
+
+<div class="viewcode-block" id="AtomicModel"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.AtomicModel">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">AtomicModel</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Container class for the complete description of a model atom.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    element : Element</span>
+<span class="sd">        The element or ion represented by this model.</span>
+<span class="sd">    levels : list of AtomicLevel</span>
+<span class="sd">        The levels in use in this model.</span>
+<span class="sd">    lines :  list of AtomicLine</span>
+<span class="sd">        The atomic lines present in this model.</span>
+<span class="sd">    continua : list of AtomicContinuum</span>
+<span class="sd">        The atomic continua present in this model.</span>
+<span class="sd">    collisions : list of CollisionalRates</span>
+<span class="sd">        The collisional rates present in this model.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">element</span><span class="p">:</span> <span class="n">Element</span>
+    <span class="n">levels</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="s1">&#39;AtomicLevel&#39;</span><span class="p">]</span>
+    <span class="n">lines</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="s1">&#39;AtomicLine&#39;</span><span class="p">]</span>
+    <span class="n">continua</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="s1">&#39;AtomicContinuum&#39;</span><span class="p">]</span>
+    <span class="n">collisions</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="s1">&#39;CollisionalRates&#39;</span><span class="p">]</span>
+
+    <span class="c1"># @profile</span>
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">levels</span><span class="p">:</span>
+            <span class="n">l</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span>
+            <span class="n">l</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">continua</span><span class="p">:</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">collisions</span><span class="p">:</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;AtomicModel(element=</span><span class="si">%s</span><span class="s1">,</span><span class="se">\n\t</span><span class="s1">levels=[</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">element</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">levels</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;,</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">],</span><span class="se">\n\t</span><span class="s1">lines=[</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;,</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">],</span><span class="se">\n\t</span><span class="s1">continua=[</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">continua</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;,</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">],</span><span class="se">\n\t</span><span class="s1">collisions=[</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">collisions</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;,</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;])</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="c1"># def __hash__(self):</span>
+    <span class="c1">#     return hash(repr(self))</span>
+
+<div class="viewcode-block" id="AtomicModel.vBroad"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.AtomicModel.vBroad">[docs]</a>    <span class="k">def</span> <span class="nf">vBroad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Computes the atomic broadening velocity structure for a given</span>
+<span class="sd">        atmosphere from the thermal motions and microturbulent velocity.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">vTherm</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">KBoltzmann</span> <span class="o">/</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">Amu</span> <span class="o">*</span> <span class="n">PeriodicTable</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">element</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
+        <span class="n">vBroad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">vTherm</span> <span class="o">*</span> <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span> <span class="o">+</span> <span class="n">atmos</span><span class="o">.</span><span class="n">vturb</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">vBroad</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">transitions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="s1">&#39;AtomicTransition&#39;</span><span class="p">]:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        List of all atomic transitions present on the model.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">continua</span> <span class="c1"># type: ignore</span></div>
+
+<div class="viewcode-block" id="reconfigure_atom"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.reconfigure_atom">[docs]</a><span class="k">def</span> <span class="nf">reconfigure_atom</span><span class="p">(</span><span class="n">atom</span><span class="p">:</span> <span class="n">AtomicModel</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Re-perform all atomic set up after modifying parameters.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">atom</span><span class="o">.</span><span class="n">__post_init__</span><span class="p">()</span></div>
+
+<span class="k">def</span> <span class="nf">element_sort</span><span class="p">(</span><span class="n">atom</span><span class="p">:</span> <span class="n">AtomicModel</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">atom</span><span class="o">.</span><span class="n">element</span>
+
+<div class="viewcode-block" id="AtomicLevel"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.AtomicLevel">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">AtomicLevel</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Description of atomic level in model atom.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    E : float</span>
+<span class="sd">        Energy above ground state [cm-1]</span>
+<span class="sd">    g : float</span>
+<span class="sd">        Statistical weight of level</span>
+<span class="sd">    label : str</span>
+<span class="sd">        Name for level</span>
+<span class="sd">    stage : int</span>
+<span class="sd">        Ionisation of level with 0 being neutral</span>
+<span class="sd">    atom : AtomicModel</span>
+<span class="sd">        AtomicModel that holds this level, will be initialised by the atom.</span>
+<span class="sd">    J : Fraction, optional</span>
+<span class="sd">        Total quantum angular momentum.</span>
+<span class="sd">    L : int, optional</span>
+<span class="sd">        Orbital angular momentum.</span>
+<span class="sd">    S : Fraction, optional</span>
+<span class="sd">        Spin.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">E</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">g</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">label</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">stage</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">atom</span><span class="p">:</span> <span class="n">AtomicModel</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">J</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Fraction</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">L</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">S</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Fraction</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atom</span> <span class="o">=</span> <span class="n">atom</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">J</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">AtomicLevel</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">hash</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lsCoupling</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns whether the L-S coupling formalism can be applied to this</span>
+<span class="sd">        level.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">J</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S</span><span class="p">)):</span>
+            <span class="n">J</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Fraction</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">J</span><span class="p">)</span>
+            <span class="n">L</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="p">)</span>
+            <span class="n">S</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Fraction</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">S</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">J</span> <span class="o">&lt;=</span> <span class="n">L</span> <span class="o">+</span> <span class="n">S</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">E_SI</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns E in Joule.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">E</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">HC</span> <span class="o">/</span> <span class="n">Const</span><span class="o">.</span><span class="n">CM_TO_M</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">E_eV</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns E in electron volt.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">E_SI</span> <span class="o">/</span> <span class="n">Const</span><span class="o">.</span><span class="n">EV</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;AtomicLevel(E=</span><span class="si">%10.3f</span><span class="s1">, g=</span><span class="si">%g</span><span class="s1">, label=&quot;</span><span class="si">%s</span><span class="s1">&quot;, stage=</span><span class="si">%d</span><span class="s1">, J=</span><span class="si">%s</span><span class="s1">, L=</span><span class="si">%s</span><span class="s1">, S=</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">J</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">S</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+<div class="viewcode-block" id="LineType"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.LineType">[docs]</a><span class="k">class</span> <span class="nc">LineType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Enum to show if the line should be treated in CRD or PRD.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">CRD</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">PRD</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">LineType</span><span class="o">.</span><span class="n">CRD</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;LineType.CRD&#39;</span>
+        <span class="k">elif</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">LineType</span><span class="o">.</span><span class="n">PRD</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;LineType.PRD&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unknown LineType in LineType.__repr__&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LineQuadrature"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.LineQuadrature">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">LineQuadrature</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Describes the wavelength quadrature to be used for integrating properties</span>
+<span class="sd">    associated with a line.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="s1">&#39;AtomicLine&#39;</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="LineQuadrature.doppler_units"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.LineQuadrature.doppler_units">[docs]</a>    <span class="k">def</span> <span class="nf">doppler_units</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="s1">&#39;AtomicLine&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return the quadrature in Doppler units.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="LineQuadrature.wavelength"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.LineQuadrature.wavelength">[docs]</a>    <span class="k">def</span> <span class="nf">wavelength</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="s1">&#39;AtomicLine&#39;</span><span class="p">,</span> <span class="n">vMicroChar</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="n">Const</span><span class="o">.</span><span class="n">VMICRO_CHAR</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return the quadrature in nm.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="LinearCoreExpWings"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.LinearCoreExpWings">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">LinearCoreExpWings</span><span class="p">(</span><span class="n">LineQuadrature</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    RH-Style line quadrature, with approximately linear core spacing and</span>
+<span class="sd">    exponential wing spacing, by using a function of the form</span>
+<span class="sd">    q(n) = a*(n + (exp(b*n)-1))</span>
+<span class="sd">    with n \in [0, N) satisfying the following conditions:</span>
+
+<span class="sd">     - q[0] = 0</span>
+
+<span class="sd">     - q[(N-1)/2] = qcore</span>
+
+<span class="sd">     - q[N-1] = qwing.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">qCore</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">qWing</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Nlambda</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">beta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(qCore=</span><span class="si">%g</span><span class="s1">, qWing=</span><span class="si">%g</span><span class="s1">, Nlambda=</span><span class="si">%d</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+             <span class="bp">self</span><span class="o">.</span><span class="n">qCore</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qWing</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nlambda</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">qCore</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qWing</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nlambda</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="s1">&#39;AtomicLine&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qWing</span> <span class="o">&lt;=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">qCore</span><span class="p">:</span>
+            <span class="c1"># Use linear scale to qWing</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Ratio of qWing / (2*qCore) &lt;= 1</span><span class="se">\n</span><span class="s2"> Using linear spacing for transition </span><span class="si">%d</span><span class="s2">-&gt;</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">i</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qWing</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">qCore</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LinearCoreExpWings.doppler_units"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.LinearCoreExpWings.doppler_units">[docs]</a>    <span class="k">def</span> <span class="nf">doppler_units</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="s1">&#39;AtomicLine&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">Nlambda</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nlambda</span> <span class="o">//</span> <span class="mi">2</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nlambda</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nlambda</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">Nlambda</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="n">beta</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">beta</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">beta</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">Nlambda</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">-</span> <span class="mf">3.0</span> <span class="o">*</span> <span class="n">beta</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">Nlambda</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qWing</span> <span class="o">/</span> <span class="p">(</span><span class="n">Nlambda</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">+</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">nl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">Nlambda</span><span class="p">)</span>
+        <span class="n">q</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="p">(</span><span class="n">nl</span> <span class="o">+</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">b</span> <span class="o">*</span> <span class="n">nl</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">))</span>
+
+        <span class="n">NlambdaFull</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">Nlambda</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">NlambdaFull</span><span class="p">)</span>
+        <span class="n">Nmid</span> <span class="o">=</span> <span class="n">Nlambda</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="n">result</span><span class="p">[:</span><span class="n">Nmid</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">Nmid</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="LinearCoreExpWings.wavelength"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.LinearCoreExpWings.wavelength">[docs]</a>    <span class="k">def</span> <span class="nf">wavelength</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="s1">&#39;AtomicLine&#39;</span><span class="p">,</span> <span class="n">vMicroChar</span><span class="o">=</span><span class="n">Const</span><span class="o">.</span><span class="n">VMICRO_CHAR</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">qToLambda</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">lambda0</span> <span class="o">*</span> <span class="p">(</span><span class="n">vMicroChar</span> <span class="o">/</span> <span class="n">Const</span><span class="o">.</span><span class="n">CLight</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">doppler_units</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">*=</span> <span class="n">qToLambda</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="n">line</span><span class="o">.</span><span class="n">lambda0</span>
+        <span class="k">return</span> <span class="n">result</span></div></div>
+
+
+<div class="viewcode-block" id="AtomicTransition"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.AtomicTransition">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">AtomicTransition</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Basic storage class for atomic transitions. Both lines and continua are</span>
+<span class="sd">    derived from this.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">j</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">i</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">atom</span><span class="p">:</span> <span class="n">AtomicModel</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">jLevel</span><span class="p">:</span> <span class="n">AtomicLevel</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">iLevel</span><span class="p">:</span> <span class="n">AtomicLevel</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">:</span> <span class="n">AtomicModel</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">repr</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">wavelength</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lambda0</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lambda0_m</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">transId</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Unique identifier (transition ID) for transition (assuming one copy</span>
+<span class="sd">        of each Element), used in creating a SpectrumConfiguration etc.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">element</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LineProfileState"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.LineProfileState">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">LineProfileState</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Dataclass used to communicate line profile calculations from the backend</span>
+<span class="sd">    to the frontend whilst allowing the backend to provide an overrideable</span>
+<span class="sd">    optimised voigt implementation for the default case.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    wavelength : np.ndarray</span>
+<span class="sd">        Wavelengths at which to compute the line profile [nm]</span>
+<span class="sd">    vlosMu : np.ndarray</span>
+<span class="sd">        Bulk velocity projected onto each ray in the angular integration scheme [m/s] in an array of [Nmu, Nspace].</span>
+<span class="sd">    atmos : Atmosphere</span>
+<span class="sd">        The associated atmosphere.</span>
+<span class="sd">    eqPops : SpeciesStateTable</span>
+<span class="sd">        The associated populations for each species present in the simulation.</span>
+<span class="sd">    default_voigt_callback : callable</span>
+<span class="sd">        Computes the Voigt profile for the default case, takes the damping</span>
+<span class="sd">        parameter aDamp and broadening velocity vBroad as arguments, and</span>
+<span class="sd">        returns the line profile phi (in this case phi_num in the tech report).</span>
+<span class="sd">    vBroad : np.ndarray, optional</span>
+<span class="sd">        Cache to avoid recomputing vBroad every time. May be None.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">wavelength</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">vlosMu</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span>
+    <span class="n">eqPops</span><span class="p">:</span> <span class="s1">&#39;SpeciesStateTable&#39;</span>
+    <span class="n">default_voigt_callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+    <span class="n">vBroad</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span></div>
+
+<div class="viewcode-block" id="LineProfileResult"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.LineProfileResult">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">LineProfileResult</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Dataclass for returning the line profile and associated data that needs</span>
+<span class="sd">    to be saved (damping parameter and elastic collision rate) from the</span>
+<span class="sd">    frontend to the backend.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">phi</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">aDamp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">Qelast</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span></div>
+
+
+<div class="viewcode-block" id="AtomicLine"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.AtomicLine">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">AtomicLine</span><span class="p">(</span><span class="n">AtomicTransition</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Base class for atomic lines, holding their specialised information over</span>
+<span class="sd">    transitions.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    f : float</span>
+<span class="sd">        Oscillator strength.</span>
+<span class="sd">    type : LineType</span>
+<span class="sd">        Should the line be treated in PRD or CRD.</span>
+<span class="sd">    quadrature : LineQuadrature</span>
+<span class="sd">        Wavelength quadrature for integrating line properties over.</span>
+<span class="sd">    broadening : LineBroadening</span>
+<span class="sd">        Object describing the broadening processes to be used in conjunction</span>
+<span class="sd">        with the quadrature to generate the line profile.</span>
+<span class="sd">    gLandeEff : float, optional</span>
+<span class="sd">        Optionally override LS-coupling (if available for this transition),</span>
+<span class="sd">        and just directly set the effective Lande g factor (if it isn&#39;t).</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">f</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">LineType</span>
+    <span class="n">quadrature</span><span class="p">:</span> <span class="n">LineQuadrature</span>
+    <span class="n">broadening</span><span class="p">:</span> <span class="n">LineBroadening</span>
+    <span class="n">gLandeEff</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">:</span> <span class="n">AtomicModel</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atom</span> <span class="o">=</span> <span class="n">atom</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jLevel</span><span class="p">:</span> <span class="n">AtomicLevel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iLevel</span><span class="p">:</span> <span class="n">AtomicLevel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quadrature</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">broadening</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(j=</span><span class="si">%d</span><span class="s1">, i=</span><span class="si">%d</span><span class="s1">, f=</span><span class="si">%9.3e</span><span class="s1">, type=</span><span class="si">%s</span><span class="s1">, quadrature=</span><span class="si">%s</span><span class="s1">, broadening=</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">),</span>
+                <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quadrature</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">broadening</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gLandeEff</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;, gLandeEff=</span><span class="si">%e</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">gLandeEff</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;)&#39;</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+<div class="viewcode-block" id="AtomicLine.wavelength"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.AtomicLine.wavelength">[docs]</a>    <span class="k">def</span> <span class="nf">wavelength</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vMicroChar</span><span class="o">=</span><span class="n">Const</span><span class="o">.</span><span class="n">VMICRO_CHAR</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns the wavelength grid for this transition based on the</span>
+<span class="sd">        LineQuadrature.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        vMicroChar : float, optional</span>
+<span class="sd">            Characterisitc microturbulent velocity to assume when computing</span>
+<span class="sd">            the line quadrature (default 3e3 m/s).</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">quadrature</span><span class="o">.</span><span class="n">wavelength</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vMicroChar</span><span class="o">=</span><span class="n">vMicroChar</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AtomicLine.zeeman_components"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.AtomicLine.zeeman_components">[docs]</a>    <span class="k">def</span> <span class="nf">zeeman_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ZeemanComponents</span><span class="p">]:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns the Zeeman components of a line, if possible or None.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">compute_zeeman_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AtomicLine.compute_phi"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.AtomicLine.compute_phi">[docs]</a>    <span class="k">def</span> <span class="nf">compute_phi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">LineProfileState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LineProfileResult</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Compute the line profile, intended to be called from the backend.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">overlyingContinuumLevel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AtomicLevel</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Find the first overlying continuum level.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">Z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jLevel</span><span class="o">.</span><span class="n">stage</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span>
+        <span class="n">ic</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">.</span><span class="n">stage</span> <span class="o">&lt;</span> <span class="n">Z</span><span class="p">:</span>
+                <span class="n">ic</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">cont</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">cont</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No overlying continuum level found for line </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lambda0</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return the line rest wavelength [nm].</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda0_m</span> <span class="o">/</span> <span class="n">Const</span><span class="o">.</span><span class="n">NM_TO_M</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lambda0_m</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return the line rest wavelength [m].</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">deltaE</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jLevel</span><span class="o">.</span><span class="n">E_SI</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">iLevel</span><span class="o">.</span><span class="n">E_SI</span>
+        <span class="k">return</span> <span class="n">Const</span><span class="o">.</span><span class="n">HC</span> <span class="o">/</span> <span class="n">deltaE</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Aji</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return the Einstein A coefficient for this line.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">gRatio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iLevel</span><span class="o">.</span><span class="n">g</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">jLevel</span><span class="o">.</span><span class="n">g</span>
+        <span class="n">C</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">QElectron</span> <span class="o">/</span> <span class="n">Const</span><span class="o">.</span><span class="n">Epsilon0</span><span class="p">)</span> \
+           <span class="o">*</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">QElectron</span> <span class="o">/</span> <span class="n">Const</span><span class="o">.</span><span class="n">MElectron</span><span class="p">)</span> <span class="o">/</span> <span class="n">Const</span><span class="o">.</span><span class="n">CLight</span>
+        <span class="k">return</span> <span class="n">C</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda0_m</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">gRatio</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Bji</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return the Einstein B_{ji} coefficient for this line.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda0_m</span><span class="o">**</span><span class="mi">3</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">HC</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Aji</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Bij</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return the Einstein B_{ij} coefficient for this line.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">jLevel</span><span class="o">.</span><span class="n">g</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">iLevel</span><span class="o">.</span><span class="n">g</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Bji</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">polarisable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return whether sufficient information is available to compute full</span>
+<span class="sd">        Stokes solutions for this line.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iLevel</span><span class="o">.</span><span class="n">lsCoupling</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">jLevel</span><span class="o">.</span><span class="n">lsCoupling</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gLandeEff</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VoigtLine"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.VoigtLine">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">VoigtLine</span><span class="p">(</span><span class="n">AtomicLine</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Specialised line profile for the default case of a Voigt profile.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="VoigtLine.damping"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.VoigtLine.damping">[docs]</a>    <span class="k">def</span> <span class="nf">damping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">:</span> <span class="s1">&#39;SpeciesStateTable&#39;</span><span class="p">,</span>
+                <span class="n">vBroad</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Computes the damping parameter and elastic collision rate.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        atmos : Atmosphere</span>
+<span class="sd">            The atmosphere to consider.</span>
+<span class="sd">        eqPops : SpeciesStateTable</span>
+<span class="sd">            The populations in this atmosphere.</span>
+<span class="sd">        vBroad : np.ndarray, optional</span>
+<span class="sd">            The broadening velocity, will be used if passed, or computed</span>
+<span class="sd">            using atom.vBroad if not.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        aDamp : np.ndarray</span>
+<span class="sd">            The Voigt damping parameter.</span>
+<span class="sd">        Qelast : np.ndarray</span>
+<span class="sd">            The rate of elastic collisions broadening the line -- needed for PRD.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">Qs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">broadening</span><span class="o">.</span><span class="n">broaden</span><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">vBroad</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">vBroad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">vBroad</span><span class="p">(</span><span class="n">atmos</span><span class="p">)</span>
+
+        <span class="n">cDop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda0_m</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+        <span class="n">aDamp</span> <span class="o">=</span> <span class="p">(</span><span class="n">Qs</span><span class="o">.</span><span class="n">natural</span> <span class="o">+</span> <span class="n">Qs</span><span class="o">.</span><span class="n">Qelast</span><span class="p">)</span> <span class="o">*</span> <span class="n">cDop</span> <span class="o">/</span> <span class="n">vBroad</span>
+        <span class="k">return</span> <span class="n">aDamp</span><span class="p">,</span> <span class="n">Qs</span><span class="o">.</span><span class="n">Qelast</span></div>
+
+<div class="viewcode-block" id="VoigtLine.compute_phi"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.VoigtLine.compute_phi">[docs]</a>    <span class="k">def</span> <span class="nf">compute_phi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">LineProfileState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LineProfileResult</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Computes the line profile.</span>
+
+<span class="sd">        In the case of a VoigtLine the line profile simply uses the</span>
+<span class="sd">        default_voigt_callback from the backend.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        state : LineProfileState</span>
+<span class="sd">            The information from the backend</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        result : LineProfileResult</span>
+<span class="sd">            The line profile, as well as the damping parameter &#39;a&#39; and and</span>
+<span class="sd">            the broadening velocity.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">vBroad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">vBroad</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">atmos</span><span class="p">)</span> <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">vBroad</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">state</span><span class="o">.</span><span class="n">vBroad</span>
+        <span class="n">aDamp</span><span class="p">,</span> <span class="n">Qelast</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">damping</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">atmos</span><span class="p">,</span> <span class="n">state</span><span class="o">.</span><span class="n">eqPops</span><span class="p">,</span> <span class="n">vBroad</span><span class="o">=</span><span class="n">vBroad</span><span class="p">)</span>
+        <span class="n">cb</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">default_voigt_callback</span>
+        <span class="c1"># NOTE(cmo): This is affected by mypy #5485, so we ignore typing for now</span>
+        <span class="n">phi</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">default_voigt_callback</span><span class="p">(</span><span class="n">aDamp</span><span class="p">,</span> <span class="n">vBroad</span><span class="p">)</span> <span class="c1"># type: ignore</span>
+
+        <span class="k">return</span> <span class="n">LineProfileResult</span><span class="p">(</span><span class="n">phi</span><span class="o">=</span><span class="n">phi</span><span class="p">,</span> <span class="n">aDamp</span><span class="o">=</span><span class="n">aDamp</span><span class="p">,</span> <span class="n">Qelast</span><span class="o">=</span><span class="n">Qelast</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="AtomicContinuum"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.AtomicContinuum">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">AtomicContinuum</span><span class="p">(</span><span class="n">AtomicTransition</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Base class for atomic continua.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">:</span> <span class="n">AtomicModel</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;AtomicContinuum(j=</span><span class="si">%d</span><span class="s1">, i=</span><span class="si">%d</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+<div class="viewcode-block" id="AtomicContinuum.alpha"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.AtomicContinuum.alpha">[docs]</a>    <span class="k">def</span> <span class="nf">alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns the cross-section as a function of wavelength</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        wavelength : np.ndarray</span>
+<span class="sd">            The wavelengths at which to compute the cross-section</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        alpha : np.ndarray</span>
+<span class="sd">            The cross-section for each wavelength</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="AtomicContinuum.wavelength"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.AtomicContinuum.wavelength">[docs]</a>    <span class="k">def</span> <span class="nf">wavelength</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        The wavelength grid on which this continuum&#39;s cross section is defined.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">minLambda</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        The minimum wavelength at which this transition contributes.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lambda0</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        The maximum (edge) wavelength at which this transition contributes [nm].</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda0_m</span> <span class="o">/</span> <span class="n">Const</span><span class="o">.</span><span class="n">NM_TO_M</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lambdaEdge</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        The maximum (edge) wavelength at which this transition contributes [nm].</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lambda0_m</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        The maximum (edge) wavelength at which this transition contributes [m].</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">deltaE</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jLevel</span><span class="o">.</span><span class="n">E_SI</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">iLevel</span><span class="o">.</span><span class="n">E_SI</span>
+        <span class="k">return</span> <span class="n">Const</span><span class="o">.</span><span class="n">HC</span> <span class="o">/</span> <span class="n">deltaE</span></div>
+
+<div class="viewcode-block" id="ExplicitContinuum"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.ExplicitContinuum">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ExplicitContinuum</span><span class="p">(</span><span class="n">AtomicContinuum</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Specific version of atomic continuum with tabulated cross-section against</span>
+<span class="sd">    wavelength. Interpolated using weno4.</span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    wavelengthGrid : list of float</span>
+<span class="sd">        Wavelengths at which cross-section is tabulated [nm].</span>
+<span class="sd">    alphaGrid : list of float</span>
+<span class="sd">        Tabulated cross-sections [m2].</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">wavelengthGrid</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+    <span class="n">alphaGrid</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">:</span> <span class="n">AtomicModel</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atom</span> <span class="o">=</span> <span class="n">atom</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wavelengthGrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wavelengthGrid</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wavelengthGrid</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Wavelength array not monotonically increasing in continuum </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alphaGrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alphaGrid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jLevel</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iLevel</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambdaEdge</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">wavelengthGrid</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">wav</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">wavelengthGrid</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">lambdaEdge</span><span class="p">])))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wavelengthGrid</span> <span class="o">=</span> <span class="n">wav</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alphaGrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">alphaGrid</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">alphaGrid</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])))</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;ExplicitContinuum(j=</span><span class="si">%d</span><span class="s1">, i=</span><span class="si">%d</span><span class="s1">, wavelengthGrid=</span><span class="si">%s</span><span class="s1">, alphaGrid=</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span>
+        <span class="n">sequence_repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wavelengthGrid</span><span class="p">),</span> <span class="n">sequence_repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alphaGrid</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+<div class="viewcode-block" id="ExplicitContinuum.alpha"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.ExplicitContinuum.alpha">[docs]</a>    <span class="k">def</span> <span class="nf">alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Computes cross-section as a function of wavelength.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        wavelength : np.ndarray</span>
+<span class="sd">            Wavelengths at which to compute the cross-section [nm].</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        alpha : np.ndarray</span>
+<span class="sd">            Cross-section at associated wavelength.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">weno4</span><span class="p">(</span><span class="n">wavelength</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wavelengthGrid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alphaGrid</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">alpha</span><span class="p">[</span><span class="n">wavelength</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">minLambda</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">alpha</span><span class="p">[</span><span class="n">wavelength</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambdaEdge</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">alpha</span><span class="p">[</span><span class="n">alpha</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">return</span> <span class="n">alpha</span></div>
+
+<div class="viewcode-block" id="ExplicitContinuum.wavelength"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.ExplicitContinuum.wavelength">[docs]</a>    <span class="k">def</span> <span class="nf">wavelength</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns the wavelength grid at which this transition needs to be</span>
+<span class="sd">        computed to be correctly integrated. Specific handling is added to</span>
+<span class="sd">        ensure that it is treated properly close to the edge.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wavelengthGrid</span><span class="p">)</span>
+        <span class="n">edge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambdaEdge</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">grid</span><span class="p">[(</span><span class="n">grid</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">minLambda</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">grid</span> <span class="o">&lt;=</span> <span class="n">edge</span><span class="p">)])</span>
+        <span class="c1"># NOTE(cmo): If the last value before the edge is more than 0.1 nm away</span>
+        <span class="c1"># then put the edge in.</span>
+        <span class="k">if</span> <span class="n">edge</span> <span class="o">-</span> <span class="n">grid</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.1</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">result</span><span class="p">,</span> <span class="p">(</span><span class="n">edge</span><span class="p">,)))</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">minLambda</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        The minimum wavelength at which this transition contributes.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wavelengthGrid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="HydrogenicContinuum"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.HydrogenicContinuum">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">HydrogenicContinuum</span><span class="p">(</span><span class="n">AtomicContinuum</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Specific case of a Hydrogenic continuum, approximately falling off as</span>
+<span class="sd">    1/nu**3 towards higher frequencies (additional effects from Gaunt</span>
+<span class="sd">    factor).</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    NlambaGen : int</span>
+<span class="sd">        The number of points to generate for the wavelength grid.</span>
+<span class="sd">    alpha0 : float</span>
+<span class="sd">        The cross-section at the edge wavelength [m2].</span>
+<span class="sd">    minWavelength : float</span>
+<span class="sd">        The minimum wavelength below which this transition is assumed to no</span>
+<span class="sd">        longer contribute [nm].</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">NlambdaGen</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">alpha0</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">minWavelength</span><span class="p">:</span> <span class="nb">float</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;HydrogenicContinuum(j=</span><span class="si">%d</span><span class="s1">, i=</span><span class="si">%d</span><span class="s1">, NlambdaGen=</span><span class="si">%d</span><span class="s1">, alpha0=</span><span class="si">%g</span><span class="s1">, minWavelength=</span><span class="si">%g</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NlambdaGen</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">minWavelength</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atom</span> <span class="o">=</span> <span class="n">atom</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jLevel</span><span class="p">:</span> <span class="n">AtomicLevel</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iLevel</span><span class="p">:</span> <span class="n">AtomicLevel</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">minLambda</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Minimum wavelength is larger than continuum edge at </span><span class="si">%g</span><span class="s1"> [nm] in continuum </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lambda0</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)))</span>
+
+<div class="viewcode-block" id="HydrogenicContinuum.alpha"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.HydrogenicContinuum.alpha">[docs]</a>    <span class="k">def</span> <span class="nf">alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Computes cross-section as a function of wavelength.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        wavelength : np.ndarray</span>
+<span class="sd">            Wavelengths at which to compute the cross-section [nm].</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        alpha : np.ndarray</span>
+<span class="sd">            Cross-section at associated wavelength.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">Z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jLevel</span><span class="o">.</span><span class="n">stage</span>
+        <span class="n">nEff</span> <span class="o">=</span> <span class="n">Z</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">ERydberg</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jLevel</span><span class="o">.</span><span class="n">E_SI</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">iLevel</span><span class="o">.</span><span class="n">E_SI</span><span class="p">))</span>
+        <span class="n">gbf0</span> <span class="o">=</span> <span class="n">gaunt_bf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lambda0</span><span class="p">,</span> <span class="n">nEff</span><span class="p">,</span> <span class="n">Z</span><span class="p">)</span>
+        <span class="n">gbf</span> <span class="o">=</span> <span class="n">gaunt_bf</span><span class="p">(</span><span class="n">wavelength</span><span class="p">,</span> <span class="n">nEff</span><span class="p">,</span> <span class="n">Z</span><span class="p">)</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha0</span> <span class="o">*</span> <span class="n">gbf</span> <span class="o">/</span> <span class="n">gbf0</span> <span class="o">*</span> <span class="p">(</span><span class="n">wavelength</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda0</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span>
+        <span class="n">alpha</span><span class="p">[</span><span class="n">wavelength</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">minLambda</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">alpha</span><span class="p">[</span><span class="n">wavelength</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambdaEdge</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">return</span> <span class="n">alpha</span></div>
+
+<div class="viewcode-block" id="HydrogenicContinuum.wavelength"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.HydrogenicContinuum.wavelength">[docs]</a>    <span class="k">def</span> <span class="nf">wavelength</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns the wavelength grid at which this transition needs to be</span>
+<span class="sd">        computed to be correctly integrated.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minLambda</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambdaEdge</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NlambdaGen</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">minLambda</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        The minimum wavelength at which this transition contributes.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">minWavelength</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, C. Osborne
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,5 +1,5 @@
-lightweaver package
-===================
+Lightweaver API Documentation
+=============================
 
 Submodules
 ----------

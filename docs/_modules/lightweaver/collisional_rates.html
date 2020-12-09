@@ -1,0 +1,526 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>lightweaver.collisional_rates &mdash; Lightweaver  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Lightweaver
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../auto_examples/index.html">Lightweaver Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../lightweaver-api.html">Lightweaver API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Lightweaver</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>lightweaver.collisional_rates</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for lightweaver.collisional_rates</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">sequence_repr</span>
+<span class="kn">import</span> <span class="nn">lightweaver.constants</span> <span class="k">as</span> <span class="nn">Const</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">exp1</span>
+<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">njit</span>
+<span class="kn">from</span> <span class="nn">weno4</span> <span class="kn">import</span> <span class="n">weno4</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.atomic_model</span> <span class="kn">import</span> <span class="n">AtomicModel</span>
+    <span class="kn">from</span> <span class="nn">.atmosphere</span> <span class="kn">import</span> <span class="n">Atmosphere</span>
+    <span class="kn">from</span> <span class="nn">.atomic_set</span> <span class="kn">import</span> <span class="n">SpeciesStateTable</span>
+
+<div class="viewcode-block" id="CollisionalRates"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.CollisionalRates">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">CollisionalRates</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Base class for all CollisionalRates.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">j</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">i</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">atom</span><span class="p">:</span> <span class="s1">&#39;AtomicModel&#39;</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;CollisionalRates(j=</span><span class="si">%d</span><span class="s1">, i=</span><span class="si">%d</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">compute_rates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">:</span> <span class="s1">&#39;SpeciesStateTable&#39;</span><span class="p">,</span> <span class="n">Cmat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">repr</span><span class="p">(</span><span class="n">other</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TemperatureInterpolationRates"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.TemperatureInterpolationRates">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">TemperatureInterpolationRates</span><span class="p">(</span><span class="n">CollisionalRates</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Base class for rates defined by interpolating a coefficient on a</span>
+<span class="sd">    temperature grid.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">temperature</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+    <span class="n">rates</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(j=</span><span class="si">%d</span><span class="s1">, i=</span><span class="si">%d</span><span class="s1">, temperature=</span><span class="si">%s</span><span class="s1">, rates=</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                                                          <span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span>
+                                                          <span class="n">sequence_repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">),</span> <span class="n">sequence_repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rates</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">):</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">j</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atom</span> <span class="o">=</span> <span class="n">atom</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jLevel</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iLevel</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rates</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Omega"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.Omega">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Omega</span><span class="p">(</span><span class="n">TemperatureInterpolationRates</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Collisional (de-)excitation of ions by electrons (dimensionless).</span>
+<span class="sd">    Omega as in Seaton&#39;s collision strength.</span>
+<span class="sd">    Rate scales as 1/(sqrt(T)) exp(DeltaE).</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">C0</span> <span class="o">=</span> <span class="n">Const</span><span class="o">.</span><span class="n">ERydberg</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">MElectron</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">RBohr</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">8.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">KBoltzmann</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">compute_rates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">:</span> <span class="s1">&#39;SpeciesStateTable&#39;</span><span class="p">,</span> <span class="n">Cmat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="n">weno4</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rates</span><span class="p">)</span>
+        <span class="n">C</span><span class="p">[</span><span class="n">C</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">nstar</span> <span class="o">=</span> <span class="n">eqPops</span><span class="o">.</span><span class="n">atomicPops</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">element</span><span class="p">]</span><span class="o">.</span><span class="n">nStar</span>
+        <span class="n">Cdown</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">C0</span> <span class="o">*</span> <span class="n">atmos</span><span class="o">.</span><span class="n">ne</span> <span class="o">*</span> <span class="n">C</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jLevel</span><span class="o">.</span><span class="n">g</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">))</span>
+        <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cdown</span>
+        <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cdown</span> <span class="o">*</span> <span class="n">nstar</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">]</span> <span class="o">/</span> <span class="n">nstar</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="CI"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.CI">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">CI</span><span class="p">(</span><span class="n">TemperatureInterpolationRates</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Collisional ionisation by electrons.</span>
+<span class="sd">    Units: s^-1 K^-1/2 m^3</span>
+<span class="sd">    Rate scales as sqrt(T) exp(DeltaE)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dE</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jLevel</span><span class="o">.</span><span class="n">E_SI</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">iLevel</span><span class="o">.</span><span class="n">E_SI</span>
+
+    <span class="k">def</span> <span class="nf">compute_rates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">:</span> <span class="s1">&#39;SpeciesStateTable&#39;</span><span class="p">,</span> <span class="n">Cmat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="n">weno4</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rates</span><span class="p">)</span>
+        <span class="n">C</span><span class="p">[</span><span class="n">C</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">nstar</span> <span class="o">=</span> <span class="n">eqPops</span><span class="o">.</span><span class="n">atomicPops</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">element</span><span class="p">]</span><span class="o">.</span><span class="n">nStar</span>
+        <span class="n">Cup</span> <span class="o">=</span> <span class="n">C</span> <span class="o">*</span> <span class="n">atmos</span><span class="o">.</span><span class="n">ne</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">dE</span> <span class="o">/</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">KBoltzmann</span> <span class="o">*</span> <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">))</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
+        <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cup</span>
+        <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cup</span> <span class="o">*</span> <span class="n">nstar</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">nstar</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="CE"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.CE">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">CE</span><span class="p">(</span><span class="n">TemperatureInterpolationRates</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Collisional (de-)excitation of neutrals by electrons.</span>
+<span class="sd">    Units: s^-1 K^-1/2 m^3</span>
+<span class="sd">    Rate scales as sqrt(T) exp(DeltaE)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gij</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iLevel</span><span class="o">.</span><span class="n">g</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">jLevel</span><span class="o">.</span><span class="n">g</span>
+
+    <span class="k">def</span> <span class="nf">compute_rates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">:</span> <span class="s1">&#39;SpeciesStateTable&#39;</span><span class="p">,</span> <span class="n">Cmat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="n">weno4</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rates</span><span class="p">)</span>
+        <span class="n">C</span><span class="p">[</span><span class="n">C</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">nstar</span> <span class="o">=</span> <span class="n">eqPops</span><span class="o">.</span><span class="n">atomicPops</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">element</span><span class="p">]</span><span class="o">.</span><span class="n">nStar</span>
+        <span class="n">Cdown</span> <span class="o">=</span> <span class="n">C</span> <span class="o">*</span> <span class="n">atmos</span><span class="o">.</span><span class="n">ne</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">gij</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
+        <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cdown</span>
+        <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cdown</span> <span class="o">*</span> <span class="n">nstar</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">]</span> <span class="o">/</span> <span class="n">nstar</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="CP"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.CP">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">CP</span><span class="p">(</span><span class="n">TemperatureInterpolationRates</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Collisional (de-)excitation by protons.</span>
+<span class="sd">    Units: s^-1 m^3</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">compute_rates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">:</span> <span class="s1">&#39;SpeciesStateTable&#39;</span><span class="p">,</span> <span class="n">Cmat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="n">weno4</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rates</span><span class="p">)</span>
+        <span class="n">C</span><span class="p">[</span><span class="n">C</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">nProton</span> <span class="o">=</span> <span class="n">eqPops</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">Cdown</span> <span class="o">=</span> <span class="n">C</span> <span class="o">*</span> <span class="n">nProton</span>
+        <span class="n">nstar</span> <span class="o">=</span> <span class="n">eqPops</span><span class="o">.</span><span class="n">atomicPops</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">element</span><span class="p">]</span><span class="o">.</span><span class="n">nStar</span>
+        <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cdown</span>
+        <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cdown</span> <span class="o">*</span> <span class="n">nstar</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">]</span> <span class="o">/</span> <span class="n">nstar</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="CH"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.CH">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">CH</span><span class="p">(</span><span class="n">TemperatureInterpolationRates</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Collisions with neutral hydrogen.</span>
+<span class="sd">    Units: s^-1 m^3</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">compute_rates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">:</span> <span class="s1">&#39;SpeciesStateTable&#39;</span><span class="p">,</span> <span class="n">Cmat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="n">weno4</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rates</span><span class="p">)</span>
+        <span class="n">C</span><span class="p">[</span><span class="n">C</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">nh0</span> <span class="o">=</span> <span class="n">eqPops</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">Cup</span> <span class="o">=</span> <span class="n">C</span> <span class="o">*</span> <span class="n">nh0</span>
+        <span class="n">nstar</span> <span class="o">=</span> <span class="n">eqPops</span><span class="o">.</span><span class="n">atomicPops</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">element</span><span class="p">]</span><span class="o">.</span><span class="n">nStar</span>
+        <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cup</span>
+        <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cup</span> <span class="o">*</span> <span class="n">nstar</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">nstar</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ChargeExchangeNeutralH"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.ChargeExchangeNeutralH">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ChargeExchangeNeutralH</span><span class="p">(</span><span class="n">TemperatureInterpolationRates</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Charge exchange with neutral hydrogen.</span>
+<span class="sd">    Units: s^-1 m^3</span>
+<span class="sd">    Note: downward rate only.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">compute_rates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">:</span> <span class="s1">&#39;SpeciesStateTable&#39;</span><span class="p">,</span> <span class="n">Cmat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="n">weno4</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rates</span><span class="p">)</span>
+        <span class="n">C</span><span class="p">[</span><span class="n">C</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">nh0</span> <span class="o">=</span> <span class="n">eqPops</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">Cdown</span> <span class="o">=</span> <span class="n">C</span> <span class="o">*</span> <span class="n">nh0</span>
+        <span class="n">nstar</span> <span class="o">=</span> <span class="n">eqPops</span><span class="o">.</span><span class="n">atomicPops</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">element</span><span class="p">]</span><span class="o">.</span><span class="n">nStar</span>
+        <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cdown</span></div>
+
+<div class="viewcode-block" id="ChargeExchangeProton"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.ChargeExchangeProton">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ChargeExchangeProton</span><span class="p">(</span><span class="n">TemperatureInterpolationRates</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Charge exchange with protons.</span>
+<span class="sd">    Units: s^-1 m^3</span>
+<span class="sd">    Note: upward rate only.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">compute_rates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">:</span> <span class="s1">&#39;SpeciesStateTable&#39;</span><span class="p">,</span> <span class="n">Cmat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="n">weno4</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rates</span><span class="p">)</span>
+        <span class="n">C</span><span class="p">[</span><span class="n">C</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">nProton</span> <span class="o">=</span> <span class="n">eqPops</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">Cup</span> <span class="o">=</span> <span class="n">C</span> <span class="o">*</span> <span class="n">nProton</span>
+        <span class="n">nstar</span> <span class="o">=</span> <span class="n">eqPops</span><span class="o">.</span><span class="n">atomicPops</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">element</span><span class="p">]</span><span class="o">.</span><span class="n">nStar</span>
+        <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cup</span></div>
+
+<span class="k">def</span> <span class="nf">fone</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="c1"># return np.where(x &lt;= 50.0, np.exp(x) * exp1(x), 1.0/x)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="mf">50.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">exp1</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">/</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">x</span><span class="p">)</span>
+
+<span class="nd">@njit</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">ftwo</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mf">1.0000e+00</span><span class="p">,</span> <span class="mf">2.1658e+02</span><span class="p">,</span> <span class="mf">2.0336e+04</span><span class="p">,</span> <span class="mf">1.0911e+06</span><span class="p">,</span> <span class="mf">3.7114e+07</span><span class="p">,</span>
+                  <span class="mf">8.3963e+08</span><span class="p">,</span> <span class="mf">1.2889e+10</span><span class="p">,</span> <span class="mf">1.3449e+11</span><span class="p">,</span> <span class="mf">9.4002e+11</span><span class="p">,</span> <span class="mf">4.2571e+12</span><span class="p">,</span>
+                  <span class="mf">1.1743e+13</span><span class="p">,</span> <span class="mf">1.7549e+13</span><span class="p">,</span> <span class="mf">1.0806e+13</span><span class="p">,</span> <span class="mf">4.9776e+11</span><span class="p">,</span> <span class="mf">0.0000</span><span class="p">))</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mf">1.0000e+00</span><span class="p">,</span> <span class="mf">2.1958e+02</span><span class="p">,</span> <span class="mf">2.0984e+04</span><span class="p">,</span> <span class="mf">1.1517e+06</span><span class="p">,</span> <span class="mf">4.0349e+07</span><span class="p">,</span>
+                  <span class="mf">9.4900e+08</span><span class="p">,</span> <span class="mf">1.5345e+10</span><span class="p">,</span> <span class="mf">1.7182e+11</span><span class="p">,</span> <span class="mf">1.3249e+12</span><span class="p">,</span> <span class="mf">6.9071e+12</span><span class="p">,</span>
+                  <span class="mf">2.3531e+13</span><span class="p">,</span> <span class="mf">4.9432e+13</span><span class="p">,</span> <span class="mf">5.7760e+13</span><span class="p">,</span> <span class="mf">3.0225e+13</span><span class="p">,</span> <span class="mf">3.3641e+12</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">ftwo_impl</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mf">4.0</span><span class="p">:</span>
+            <span class="n">px</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">xFact</span> <span class="o">=</span> <span class="mf">1.0</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">15</span><span class="p">):</span>
+                <span class="n">xFact</span> <span class="o">/=</span> <span class="n">x</span>
+                <span class="n">px</span> <span class="o">+=</span> <span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">xFact</span>
+
+            <span class="n">qx</span> <span class="o">=</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">xFact</span> <span class="o">=</span> <span class="mf">1.0</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">15</span><span class="p">):</span>
+                <span class="n">xFact</span> <span class="o">/=</span> <span class="n">x</span>
+                <span class="n">qx</span> <span class="o">+=</span> <span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">xFact</span>
+
+            <span class="k">return</span> <span class="n">px</span> <span class="o">/</span> <span class="p">(</span><span class="n">qx</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gamma</span> <span class="o">=</span> <span class="mf">0.5772156649</span>
+            <span class="n">f0x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="mf">12.0</span>
+            <span class="n">term</span> <span class="o">=</span> <span class="mf">1.0</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">fact</span> <span class="o">=</span> <span class="mf">1.0</span>
+            <span class="n">xFact</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+            <span class="k">while</span> <span class="nb">abs</span><span class="p">(</span><span class="n">term</span> <span class="o">/</span> <span class="n">f0x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-8</span><span class="p">:</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mf">1.0</span>
+                <span class="n">fact</span> <span class="o">*=</span> <span class="n">count</span>
+                <span class="n">xFact</span> <span class="o">*=</span> <span class="o">-</span><span class="n">x</span>
+                <span class="n">term</span> <span class="o">=</span> <span class="n">xFact</span> <span class="o">/</span> <span class="p">(</span><span class="n">count</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">fact</span><span class="p">)</span>
+                <span class="n">f0x</span> <span class="o">+=</span> <span class="n">term</span>
+
+                <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mf">100.0</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;ftwo too slow to converge&#39;</span><span class="p">)</span>
+
+            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">gamma</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">+</span> <span class="n">f0x</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">y</span>
+
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">ftwo_impl</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">y</span>
+
+<div class="viewcode-block" id="Ar85Cdi"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.Ar85Cdi">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Ar85Cdi</span><span class="p">(</span><span class="n">CollisionalRates</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Collisional ionisation rates based on Arnaud &amp; Rothenflug (1985, ApJS 60).</span>
+<span class="sd">    Units remain in CGS as per paper.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">cdi</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;Ar85Cdi(j=</span><span class="si">%d</span><span class="s1">, i=</span><span class="si">%d</span><span class="s1">, cdi=</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="n">sequence_repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cdi</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">):</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">j</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atom</span> <span class="o">=</span> <span class="n">atom</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iLevel</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jLevel</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cdi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cdi</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">compute_rates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">:</span> <span class="s1">&#39;SpeciesStateTable&#39;</span><span class="p">,</span> <span class="n">Cmat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">nstar</span> <span class="o">=</span> <span class="n">eqPops</span><span class="o">.</span><span class="n">atomicPops</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">element</span><span class="p">]</span><span class="o">.</span><span class="n">nStar</span>
+        <span class="n">Cup</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">Nspace</span><span class="p">)</span>
+        <span class="n">cdi</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cdi</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cdi</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">xj</span> <span class="o">=</span> <span class="n">cdi</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">EV</span> <span class="o">/</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">KBoltzmann</span> <span class="o">*</span> <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
+            <span class="n">fac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">xj</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">xj</span><span class="p">)</span>
+            <span class="n">fxj</span> <span class="o">=</span> <span class="n">cdi</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">cdi</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">xj</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">cdi</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">xj</span> <span class="o">*</span> <span class="p">(</span><span class="n">cdi</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">cdi</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">+</span> <span class="n">xj</span><span class="p">)))</span> <span class="o">*</span> <span class="n">fone</span><span class="p">(</span><span class="n">xj</span><span class="p">)</span> <span class="o">+</span> <span class="n">cdi</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="n">xj</span> <span class="o">*</span> <span class="n">ftwo</span><span class="p">(</span><span class="n">xj</span><span class="p">)</span>
+
+            <span class="n">fxj</span> <span class="o">*=</span> <span class="n">fac</span>
+            <span class="n">fac</span> <span class="o">=</span> <span class="mf">6.69e-7</span> <span class="o">/</span> <span class="n">cdi</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mf">1.5</span>
+            <span class="n">Cup</span> <span class="o">+=</span> <span class="n">fac</span> <span class="o">*</span> <span class="n">fxj</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">CM_TO_M</span><span class="o">**</span><span class="mi">3</span>
+        <span class="n">Cup</span><span class="p">[</span><span class="n">Cup</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="n">Cup</span> <span class="o">*=</span> <span class="n">atmos</span><span class="o">.</span><span class="n">ne</span>
+        <span class="n">Cdown</span> <span class="o">=</span> <span class="n">Cup</span> <span class="o">*</span> <span class="n">nstar</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">nstar</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">]</span>
+        <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cdown</span>
+        <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cup</span></div>
+
+
+<div class="viewcode-block" id="Burgess"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.Burgess">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Burgess</span><span class="p">(</span><span class="n">CollisionalRates</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Collisional ionisation from excited states from Burgess &amp; Chidichimo</span>
+<span class="sd">    (1983, MNRAS 203, 1269).</span>
+<span class="sd">    Fudge parameter is dimensionless.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">fudge</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;Burgess(j=</span><span class="si">%d</span><span class="s1">, i=</span><span class="si">%d</span><span class="s1">, fudge=</span><span class="si">%g</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fudge</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">):</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">j</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atom</span> <span class="o">=</span> <span class="n">atom</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iLevel</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jLevel</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">compute_rates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">:</span> <span class="s1">&#39;SpeciesStateTable&#39;</span><span class="p">,</span> <span class="n">Cmat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">nstar</span> <span class="o">=</span> <span class="n">eqPops</span><span class="o">.</span><span class="n">atomicPops</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">element</span><span class="p">]</span><span class="o">.</span><span class="n">nStar</span>
+        <span class="n">dE</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jLevel</span><span class="o">.</span><span class="n">E_SI</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">iLevel</span><span class="o">.</span><span class="n">E_SI</span><span class="p">)</span> <span class="o">/</span> <span class="n">Const</span><span class="o">.</span><span class="n">EV</span>
+        <span class="n">zz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iLevel</span><span class="o">.</span><span class="n">stage</span>
+        <span class="n">betaB</span> <span class="o">=</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="mf">100.0</span> <span class="o">*</span> <span class="n">zz</span> <span class="o">+</span> <span class="mf">91.0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">zz</span> <span class="o">+</span> <span class="mf">3.0</span><span class="p">))</span> <span class="o">-</span> <span class="mf">5.0</span><span class="p">)</span>
+        <span class="n">cbar</span> <span class="o">=</span> <span class="mf">2.3</span>
+
+        <span class="n">dEkT</span> <span class="o">=</span> <span class="n">dE</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">EV</span> <span class="o">/</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">KBoltzmann</span> <span class="o">*</span> <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
+        <span class="n">dEkT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">dEkT</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
+        <span class="n">invdEkT</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">dEkT</span>
+        <span class="n">wlog</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">invdEkT</span><span class="p">)</span>
+        <span class="n">wb</span> <span class="o">=</span> <span class="n">wlog</span><span class="o">**</span><span class="p">(</span><span class="n">betaB</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">invdEkT</span><span class="p">))</span>
+        <span class="n">Cup</span> <span class="o">=</span> <span class="mf">2.1715e-8</span> <span class="o">*</span> <span class="n">cbar</span> <span class="o">*</span> <span class="p">(</span><span class="mf">13.6</span><span class="o">/</span><span class="n">dE</span><span class="p">)</span><span class="o">**</span><span class="mf">1.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dEkT</span><span class="p">)</span> <span class="o">*</span> <span class="n">exp1</span><span class="p">(</span><span class="n">dEkT</span><span class="p">)</span> <span class="o">*</span> <span class="n">wb</span> <span class="o">*</span> <span class="n">atmos</span><span class="o">.</span><span class="n">ne</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">CM_TO_M</span><span class="o">**</span><span class="mi">3</span>
+
+        <span class="n">Cup</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fudge</span>
+        <span class="n">Cdown</span> <span class="o">=</span> <span class="n">Cup</span> <span class="o">*</span> <span class="n">nstar</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">/</span> <span class="n">nstar</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span>
+
+        <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cup</span>
+        <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cdown</span></div>
+
+
+
+<span class="c1"># NOTE(cmo): It&#39;s probably better to write an AR85-CEA function per atomic model, and skip all the series checking stuff</span>
+<span class="c1"># For Helium, after checking gencol and rh it seems to return 0.0 for helium, so it can probably just be removed from the model</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, C. Osborne
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

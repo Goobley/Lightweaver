@@ -1,0 +1,1398 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Computing a simple NLTE 8542 line profile in a FAL C atmosphere &mdash; Lightweaver  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Lightweaver API Documentation" href="../lightweaver-api.html" />
+    <link rel="prev" title="Lightweaver Examples Gallery" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Lightweaver
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Lightweaver Examples Gallery</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Computing a simple NLTE 8542 line profile in a FAL C atmosphere</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../lightweaver-api.html">Lightweaver API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Lightweaver</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">Lightweaver Examples Gallery</a> &raquo;</li>
+        
+      <li>Computing a simple NLTE 8542 line profile in a FAL C atmosphere</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/auto_examples/plot_SimpleLineTest.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-auto-examples-plot-simplelinetest-py"><span class="std std-ref">here</span></a>     to download the full example code</p>
+</div>
+<div class="sphx-glr-example-title section" id="computing-a-simple-nlte-8542-line-profile-in-a-fal-c-atmosphere">
+<span id="sphx-glr-auto-examples-plot-simplelinetest-py"></span><h1>Computing a simple NLTE 8542 line profile in a FAL C atmosphere<a class="headerlink" href="#computing-a-simple-nlte-8542-line-profile-in-a-fal-c-atmosphere" title="Permalink to this headline">¶</a></h1>
+<p>First, we import everything we need. Lightweaver is typically imported as
+<cite>lw</cite>, but things like the library of model atoms and Fal atmospheres need to
+be imported separately.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">lightweaver.fal</span> <span class="kn">import</span> <span class="n">Falc82</span>
+<span class="kn">from</span> <span class="nn">lightweaver.rh_atoms</span> <span class="kn">import</span> <span class="n">H_6_atom</span><span class="p">,</span> <span class="n">C_atom</span><span class="p">,</span> <span class="n">O_atom</span><span class="p">,</span> <span class="n">Si_atom</span><span class="p">,</span> <span class="n">Al_atom</span><span class="p">,</span> \
+<span class="n">CaII_atom</span><span class="p">,</span> <span class="n">Fe_atom</span><span class="p">,</span> <span class="n">He_9_atom</span><span class="p">,</span> <span class="n">He_atom</span><span class="p">,</span> <span class="n">MgII_atom</span><span class="p">,</span> <span class="n">N_atom</span><span class="p">,</span> <span class="n">Na_atom</span><span class="p">,</span> <span class="n">S_atom</span>
+<span class="kn">import</span> <span class="nn">lightweaver</span> <span class="k">as</span> <span class="nn">lw</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</pre></div>
+</div>
+<p>Now, we define the functions that will be used in our spectral synthesise.
+First <cite>synth_8542</cite> which synthesises and returns the line given by an
+atmosphere.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">synth_8542</span><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="n">conserve</span><span class="p">,</span> <span class="n">useNe</span><span class="p">,</span> <span class="n">wave</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Synthesise a spectral line for given atmosphere with different</span>
+<span class="sd">    conditions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    atmos : lw.Atmosphere</span>
+<span class="sd">        The atmospheric model in which to synthesise the line.</span>
+<span class="sd">    conserve : bool</span>
+<span class="sd">        Whether to start from LTE electron density and conserve charge, or</span>
+<span class="sd">        simply use from the electron density present in the atomic model.</span>
+<span class="sd">    useNe : bool</span>
+<span class="sd">        Whether to use the electron density present in the model as the</span>
+<span class="sd">        starting solution, or compute the LTE electron density.</span>
+<span class="sd">    wave : np.ndarray</span>
+<span class="sd">        Array of wavelengths over which to resynthesise the final line</span>
+<span class="sd">        profile for muz=1.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ctx : lw.Context</span>
+<span class="sd">        The Context object that was used to compute the equilibrium</span>
+<span class="sd">        populations.</span>
+<span class="sd">    Iwave : np.ndarray</span>
+<span class="sd">        The intensity at muz=1 for each wavelength in `wave`.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># Configure the atmospheric angular quadrature</span>
+    <span class="n">atmos</span><span class="o">.</span><span class="n">quadrature</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="c1"># Configure the set of atomic models to use.</span>
+    <span class="n">aSet</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">RadiativeSet</span><span class="p">([</span><span class="n">H_6_atom</span><span class="p">(),</span> <span class="n">C_atom</span><span class="p">(),</span> <span class="n">O_atom</span><span class="p">(),</span> <span class="n">Si_atom</span><span class="p">(),</span>
+                            <span class="n">Al_atom</span><span class="p">(),</span> <span class="n">CaII_atom</span><span class="p">(),</span> <span class="n">Fe_atom</span><span class="p">(),</span> <span class="n">He_9_atom</span><span class="p">(),</span>
+                            <span class="n">MgII_atom</span><span class="p">(),</span> <span class="n">N_atom</span><span class="p">(),</span> <span class="n">Na_atom</span><span class="p">(),</span> <span class="n">S_atom</span><span class="p">()</span>
+                           <span class="p">])</span>
+    <span class="c1"># Set H and Ca to &quot;active&quot; i.e. NLTE, everything else participates as an</span>
+    <span class="c1"># LTE background.</span>
+    <span class="n">aSet</span><span class="o">.</span><span class="n">set_active</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;Ca&#39;</span><span class="p">)</span>
+    <span class="c1"># Compute the necessary wavelength dependent information (SpectrumConfiguration).</span>
+    <span class="n">spect</span> <span class="o">=</span> <span class="n">aSet</span><span class="o">.</span><span class="n">compute_wavelength_grid</span><span class="p">()</span>
+
+    <span class="c1"># Either compute the equilibrium populations at the fixed electron density</span>
+    <span class="c1"># provided in the model, or iterate an LTE electron density and compute the</span>
+    <span class="c1"># corresponding equilibrium populations (SpeciesStateTable).</span>
+    <span class="k">if</span> <span class="n">useNe</span><span class="p">:</span>
+        <span class="n">eqPops</span> <span class="o">=</span> <span class="n">aSet</span><span class="o">.</span><span class="n">compute_eq_pops</span><span class="p">(</span><span class="n">atmos</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">eqPops</span> <span class="o">=</span> <span class="n">aSet</span><span class="o">.</span><span class="n">iterate_lte_ne_eq_pops</span><span class="p">(</span><span class="n">atmos</span><span class="p">)</span>
+
+    <span class="c1"># Configure the Context which holds the state of the simulation for the</span>
+    <span class="c1"># backend, and provides the python interface to the backend.</span>
+    <span class="c1"># Feel free to increase Nthreads to increase the number of threads the</span>
+    <span class="c1"># program will use.</span>
+    <span class="n">ctx</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">Context</span><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="n">spect</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">,</span> <span class="n">conserveCharge</span><span class="o">=</span><span class="n">conserve</span><span class="p">,</span> <span class="n">Nthreads</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="c1"># Iterate the Context to convergence</span>
+    <span class="n">iterate_ctx</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
+    <span class="c1"># Update the background populations based on the converged solution and</span>
+    <span class="c1"># compute the final intensity for mu=1 on the provided wavelength grid.</span>
+    <span class="n">eqPops</span><span class="o">.</span><span class="n">update_lte_atoms_Hmin_pops</span><span class="p">(</span><span class="n">atmos</span><span class="p">)</span>
+    <span class="n">Iwave</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">compute_rays</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span> <span class="p">[</span><span class="n">atmos</span><span class="o">.</span><span class="n">muz</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span> <span class="n">stokes</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">Iwave</span>
+
+<span class="k">def</span> <span class="nf">iterate_ctx</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">Nscatter</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">NmaxIter</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Iterate a Context to convergence.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NmaxIter</span><span class="p">):</span>
+        <span class="c1"># Compute the formal solution</span>
+        <span class="n">dJ</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">formal_sol_gamma_matrices</span><span class="p">()</span>
+        <span class="c1"># Just update J for Nscatter iterations</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">Nscatter</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="c1"># Update the active populations under statistical equilibrium,</span>
+        <span class="c1"># conserving charge if this option was set on the Context.</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">stat_equil</span><span class="p">()</span>
+
+        <span class="c1"># If we are converged in both relative change of J and populations,</span>
+        <span class="c1"># then print a message and return</span>
+        <span class="c1"># N.B. as this is just a simple case, there is no checking for failure</span>
+        <span class="c1"># to converge within the NmaxIter. This could be achieved simpy with an</span>
+        <span class="c1"># else block after this for.</span>
+        <span class="k">if</span> <span class="n">dJ</span> <span class="o">&lt;</span> <span class="mf">3e-3</span> <span class="ow">and</span> <span class="n">delta</span> <span class="o">&lt;</span> <span class="mf">1e-3</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1"> iterations&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">80</span><span class="p">)</span>
+            <span class="k">return</span>
+</pre></div>
+</div>
+<p>The wavelength grid to output the final synthesised line on.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wave</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">853.9444</span><span class="p">,</span> <span class="mf">854.9444</span><span class="p">,</span> <span class="mi">1001</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Load an lw.Atmosphere object containing the FAL C atmosphere with 82 points
+in depth, before synthesising the Ca II 8542 AA line profile using:</p>
+<ul class="simple">
+<li><p>The given electron density.</p></li>
+<li><p>The electron density charge conserved from a starting LTE solution.</p></li>
+<li><p>The LTE electron density.</p></li>
+</ul>
+<p>These results are then plotted.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">atmosRef</span> <span class="o">=</span> <span class="n">Falc82</span><span class="p">()</span>
+<span class="n">ctxRef</span><span class="p">,</span> <span class="n">IwaveRef</span> <span class="o">=</span> <span class="n">synth_8542</span><span class="p">(</span><span class="n">atmosRef</span><span class="p">,</span> <span class="n">conserve</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">useNe</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">wave</span><span class="o">=</span><span class="n">wave</span><span class="p">)</span>
+<span class="n">atmosCons</span> <span class="o">=</span> <span class="n">Falc82</span><span class="p">()</span>
+<span class="n">ctxCons</span><span class="p">,</span> <span class="n">IwaveCons</span> <span class="o">=</span> <span class="n">synth_8542</span><span class="p">(</span><span class="n">atmosCons</span><span class="p">,</span> <span class="n">conserve</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">useNe</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">wave</span><span class="o">=</span><span class="n">wave</span><span class="p">)</span>
+<span class="n">atmosLte</span> <span class="o">=</span> <span class="n">Falc82</span><span class="p">()</span>
+<span class="n">ctx</span><span class="p">,</span> <span class="n">IwaveLte</span> <span class="o">=</span> <span class="n">synth_8542</span><span class="p">(</span><span class="n">atmosLte</span><span class="p">,</span> <span class="n">conserve</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">useNe</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">wave</span><span class="o">=</span><span class="n">wave</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span> <span class="n">IwaveRef</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Reference FAL&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span> <span class="n">IwaveCons</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Reference Cons&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span> <span class="n">IwaveLte</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Reference LTE n_e&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="plot SimpleLineTest" class="sphx-glr-single-img" src="../_images/sphx_glr_plot_SimpleLineTest_001.png" />
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>dJ = 1.00e+00
+dJ = 3.43e-01
+dJ = 1.38e-01
+dJ = 5.73e-02
+    H delta = 2.7007e+00
+    Ca delta = 1.0000e+00
+dJ = 5.18e+02
+    H delta = 1.5768e+00
+    Ca delta = 1.4994e+00
+dJ = 4.73e+00
+    H delta = 9.3052e-01
+    Ca delta = 3.5881e-01
+dJ = 2.37e+00
+    H delta = 5.9290e-01
+    Ca delta = 2.1543e-01
+dJ = 1.39e+00
+    H delta = 4.0869e-01
+    Ca delta = 2.6522e-01
+dJ = 1.28e+00
+    H delta = 3.0822e-01
+    Ca delta = 2.5150e-01
+dJ = 1.04e+00
+    H delta = 2.8664e-01
+    Ca delta = 2.2901e-01
+dJ = 7.60e-01
+    H delta = 2.6560e-01
+    Ca delta = 2.0324e-01
+dJ = 5.66e-01
+    H delta = 2.3400e-01
+    Ca delta = 1.7465e-01
+dJ = 3.93e-01
+    H delta = 1.9858e-01
+    Ca delta = 1.4962e-01
+dJ = 2.69e-01
+    H delta = 1.6440e-01
+    Ca delta = 1.3053e-01
+dJ = 2.23e-01
+    H delta = 1.3472e-01
+    Ca delta = 1.1469e-01
+dJ = 2.05e-01
+    H delta = 1.1034e-01
+    Ca delta = 9.7080e-02
+dJ = 1.79e-01
+    H delta = 9.0849e-02
+    Ca delta = 8.4585e-02
+dJ = 1.56e-01
+    H delta = 7.8649e-02
+    Ca delta = 7.5701e-02
+dJ = 1.37e-01
+    H delta = 7.1397e-02
+    Ca delta = 6.8286e-02
+dJ = 1.23e-01
+    H delta = 6.4883e-02
+    Ca delta = 6.2011e-02
+dJ = 1.16e-01
+    H delta = 5.9207e-02
+    Ca delta = 5.6545e-02
+dJ = 1.09e-01
+    H delta = 5.5900e-02
+    Ca delta = 5.1883e-02
+dJ = 1.04e-01
+    H delta = 5.4656e-02
+    Ca delta = 4.8018e-02
+dJ = 9.87e-02
+    H delta = 5.3612e-02
+    Ca delta = 4.4571e-02
+dJ = 9.43e-02
+    H delta = 5.2630e-02
+    Ca delta = 4.1533e-02
+dJ = 9.03e-02
+    H delta = 5.1666e-02
+    Ca delta = 3.8794e-02
+dJ = 8.67e-02
+    H delta = 5.0725e-02
+    Ca delta = 3.6356e-02
+dJ = 8.34e-02
+    H delta = 4.9872e-02
+    Ca delta = 3.4292e-02
+dJ = 8.04e-02
+    H delta = 4.9052e-02
+    Ca delta = 3.2438e-02
+dJ = 7.79e-02
+    H delta = 4.8241e-02
+    Ca delta = 3.0764e-02
+dJ = 7.65e-02
+    H delta = 4.7479e-02
+    Ca delta = 2.9289e-02
+dJ = 7.52e-02
+    H delta = 4.6839e-02
+    Ca delta = 2.7982e-02
+dJ = 7.40e-02
+    H delta = 4.6176e-02
+    Ca delta = 2.6774e-02
+dJ = 7.29e-02
+    H delta = 4.5477e-02
+    Ca delta = 2.5663e-02
+dJ = 7.18e-02
+    H delta = 4.4735e-02
+    Ca delta = 2.4669e-02
+dJ = 7.07e-02
+    H delta = 4.3949e-02
+    Ca delta = 2.3789e-02
+dJ = 6.96e-02
+    H delta = 4.3111e-02
+    Ca delta = 2.2945e-02
+dJ = 6.86e-02
+    H delta = 4.2235e-02
+    Ca delta = 2.2098e-02
+dJ = 6.74e-02
+    H delta = 4.1312e-02
+    Ca delta = 2.1274e-02
+dJ = 6.65e-02
+    H delta = 4.0344e-02
+    Ca delta = 2.0466e-02
+dJ = 6.57e-02
+    H delta = 3.9328e-02
+    Ca delta = 1.9672e-02
+dJ = 6.49e-02
+    H delta = 3.8267e-02
+    Ca delta = 1.8859e-02
+dJ = 6.41e-02
+    H delta = 3.7163e-02
+    Ca delta = 1.8061e-02
+dJ = 6.31e-02
+    H delta = 3.6022e-02
+    Ca delta = 1.7312e-02
+dJ = 6.21e-02
+    H delta = 3.5081e-02
+    Ca delta = 1.6582e-02
+dJ = 6.11e-02
+    H delta = 3.4134e-02
+    Ca delta = 1.5865e-02
+dJ = 6.01e-02
+    H delta = 3.3190e-02
+    Ca delta = 1.5159e-02
+dJ = 5.90e-02
+    H delta = 3.2218e-02
+    Ca delta = 1.4462e-02
+dJ = 5.78e-02
+    H delta = 3.1195e-02
+    Ca delta = 1.3774e-02
+dJ = 5.65e-02
+    H delta = 3.0134e-02
+    Ca delta = 1.3094e-02
+dJ = 5.51e-02
+    H delta = 2.9033e-02
+    Ca delta = 1.2424e-02
+dJ = 5.38e-02
+    H delta = 2.7901e-02
+    Ca delta = 1.1765e-02
+dJ = 5.24e-02
+    H delta = 2.6744e-02
+    Ca delta = 1.1118e-02
+dJ = 5.09e-02
+    H delta = 2.5568e-02
+    Ca delta = 1.0486e-02
+dJ = 4.94e-02
+    H delta = 2.4380e-02
+    Ca delta = 9.8703e-03
+dJ = 4.77e-02
+    H delta = 2.3678e-02
+    Ca delta = 9.2823e-03
+dJ = 4.60e-02
+    H delta = 2.3072e-02
+    Ca delta = 8.7270e-03
+dJ = 4.42e-02
+    H delta = 2.2402e-02
+    Ca delta = 8.2701e-03
+dJ = 4.27e-02
+    H delta = 2.1654e-02
+    Ca delta = 7.7432e-03
+dJ = 4.09e-02
+    H delta = 2.0925e-02
+    Ca delta = 7.2436e-03
+dJ = 3.92e-02
+    H delta = 2.0252e-02
+    Ca delta = 6.7142e-03
+dJ = 3.72e-02
+    H delta = 1.9455e-02
+    Ca delta = 6.2269e-03
+dJ = 3.53e-02
+    H delta = 1.8637e-02
+    Ca delta = 5.7767e-03
+dJ = 3.34e-02
+    H delta = 1.7782e-02
+    Ca delta = 5.3560e-03
+dJ = 3.15e-02
+    H delta = 1.6920e-02
+    Ca delta = 4.9600e-03
+dJ = 2.97e-02
+    H delta = 1.6049e-02
+    Ca delta = 4.5868e-03
+dJ = 2.79e-02
+    H delta = 1.5184e-02
+    Ca delta = 4.2367e-03
+dJ = 2.62e-02
+    H delta = 1.4326e-02
+    Ca delta = 3.9117e-03
+dJ = 2.45e-02
+    H delta = 1.3473e-02
+    Ca delta = 3.6350e-03
+dJ = 2.30e-02
+    H delta = 1.2654e-02
+    Ca delta = 3.3484e-03
+dJ = 2.15e-02
+    H delta = 1.1876e-02
+    Ca delta = 3.0823e-03
+dJ = 2.01e-02
+    H delta = 1.1104e-02
+    Ca delta = 2.8357e-03
+dJ = 1.87e-02
+    H delta = 1.0371e-02
+    Ca delta = 2.5952e-03
+dJ = 1.73e-02
+    H delta = 9.6403e-03
+    Ca delta = 2.3759e-03
+dJ = 1.60e-02
+    H delta = 8.9485e-03
+    Ca delta = 2.1732e-03
+dJ = 1.48e-02
+    H delta = 8.2821e-03
+    Ca delta = 1.9886e-03
+dJ = 1.37e-02
+    H delta = 7.6581e-03
+    Ca delta = 1.8177e-03
+dJ = 1.26e-02
+    H delta = 7.0785e-03
+    Ca delta = 1.6610e-03
+dJ = 1.16e-02
+    H delta = 6.5312e-03
+    Ca delta = 1.5167e-03
+dJ = 1.06e-02
+    H delta = 6.0189e-03
+    Ca delta = 1.3846e-03
+dJ = 9.77e-03
+    H delta = 5.5386e-03
+    Ca delta = 1.2633e-03
+dJ = 8.96e-03
+    H delta = 5.0912e-03
+    Ca delta = 1.1522e-03
+dJ = 8.21e-03
+    H delta = 4.6742e-03
+    Ca delta = 1.0504e-03
+dJ = 7.52e-03
+    H delta = 4.2874e-03
+    Ca delta = 9.5720e-04
+dJ = 6.88e-03
+    H delta = 3.9289e-03
+    Ca delta = 8.7192e-04
+dJ = 6.29e-03
+    H delta = 3.5972e-03
+    Ca delta = 7.9398e-04
+dJ = 5.75e-03
+    H delta = 3.2909e-03
+    Ca delta = 7.2277e-04
+dJ = 5.25e-03
+    H delta = 3.0085e-03
+    Ca delta = 6.5774e-04
+dJ = 4.79e-03
+    H delta = 2.7484e-03
+    Ca delta = 5.9838e-04
+dJ = 4.37e-03
+    H delta = 2.5093e-03
+    Ca delta = 5.4426e-04
+dJ = 3.98e-03
+    H delta = 2.2896e-03
+    Ca delta = 4.9492e-04
+dJ = 3.63e-03
+    H delta = 2.0879e-03
+    Ca delta = 4.4994e-04
+dJ = 3.30e-03
+    H delta = 1.9032e-03
+    Ca delta = 4.0897e-04
+dJ = 3.01e-03
+    H delta = 1.7340e-03
+    Ca delta = 3.7167e-04
+dJ = 2.74e-03
+    H delta = 1.5793e-03
+    Ca delta = 3.3772e-04
+dJ = 2.49e-03
+    H delta = 1.4378e-03
+    Ca delta = 3.0683e-04
+dJ = 2.27e-03
+    H delta = 1.3085e-03
+    Ca delta = 2.7870e-04
+dJ = 2.06e-03
+    H delta = 1.1902e-03
+    Ca delta = 2.5308e-04
+dJ = 1.87e-03
+    H delta = 1.0813e-03
+    Ca delta = 2.3035e-04
+dJ = 1.70e-03
+    H delta = 9.8324e-04
+    Ca delta = 2.0994e-04
+99 iterations
+--------------------------------------------------------------------------------
+8.48 s
+LTE Iterations 1 (-- slowest convergence)
+dJ = 1.00e+00
+dJ = 3.67e-01
+dJ = 1.52e-01
+dJ = 6.40e-02
+    H delta = 1.7761e+00
+    Ca delta = 1.0000e+00
+    ne delta = 2.1800e-01
+dJ = 1.50e+01
+    H delta = 1.2415e+00
+    Ca delta = 1.4360e+00
+    ne delta = 1.3407e-01
+dJ = 4.06e+00
+    H delta = 8.9783e-01
+    Ca delta = 3.6731e-01
+    ne delta = 3.4874e-03
+dJ = 1.38e+00
+    H delta = 5.8716e-01
+    Ca delta = 2.2062e-01
+    ne delta = 3.3514e-04
+dJ = 9.63e-01
+    H delta = 4.7083e-01
+    Ca delta = 2.1482e-01
+    ne delta = 1.0980e-10
+dJ = 7.61e-01
+    H delta = 4.2115e-01
+    Ca delta = 2.1010e-01
+    ne delta = 4.1771e-11
+dJ = 6.23e-01
+    H delta = 3.6681e-01
+    Ca delta = 1.8685e-01
+    ne delta = 1.5890e-11
+dJ = 5.06e-01
+    H delta = 3.2858e-01
+    Ca delta = 1.6554e-01
+    ne delta = 6.0458e-12
+dJ = 4.20e-01
+    H delta = 2.8874e-01
+    Ca delta = 1.4635e-01
+    ne delta = 2.2992e-12
+dJ = 3.48e-01
+    H delta = 2.4886e-01
+    Ca delta = 1.2494e-01
+    ne delta = 8.7493e-13
+dJ = 2.87e-01
+    H delta = 2.1174e-01
+    Ca delta = 1.0680e-01
+    ne delta = 3.2913e-13
+dJ = 2.39e-01
+    H delta = 1.7944e-01
+    Ca delta = 9.4054e-02
+    ne delta = 1.2866e-13
+dJ = 1.99e-01
+    H delta = 1.5157e-01
+    Ca delta = 8.4264e-02
+    ne delta = 4.8050e-14
+dJ = 1.65e-01
+    H delta = 1.2791e-01
+    Ca delta = 7.6549e-02
+    ne delta = 1.8833e-14
+dJ = 1.48e-01
+    H delta = 1.0819e-01
+    Ca delta = 6.9294e-02
+    ne delta = 7.9203e-15
+dJ = 1.38e-01
+    H delta = 9.1887e-02
+    Ca delta = 6.3088e-02
+    ne delta = 3.4378e-15
+dJ = 1.28e-01
+    H delta = 7.8491e-02
+    Ca delta = 5.7767e-02
+    ne delta = 8.8004e-16
+dJ = 1.21e-01
+    H delta = 7.2398e-02
+    Ca delta = 5.3020e-02
+    ne delta = 9.4835e-16
+dJ = 1.13e-01
+    H delta = 6.8391e-02
+    Ca delta = 4.8800e-02
+    ne delta = 5.4180e-16
+dJ = 1.06e-01
+    H delta = 6.4431e-02
+    Ca delta = 4.5119e-02
+    ne delta = 1.1854e-16
+dJ = 9.99e-02
+    H delta = 6.1180e-02
+    Ca delta = 4.1870e-02
+    ne delta = 8.1270e-16
+dJ = 9.48e-02
+    H delta = 5.8051e-02
+    Ca delta = 3.8926e-02
+    ne delta = 2.3816e-15
+dJ = 9.10e-02
+    H delta = 5.5430e-02
+    Ca delta = 3.6329e-02
+    ne delta = 7.0403e-16
+dJ = 8.76e-02
+    H delta = 5.3076e-02
+    Ca delta = 3.3996e-02
+    ne delta = 2.1121e-15
+dJ = 8.49e-02
+    H delta = 5.1632e-02
+    Ca delta = 3.1867e-02
+    ne delta = 1.3545e-15
+dJ = 8.22e-02
+    H delta = 5.0786e-02
+    Ca delta = 2.9946e-02
+    ne delta = -1.0560e-15
+dJ = 8.00e-02
+    H delta = 4.9955e-02
+    Ca delta = 2.8182e-02
+    ne delta = 1.3040e-15
+dJ = 7.79e-02
+    H delta = 4.9185e-02
+    Ca delta = 2.6576e-02
+    ne delta = 1.3545e-15
+dJ = 7.61e-02
+    H delta = 4.8553e-02
+    Ca delta = 2.5087e-02
+    ne delta = 1.4225e-15
+dJ = 7.43e-02
+    H delta = 4.7874e-02
+    Ca delta = 2.3721e-02
+    ne delta = -9.4815e-16
+dJ = 7.28e-02
+    H delta = 4.7156e-02
+    Ca delta = 2.2457e-02
+    ne delta = 1.2191e-15
+dJ = 7.13e-02
+    H delta = 4.6400e-02
+    Ca delta = 2.1281e-02
+    ne delta = 8.2981e-16
+dJ = 7.01e-02
+    H delta = 4.5600e-02
+    Ca delta = 2.0183e-02
+    ne delta = 1.7609e-15
+dJ = 6.91e-02
+    H delta = 4.4754e-02
+    Ca delta = 1.9172e-02
+    ne delta = 1.4225e-15
+dJ = 6.82e-02
+    H delta = 4.3857e-02
+    Ca delta = 1.8212e-02
+    ne delta = 1.0560e-15
+dJ = 6.73e-02
+    H delta = 4.2915e-02
+    Ca delta = 1.7308e-02
+    ne delta = 8.2981e-16
+dJ = 6.63e-02
+    H delta = 4.1930e-02
+    Ca delta = 1.6439e-02
+    ne delta = 1.5841e-15
+dJ = 6.54e-02
+    H delta = 4.0902e-02
+    Ca delta = 1.5599e-02
+    ne delta = 3.5563e-16
+dJ = 6.45e-02
+    H delta = 3.9835e-02
+    Ca delta = 1.4783e-02
+    ne delta = 1.3040e-15
+dJ = 6.37e-02
+    H delta = 3.8728e-02
+    Ca delta = 1.3993e-02
+    ne delta = 8.5057e-16
+dJ = 6.29e-02
+    H delta = 3.7590e-02
+    Ca delta = 1.3231e-02
+    ne delta = 5.1034e-16
+dJ = 6.21e-02
+    H delta = 3.6661e-02
+    Ca delta = 1.2492e-02
+    ne delta = 1.4900e-15
+dJ = 6.12e-02
+    H delta = 3.6166e-02
+    Ca delta = 1.1778e-02
+    ne delta = 1.8713e-15
+dJ = 6.03e-02
+    H delta = 3.5617e-02
+    Ca delta = 1.1076e-02
+    ne delta = 1.0669e-15
+dJ = 5.93e-02
+    H delta = 3.5058e-02
+    Ca delta = 1.0402e-02
+    ne delta = 1.0560e-15
+dJ = 5.84e-02
+    H delta = 3.4724e-02
+    Ca delta = 9.7506e-03
+    ne delta = 3.5201e-16
+dJ = 5.74e-02
+    H delta = 3.4340e-02
+    Ca delta = 9.1226e-03
+    ne delta = 1.3545e-16
+dJ = 5.65e-02
+    H delta = 3.3898e-02
+    Ca delta = 8.5177e-03
+    ne delta = 9.4835e-16
+dJ = 5.55e-02
+    H delta = 3.3401e-02
+    Ca delta = 7.9360e-03
+    ne delta = 1.5411e-15
+dJ = 5.44e-02
+    H delta = 3.2848e-02
+    Ca delta = 7.3778e-03
+    ne delta = 2.2115e-15
+dJ = 5.32e-02
+    H delta = 3.2243e-02
+    Ca delta = 6.8435e-03
+    ne delta = 1.2321e-15
+dJ = 5.21e-02
+    H delta = 3.1633e-02
+    Ca delta = 6.3471e-03
+    ne delta = 1.0207e-15
+dJ = 5.08e-02
+    H delta = 3.1091e-02
+    Ca delta = 5.8809e-03
+    ne delta = 1.7609e-15
+dJ = 4.95e-02
+    H delta = 3.0494e-02
+    Ca delta = 5.4388e-03
+    ne delta = 2.3709e-16
+dJ = 4.82e-02
+    H delta = 2.9844e-02
+    Ca delta = 5.0359e-03
+    ne delta = 1.4081e-15
+dJ = 4.68e-02
+    H delta = 2.9148e-02
+    Ca delta = 4.6234e-03
+    ne delta = 1.6254e-15
+dJ = 4.56e-02
+    H delta = 2.8388e-02
+    Ca delta = 4.2310e-03
+    ne delta = 5.2802e-16
+dJ = 4.43e-02
+    H delta = 2.7631e-02
+    Ca delta = 3.8808e-03
+    ne delta = 3.5201e-16
+dJ = 4.30e-02
+    H delta = 2.6848e-02
+    Ca delta = 3.5462e-03
+    ne delta = 2.4894e-15
+dJ = 4.15e-02
+    H delta = 2.6074e-02
+    Ca delta = 3.2571e-03
+    ne delta = 1.0207e-15
+dJ = 3.99e-02
+    H delta = 2.5264e-02
+    Ca delta = 2.9872e-03
+    ne delta = 3.5201e-16
+dJ = 3.84e-02
+    H delta = 2.4422e-02
+    Ca delta = 2.7444e-03
+    ne delta = 6.2672e-16
+dJ = 3.68e-02
+    H delta = 2.3552e-02
+    Ca delta = 2.5272e-03
+    ne delta = 1.1854e-16
+dJ = 3.53e-02
+    H delta = 2.2680e-02
+    Ca delta = 2.3270e-03
+    ne delta = 1.4900e-15
+dJ = 3.37e-02
+    H delta = 2.1794e-02
+    Ca delta = 2.1407e-03
+    ne delta = 5.1034e-16
+dJ = 3.22e-02
+    H delta = 2.0913e-02
+    Ca delta = 2.0365e-03
+    ne delta = 2.8451e-15
+dJ = 3.08e-02
+    H delta = 2.0033e-02
+    Ca delta = 1.9891e-03
+    ne delta = 5.4180e-16
+dJ = 2.93e-02
+    H delta = 1.9163e-02
+    Ca delta = 1.9372e-03
+    ne delta = 8.5057e-16
+dJ = 2.79e-02
+    H delta = 1.8281e-02
+    Ca delta = 1.8779e-03
+    ne delta = 9.4815e-16
+dJ = 2.67e-02
+    H delta = 1.7488e-02
+    Ca delta = 1.8160e-03
+    ne delta = 7.5206e-16
+dJ = 2.54e-02
+    H delta = 1.6639e-02
+    Ca delta = 1.7588e-03
+    ne delta = 1.3040e-15
+dJ = 2.41e-02
+    H delta = 1.5863e-02
+    Ca delta = 1.6997e-03
+    ne delta = 3.5201e-16
+dJ = 2.28e-02
+    H delta = 1.5044e-02
+    Ca delta = 1.6484e-03
+    ne delta = 3.5201e-16
+dJ = 2.16e-02
+    H delta = 1.4269e-02
+    Ca delta = 1.5816e-03
+    ne delta = 5.2802e-16
+dJ = 2.04e-02
+    H delta = 1.3492e-02
+    Ca delta = 1.5205e-03
+    ne delta = 8.1270e-16
+dJ = 1.92e-02
+    H delta = 1.2754e-02
+    Ca delta = 1.4523e-03
+    ne delta = 1.5310e-15
+dJ = 1.81e-02
+    H delta = 1.2030e-02
+    Ca delta = 1.3876e-03
+    ne delta = 6.7725e-16
+dJ = 1.71e-02
+    H delta = 1.1342e-02
+    Ca delta = 1.3200e-03
+    ne delta = 8.5057e-16
+dJ = 1.60e-02
+    H delta = 1.0674e-02
+    Ca delta = 1.2548e-03
+    ne delta = 1.7609e-15
+dJ = 1.51e-02
+    H delta = 1.0037e-02
+    Ca delta = 1.1889e-03
+    ne delta = 3.5201e-16
+dJ = 1.41e-02
+    H delta = 9.4256e-03
+    Ca delta = 1.1249e-03
+    ne delta = 8.2981e-16
+dJ = 1.32e-02
+    H delta = 8.8528e-03
+    Ca delta = 1.0626e-03
+    ne delta = 1.6254e-15
+dJ = 1.24e-02
+    H delta = 8.2873e-03
+    Ca delta = 1.0003e-03
+    ne delta = 5.9272e-16
+dJ = 1.16e-02
+    H delta = 7.7787e-03
+    Ca delta = 9.4429e-04
+    ne delta = 6.8046e-16
+dJ = 1.09e-02
+    H delta = 7.2644e-03
+    Ca delta = 8.8509e-04
+    ne delta = 5.2802e-16
+dJ = 1.01e-02
+    H delta = 6.7976e-03
+    Ca delta = 8.3257e-04
+    ne delta = 2.0055e-15
+dJ = 9.47e-03
+    H delta = 6.3340e-03
+    Ca delta = 7.7820e-04
+    ne delta = 1.7782e-15
+dJ = 8.81e-03
+    H delta = 5.9052e-03
+    Ca delta = 7.2990e-04
+    ne delta = 1.0560e-15
+dJ = 8.20e-03
+    H delta = 5.4886e-03
+    Ca delta = 6.8109e-04
+    ne delta = 6.8046e-16
+dJ = 7.61e-03
+    H delta = 5.1031e-03
+    Ca delta = 6.3647e-04
+    ne delta = 1.7601e-16
+dJ = 7.07e-03
+    H delta = 4.7367e-03
+    Ca delta = 5.9324e-04
+    ne delta = 8.2981e-16
+dJ = 6.55e-03
+    H delta = 4.3970e-03
+    Ca delta = 5.5241e-04
+    ne delta = -2.5069e-16
+dJ = 6.08e-03
+    H delta = 4.0772e-03
+    Ca delta = 5.1465e-04
+    ne delta = 1.2321e-15
+dJ = 5.63e-03
+    H delta = 3.7802e-03
+    Ca delta = 4.7848e-04
+    ne delta = 8.1270e-16
+dJ = 5.21e-03
+    H delta = 3.5020e-03
+    Ca delta = 4.4493e-04
+    ne delta = 5.2802e-16
+dJ = 4.82e-03
+    H delta = 3.2436e-03
+    Ca delta = 4.1311e-04
+    ne delta = 2.3709e-15
+dJ = 4.46e-03
+    H delta = 3.0024e-03
+    Ca delta = 3.8352e-04
+    ne delta = 1.0560e-15
+dJ = 4.13e-03
+    H delta = 2.7783e-03
+    Ca delta = 3.5577e-04
+    ne delta = 2.1338e-15
+dJ = 3.82e-03
+    H delta = 2.5696e-03
+    Ca delta = 3.2990e-04
+    ne delta = 1.9361e-15
+dJ = 3.53e-03
+    H delta = 2.3759e-03
+    Ca delta = 3.0562e-04
+    ne delta = 1.2321e-15
+dJ = 3.26e-03
+    H delta = 2.1960e-03
+    Ca delta = 2.8308e-04
+    ne delta = 1.3040e-15
+dJ = 3.01e-03
+    H delta = 2.0294e-03
+    Ca delta = 2.6200e-04
+    ne delta = 9.4815e-16
+dJ = 2.78e-03
+    H delta = 1.8748e-03
+    Ca delta = 2.4245e-04
+    ne delta = 1.6295e-15
+dJ = 2.57e-03
+    H delta = 1.7315e-03
+    Ca delta = 2.2422e-04
+    ne delta = 1.7601e-15
+dJ = 2.37e-03
+    H delta = 1.5988e-03
+    Ca delta = 2.0732e-04
+    ne delta = 3.1336e-15
+dJ = 2.19e-03
+    H delta = 1.4760e-03
+    Ca delta = 1.9163e-04
+    ne delta = 1.0669e-15
+dJ = 2.02e-03
+    H delta = 1.3623e-03
+    Ca delta = 1.7713e-04
+    ne delta = 1.2191e-15
+dJ = 1.86e-03
+    H delta = 1.2571e-03
+    Ca delta = 1.6362e-04
+    ne delta = 1.7601e-15
+dJ = 1.72e-03
+    H delta = 1.1598e-03
+    Ca delta = 1.5112e-04
+    ne delta = 4.2617e-15
+dJ = 1.59e-03
+    H delta = 1.0700e-03
+    Ca delta = 1.3954e-04
+    ne delta = 1.4225e-15
+dJ = 1.46e-03
+    H delta = 9.8695e-04
+    Ca delta = 1.2881e-04
+    ne delta = 1.7601e-15
+113 iterations
+--------------------------------------------------------------------------------
+8.73 s
+LTE Iterations 1 (-- slowest convergence)
+dJ = 1.00e+00
+dJ = 3.67e-01
+dJ = 1.52e-01
+dJ = 6.40e-02
+    H delta = 3.1381e+00
+    Ca delta = 1.3117e+00
+dJ = 2.62e+01
+    H delta = 1.1901e+00
+    Ca delta = 1.1668e+00
+dJ = 4.03e+00
+    H delta = 8.9763e-01
+    Ca delta = 2.3669e-01
+dJ = 1.64e+00
+    H delta = 5.8678e-01
+    Ca delta = 2.5883e-01
+dJ = 1.15e+00
+    H delta = 4.0475e-01
+    Ca delta = 2.6920e-01
+dJ = 9.03e-01
+    H delta = 3.4585e-01
+    Ca delta = 2.4545e-01
+dJ = 6.18e-01
+    H delta = 2.7697e-01
+    Ca delta = 2.0562e-01
+dJ = 4.21e-01
+    H delta = 2.2277e-01
+    Ca delta = 1.6857e-01
+dJ = 3.35e-01
+    H delta = 1.7807e-01
+    Ca delta = 1.3651e-01
+dJ = 2.83e-01
+    H delta = 1.4218e-01
+    Ca delta = 1.0595e-01
+dJ = 2.29e-01
+    H delta = 1.1485e-01
+    Ca delta = 8.6867e-02
+dJ = 1.87e-01
+    H delta = 1.0140e-01
+    Ca delta = 7.3617e-02
+dJ = 1.69e-01
+    H delta = 8.8819e-02
+    Ca delta = 6.4272e-02
+dJ = 1.54e-01
+    H delta = 8.0738e-02
+    Ca delta = 5.7310e-02
+dJ = 1.40e-01
+    H delta = 7.4879e-02
+    Ca delta = 5.1223e-02
+dJ = 1.28e-01
+    H delta = 6.8842e-02
+    Ca delta = 4.6471e-02
+dJ = 1.17e-01
+    H delta = 6.3702e-02
+    Ca delta = 4.2608e-02
+dJ = 1.10e-01
+    H delta = 5.8898e-02
+    Ca delta = 3.9147e-02
+dJ = 1.04e-01
+    H delta = 5.7490e-02
+    Ca delta = 3.6308e-02
+dJ = 9.86e-02
+    H delta = 5.6271e-02
+    Ca delta = 3.3903e-02
+dJ = 9.42e-02
+    H delta = 5.5233e-02
+    Ca delta = 3.1744e-02
+dJ = 8.98e-02
+    H delta = 5.4233e-02
+    Ca delta = 2.9934e-02
+dJ = 8.63e-02
+    H delta = 5.3224e-02
+    Ca delta = 2.8333e-02
+dJ = 8.29e-02
+    H delta = 5.2227e-02
+    Ca delta = 2.6872e-02
+dJ = 8.00e-02
+    H delta = 5.1299e-02
+    Ca delta = 2.5575e-02
+dJ = 7.72e-02
+    H delta = 5.0382e-02
+    Ca delta = 2.4424e-02
+dJ = 7.51e-02
+    H delta = 4.9460e-02
+    Ca delta = 2.3349e-02
+dJ = 7.33e-02
+    H delta = 4.8640e-02
+    Ca delta = 2.2364e-02
+dJ = 7.16e-02
+    H delta = 4.7879e-02
+    Ca delta = 2.1438e-02
+dJ = 7.01e-02
+    H delta = 4.7059e-02
+    Ca delta = 2.0561e-02
+dJ = 6.86e-02
+    H delta = 4.6204e-02
+    Ca delta = 1.9733e-02
+dJ = 6.73e-02
+    H delta = 4.5294e-02
+    Ca delta = 1.8937e-02
+dJ = 6.62e-02
+    H delta = 4.4336e-02
+    Ca delta = 1.8152e-02
+dJ = 6.51e-02
+    H delta = 4.3318e-02
+    Ca delta = 1.7384e-02
+dJ = 6.40e-02
+    H delta = 4.2240e-02
+    Ca delta = 1.6639e-02
+dJ = 6.28e-02
+    H delta = 4.1115e-02
+    Ca delta = 1.5913e-02
+dJ = 6.17e-02
+    H delta = 3.9939e-02
+    Ca delta = 1.5202e-02
+dJ = 6.06e-02
+    H delta = 3.8713e-02
+    Ca delta = 1.4505e-02
+dJ = 5.95e-02
+    H delta = 3.7445e-02
+    Ca delta = 1.3820e-02
+dJ = 5.83e-02
+    H delta = 3.6137e-02
+    Ca delta = 1.3148e-02
+dJ = 5.71e-02
+    H delta = 3.4800e-02
+    Ca delta = 1.2487e-02
+dJ = 5.58e-02
+    H delta = 3.3497e-02
+    Ca delta = 1.1839e-02
+dJ = 5.45e-02
+    H delta = 3.2315e-02
+    Ca delta = 1.1208e-02
+dJ = 5.32e-02
+    H delta = 3.1014e-02
+    Ca delta = 1.0595e-02
+dJ = 5.18e-02
+    H delta = 2.9666e-02
+    Ca delta = 9.9967e-03
+dJ = 5.03e-02
+    H delta = 2.8044e-02
+    Ca delta = 9.4131e-03
+dJ = 4.87e-02
+    H delta = 2.6396e-02
+    Ca delta = 8.8467e-03
+dJ = 4.71e-02
+    H delta = 2.4963e-02
+    Ca delta = 8.3046e-03
+dJ = 4.54e-02
+    H delta = 2.3634e-02
+    Ca delta = 7.7822e-03
+dJ = 4.36e-02
+    H delta = 2.2327e-02
+    Ca delta = 7.2811e-03
+dJ = 4.18e-02
+    H delta = 2.1038e-02
+    Ca delta = 6.7953e-03
+dJ = 3.99e-02
+    H delta = 2.0279e-02
+    Ca delta = 6.3306e-03
+dJ = 3.81e-02
+    H delta = 1.9479e-02
+    Ca delta = 5.8767e-03
+dJ = 3.67e-02
+    H delta = 1.8626e-02
+    Ca delta = 5.4865e-03
+dJ = 3.49e-02
+    H delta = 1.7853e-02
+    Ca delta = 5.0816e-03
+dJ = 3.31e-02
+    H delta = 1.7013e-02
+    Ca delta = 4.7094e-03
+dJ = 3.12e-02
+    H delta = 1.6181e-02
+    Ca delta = 4.3438e-03
+dJ = 2.92e-02
+    H delta = 1.5303e-02
+    Ca delta = 3.9860e-03
+dJ = 2.73e-02
+    H delta = 1.4436e-02
+    Ca delta = 3.6610e-03
+dJ = 2.56e-02
+    H delta = 1.3591e-02
+    Ca delta = 3.3693e-03
+dJ = 2.39e-02
+    H delta = 1.2764e-02
+    Ca delta = 3.0991e-03
+dJ = 2.23e-02
+    H delta = 1.1958e-02
+    Ca delta = 2.8479e-03
+dJ = 2.08e-02
+    H delta = 1.1179e-02
+    Ca delta = 2.6145e-03
+dJ = 1.93e-02
+    H delta = 1.0428e-02
+    Ca delta = 2.3981e-03
+dJ = 1.79e-02
+    H delta = 9.7055e-03
+    Ca delta = 2.1984e-03
+dJ = 1.66e-02
+    H delta = 9.0176e-03
+    Ca delta = 2.0136e-03
+dJ = 1.53e-02
+    H delta = 8.3633e-03
+    Ca delta = 1.8432e-03
+dJ = 1.42e-02
+    H delta = 7.7443e-03
+    Ca delta = 1.6870e-03
+dJ = 1.31e-02
+    H delta = 7.1522e-03
+    Ca delta = 1.5606e-03
+dJ = 1.22e-02
+    H delta = 6.6360e-03
+    Ca delta = 1.4284e-03
+dJ = 1.12e-02
+    H delta = 6.1239e-03
+    Ca delta = 1.3074e-03
+dJ = 1.04e-02
+    H delta = 5.6556e-03
+    Ca delta = 1.1930e-03
+dJ = 9.51e-03
+    H delta = 5.2042e-03
+    Ca delta = 1.0893e-03
+dJ = 8.74e-03
+    H delta = 4.7899e-03
+    Ca delta = 9.9149e-04
+dJ = 8.01e-03
+    H delta = 4.3965e-03
+    Ca delta = 8.9978e-04
+dJ = 7.31e-03
+    H delta = 4.0291e-03
+    Ca delta = 8.1504e-04
+dJ = 6.67e-03
+    H delta = 3.6841e-03
+    Ca delta = 7.3942e-04
+dJ = 6.08e-03
+    H delta = 3.3672e-03
+    Ca delta = 6.7075e-04
+dJ = 5.54e-03
+    H delta = 3.0742e-03
+    Ca delta = 6.0683e-04
+dJ = 5.05e-03
+    H delta = 2.8071e-03
+    Ca delta = 5.4897e-04
+dJ = 4.60e-03
+    H delta = 2.5616e-03
+    Ca delta = 4.9778e-04
+dJ = 4.19e-03
+    H delta = 2.3351e-03
+    Ca delta = 4.5142e-04
+dJ = 3.81e-03
+    H delta = 2.1263e-03
+    Ca delta = 4.0947e-04
+dJ = 3.47e-03
+    H delta = 1.9345e-03
+    Ca delta = 3.7143e-04
+dJ = 3.15e-03
+    H delta = 1.7595e-03
+    Ca delta = 3.3691e-04
+dJ = 2.87e-03
+    H delta = 1.5999e-03
+    Ca delta = 3.0554e-04
+dJ = 2.61e-03
+    H delta = 1.4545e-03
+    Ca delta = 2.7708e-04
+dJ = 2.37e-03
+    H delta = 1.3220e-03
+    Ca delta = 2.5123e-04
+dJ = 2.15e-03
+    H delta = 1.2012e-03
+    Ca delta = 2.2778e-04
+dJ = 1.95e-03
+    H delta = 1.0911e-03
+    Ca delta = 2.0738e-04
+dJ = 1.77e-03
+    H delta = 9.8999e-04
+    Ca delta = 1.8951e-04
+93 iterations
+--------------------------------------------------------------------------------
+6.83 s
+LTE Iterations 1 (-- slowest convergence)
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 1 minutes  1.957 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-plot-simplelinetest-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/3ac4f030a4f588f720de983a358089ff/plot_SimpleLineTest.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_SimpleLineTest.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/c22ee4da75da769ac92d5061f442295a/plot_SimpleLineTest.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_SimpleLineTest.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../lightweaver-api.html" class="btn btn-neutral float-right" title="Lightweaver API Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Lightweaver Examples Gallery" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, C. Osborne
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

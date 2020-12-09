@@ -1,0 +1,704 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>lightweaver.broadening &mdash; Lightweaver  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Lightweaver
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../auto_examples/index.html">Lightweaver Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../lightweaver-api.html">Lightweaver API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Lightweaver</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>lightweaver.broadening</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for lightweaver.broadening</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">import</span> <span class="nn">lightweaver.constants</span> <span class="k">as</span> <span class="nn">Const</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">.atomic_table</span> <span class="kn">import</span> <span class="n">PeriodicTable</span>
+<span class="kn">from</span> <span class="nn">.barklem</span> <span class="kn">import</span> <span class="n">Barklem</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.atomic_model</span> <span class="kn">import</span> <span class="n">AtomicLine</span>
+    <span class="kn">from</span> <span class="nn">.atmosphere</span> <span class="kn">import</span> <span class="n">Atmosphere</span>
+    <span class="kn">from</span> <span class="nn">.atomic_set</span> <span class="kn">import</span> <span class="n">SpeciesStateTable</span>
+
+<div class="viewcode-block" id="LineBroadeningResult"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.broadening.LineBroadeningResult">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">LineBroadeningResult</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Result expected from instances of `LineBroadening.broaden`.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">natural</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">Qelast</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">other</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="LineBroadener"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.broadening.LineBroadener">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">LineBroadener</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Base class for broadening implementations. To be used if your broadener</span>
+<span class="sd">    does something special and can&#39;t just return an array.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="s1">&#39;AtomicLine&#39;</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">broaden</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">:</span> <span class="s1">&#39;SpeciesStateTable&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="StandardLineBroadener"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.broadening.StandardLineBroadener">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">StandardLineBroadener</span><span class="p">(</span><span class="n">LineBroadener</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Standard base class for broadening implementations. Unless you need to do</span>
+<span class="sd">    something weird, inherit from this one.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="s1">&#39;AtomicLine&#39;</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">broaden</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">:</span> <span class="s1">&#39;SpeciesStateTable&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="LineBroadening"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.broadening.LineBroadening">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">LineBroadening</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Standard component of AtomicLine to compute the broadening parameters in</span>
+<span class="sd">    a flexible way.</span>
+
+<span class="sd">    For most Voigt-like situations, this should be usable without</span>
+<span class="sd">    modifications, but this class can be inherited from to make substantial</span>
+<span class="sd">    modifications.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    natural : list of StandardLineBroadener</span>
+<span class="sd">        List of broadening terms that are not elastic collisions (separated for PRD).</span>
+<span class="sd">    elastic : list of StandardLineBroadener</span>
+<span class="sd">        List of elastic broadening terms.</span>
+<span class="sd">    other : list of LineBroadener, optional</span>
+<span class="sd">        List of other broadening terms, not used by the VoigtLine by default,</span>
+<span class="sd">        but existing to provide _options_ (default: None)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">natural</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">StandardLineBroadener</span><span class="p">]</span>
+    <span class="n">elastic</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">StandardLineBroadener</span><span class="p">]</span>
+    <span class="n">other</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">LineBroadener</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">otherStr</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">other</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;, other=</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">other</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;LineBroadening(natural=</span><span class="si">%s</span><span class="s1">, elastic=</span><span class="si">%s%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">natural</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elastic</span><span class="p">),</span> <span class="n">otherStr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">natural</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elastic</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No standard broadening terms provided to LineBroadening&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="s1">&#39;AtomicLine&#39;</span><span class="p">):</span>
+        <span class="n">b</span><span class="p">:</span> <span class="n">LineBroadener</span>
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">natural</span><span class="p">:</span>
+            <span class="n">b</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elastic</span><span class="p">:</span>
+            <span class="n">b</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">other</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">other</span><span class="p">:</span>
+                <span class="n">b</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LineBroadening.sum_broadening_list"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.broadening.LineBroadening.sum_broadening_list">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">sum_broadening_list</span><span class="p">(</span><span class="n">broadeners</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">StandardLineBroadener</span><span class="p">],</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span>
+                            <span class="n">eqPops</span><span class="p">:</span> <span class="s1">&#39;SpeciesStateTable&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Sums a list of StandardLineBroadeners.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">broadeners</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">broadeners</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">broaden</span><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">broadeners</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">result</span> <span class="o">+=</span> <span class="n">b</span><span class="o">.</span><span class="n">broaden</span><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="LineBroadening.compute_other_broadening"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.broadening.LineBroadening.compute_other_broadening">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">compute_other_broadening</span><span class="p">(</span><span class="n">broadeners</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">LineBroadener</span><span class="p">]],</span>
+                                 <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span>
+                                 <span class="n">eqPops</span><span class="p">:</span> <span class="s1">&#39;SpeciesStateTable&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">]:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns a list of the computed broadening terms.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">broadeners</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">broadeners</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">broaden</span><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">broadeners</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="LineBroadening.broaden"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.broadening.LineBroadening.broaden">[docs]</a>    <span class="k">def</span> <span class="nf">broaden</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">:</span> <span class="s1">&#39;SpeciesStateTable&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LineBroadeningResult</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Computes the broadening, this function is called by the AtomicLine object.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">natural</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum_broadening_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">natural</span><span class="p">,</span> <span class="n">atmos</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">)</span>
+        <span class="n">Qelast</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum_broadening_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elastic</span><span class="p">,</span> <span class="n">atmos</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">)</span>
+
+        <span class="n">others</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_other_broadening</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">other</span><span class="p">,</span> <span class="n">atmos</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">natural</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">natural</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">Qelast</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">Qelast</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">Qelast</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">natural</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">LineBroadeningResult</span><span class="p">(</span><span class="n">natural</span><span class="o">=</span><span class="n">natural</span><span class="p">,</span>
+                                    <span class="n">Qelast</span><span class="o">=</span><span class="n">Qelast</span><span class="p">,</span> <span class="n">other</span><span class="o">=</span><span class="n">others</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="VdwApprox"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.broadening.VdwApprox">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">VdwApprox</span><span class="p">(</span><span class="n">StandardLineBroadener</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Base class for van der Waals approximation using a list of coefficients</span>
+<span class="sd">    (vals).</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">vals</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+    <span class="n">line</span><span class="p">:</span> <span class="s1">&#39;AtomicLine&#39;</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="s1">&#39;AtomicLine&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">=</span> <span class="n">line</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(vals=</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vals</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">vals</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">line</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="VdwUnsold"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.broadening.VdwUnsold">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">VdwUnsold</span><span class="p">(</span><span class="n">VdwApprox</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Implementation of the Unsold method for van der Waals broadening.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="s1">&#39;AtomicLine&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">=</span> <span class="n">line</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;VdwUnsold expects 2 coefficients (</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+
+        <span class="n">Z</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">jLevel</span><span class="o">.</span><span class="n">stage</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">cont</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">overlyingContinuumLevel</span>
+
+        <span class="n">deltaR</span> <span class="o">=</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">ERydberg</span> <span class="o">/</span> <span class="p">(</span><span class="n">cont</span><span class="o">.</span><span class="n">E_SI</span> <span class="o">-</span> <span class="n">line</span><span class="o">.</span><span class="n">jLevel</span><span class="o">.</span><span class="n">E_SI</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span> \
+                 <span class="o">-</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">ERydberg</span> <span class="o">/</span> <span class="p">(</span><span class="n">cont</span><span class="o">.</span><span class="n">E_SI</span> <span class="o">-</span> <span class="n">line</span><span class="o">.</span><span class="n">iLevel</span><span class="o">.</span><span class="n">E_SI</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">fourPiEps0</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">Epsilon0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">C625</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.5</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">QElectron</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">fourPiEps0</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">ABarH</span> <span class="o">/</span> <span class="n">fourPiEps0</span> \
+                     <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">Z</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">RBohr</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">Const</span><span class="o">.</span><span class="n">HPlanck</span> <span class="o">*</span> <span class="n">deltaR</span><span class="p">)</span><span class="o">**</span><span class="mf">0.4</span>
+
+        <span class="n">element</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">element</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">vRel35He</span> <span class="o">=</span> <span class="p">(</span><span class="mf">8.0</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">KBoltzmann</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">Const</span><span class="o">.</span><span class="n">Amu</span> <span class="o">*</span> <span class="n">element</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>\
+                         <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">element</span><span class="o">.</span><span class="n">mass</span> <span class="o">/</span> <span class="n">PeriodicTable</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">))</span><span class="o">**</span><span class="mf">0.3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vRel35H</span> <span class="o">=</span> <span class="p">(</span><span class="mf">8.0</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">KBoltzmann</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">Const</span><span class="o">.</span><span class="n">Amu</span> <span class="o">*</span> <span class="n">element</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>\
+                         <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">element</span><span class="o">.</span><span class="n">mass</span> <span class="o">/</span> <span class="n">PeriodicTable</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">))</span><span class="o">**</span><span class="mf">0.3</span>
+
+
+<div class="viewcode-block" id="VdwUnsold.broaden"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.broadening.VdwUnsold.broaden">[docs]</a>    <span class="k">def</span> <span class="nf">broaden</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">:</span> <span class="s1">&#39;SpeciesStateTable&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        The function that is called by LineBroadening.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        atmos : Atmosphere</span>
+<span class="sd">            The atmosphere in which to compute the broadening.</span>
+<span class="sd">        eqPops : SpeciesStateTable</span>
+<span class="sd">            The populations to use for computing the broadening.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        broad : np.ndarray</span>
+<span class="sd">            An array detailing the broadening at each location in the</span>
+<span class="sd">            atmosphere [Nspace].</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">heAbund</span> <span class="o">=</span> <span class="n">eqPops</span><span class="o">.</span><span class="n">abundance</span><span class="p">[</span><span class="n">PeriodicTable</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="n">cross</span> <span class="o">=</span> <span class="mf">8.08</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">vRel35H</span> \
+                             <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">heAbund</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">vRel35He</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">C625</span>
+        <span class="n">nHGround</span> <span class="o">=</span> <span class="n">eqPops</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">broad</span> <span class="o">=</span> <span class="n">cross</span> <span class="o">*</span> <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="o">**</span><span class="mf">0.3</span> <span class="o">*</span> <span class="n">nHGround</span>
+        <span class="k">return</span> <span class="n">broad</span></div></div>
+
+
+<div class="viewcode-block" id="VdwBarklem"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.broadening.VdwBarklem">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">VdwBarklem</span><span class="p">(</span><span class="n">VdwApprox</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Implementation of the Barklem method for van der Waals broadening.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="s1">&#39;AtomicLine&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">=</span> <span class="n">line</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;VdwBarklem expects 2 coefficients (</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">line</span><span class="p">)))</span>
+        <span class="n">newVals</span> <span class="o">=</span> <span class="n">Barklem</span><span class="o">.</span><span class="n">get_active_cross_section</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">atom</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vals</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">barklemVals</span> <span class="o">=</span> <span class="n">newVals</span>
+
+        <span class="n">Z</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">jLevel</span><span class="o">.</span><span class="n">stage</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">cont</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">overlyingContinuumLevel</span>
+
+        <span class="n">deltaR</span> <span class="o">=</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">ERydberg</span> <span class="o">/</span> <span class="p">(</span><span class="n">cont</span><span class="o">.</span><span class="n">E_SI</span> <span class="o">-</span> <span class="n">line</span><span class="o">.</span><span class="n">jLevel</span><span class="o">.</span><span class="n">E_SI</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span> \
+                 <span class="o">-</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">ERydberg</span> <span class="o">/</span> <span class="p">(</span><span class="n">cont</span><span class="o">.</span><span class="n">E_SI</span> <span class="o">-</span> <span class="n">line</span><span class="o">.</span><span class="n">iLevel</span><span class="o">.</span><span class="n">E_SI</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">fourPiEps0</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">Epsilon0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">C625</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.5</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">QElectron</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">fourPiEps0</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">ABarH</span> <span class="o">/</span> <span class="n">fourPiEps0</span> \
+                     <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">Z</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">RBohr</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">Const</span><span class="o">.</span><span class="n">HPlanck</span> <span class="o">*</span> <span class="n">deltaR</span><span class="p">)</span><span class="o">**</span><span class="mf">0.4</span>
+
+        <span class="n">element</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">element</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">vRel35He</span> <span class="o">=</span> <span class="p">(</span><span class="mf">8.0</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">KBoltzmann</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">Const</span><span class="o">.</span><span class="n">Amu</span> <span class="o">*</span> <span class="n">element</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>\
+                         <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">element</span><span class="o">.</span><span class="n">mass</span> <span class="o">/</span> <span class="n">PeriodicTable</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">mass</span><span class="p">))</span><span class="o">**</span><span class="mf">0.3</span>
+
+
+<div class="viewcode-block" id="VdwBarklem.broaden"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.broadening.VdwBarklem.broaden">[docs]</a>    <span class="k">def</span> <span class="nf">broaden</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">:</span> <span class="s1">&#39;SpeciesStateTable&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        The function that is called by LineBroadening.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        atmos : Atmosphere</span>
+<span class="sd">            The atmosphere in which to compute the broadening.</span>
+<span class="sd">        eqPops : SpeciesStateTable</span>
+<span class="sd">            The populations to use for computing the broadening.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        broad : np.ndarray</span>
+<span class="sd">            An array detailing the broadening at each location in the</span>
+<span class="sd">            atmosphere [Nspace].</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">heAbund</span> <span class="o">=</span> <span class="n">eqPops</span><span class="o">.</span><span class="n">abundance</span><span class="p">[</span><span class="n">PeriodicTable</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="n">nHGround</span> <span class="o">=</span> <span class="n">eqPops</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">cross</span> <span class="o">=</span> <span class="mf">8.08</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">barklemVals</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">heAbund</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">vRel35He</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">C625</span>
+
+        <span class="n">broad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">barklemVals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="o">**</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">barklemVals</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> \
+                 <span class="o">+</span> <span class="n">cross</span> <span class="o">*</span> <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="o">**</span><span class="mf">0.3</span>
+        <span class="n">broad</span> <span class="o">*=</span> <span class="n">nHGround</span>
+        <span class="k">return</span> <span class="n">broad</span></div></div>
+
+
+<div class="viewcode-block" id="RadiativeBroadening"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.broadening.RadiativeBroadening">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">RadiativeBroadening</span><span class="p">(</span><span class="n">StandardLineBroadener</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Simple constant radiative broadening with coefficient gamma.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">gamma</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">line</span><span class="p">:</span> <span class="s1">&#39;AtomicLine&#39;</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="s1">&#39;AtomicLine&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">=</span> <span class="n">line</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(gamma=</span><span class="si">%g</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">gamma</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">line</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="RadiativeBroadening.broaden"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.broadening.RadiativeBroadening.broaden">[docs]</a>    <span class="k">def</span> <span class="nf">broaden</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">:</span> <span class="s1">&#39;SpeciesStateTable&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        The function that is called by LineBroadening.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        atmos : Atmosphere</span>
+<span class="sd">            The atmosphere in which to compute the broadening.</span>
+<span class="sd">        eqPops : SpeciesStateTable</span>
+<span class="sd">            The populations to use for computing the broadening.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        broad : np.ndarray</span>
+<span class="sd">            An array detailing the broadening at each location in the</span>
+<span class="sd">            atmosphere [Nspace].</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span></div></div>
+
+<div class="viewcode-block" id="QuadraticStarkBroadening"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.broadening.QuadraticStarkBroadening">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">QuadraticStarkBroadening</span><span class="p">(</span><span class="n">StandardLineBroadener</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Lindholm theory result for Quadratic Stark broadening by electrons and</span>
+<span class="sd">    singly ionised particles.</span>
+<span class="sd">    Follows HM2014 pp. 238-239, uses C4 from Traving 1960 via RH.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">coeff</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">line</span><span class="p">:</span> <span class="s1">&#39;AtomicLine&#39;</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(coeff=</span><span class="si">%g</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coeff</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coeff</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">coeff</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">line</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="s1">&#39;AtomicLine&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">=</span> <span class="n">line</span>
+        <span class="n">weight</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">mass</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="mf">8.0</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">KBoltzmann</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">Amu</span> <span class="o">*</span> <span class="n">weight</span><span class="p">)</span>
+        <span class="n">Cm</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">weight</span> <span class="o">/</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">MElectron</span> <span class="o">/</span> <span class="n">Const</span><span class="o">.</span><span class="n">Amu</span><span class="p">))</span><span class="o">**</span><span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">6.0</span><span class="p">)</span>
+        <span class="c1"># NOTE(cmo): 28.0 is average atomic weight</span>
+        <span class="n">Cm</span> <span class="o">+=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">weight</span> <span class="o">/</span> <span class="p">(</span><span class="mf">28.0</span><span class="p">))</span><span class="o">**</span><span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">6.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">C</span> <span class="o">=</span> <span class="n">C</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Cm</span> <span class="o">=</span> <span class="n">Cm</span>
+
+        <span class="n">Z</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">iLevel</span><span class="o">.</span><span class="n">stage</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">cont</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">overlyingContinuumLevel</span>
+
+        <span class="n">E_Ryd</span> <span class="o">=</span> <span class="n">Const</span><span class="o">.</span><span class="n">ERydberg</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">Const</span><span class="o">.</span><span class="n">MElectron</span> <span class="o">/</span> <span class="p">(</span><span class="n">weight</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">Amu</span><span class="p">))</span>
+        <span class="n">neff_l</span> <span class="o">=</span> <span class="n">Z</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">E_Ryd</span> <span class="o">/</span> <span class="p">(</span><span class="n">cont</span><span class="o">.</span><span class="n">E_SI</span> <span class="o">-</span> <span class="n">line</span><span class="o">.</span><span class="n">iLevel</span><span class="o">.</span><span class="n">E_SI</span><span class="p">))</span>
+        <span class="n">neff_u</span> <span class="o">=</span> <span class="n">Z</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">E_Ryd</span> <span class="o">/</span> <span class="p">(</span><span class="n">cont</span><span class="o">.</span><span class="n">E_SI</span> <span class="o">-</span> <span class="n">line</span><span class="o">.</span><span class="n">jLevel</span><span class="o">.</span><span class="n">E_SI</span><span class="p">))</span>
+
+        <span class="n">C4</span> <span class="o">=</span> <span class="n">Const</span><span class="o">.</span><span class="n">QElectron</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">Epsilon0</span><span class="p">)</span> \
+            <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">RBohr</span> \
+            <span class="o">*</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">RBohr</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">Const</span><span class="o">.</span><span class="n">HPlanck</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">18.0</span> <span class="o">*</span> <span class="n">Z</span><span class="o">**</span><span class="mi">4</span><span class="p">)</span> \
+            <span class="o">*</span> <span class="p">((</span><span class="n">neff_u</span> <span class="o">*</span> <span class="p">(</span><span class="mf">5.0</span> <span class="o">*</span> <span class="n">neff_u</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span> \
+                <span class="o">-</span> <span class="p">(</span><span class="n">neff_l</span> <span class="o">*</span> <span class="p">(</span><span class="mf">5.0</span> <span class="o">*</span> <span class="n">neff_l</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cStark23</span> <span class="o">=</span> <span class="mf">11.37</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coeff</span> <span class="o">*</span> <span class="n">C4</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">2.0</span><span class="o">/</span><span class="mf">3.0</span><span class="p">)</span>
+
+<div class="viewcode-block" id="QuadraticStarkBroadening.broaden"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.broadening.QuadraticStarkBroadening.broaden">[docs]</a>    <span class="k">def</span> <span class="nf">broaden</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">:</span> <span class="s1">&#39;SpeciesStateTable&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        The function that is called by LineBroadening.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        atmos : Atmosphere</span>
+<span class="sd">            The atmosphere in which to compute the broadening.</span>
+<span class="sd">        eqPops : SpeciesStateTable</span>
+<span class="sd">            The populations to use for computing the broadening.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        broad : np.ndarray</span>
+<span class="sd">            An array detailing the broadening at each location in the</span>
+<span class="sd">            atmosphere [Nspace].</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">vRel</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">C</span> <span class="o">*</span> <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">6.0</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Cm</span>
+        <span class="n">stark</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cStark23</span> <span class="o">*</span> <span class="n">vRel</span> <span class="o">*</span> <span class="n">atmos</span><span class="o">.</span><span class="n">ne</span>
+        <span class="k">return</span> <span class="n">stark</span></div></div>
+
+<div class="viewcode-block" id="MultiplicativeStarkBroadening"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.broadening.MultiplicativeStarkBroadening">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">MultiplicativeStarkBroadening</span><span class="p">(</span><span class="n">StandardLineBroadener</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Simple expression for multiplicative Stark broadening, assumes that this</span>
+<span class="sd">    can be expresed as a constant * ne.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">coeff</span><span class="p">:</span> <span class="nb">float</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(coeff=</span><span class="si">%g</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coeff</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coeff</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">coeff</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="MultiplicativeStarkBroadening.broaden"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.broadening.MultiplicativeStarkBroadening.broaden">[docs]</a>    <span class="k">def</span> <span class="nf">broaden</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">:</span> <span class="s1">&#39;SpeciesStateTable&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        The function that is called by LineBroadening.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        atmos : Atmosphere</span>
+<span class="sd">            The atmosphere in which to compute the broadening.</span>
+<span class="sd">        eqPops : SpeciesStateTable</span>
+<span class="sd">            The populations to use for computing the broadening.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        broad : np.ndarray</span>
+<span class="sd">            An array detailing the broadening at each location in the</span>
+<span class="sd">            atmosphere [Nspace].</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coeff</span> <span class="o">*</span> <span class="n">atmos</span><span class="o">.</span><span class="n">ne</span> <span class="c1"># type: ignore</span></div></div>
+
+<div class="viewcode-block" id="HydrogenLinearStarkBroadening"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.broadening.HydrogenLinearStarkBroadening">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">HydrogenLinearStarkBroadening</span><span class="p">(</span><span class="n">StandardLineBroadener</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Linear Stark broadening for the case of Hydrogen from Sutton 1978 (like</span>
+<span class="sd">    RH).</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">line</span><span class="p">:</span> <span class="s1">&#39;AtomicLine&#39;</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">()&#39;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">line</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="s1">&#39;AtomicLine&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">=</span> <span class="n">line</span>
+
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">Z</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;HydrogenicLinearStarkBroadening applied to non-Hydrogen line&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="HydrogenLinearStarkBroadening.broaden"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.broadening.HydrogenLinearStarkBroadening.broaden">[docs]</a>    <span class="k">def</span> <span class="nf">broaden</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">:</span> <span class="s1">&#39;SpeciesStateTable&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        The function that is called by LineBroadening.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        atmos : Atmosphere</span>
+<span class="sd">            The atmosphere in which to compute the broadening.</span>
+<span class="sd">        eqPops : SpeciesStateTable</span>
+<span class="sd">            The populations to use for computing the broadening.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        broad : np.ndarray</span>
+<span class="sd">            An array detailing the broadening at each location in the</span>
+<span class="sd">            atmosphere [Nspace].</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">nUpper</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="o">.</span><span class="n">jLevel</span><span class="o">.</span><span class="n">g</span><span class="p">)))</span>
+        <span class="n">nLower</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="o">.</span><span class="n">iLevel</span><span class="o">.</span><span class="n">g</span><span class="p">)))</span>
+
+        <span class="n">a1</span> <span class="o">=</span> <span class="mf">0.642</span> <span class="k">if</span> <span class="n">nUpper</span> <span class="o">-</span> <span class="n">nLower</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="mf">1.0</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="n">a1</span> <span class="o">*</span> <span class="mf">0.6</span> <span class="o">*</span> <span class="p">(</span><span class="n">nUpper</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">nLower</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">CM_TO_M</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">GStark</span> <span class="o">=</span> <span class="n">C</span> <span class="o">*</span> <span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="o">**</span><span class="p">(</span><span class="mf">2.0</span><span class="o">/</span><span class="mf">3.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">GStark</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, C. Osborne
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

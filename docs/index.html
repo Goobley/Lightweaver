@@ -13,6 +13,9 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-dataframe.css" type="text/css" />
 
   
   
@@ -36,7 +39,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="lightweaver package" href="lightweaver-api.html" /> 
+    <link rel="next" title="Lightweaver Examples Gallery" href="auto_examples/index.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -83,7 +86,8 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="lightweaver-api.html">lightweaver package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auto_examples/index.html">Lightweaver Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lightweaver-api.html">Lightweaver API Documentation</a></li>
 </ul>
 
             
@@ -154,7 +158,8 @@
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="lightweaver-api.html">lightweaver package</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="auto_examples/index.html">Lightweaver Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lightweaver-api.html">Lightweaver API Documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="lightweaver-api.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="lightweaver-api.html#module-lightweaver.atmosphere">lightweaver.atmosphere module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="lightweaver-api.html#module-lightweaver.atomic_model">lightweaver.atomic_model module</a></li>
@@ -176,6 +181,70 @@
 </li>
 </ul>
 </div>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Lightweaver is a Non-LTE (NLTE) radiative transfer framework for constructing
+simulations of optically thick spectral lines (primarily solar). It is
+available under the <a class="reference external" href="https://opensource.org/licenses/MIT">MIT license</a>. The flexible nature of its design allows
+it to be simply used in direct line synthesis or as a component of more
+involved frameworks (such as radiation hydrodynamics or inversion packages).
+Currently, one dimensional plane-parallel, and two-dimensional Cartesian
+atmospheres are supported, but three-dimensional setups could be added simply
+with a specific formal solver. It is well tested against <a class="reference external" href="https://github.com/ITA-Solar/rh">RH</a> and <a class="reference external" href="https://github.com/ivanzmilic/snapi">SNAPI</a>.</p>
+<p>The framework is managed from python (3.8+) whilst calling into an optimised
+C++ backend. Whilst following a similar methods, Lightweaver is often
+considerably faster than RH on non-trivial problems, whilst being slightly
+slower on trivial single-threaded problems due to the increased
+initialisation time the python layer brings with it.
+The backend can parallelise directly over as many threads as desired on
+single address space systems. MPI parallelisation across nodes can be
+accomplished manually on top of the framework using the packages available in
+python.</p>
+<p>Whilst the core numerics are implented in C++, as much of the non-performance
+critical code as possible is implemented in Python, and the code currently
+only has a Python interface (provided through a Cython binding module). These
+bindings could be rewritten in another language, so long as the same
+information can be provided to the C++ core.</p>
+<p>The aim of Lightweaver is to provide an NLTE Framework, rather than a “code”.
+That is to say, it should be more maleable, and provide easier access to
+experimentation, with most forms of experimentation (unless one wants to play
+with formal solvers or iteration schemes), being available directly from
+python. Formal solvers that comply with the interface defined in Lightweaver
+can be compiled into separate shared libraries and then loaded at runtime.
+The preceding concepts are inspired by the well-recieved machine learning
+frameworks such as PyTorch and Tensorflow.</p>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>The most recent release of Lightweaver will always be available on PyPI and
+is pre-compiled for Linux, Windows, and macOS (intel).</p>
+<p>Lightweaver requires python 3.8+, and it is recommended to be run inside a virtual environment using <code class="docutils literal notranslate"><span class="pre">conda</span></code>.</p>
+<p>In this case a new virtual environment can be created with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda create -n Lightweaver <span class="nv">python</span><span class="o">=</span><span class="m">3</span>.8
+</pre></div>
+</div>
+<p>then, activate the environment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda activate Lightweaver
+</pre></div>
+</div>
+<p>and Lightweaver can then be installed with</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m pip install lightweaver
+</pre></div>
+</div>
+<p>On other platforms you will need to compile the library, which will require a
+C++17 compiler on your path, at which point setuptools should handle
+everything. After downloading the release, or mainline version that you wish
+to install, you should be able to</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m pip install .
+</pre></div>
+</div>
+<p>from the Lightweaver directory created. You may also wish to do this to
+create a more optimised version for modern machines; the PyPI versions
+support Sandy Bridge CPUs, so newer machines may have wider instruction sets
+available.
+For doing a “development” installation for working inplace on the project,
+you may with to use <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code>.</p>
+</div>
 </div>
 <div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
@@ -194,7 +263,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="lightweaver-api.html" class="btn btn-neutral float-right" title="lightweaver package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="auto_examples/index.html" class="btn btn-neutral float-right" title="Lightweaver Examples Gallery" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
     </div>

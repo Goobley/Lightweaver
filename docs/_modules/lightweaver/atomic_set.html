@@ -1,0 +1,1400 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>lightweaver.atomic_set &mdash; Lightweaver  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Lightweaver
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../auto_examples/index.html">Lightweaver Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../lightweaver-api.html">Lightweaver API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Lightweaver</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>lightweaver.atomic_set</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for lightweaver.atomic_set</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span> <span class="nn">.atomic_table</span> <span class="kn">import</span> <span class="n">PeriodicTable</span><span class="p">,</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Isotope</span><span class="p">,</span> <span class="n">AtomicAbundance</span><span class="p">,</span> <span class="n">DefaultAtomicAbundance</span><span class="p">,</span> <span class="n">KuruczPf</span><span class="p">,</span> <span class="n">KuruczPfTable</span>
+<span class="kn">from</span> <span class="nn">.atomic_model</span> <span class="kn">import</span> <span class="n">AtomicTransition</span><span class="p">,</span> <span class="n">AtomicLine</span><span class="p">,</span> <span class="n">AtomicModel</span><span class="p">,</span> <span class="n">AtomicContinuum</span><span class="p">,</span> <span class="n">element_sort</span>
+<span class="kn">from</span> <span class="nn">.atmosphere</span> <span class="kn">import</span> <span class="n">Atmosphere</span>
+<span class="kn">from</span> <span class="nn">.molecule</span> <span class="kn">import</span> <span class="n">Molecule</span><span class="p">,</span> <span class="n">MolecularTable</span>
+<span class="kn">import</span> <span class="nn">lightweaver.constants</span> <span class="k">as</span> <span class="nn">Const</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span><span class="p">,</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.linalg</span> <span class="kn">import</span> <span class="n">solve</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">newton_krylov</span>
+<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">njit</span>
+
+<span class="nd">@njit</span>
+<span class="k">def</span> <span class="nf">lte_pops_impl</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">ne</span><span class="p">,</span> <span class="n">nTotal</span><span class="p">,</span> <span class="n">stages</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span>
+                  <span class="n">gs</span><span class="p">,</span> <span class="n">nStar</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debye</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">computeDiff</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">Nlevel</span> <span class="o">=</span> <span class="n">stages</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">Nspace</span> <span class="o">=</span> <span class="n">ne</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">c1</span> <span class="o">=</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">HPlanck</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">MElectron</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">HPlanck</span> <span class="o">/</span> <span class="n">Const</span><span class="o">.</span><span class="n">KBoltzmann</span><span class="p">)</span>
+
+    <span class="n">c2</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">if</span> <span class="n">debye</span><span class="p">:</span>
+        <span class="n">c2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">8.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">Const</span><span class="o">.</span><span class="n">KBoltzmann</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">QElectron</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">Epsilon0</span><span class="p">))</span><span class="o">**</span><span class="mf">1.5</span>
+        <span class="n">nDebye</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nlevel</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">Nlevel</span><span class="p">):</span>
+            <span class="n">stage</span> <span class="o">=</span> <span class="n">stages</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">Z</span> <span class="o">=</span> <span class="n">stage</span>
+            <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">stage</span> <span class="o">-</span> <span class="n">stages</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">nDebye</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">Z</span>
+                <span class="n">Z</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">nStar</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">nStar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">Nlevel</span><span class="p">,</span> <span class="n">Nspace</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">computeDiff</span><span class="p">:</span>
+        <span class="n">prev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">Nlevel</span><span class="p">)</span>
+    <span class="c1"># NOTE(cmo): Will remain 0 and be returned as second return value if</span>
+    <span class="c1"># computeDiff is not set to True</span>
+    <span class="n">maxDiff</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="c1"># NOTE(cmo): For some reason this is consistently faster with these hoisted</span>
+    <span class="c1"># from below, despite the allocations this causes</span>
+    <span class="n">dE</span> <span class="o">=</span> <span class="n">energies</span> <span class="o">-</span> <span class="n">energies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">gi0</span> <span class="o">=</span> <span class="n">gs</span> <span class="o">/</span> <span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">dZ</span> <span class="o">=</span> <span class="n">stages</span> <span class="o">-</span> <span class="n">stages</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nspace</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">debye</span><span class="p">:</span>
+            <span class="n">dEion</span> <span class="o">=</span> <span class="n">c2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ne</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">/</span> <span class="n">temperature</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dEion</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">cNe_T</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">ne</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">c1</span> <span class="o">/</span> <span class="n">temperature</span><span class="p">[</span><span class="n">k</span><span class="p">])</span><span class="o">**</span><span class="mf">1.5</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">if</span> <span class="n">computeDiff</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nlevel</span><span class="p">):</span>
+                <span class="n">prev</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">nStar</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">Nlevel</span><span class="p">):</span>
+            <span class="n">dE_kT</span> <span class="o">=</span> <span class="p">(</span><span class="n">dE</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">nDebye</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">dEion</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">KBoltzmann</span> <span class="o">*</span> <span class="n">temperature</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+            <span class="n">neFactor</span> <span class="o">=</span> <span class="n">cNe_T</span><span class="o">**</span><span class="n">dZ</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+            <span class="n">nst</span> <span class="o">=</span> <span class="n">gi0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">dE_kT</span><span class="p">)</span>
+            <span class="n">nStar</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">nst</span>
+            <span class="n">nStar</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">/=</span> <span class="n">neFactor</span>
+            <span class="n">total</span> <span class="o">+=</span> <span class="n">nStar</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span>
+        <span class="n">nStar</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">nTotal</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">/</span> <span class="n">total</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">Nlevel</span><span class="p">):</span>
+            <span class="n">nStar</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">*=</span> <span class="n">nStar</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">computeDiff</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nlevel</span><span class="p">):</span>
+                <span class="n">maxDiff</span> <span class="o">=</span> <span class="nb">max</span><span class="p">((</span><span class="n">nStar</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">-</span> <span class="n">prev</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="n">nStar</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">],</span> <span class="n">maxDiff</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">nStar</span><span class="p">,</span> <span class="n">maxDiff</span>
+
+<div class="viewcode-block" id="lte_pops"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.lte_pops">[docs]</a><span class="k">def</span> <span class="nf">lte_pops</span><span class="p">(</span><span class="n">atomicModel</span><span class="p">:</span> <span class="n">AtomicModel</span><span class="p">,</span> <span class="n">temperature</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+             <span class="n">ne</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">nTotal</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">nStar</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debye</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Compute the LTE populations for a given atomic model under given</span>
+<span class="sd">    thermodynamic conditions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    atomicModel : AtomicModel</span>
+<span class="sd">        The atomic model to consider.</span>
+<span class="sd">    temperature : np.ndarray</span>
+<span class="sd">        The temperature structure in the atmosphere.</span>
+<span class="sd">    ne : np.ndarray</span>
+<span class="sd">        The electron density in the atmosphere.</span>
+<span class="sd">    nTotal : np.ndarray</span>
+<span class="sd">        The total population of the species at each point in the atmosphere.</span>
+<span class="sd">    nStar : np.ndarray, optional</span>
+<span class="sd">        An optional array to store the result in.</span>
+<span class="sd">    debye : bool, optional</span>
+<span class="sd">        Whether to consider Debye shielding (default: True).1</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ltePops : np.ndarray</span>
+<span class="sd">        The ltePops for the species.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">stages</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">stage</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">atomicModel</span><span class="o">.</span><span class="n">levels</span><span class="p">])</span>
+    <span class="n">energies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">E_SI</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">atomicModel</span><span class="o">.</span><span class="n">levels</span><span class="p">])</span>
+    <span class="n">gs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">g</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">atomicModel</span><span class="o">.</span><span class="n">levels</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">lte_pops_impl</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">ne</span><span class="p">,</span> <span class="n">nTotal</span><span class="p">,</span> <span class="n">stages</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">gs</span><span class="p">,</span> <span class="n">nStar</span><span class="o">=</span><span class="n">nStar</span><span class="p">,</span> <span class="n">debye</span><span class="o">=</span><span class="n">debye</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<span class="k">def</span> <span class="nf">update_lte_pops_inplace</span><span class="p">(</span><span class="n">atomicModel</span><span class="p">:</span> <span class="n">AtomicModel</span><span class="p">,</span> <span class="n">temperature</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                            <span class="n">ne</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">nTotal</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                            <span class="n">nStar</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">debye</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+    <span class="n">stages</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">stage</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">atomicModel</span><span class="o">.</span><span class="n">levels</span><span class="p">])</span>
+    <span class="n">energies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">E_SI</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">atomicModel</span><span class="o">.</span><span class="n">levels</span><span class="p">])</span>
+    <span class="n">gs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">g</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">atomicModel</span><span class="o">.</span><span class="n">levels</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">lte_pops_impl</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">ne</span><span class="p">,</span> <span class="n">nTotal</span><span class="p">,</span> <span class="n">stages</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">gs</span><span class="p">,</span>
+                         <span class="n">debye</span><span class="o">=</span><span class="n">debye</span><span class="p">,</span> <span class="n">nStar</span><span class="o">=</span><span class="n">nStar</span><span class="p">,</span> <span class="n">computeDiff</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">LteNeIterator</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atoms</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">AtomicModel</span><span class="p">],</span> <span class="n">temperature</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                 <span class="n">nHTot</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">abundance</span><span class="p">:</span> <span class="n">AtomicAbundance</span><span class="p">,</span>
+                 <span class="n">nlteStartingPops</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]):</span>
+        <span class="n">sortedAtoms</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">element_sort</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nTotal</span> <span class="o">=</span> <span class="p">[</span><span class="n">abundance</span><span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">element</span><span class="p">]</span> <span class="o">*</span> <span class="n">nHTot</span>
+                       <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">sortedAtoms</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stages</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">stage</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">a</span><span class="o">.</span><span class="n">levels</span><span class="p">])</span>
+                       <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">sortedAtoms</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nHTot</span> <span class="o">=</span> <span class="n">nHTot</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sortedAtoms</span> <span class="o">=</span> <span class="n">sortedAtoms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abundances</span> <span class="o">=</span> <span class="p">[</span><span class="n">abundance</span><span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">element</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">sortedAtoms</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nlteStartingPops</span> <span class="o">=</span> <span class="n">nlteStartingPops</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prevNeRatio</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">atomicPops</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ne</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">prevNeRatio</span><span class="p">)</span>
+        <span class="n">prevNe</span> <span class="o">=</span> <span class="n">prevNeRatio</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nHTot</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sortedAtoms</span><span class="p">):</span>
+            <span class="n">nStar</span> <span class="o">=</span> <span class="n">lte_pops</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="n">prevNe</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">nTotal</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">debye</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">atomicPops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">AtomicState</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">a</span><span class="p">,</span> <span class="n">abundance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">abundances</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">nStar</span><span class="o">=</span><span class="n">nStar</span><span class="p">,</span> <span class="n">nTotal</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nTotal</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+            <span class="c1"># NOTE(cmo): Take into account NLTE pops if provided</span>
+            <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlteStartingPops</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlteStartingPops</span><span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">element</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">nStar</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Starting populations provided for </span><span class="si">%s</span><span class="s1"> do not match model.&#39;</span> <span class="o">%</span> <span class="n">a</span><span class="o">.</span><span class="n">element</span><span class="p">)</span>
+                <span class="n">nStar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlteStartingPops</span><span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">element</span><span class="p">]</span>
+
+            <span class="n">ne</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">nStar</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">stages</span><span class="p">[</span><span class="n">i</span><span class="p">][:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">atomicPops</span> <span class="o">=</span> <span class="n">atomicPops</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">ne</span> <span class="o">-</span> <span class="n">prevNe</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">nHTot</span>
+        <span class="k">return</span> <span class="n">diff</span>
+
+
+<div class="viewcode-block" id="SpectrumConfiguration"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.SpectrumConfiguration">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">SpectrumConfiguration</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Container for the configuration of common wavelength grid and species</span>
+<span class="sd">    active at each wavelength.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    radSet : RadiativeSet</span>
+<span class="sd">        The set of atoms involved in the creation of this simulation.</span>
+<span class="sd">    wavelength : np.ndarray</span>
+<span class="sd">        The common wavelength array used for this simulation.</span>
+<span class="sd">    models : list of AtomicModel</span>
+<span class="sd">        The models for the active and detailed static atoms present in this</span>
+<span class="sd">        simulation.</span>
+<span class="sd">    transWavelengths : Dict[(Element, i, j), np.ndarray]</span>
+<span class="sd">        The local wavelength grid for each transition stored in a dictionary</span>
+<span class="sd">        by transition ID.</span>
+<span class="sd">    blueIdx : Dict[(Element, i, j), int]</span>
+<span class="sd">        The index at which each local grid starts in the global wavelength</span>
+<span class="sd">        array.</span>
+<span class="sd">    activeTrans : Dict[(Element, i, j), bool]</span>
+<span class="sd">        Whether this transition is ever active (contributing in either an</span>
+<span class="sd">        active or detailed static sense) over the range of wavelength.</span>
+<span class="sd">    activeWavelengths : Dict[(Element, i, j), np.ndarray]</span>
+<span class="sd">        A mask of the wavelengths at which this transition is active.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">radSet</span><span class="p">:</span> <span class="s1">&#39;RadiativeSet&#39;</span>
+    <span class="n">wavelength</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">models</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AtomicModel</span><span class="p">]</span>
+    <span class="n">transWavelengths</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+    <span class="n">blueIdx</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span>
+    <span class="n">activeTrans</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
+    <span class="n">activeWavelengths</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+
+<div class="viewcode-block" id="SpectrumConfiguration.subset_configuration"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.SpectrumConfiguration.subset_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">subset_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelengths</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;SpectrumConfiguration&#39;</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Computes a SpectrumConfiguration for a sub-region of the global wavelength array.</span>
+
+<span class="sd">        This is typically used for computing a final formal solution on a single ray through the atmosphere. In this situation all lines are set to contribute throughout the entire grid, to avoid situations where small jumps in intensity occur from lines being cut off.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        wavelengths : np.ndarray</span>
+<span class="sd">            The grid on which to produce the new SpectrumConfiguration.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        spectrumConfig : SpectrumConfiguration</span>
+<span class="sd">            The subset spectrum configuration.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">Nblue</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wavelength</span><span class="p">,</span> <span class="n">wavelengths</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">Nred</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wavelength</span><span class="p">,</span> <span class="n">wavelengths</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wavelength</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">activeTrans</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="n">Nblue</span><span class="p">:</span><span class="n">Nred</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">activeWavelengths</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">transGrids</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">wavelengths</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">active</span> <span class="ow">in</span> <span class="n">activeTrans</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">active</span><span class="p">}</span>
+        <span class="n">activeWavelengths</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">wavelengths</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">bool8</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">transGrids</span><span class="p">}</span>
+        <span class="n">blueIdx</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">transGrids</span><span class="p">}</span>
+
+        <span class="k">def</span> <span class="nf">test_atom_active</span><span class="p">(</span><span class="n">atom</span><span class="p">:</span> <span class="n">AtomicModel</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">atom</span><span class="o">.</span><span class="n">transitions</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">activeTrans</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">transId</span><span class="p">]:</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">models</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">test_atom_active</span><span class="p">(</span><span class="n">atom</span><span class="p">):</span>
+                <span class="n">models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">SpectrumConfiguration</span><span class="p">(</span><span class="n">radSet</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">radSet</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="n">wavelengths</span><span class="p">,</span> <span class="n">models</span><span class="o">=</span><span class="n">models</span><span class="p">,</span> <span class="n">transWavelengths</span><span class="o">=</span><span class="n">transGrids</span><span class="p">,</span>
+                                     <span class="n">blueIdx</span><span class="o">=</span><span class="n">blueIdx</span><span class="p">,</span> <span class="n">activeTrans</span><span class="o">=</span><span class="n">activeTrans</span><span class="p">,</span> <span class="n">activeWavelengths</span><span class="o">=</span><span class="n">activeWavelengths</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="AtomicState"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicState">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">AtomicState</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Container for the state of an atomic model during a simulation.</span>
+
+<span class="sd">    This hold both the model, as well as the simulations properties such as abundance, populations and radiative rates.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model : AtomicModel</span>
+<span class="sd">        The python model of the atom.</span>
+<span class="sd">    abundance : float</span>
+<span class="sd">        The abundance of the species as a fraction of H abundance.</span>
+<span class="sd">    nStar : np.ndarray</span>
+<span class="sd">        The LTE populations of the species.</span>
+<span class="sd">    nTotal : np.ndarray</span>
+<span class="sd">        The total species population at each point in the atmosphere.</span>
+<span class="sd">    detailed : bool</span>
+<span class="sd">        Whether the species has detailed populations.</span>
+<span class="sd">    pops : np.ndarray, optional</span>
+<span class="sd">        The NLTE populations for the species, if detailed is True.</span>
+<span class="sd">    radiativeRates: Dict[(int, int), np.ndarray], optional</span>
+<span class="sd">        If detailed the radiative rates for the species will be present here,</span>
+<span class="sd">        stored under (i, j) and (j, i) for each transition.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">AtomicModel</span>
+    <span class="n">abundance</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">nStar</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">nTotal</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">detailed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">pops</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">radiativeRates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">detailed</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">radiativeRates</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">ratesShape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nStar</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">transitions</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">radiativeRates</span><span class="p">[(</span><span class="n">t</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">j</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ratesShape</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">radiativeRates</span><span class="p">[(</span><span class="n">t</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ratesShape</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;AtomicState(</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">element</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># return hash(repr(self))</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+<div class="viewcode-block" id="AtomicState.dimensioned_view"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicState.dimensioned_view">[docs]</a>    <span class="k">def</span> <span class="nf">dimensioned_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns a view over the contents of AtomicState reshaped so all data</span>
+<span class="sd">        has the correct (1/2/3D) dimensionality for the atmospheric model, as</span>
+<span class="sd">        these are all stored under a flat scheme.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        shape : tuple</span>
+<span class="sd">            The shape to reshape to, this can be obtained from Atmosphere.structure.dimensioned_shape</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        state : AtomicState</span>
+<span class="sd">            An instance of self with the arrays reshaped to the appropriate</span>
+<span class="sd">            dimensionality.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">nStar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nStar</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">nTotal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nTotal</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pops</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">state</span><span class="o">.</span><span class="n">pops</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pops</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="n">shape</span><span class="p">)</span>
+            <span class="n">state</span><span class="o">.</span><span class="n">radiativeRates</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">radiativeRates</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="k">return</span> <span class="n">state</span></div>
+
+<div class="viewcode-block" id="AtomicState.unit_view"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicState.unit_view">[docs]</a>    <span class="k">def</span> <span class="nf">unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns a view over the contents of the AtomicState with the correct</span>
+<span class="sd">        `astropy.units`.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">m3</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">nStar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nStar</span> <span class="o">&lt;&lt;</span> <span class="n">m3</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">nTotal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nTotal</span> <span class="o">&lt;&lt;</span> <span class="n">m3</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pops</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">state</span><span class="o">.</span><span class="n">pops</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pops</span> <span class="o">&lt;&lt;</span> <span class="n">m3</span>
+            <span class="n">state</span><span class="o">.</span><span class="n">radiativeRates</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="o">**-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">radiativeRates</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="k">return</span> <span class="n">state</span></div>
+
+<div class="viewcode-block" id="AtomicState.dimensioned_unit_view"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicState.dimensioned_unit_view">[docs]</a>    <span class="k">def</span> <span class="nf">dimensioned_unit_view</span><span class="p">(</span><span class="n">shape</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns a view over the contents of AtomicState reshaped so all data</span>
+<span class="sd">        has the correct (1/2/3D) dimensionality for the atmospheric model,</span>
+<span class="sd">        and the correct `astropy.units`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        shape : tuple</span>
+<span class="sd">            The shape to reshape to, this can be obtained from Atmosphere.structure.dimensioned_shape</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        state : AtomicState</span>
+<span class="sd">            An instance of self with the arrays reshaped to the appropriate</span>
+<span class="sd">            dimensionality.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensioned_view</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">state</span><span class="o">.</span><span class="n">unit_view</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="AtomicState.update_nTotal"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicState.update_nTotal">[docs]</a>    <span class="k">def</span> <span class="nf">update_nTotal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="n">Atmosphere</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Update nTotal assuming either the abundance or nHTot have changed.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nTotal</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">abundance</span> <span class="o">*</span> <span class="n">atmos</span><span class="o">.</span><span class="n">nHTot</span> <span class="c1"># type: ignore</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">element</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Element</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        The element associated with this model.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">element</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mass</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        The mass of the element associated with this model.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">mass</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">n</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        The NLTE populations, if present, or the LTE populations.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pops</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nStar</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pops</span>
+
+    <span class="nd">@n</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">n</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">val</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nStar</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Incorrect dimensions for population array, expected </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">nStar</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pops</span> <span class="o">=</span> <span class="n">val</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        The name of the element associated with this model.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span> <span class="nf">fjk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+        <span class="c1"># Nstage: int = (self.model.levels[-1].stage - self.model.levels[0].stage) + 1</span>
+        <span class="n">Nstage</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">stage</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="n">fjk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nstage</span><span class="p">)</span>
+        <span class="c1"># TODO(cmo): Proper derivative treatment</span>
+        <span class="n">dfjk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nstage</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">levels</span><span class="p">):</span>
+            <span class="n">fjk</span><span class="p">[</span><span class="n">l</span><span class="o">.</span><span class="n">stage</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span>
+
+        <span class="n">fjk</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nTotal</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">fjk</span><span class="p">,</span> <span class="n">dfjk</span>
+
+    <span class="k">def</span> <span class="nf">fj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">):</span>
+        <span class="n">Nstage</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">stage</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">Nspace</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">atmos</span><span class="o">.</span><span class="n">Nspace</span>
+
+        <span class="n">fj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Nstage</span><span class="p">,</span> <span class="n">Nspace</span><span class="p">))</span>
+        <span class="c1"># TODO(cmo): Proper derivative treatment</span>
+        <span class="n">dfj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Nstage</span><span class="p">,</span> <span class="n">Nspace</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">levels</span><span class="p">):</span>
+            <span class="n">fj</span><span class="p">[</span><span class="n">l</span><span class="o">.</span><span class="n">stage</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+        <span class="n">fj</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nTotal</span>
+
+        <span class="k">return</span> <span class="n">fj</span><span class="p">,</span> <span class="n">dfj</span>
+
+<div class="viewcode-block" id="AtomicState.set_n_to_lte"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicState.set_n_to_lte">[docs]</a>    <span class="k">def</span> <span class="nf">set_n_to_lte</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Reset the NLTE populations to LTE.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pops</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pops</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nStar</span></div></div>
+
+
+<div class="viewcode-block" id="AtomicStateTable"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicStateTable">[docs]</a><span class="k">class</span> <span class="nc">AtomicStateTable</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Container for AtomicStates.</span>
+
+<span class="sd">    The __getitem__ on this class is intended to be smart, and should work</span>
+<span class="sd">    correctly with ints, strings, or Elements and return the associated</span>
+<span class="sd">    AtomicState.</span>
+<span class="sd">    This object is not normally constructed directly by the user, but will</span>
+<span class="sd">    instead be interacted with as a means of transporting information to and</span>
+<span class="sd">    from the backend.</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atoms</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AtomicState</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span> <span class="o">=</span> <span class="p">{</span><span class="n">a</span><span class="o">.</span><span class="n">element</span><span class="p">:</span> <span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">atoms</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Element</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">PeriodicTable</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Element</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AtomicState</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">PeriodicTable</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="n">element_sort</span><span class="p">))</span>
+
+<div class="viewcode-block" id="AtomicStateTable.dimensioned_view"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicStateTable.dimensioned_view">[docs]</a>    <span class="k">def</span> <span class="nf">dimensioned_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns a view over the contents of AtomicStateTable reshaped so all data</span>
+<span class="sd">        has the correct (1/2/3D) dimensionality for the atmospheric model, as</span>
+<span class="sd">        these are all stored under a flat scheme.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        shape : tuple</span>
+<span class="sd">            The shape to reshape to, this can be obtained from Atmosphere.structure.dimensioned_shape</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        state : AtomicStateTable</span>
+<span class="sd">            An instance of self with the arrays reshaped to the appropriate</span>
+<span class="sd">            dimensionality.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">atoms</span> <span class="o">=</span> <span class="p">{</span><span class="n">a</span><span class="o">.</span><span class="n">element</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">dimensioned_view</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">table</span></div>
+
+<div class="viewcode-block" id="AtomicStateTable.unit_view"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicStateTable.unit_view">[docs]</a>    <span class="k">def</span> <span class="nf">unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns a view over the contents of the AtomicStateTable with the correct</span>
+<span class="sd">        `astropy.units`.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">atoms</span> <span class="o">=</span> <span class="p">{</span><span class="n">a</span><span class="o">.</span><span class="n">element</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">unit_view</span><span class="p">()</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">table</span></div>
+
+<div class="viewcode-block" id="AtomicStateTable.dimensioned_unit_view"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicStateTable.dimensioned_unit_view">[docs]</a>    <span class="k">def</span> <span class="nf">dimensioned_unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns a view over the contents of AtomicStateTable reshaped so all data</span>
+<span class="sd">        has the correct (1/2/3D) dimensionality for the atmospheric model,</span>
+<span class="sd">        and the correct `astropy.units`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        shape : tuple</span>
+<span class="sd">            The shape to reshape to, this can be obtained from Atmosphere.structure.dimensioned_shape</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        state : AtomicStateTable</span>
+<span class="sd">            An instance of self with the arrays reshaped to the appropriate</span>
+<span class="sd">            dimensionality.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensioned_view</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">table</span><span class="o">.</span><span class="n">unit_view</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="SpeciesStateTable"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.SpeciesStateTable">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">SpeciesStateTable</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Container for the species populations in the simulation. Similar to</span>
+<span class="sd">    AtomicStateTable but also holding the molecular populations and the</span>
+<span class="sd">    atmosphere object.</span>
+
+<span class="sd">    The __getitem__ is intended to be smart, returning in order of priority</span>
+<span class="sd">    on the name match (int, str, Element), H- populations, molecular</span>
+<span class="sd">    populations, NLTE atomic populations, LTE atomic populations.</span>
+<span class="sd">    This object is not normally constructed directly by the user, but will</span>
+<span class="sd">    instead be interacted with as a means of transporting information to and</span>
+<span class="sd">    from the backend.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    atmosphere : Atmosphere</span>
+<span class="sd">        The atmosphere object.</span>
+<span class="sd">    abundance : AtomicAbundance</span>
+<span class="sd">        The abundance of all species present in the atmosphere.</span>
+<span class="sd">    atomicPops : AtomicStateTable</span>
+<span class="sd">        The atomic populations state container.</span>
+<span class="sd">    molecularTable : MolecularTable</span>
+<span class="sd">        The molecules present in the simulation.</span>
+<span class="sd">    molecularPops : list of np.ndarray</span>
+<span class="sd">        The populations of each molecule in the molecularTable</span>
+<span class="sd">    HminPops : np.ndarray</span>
+<span class="sd">        H- ion populations throughout the atmosphere.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">atmosphere</span><span class="p">:</span> <span class="n">Atmosphere</span>
+    <span class="n">abundance</span><span class="p">:</span> <span class="n">AtomicAbundance</span>
+    <span class="n">atomicPops</span><span class="p">:</span> <span class="n">AtomicStateTable</span>
+    <span class="n">molecularTable</span><span class="p">:</span> <span class="n">MolecularTable</span>
+    <span class="n">molecularPops</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+    <span class="n">HminPops</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+
+<div class="viewcode-block" id="SpeciesStateTable.dimensioned_view"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.SpeciesStateTable.dimensioned_view">[docs]</a>    <span class="k">def</span> <span class="nf">dimensioned_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns a view over the contents of SpeciesStateTable reshaped so all data</span>
+<span class="sd">        has the correct (1/2/3D) dimensionality for the atmospheric model, as</span>
+<span class="sd">        these are all stored under a flat scheme.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atmosphere</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">dimensioned_shape</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">atmosphere</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atmosphere</span><span class="o">.</span><span class="n">dimensioned_view</span><span class="p">()</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">atomicPops</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomicPops</span><span class="o">.</span><span class="n">dimensioned_view</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">molecularPops</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecularPops</span><span class="p">]</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">HminPops</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">HminPops</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">table</span></div>
+
+<div class="viewcode-block" id="SpeciesStateTable.unit_view"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.SpeciesStateTable.unit_view">[docs]</a>    <span class="k">def</span> <span class="nf">unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns a view over the contents of the SpeciesStateTable with the correct</span>
+<span class="sd">        `astropy.units`.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">atmosphere</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atmosphere</span><span class="o">.</span><span class="n">unit_view</span><span class="p">()</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">atomicPops</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomicPops</span><span class="o">.</span><span class="n">unit_view</span><span class="p">()</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">molecularPops</span> <span class="o">=</span> <span class="p">[(</span><span class="n">m</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">))</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecularPops</span><span class="p">]</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">HminPops</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">HminPops</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">table</span></div>
+
+<div class="viewcode-block" id="SpeciesStateTable.dimensioned_unit_view"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.SpeciesStateTable.dimensioned_unit_view">[docs]</a>    <span class="k">def</span> <span class="nf">dimensioned_unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns a view over the contents of SpeciesStateTable reshaped so all data</span>
+<span class="sd">        has the correct (1/2/3D) dimensionality for the atmospheric model,</span>
+<span class="sd">        and the correct `astropy.units`.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensioned_view</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">table</span><span class="o">.</span><span class="n">unit_view</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Element</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span>  <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;H-&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">HminPops</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecularTable</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecularTable</span><span class="o">.</span><span class="n">indices</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecularPops</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomicPops</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomicPops</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">n</span>
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Element</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;H-&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecularTable</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomicPops</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="SpeciesStateTable.update_lte_atoms_Hmin_pops"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.SpeciesStateTable.update_lte_atoms_Hmin_pops">[docs]</a>    <span class="k">def</span> <span class="nf">update_lte_atoms_Hmin_pops</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="n">Atmosphere</span><span class="p">,</span> <span class="n">conserveCharge</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                   <span class="n">updateTotals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">maxIter</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Under the assumption that the atmosphere has changed, update the LTE</span>
+<span class="sd">        atomic populations and the H- populations.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        atmos : Atmosphere</span>
+<span class="sd">            The atmosphere object.</span>
+<span class="sd">        conserveCharge : bool</span>
+<span class="sd">            Whether to conserveCharge and adjust the electron density in</span>
+<span class="sd">            atmos based on the change in ionisation of the non-detailed</span>
+<span class="sd">            species (default: False).</span>
+<span class="sd">        updateTotals : bool, optional</span>
+<span class="sd">            Whether to update the totals of each species from the abundance</span>
+<span class="sd">            and total hydrogen density (default: False).</span>
+<span class="sd">        maxIter : int, optional</span>
+<span class="sd">            The maximum number of iterations to take looking for a stable</span>
+<span class="sd">            solution (default: 2000).</span>
+<span class="sd">        quiet : bool, optional</span>
+<span class="sd">            Whether to print information about the update (default: False)</span>
+<span class="sd">        tol : float, optional</span>
+<span class="sd">            The tolerance of relative change at which to consider the</span>
+<span class="sd">            populations converged (default: 1e-3)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">updateTotals</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomicPops</span><span class="p">:</span>
+                <span class="n">atom</span><span class="o">.</span><span class="n">update_nTotal</span><span class="p">(</span><span class="n">atmos</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">maxIter</span><span class="p">):</span>
+            <span class="n">maxDiff</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">maxName</span> <span class="o">=</span> <span class="s1">&#39;--&#39;</span>
+            <span class="n">ne</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">)</span>
+            <span class="n">diffs</span> <span class="o">=</span> <span class="p">[</span><span class="n">update_lte_pops_inplace</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span>
+                                             <span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">,</span> <span class="n">atom</span><span class="o">.</span><span class="n">nTotal</span><span class="p">,</span> <span class="n">atom</span><span class="o">.</span><span class="n">nStar</span><span class="p">,</span>
+                                             <span class="n">debye</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomicPops</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atomicPops</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">conserveCharge</span><span class="p">:</span>
+                    <span class="n">stages</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">stage</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">atom</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">levels</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="n">atom</span><span class="o">.</span><span class="n">pops</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">ne</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">nStar</span> <span class="o">*</span> <span class="n">stages</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">ne</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">n</span> <span class="o">*</span> <span class="n">stages</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+                <span class="n">diff</span> <span class="o">=</span> <span class="n">diffs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">diff</span> <span class="o">&gt;</span> <span class="n">maxDiff</span><span class="p">:</span>
+                    <span class="n">maxDiff</span> <span class="o">=</span> <span class="n">diff</span>
+                    <span class="n">maxName</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">if</span> <span class="n">conserveCharge</span><span class="p">:</span>
+                <span class="n">ne</span><span class="p">[</span><span class="n">ne</span> <span class="o">&lt;</span> <span class="mf">1e6</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e6</span>
+                <span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">ne</span>
+            <span class="k">if</span> <span class="n">maxDiff</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;LTE Iterations </span><span class="si">%d</span><span class="s1"> (</span><span class="si">%s</span><span class="s1"> slowest convergence)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">maxName</span><span class="p">))</span>
+                <span class="k">break</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No convergence in LTE update&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">HminPops</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">hminus_pops</span><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomicPops</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">])</span></div></div>
+
+
+<div class="viewcode-block" id="RadiativeSet"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet">[docs]</a><span class="k">class</span> <span class="nc">RadiativeSet</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Used to configure the atomic models present in the simulation and then</span>
+<span class="sd">    set up the global wavelength grid and initial populations.</span>
+<span class="sd">    All atoms start passive.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    atoms : list of AtomicModel</span>
+<span class="sd">        The atomic models to be used in the simulation (active, detailed, and</span>
+<span class="sd">        background).</span>
+<span class="sd">    abundance : AtomicAbundance, optional</span>
+<span class="sd">        The abundance to be used for each species.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    abundance : AtomicAbundance</span>
+<span class="sd">        The abundances in use.</span>
+<span class="sd">    elements : list of Elements</span>
+<span class="sd">        The elements present in the simulation.</span>
+<span class="sd">    atoms : Dict[Element, AtomicModel]</span>
+<span class="sd">        Mapping from Element to associated model.</span>
+<span class="sd">    passiveSet : set of Elements</span>
+<span class="sd">        Set of atoms (designmated by their Elements) set to passive in the</span>
+<span class="sd">        simulation.</span>
+<span class="sd">    detailedStaticSet : set of Elements</span>
+<span class="sd">        Set of atoms (designmated by their Elements) set to &quot;detailed static&quot; in the</span>
+<span class="sd">        simulation.</span>
+<span class="sd">    activeSet : set of Elements</span>
+<span class="sd">        Set of atoms (designmated by their Elements) set to active in the</span>
+<span class="sd">        simulation.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atoms</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AtomicModel</span><span class="p">],</span> <span class="n">abundance</span><span class="p">:</span> <span class="n">AtomicAbundance</span><span class="o">=</span><span class="n">DefaultAtomicAbundance</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abundance</span> <span class="o">=</span> <span class="n">abundance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">element</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">atoms</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">,</span> <span class="n">atoms</span><span class="p">)}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">passiveSet</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">detailedStaticSet</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">Element</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activeSet</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">Element</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">passiveSet</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Multiple entries for an atom: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Element</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">PeriodicTable</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span>
+
+<div class="viewcode-block" id="RadiativeSet.is_active"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.is_active">[docs]</a>    <span class="k">def</span> <span class="nf">is_active</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Element</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Check if an atom (designated by int, (int, int), str, or Element) is</span>
+<span class="sd">        active.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">PeriodicTable</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">activeSet</span></div>
+
+<div class="viewcode-block" id="RadiativeSet.is_passive"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.is_passive">[docs]</a>    <span class="k">def</span> <span class="nf">is_passive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Element</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Check if an atom (designated by int, (int, int), str, or Element) is</span>
+<span class="sd">        passive.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">PeriodicTable</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">passiveSet</span></div>
+
+<div class="viewcode-block" id="RadiativeSet.is_detailed"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.is_detailed">[docs]</a>    <span class="k">def</span> <span class="nf">is_detailed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Element</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Check if an atom (designated by int, (int, int), str, or Element) is</span>
+<span class="sd">        passive.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">PeriodicTable</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">detailedStaticSet</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">activeAtoms</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">AtomicModel</span><span class="p">]:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        List of AtomicModels set to active.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">activeAtoms</span> <span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AtomicModel</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">activeSet</span><span class="p">]</span>
+        <span class="n">activeAtoms</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">activeAtoms</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">element_sort</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">activeAtoms</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">detailedAtoms</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">AtomicModel</span><span class="p">]:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        List of AtomicModels set to detailed static.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">detailedAtoms</span> <span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AtomicModel</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">detailedStaticSet</span><span class="p">]</span>
+        <span class="n">detailedAtoms</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">detailedAtoms</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">element_sort</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">detailedAtoms</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">passiveAtoms</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">AtomicModel</span><span class="p">]:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        List of AtomicModels set to passive.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">passiveAtoms</span> <span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AtomicModel</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">passiveSet</span><span class="p">]</span>
+        <span class="n">passiveAtoms</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">passiveAtoms</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">element_sort</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">passiveAtoms</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Element</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AtomicModel</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">PeriodicTable</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+<div class="viewcode-block" id="RadiativeSet.set_active"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.set_active">[docs]</a>    <span class="k">def</span> <span class="nf">set_active</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Set one (or multiple) atoms active.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">PeriodicTable</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">activeSet</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">detailedStaticSet</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">passiveSet</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RadiativeSet.set_detailed_static"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.set_detailed_static">[docs]</a>    <span class="k">def</span> <span class="nf">set_detailed_static</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Set one (or multiple) atoms to detailed static</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">PeriodicTable</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">detailedStaticSet</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">activeSet</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">passiveSet</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RadiativeSet.set_passive"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.set_passive">[docs]</a>    <span class="k">def</span> <span class="nf">set_passive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Set one (or multiple) atoms passive.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">PeriodicTable</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">passiveSet</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">activeSet</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">detailedStaticSet</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RadiativeSet.iterate_lte_ne_eq_pops"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.iterate_lte_ne_eq_pops">[docs]</a>    <span class="k">def</span> <span class="nf">iterate_lte_ne_eq_pops</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="n">Atmosphere</span><span class="p">,</span>
+                               <span class="n">mols</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MolecularTable</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                               <span class="n">nlteStartingPops</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                               <span class="n">direct</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpeciesStateTable</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Compute the starting populations for the simulation with all NLTE</span>
+<span class="sd">        atoms in LTE or otherwise using the provided populations.</span>
+<span class="sd">        Additionally computes a self-consistent LTE electron density.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        atmos : Atmosphere</span>
+<span class="sd">            The atmosphere for which to compute the populations.</span>
+<span class="sd">        mols : MolecularTable, optional</span>
+<span class="sd">            Molecules to be included in the populations (default: None)</span>
+<span class="sd">        nlteStartingPops : Dict[Element, np.ndarray], optional</span>
+<span class="sd">            Starting population override for any active or detailed static</span>
+<span class="sd">            species.</span>
+<span class="sd">        direct : bool</span>
+<span class="sd">            Whether to use the direct electron density solver (essentially, Lambda iteration for the fixpoint), this may require many more iterations than the Newton-Krylov solver used otherwise, but may also be more robust.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        eqPops : SpeciesStatTable</span>
+<span class="sd">            The configured initial populations.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">mols</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mols</span> <span class="o">=</span> <span class="n">MolecularTable</span><span class="p">([])</span>
+
+        <span class="k">if</span> <span class="n">nlteStartingPops</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nlteStartingPops</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="n">direct</span><span class="p">:</span>
+            <span class="n">maxIter</span> <span class="o">=</span> <span class="mi">3000</span>
+            <span class="n">prevNe</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">)</span>
+            <span class="n">ne</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">)</span>
+            <span class="n">atoms</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="n">element_sort</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">maxIter</span><span class="p">):</span>
+                <span class="n">atomicPops</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">prevNe</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">ne</span>
+                <span class="n">ne</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">atoms</span><span class="p">:</span>
+                    <span class="n">abund</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">abundance</span><span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">element</span><span class="p">]</span>
+                    <span class="n">nTotal</span> <span class="o">=</span> <span class="n">abund</span> <span class="o">*</span> <span class="n">atmos</span><span class="o">.</span><span class="n">nHTot</span>
+                    <span class="n">nStar</span> <span class="o">=</span> <span class="n">lte_pops</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">,</span> <span class="n">nTotal</span><span class="p">,</span> <span class="n">debye</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">atomicPops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">AtomicState</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">a</span><span class="p">,</span> <span class="n">abundance</span><span class="o">=</span><span class="n">abund</span><span class="p">,</span> <span class="n">nStar</span><span class="o">=</span><span class="n">nStar</span><span class="p">,</span> <span class="n">nTotal</span><span class="o">=</span><span class="n">nTotal</span><span class="p">))</span>
+
+                    <span class="c1"># NOTE(cmo): Take into account NLTE pops if provided</span>
+                    <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">element</span> <span class="ow">in</span> <span class="n">nlteStartingPops</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">nlteStartingPops</span><span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">element</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">nStar</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Starting populations provided for </span><span class="si">%s</span><span class="s1"> do not match model.&#39;</span> <span class="o">%</span> <span class="n">a</span><span class="o">.</span><span class="n">element</span><span class="p">)</span>
+                        <span class="n">nStar</span> <span class="o">=</span> <span class="n">nlteStartingPops</span><span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">element</span><span class="p">]</span>
+
+                    <span class="n">stages</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">stage</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">a</span><span class="o">.</span><span class="n">levels</span><span class="p">])</span>
+                    <span class="n">ne</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">nStar</span> <span class="o">*</span> <span class="n">stages</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">ne</span>
+
+                <span class="n">relDiff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">prevNe</span> <span class="o">/</span> <span class="n">ne</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">relDiff</span><span class="p">)</span>
+                <span class="n">maxRelDiff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">relDiff</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">maxRelDiff</span> <span class="o">&lt;</span> <span class="mf">1e-3</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Iterate LTE: </span><span class="si">%d</span><span class="s2"> iterations&quot;</span> <span class="o">%</span> <span class="n">it</span><span class="p">)</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;LTE ne failed to converge&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">neRatio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">)</span> <span class="o">/</span> <span class="n">atmos</span><span class="o">.</span><span class="n">nHTot</span>
+            <span class="n">iterator</span> <span class="o">=</span> <span class="n">LteNeIterator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span>
+                                     <span class="n">atmos</span><span class="o">.</span><span class="n">nHTot</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">abundance</span><span class="p">,</span> <span class="n">nlteStartingPops</span><span class="p">)</span>
+            <span class="n">neRatio</span> <span class="o">+=</span> <span class="n">iterator</span><span class="p">(</span><span class="n">neRatio</span><span class="p">)</span>
+            <span class="n">newNeRatio</span> <span class="o">=</span> <span class="n">newton_krylov</span><span class="p">(</span><span class="n">iterator</span><span class="p">,</span> <span class="n">neRatio</span><span class="p">)</span>
+            <span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">newNeRatio</span> <span class="o">*</span> <span class="n">atmos</span><span class="o">.</span><span class="n">nHTot</span>
+
+            <span class="n">atomicPops</span> <span class="o">=</span> <span class="n">iterator</span><span class="o">.</span><span class="n">atomicPops</span>
+
+        <span class="n">detailedAtomicPops</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">pop</span> <span class="ow">in</span> <span class="n">atomicPops</span><span class="p">:</span>
+            <span class="n">ele</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">element</span>
+            <span class="k">if</span> <span class="n">ele</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">passiveSet</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ele</span> <span class="ow">in</span> <span class="n">nlteStartingPops</span><span class="p">:</span>
+                    <span class="n">pop</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">nlteStartingPops</span><span class="p">[</span><span class="n">ele</span><span class="p">])</span>
+                <span class="n">detailedAtomicPops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pop</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">nltePops</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">nlteStartingPops</span><span class="p">[</span><span class="n">ele</span><span class="p">])</span> <span class="k">if</span> <span class="n">ele</span> <span class="ow">in</span> <span class="n">nlteStartingPops</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">pop</span><span class="o">.</span><span class="n">nStar</span><span class="p">)</span>
+                <span class="n">detailedAtomicPops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">AtomicState</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">pop</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">abundance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">abundance</span><span class="p">[</span><span class="n">ele</span><span class="p">],</span>
+                                                      <span class="n">nStar</span><span class="o">=</span><span class="n">pop</span><span class="o">.</span><span class="n">nStar</span><span class="p">,</span> <span class="n">nTotal</span><span class="o">=</span><span class="n">pop</span><span class="o">.</span><span class="n">nTotal</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                                      <span class="n">pops</span><span class="o">=</span><span class="n">nltePops</span><span class="p">))</span>
+
+        <span class="n">table</span> <span class="o">=</span> <span class="n">AtomicStateTable</span><span class="p">(</span><span class="n">detailedAtomicPops</span><span class="p">)</span>
+        <span class="n">eqPops</span> <span class="o">=</span> <span class="n">chemical_equilibrium_fixed_ne</span><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="n">mols</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">abundance</span><span class="p">)</span>
+        <span class="c1"># NOTE(cmo): This is technically not quite correct, because we adjust</span>
+        <span class="c1"># nTotal and the atomic populations to account for the atoms bound up</span>
+        <span class="c1"># in molecules, but not n_e, this is unlikely to make much difference</span>
+        <span class="c1"># in reality, other than in very cool atmospheres with a lot of</span>
+        <span class="c1"># molecules (even then it should be pretty tiny)</span>
+        <span class="k">return</span> <span class="n">eqPops</span></div>
+
+<div class="viewcode-block" id="RadiativeSet.compute_eq_pops"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.compute_eq_pops">[docs]</a>    <span class="k">def</span> <span class="nf">compute_eq_pops</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="n">Atmosphere</span><span class="p">,</span>
+                        <span class="n">mols</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MolecularTable</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">nlteStartingPops</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Compute the starting populations for the simulation with all NLTE</span>
+<span class="sd">        atoms in LTE or otherwise using the provided populations.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        atmos : Atmosphere</span>
+<span class="sd">            The atmosphere for which to compute the populations.</span>
+<span class="sd">        mols : MolecularTable, optional</span>
+<span class="sd">            Molecules to be included in the populations (default: None)</span>
+<span class="sd">        nlteStartingPops : Dict[Element, np.ndarray], optional</span>
+<span class="sd">            Starting population override for any active or detailed static</span>
+<span class="sd">            species.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        eqPops : SpeciesStatTable</span>
+<span class="sd">            The configured initial populations.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">mols</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mols</span> <span class="o">=</span> <span class="n">MolecularTable</span><span class="p">([])</span>
+
+        <span class="k">if</span> <span class="n">nlteStartingPops</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nlteStartingPops</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">nlteStartingPops</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">e</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">activeSet</span><span class="p">)</span> \
+                   <span class="ow">or</span> <span class="p">(</span><span class="n">e</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">detailedStaticSet</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Provided NLTE Populations for </span><span class="si">%s</span><span class="s1"> assumed LTE.&#39;</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="n">atomicPops</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">atoms</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="n">element_sort</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">atoms</span><span class="p">:</span>
+            <span class="n">nTotal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">abundance</span><span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">element</span><span class="p">]</span> <span class="o">*</span> <span class="n">atmos</span><span class="o">.</span><span class="n">nHTot</span>
+            <span class="n">nStar</span> <span class="o">=</span> <span class="n">lte_pops</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">,</span> <span class="n">nTotal</span><span class="p">,</span> <span class="n">debye</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="n">ele</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">element</span>
+            <span class="k">if</span> <span class="n">ele</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">passiveSet</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ele</span> <span class="ow">in</span> <span class="n">nlteStartingPops</span><span class="p">:</span>
+                    <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">nlteStartingPops</span><span class="p">[</span><span class="n">ele</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">n</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">atomicPops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">AtomicState</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">a</span><span class="p">,</span> <span class="n">abundance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">abundance</span><span class="p">[</span><span class="n">ele</span><span class="p">],</span> <span class="n">nStar</span><span class="o">=</span><span class="n">nStar</span><span class="p">,</span>
+                                              <span class="n">nTotal</span><span class="o">=</span><span class="n">nTotal</span><span class="p">,</span> <span class="n">pops</span><span class="o">=</span><span class="n">n</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">nltePops</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">nlteStartingPops</span><span class="p">[</span><span class="n">ele</span><span class="p">])</span> <span class="k">if</span> <span class="n">ele</span> <span class="ow">in</span> <span class="n">nlteStartingPops</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">nStar</span><span class="p">)</span>
+                <span class="n">atomicPops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">AtomicState</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">a</span><span class="p">,</span> <span class="n">abundance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">abundance</span><span class="p">[</span><span class="n">ele</span><span class="p">],</span>
+                                              <span class="n">nStar</span><span class="o">=</span><span class="n">nStar</span><span class="p">,</span> <span class="n">nTotal</span><span class="o">=</span><span class="n">nTotal</span><span class="p">,</span> <span class="n">detailed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                              <span class="n">pops</span><span class="o">=</span><span class="n">nltePops</span><span class="p">))</span>
+
+        <span class="n">table</span> <span class="o">=</span> <span class="n">AtomicStateTable</span><span class="p">(</span><span class="n">atomicPops</span><span class="p">)</span>
+        <span class="n">eqPops</span> <span class="o">=</span> <span class="n">chemical_equilibrium_fixed_ne</span><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="n">mols</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">abundance</span><span class="p">)</span>
+        <span class="c1"># NOTE(cmo): This is technically not quite correct, because we adjust</span>
+        <span class="c1"># nTotal and the atomic populations to account for the atoms bound up</span>
+        <span class="c1"># in molecules, but not n_e, this is unlikely to make much difference</span>
+        <span class="c1"># in reality, other than in very cool atmospheres with a lot of</span>
+        <span class="c1"># molecules (even then it should be pretty tiny)</span>
+        <span class="k">return</span> <span class="n">eqPops</span></div>
+
+<div class="viewcode-block" id="RadiativeSet.compute_wavelength_grid"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.compute_wavelength_grid">[docs]</a>    <span class="k">def</span> <span class="nf">compute_wavelength_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extraWavelengths</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lambdaReference</span><span class="o">=</span><span class="mf">500.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpectrumConfiguration</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Compute the global wavelength grid from the current configuration of</span>
+<span class="sd">        the RadiativeSet.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        extraWavelengths : np.ndarray, optional</span>
+<span class="sd">            Extra wavelengths to add to the global array [nm].</span>
+<span class="sd">        lambdaReference : float, optional</span>
+<span class="sd">            If a difference reference wavelength is to be used then it should</span>
+<span class="sd">            be specified here to ensure it is in the global array.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        spect : SpectrumConfiguration</span>
+<span class="sd">            The configured wavelength grids needed to set up the backend.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">activeSet</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">detailedStaticSet</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Need at least one atom active or in detailed calculation with static populations.&#39;</span><span class="p">)</span>
+        <span class="n">extraGrids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">extraWavelengths</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">extraGrids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">extraWavelengths</span><span class="p">)</span>
+        <span class="n">extraGrids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">lambdaReference</span><span class="p">]))</span>
+
+        <span class="n">models</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AtomicModel</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">grids</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">ele</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">activeSet</span> <span class="o">|</span> <span class="bp">self</span><span class="o">.</span><span class="n">detailedStaticSet</span><span class="p">):</span>
+            <span class="n">atom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="n">ele</span><span class="p">]</span>
+            <span class="n">models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">trans</span> <span class="ow">in</span> <span class="n">atom</span><span class="o">.</span><span class="n">transitions</span><span class="p">:</span>
+                <span class="n">grids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trans</span><span class="o">.</span><span class="n">wavelength</span><span class="p">())</span>
+                <span class="n">ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trans</span><span class="o">.</span><span class="n">transId</span><span class="p">)</span>
+
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">grids</span> <span class="o">+</span> <span class="n">extraGrids</span><span class="p">)</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+        <span class="c1"># grid = np.unique(np.floor(1e10*grid)) / 1e10</span>
+        <span class="n">blueIdx</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">redIdx</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">grids</span><span class="p">):</span>
+            <span class="n">ident</span> <span class="o">=</span> <span class="n">ids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">blueIdx</span><span class="p">[</span><span class="n">ident</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">g</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">redIdx</span><span class="p">[</span><span class="n">ident</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">g</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span>
+
+        <span class="n">transGrids</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">ident</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">:</span>
+            <span class="n">transGrids</span><span class="p">[</span><span class="n">ident</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="n">blueIdx</span><span class="p">[</span><span class="n">ident</span><span class="p">]:</span><span class="n">redIdx</span><span class="p">[</span><span class="n">ident</span><span class="p">]])</span>
+
+        <span class="n">activeWavelengths</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">((</span><span class="n">grid</span> <span class="o">&gt;=</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">grid</span> <span class="o">&lt;=</span> <span class="n">v</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">transGrids</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">activeTrans</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="kc">True</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">transGrids</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">SpectrumConfiguration</span><span class="p">(</span><span class="n">radSet</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span> <span class="n">models</span><span class="o">=</span><span class="n">models</span><span class="p">,</span> <span class="n">transWavelengths</span><span class="o">=</span><span class="n">transGrids</span><span class="p">,</span>
+                                     <span class="n">blueIdx</span><span class="o">=</span><span class="n">blueIdx</span><span class="p">,</span> <span class="n">activeTrans</span><span class="o">=</span><span class="n">activeTrans</span><span class="p">,</span> <span class="n">activeWavelengths</span><span class="o">=</span><span class="n">activeWavelengths</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="hminus_pops"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.hminus_pops">[docs]</a><span class="k">def</span> <span class="nf">hminus_pops</span><span class="p">(</span><span class="n">atmos</span><span class="p">:</span> <span class="n">Atmosphere</span><span class="p">,</span> <span class="n">hPops</span><span class="p">:</span> <span class="n">AtomicState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Compute the H- ion populations for a given atmosphere</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    atmos : Atmosphere</span>
+<span class="sd">        The atmosphere object.</span>
+
+<span class="sd">    hPops : AtomicState</span>
+<span class="sd">        The hydrogen populations state associated with atmos.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    HminPops : np.ndarray</span>
+<span class="sd">        The H- populations.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">CI</span> <span class="o">=</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">HPlanck</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">MElectron</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">HPlanck</span> <span class="o">/</span> <span class="n">Const</span><span class="o">.</span><span class="n">KBoltzmann</span><span class="p">)</span>
+    <span class="n">Nspace</span> <span class="o">=</span> <span class="n">atmos</span><span class="o">.</span><span class="n">Nspace</span>
+
+    <span class="n">PhiHmin</span> <span class="o">=</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="p">(</span><span class="n">CI</span> <span class="o">/</span> <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span><span class="o">**</span><span class="mf">1.5</span> \
+                <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">E_ION_HMIN</span> <span class="o">/</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">KBoltzmann</span> <span class="o">*</span> <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">))</span>
+    <span class="n">HminPops</span> <span class="o">=</span> <span class="n">atmos</span><span class="o">.</span><span class="n">ne</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">hPops</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">PhiHmin</span>
+
+    <span class="k">return</span> <span class="n">HminPops</span></div>
+
+<div class="viewcode-block" id="chemical_equilibrium_fixed_ne"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.chemical_equilibrium_fixed_ne">[docs]</a><span class="k">def</span> <span class="nf">chemical_equilibrium_fixed_ne</span><span class="p">(</span><span class="n">atmos</span><span class="p">:</span> <span class="n">Atmosphere</span><span class="p">,</span> <span class="n">molecules</span><span class="p">:</span> <span class="n">MolecularTable</span><span class="p">,</span>
+                                  <span class="n">atomicPops</span><span class="p">:</span> <span class="n">AtomicStateTable</span><span class="p">,</span>
+                                  <span class="n">abundance</span><span class="p">:</span> <span class="n">AtomicAbundance</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpeciesStateTable</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Compute the molecular populations from the current atmospheric model and</span>
+<span class="sd">    atomic populations.</span>
+
+<span class="sd">    This method assumes that the number of electrons bound in molecules is</span>
+<span class="sd">    insignificant, and neglects this.</span>
+<span class="sd">    Intended for internal use.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    atmos : Atmosphere</span>
+<span class="sd">        The model atmosphere of the simulation.</span>
+<span class="sd">    molecules : MolecularTable</span>
+<span class="sd">        The molecules to consider.</span>
+<span class="sd">    atomicPops : AtomicStateTable</span>
+<span class="sd">        The atomic populations.</span>
+<span class="sd">    abundance : AtomicAbundance</span>
+<span class="sd">        The abundance of each species in the simulation.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    state : SpeciesState</span>
+<span class="sd">        The combined state object of atomic and molecular populations.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">nucleiSet</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">Element</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">mol</span> <span class="ow">in</span> <span class="n">molecules</span><span class="p">:</span>
+        <span class="n">nucleiSet</span> <span class="o">|=</span> <span class="nb">set</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span>
+    <span class="n">nuclei</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Element</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nucleiSet</span><span class="p">)</span>
+    <span class="n">nuclei</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">nuclei</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nuclei</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">HminPops</span> <span class="o">=</span> <span class="n">hminus_pops</span><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="n">atomicPops</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">])</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">SpeciesStateTable</span><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="n">abundance</span><span class="p">,</span> <span class="n">atomicPops</span><span class="p">,</span> <span class="n">molecules</span><span class="p">,</span> <span class="p">[],</span> <span class="n">HminPops</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">if</span> <span class="n">nuclei</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">PeriodicTable</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;H not list of nuclei -- check H2 molecule&#39;</span><span class="p">)</span>
+    <span class="c1"># print([n.name for n in nuclei])</span>
+
+    <span class="n">nuclIndex</span> <span class="o">=</span> <span class="p">[[</span><span class="n">nuclei</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">ele</span><span class="p">)</span> <span class="k">for</span> <span class="n">ele</span> <span class="ow">in</span> <span class="n">mol</span><span class="o">.</span><span class="n">elements</span><span class="p">]</span> <span class="k">for</span> <span class="n">mol</span> <span class="ow">in</span> <span class="n">molecules</span><span class="p">]</span>
+
+    <span class="c1"># Replace basic elements with full Models if present</span>
+    <span class="n">kuruczTable</span> <span class="o">=</span> <span class="n">KuruczPfTable</span><span class="p">(</span><span class="n">atomicAbundance</span><span class="o">=</span><span class="n">abundance</span><span class="p">)</span>
+    <span class="n">nucData</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">KuruczPf</span><span class="p">,</span> <span class="n">AtomicState</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">nuc</span> <span class="ow">in</span> <span class="n">nuclei</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">nuc</span> <span class="ow">in</span> <span class="n">atomicPops</span><span class="p">:</span>
+            <span class="n">nucData</span><span class="p">[</span><span class="n">nuc</span><span class="p">]</span> <span class="o">=</span> <span class="n">atomicPops</span><span class="p">[</span><span class="n">nuc</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">nucData</span><span class="p">[</span><span class="n">nuc</span><span class="p">]</span> <span class="o">=</span> <span class="n">kuruczTable</span><span class="p">[</span><span class="n">nuc</span><span class="p">]</span>
+
+    <span class="n">Nnuclei</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nuclei</span><span class="p">)</span>
+
+    <span class="n">Neqn</span> <span class="o">=</span> <span class="n">Nnuclei</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">molecules</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Neqn</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Neqn</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Neqn</span><span class="p">,</span> <span class="n">Neqn</span><span class="p">))</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Neqn</span><span class="p">)</span>
+
+    <span class="c1"># Equilibrium constant per molecule</span>
+    <span class="n">Phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">molecules</span><span class="p">))</span>
+    <span class="c1"># Neutral fraction</span>
+    <span class="n">fn0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nnuclei</span><span class="p">)</span>
+
+    <span class="n">CI</span> <span class="o">=</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">HPlanck</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">Const</span><span class="o">.</span><span class="n">MElectron</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">HPlanck</span> <span class="o">/</span> <span class="n">Const</span><span class="o">.</span><span class="n">KBoltzmann</span><span class="p">)</span>
+    <span class="n">Nspace</span> <span class="o">=</span> <span class="n">atmos</span><span class="o">.</span><span class="n">Nspace</span>
+    <span class="n">HminPops</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nspace</span><span class="p">)</span>
+    <span class="n">molPops</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nspace</span><span class="p">)</span> <span class="k">for</span> <span class="n">mol</span> <span class="ow">in</span> <span class="n">molecules</span><span class="p">]</span>
+    <span class="n">maxIter</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nspace</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">nuc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nuclei</span><span class="p">):</span>
+            <span class="n">nucleus</span> <span class="o">=</span> <span class="n">nucData</span><span class="p">[</span><span class="n">nuc</span><span class="p">]</span>
+            <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">nucleus</span><span class="o">.</span><span class="n">abundance</span> <span class="o">*</span> <span class="n">atmos</span><span class="o">.</span><span class="n">nHTot</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="n">fjk</span><span class="p">,</span> <span class="n">dfjk</span> <span class="o">=</span> <span class="n">nucleus</span><span class="o">.</span><span class="n">fjk</span><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+            <span class="n">fn0</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">fjk</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">PhiHmin</span> <span class="o">=</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="p">(</span><span class="n">CI</span> <span class="o">/</span> <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">[</span><span class="n">k</span><span class="p">])</span><span class="o">**</span><span class="mf">1.5</span> \
+                    <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">E_ION_HMIN</span> <span class="o">/</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">KBoltzmann</span> <span class="o">*</span> <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+        <span class="n">fHmin</span> <span class="o">=</span> <span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">fn0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">PhiHmin</span>
+
+
+        <span class="c1"># Eq constant for each molecule at this location</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">mol</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">molecules</span><span class="p">):</span>
+            <span class="n">Phi</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">equilibrium_constant</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+
+        <span class="c1"># Setup initial solution. Everything dissociated</span>
+        <span class="c1"># n[:Nnuclei] = a[:Nnuclei]</span>
+        <span class="c1"># n[Nnuclei:] = 0.0</span>
+        <span class="n">n</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">a</span><span class="p">[:]</span>
+        <span class="c1"># print(&#39;a&#39;, a)</span>
+
+        <span class="n">nIter</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">NmaxIter</span> <span class="o">=</span> <span class="mi">50</span>
+        <span class="n">IterLimit</span> <span class="o">=</span> <span class="mf">1e-3</span>
+        <span class="n">prevN</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">while</span> <span class="n">nIter</span> <span class="o">&lt;</span> <span class="n">NmaxIter</span><span class="p">:</span>
+            <span class="c1"># print(k, &#39;,&#39;, nIter)</span>
+            <span class="c1"># Save previous solution</span>
+            <span class="n">prevN</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">n</span><span class="p">[:]</span>
+
+            <span class="c1"># Set up iteration</span>
+            <span class="n">f</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="n">a</span>
+            <span class="n">df</span><span class="p">[:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+            <span class="c1"># Add nHmin to number conservation for H</span>
+            <span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">fHmin</span> <span class="o">*</span> <span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">df</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">fHmin</span>
+
+            <span class="c1"># Fill population vector f and derivative matrix df</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">mol</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">molecules</span><span class="p">):</span>
+                <span class="n">saha</span> <span class="o">=</span> <span class="n">Phi</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">ele</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">elements</span><span class="p">):</span>
+                    <span class="n">nu</span> <span class="o">=</span> <span class="n">nuclIndex</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span>
+                    <span class="n">saha</span> <span class="o">*=</span> <span class="p">(</span><span class="n">fn0</span><span class="p">[</span><span class="n">nu</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span><span class="p">[</span><span class="n">nu</span><span class="p">])</span><span class="o">**</span><span class="n">mol</span><span class="o">.</span><span class="n">elementCount</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                    <span class="c1"># Contribution to conservation for each nucleus in this molecule</span>
+                    <span class="n">f</span><span class="p">[</span><span class="n">nu</span><span class="p">]</span> <span class="o">+=</span> <span class="n">mol</span><span class="o">.</span><span class="n">elementCount</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span><span class="p">[</span><span class="n">Nnuclei</span> <span class="o">+</span> <span class="n">i</span><span class="p">]</span>
+
+                <span class="n">saha</span> <span class="o">/=</span> <span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">**</span><span class="n">mol</span><span class="o">.</span><span class="n">charge</span>
+                <span class="n">f</span><span class="p">[</span><span class="n">Nnuclei</span> <span class="o">+</span> <span class="n">i</span><span class="p">]</span> <span class="o">-=</span> <span class="n">saha</span>
+                <span class="c1"># if Nnuclei + i == f.shape[0]-1:</span>
+                <span class="c1">#     print(i)</span>
+                <span class="c1">#     print(saha)</span>
+
+                <span class="c1"># Compute derivative matrix</span>
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">ele</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">elements</span><span class="p">):</span>
+                    <span class="n">nu</span> <span class="o">=</span> <span class="n">nuclIndex</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span>
+                    <span class="n">df</span><span class="p">[</span><span class="n">nu</span><span class="p">,</span> <span class="n">Nnuclei</span> <span class="o">+</span> <span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">mol</span><span class="o">.</span><span class="n">elementCount</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                    <span class="n">df</span><span class="p">[</span><span class="n">Nnuclei</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="n">nu</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">saha</span> <span class="o">*</span> <span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">elementCount</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">/</span> <span class="n">n</span><span class="p">[</span><span class="n">nu</span><span class="p">])</span>
+
+            <span class="n">correction</span> <span class="o">=</span> <span class="n">solve</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+            <span class="n">n</span> <span class="o">-=</span> <span class="n">correction</span>
+
+            <span class="n">dnMax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">prevN</span> <span class="o">/</span> <span class="n">n</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">dnMax</span> <span class="o">&lt;=</span> <span class="n">IterLimit</span><span class="p">:</span>
+                <span class="n">maxIter</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">maxIter</span><span class="p">,</span> <span class="n">nIter</span><span class="p">)</span>
+                <span class="k">break</span>
+
+            <span class="n">nIter</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">dnMax</span> <span class="o">&gt;</span> <span class="n">IterLimit</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ChemEq iteration not converged: T: </span><span class="si">%e</span><span class="s2"> [K], density </span><span class="si">%e</span><span class="s2"> [m^-3], dnmax </span><span class="si">%e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">atmos</span><span class="o">.</span><span class="n">nHTot</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">dnMax</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ele</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nuclei</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">ele</span> <span class="ow">in</span> <span class="n">atomicPops</span><span class="p">:</span>
+                <span class="n">atomPop</span> <span class="o">=</span> <span class="n">atomicPops</span><span class="p">[</span><span class="n">ele</span><span class="p">]</span>
+                <span class="n">fraction</span> <span class="o">=</span> <span class="n">n</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">atomPop</span><span class="o">.</span><span class="n">nTotal</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                <span class="n">atomPop</span><span class="o">.</span><span class="n">nStar</span><span class="p">[:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">*=</span> <span class="n">fraction</span>
+                <span class="n">atomPop</span><span class="o">.</span><span class="n">nTotal</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*=</span> <span class="n">fraction</span>
+                <span class="k">if</span> <span class="n">atomPop</span><span class="o">.</span><span class="n">pops</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">atomPop</span><span class="o">.</span><span class="n">pops</span><span class="p">[:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">*=</span> <span class="n">fraction</span>
+
+        <span class="n">HminPops</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">PhiHmin</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">pop</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">molPops</span><span class="p">):</span>
+            <span class="n">pop</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">n</span><span class="p">[</span><span class="n">Nnuclei</span> <span class="o">+</span> <span class="n">i</span><span class="p">]</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">SpeciesStateTable</span><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="n">abundance</span><span class="p">,</span> <span class="n">atomicPops</span><span class="p">,</span> <span class="n">molecules</span><span class="p">,</span> <span class="n">molPops</span><span class="p">,</span> <span class="n">HminPops</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;chem_eq: maximum number of iterations taken: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">maxIter</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, C. Osborne
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
