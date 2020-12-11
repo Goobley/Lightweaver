@@ -44,7 +44,8 @@ jobs:
       env:
         CIBW_BUILD: cp38-*
         CIBW_SKIP: '*_i686'
-        LW_CI_BUILD: true
+        CIBW_ENVIRONMENT: 'LW_CI_BUILD=true'
+        CIBW_BUILD_VERBOSITY: 1
 
     - uses: actions/upload-artifact@v2
       with:
