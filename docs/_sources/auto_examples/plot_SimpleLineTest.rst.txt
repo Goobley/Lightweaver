@@ -487,7 +487,7 @@ These results are then plotted.
         Ca delta = 2.0994e-04
     99 iterations
     --------------------------------------------------------------------------------
-    8.48 s
+    8.80 s
     LTE Iterations 1 (-- slowest convergence)
     dJ = 1.00e+00
     dJ = 3.67e-01
@@ -938,7 +938,7 @@ These results are then plotted.
         ne delta = 1.7601e-15
     113 iterations
     --------------------------------------------------------------------------------
-    8.73 s
+    10.56 s
     LTE Iterations 1 (-- slowest convergence)
     dJ = 1.00e+00
     dJ = 3.67e-01
@@ -1218,7 +1218,7 @@ These results are then plotted.
         Ca delta = 1.8951e-04
     93 iterations
     --------------------------------------------------------------------------------
-    6.83 s
+    8.20 s
     LTE Iterations 1 (-- slowest convergence)
 
 
@@ -1227,7 +1227,7 @@ These results are then plotted.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 1 minutes  1.957 seconds)
+   **Total running time of the script:** ( 0 minutes  39.901 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_SimpleLineTest.py:
