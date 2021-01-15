@@ -795,12 +795,14 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                 chiTot.fill(0.0);
                 etaTot.fill(0.0);
 
+                // Gathers from all active non-background transitions
                 gather_opacity_emissivity(&data, computeOperator, la, mu, toObs);
 
                 for (int k = 0; k < Nspace; ++k)
                 {
                     chiTot(k) += background.chi(la, k);
-                    S(k) = (etaTot(k) + background.eta(la, k) + background.sca(la, k) * JDag(k)) / chiTot(k);
+                    etaTot(k) += background.eta(la, k);
+                    S(k) = (etaTot(k) + background.sca(la, k) * JDag(k)) / chiTot(k);
                 }
                 if (storeDepthData)
                 {
