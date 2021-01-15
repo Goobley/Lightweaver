@@ -2,13 +2,19 @@ import lightweaver.constants as C
 from copy import copy, deepcopy
 import numpy as np
 import os
-from typing import Tuple, Sequence
+from typing import Union, Tuple, Sequence, TYPE_CHECKING
 from dataclasses import dataclass
 from enum import Enum, auto
 from astropy import units
+import astropy.units as u
 from specutils.utils.wcs_utils import vac_to_air as spec_vac_to_air, air_to_vac as spec_air_to_vac
 from numba import njit
 from scipy import special
+from weno4 import weno4
+from scipy.integrate import trapezoid
+
+if TYPE_CHECKING:
+    from .atomic_model import AtomicLine
 
 @dataclass
 class NgOptions:
@@ -236,3 +242,65 @@ def view_flatten(x: np.ndarray) -> np.ndarray:
     y = x.view()
     y.shape = (x.size,)
     return y
+
+def compute_line_losses(ctx, lines : Union['AtomicLine', Sequence['AtomicLine']],
+                        extendGridNm: float=0.0) -> Union[Sequence[np.ndarray], np.ndarray]:
+    '''
+    Compute the radiative gains and losses over the band associated with a
+    line. Units of J/s/m3. Includes background/contributions from overlapping
+    lines. Convention of positive => radiative gain, negative => radiative
+    loss.
+
+    Parameters
+    ----------
+    ctx : Context
+        A context with the full depth-dependent data (i.e. ctx.depthData.fill
+        = True set before the most recent formal solution).
+    lines : AtomicLine or list of AtomicLine
+        The lines for which to compute losses.
+    extendGridNm : float, optional
+        Set this to a positive value to add an additional point at each end
+        of the integration range to include a wider continuum/far-wing
+        contribution. Units: nm, default: 0.0.
+
+    Returns
+    -------
+    linesLosses : array or list of array
+        The radiative gain/losses per line at each depth.
+    '''
+    from .atomic_model import AtomicLine
+
+    if isinstance(lines, AtomicLine):
+        lines = [lines]
+
+    spect = ctx.kwargs['spect']
+    atmos = ctx.kwargs['atmos']
+
+    chiTot = ctx.depthData.chi
+    S = (ctx.depthData.eta + (ctx.background.sca * ctx.spect.J)[:, None, None, :]) / chiTot
+    Idepth = ctx.depthData.I
+    loss = ((chiTot * (S - Idepth)) * 0.5).sum(axis=2).transpose(0, 2, 1) @ atmos.wmu
+
+    lineLosses = []
+    for line in lines:
+        transId = line.transId
+        grid = spect.transWavelengths[transId]
+        blueIdx = spect.blueIdx[transId]
+        blue = ctx.spect.wavelength[blueIdx]
+        redIdx = blueIdx + grid.shape[0]
+        red = ctx.spect.wavelength[redIdx-1]
+
+        if extendGridNm != 0.0:
+            wav = np.concatenate(((blue-extendGridNm,),
+                                ctx.spect.wavelength[blueIdx:redIdx],
+                                (red+extendGridNm,)))
+        else:
+            wav = ctx.spect.wavelength[blueIdx:redIdx]
+
+        # NOTE(cmo): There's a sneaky transpose going on here for the integration
+        lineLoss = np.zeros((loss.shape[1], wav.shape[0]))
+        for k in range(loss.shape[1]):
+            lineLoss[k, :] = weno4(wav, ctx.spect.wavelength, loss[:, k])
+        lineLosses.append(trapezoid(lineLoss,
+                                    (wav << u.nm).to(u.Hz, equivalencies=u.spectral()).value))
+    return lineLosses[0] if len(lineLosses) == 1 else lineLosses
