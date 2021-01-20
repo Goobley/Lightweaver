@@ -335,7 +335,7 @@ def integrate_line_losses(ctx, loss : np.ndarray,
     return lineLosses[0] if len(lineLosses) == 1 else lineLosses
 
 
-def compute_contribution_fn(ctx, mu : int=-1, outgoing : bool=True):
+def compute_contribution_fn(ctx, mu : int=-1, outgoing : bool=True) -> np.ndarray:
     '''
     Computes the contribution function for all wavelengths in the simulation,
     for a chosen angular index.
@@ -352,6 +352,11 @@ def compute_contribution_fn(ctx, mu : int=-1, outgoing : bool=True):
         Whether to compute the contribution for outgoing or incoming
         radiation (wrt to the atmosphere). Default: outgoing==True, i.e. to
         observer.
+
+    Returns
+    -------
+    cfn : np.ndarray
+        The contribution function in terms of depth and wavelength.
     '''
     upDown = 1 if outgoing else 0
     tau = np.zeros_like(ctx.depthData.chi[:, mu, outgoing, :])
