@@ -243,19 +243,53 @@ def view_flatten(x: np.ndarray) -> np.ndarray:
     y.shape = (x.size,)
     return y
 
-def compute_line_losses(ctx, lines : Union['AtomicLine', Sequence['AtomicLine']],
-                        extendGridNm: float=0.0) -> Union[Sequence[np.ndarray], np.ndarray]:
+def compute_radiative_losses(ctx) -> np.ndarray:
     '''
-    Compute the radiative gains and losses over the band associated with a
-    line. Units of J/s/m3. Includes background/contributions from overlapping
-    lines. Convention of positive => radiative gain, negative => radiative
-    loss.
+    Compute the radiative gains and losses for each wavelength in the grid
+    used by the context. Units of J/s/m3/Hz. Includes
+    background/contributions from overlapping lines. Convention of positive
+    => radiative gain, negative => radiative loss.
+
+    Parameters
+    ----------
+    ctx : Context
+        A context with full depth-dependent data (i.e. ctx.depthData.fill =
+        True set before the most recent formal solution).
+
+    Returns
+    -------
+    loss : np.ndarray
+        The radiative gains losses for each depth and wavelength in the
+        simulation.
+    '''
+    spect = ctx.kwargs['spect']
+    atmos = ctx.kwargs['atmos']
+
+    chiTot = ctx.depthData.chi
+    S = (ctx.depthData.eta + (ctx.background.sca * ctx.spect.J)[:, None, None, :]) / chiTot
+    Idepth = ctx.depthData.I
+    loss = ((chiTot * (S - Idepth)) * 0.5).sum(axis=2).transpose(0, 2, 1) @ atmos.wmu
+
+    return loss
+
+
+def integrate_line_losses(ctx, loss : np.ndarray,
+                          lines : Union['AtomicLine', Sequence['AtomicLine']],
+                          extendGridNm: float=0.0) -> Union[Sequence[np.ndarray], np.ndarray]:
+    '''
+    Integrate the radiative gains and losses over the band associated with a
+    line or list of lines. Units of J/s/m3. Includes background/contributions
+    from overlapping lines. Convention of positive => radiative gain,
+    negative => radiative loss.
 
     Parameters
     ----------
     ctx : Context
         A context with the full depth-dependent data (i.e. ctx.depthData.fill
         = True set before the most recent formal solution).
+    loss : np.ndarray
+        The radiative gains/losses for each wavelength and depth computed by
+        `compute_radiative_losses`.
     lines : AtomicLine or list of AtomicLine
         The lines for which to compute losses.
     extendGridNm : float, optional
@@ -275,11 +309,6 @@ def compute_line_losses(ctx, lines : Union['AtomicLine', Sequence['AtomicLine']]
 
     spect = ctx.kwargs['spect']
     atmos = ctx.kwargs['atmos']
-
-    chiTot = ctx.depthData.chi
-    S = (ctx.depthData.eta + (ctx.background.sca * ctx.spect.J)[:, None, None, :]) / chiTot
-    Idepth = ctx.depthData.I
-    loss = ((chiTot * (S - Idepth)) * 0.5).sum(axis=2).transpose(0, 2, 1) @ atmos.wmu
 
     lineLosses = []
     for line in lines:
@@ -304,3 +333,91 @@ def compute_line_losses(ctx, lines : Union['AtomicLine', Sequence['AtomicLine']]
         lineLosses.append(trapezoid(lineLoss,
                                     (wav << u.nm).to(u.Hz, equivalencies=u.spectral()).value))
     return lineLosses[0] if len(lineLosses) == 1 else lineLosses
+
+
+def compute_contribution_fn(ctx, mu : int=-1, outgoing : bool=True):
+    '''
+    Computes the contribution function for all wavelengths in the simulation,
+    for a chosen angular index.
+
+    Parameters
+    ----------
+    ctx : Context
+        A context with the full depth-dependent data (i.e. ctx.depthData.fill
+        = True set before the most recent formal solution).
+    mu : Optional[int]
+        The angular index to use (corresponding to the order of the angular
+        quadratures in atmosphere), default: -1.
+    outgoing : Optional[bool]
+        Whether to compute the contribution for outgoing or incoming
+        radiation (wrt to the atmosphere). Default: outgoing==True, i.e. to
+        observer.
+    '''
+    upDown = 1 if outgoing else 0
+    tau = np.zeros_like(ctx.depthData.chi[:, mu, outgoing, :])
+    chi = ctx.depthData.chi
+    atmos = ctx.kwargs['atmos']
+
+    # NOTE(cmo): Compute tau for all wavelengths
+    tau[:, 0] = 1e-20
+    for k in range(1, tau.shape[1]):
+        tau[:, k] = tau[:, k-1] + 0.5 * (chi[:, mu, outgoing, k] + chi[:, mu, outgoing, k-1]) \
+                                      * (atmos.height[k-1] - atmos.height[k])
+
+    # NOTE(cmo): Source function.
+    Sfn = ((ctx.depthData.eta
+            + (ctx.background.sca * ctx.spect.J)[:, None, None, :])
+           / chi)
+
+    # NOTE(cmo): Contribution function for all wavelengths.
+    cfn = ctx.depthData.chi[:, mu, outgoing, :] / atmos.muz[mu] \
+           * np.exp(-tau / atmos.muz[mu]) * Sfn[:, mu, outgoing, :]
+
+    return cfn
+
+
+def compute_wavelength_edges(ctx) -> np.ndarray:
+    '''
+    Compute the edges of the wavelength bins associated with the wavelength
+    array used in a simulation, typically used in conjunction with a plot
+    using pcolormesh.
+
+    Parameters
+    ----------
+    ctx : Context
+        The context from which to construct the wavelength edges.
+
+    Returns
+    -------
+    wlEdges : np.ndarray
+        The edges of the wavelength bins.
+    '''
+    wav = ctx.spect.wavelength
+    wlEdges = np.concatenate(((wav[0] - 0.5 * (wav[1] - wav[0]),),
+                            0.5 * (wav[1:] + wav[:-1]),
+                            (wav[-1] + 0.5 * (wav[-1] - wav[-2]),)
+                            ))
+    return wlEdges
+
+
+def compute_height_edges(ctx) -> np.ndarray:
+    '''
+    Compute the edges of the height bins associated with the stratified
+    altitude array used in a simulation, typically used in conjunction with a
+    plot using pcolormesh.
+
+    Parameters
+    ----------
+    ctx : Context
+        The context from which to construct the height edges.
+
+    Returns
+    -------
+    heightEdges : np.ndarray
+        The edges of the height bins.
+    '''
+    atmos = ctx.kwargs['atmos']
+    heightEdges = np.concatenate(((atmos.height[0] + 0.5 * (atmos.height[0] - atmos.height[1]),),
+                                0.5 * (atmos.height[1:] + atmos.height[:-1]),
+                                (atmos.height[-1] - 0.5 * (atmos.height[-2] - atmos.height[-1]),)))
+    return heightEdges
