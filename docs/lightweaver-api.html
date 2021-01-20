@@ -3644,6 +3644,92 @@ parameter always 1).</p>
 </dd></dl>
 
 <dl class="py function">
+<dt id="lightweaver.utils.compute_contribution_fn">
+<code class="sig-prename descclassname">lightweaver.utils.</code><code class="sig-name descname">compute_contribution_fn</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ctx</span></em>, <em class="sig-param"><span class="n">mu</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">outgoing</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/lightweaver/utils.html#compute_contribution_fn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lightweaver.utils.compute_contribution_fn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the contribution function for all wavelengths in the simulation,
+for a chosen angular index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ctx</strong> (<em>Context</em>) – A context with the full depth-dependent data (i.e. ctx.depthData.fill
+= True set before the most recent formal solution).</p></li>
+<li><p><strong>mu</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – The angular index to use (corresponding to the order of the angular
+quadratures in atmosphere), default: -1.</p></li>
+<li><p><strong>outgoing</strong> (<em>Optional</em><em>[</em><em>bool</em><em>]</em>) – Whether to compute the contribution for outgoing or incoming
+radiation (wrt to the atmosphere). Default: outgoing==True, i.e. to
+observer.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>cfn</strong> – The contribution function in terms of depth and wavelength.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lightweaver.utils.compute_height_edges">
+<code class="sig-prename descclassname">lightweaver.utils.</code><code class="sig-name descname">compute_height_edges</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ctx</span></em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/lightweaver/utils.html#compute_height_edges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lightweaver.utils.compute_height_edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the edges of the height bins associated with the stratified
+altitude array used in a simulation, typically used in conjunction with a
+plot using pcolormesh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ctx</strong> (<em>Context</em>) – The context from which to construct the height edges.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>heightEdges</strong> – The edges of the height bins.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lightweaver.utils.compute_radiative_losses">
+<code class="sig-prename descclassname">lightweaver.utils.</code><code class="sig-name descname">compute_radiative_losses</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ctx</span></em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/lightweaver/utils.html#compute_radiative_losses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lightweaver.utils.compute_radiative_losses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the radiative gains and losses for each wavelength in the grid
+used by the context. Units of J/s/m3/Hz. Includes
+background/contributions from overlapping lines. Convention of positive
+=&gt; radiative gain, negative =&gt; radiative loss.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ctx</strong> (<em>Context</em>) – A context with full depth-dependent data (i.e. ctx.depthData.fill =
+True set before the most recent formal solution).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>loss</strong> – The radiative gains losses for each depth and wavelength in the
+simulation.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lightweaver.utils.compute_wavelength_edges">
+<code class="sig-prename descclassname">lightweaver.utils.</code><code class="sig-name descname">compute_wavelength_edges</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ctx</span></em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/lightweaver/utils.html#compute_wavelength_edges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lightweaver.utils.compute_wavelength_edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the edges of the wavelength bins associated with the wavelength
+array used in a simulation, typically used in conjunction with a plot
+using pcolormesh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ctx</strong> (<em>Context</em>) – The context from which to construct the wavelength edges.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>wlEdges</strong> – The edges of the wavelength bins.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt id="lightweaver.utils.convert_specific_intensity">
 <code class="sig-prename descclassname">lightweaver.utils.</code><code class="sig-name descname">convert_specific_intensity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wavelength</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">specInt</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">outUnits</span></em><span class="sig-paren">)</span> &#x2192; astropy.units.quantity.Quantity<a class="reference internal" href="_modules/lightweaver/utils.html#convert_specific_intensity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lightweaver.utils.convert_specific_intensity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a specific intensity between different units.</p>
@@ -3697,6 +3783,35 @@ Phys. 23, 313, as used in RH.</p>
 <dt id="lightweaver.utils.get_default_molecule_path">
 <code class="sig-prename descclassname">lightweaver.utils.</code><code class="sig-name descname">get_default_molecule_path</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/utils.html#get_default_molecule_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lightweaver.utils.get_default_molecule_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the location of the default molecules taken from RH.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="lightweaver.utils.integrate_line_losses">
+<code class="sig-prename descclassname">lightweaver.utils.</code><code class="sig-name descname">integrate_line_losses</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ctx</span></em>, <em class="sig-param"><span class="n">loss</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">lines</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>AtomicLine<span class="p">, </span>Sequence<span class="p">[</span>AtomicLine<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">extendGridNm</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.0</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span>Sequence<span class="p">[</span>numpy.ndarray<span class="p">]</span><span class="p">, </span>numpy.ndarray<span class="p">]</span><a class="reference internal" href="_modules/lightweaver/utils.html#integrate_line_losses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lightweaver.utils.integrate_line_losses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Integrate the radiative gains and losses over the band associated with a
+line or list of lines. Units of J/s/m3. Includes background/contributions
+from overlapping lines. Convention of positive =&gt; radiative gain,
+negative =&gt; radiative loss.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ctx</strong> (<em>Context</em>) – A context with the full depth-dependent data (i.e. ctx.depthData.fill
+= True set before the most recent formal solution).</p></li>
+<li><p><strong>loss</strong> (<em>np.ndarray</em>) – The radiative gains/losses for each wavelength and depth computed by
+<cite>compute_radiative_losses</cite>.</p></li>
+<li><p><strong>lines</strong> (<a class="reference internal" href="#lightweaver.atomic_model.AtomicLine" title="lightweaver.atomic_model.AtomicLine"><em>AtomicLine</em></a><em> or </em><em>list of AtomicLine</em>) – The lines for which to compute losses.</p></li>
+<li><p><strong>extendGridNm</strong> (<em>float</em><em>, </em><em>optional</em>) – Set this to a positive value to add an additional point at each end
+of the integration range to include a wider continuum/far-wing
+contribution. Units: nm, default: 0.0.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>linesLosses</strong> – The radiative gain/losses per line at each depth.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array or list of array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -4600,11 +4715,6 @@ stateDict.</p></li>
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="py method">
-<dt id="lightweaver.LwCompiled.LwContext.contrib_fn">
-<code class="sig-name descname">contrib_fn</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#lightweaver.LwCompiled.LwContext.contrib_fn" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="id3">
