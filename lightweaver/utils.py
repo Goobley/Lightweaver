@@ -359,14 +359,14 @@ def compute_contribution_fn(ctx, mu : int=-1, outgoing : bool=True) -> np.ndarra
         The contribution function in terms of depth and wavelength.
     '''
     upDown = 1 if outgoing else 0
-    tau = np.zeros_like(ctx.depthData.chi[:, mu, outgoing, :])
+    tau = np.zeros_like(ctx.depthData.chi[:, mu, upDown, :])
     chi = ctx.depthData.chi
     atmos = ctx.kwargs['atmos']
 
     # NOTE(cmo): Compute tau for all wavelengths
     tau[:, 0] = 1e-20
     for k in range(1, tau.shape[1]):
-        tau[:, k] = tau[:, k-1] + 0.5 * (chi[:, mu, outgoing, k] + chi[:, mu, outgoing, k-1]) \
+        tau[:, k] = tau[:, k-1] + 0.5 * (chi[:, mu, upDown, k] + chi[:, mu, upDown, k-1]) \
                                       * (atmos.height[k-1] - atmos.height[k])
 
     # NOTE(cmo): Source function.
@@ -375,8 +375,8 @@ def compute_contribution_fn(ctx, mu : int=-1, outgoing : bool=True) -> np.ndarra
            / chi)
 
     # NOTE(cmo): Contribution function for all wavelengths.
-    cfn = ctx.depthData.chi[:, mu, outgoing, :] / atmos.muz[mu] \
-           * np.exp(-tau / atmos.muz[mu]) * Sfn[:, mu, outgoing, :]
+    cfn = ctx.depthData.chi[:, mu, upDown, :] / atmos.muz[mu] \
+           * np.exp(-tau / atmos.muz[mu]) * Sfn[:, mu, upDown, :]
 
     return cfn
 

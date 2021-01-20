@@ -8,7 +8,9 @@ from .molecule import MolecularTable
 from .multi import read_multi_atmos
 from .utils import NgOptions, InitialSolution, voigt_H, planck, gaunt_bf, ConvergenceError, \
                    ExplodingMatrixError, get_data_path, get_default_molecule_path, vac_to_air, \
-                   air_to_vac, convert_specific_intensity, CrswIterator, UnityCrswIterator
+                   air_to_vac, convert_specific_intensity, CrswIterator, UnityCrswIterator, \
+                   compute_radiative_losses, integrate_line_losses, compute_contribution_fn, \
+                   compute_height_edges, compute_wavelength_edges
 from .nr_update import nr_post_update
 from .LwCompiled import LwContext
 from .version import version as __version__
