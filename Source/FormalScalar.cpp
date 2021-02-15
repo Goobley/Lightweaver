@@ -538,7 +538,14 @@ void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
         }
         else if (atmos->zLowerBc.type == CALLABLE)
         {
-            Iupw = atmos->zLowerBc.bcData(la, mu, 0);
+            int muIdx = atmos->zLowerBc.idxs(mu, int(toObs));
+            if (muIdx == -1)
+            {
+                assert(false);
+                Iupw = 0.0;
+            }
+            else
+                Iupw = atmos->zLowerBc.bcData(la, muIdx, 0);
         }
     }
     else
@@ -551,7 +558,14 @@ void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
         }
         else if (atmos->zUpperBc.type == CALLABLE)
         {
-            Iupw = atmos->zUpperBc.bcData(la, mu, 0);
+            int muIdx = atmos->zUpperBc.idxs(mu, int(toObs));
+            if (muIdx == -1)
+            {
+                assert(false);
+                Iupw = 0.0;
+            }
+            else
+                Iupw = atmos->zUpperBc.bcData(la, muIdx, 0);
         }
     }
 
@@ -589,7 +603,14 @@ void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
         }
         else if (atmos->zLowerBc.type == CALLABLE)
         {
-            Iupw = atmos->zLowerBc.bcData(la, mu, 0);
+            int muIdx = atmos->zLowerBc.idxs(mu, int(toObs));
+            if (muIdx == -1)
+            {
+                assert(false);
+                Iupw = 0.0;
+            }
+            else
+                Iupw = atmos->zLowerBc.bcData(la, muIdx, 0);
         }
     }
     else
@@ -602,7 +623,14 @@ void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
         }
         else if (atmos->zUpperBc.type == CALLABLE)
         {
-            Iupw = atmos->zUpperBc.bcData(la, mu, 0);
+            int muIdx = atmos->zUpperBc.idxs(mu, int(toObs));
+            if (muIdx == -1)
+            {
+                assert(false);
+                Iupw = 0.0;
+            }
+            else
+                Iupw = atmos->zUpperBc.bcData(la, muIdx, 0);
         }
     }
 
@@ -640,7 +668,14 @@ void piecewise_besser_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
         }
         else if (atmos->zLowerBc.type == CALLABLE)
         {
-            Iupw = atmos->zLowerBc.bcData(la, mu, 0);
+            int muIdx = atmos->zLowerBc.idxs(mu, int(toObs));
+            if (muIdx == -1)
+            {
+                assert(false);
+                Iupw = 0.0;
+            }
+            else
+                Iupw = atmos->zLowerBc.bcData(la, muIdx, 0);
         }
     }
     else
@@ -653,7 +688,14 @@ void piecewise_besser_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
         }
         else if (atmos->zUpperBc.type == CALLABLE)
         {
-            Iupw = atmos->zUpperBc.bcData(la, mu, 0);
+            int muIdx = atmos->zUpperBc.idxs(mu, int(toObs));
+            if (muIdx == -1)
+            {
+                assert(false);
+                Iupw = 0.0;
+            }
+            else
+                Iupw = atmos->zUpperBc.bcData(la, muIdx, 0);
         }
     }
 

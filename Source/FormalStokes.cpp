@@ -389,7 +389,8 @@ void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int la, int mu, bool toOb
         }
         else if (atmos->zLowerBc.type == CALLABLE)
         {
-            Iupw[0] = atmos->zLowerBc.bcData(la, mu, 0);
+            int muIdx = atmos->zLowerBc.idxs(mu, int(toObs));
+            Iupw[0] = atmos->zLowerBc.bcData(la, muIdx, 0);
         }
     }
     else
@@ -402,7 +403,8 @@ void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int la, int mu, bool toOb
         }
         else if (atmos->zUpperBc.type == CALLABLE)
         {
-            Iupw[0] = atmos->zUpperBc.bcData(la, mu, 0);
+            int muIdx = atmos->zUpperBc.idxs(mu, int(toObs));
+            Iupw[0] = atmos->zUpperBc.bcData(la, muIdx, 0);
         }
     }
 

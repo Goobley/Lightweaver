@@ -25,6 +25,7 @@ ctypedef np.int8_t i8
 # ctypedef Array1NonOwn[np.int32_t] I32View
 ctypedef Array1NonOwn[np.int32_t] I32View
 ctypedef Array1NonOwn[bool_t] BoolView
+ctypedef Array2NonOwn[np.int32_t] BcIdxs
 
 # NOTE(cmo): Define everything we need from the C++ code.
 cdef extern from "LwFormalInterface.hpp":
@@ -57,9 +58,11 @@ cdef extern from "Lightweaver.hpp":
     cdef cppclass AtmosphericBoundaryCondition:
         RadiationBc type
         F64Arr3D bcData
+        BcIdxs idxs
 
         AtmosphericBoundaryCondition()
-        AtmosphericBoundaryCondition(RadiationBc typ, int Nwave, int Nmu, int Nspace)
+        AtmosphericBoundaryCondition(RadiationBc typ, int Nwave, int Nmu,
+                                     int Nspace, BcIdxs indexVector)
         void set_bc_data(F64View3D data)
 
     cdef cppclass Atmosphere:
@@ -553,55 +556,105 @@ cdef class LwAtmosphere:
 
         cdef int Nrays = self.Nrays
         s = atmos.structure
+        cdef np.int32_t[:,::1] xLowerIdxs = self.pyAtmos.xLowerBc.indexVector
         self.atmos.xLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.xLowerBc),
-                                                           self.Nwave, Nrays, Nbcx)
+                                                           self.Nwave, Nrays, Nbcx,
+                                                           BcIdxs(&xLowerIdxs[0,0],
+                                                                  xLowerIdxs.shape[0],
+                                                                  xLowerIdxs.shape[1]))
+        cdef np.int32_t[:,::1] xUpperIdxs = self.pyAtmos.xUpperBc.indexVector
         self.atmos.xUpperBc = AtmosphericBoundaryCondition(BC_to_enum(s.xUpperBc),
-                                                           self.Nwave, Nrays, Nbcx)
+                                                           self.Nwave, Nrays, Nbcx,
+                                                           BcIdxs(&xUpperIdxs[0,0],
+                                                                  xUpperIdxs.shape[0],
+                                                                  xUpperIdxs.shape[1]))
+        cdef np.int32_t[:,::1] yLowerIdxs = self.pyAtmos.yLowerBc.indexVector
         self.atmos.yLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.yLowerBc),
-                                                           self.Nwave, Nrays, Nbcy)
+                                                           self.Nwave, Nrays, Nbcy,
+                                                           BcIdxs(&yLowerIdxs[0,0],
+                                                                  yLowerIdxs.shape[0],
+                                                                  yLowerIdxs.shape[1]))
+        cdef np.int32_t[:,::1] yUpperIdxs = self.pyAtmos.yUpperBc.indexVector
         self.atmos.yUpperBc = AtmosphericBoundaryCondition(BC_to_enum(s.yUpperBc),
-                                                           self.Nwave, Nrays, Nbcy)
+                                                           self.Nwave, Nrays, Nbcy,
+                                                           BcIdxs(&yUpperIdxs[0,0],
+                                                                  yUpperIdxs.shape[0],
+                                                                  yLowerIdxs.shape[1]))
+        cdef np.int32_t[:,::1] zLowerIdxs = self.pyAtmos.zLowerBc.indexVector
         self.atmos.zLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.zLowerBc),
-                                                           self.Nwave, Nrays, Nbcz)
+                                                           self.Nwave, Nrays, Nbcz,
+                                                           BcIdxs(&zLowerIdxs[0,0],
+                                                                  zLowerIdxs.shape[0],
+                                                                  zLowerIdxs.shape[1]))
+        cdef np.int32_t[:,::1] zUpperIdxs = self.pyAtmos.zUpperBc.indexVector
         self.atmos.zUpperBc = AtmosphericBoundaryCondition(BC_to_enum(s.zUpperBc),
-                                                           self.Nwave, Nrays, Nbcz)
+                                                           self.Nwave, Nrays, Nbcz,
+                                                           BcIdxs(&zUpperIdxs[0,0],
+                                                                  zUpperIdxs.shape[0],
+                                                                  zUpperIdxs.shape[1]))
 
     def compute_bcs(self, LwSpectrum spect):
         cdef f64[:,:,::1] bc
         cdef int mu, la
         cdef F64View3D data
+        cdef AtmosphericBoundaryCondition* abc
+
         if self.atmos.zLowerBc.type == CALLABLE:
-            bc = self.pyAtmos.zLowerBc.compute_bc(self.pyAtmos, spect)
+            if np.all(self.pyAtmos.zLowerBc.indexVector == -1):
+                abc = &self.atmos.zLowerBc
+                bc = np.zeros((self.Nwave, abc.bcData.shape(1), abc.bcData.shape(2)))
+            else:
+                bc = self.pyAtmos.zLowerBc.compute_bc(self.pyAtmos, spect)
             verify_bc_array_sizes(&self.atmos.zLowerBc, bc, 'zLowerBc')
             data = f64_view_3(bc)
             self.atmos.zLowerBc.set_bc_data(data)
 
         if self.atmos.zUpperBc.type == CALLABLE:
-            bc = self.pyAtmos.zUpperBc.compute_bc(self.pyAtmos, spect)
+            if np.all(self.pyAtmos.zUpperBc.indexVector == -1):
+                abc = &self.atmos.zUpperBc
+                bc = np.zeros((self.Nwave, abc.bcData.shape(1), abc.bcData.shape(2)))
+            else:
+                bc = self.pyAtmos.zUpperBc.compute_bc(self.pyAtmos, spect)
             verify_bc_array_sizes(&self.atmos.zUpperBc, bc, 'zUpperBc')
             data = f64_view_3(bc)
             self.atmos.zUpperBc.set_bc_data(data)
 
         if self.atmos.xLowerBc.type == CALLABLE:
-            bc = self.pyAtmos.xLowerBc.compute_bc(self.pyAtmos, spect)
+            if np.all(self.pyAtmos.xLowerBc.indexVector == -1):
+                abc = &self.atmos.xLowerBc
+                bc = np.zeros((self.Nwave, abc.bcData.shape(1), abc.bcData.shape(2)))
+            else:
+                bc = self.pyAtmos.xLowerBc.compute_bc(self.pyAtmos, spect)
             verify_bc_array_sizes(&self.atmos.xLowerBc, bc, 'xLowerBc')
             data = f64_view_3(bc)
             self.atmos.xLowerBc.set_bc_data(data)
 
         if self.atmos.xUpperBc.type == CALLABLE:
-            bc = self.pyAtmos.xUpperBc.compute_bc(self.pyAtmos, spect)
+            if np.all(self.pyAtmos.xUpperBc.indexVector == -1):
+                abc = &self.atmos.xUpperBc
+                bc = np.zeros((self.Nwave, abc.bcData.shape(1), abc.bcData.shape(2)))
+            else:
+                bc = self.pyAtmos.xUpperBc.compute_bc(self.pyAtmos, spect)
             verify_bc_array_sizes(&self.atmos.xUpperBc, bc, 'xUpperBc')
             data = f64_view_3(bc)
             self.atmos.xUpperBc.set_bc_data(data)
 
         if self.atmos.yLowerBc.type == CALLABLE:
-            bc = self.pyAtmos.yLowerBc.compute_bc(self.pyAtmos, spect)
+            if np.all(self.pyAtmos.yLowerBc.indexVector == -1):
+                abc = &self.atmos.yLowerBc
+                bc = np.zeros((self.Nwave, abc.bcData.shape(1), abc.bcData.shape(2)))
+            else:
+                bc = self.pyAtmos.yLowerBc.compute_bc(self.pyAtmos, spect)
             verify_bc_array_sizes(&self.atmos.yLowerBc, bc, 'yLowerBc')
             data = f64_view_3(bc)
             self.atmos.yLowerBc.set_bc_data(data)
 
         if self.atmos.yUpperBc.type == CALLABLE:
-            bc = self.pyAtmos.yUpperBc.compute_bc(self.pyAtmos, spect)
+            if np.all(self.pyAtmos.yUpperBc.indexVector == -1):
+                abc = &self.atmos.yUpperBc
+                bc = np.zeros((self.Nwave, abc.bcData.shape(1), abc.bcData.shape(2)))
+            else:
+                bc = self.pyAtmos.yUpperBc.compute_bc(self.pyAtmos, spect)
             verify_bc_array_sizes(&self.atmos.yUpperBc, bc, 'yUpperBc')
             data = f64_view_3(bc)
             self.atmos.yUpperBc.set_bc_data(data)

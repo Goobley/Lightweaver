@@ -62,6 +62,16 @@ class BoundaryCondition:
         '''
         raise NotImplementedError
 
+    def set_required_angles(self, mux, muy, muz, indexVector):
+        '''
+        The angles (and their ordering) to be used for this boundary
+        condition (in the case of a callable)
+        '''
+        self.mux = mux
+        self.muy = muy
+        self.muz = muz
+        self.indexVector = indexVector
+
 class NoBc(BoundaryCondition):
     '''
     Indicates no boundary condition on the axis because it is invalid for the
@@ -1235,6 +1245,10 @@ class Atmosphere:
 
         Procedure varies with dimensionality.
 
+        By convention muz is always positive, as the direction on this axis
+        is determined by the toObs term that is used internally to the formal
+        solver.
+
         1D:
             If a number of rays is given (typically 3 or 5), then the
             Gauss-Legendre quadrature for this set is used.
@@ -1339,6 +1353,8 @@ class Atmosphere:
             else:
                 raise NotImplementedError()
 
+        self.configure_bcs()
+
 
     def rays(self, muz: Union[float, Sequence[float]],
              mux: Optional[Union[float, Sequence[float]]]=None,
@@ -1351,6 +1367,10 @@ class Atmosphere:
         If only the z angle is set then the ray is assumed in the x-z plane.
         If either muz or muy is omitted then this angle is inferred by
         normalisation of the projection.
+
+        By convention muz is always positive, as the direction on this axis
+        is determined by the toObs term that is used internally to the formal
+        solver.
 
         Parameters
         ----------
@@ -1402,11 +1422,121 @@ class Atmosphere:
             if not np.allclose(self.muz**2 + self.mux**2 + self.muy**2, 1):
                 raise ValueError('mux**2 + muy**2 + muz**2 != 1.0')
 
+        if not np.all(self.muz > 0):
+            raise ValueError('muz must be > 0')
+
         if wmu is not None:
             self.wmu = np.array(wmu)
 
             if not np.isclose(self.wmu.sum(), 1.0):
                 raise ValueError('sum of wmus is not 1.0')
+
+        self.configure_bcs()
+
+    def configure_bcs(self):
+        '''
+        Configure the required angular information for all boundary
+        conditions on the model.
+        '''
+
+        # NOTE(cmo): We always have z-bcs
+        # For zLowerBc, muz is positive, and we have all mux, muz
+        mux, muy, muz = self.mux, self.muy, self.muz
+        indexVector = np.ones((self.mux.shape[0], 2), dtype=np.int32) * -1
+        indexVector[:, 1] = np.arange(mux.shape[0])
+        self.zLowerBc.set_required_angles(mux, muy, muz, indexVector)
+
+        indexVector = np.ones((mux.shape[0], 2), dtype=np.int32) * -1
+        indexVector[:, 0] = np.arange(mux.shape[0])
+        self.zUpperBc.set_required_angles(-mux, -muy, -muz, indexVector)
+
+        # NOTE(cmo): If 2+D we have x-bcs too
+        # xLowerBc has all muz and all mux > 0
+        mux, muy, muz = [], [], []
+        indexVector = np.ones((self.mux.shape[0], 2), dtype=np.int32) * -1
+        count = 0
+        if np.unique(np.abs(self.mux)).shape[0] == self.mux.shape[0]:
+            for mu in range(self.mux.shape[0]):
+                for toObsI in range(2):
+                    sign = [-1, 1][toObsI]
+                    sMux = sign * self.mux[mu]
+                    if sMux > 0:
+                        mux.append(sMux)
+                        muy.append(sign * self.muy[mu])
+                        muz.append(sign * self.muz[mu])
+                        indexVector[mu, toObsI] = count
+                        count += 1
+        else:
+            musDone = np.zeros(self.muz.shape[0], dtype=np.bool)
+            for mu in range(self.muz.shape[0]):
+                for equalMu in np.argwhere(np.abs(self.muz) == self.muz[mu]).reshape(-1)[::-1]:
+                    if musDone[equalMu]:
+                        continue
+                    musDone[equalMu] = True
+
+                    for toObsI in range(2):
+                        sign = [-1, 1][toObsI]
+                        sMux = sign * self.mux[equalMu]
+                        if sMux > 0:
+                            mux.append(sMux)
+                            muy.append(sign * self.muy[equalMu])
+                            muz.append(sign * self.muz[equalMu])
+                            indexVector[equalMu, toObsI] = count
+                            count += 1
+                if np.all(musDone):
+                    break
+
+        mux = np.array(mux)
+        muy = np.array(muy)
+        muz = np.array(muz)
+        self.xLowerBc.set_required_angles(mux, muy, muz, indexVector)
+
+        mux, muy, muz = [], [], []
+        indexVector = np.ones((self.mux.shape[0], 2), dtype=np.int32) * -1
+        count = 0
+        if np.unique(np.abs(self.mux)).shape[0] == self.mux.shape[0]:
+            for mu in range(self.mux.shape[0]):
+                for toObsI in range(2):
+                    sign = [-1, 1][toObsI]
+                    sMux = sign * self.mux[mu]
+                    if sMux < 0:
+                        mux.append(sMux)
+                        muy.append(sign * self.muy[mu])
+                        muz.append(sign * self.muz[mu])
+                        indexVector[mu, toObsI] = count
+                        count += 1
+        else:
+            musDone = np.zeros(self.muz.shape[0], dtype=np.bool)
+            for mu in range(self.muz.shape[0]):
+                for equalMu in np.argwhere(np.abs(self.muz) == self.muz[mu]).reshape(-1):
+                    if musDone[equalMu]:
+                        continue
+                    musDone[equalMu] = True
+
+                    for toObsI in range(2):
+                        sign = [-1, 1][toObsI]
+                        sMux = sign * self.mux[equalMu]
+                        if sMux < 0:
+                            mux.append(sMux)
+                            muy.append(sign * self.muy[equalMu])
+                            muz.append(sign * self.muz[equalMu])
+                            indexVector[equalMu, toObsI] = count
+                            count += 1
+                if np.all(musDone):
+                    break
+
+        mux = np.array(mux)
+        muy = np.array(muy)
+        muz = np.array(muz)
+        self.xUpperBc.set_required_angles(mux, muy, muz, indexVector)
+
+        self.yLowerBc.set_required_angles(np.zeros((0)), np.zeros((0)), np.zeros((0)),
+                                          np.ones((self.mux.shape[0], 2), dtype=np.int32) * -1)
+        self.yUpperBc.set_required_angles(np.zeros((0)), np.zeros((0)), np.zeros((0)),
+                                          np.ones((self.mux.shape[0], 2), dtype=np.int32) * -1)
+
+        if self.Ndim > 2:
+            raise ValueError('Only <= 2D atmospheres supported currently.')
 
 
 # @dataclass

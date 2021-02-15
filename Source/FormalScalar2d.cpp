@@ -463,12 +463,19 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
         // Nrays to represent half the unit sphere, but we want the half split
         // by the y-z plane, rather than the half split by the x-y plane that
         // toObs splits by by default.
-        int muIdx = (mu % (atmos->Nrays / 2)) * 2 + toObsI;
+        // int muIdx = (mu % (atmos->Nrays / 2)) * 2 + toObsI;
         if (mux > 0)
         {
             for (int k = 0; k < atmos->Nz; ++k)
             {
-                I(k, 0) = atmos->xLowerBc.bcData(la, muIdx, k);
+                int muIdx = atmos->xLowerBc.idxs(mu, toObsI);
+                if (muIdx == -1)
+                {
+                    assert(false);
+                    I(k, 0) = 0.0;
+                }
+                else
+                    I(k, 0) = atmos->xLowerBc.bcData(la, muIdx, k);
                 Psi(k, 0) = 0.0;
             }
         }
@@ -476,7 +483,14 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
         {
             for (int k = 0; k < atmos->Nz; ++k)
             {
-                I(k, atmos->Nx-1) = atmos->xUpperBc.bcData(la, muIdx, k);
+                int muIdx = atmos->xUpperBc.idxs(mu, toObsI);
+                if (muIdx == -1)
+                {
+                    assert(false);
+                    I(k, atmos->Nx-1) = 0.0;
+                }
+                else
+                    I(k, atmos->Nx-1) = atmos->xUpperBc.bcData(la, muIdx, k);
                 Psi(k, atmos->Nx-1) = 0.0;
             }
         }
@@ -542,7 +556,10 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
 
             case CALLABLE:
             {
-                I(k, j) = currentBc.bcData(la, mu, j);
+                int muIdx = currentBc.idxs(mu, int(toObs));
+                if (muIdx == -1)
+                    assert(false);
+                I(k, j) = currentBc.bcData(la, muIdx, j);
             } break;
 
             case ZERO: break;
@@ -729,12 +746,15 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
         // Nrays to represent half the unit sphere, but we want the half split
         // by the y-z plane, rather than the half split by the x-y plane that
         // toObs splits by by default.
-        int muIdx = (mu % (atmos->Nrays / 2)) * 2 + toObsI;
+        // int muIdx = (mu % (atmos->Nrays / 2)) * 2 + toObsI;
 
         if (mux > 0)
         {
             for (int k = 0; k < atmos->Nz; ++k)
             {
+                int muIdx = atmos->xLowerBc.idxs(mu, toObsI);
+                if (muIdx == -1)
+                    assert(false);
                 I(k, 0) = atmos->xLowerBc.bcData(la, muIdx, k);
                 Psi(k, 0) = 0.0;
             }
@@ -743,6 +763,12 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
         {
             for (int k = 0; k < atmos->Nz; ++k)
             {
+                int muIdx = atmos->xUpperBc.idxs(mu, toObsI);
+                if (muIdx == -1)
+                {
+                    printf("%d, %d\n", mu, toObs);
+                    assert(false);
+                }
                 I(k, atmos->Nx-1) = atmos->xUpperBc.bcData(la, muIdx, k);
                 Psi(k, atmos->Nx-1) = 0.0;
             }
@@ -809,7 +835,15 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
 
             case CALLABLE:
             {
-                I(k, j) = currentBc.bcData(la, mu, j);
+                int muIdx = currentBc.idxs(mu, int(toObs));
+                if (muIdx == -1)
+                {
+
+                    printf("%d, %d\n", mu, toObs);
+                    assert(false);
+                }
+
+                I(k, j) = currentBc.bcData(la, muIdx, j);
             } break;
 
             case ZERO: break;

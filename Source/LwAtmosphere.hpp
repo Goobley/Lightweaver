@@ -12,17 +12,22 @@ enum RadiationBc
     CALLABLE
 };
 
+typedef Jasnah::Array2NonOwn<i32> BcIdxs;
+
 struct AtmosphericBoundaryCondition
 {
     RadiationBc type;
     F64Arr3D bcData;
+    BcIdxs idxs;
 
     AtmosphericBoundaryCondition() : type(RadiationBc::ZERO), bcData()
     {}
 
-    AtmosphericBoundaryCondition(RadiationBc typ, int Nwave, int Nmu, int Nspace)
+    AtmosphericBoundaryCondition(RadiationBc typ, int Nwave, int Nmu,
+                                 int Nspace, BcIdxs indexVector)
         : type(typ),
-          bcData()
+          bcData(),
+          idxs(indexVector)
     {
         if (type == RadiationBc::CALLABLE)
             bcData = F64Arr3D(Nwave, Nmu, Nspace);
