@@ -3553,6 +3553,7 @@ cdef class LwContext:
         return ctx
 
     def compute_rays(self, wavelengths=None, mus=None, stokes=False,
+                     updateBcs=None, returnCtx=False,
                      refinePrd=False, squeeze=True):
         '''
         Compute the formal solution through a converged simulation for a
@@ -3572,6 +3573,16 @@ cdef class LwContext:
             multi-dimensional atmospheres.
         stokes : bool, optional
             Whether to compute a full Stokes solution (default: False).
+        updateBcs : Callable[[Atmosphere], None]
+            Function to be applied to the Atmosphere (intended to update the
+            boundary conditions if needed) before constructing the new
+            Context for these rays. If a ray doesn't intersect the boundary
+            (i.e. x and y boundaries for muz == 1), then the boundary
+            condition can be ignored.
+        returnCtx : bool, optional
+            Whether to return the Context used to compute the formal solution
+            for these rays. If true, it will be returned as the second value.
+            Default: False.
         refinePrd : bool, optional
             Whether to update the rhoPrd term by reevaluating the scattering
             integral on the new wavelength grid. This can sometimes visually
@@ -3606,6 +3617,8 @@ cdef class LwContext:
                     atmos.rays(**mus)
                 else:
                     atmos.rays(mus)
+            if updateBcs is not None:
+                updateBcs(atmos)
             rayCtx = self.construct_from_state_dict_with(sd)
         else:
             atmos = state['kwargs']['atmos']
@@ -3614,6 +3627,8 @@ cdef class LwContext:
                     atmos.rays(**mus)
                 else:
                     atmos.rays(mus)
+            if updateBcs is not None:
+                updateBcs(atmos)
             rayCtx = self.construct_from_state_dict_with(state, spect=spect)
 
         if stokes:
@@ -3624,13 +3639,19 @@ cdef class LwContext:
             Iquv = np.zeros((4, *Iwav.shape))
             Iquv[0, :] = Iwav
             Iquv[1:, :] = np.asarray(rayCtx.spect.Quv)
-            return Iquv
+            if returnCtx
+                return Iquv, rayCtx
+            else:
+                return Iquv
         else:
             rayCtx.formal_sol()
             Iwav = np.asarray(rayCtx.spect.I)
             if squeeze:
                 Iwav = np.squeeze(Iwav)
-            return Iwav
+            if returnCtx
+                return Iwav, rayCtx
+            else:
+                return Iwav
 
 
 cdef class LwFormalSolverManager:
