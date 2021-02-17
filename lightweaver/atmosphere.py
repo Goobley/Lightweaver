@@ -36,6 +36,23 @@ class BoundaryCondition:
     Base class for boundary conditions.
 
     Defines the interface; do not use directly.
+
+    Attributes
+    ----------
+    These attributes are only available after set_required_angles has been called.
+
+    mux : np.ndarray
+        The mu_x to return from compute_bc (in order).
+    muy : np.ndarray
+        The mu_y to return from compute_bc (in order).
+    muz : np.ndarray
+        The mu_z to return from compute_bc (in order).
+    indexVector : np.ndarray
+        A 2D array of integer shape (mu, toObs) - where mu is the mu index on
+        the associated atmosphere - relating each index of the second (Nrays)
+        axis of a pair of (mu, toObs). Used to construct and destructure this
+        array.
+
     '''
     def compute_bc(self, atmos: 'Atmosphere', spect: 'LwSpectrum') -> np.ndarray:
         '''
@@ -54,10 +71,11 @@ class BoundaryCondition:
             This function needs to return a contiguous array of shape [Nwave,
             Nrays, Nbc], where Nwave is the number of wavelengths in the
             wavelength grid, Nrays is the number of rays in the angular
-            quadrature (also including up/down directions) ordered as per
-            [mu[0] down, mu[0] up, mu[1] down...], Nbc is the number of
-            spatial positions the boundary condition needs to be defined at
-            ordered in a flattened [Nz, Ny, Nx] fashion. (dtype: <f8)
+            quadrature (also including up/down directions) ordered as
+            specified by the mux/y/z and indexVector variables on this
+            object, Nbc is the number of spatial positions the boundary
+            condition needs to be defined at ordered in a flattened [Nz, Ny,
+            Nx] fashion. (dtype: <f8)
 
         '''
         raise NotImplementedError
@@ -1442,6 +1460,9 @@ class Atmosphere:
         # NOTE(cmo): We always have z-bcs
         # For zLowerBc, muz is positive, and we have all mux, muz
         mux, muy, muz = self.mux, self.muy, self.muz
+        # NOTE(cmo): indexVector is of shape (mu, toObs) to allow the core to
+        # easily destructure the blob that will be handed to it from
+        # compute_bc.
         indexVector = np.ones((self.mux.shape[0], 2), dtype=np.int32) * -1
         indexVector[:, 1] = np.arange(mux.shape[0])
         self.zLowerBc.set_required_angles(mux, muy, muz, indexVector)
@@ -1455,36 +1476,24 @@ class Atmosphere:
         mux, muy, muz = [], [], []
         indexVector = np.ones((self.mux.shape[0], 2), dtype=np.int32) * -1
         count = 0
-        if np.unique(np.abs(self.mux)).shape[0] == self.mux.shape[0]:
-            for mu in range(self.mux.shape[0]):
+        musDone = np.zeros(self.muz.shape[0], dtype=np.bool)
+        for mu in range(self.muz.shape[0]):
+            for equalMu in np.argwhere(np.abs(self.muz) == self.muz[mu]).reshape(-1)[::-1]:
+                if musDone[equalMu]:
+                    continue
+                musDone[equalMu] = True
+
                 for toObsI in range(2):
                     sign = [-1, 1][toObsI]
-                    sMux = sign * self.mux[mu]
+                    sMux = sign * self.mux[equalMu]
                     if sMux > 0:
                         mux.append(sMux)
-                        muy.append(sign * self.muy[mu])
-                        muz.append(sign * self.muz[mu])
-                        indexVector[mu, toObsI] = count
+                        muy.append(sign * self.muy[equalMu])
+                        muz.append(sign * self.muz[equalMu])
+                        indexVector[equalMu, toObsI] = count
                         count += 1
-        else:
-            musDone = np.zeros(self.muz.shape[0], dtype=np.bool)
-            for mu in range(self.muz.shape[0]):
-                for equalMu in np.argwhere(np.abs(self.muz) == self.muz[mu]).reshape(-1)[::-1]:
-                    if musDone[equalMu]:
-                        continue
-                    musDone[equalMu] = True
-
-                    for toObsI in range(2):
-                        sign = [-1, 1][toObsI]
-                        sMux = sign * self.mux[equalMu]
-                        if sMux > 0:
-                            mux.append(sMux)
-                            muy.append(sign * self.muy[equalMu])
-                            muz.append(sign * self.muz[equalMu])
-                            indexVector[equalMu, toObsI] = count
-                            count += 1
-                if np.all(musDone):
-                    break
+            if np.all(musDone):
+                break
 
         mux = np.array(mux)
         muy = np.array(muy)
@@ -1494,36 +1503,24 @@ class Atmosphere:
         mux, muy, muz = [], [], []
         indexVector = np.ones((self.mux.shape[0], 2), dtype=np.int32) * -1
         count = 0
-        if np.unique(np.abs(self.mux)).shape[0] == self.mux.shape[0]:
-            for mu in range(self.mux.shape[0]):
+        musDone = np.zeros(self.muz.shape[0], dtype=np.bool)
+        for mu in range(self.muz.shape[0]):
+            for equalMu in np.argwhere(np.abs(self.muz) == self.muz[mu]).reshape(-1):
+                if musDone[equalMu]:
+                    continue
+                musDone[equalMu] = True
+
                 for toObsI in range(2):
                     sign = [-1, 1][toObsI]
-                    sMux = sign * self.mux[mu]
+                    sMux = sign * self.mux[equalMu]
                     if sMux < 0:
                         mux.append(sMux)
-                        muy.append(sign * self.muy[mu])
-                        muz.append(sign * self.muz[mu])
-                        indexVector[mu, toObsI] = count
+                        muy.append(sign * self.muy[equalMu])
+                        muz.append(sign * self.muz[equalMu])
+                        indexVector[equalMu, toObsI] = count
                         count += 1
-        else:
-            musDone = np.zeros(self.muz.shape[0], dtype=np.bool)
-            for mu in range(self.muz.shape[0]):
-                for equalMu in np.argwhere(np.abs(self.muz) == self.muz[mu]).reshape(-1):
-                    if musDone[equalMu]:
-                        continue
-                    musDone[equalMu] = True
-
-                    for toObsI in range(2):
-                        sign = [-1, 1][toObsI]
-                        sMux = sign * self.mux[equalMu]
-                        if sMux < 0:
-                            mux.append(sMux)
-                            muy.append(sign * self.muy[equalMu])
-                            muz.append(sign * self.muz[equalMu])
-                            indexVector[equalMu, toObsI] = count
-                            count += 1
-                if np.all(musDone):
-                    break
+            if np.all(musDone):
+                break
 
         mux = np.array(mux)
         muy = np.array(muy)
@@ -1537,15 +1534,3 @@ class Atmosphere:
 
         if self.Ndim > 2:
             raise ValueError('Only <= 2D atmospheres supported currently.')
-
-
-# @dataclass
-# class MagneticAtmosphere(Atmosphere):
-#     B: np.ndarray
-#     gammaB: np.ndarray
-#     chiB: np.ndarray
-
-#     @classmethod
-#     def from_atmos(cls, atmos: Atmosphere, B: np.ndarray, gammaB: np.ndarray, chiB: np.ndarray):
-#         return cls(**asdict(atmos), B=B, gammaB=gammaB, chiB=chiB)
-
