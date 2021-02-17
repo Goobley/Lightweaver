@@ -541,11 +541,12 @@ void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
             int muIdx = atmos->zLowerBc.idxs(mu, int(toObs));
             if (muIdx == -1)
             {
+                // NOTE(cmo): This shouldn't be possible, so I won't try to
+                // recover.
+                printf("Error in boundary condition indexing\n");
                 assert(false);
-                Iupw = 0.0;
             }
-            else
-                Iupw = atmos->zLowerBc.bcData(la, muIdx, 0);
+            Iupw = atmos->zLowerBc.bcData(la, muIdx, 0);
         }
     }
     else
@@ -561,6 +562,7 @@ void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
             int muIdx = atmos->zUpperBc.idxs(mu, int(toObs));
             if (muIdx == -1)
             {
+                printf("Error in boundary condition indexing\n");
                 assert(false);
                 Iupw = 0.0;
             }
@@ -606,11 +608,12 @@ void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
             int muIdx = atmos->zLowerBc.idxs(mu, int(toObs));
             if (muIdx == -1)
             {
+                // NOTE(cmo): This shouldn't be possible, so I won't try to
+                // recover.
+                printf("Error in boundary condition indexing\n");
                 assert(false);
-                Iupw = 0.0;
             }
-            else
-                Iupw = atmos->zLowerBc.bcData(la, muIdx, 0);
+            Iupw = atmos->zLowerBc.bcData(la, muIdx, 0);
         }
     }
     else
@@ -626,6 +629,7 @@ void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
             int muIdx = atmos->zUpperBc.idxs(mu, int(toObs));
             if (muIdx == -1)
             {
+                printf("Error in boundary condition indexing\n");
                 assert(false);
                 Iupw = 0.0;
             }
@@ -671,11 +675,12 @@ void piecewise_besser_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
             int muIdx = atmos->zLowerBc.idxs(mu, int(toObs));
             if (muIdx == -1)
             {
+                // NOTE(cmo): This shouldn't be possible, so I won't try to
+                // recover.
+                printf("Error in boundary condition indexing\n");
                 assert(false);
-                Iupw = 0.0;
             }
-            else
-                Iupw = atmos->zLowerBc.bcData(la, muIdx, 0);
+            Iupw = atmos->zLowerBc.bcData(la, muIdx, 0);
         }
     }
     else
@@ -691,11 +696,12 @@ void piecewise_besser_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
             int muIdx = atmos->zUpperBc.idxs(mu, int(toObs));
             if (muIdx == -1)
             {
+                // NOTE(cmo): This shouldn't be possible, so I won't try to
+                // recover.
+                printf("Error in boundary condition indexing\n");
                 assert(false);
-                Iupw = 0.0;
             }
-            else
-                Iupw = atmos->zUpperBc.bcData(la, muIdx, 0);
+            Iupw = atmos->zUpperBc.bcData(la, muIdx, 0);
         }
     }
 

@@ -471,8 +471,10 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
                 int muIdx = atmos->xLowerBc.idxs(mu, toObsI);
                 if (muIdx == -1)
                 {
+                    // NOTE(cmo): This shouldn't be possible, so I won't try to
+                    // recover.
+                    printf("Error in boundary condition indexing\n");
                     assert(false);
-                    I(k, 0) = 0.0;
                 }
                 else
                     I(k, 0) = atmos->xLowerBc.bcData(la, muIdx, k);
@@ -486,8 +488,10 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
                 int muIdx = atmos->xUpperBc.idxs(mu, toObsI);
                 if (muIdx == -1)
                 {
+                    // NOTE(cmo): This shouldn't be possible, so I won't try to
+                    // recover.
+                    printf("Error in boundary condition indexing\n");
                     assert(false);
-                    I(k, atmos->Nx-1) = 0.0;
                 }
                 else
                     I(k, atmos->Nx-1) = atmos->xUpperBc.bcData(la, muIdx, k);
@@ -558,7 +562,12 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
             {
                 int muIdx = currentBc.idxs(mu, int(toObs));
                 if (muIdx == -1)
+                {
+                    // NOTE(cmo): This shouldn't be possible, so I won't try to
+                    // recover.
+                    printf("Error in boundary condition indexing\n");
                     assert(false);
+                }
                 I(k, j) = currentBc.bcData(la, muIdx, j);
             } break;
 
@@ -754,7 +763,12 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
             {
                 int muIdx = atmos->xLowerBc.idxs(mu, toObsI);
                 if (muIdx == -1)
+                {
+                    // NOTE(cmo): This shouldn't be possible, so I won't try to
+                    // recover.
+                    printf("Error in boundary condition indexing\n");
                     assert(false);
+                }
                 I(k, 0) = atmos->xLowerBc.bcData(la, muIdx, k);
                 Psi(k, 0) = 0.0;
             }
@@ -766,7 +780,9 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
                 int muIdx = atmos->xUpperBc.idxs(mu, toObsI);
                 if (muIdx == -1)
                 {
-                    printf("%d, %d\n", mu, toObs);
+                    // NOTE(cmo): This shouldn't be possible, so I won't try to
+                    // recover.
+                    printf("Error in boundary condition indexing\n");
                     assert(false);
                 }
                 I(k, atmos->Nx-1) = atmos->xUpperBc.bcData(la, muIdx, k);
@@ -838,7 +854,9 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
                 int muIdx = currentBc.idxs(mu, int(toObs));
                 if (muIdx == -1)
                 {
-
+                    // NOTE(cmo): This shouldn't be possible, so I won't try to
+                    // recover.
+                    printf("Error in boundary condition indexing\n");
                     printf("%d, %d\n", mu, toObs);
                     assert(false);
                 }

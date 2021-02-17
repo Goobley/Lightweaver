@@ -390,6 +390,13 @@ void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int la, int mu, bool toOb
         else if (atmos->zLowerBc.type == CALLABLE)
         {
             int muIdx = atmos->zLowerBc.idxs(mu, int(toObs));
+            if (muIdx == -1)
+            {
+                // NOTE(cmo): This shouldn't be possible, so I won't try to
+                // recover.
+                printf("Error in boundary condition indexing\n");
+                assert(false);
+            }
             Iupw[0] = atmos->zLowerBc.bcData(la, muIdx, 0);
         }
     }
@@ -404,6 +411,13 @@ void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int la, int mu, bool toOb
         else if (atmos->zUpperBc.type == CALLABLE)
         {
             int muIdx = atmos->zUpperBc.idxs(mu, int(toObs));
+            if (muIdx == -1)
+            {
+                // NOTE(cmo): This shouldn't be possible, so I won't try to
+                // recover.
+                printf("Error in boundary condition indexing\n");
+                assert(false);
+            }
             Iupw[0] = atmos->zUpperBc.bcData(la, muIdx, 0);
         }
     }
