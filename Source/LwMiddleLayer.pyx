@@ -3639,7 +3639,7 @@ cdef class LwContext:
             Iquv = np.zeros((4, *Iwav.shape))
             Iquv[0, :] = Iwav
             Iquv[1:, :] = np.asarray(rayCtx.spect.Quv)
-            if returnCtx
+            if returnCtx:
                 return Iquv, rayCtx
             else:
                 return Iquv
@@ -3648,7 +3648,7 @@ cdef class LwContext:
             Iwav = np.asarray(rayCtx.spect.I)
             if squeeze:
                 Iwav = np.squeeze(Iwav)
-            if returnCtx
+            if returnCtx:
                 return Iwav, rayCtx
             else:
                 return Iwav
