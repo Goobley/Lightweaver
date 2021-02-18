@@ -194,6 +194,23 @@
 <span class="sd">    Base class for boundary conditions.</span>
 
 <span class="sd">    Defines the interface; do not use directly.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    These attributes are only available after set_required_angles has been called.</span>
+
+<span class="sd">    mux : np.ndarray</span>
+<span class="sd">        The mu_x to return from compute_bc (in order).</span>
+<span class="sd">    muy : np.ndarray</span>
+<span class="sd">        The mu_y to return from compute_bc (in order).</span>
+<span class="sd">    muz : np.ndarray</span>
+<span class="sd">        The mu_z to return from compute_bc (in order).</span>
+<span class="sd">    indexVector : np.ndarray</span>
+<span class="sd">        A 2D array of integer shape (mu, toObs) - where mu is the mu index on</span>
+<span class="sd">        the associated atmosphere - relating each index of the second (Nrays)</span>
+<span class="sd">        axis of a pair of (mu, toObs). Used to construct and destructure this</span>
+<span class="sd">        array.</span>
+
 <span class="sd">    &#39;&#39;&#39;</span>
 <div class="viewcode-block" id="BoundaryCondition.compute_bc"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.BoundaryCondition.compute_bc">[docs]</a>    <span class="k">def</span> <span class="nf">compute_bc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">spect</span><span class="p">:</span> <span class="s1">&#39;LwSpectrum&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sd">&#39;&#39;&#39;</span>
@@ -212,13 +229,24 @@
 <span class="sd">            This function needs to return a contiguous array of shape [Nwave,</span>
 <span class="sd">            Nrays, Nbc], where Nwave is the number of wavelengths in the</span>
 <span class="sd">            wavelength grid, Nrays is the number of rays in the angular</span>
-<span class="sd">            quadrature (also including up/down directions) ordered as per</span>
-<span class="sd">            [mu[0] down, mu[0] up, mu[1] down...], Nbc is the number of</span>
-<span class="sd">            spatial positions the boundary condition needs to be defined at</span>
-<span class="sd">            ordered in a flattened [Nz, Ny, Nx] fashion. (dtype: &lt;f8)</span>
+<span class="sd">            quadrature (also including up/down directions) ordered as</span>
+<span class="sd">            specified by the mux/y/z and indexVector variables on this</span>
+<span class="sd">            object, Nbc is the number of spatial positions the boundary</span>
+<span class="sd">            condition needs to be defined at ordered in a flattened [Nz, Ny,</span>
+<span class="sd">            Nx] fashion. (dtype: &lt;f8)</span>
 
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="BoundaryCondition.set_required_angles"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.BoundaryCondition.set_required_angles">[docs]</a>    <span class="k">def</span> <span class="nf">set_required_angles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mux</span><span class="p">,</span> <span class="n">muy</span><span class="p">,</span> <span class="n">muz</span><span class="p">,</span> <span class="n">indexVector</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        The angles (and their ordering) to be used for this boundary</span>
+<span class="sd">        condition (in the case of a callable)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mux</span> <span class="o">=</span> <span class="n">mux</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">muy</span> <span class="o">=</span> <span class="n">muy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">muz</span> <span class="o">=</span> <span class="n">muz</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indexVector</span> <span class="o">=</span> <span class="n">indexVector</span></div></div>
 
 <div class="viewcode-block" id="NoBc"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.NoBc">[docs]</a><span class="k">class</span> <span class="nc">NoBc</span><span class="p">(</span><span class="n">BoundaryCondition</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
@@ -1393,6 +1421,10 @@
 
 <span class="sd">        Procedure varies with dimensionality.</span>
 
+<span class="sd">        By convention muz is always positive, as the direction on this axis</span>
+<span class="sd">        is determined by the toObs term that is used internally to the formal</span>
+<span class="sd">        solver.</span>
+
 <span class="sd">        1D:</span>
 <span class="sd">            If a number of rays is given (typically 3 or 5), then the</span>
 <span class="sd">            Gauss-Legendre quadrature for this set is used.</span>
@@ -1495,7 +1527,9 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">muy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mux</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">muz</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
 
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">configure_bcs</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="Atmosphere.rays"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Atmosphere.rays">[docs]</a>    <span class="k">def</span> <span class="nf">rays</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">muz</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
@@ -1509,6 +1543,10 @@
 <span class="sd">        If only the z angle is set then the ray is assumed in the x-z plane.</span>
 <span class="sd">        If either muz or muy is omitted then this angle is inferred by</span>
 <span class="sd">        normalisation of the projection.</span>
+
+<span class="sd">        By convention muz is always positive, as the direction on this axis</span>
+<span class="sd">        is determined by the toObs term that is used internally to the formal</span>
+<span class="sd">        solver.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1560,23 +1598,100 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">muz</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">mux</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">muy</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;mux**2 + muy**2 + muz**2 != 1.0&#39;</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">muz</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;muz must be &gt; 0&#39;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">wmu</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">wmu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">wmu</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wmu</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="mf">1.0</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;sum of wmus is not 1.0&#39;</span><span class="p">)</span></div></div>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;sum of wmus is not 1.0&#39;</span><span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">configure_bcs</span><span class="p">()</span></div>
 
-<span class="c1"># @dataclass</span>
-<span class="c1"># class MagneticAtmosphere(Atmosphere):</span>
-<span class="c1">#     B: np.ndarray</span>
-<span class="c1">#     gammaB: np.ndarray</span>
-<span class="c1">#     chiB: np.ndarray</span>
+<div class="viewcode-block" id="Atmosphere.configure_bcs"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Atmosphere.configure_bcs">[docs]</a>    <span class="k">def</span> <span class="nf">configure_bcs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Configure the required angular information for all boundary</span>
+<span class="sd">        conditions on the model.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
-<span class="c1">#     @classmethod</span>
-<span class="c1">#     def from_atmos(cls, atmos: Atmosphere, B: np.ndarray, gammaB: np.ndarray, chiB: np.ndarray):</span>
-<span class="c1">#         return cls(**asdict(atmos), B=B, gammaB=gammaB, chiB=chiB)</span>
+        <span class="c1"># NOTE(cmo): We always have z-bcs</span>
+        <span class="c1"># For zLowerBc, muz is positive, and we have all mux, muz</span>
+        <span class="n">mux</span><span class="p">,</span> <span class="n">muy</span><span class="p">,</span> <span class="n">muz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mux</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">muy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">muz</span>
+        <span class="c1"># NOTE(cmo): indexVector is of shape (mu, toObs) to allow the core to</span>
+        <span class="c1"># easily destructure the blob that will be handed to it from</span>
+        <span class="c1"># compute_bc.</span>
+        <span class="n">indexVector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">mux</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">indexVector</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">mux</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zLowerBc</span><span class="o">.</span><span class="n">set_required_angles</span><span class="p">(</span><span class="n">mux</span><span class="p">,</span> <span class="n">muy</span><span class="p">,</span> <span class="n">muz</span><span class="p">,</span> <span class="n">indexVector</span><span class="p">)</span>
 
+        <span class="n">indexVector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">mux</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">indexVector</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">mux</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zUpperBc</span><span class="o">.</span><span class="n">set_required_angles</span><span class="p">(</span><span class="o">-</span><span class="n">mux</span><span class="p">,</span> <span class="o">-</span><span class="n">muy</span><span class="p">,</span> <span class="o">-</span><span class="n">muz</span><span class="p">,</span> <span class="n">indexVector</span><span class="p">)</span>
+
+        <span class="c1"># NOTE(cmo): If 2+D we have x-bcs too</span>
+        <span class="c1"># xLowerBc has all muz and all mux &gt; 0</span>
+        <span class="n">mux</span><span class="p">,</span> <span class="n">muy</span><span class="p">,</span> <span class="n">muz</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="n">indexVector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">mux</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">musDone</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">muz</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">muz</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">for</span> <span class="n">equalMu</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">muz</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">muz</span><span class="p">[</span><span class="n">mu</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">musDone</span><span class="p">[</span><span class="n">equalMu</span><span class="p">]:</span>
+                    <span class="k">continue</span>
+                <span class="n">musDone</span><span class="p">[</span><span class="n">equalMu</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+                <span class="k">for</span> <span class="n">toObsI</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+                    <span class="n">sign</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">][</span><span class="n">toObsI</span><span class="p">]</span>
+                    <span class="n">sMux</span> <span class="o">=</span> <span class="n">sign</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">mux</span><span class="p">[</span><span class="n">equalMu</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">sMux</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">mux</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sMux</span><span class="p">)</span>
+                        <span class="n">muy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sign</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">muy</span><span class="p">[</span><span class="n">equalMu</span><span class="p">])</span>
+                        <span class="n">muz</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sign</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">muz</span><span class="p">[</span><span class="n">equalMu</span><span class="p">])</span>
+                        <span class="n">indexVector</span><span class="p">[</span><span class="n">equalMu</span><span class="p">,</span> <span class="n">toObsI</span><span class="p">]</span> <span class="o">=</span> <span class="n">count</span>
+                        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">musDone</span><span class="p">):</span>
+                <span class="k">break</span>
+
+        <span class="n">mux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mux</span><span class="p">)</span>
+        <span class="n">muy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">muy</span><span class="p">)</span>
+        <span class="n">muz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">muz</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xLowerBc</span><span class="o">.</span><span class="n">set_required_angles</span><span class="p">(</span><span class="n">mux</span><span class="p">,</span> <span class="n">muy</span><span class="p">,</span> <span class="n">muz</span><span class="p">,</span> <span class="n">indexVector</span><span class="p">)</span>
+
+        <span class="n">mux</span><span class="p">,</span> <span class="n">muy</span><span class="p">,</span> <span class="n">muz</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="n">indexVector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">mux</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">musDone</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">muz</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">muz</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">for</span> <span class="n">equalMu</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">muz</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">muz</span><span class="p">[</span><span class="n">mu</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">musDone</span><span class="p">[</span><span class="n">equalMu</span><span class="p">]:</span>
+                    <span class="k">continue</span>
+                <span class="n">musDone</span><span class="p">[</span><span class="n">equalMu</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+                <span class="k">for</span> <span class="n">toObsI</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+                    <span class="n">sign</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">][</span><span class="n">toObsI</span><span class="p">]</span>
+                    <span class="n">sMux</span> <span class="o">=</span> <span class="n">sign</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">mux</span><span class="p">[</span><span class="n">equalMu</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">sMux</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">mux</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sMux</span><span class="p">)</span>
+                        <span class="n">muy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sign</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">muy</span><span class="p">[</span><span class="n">equalMu</span><span class="p">])</span>
+                        <span class="n">muz</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sign</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">muz</span><span class="p">[</span><span class="n">equalMu</span><span class="p">])</span>
+                        <span class="n">indexVector</span><span class="p">[</span><span class="n">equalMu</span><span class="p">,</span> <span class="n">toObsI</span><span class="p">]</span> <span class="o">=</span> <span class="n">count</span>
+                        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">musDone</span><span class="p">):</span>
+                <span class="k">break</span>
+
+        <span class="n">mux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mux</span><span class="p">)</span>
+        <span class="n">muy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">muy</span><span class="p">)</span>
+        <span class="n">muz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">muz</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xUpperBc</span><span class="o">.</span><span class="n">set_required_angles</span><span class="p">(</span><span class="n">mux</span><span class="p">,</span> <span class="n">muy</span><span class="p">,</span> <span class="n">muz</span><span class="p">,</span> <span class="n">indexVector</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">yLowerBc</span><span class="o">.</span><span class="n">set_required_angles</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">)),</span>
+                                          <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">mux</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yUpperBc</span><span class="o">.</span><span class="n">set_required_angles</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">)),</span>
+                                          <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">mux</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Only &lt;= 2D atmospheres supported currently.&#39;</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>
