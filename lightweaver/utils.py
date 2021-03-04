@@ -14,7 +14,7 @@ from weno4 import weno4
 from scipy.integrate import trapezoid
 
 if TYPE_CHECKING:
-    from .atomic_model import AtomicLine
+    from .atomic_model import AtomicLine, AtomicModel
 
 @dataclass
 class NgOptions:
@@ -426,3 +426,163 @@ def compute_height_edges(ctx) -> np.ndarray:
                                 0.5 * (atmos.height[1:] + atmos.height[:-1]),
                                 (atmos.height[-1] - 0.5 * (atmos.height[-2] - atmos.height[-1]),)))
     return heightEdges
+
+def grotrian_diagram(atom : 'AtomicModel', ax=None, orbitalLabels=None,
+                     vacuumWavelength=True, highlightLines=None, adjustTextPositions=True,
+                     labelLevels=True, wavelengthLabels=True):
+    '''
+    Produce a Grotrian (term) diagram for a model atom.
+
+    Parameters
+    ----------
+    atom : AtomicModel
+        The model atom for which to produce the diagram.
+    ax : matplotlib.axis.Axes, optional
+        The axes on which to create the plot.
+    orbitalLabels : Optional[List[str]]
+        The labels for the oribtals on the x-axis.
+    vacuumWavelength : bool
+        Whether to plot the wavelengths with their vacuum values, or convert
+        to air. Default: True i.e. vacuum.
+    highlightLines : Optional[List[int]]
+        The indices of lines in atom.lines to highlight. These will be
+        plotted in red, whereas the others will be plotted in green.
+    adjustTextPositions: bool
+        Whether to move the wavelength labels around to avoid the level
+        labels and each other. Default: True.
+    labelLevels: bool or List[str]
+        Whether to label the levels (parsing the names for these from
+        atom.levels[i].label if True), or uses the provided strings (one per
+        level) if a List[str], or not label at all (False). Default: True.
+    wavelengthLabels: bool
+        Whether to label the wavelengths for each bound-bound transition.
+        Default: True.
+    '''
+    import matplotlib.pyplot as plt
+    from copy import copy
+    if adjustTextPositions:
+        from adjustText import adjust_text
+
+    if ax is None:
+        ax = plt.gca()
+
+    if highlightLines is None:
+        highlightLines = []
+
+    orbits = ['S', 'P', 'D', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'Q', 'R', 'T', 'U', 'V', 'W', 'X']
+
+    levels = [copy(l) for l in atom.levels]
+    levelTrueEEv = [level.E_eV for level in atom.levels]
+    # NOTE(cmo): Just assume that it is, even if it has a defined L (e.g. for
+    # polarisation reasons)
+    # if atom.levels[-1].L is not None:
+    #     raise ValueError('Last level should be ground term')
+
+    ls = sorted(list(set([l.L for l in atom.levels[:-1]])))
+
+    avoidLevelLabels = []
+    # NOTE(cmo): Draw levels in
+    MinLevelGap = 0.2
+    for currentL in ls:
+        currentEnergies = []
+        for level in levels[:-1]:
+            if level.L == currentL:
+                e = level.E_eV
+                if len(currentEnergies) != 0:
+                    energyDiff = np.array([e - ee for ee in currentEnergies])
+                    idx = np.argmin(np.abs(energyDiff))
+                    if np.abs(energyDiff[idx]) < MinLevelGap:
+                        e = currentEnergies[idx] + np.sign(energyDiff[idx]) * MinLevelGap
+                ax.plot([level.L-0.25, level.L+0.25], [e, e], c='C0')
+                currentEnergies.append(e)
+                level.E = e * C.EV * C.CM_TO_M / C.HC
+    if labelLevels:
+        if not isinstance(labelLevels, Sequence):
+            labelsUsed = []
+            for level in levels[:-1]:
+                endIdx = [level.label.upper().rfind(x) for x in ['E', 'O']]
+                maxIdx = max(endIdx)
+                if maxIdx == -1:
+                    raise ValueError("Unable to determine parity of level %s" % (repr(level)))
+                label = level.label[:maxIdx+1].upper()
+                words: List[str] = label.split()
+                label = ' '.join(words[:-1])
+                if any(label == l for l in labelsUsed):
+                    continue
+                labelsUsed.append(label)
+                labelY = level.E_eV - 0.5 if level.E_eV != 0 else level.E_eV + 0.3
+                labelX = level.L - 0.4 if level.E_eV != 0 else level.L - 0.25
+                a = ax.annotate(label, xy=(labelX, labelY), color='C0')
+                avoidLevelLabels.append(a)
+            a = ax.annotate(levels[-1].label, xy=(-0.25, levels[-1].E_eV + 0.04), color='C0')
+            avoidLevelLabels.append(a)
+        else:
+            for i, level in enumerate(levels[:-1]):
+                labelY = level.E_eV - 0.5 if level.E_eV != 0 else level.E_eV + 0.3
+                labelX = level.L - 0.4 if level.E_eV != 0 else level.L - 0.25
+                a = ax.annotate(labelLevels[i], xy=(labelX, labelY))
+                avoidLevelLabels.append(a)
+            a = ax.annotate(labelLevels[-1], xy=(-0.25, levels[-1].E_eV + 0.04))
+            avoidLevelLabels.append(a)
+
+
+
+    # NOTE(cmo): Draw overlying cont
+    ax.plot([min(ls)-0.25, max(ls)+0.25], [levels[-1].E_eV, levels[-1].E_eV], '--', c='C0')
+
+    # NOTE(cmo): Draw b-f
+    contPerCol = {L: 0 for L in ls}
+    for cont in atom.continua:
+        lu = levels[cont.j]
+        ll = levels[cont.i]
+        nc = contPerCol[ll.L]
+        contPerCol[ll.L] += 1
+        xLoc = ll.L + 0.05 * nc
+        ax.annotate("", xy=(xLoc,lu.E_eV), xytext=(xLoc, ll.E_eV), arrowprops={'arrowstyle':'->','color':'y'})
+
+    ax.relim()
+    ax.autoscale_view()
+
+    texts = []
+
+    # NOTE(cmo): Draw b-b
+    for idx, line in enumerate(atom.lines):
+        lu = levels[line.j]
+        ll = levels[line.i]
+        lineColor = 'r' if idx in highlightLines else 'g'
+        ax.annotate("", xy=(ll.L,ll.E_eV), xytext=(lu.L, lu.E_eV),arrowprops={'arrowstyle':'->','color': lineColor})
+        if wavelengthLabels:
+            textX = 0.5 * (ll.L + lu.L)
+            textY = 0.5 * (ll.E_eV + lu.E_eV)
+            lambda0 = line.lambda0 if vacuumWavelength else vac_to_air(line.lambda0)
+            a = ax.annotate('%.2f nm' % lambda0, xy=(textX, textY),
+                            fontsize=9)
+            texts.append(a)
+
+    if adjustTextPositions and wavelengthLabels:
+        adjust_text(texts, autoalign='xy', expand_text=(1.05, 1.05),
+                    force_text=(0.05, 0.05), arrowprops={'arrowstyle': '->'},
+                    add_objects=avoidLevelLabels, lim=200)
+
+    if orbitalLabels is None:
+        orbitalLabels = []
+        labelled = []
+        for level in levels[:-1]:
+            if level.L in labelled:
+                continue
+            labelled.append(level.L)
+            label = level.label
+            split = label.split()
+            idx = len(split) - 1
+            while idx >= 0:
+                if len(split[idx]) > 1:
+                    break
+                idx -= 1
+
+            orbitalLabels.append(split[idx])
+    if len(ls) != len(orbitalLabels):
+        raise ValueError('Length of orbital labels does not match provided number of different Ls in the model atom')
+    ax.set_xticks(range(len(ls)))
+    ax.set_xticklabels(orbitalLabels)
+
+    ax.set_ylabel('Energy [eV]')
