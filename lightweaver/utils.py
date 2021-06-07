@@ -428,8 +428,9 @@ def compute_height_edges(ctx) -> np.ndarray:
     return heightEdges
 
 def grotrian_diagram(atom : 'AtomicModel', ax=None, orbitalLabels=None,
-                     vacuumWavelength=True, highlightLines=None, adjustTextPositions=True,
-                     labelLevels=True, wavelengthLabels=True):
+                     vacuumWavelength=True, highlightLines=None, adjustTextPositions=False,
+                     labelLevels=True, wavelengthLabels=True, continuumEdgeLabels=False,
+                     fontSize=9, suppressLineLabels=None, rotateLabels=True):
     '''
     Produce a Grotrian (term) diagram for a model atom.
 
@@ -449,14 +450,24 @@ def grotrian_diagram(atom : 'AtomicModel', ax=None, orbitalLabels=None,
         plotted in red, whereas the others will be plotted in green.
     adjustTextPositions: bool
         Whether to move the wavelength labels around to avoid the level
-        labels and each other. Default: True.
+        labels and each other. Default: False.
     labelLevels: bool or List[str]
         Whether to label the levels (parsing the names for these from
         atom.levels[i].label if True), or uses the provided strings (one per
         level) if a List[str], or not label at all (False). Default: True.
-    wavelengthLabels: bool
+    wavelengthLabels : bool
         Whether to label the wavelengths for each bound-bound transition.
         Default: True.
+    continuumEdgeLabels : bool
+        Label the continuum edge wavelengths (only if wavelengthLabels also True).
+        Default: False.
+    fontSize: float
+        Font size to use for the annotations. Default: 9
+    suppressLineLabels : Optional[List[int]]
+        List of line indices to not print wavelength labels for. Default: None.
+    rotateLabels : bool
+        Whether to rotate the wavelength labels to lie along the line
+        transitions, does not work well with `adjustTextPositions`. Default: True
     '''
     import matplotlib.pyplot as plt
     from copy import copy
@@ -469,7 +480,7 @@ def grotrian_diagram(atom : 'AtomicModel', ax=None, orbitalLabels=None,
     if highlightLines is None:
         highlightLines = []
 
-    orbits = ['S', 'P', 'D', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'Q', 'R', 'T', 'U', 'V', 'W', 'X']
+    orbits = ['S', 'P', 'D', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'O', 'Q', 'R', 'T', 'U', 'V', 'W', 'X']
 
     levels = [copy(l) for l in atom.levels]
     levelTrueEEv = [level.E_eV for level in atom.levels]
@@ -496,6 +507,61 @@ def grotrian_diagram(atom : 'AtomicModel', ax=None, orbitalLabels=None,
                 ax.plot([level.L-0.25, level.L+0.25], [e, e], c='C0')
                 currentEnergies.append(e)
                 level.E = e * C.EV * C.CM_TO_M / C.HC
+
+
+
+    # NOTE(cmo): Draw overlying cont
+    ax.plot([min(ls)-0.25, max(ls)+0.25], [levels[-1].E_eV, levels[-1].E_eV], '--', c='C0')
+
+    texts = []
+
+    # NOTE(cmo): Draw b-f
+    contPerCol = {L: 0 for L in ls}
+    for cont in atom.continua:
+        lu = levels[cont.j]
+        ll = levels[cont.i]
+        nc = contPerCol[ll.L]
+        contPerCol[ll.L] += 1
+        xLoc = ll.L + 0.05 * nc
+        ax.annotate("", xy=(xLoc,lu.E_eV), xytext=(xLoc, ll.E_eV), arrowprops={'arrowstyle':'->','color':'y'})
+        if wavelengthLabels and continuumEdgeLabels:
+            textX = ll.L
+            # textY = lu.E_eV - 0.05 * (ll.E_eV + lu.E_eV)
+            textY = lu.E_eV - 0.5
+            lambdaEdge = cont.lambdaEdge if vacuumWavelength else vac_to_air(cont.lambdaEdge)
+            a = ax.annotate('%.2f' % lambdaEdge, xy=(textX, textY),
+                            fontsize=fontSize, ha='center')
+            texts.append(a)
+
+
+    ax.relim()
+    ax.autoscale_view()
+
+
+    # NOTE(cmo): Draw b-b
+    for idx, line in enumerate(atom.lines):
+        lu = levels[line.j]
+        ll = levels[line.i]
+        lineColor = 'r' if idx in highlightLines else 'g'
+        ax.annotate("", xy=(ll.L,ll.E_eV), xytext=(lu.L, lu.E_eV),arrowprops={'arrowstyle':'->','color': lineColor})
+        if wavelengthLabels:
+            if suppressLineLabels is not None and idx in suppressLineLabels:
+                continue
+            textX = 0.5 * (ll.L + lu.L)
+            textY = 0.5 * (ll.E_eV + lu.E_eV)
+            lambda0 = line.lambda0 if vacuumWavelength else vac_to_air(line.lambda0)
+            if rotateLabels:
+                angle = np.rad2deg(np.arctan2(lu.E_eV - ll.E_eV, lu.L - ll.L))
+                if angle > 90:
+                    angle -= 180.0
+                a = ax.text(textX + 0.1 , textY - 0.1, '%.2f' % lambda0,# xy=(textX, textY),
+                                fontsize=fontSize, rotation=angle, transform_rotates_text=True, ha='center', va='center')
+            else:
+                a = ax.annotate('%.2f' % lambda0, xy=(textX, textY),
+                                fontsize=fontSize)
+            texts.append(a)
+
+    # NOTE(cmo): Label levels on top
     if labelLevels:
         if not isinstance(labelLevels, Sequence):
             labelsUsed = []
@@ -512,60 +578,30 @@ def grotrian_diagram(atom : 'AtomicModel', ax=None, orbitalLabels=None,
                 labelsUsed.append(label)
                 labelY = level.E_eV - 0.5 if level.E_eV != 0 else level.E_eV + 0.3
                 labelX = level.L - 0.4 if level.E_eV != 0 else level.L - 0.25
-                a = ax.annotate(label, xy=(labelX, labelY), color='C0')
+                a = ax.annotate(label, xy=(labelX, labelY), color='r', fontsize=fontSize)
                 avoidLevelLabels.append(a)
-            a = ax.annotate(levels[-1].label, xy=(-0.25, levels[-1].E_eV + 0.04), color='C0')
+            a = ax.annotate(levels[-1].label, xy=(-0.25, levels[-1].E_eV + 0.04), color='b', fontsize=fontSize)
+            # bbox={'boxstyle': 'round,pad=0.3', 'fc': 'w', 'alpha': 0.2})
             avoidLevelLabels.append(a)
         else:
             for i, level in enumerate(levels[:-1]):
                 labelY = level.E_eV - 0.5 if level.E_eV != 0 else level.E_eV + 0.3
                 labelX = level.L - 0.4 if level.E_eV != 0 else level.L - 0.25
-                a = ax.annotate(labelLevels[i], xy=(labelX, labelY))
+                a = ax.annotate(labelLevels[i], xy=(labelX, labelY), fontsize=fontSize)
                 avoidLevelLabels.append(a)
-            a = ax.annotate(labelLevels[-1], xy=(-0.25, levels[-1].E_eV + 0.04))
+            a = ax.annotate(labelLevels[-1], xy=(-0.25, levels[-1].E_eV + 0.04), fontsize=fontSize, bbox={'boxstyle': 'round,pad=0.3', 'fc': 'w', 'alpha': 0.2})
             avoidLevelLabels.append(a)
 
 
-
-    # NOTE(cmo): Draw overlying cont
-    ax.plot([min(ls)-0.25, max(ls)+0.25], [levels[-1].E_eV, levels[-1].E_eV], '--', c='C0')
-
-    # NOTE(cmo): Draw b-f
-    contPerCol = {L: 0 for L in ls}
-    for cont in atom.continua:
-        lu = levels[cont.j]
-        ll = levels[cont.i]
-        nc = contPerCol[ll.L]
-        contPerCol[ll.L] += 1
-        xLoc = ll.L + 0.05 * nc
-        ax.annotate("", xy=(xLoc,lu.E_eV), xytext=(xLoc, ll.E_eV), arrowprops={'arrowstyle':'->','color':'y'})
-
-    ax.relim()
-    ax.autoscale_view()
-
-    texts = []
-
-    # NOTE(cmo): Draw b-b
-    for idx, line in enumerate(atom.lines):
-        lu = levels[line.j]
-        ll = levels[line.i]
-        lineColor = 'r' if idx in highlightLines else 'g'
-        ax.annotate("", xy=(ll.L,ll.E_eV), xytext=(lu.L, lu.E_eV),arrowprops={'arrowstyle':'->','color': lineColor})
-        if wavelengthLabels:
-            textX = 0.5 * (ll.L + lu.L)
-            textY = 0.5 * (ll.E_eV + lu.E_eV)
-            lambda0 = line.lambda0 if vacuumWavelength else vac_to_air(line.lambda0)
-            a = ax.annotate('%.2f nm' % lambda0, xy=(textX, textY),
-                            fontsize=9)
-            texts.append(a)
-
     if adjustTextPositions and wavelengthLabels:
         adjust_text(texts, autoalign='xy', expand_text=(1.05, 1.05),
-                    force_text=(0.05, 0.05), arrowprops={'arrowstyle': '->'},
-                    add_objects=avoidLevelLabels, lim=200)
+                    force_text=(0.05, 0.05), arrowprops={'arrowstyle': 'wedge'},
+                    # bbox={'boxstyle': 'round,pad=0.3', 'fc': 'g', 'alpha': 0.2},
+                    # avoid_self=False,
+                    add_objects=avoidLevelLabels, lim=200 )
 
     if orbitalLabels is None:
-        orbitalLabels = []
+        orbitalLabels = {}
         labelled = []
         for level in levels[:-1]:
             if level.L in labelled:
@@ -579,10 +615,11 @@ def grotrian_diagram(atom : 'AtomicModel', ax=None, orbitalLabels=None,
                     break
                 idx -= 1
 
-            orbitalLabels.append(split[idx])
+            orbitalLabels[level.L] = split[idx]
+        orbitalLabels = [orbitalLabels[k] for k in sorted(orbitalLabels.keys())]
     if len(ls) != len(orbitalLabels):
         raise ValueError('Length of orbital labels does not match provided number of different Ls in the model atom')
-    ax.set_xticks(range(len(ls)))
+    ax.set_xticks(ls)
     ax.set_xticklabels(orbitalLabels)
 
     ax.set_ylabel('Energy [eV]')

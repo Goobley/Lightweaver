@@ -877,6 +877,7 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
     }
     k += dk;
 
+    f64 minDist = 1e10;
     for (; k != kEnd; k += dk)
     {
         for (int j = jStart; j != jEnd + dj; j += dj)
@@ -885,31 +886,52 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
             auto uwIntersection = intersections(mu, (int)toObs, k, j).uwIntersection;
             auto dwIntersection = intersections(mu, (int)toObs, k, j).dwIntersection;
             f64 origDistance = uwIntersection.distance;
+            if (dwIntersection.distance < minDist)
+                minDist = dwIntersection.distance;
+            // if (dwIntersection.distance == 0)
+            //     printf("0 ALERT 0 ALERT (%d, %d)\n", k, j);
             if (longCharIdx < 0)
             {
                 f64 dsUw = uwIntersection.distance;
                 f64 dsDw = dwIntersection.distance;
-
-                f64 chiDw = interp_param(gridData, dwIntersection, chi);
-                f64 chiUw = interp_param(gridData, uwIntersection, chi);
-                f64 chiLocal = chi(k, j);
-                f64 chiC = besser_control_point(dsUw, dsDw, chiUw, chiLocal, chiDw);
-                f64 dtauUw = (1.0 / 3.0) * (chiUw + chiLocal + chiC) * dsUw;
-                f64 dtauDw = (0.5) * (chiLocal + chiDw) * dsDw;
-
-                f64 Suw = interp_param(gridData, uwIntersection, S);
-                f64 Sdw = interp_param(gridData, dwIntersection, S);
-                f64 SLocal = S(k, j);
-                f64 SC = besser_control_point(dtauUw, dtauDw, Suw, SLocal, Sdw);
-
-                f64 Iuw = interp_param(gridData, uwIntersection, I);
-                auto coeffs = besser_coeffs(dtauUw);
-
-                I(k, j) = coeffs.edt * Iuw + coeffs.M * Suw + coeffs.O * SLocal + coeffs.C * SC;
-
-                if (computeOperator)
+                if (dsDw == 0.0)
                 {
-                    Psi(k, j) = coeffs.O + coeffs.C;
+                    f64 chiUw = interp_param(gridData, uwIntersection, chi);
+                    f64 dtau = 0.5 * (chiUw + chi(k, j)) * abs(uwIntersection.distance);
+                    f64 Suw = interp_param(gridData, uwIntersection, S);
+                    f64 Iuw = interp_param(gridData, uwIntersection, I);
+
+                    f64 w[2];
+                    w2(dtau, w);
+                    f64 c1 = (Suw - S(k, j)) / dtau;
+                    I(k, j) = (1.0 - w[0]) * Iuw + w[0] * S(k, j) + w[1] * c1;
+
+                    if (computeOperator)
+                        Psi(k, j) = w[0] - w[1] / dtau;
+                }
+                else
+                {
+                    f64 chiDw = interp_param(gridData, dwIntersection, chi);
+                    f64 chiUw = interp_param(gridData, uwIntersection, chi);
+                    f64 chiLocal = chi(k, j);
+                    f64 chiC = besser_control_point(dsUw, dsDw, chiUw, chiLocal, chiDw);
+                    f64 dtauUw = (1.0 / 3.0) * (chiUw + chiLocal + chiC) * dsUw;
+                    f64 dtauDw = (0.5) * (chiLocal + chiDw) * dsDw;
+
+                    f64 Suw = interp_param(gridData, uwIntersection, S);
+                    f64 Sdw = interp_param(gridData, dwIntersection, S);
+                    f64 SLocal = S(k, j);
+                    f64 SC = besser_control_point(dtauUw, dtauDw, Suw, SLocal, Sdw);
+
+                    f64 Iuw = interp_param(gridData, uwIntersection, I);
+                    auto coeffs = besser_coeffs(dtauUw);
+
+                    I(k, j) = coeffs.edt * Iuw + coeffs.M * Suw + coeffs.O * SLocal + coeffs.C * SC;
+
+                    if (computeOperator)
+                    {
+                        Psi(k, j) = coeffs.O + coeffs.C;
+                    }
                 }
             }
             else
@@ -965,22 +987,39 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
                 const auto& dw = dwIntersection;
                 dsUw = uw.distance;
                 dsDw = dw.distance;
-                chiUw = interp_param(gridData, uw, chi);
-                chiLocal = chi(k, j);
-                chiDw = interp_param(gridData, dw, chi);
-                dtauUw = (1.0 / 3.0) * (chiUw + chiLocal + chiC) * dsUw;
-                dtauDw = (0.5) * (chiLocal + chiDw) * dsDw;
+                if (dsDw == 0.0)
+                {
+                    f64 chiUw = interp_param(gridData, uw, chi);
+                    f64 dtau = 0.5 * (chiUw + chi(k, j)) * dsUw;
+                    f64 Suw = interp_param(gridData, uw, S);
 
-                Suw = interp_param(gridData, uw, S);
-                SLocal = S(k, j);
-                Sdw = interp_param(gridData, dw, S);
-                SC = besser_control_point(dtauUw, dtauDw, Suw, SLocal, Sdw);
-                coeffs = besser_coeffs(dtauUw);
+                    f64 w[2];
+                    w2(dtau, w);
+                    f64 c1 = (Suw - S(k, j)) / dtau;
+                    I(k, j) = (1.0 - w[0]) * Iuw + w[0] * S(k, j) + w[1] * c1;
 
-                I(k, j) = coeffs.edt * Iuw + coeffs.M * Suw + coeffs.O * SLocal + coeffs.C * SC;
+                    if (computeOperator)
+                        Psi(k, j) = w[0] - w[1] / dtau;
+                }
+                else
+                {
+                    chiUw = interp_param(gridData, uw, chi);
+                    chiLocal = chi(k, j);
+                    chiDw = interp_param(gridData, dw, chi);
+                    dtauUw = (1.0 / 3.0) * (chiUw + chiLocal + chiC) * dsUw;
+                    dtauDw = (0.5) * (chiLocal + chiDw) * dsDw;
 
-                if (computeOperator)
-                    Psi(k, j) = coeffs.O + coeffs.C;
+                    Suw = interp_param(gridData, uw, S);
+                    SLocal = S(k, j);
+                    Sdw = interp_param(gridData, dw, S);
+                    SC = besser_control_point(dtauUw, dtauDw, Suw, SLocal, Sdw);
+                    coeffs = besser_coeffs(dtauUw);
+
+                    I(k, j) = coeffs.edt * Iuw + coeffs.M * Suw + coeffs.O * SLocal + coeffs.C * SC;
+
+                    if (computeOperator)
+                        Psi(k, j) = coeffs.O + coeffs.C;
+                }
             }
 
         }
@@ -1196,8 +1235,15 @@ void build_intersection_list(Atmosphere* atmos)
                     IntersectionResult dw;
                     if (k != kEnd)
                     {
-                        dw = dw_intersection_2d(gridData, k, j);
-                        dw.distance = abs(dw.distance);
+                        if ((!periodic) && (j == jEnd))
+                        {
+                            dw = IntersectionResult(InterpolationAxis::None, k, j, 0.0);
+                        }
+                        else
+                        {
+                            dw = dw_intersection_2d(gridData, k, j);
+                            dw.distance = abs(dw.distance);
+                        }
                     }
                     else
                     {
