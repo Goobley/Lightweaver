@@ -13,6 +13,8 @@
   
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
@@ -33,6 +35,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
@@ -1086,8 +1089,8 @@
 <span class="c1"># ----------------------------------------------------------------------------------------</span>
 
 <span class="n">G0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">((</span><span class="mf">1.</span><span class="p">,</span><span class="mf">3.</span><span class="p">,</span><span class="mf">1.</span><span class="p">,</span><span class="mf">9.</span><span class="p">,</span><span class="mf">3.</span><span class="p">,</span><span class="mf">3.</span><span class="p">,</span><span class="mf">1.</span><span class="p">,</span><span class="mf">9.</span><span class="p">,</span><span class="mf">20.</span><span class="p">,</span><span class="mf">3.</span><span class="p">))</span>
-<span class="n">HEFREQ0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">((</span><span class="mf">5.9452090e15</span><span class="p">,</span><span class="mf">1.1528440e15</span><span class="p">,</span><span class="mf">0.9803331e15</span><span class="p">,</span><span class="o">.</span><span class="mf">8761076e15</span><span class="p">,</span>
-		      <span class="mf">0.8147100e15</span><span class="p">,</span><span class="mf">0.4519048e15</span><span class="p">,</span><span class="mf">0.4030971e15</span><span class="p">,</span><span class="o">.</span><span class="mf">8321191e15</span><span class="p">,</span>
+<span class="n">HEFREQ0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">((</span><span class="mf">5.9452090e15</span><span class="p">,</span><span class="mf">1.1528440e15</span><span class="p">,</span><span class="mf">0.9803331e15</span><span class="p">,</span><span class="mf">.8761076e15</span><span class="p">,</span>
+		      <span class="mf">0.8147100e15</span><span class="p">,</span><span class="mf">0.4519048e15</span><span class="p">,</span><span class="mf">0.4030971e15</span><span class="p">,</span><span class="mf">.8321191e15</span><span class="p">,</span>
 		      <span class="mf">0.3660215e15</span><span class="p">,</span><span class="mf">0.3627891e15</span><span class="p">))</span>
 <span class="n">CHI0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">((</span><span class="mf">0.</span><span class="p">,</span><span class="mf">19.819</span><span class="p">,</span><span class="mf">20.615</span><span class="p">,</span><span class="mf">20.964</span><span class="p">,</span><span class="mf">21.217</span><span class="p">,</span><span class="mf">22.718</span><span class="p">,</span><span class="mf">22.920</span><span class="p">,</span><span class="mf">23.006</span><span class="p">,</span>
 		   <span class="mf">23.073</span><span class="p">,</span><span class="mf">23.086</span><span class="p">))</span>
@@ -1310,7 +1313,7 @@
     <span class="n">WAVENO</span><span class="o">=</span><span class="n">FREQ</span><span class="o">/</span><span class="mf">2.99792458E10</span>
     <span class="k">if</span><span class="p">(</span><span class="n">WAVENO</span> <span class="o">&lt;</span> <span class="mf">21000.</span><span class="p">):</span> <span class="k">return</span> <span class="mf">0.0</span>
     <span class="n">BOLT</span><span class="o">=</span><span class="n">G1</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">E1</span><span class="o">*</span><span class="mf">2.99792458e10</span><span class="o">*</span><span class="n">HKT</span><span class="p">);</span>
-    <span class="n">XXX</span><span class="o">=</span><span class="p">((</span><span class="n">WNO1</span><span class="o">+</span><span class="mf">3000.</span><span class="o">-</span><span class="n">WAVENO</span><span class="p">)</span><span class="o">/</span><span class="n">WNO1</span><span class="o">/.</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">XXX</span><span class="o">=</span><span class="p">((</span><span class="n">WNO1</span><span class="o">+</span><span class="mf">3000.</span><span class="o">-</span><span class="n">WAVENO</span><span class="p">)</span><span class="o">/</span><span class="n">WNO1</span><span class="o">/</span><span class="mf">.1</span><span class="p">)</span>
 
 
     <span class="n">XSECT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">48</span><span class="p">)</span>
