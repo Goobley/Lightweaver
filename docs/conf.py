@@ -32,7 +32,7 @@ extensions = ['sphinx.ext.napoleon', 'sphinx.ext.autodoc', 'sphinx.ext.viewcode'
 ]
 
 sphinx_gallery_conf = {
-    'example_dirs': '../examples',
+    'examples_dirs': '../examples',
     'gallery_dirs': 'auto_examples'
 }
 
