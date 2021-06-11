@@ -1044,7 +1044,7 @@ class Atmosphere:
                             with open(os.devnull, 'w') as devnull:
                                 with redirect_stdout(devnull):
                                     with redirect_stderr(devnull):
-                                        chi_c[k] = pyTau.getContinuumOpacity(temperature[k:k+1].reshape(1,1,1), pgas[k:k+1].reshape(1,1,1), wav=np.array([5000.0]), nthreads=1)
+                                        chi_c[k] = pyTau.getContinuumOpacity(temperature[k:k+1].reshape(1,1,1), Pg=pgas[k:k+1].reshape(1,1,1), wav=np.array([5000.0]), nthreads=1)
                         else:
                             chi_c[k] = eos.contOpacity(temperature[k], pgas[k], pe[k], np.array([5000.0]))
                         rho[k] = pgas[k] * avg_mol_weight(k) / Avog / eos.BK / temperature[k]
@@ -1069,7 +1069,7 @@ class Atmosphere:
                 with redirect_stdout(devnull):
                     with redirect_stderr(devnull):
                         chi_c = pyTau.getContinuumOpacity(temperature.reshape(1,1,-1), rho=rho.reshape(1,1,-1), nthreads=1, wav=np.array([5000.0]))
-            chi_c = chi_c.squeeze()
+            chi_c = chi_c.squeeze() / Const.CM_TO_M
         else:
             for k in range(Nspace):
                 pgas[k] = eos.pg_from_rho(temperature[k], rho[k])
