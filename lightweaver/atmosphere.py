@@ -752,7 +752,8 @@ class Atmosphere:
                 Pe: Optional[np.ndarray]=None,
                 Ptop: Optional[float]=None,
                 PeTop: Optional[float]=None,
-                verbose: bool=False):
+                verbose: bool=False,
+                usePyTau=False):
         '''
         Constructor for 1D Atmosphere objects. Optionally will use an
         equation of state (EOS) to estimate missing parameters.
@@ -905,11 +906,18 @@ class Atmosphere:
         if abundance is None:
             abundance = DefaultAtomicAbundance
 
+        if usePyTau:
+            import pyTau
+            from contextlib import redirect_stdout, redirect_stderr
+            import os
+
         wittAbundances = np.array([abundance[e] for e in PeriodicTable.elements])
         eos = witt(abund_init=wittAbundances)
 
         Nspace = depthScale.shape[0]
         if nHTot is None and ne is not None:
+            if usePyTau:
+                raise ValueError('Cannot use pyTau with defined Ne but not density')
             if verbose:
                 print('Setting nHTot from electron pressure.')
             pe = ne * Const.CM_TO_M**3 * eos.BK * temperature
@@ -922,8 +930,12 @@ class Atmosphere:
                 print('Setting ne from mass density.')
             rho = Const.Amu * abundance.massPerH * nHTot * Const.CM_TO_M**3 / Const.G_TO_KG
             pe = np.zeros(Nspace)
-            for k in range(Nspace):
-                pe[k] = eos.pe_from_rho(temperature[k], rho[k])
+            if usePyTau:
+                ne = pyTau.getNe(temperature, Rho=rho, nthreads=1)
+                ne /= Const.CM_TO_M**3
+            else:
+                for k in range(Nspace):
+                    pe[k] = eos.pe_from_rho(temperature[k], rho[k])
             ne = np.copy(pe / (eos.BK * temperature) / Const.CM_TO_M**3)
         elif ne is None and nHTot is None:
             if Pgas is not None and Pgas.shape[0] != Nspace:
@@ -935,6 +947,8 @@ class Atmosphere:
                 if verbose:
                     print('Setting ne, nHTot from provided gas pressure.')
                 # Convert to cgs for eos
+                if usePyTau:
+                    raise ValueError('Not compatible with pyTau')
                 pgas = Pgas * (Const.CM_TO_M**2 / Const.G_TO_KG)
                 pe = np.zeros(Nspace)
                 for k in range(Nspace):
@@ -943,6 +957,8 @@ class Atmosphere:
                 if verbose:
                     print('Setting ne, nHTot from provided electron pressure.')
                 # Convert to cgs for eos
+                if usePyTau:
+                    raise ValueError('Not compatible with pyTau')
                 pe = Pe * (Const.CM_TO_M**2 / Const.G_TO_KG)
                 pgas = np.zeros(Nspace)
                 for k in range(Nspace):
@@ -954,18 +970,28 @@ class Atmosphere:
                 if Ptop is None and PeTop is not None:
                     if verbose:
                         print('Setting ne, nHTot to hydrostatic equilibrium (logG=%f) from provided top electron pressure.' % logG)
+                    if usePyTau:
+                        raise ValueError('Not compatible with pyTau')
                     PeTop *= (Const.CM_TO_M**2 / Const.G_TO_KG)
                     Ptop = eos.pg_from_pe(temperature[0], PeTop)
                 elif Ptop is not None and PeTop is None:
                     if verbose:
                         print('Setting ne, nHTot to hydrostatic equilibrium (logG=%f) from provided top gas pressure.' % logG)
                     Ptop *= (Const.CM_TO_M**2 / Const.G_TO_KG)
-                    PeTop = eos.pe_from_pg(temperature[0], Ptop)
+                    if usePyTau:
+                        nek = pyTau.getNe(temperature[:1].reshape(1,1,1), Pg=np.array([Ptop]).reshape(1,1,1), nthreads=1)
+                        PeTop = nek * eos.BK * temperature[0]
+                    else:
+                        PeTop = eos.pe_from_pg(temperature[0], Ptop)
                 elif Ptop is None and PeTop is None:
                     if verbose:
                         print('Setting ne, nHTot to hydrostatic equilibrium (logG=%f) from FALC gas pressure at upper boundary temperature.' % logG)
                     Ptop = get_top_pressure(eos, temperature[0])
-                    PeTop = eos.pe_from_pg(temperature[0], Ptop)
+                    if usePyTau:
+                        nek = pyTau.getNe(temperature[:1].reshape(1,1,1), Pg=np.array([Ptop]).reshape(1,1,1), nthreads=1)
+                        PeTop = nek * eos.BK * temperature[0]
+                    else:
+                        PeTop = eos.pe_from_pg(temperature[0], Ptop)
                 else:
                     raise ValueError("Cannot set both Ptop and PeTop")
 
@@ -983,7 +1009,13 @@ class Atmosphere:
                 pe = np.zeros(Nspace)
                 pgas[0] = Ptop
                 pe[0] = PeTop
-                chi_c[0] = eos.contOpacity(temperature[0], pgas[0], pe[0], np.array([5000.0]))
+                if usePyTau:
+                    with open(os.devnull, 'w') as devnull:
+                        with redirect_stdout(devnull):
+                            with redirect_stderr(devnull):
+                                chi_c[0] = pyTau.getContinuumOpacity(temperature[:1].reshape(1,1,1), pgas[:1].reshape(1,1,1), wav=np.array([5000.0]), nthreads=1)
+                else:
+                    chi_c[0] = eos.contOpacity(temperature[0], pgas[0], pe[0], np.array([5000.0]))
                 avg_mol_weight = lambda k: abundance.massPerH / (abundance.totalAbundance + pe[k] / pgas[k])
                 rho[0] = Ptop * avg_mol_weight(0) / Avog / eos.BK / temperature[0]
                 chi_c[0] /= rho[0]
@@ -1000,9 +1032,21 @@ class Atmosphere:
                         else:
                             pgas[k] = gravAcc * cmass[k]
 
-                        pe[k] = eos.pe_from_pg(temperature[k], pgas[k])
+                        if usePyTau:
+                            rhok = Ptop * avg_mol_weight(k) / Avog / eos.BK / temperature[k]
+                            nek = pyTau.getNe(temperature[k:k+1].reshape(1,1,1), Rho=np.array([rhok]).reshape(1,1,1), nthreads=1)
+                            pe[k] = nek * eos.BK * temperature[k]
+                        else:
+                            pe[k] = eos.pe_from_pg(temperature[k], pgas[k])
+
                         prevChi = chi_c[k]
-                        chi_c[k] = eos.contOpacity(temperature[k], pgas[k], pe[k], np.array([5000.0]))
+                        if usePyTau:
+                            with open(os.devnull, 'w') as devnull:
+                                with redirect_stdout(devnull):
+                                    with redirect_stderr(devnull):
+                                        chi_c[k] = pyTau.getContinuumOpacity(temperature[k:k+1].reshape(1,1,1), pgas[k:k+1].reshape(1,1,1), wav=np.array([5000.0]), nthreads=1)
+                        else:
+                            chi_c[k] = eos.contOpacity(temperature[k], pgas[k], pe[k], np.array([5000.0]))
                         rho[k] = pgas[k] * avg_mol_weight(k) / Avog / eos.BK / temperature[k]
                         chi_c[k] /= rho[k]
 
@@ -1020,13 +1064,20 @@ class Atmosphere:
         rho = Const.Amu * abundance.massPerH * nHTot * Const.CM_TO_M**3 / Const.G_TO_KG
         pgas = np.zeros_like(depthScale)
         pe = np.zeros_like(depthScale)
-        for k in range(Nspace):
-            pgas[k] = eos.pg_from_rho(temperature[k], rho[k])
-            pe[k] = eos.pe_from_rho(temperature[k], rho[k])
+        if usePyTau:
+            with open(os.devnull, 'w') as devnull:
+                with redirect_stdout(devnull):
+                    with redirect_stderr(devnull):
+                        chi_c = pyTau.getContinuumOpacity(temperature.reshape(1,1,-1), rho=rho.reshape(1,1,-1), nthreads=1, wav=np.array([5000.0]))
+            chi_c = chi_c.squeeze()
+        else:
+            for k in range(Nspace):
+                pgas[k] = eos.pg_from_rho(temperature[k], rho[k])
+                pe[k] = eos.pe_from_rho(temperature[k], rho[k])
 
-        chi_c = np.zeros_like(depthScale)
-        for k in range(depthScale.shape[0]):
-            chi_c[k] = eos.contOpacity(temperature[k], pgas[k], pe[k], np.array([5000.0])) / Const.CM_TO_M
+            chi_c = np.zeros_like(depthScale)
+            for k in range(depthScale.shape[0]):
+                chi_c[k] = eos.contOpacity(temperature[k], pgas[k], pe[k], np.array([5000.0])) / Const.CM_TO_M
 
         # NOTE(cmo): We should now have a uniform minimum set of data (other
         # than the scale type), allowing us to simply convert between the
