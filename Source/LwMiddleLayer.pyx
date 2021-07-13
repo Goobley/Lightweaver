@@ -229,6 +229,7 @@ cdef extern from "Lightweaver.hpp":
         F64View3D gII
         PrdStorage prdStorage
 
+        void recompute_gII()
         void uv(int la, int mu, bool_t toObs, F64View Uji, F64View Vij, F64View Vji)
         void compute_phi(const Atmosphere& atmos, F64View aDamp, F64View vBroad)
         void compute_wphi(const Atmosphere& atmos)
@@ -1903,6 +1904,12 @@ cdef class LwTransition:
         cdef LwZeemanComponents zc = LwZeemanComponents(z)
 
         self.trans.compute_polarised_profiles(atmos[0], self.trans.aDamp, atom.atom.vBroad, zc.zc)
+
+    cpdef recompute_gII(self):
+        '''
+        Triggers lazy recalculation of gII for this line (if PRD).
+        '''
+        self.trans.recompute_gII()
 
     def uv(self, int la, int mu, bool_t toObs, f64[::1] Uji not None,
            f64[::1] Vij not None, f64[::1] Vji not None):

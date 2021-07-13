@@ -119,6 +119,14 @@ struct Transition
         Rji.fill(0.0);
     }
 
+    inline void recompute_gII()
+    {
+        if (!gII)
+            return;
+
+        gII(0,0,0) = -1.0;
+    }
+
     void compute_phi(const Atmosphere& atmos, F64View aDamp, F64View vBroad);
     void compute_phi_la(const Atmosphere& atmos, const F64View& aDamp, const F64View& vBroad, int lt);
     void compute_phi_parallel(LwInternal::ThreadData* threading, const Atmosphere& atmos, F64View aDamp, F64View vBroad);
