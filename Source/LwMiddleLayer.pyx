@@ -3641,11 +3641,13 @@ cdef class LwContext:
         if stokes:
             rayCtx.single_stokes_fs()
             Iwav = np.asarray(rayCtx.spect.I)
+            quv = np.asarray(rayCtx.spect.Quv)
             if squeeze:
                 Iwav = np.squeeze(Iwav)
+                quv = np.squeeze(quv)
             Iquv = np.zeros((4, *Iwav.shape))
             Iquv[0, :] = Iwav
-            Iquv[1:, :] = np.asarray(rayCtx.spect.Quv)
+            Iquv[1:, :] = quv
             if returnCtx:
                 return Iquv, rayCtx
             else:
