@@ -2933,7 +2933,7 @@ cdef class LwContext:
         for atom in atoms:
             atom.compute_profiles(polarised=polarised)
 
-    cpdef formal_sol_gamma_matrices(self, fixCollisionalRates=False, lambdaIterate=False):
+    cpdef formal_sol_gamma_matrices(self, fixCollisionalRates=False, lambdaIterate=False, verbose=True):
         '''
         Compute the formal solution across all wavelengths and fill in the
         Gamma matrix for each active atom, allowing the populations to then
@@ -2974,7 +2974,8 @@ cdef class LwContext:
         self.atmos.compute_bcs(self.spect)
 
         cdef f64 dJ = formal_sol_gamma_matrices(self.ctx, lambdaIterate)
-        print('dJ = %.2e' % dJ)
+        if (verbose):
+            print('dJ = %.2e' % dJ)
         return dJ
 
     cpdef formal_sol(self):
