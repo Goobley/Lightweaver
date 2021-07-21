@@ -2432,7 +2432,7 @@ cdef class LwAtom:
             delta = self.atom.ng.max_change()
             if delta < 3e-2:
                 end = time.time()
-                print('Converged: %s, %d\nTime: %f' % (self.atomicModel.element.name, it, end-start))
+                # print('Converged: %s, %d\nTime: %f' % (self.atomicModel.element.name, it, end-start))
                 break
         else:
             print('Escape probability didn\'t converge for %s, setting LTE populations' % self.atomicModel.element.name)
@@ -2933,7 +2933,8 @@ cdef class LwContext:
         for atom in atoms:
             atom.compute_profiles(polarised=polarised)
 
-    cpdef formal_sol_gamma_matrices(self, fixCollisionalRates=False, lambdaIterate=False, verbose=True):
+    cpdef formal_sol_gamma_matrices(self, fixCollisionalRates=False, lambdaIterate=False,
+                                    printUpdate=True):
         '''
         Compute the formal solution across all wavelengths and fill in the
         Gamma matrix for each active atom, allowing the populations to then
@@ -2949,7 +2950,10 @@ cdef class LwContext:
         lambdaIterate : bool, optional
             Whether to use Lambda iteration (setting the approximate Lambda
             term to zero), may be useful in certain unstable situations
-            (default: False)
+            (default: False).
+        printUpdate : bool, optional
+            Whether to print the maximum relative change in J and any changes in
+            CRSW (default: True).
 
         Returns
         -------
@@ -2961,7 +2965,7 @@ cdef class LwContext:
         cdef f64 crswVal = self.crswCallback()
         if crswVal == 1.0:
             self.crswDone = True
-        else:
+        elif printUpdate:
             print('CRSW: %.2e'%crswVal)
 
         for atom in self.activeAtoms:
@@ -2974,7 +2978,7 @@ cdef class LwContext:
         self.atmos.compute_bcs(self.spect)
 
         cdef f64 dJ = formal_sol_gamma_matrices(self.ctx, lambdaIterate)
-        if (verbose):
+        if printUpdate:
             print('dJ = %.2e' % dJ)
         return dJ
 
@@ -3217,7 +3221,7 @@ cdef class LwContext:
         ----------
         printUpdate : bool, optional
             Whether to print information on the size of the update (default:
-            None, to apply automatic behaviour).
+            True).
         chunkSize : int, optional
             Not currently used.
 
@@ -3370,9 +3374,27 @@ cdef class LwContext:
         cdef f64 dJ = formal_sol_full_stokes(self.ctx)
         return dJ
 
-    cpdef prd_redistribute(self, int maxIter=3, f64 tol=1e-2):
+    cpdef prd_redistribute(self, int maxIter=3, f64 tol=1e-2, printUpdate=True):
+        '''
+        Update emission profile ratio rho by computing the scattering integral
+        for each prd line. Does not affect the populations, interleave before
+        each formal solution for a standard problem.
+
+        Parameters
+        ----------
+        maxIter : int, optional
+            The maximum number of iterations of updating rho to be taken (Default: 3).
+        tol : float, optional
+            The default stopping tolerance for relative changes in rho. If the
+            relative change in rho falls below this threshold then this function
+            returns i.e. `maxIter` iterations do not need to be taken (Default: 1e-2).
+        printUpdate : bool, optional
+            Whether to print information about the iteration process i.e. the size of the update to rho and the number of iterations taken (Default: True).
+
+        '''
         cdef PrdIterData prdIter = redistribute_prd_lines(self.ctx, maxIter, tol)
-        print('      PRD dRho = %.2e, (sub-iterations: %d)' % (prdIter.dRho, prdIter.iter))
+        if printUpdate:
+            print('      PRD dRho = %.2e, (sub-iterations: %d)' % (prdIter.dRho, prdIter.iter))
         return prdIter.dRho, prdIter.iter
 
     cdef configure_hprd_coeffs(self):
