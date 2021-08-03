@@ -388,9 +388,15 @@ Column mass [kg m-2].</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lightweaver.atmosphere.Atmosphere.configure_bcs">
-<span class="sig-name descname"><span class="pre">configure_bcs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/atmosphere.html#Atmosphere.configure_bcs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.atmosphere.Atmosphere.configure_bcs" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">configure_bcs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">upOnly</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/atmosphere.html#Atmosphere.configure_bcs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.atmosphere.Atmosphere.configure_bcs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Configure the required angular information for all boundary
 conditions on the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>upOnly</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to only configure boundary conditions for up-going rays.
+(default: False)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -618,7 +624,7 @@ of rays and the z axis, only used in 1D.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lightweaver.atmosphere.Atmosphere.rays">
-<span class="sig-name descname"><span class="pre">rays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">muz</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mux</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">muy</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wmu</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/atmosphere.html#Atmosphere.rays"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.atmosphere.Atmosphere.rays" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">rays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">muz</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mux</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">muy</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wmu</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upOnly</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/atmosphere.html#Atmosphere.rays"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.atmosphere.Atmosphere.rays" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set up the rays on the Atmosphere for computing the intensity in a
 particular direction (or set of directions).</p>
 <p>If only the z angle is set then the ray is assumed in the x-z plane.
@@ -635,6 +641,8 @@ solver.</p>
 <li><p><strong>muy</strong> (<em>float</em><em> or </em><em>sequence of float</em><em>, </em><em>optional</em>) – The angular projections along the y axis.</p></li>
 <li><p><strong>wmu</strong> (<em>float</em><em> or </em><em>sequence of float</em><em>, </em><em>optional</em>) – The integration weights for the given ray if J is to be
 integrated for angle set.</p></li>
+<li><p><strong>upOnly</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to only configure boundary conditions for up-only rays.
+(default: False)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
@@ -4763,6 +4771,9 @@ boundary conditions if needed) before constructing the new
 Context for these rays. If a ray doesn’t intersect the boundary
 (i.e. x and y boundaries for muz == 1), then the boundary
 condition can be ignored.</p></li>
+<li><p><strong>upOnly</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to only compute upgoing rays. Mostly affects the handling of
+boundary conditions for 2D atmospheres. Only applies to scalar
+formal solvers.  (default: True).</p></li>
 <li><p><strong>returnCtx</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to return the Context used to compute the formal solution
 for these rays. If true, it will be returned as the second value.
 Default: False.</p></li>
@@ -4860,13 +4871,16 @@ parameters (LwDepthData).</p>
 <dd><p>Compute the formal solution across all wavelengths (single threaded,
 rarely used due to the almost insignificant cost of the Gamma terms
 in <cite>formal_sol_gamma_matrices</cite>, but currently still used by
-<cite>compute_rays</cite>)</p>
+<cite>compute_rays</cite>). Only computes upgoing rays by default, which has implication on boundary conditions in 2D.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>dJ</strong> – The maximum relative change in J in the atmosphere.</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>upOnly</strong> (<em>bool</em><em>, </em><em>optional</em>) – Only compute upgoing rays, (default: True)</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>float</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>dJ</strong> – The maximum relative change in J in the atmosphere.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
 </dd>
 </dl>
 </dd></dl>

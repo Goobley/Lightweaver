@@ -1538,7 +1538,8 @@
 <div class="viewcode-block" id="Atmosphere.rays"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Atmosphere.rays">[docs]</a>    <span class="k">def</span> <span class="nf">rays</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">muz</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
              <span class="n">mux</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
              <span class="n">muy</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-             <span class="n">wmu</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+             <span class="n">wmu</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">upOnly</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Set up the rays on the Atmosphere for computing the intensity in a</span>
 <span class="sd">        particular direction (or set of directions).</span>
@@ -1562,6 +1563,9 @@
 <span class="sd">        wmu : float or sequence of float, optional</span>
 <span class="sd">            The integration weights for the given ray if J is to be</span>
 <span class="sd">            integrated for angle set.</span>
+<span class="sd">        upOnly : bool, optional</span>
+<span class="sd">            Whether to only configure boundary conditions for up-only rays.</span>
+<span class="sd">            (default: False)</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -1610,12 +1614,18 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wmu</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="mf">1.0</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;sum of wmus is not 1.0&#39;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">configure_bcs</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">configure_bcs</span><span class="p">(</span><span class="n">upOnly</span><span class="o">=</span><span class="n">upOnly</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Atmosphere.configure_bcs"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Atmosphere.configure_bcs">[docs]</a>    <span class="k">def</span> <span class="nf">configure_bcs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Atmosphere.configure_bcs"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Atmosphere.configure_bcs">[docs]</a>    <span class="k">def</span> <span class="nf">configure_bcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">upOnly</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Configure the required angular information for all boundary</span>
 <span class="sd">        conditions on the model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        upOnly : bool, optional</span>
+<span class="sd">            Whether to only configure boundary conditions for up-going rays.</span>
+<span class="sd">            (default: False)</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="c1"># NOTE(cmo): We always have z-bcs</span>
@@ -1629,8 +1639,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">zLowerBc</span><span class="o">.</span><span class="n">set_required_angles</span><span class="p">(</span><span class="n">mux</span><span class="p">,</span> <span class="n">muy</span><span class="p">,</span> <span class="n">muz</span><span class="p">,</span> <span class="n">indexVector</span><span class="p">)</span>
 
         <span class="n">indexVector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">mux</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span>
-        <span class="n">indexVector</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">mux</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">upOnly</span><span class="p">:</span>
+            <span class="n">indexVector</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">mux</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">zUpperBc</span><span class="o">.</span><span class="n">set_required_angles</span><span class="p">(</span><span class="o">-</span><span class="n">mux</span><span class="p">,</span> <span class="o">-</span><span class="n">muy</span><span class="p">,</span> <span class="o">-</span><span class="n">muz</span><span class="p">,</span> <span class="n">indexVector</span><span class="p">)</span>
+
+        <span class="n">toObsRange</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">upOnly</span><span class="p">:</span>
+            <span class="n">toObsRange</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
         <span class="c1"># NOTE(cmo): If 2+D we have x-bcs too</span>
         <span class="c1"># xLowerBc has all muz and all mux &gt; 0</span>
@@ -1644,7 +1659,7 @@
                     <span class="k">continue</span>
                 <span class="n">musDone</span><span class="p">[</span><span class="n">equalMu</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
-                <span class="k">for</span> <span class="n">toObsI</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">toObsI</span> <span class="ow">in</span> <span class="n">toObsRange</span><span class="p">:</span>
                     <span class="n">sign</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">][</span><span class="n">toObsI</span><span class="p">]</span>
                     <span class="n">sMux</span> <span class="o">=</span> <span class="n">sign</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">mux</span><span class="p">[</span><span class="n">equalMu</span><span class="p">]</span>
                     <span class="k">if</span> <span class="n">sMux</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -1671,7 +1686,7 @@
                     <span class="k">continue</span>
                 <span class="n">musDone</span><span class="p">[</span><span class="n">equalMu</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
-                <span class="k">for</span> <span class="n">toObsI</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">toObsI</span> <span class="ow">in</span> <span class="n">toObsRange</span><span class="p">:</span>
                     <span class="n">sign</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">][</span><span class="n">toObsI</span><span class="p">]</span>
                     <span class="n">sMux</span> <span class="o">=</span> <span class="n">sign</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">mux</span><span class="p">[</span><span class="n">equalMu</span><span class="p">]</span>
                     <span class="k">if</span> <span class="n">sMux</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
