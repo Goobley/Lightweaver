@@ -478,7 +478,8 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
                 }
                 else
                     I(k, 0) = atmos->xLowerBc.bcData(la, muIdx, k);
-                Psi(k, 0) = 0.0;
+                if (computeOperator)
+                    Psi(k, 0) = 0.0;
             }
         }
         else if (mux < 0)
@@ -495,7 +496,8 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
                 }
                 else
                     I(k, atmos->Nx-1) = atmos->xUpperBc.bcData(la, muIdx, k);
-                Psi(k, atmos->Nx-1) = 0.0;
+                if (computeOperator)
+                    Psi(k, atmos->Nx-1) = 0.0;
             }
         }
 
@@ -591,7 +593,6 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
             // auto uwIntersection = uw_intersection_2d(gridData, j, k);
             int longCharIdx = intersections(mu, (int)toObs, k, j).longCharIdx;
             auto uwIntersection = intersections(mu, (int)toObs, k, j).uwIntersection;
-            f64 origDistance = uwIntersection.distance;
             if (longCharIdx < 0)
             {
                 f64 chiUw = interp_param(gridData, uwIntersection, chi);
@@ -744,8 +745,10 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
     F64View2D Psi;
     const bool computeOperator = bool(fd->Psi);
     if (computeOperator)
+    {
         Psi = fd->Psi.reshape(atmos->Nz, atmos->Nx);
-    Psi.fill(0.0);
+        Psi.fill(0.0);
+    }
     F64View2D temperature = atmos->temperature.reshape(atmos->Nz, atmos->Nx);
 
     if (!periodic)
@@ -770,7 +773,8 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
                     assert(false);
                 }
                 I(k, 0) = atmos->xLowerBc.bcData(la, muIdx, k);
-                Psi(k, 0) = 0.0;
+                if (computeOperator)
+                    Psi(k, 0) = 0.0;
             }
         }
         else if (mux < 0)
@@ -786,7 +790,8 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
                     assert(false);
                 }
                 I(k, atmos->Nx-1) = atmos->xUpperBc.bcData(la, muIdx, k);
-                Psi(k, atmos->Nx-1) = 0.0;
+                if (computeOperator)
+                    Psi(k, atmos->Nx-1) = 0.0;
             }
         }
 
@@ -877,7 +882,6 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
     }
     k += dk;
 
-    f64 minDist = 1e10;
     for (; k != kEnd; k += dk)
     {
         for (int j = jStart; j != jEnd + dj; j += dj)
@@ -885,11 +889,6 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
             int longCharIdx = intersections(mu, (int)toObs, k, j).longCharIdx;
             auto uwIntersection = intersections(mu, (int)toObs, k, j).uwIntersection;
             auto dwIntersection = intersections(mu, (int)toObs, k, j).dwIntersection;
-            f64 origDistance = uwIntersection.distance;
-            if (dwIntersection.distance < minDist)
-                minDist = dwIntersection.distance;
-            // if (dwIntersection.distance == 0)
-            //     printf("0 ALERT 0 ALERT (%d, %d)\n", k, j);
             if (longCharIdx < 0)
             {
                 f64 dsUw = uwIntersection.distance;
@@ -1030,7 +1029,6 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
     {
         int longCharIdx = intersections(mu, (int)toObs, k, j).longCharIdx;
         auto uwIntersection = intersections(mu, (int)toObs, k, j).uwIntersection;
-        f64 origDistance = abs(uwIntersection.distance);
         if (longCharIdx < 0)
         {
             f64 chiUw = interp_param(gridData, uwIntersection, chi);

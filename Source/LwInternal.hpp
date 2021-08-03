@@ -100,6 +100,7 @@ namespace LwInternal
         UpdateRates = 1 << 1,
         PrdOnly = 1 << 2,
         PureLambdaIteration = 1 << 3,
+        UpOnly = 1 << 4,
     };
     constexpr inline FsMode
     operator|(FsMode a, FsMode b)

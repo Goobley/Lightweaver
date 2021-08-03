@@ -291,6 +291,7 @@ cdef extern from "Lightweaver.hpp":
     cdef f64 formal_sol_update_rates(Context& ctx)
     cdef f64 formal_sol_update_rates_fixed_J(Context& ctx)
     cdef f64 formal_sol(Context& ctx)
+    cdef f64 formal_sol(Context& ctx, bool_t upOnly)
     cdef f64 formal_sol_full_stokes(Context& ctx) except +
     cdef f64 formal_sol_full_stokes(Context& ctx, bool_t updateJ) except +
     cdef PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
@@ -2982,12 +2983,17 @@ cdef class LwContext:
             print('dJ = %.2e' % dJ)
         return dJ
 
-    cpdef formal_sol(self):
+    cpdef formal_sol(self, upOnly=True):
         '''
         Compute the formal solution across all wavelengths (single threaded,
         rarely used due to the almost insignificant cost of the Gamma terms
         in `formal_sol_gamma_matrices`, but currently still used by
-        `compute_rays`)
+        `compute_rays`). Only computes upgoing rays by default, which has implication on boundary conditions in 2D.
+
+        Parameters
+        ----------
+        upOnly : bool, optional
+            Only compute upgoing rays, (default: True)
 
         Returns
         -------
@@ -3003,7 +3009,7 @@ cdef class LwContext:
         #     Gamma += atom.C
 
         self.atmos.compute_bcs(self.spect)
-        cdef f64 dJ = formal_sol(self.ctx)
+        cdef f64 dJ = formal_sol(self.ctx, upOnly)
         # cdef f64 dJ = formal_sol_gamma_matrices(self.ctx)
         # print('dJ = %.2e' % dJ)
         return dJ
@@ -3583,7 +3589,7 @@ cdef class LwContext:
         return ctx
 
     def compute_rays(self, wavelengths=None, mus=None, stokes=False,
-                     updateBcs=None, returnCtx=False,
+                     updateBcs=None, upOnly=True, returnCtx=False,
                      refinePrd=False, squeeze=True):
         '''
         Compute the formal solution through a converged simulation for a
@@ -3609,6 +3615,10 @@ cdef class LwContext:
             Context for these rays. If a ray doesn't intersect the boundary
             (i.e. x and y boundaries for muz == 1), then the boundary
             condition can be ignored.
+        upOnly : bool, optional
+            Whether to only compute upgoing rays. Mostly affects the handling of
+            boundary conditions for 2D atmospheres. Only applies to scalar
+            formal solvers.  (default: True).
         returnCtx : bool, optional
             Whether to return the Context used to compute the formal solution
             for these rays. If true, it will be returned as the second value.
@@ -3644,9 +3654,9 @@ cdef class LwContext:
             atmos = sd['kwargs']['atmos']
             if mus is not None:
                 if isinstance(mus, dict):
-                    atmos.rays(**mus)
+                    atmos.rays(**mus, upOnly=upOnly)
                 else:
-                    atmos.rays(mus)
+                    atmos.rays(mus, upOnly=upOnly)
             if updateBcs is not None:
                 updateBcs(atmos)
             rayCtx = self.construct_from_state_dict_with(sd)
@@ -3654,9 +3664,9 @@ cdef class LwContext:
             atmos = state['kwargs']['atmos']
             if mus is not None:
                 if isinstance(mus, dict):
-                    atmos.rays(**mus)
+                    atmos.rays(**mus, upOnly=upOnly)
                 else:
-                    atmos.rays(mus)
+                    atmos.rays(mus, upOnly=upOnly)
             if updateBcs is not None:
                 updateBcs(atmos)
             rayCtx = self.construct_from_state_dict_with(state, spect=spect)
@@ -3676,7 +3686,7 @@ cdef class LwContext:
             else:
                 return Iquv
         else:
-            rayCtx.formal_sol()
+            rayCtx.formal_sol(upOnly=upOnly)
             Iwav = np.asarray(rayCtx.spect.I)
             if squeeze:
                 Iwav = np.squeeze(Iwav)

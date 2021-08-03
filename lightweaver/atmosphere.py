@@ -1377,7 +1377,8 @@ class Atmosphere:
     def rays(self, muz: Union[float, Sequence[float]],
              mux: Optional[Union[float, Sequence[float]]]=None,
              muy: Optional[Union[float, Sequence[float]]]=None,
-             wmu: Optional[Union[float, Sequence[float]]]=None):
+             wmu: Optional[Union[float, Sequence[float]]]=None,
+             upOnly: bool=False):
         '''
         Set up the rays on the Atmosphere for computing the intensity in a
         particular direction (or set of directions).
@@ -1401,6 +1402,9 @@ class Atmosphere:
         wmu : float or sequence of float, optional
             The integration weights for the given ray if J is to be
             integrated for angle set.
+        upOnly : bool, optional
+            Whether to only configure boundary conditions for up-only rays.
+            (default: False)
 
         Raises
         ------
@@ -1449,12 +1453,18 @@ class Atmosphere:
             if not np.isclose(self.wmu.sum(), 1.0):
                 raise ValueError('sum of wmus is not 1.0')
 
-        self.configure_bcs()
+        self.configure_bcs(upOnly=upOnly)
 
-    def configure_bcs(self):
+    def configure_bcs(self, upOnly: bool=False):
         '''
         Configure the required angular information for all boundary
         conditions on the model.
+
+        Parameters
+        ----------
+        upOnly : bool, optional
+            Whether to only configure boundary conditions for up-going rays.
+            (default: False)
         '''
 
         # NOTE(cmo): We always have z-bcs
@@ -1468,8 +1478,13 @@ class Atmosphere:
         self.zLowerBc.set_required_angles(mux, muy, muz, indexVector)
 
         indexVector = np.ones((mux.shape[0], 2), dtype=np.int32) * -1
-        indexVector[:, 0] = np.arange(mux.shape[0])
+        if not upOnly:
+            indexVector[:, 0] = np.arange(mux.shape[0])
         self.zUpperBc.set_required_angles(-mux, -muy, -muz, indexVector)
+
+        toObsRange = [0, 1]
+        if upOnly:
+            toObsRange = [1]
 
         # NOTE(cmo): If 2+D we have x-bcs too
         # xLowerBc has all muz and all mux > 0
@@ -1483,7 +1498,7 @@ class Atmosphere:
                     continue
                 musDone[equalMu] = True
 
-                for toObsI in range(2):
+                for toObsI in toObsRange:
                     sign = [-1, 1][toObsI]
                     sMux = sign * self.mux[equalMu]
                     if sMux > 0:
@@ -1510,7 +1525,7 @@ class Atmosphere:
                     continue
                 musDone[equalMu] = True
 
-                for toObsI in range(2):
+                for toObsI in toObsRange:
                     sign = [-1, 1][toObsI]
                     sMux = sign * self.mux[equalMu]
                     if sMux < 0:

@@ -809,6 +809,7 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
     const bool updateRates = mode & FsMode::UpdateRates;
     const bool prdRatesOnly = mode & FsMode::PrdOnly;
     const bool lambdaIterate = mode & FsMode::PureLambdaIteration;
+    const bool upOnly = mode & FsMode::UpOnly;
     const bool computeOperator = bool(PsiStar);
     const bool storeDepthData = (data.depthData && data.depthData->fill);
 
@@ -824,18 +825,16 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
 
     // NOTE(cmo): If we only have continua then opacity is angle independent
     const bool continuaOnly = continua_only(data, la);
-    // printf("Core: %d, %d\n", atmos.xLowerBc.type, atmos.xUpperBc.type);
-    //     printf("%d, %d, %d, %d, %d, %d\n", atmos.zLowerBc.type,
-    //                                        atmos.zUpperBc.type,
-    //                                        atmos.xLowerBc.type,
-    //                                        atmos.xUpperBc.type,
-    //                                        atmos.yLowerBc.type,
-    //                                        atmos.yUpperBc.type);
+
+    int toObsStart = 0;
+    int toObsEnd = 2;
+    if (upOnly)
+        toObsStart = 1;
 
     f64 dJMax = 0.0;
     for (int mu = 0; mu < Nrays; ++mu)
     {
-        for (int toObsI = 0; toObsI < 2; toObsI += 1)
+        for (int toObsI = toObsStart; toObsI < toObsEnd; toObsI += 1)
         {
             bool toObs = (bool)toObsI;
             if (!continuaOnly || (continuaOnly && (mu == 0 && toObsI == 0)))
@@ -1299,7 +1298,7 @@ f64 formal_sol_update_rates_fixed_J(Context& ctx)
     return dJMax;
 }
 
-f64 formal_sol(Context& ctx)
+f64 formal_sol(Context& ctx, bool upOnly)
 {
     JasUnpack(*ctx, atmos, spect, background, depthData);
     JasUnpack(ctx, activeAtoms, detailedAtoms);
@@ -1331,6 +1330,9 @@ f64 formal_sol(Context& ctx)
     iCore.formal_solver = ctx.formalSolver.solver;
 
     FsMode mode = FsMode::FsOnly;
+    if (upOnly)
+        mode = mode | FsMode::UpOnly;
+
     for (int la = 0; la < Nspect; ++la)
     {
         intensity_core(iCore, la, mode);
