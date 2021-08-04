@@ -140,7 +140,7 @@ class LteNeIterator:
             atomicPops.append(AtomicState(model=a, abundance=self.abundances[i], nStar=nStar, nTotal=self.nTotal[i]))
             # NOTE(cmo): Take into account NLTE pops if provided
             if a.element in self.nlteStartingPops:
-                if self.nlteStartingPops[a.element].shape != nStar:
+                if self.nlteStartingPops[a.element].shape != nStar.shape:
                     raise ValueError('Starting populations provided for %s do not match model.' % a.element)
                 nStar = self.nlteStartingPops[a.element]
 
@@ -822,6 +822,11 @@ class RadiativeSet:
 
         if nlteStartingPops is None:
             nlteStartingPops = {}
+        else:
+            for e in nlteStartingPops:
+                if (e not in self.activeSet) \
+                   and (e not in self.detailedStaticSet):
+                    raise ValueError('Provided NLTE Populations for %s assumed LTE. Ensure these are indexed by `Element` rather than str.' % e)
 
         if direct:
             maxIter = 3000
@@ -840,7 +845,7 @@ class RadiativeSet:
 
                     # NOTE(cmo): Take into account NLTE pops if provided
                     if a.element in nlteStartingPops:
-                        if nlteStartingPops[a.element].shape != nStar:
+                        if nlteStartingPops[a.element].shape != nStar.shape:
                             raise ValueError('Starting populations provided for %s do not match model.' % a.element)
                         nStar = nlteStartingPops[a.element]
 
@@ -871,6 +876,9 @@ class RadiativeSet:
             ele = pop.model.element
             if ele in self.passiveSet:
                 if ele in nlteStartingPops:
+                    # NOTE(cmo): I don't believe this is possible; it would need
+                    # to be detailed_static as per the contract on passive atoms
+                    # being "true" LTE.  Leaving for now for safety.
                     pop.n = np.copy(nlteStartingPops[ele])
                 detailedAtomicPops.append(pop)
             else:
@@ -918,8 +926,8 @@ class RadiativeSet:
         else:
             for e in nlteStartingPops:
                 if (e not in self.activeSet) \
-                   or (e not in self.detailedStaticSet):
-                    raise ValueError('Provided NLTE Populations for %s assumed LTE.' % e)
+                   and (e not in self.detailedStaticSet):
+                    raise ValueError('Provided NLTE Populations for %s assumed LTE. Ensure these are indexed by `Element` rather than str.' % e)
 
         atomicPops = []
         atoms = sorted(self.atoms.values(), key=element_sort)
@@ -929,10 +937,7 @@ class RadiativeSet:
 
             ele = a.element
             if ele in self.passiveSet:
-                if ele in nlteStartingPops:
-                    n = np.copy(nlteStartingPops[ele])
-                else:
-                    n = None
+                n = None
                 atomicPops.append(AtomicState(model=a, abundance=self.abundance[ele], nStar=nStar,
                                               nTotal=nTotal, pops=n))
             else:
