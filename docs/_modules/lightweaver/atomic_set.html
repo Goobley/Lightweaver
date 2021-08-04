@@ -301,7 +301,7 @@
             <span class="n">atomicPops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">AtomicState</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">a</span><span class="p">,</span> <span class="n">abundance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">abundances</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">nStar</span><span class="o">=</span><span class="n">nStar</span><span class="p">,</span> <span class="n">nTotal</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nTotal</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
             <span class="c1"># NOTE(cmo): Take into account NLTE pops if provided</span>
             <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlteStartingPops</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlteStartingPops</span><span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">element</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">nStar</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlteStartingPops</span><span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">element</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">nStar</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Starting populations provided for </span><span class="si">%s</span><span class="s1"> do not match model.&#39;</span> <span class="o">%</span> <span class="n">a</span><span class="o">.</span><span class="n">element</span><span class="p">)</span>
                 <span class="n">nStar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlteStartingPops</span><span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">element</span><span class="p">]</span>
 
@@ -983,6 +983,11 @@
 
         <span class="k">if</span> <span class="n">nlteStartingPops</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">nlteStartingPops</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">nlteStartingPops</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">e</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">activeSet</span><span class="p">)</span> \
+                   <span class="ow">and</span> <span class="p">(</span><span class="n">e</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">detailedStaticSet</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Provided NLTE Populations for </span><span class="si">%s</span><span class="s1"> assumed LTE. Ensure these are indexed by `Element` rather than str.&#39;</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">direct</span><span class="p">:</span>
             <span class="n">maxIter</span> <span class="o">=</span> <span class="mi">3000</span>
@@ -1001,7 +1006,7 @@
 
                     <span class="c1"># NOTE(cmo): Take into account NLTE pops if provided</span>
                     <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">element</span> <span class="ow">in</span> <span class="n">nlteStartingPops</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">nlteStartingPops</span><span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">element</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">nStar</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">nlteStartingPops</span><span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">element</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">nStar</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
                             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Starting populations provided for </span><span class="si">%s</span><span class="s1"> do not match model.&#39;</span> <span class="o">%</span> <span class="n">a</span><span class="o">.</span><span class="n">element</span><span class="p">)</span>
                         <span class="n">nStar</span> <span class="o">=</span> <span class="n">nlteStartingPops</span><span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">element</span><span class="p">]</span>
 
@@ -1032,6 +1037,9 @@
             <span class="n">ele</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">element</span>
             <span class="k">if</span> <span class="n">ele</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">passiveSet</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">ele</span> <span class="ow">in</span> <span class="n">nlteStartingPops</span><span class="p">:</span>
+                    <span class="c1"># NOTE(cmo): I don&#39;t believe this is possible; it would need</span>
+                    <span class="c1"># to be detailed_static as per the contract on passive atoms</span>
+                    <span class="c1"># being &quot;true&quot; LTE.  Leaving for now for safety.</span>
                     <span class="n">pop</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">nlteStartingPops</span><span class="p">[</span><span class="n">ele</span><span class="p">])</span>
                 <span class="n">detailedAtomicPops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pop</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -1079,8 +1087,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">nlteStartingPops</span><span class="p">:</span>
                 <span class="k">if</span> <span class="p">(</span><span class="n">e</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">activeSet</span><span class="p">)</span> \
-                   <span class="ow">or</span> <span class="p">(</span><span class="n">e</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">detailedStaticSet</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Provided NLTE Populations for </span><span class="si">%s</span><span class="s1"> assumed LTE.&#39;</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span>
+                   <span class="ow">and</span> <span class="p">(</span><span class="n">e</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">detailedStaticSet</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Provided NLTE Populations for </span><span class="si">%s</span><span class="s1"> assumed LTE. Ensure these are indexed by `Element` rather than str.&#39;</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span>
 
         <span class="n">atomicPops</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">atoms</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="n">element_sort</span><span class="p">)</span>
@@ -1090,10 +1098,7 @@
 
             <span class="n">ele</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">element</span>
             <span class="k">if</span> <span class="n">ele</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">passiveSet</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">ele</span> <span class="ow">in</span> <span class="n">nlteStartingPops</span><span class="p">:</span>
-                    <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">nlteStartingPops</span><span class="p">[</span><span class="n">ele</span><span class="p">])</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">n</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="n">atomicPops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">AtomicState</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">a</span><span class="p">,</span> <span class="n">abundance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">abundance</span><span class="p">[</span><span class="n">ele</span><span class="p">],</span> <span class="n">nStar</span><span class="o">=</span><span class="n">nStar</span><span class="p">,</span>
                                               <span class="n">nTotal</span><span class="o">=</span><span class="n">nTotal</span><span class="p">,</span> <span class="n">pops</span><span class="o">=</span><span class="n">n</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
