@@ -60,7 +60,20 @@ f64 grid_fmod_x(const IntersectionData& grid, f64 x)
 IntersectionResult dw_intersection_2d(const IntersectionData& grid, int zp, int xp)
 {
     if (xp == grid.xEnd)
-        xp = grid.xStart;
+    {
+        // NOTE(cmo): Periodic grid, wrap-around
+        if (grid.periodic)
+        {
+            xp = grid.xStart;
+        }
+        // NOTE(cmo): Else return 0 distance, we can only "self-intersect" for
+        // non-vertical rays
+        // At this point this needs to be caught by logic in the FS.
+        else if (abs(grid.muz) != 1.0)
+        {
+            return IntersectionResult(InterpolationAxis::None, zp, xp, 0.0);
+        }
+    }
 
     Ray ray{grid.x(xp), grid.z(zp), grid.mux, grid.muz};
     f64 tx = x_plane_intersection(grid.x(xp + grid.xStep), ray);
@@ -89,7 +102,20 @@ IntersectionResult dw_intersection_2d(const IntersectionData& grid, int zp, int 
 IntersectionResult uw_intersection_2d(const IntersectionData& grid, int zp, int xp)
 {
     if (xp == grid.xStart)
-        xp = grid.xEnd;
+    {
+        // NOTE(cmo): Periodic grid, wrap-around
+        if (grid.periodic)
+        {
+            xp = grid.xEnd;
+        }
+        // NOTE(cmo): Else return 0 distance, we can only "self-intersect" for
+        // non-vertical rays.
+        // At this point this needs to be caught by logic in the FS.
+        else if (abs(grid.muz) != 1.0)
+        {
+            return IntersectionResult(InterpolationAxis::None, zp, xp, 0.0);
+        }
+    }
 
     Ray ray{grid.x(xp), grid.z(zp), grid.mux, grid.muz};
     f64 tx = x_plane_intersection(grid.x(xp - grid.xStep), ray);
@@ -138,6 +164,7 @@ IntersectionResult uw_intersection_2d_frac_x(const IntersectionData& grid, Inter
     // NOTE(cmo): Based on the test above, we know, x must be at an intersection
     // i.e. fracX is an integer, and we must not be at an intersection in z, so
     // fracZ is non-integer in R+
+    // This can only be reached from code assuming periodic boundaries, so implicit wrap is fine.
     int xp = int(start.fractionalX);
     if (xp == grid.xStart)
         xp = grid.xEnd;
@@ -523,7 +550,8 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
                                jEnd,
                                dk,
                                kStart,
-                               kEnd};
+                               kEnd,
+                               periodic};
 
     auto& intersections = atmos->intersections.intersections;
     int k = kStart;
@@ -817,7 +845,8 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
                                jEnd,
                                dk,
                                kStart,
-                               kEnd};
+                               kEnd,
+                               periodic};
 
     auto& intersections = atmos->intersections.intersections;
     int k = kStart;
@@ -1180,7 +1209,8 @@ void build_intersection_list(Atmosphere* atmos)
                                     jEnd,
                                     dk,
                                     kStart,
-                                    kEnd};
+                                    kEnd,
+                                    periodic};
 
             int k = kStart;
             // NOTE(cmo): Handle BC in starting plane

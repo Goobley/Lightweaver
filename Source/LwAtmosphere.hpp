@@ -87,6 +87,7 @@ struct IntersectionData
     int zStep;
     int zStart;
     int zEnd;
+    bool periodic;
 };
 
 
