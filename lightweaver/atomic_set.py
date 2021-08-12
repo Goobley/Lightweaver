@@ -11,6 +11,7 @@ import numpy as np
 from scipy.linalg import solve
 from scipy.optimize import newton_krylov
 from numba import njit
+import astropy.units as u
 
 @njit
 def lte_pops_impl(temperature, ne, nTotal, stages, energies,
@@ -464,7 +465,7 @@ class AtomicStateTable:
             dimensionality.
         '''
         table = copy(self)
-        table.atoms = {a.element: a.dimensioned_view(shape) for a in self.atoms}
+        table.atoms = {k: a.dimensioned_view(shape) for k, a in self.atoms.items()}
         return table
 
     def unit_view(self):
@@ -473,7 +474,7 @@ class AtomicStateTable:
         `astropy.units`.
         '''
         table = copy(self)
-        table.atoms = {a.element: a.unit_view() for a in self.atoms}
+        table.atoms = {k: a.unit_view() for k, a in self.atoms.items()}
         return table
 
     def dimensioned_unit_view(self, shape):
