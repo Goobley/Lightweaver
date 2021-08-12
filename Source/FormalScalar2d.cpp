@@ -564,7 +564,21 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
         {
             case THERMALISED:
             {
+                // NOTE(cmo): This becomes a problem for j == jEnd with
+                // non-periodic boundary conditions; RH appears to just ignore
+                // this column when using fixed boundaries, which makes sense,
+                // since we can't truly accumulate the Lambda operator anyway.
+                // Nevertheless, this gradient is likely to be similar from the
+                // preceeding point to this one, so let's recompute that and use
+                // it. Admittedly this is a bit of a HACK, but is likely to
+                // introduce very little error.
                 auto dwIntersection = intersections(mu, (int)toObs, k, j).dwIntersection;
+                if ((!periodic) && (j == jEnd) && (mux != 0.0))
+                {
+                    // NOTE(cmo): This assumes the atmosphere is wider than one
+                    // column... but it has to be really.
+                    dwIntersection = intersections(mu, (int)toObs, k, j-dj).dwIntersection;
+                }
                 f64 chiDw = interp_param(gridData, dwIntersection, chi);
                 f64 dtauDw = 0.5 * abs(dwIntersection.distance) * (chi(k, j) + chiDw);
                 f64 temperatureDw = interp_param(gridData, dwIntersection, temperature);
@@ -859,7 +873,21 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
         {
             case THERMALISED:
             {
+                // NOTE(cmo): This becomes a problem for j == jEnd with
+                // non-periodic boundary conditions; RH appears to just ignore
+                // this column when using fixed boundaries, which makes sense,
+                // since we can't truly accumulate the Lambda operator anyway.
+                // Nevertheless, this gradient is likely to be similar from the
+                // preceeding point to this one, so let's recompute that and use
+                // it. Admittedly this is a bit of a HACK, but is likely to
+                // introduce very little error.
                 auto dwIntersection = intersections(mu, (int)toObs, k, j).dwIntersection;
+                if ((!periodic) && (j == jEnd) && (mux != 0.0))
+                {
+                    // NOTE(cmo): This assumes the atmosphere is wider than one
+                    // column... but it has to be really.
+                    dwIntersection = intersections(mu, (int)toObs, k, j-dj).dwIntersection;
+                }
                 f64 chiDw = interp_param(gridData, dwIntersection, chi);
                 f64 dtauDw = 0.5 * abs(dwIntersection.distance) * (chi(k, j) + chiDw);
                 f64 temperatureDw = interp_param(gridData, dwIntersection, temperature);
@@ -1219,6 +1247,10 @@ void build_intersection_list(Atmosphere* atmos)
                 IntersectionResult uw(InterpolationAxis::None, k, j, 0.0);
                 auto dw = dw_intersection_2d(gridData, k, j);
                 dw.distance = abs(dw.distance);
+
+                if ((!periodic) && (j == jEnd) && (mux != 0.0))
+                    dw = IntersectionResult(InterpolationAxis::None, k, j, 0.0);
+
                 intersections(mu, toObsI, k, j) = InterpolationStencil{uw, dw, -1, -1};
             }
             k += dk;
@@ -1263,7 +1295,7 @@ void build_intersection_list(Atmosphere* atmos)
                     IntersectionResult dw;
                     if (k != kEnd)
                     {
-                        if ((!periodic) && (j == jEnd))
+                        if ((!periodic) && (j == jEnd) && (mux != 0.0))
                         {
                             dw = IntersectionResult(InterpolationAxis::None, k, j, 0.0);
                         }

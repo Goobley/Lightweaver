@@ -1,4 +1,4 @@
 include README.md
-include LCIENSE
+include LICENSE
 include environment.yml
 recursive-include lightweaver/Data/ *

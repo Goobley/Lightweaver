@@ -598,6 +598,7 @@ void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
     {
         if (atmos->zLowerBc.type == THERMALISED)
         {
+            // NOTE(cmo): Trying to fulfill diffusion condition.
             f64 Bnu[2];
             int Nspace = atmos->Nspace;
             planck_nu(2, &atmos->temperature(Nspace - 2), wav, Bnu);
