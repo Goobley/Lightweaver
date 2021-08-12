@@ -16,6 +16,8 @@ else:
     # NOTE(cmo): Local compile
     posixArgs += ["-march=native", "-mtune=native"]
 
+print(os.environ)
+
 # TODO(cmo): Find similar architecture args for MSVC
 
 posixLibs = ['dl']
