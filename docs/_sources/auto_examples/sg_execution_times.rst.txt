@@ -5,10 +5,10 @@
 
 Computation times
 =================
-**01:34.844** total execution time for **auto_examples** files:
+**01:24.420** total execution time for **auto_examples** files:
 
 +---------------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_auto_examples_plot_JudgeDynamicValidation.py` (``plot_JudgeDynamicValidation.py``) | 00:56.251 | 0.0 MB |
+| :ref:`sphx_glr_auto_examples_plot_JudgeDynamicValidation.py` (``plot_JudgeDynamicValidation.py``) | 00:52.684 | 0.0 MB |
 +---------------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_auto_examples_plot_SimpleLineTest.py` (``plot_SimpleLineTest.py``)                 | 00:38.593 | 0.0 MB |
+| :ref:`sphx_glr_auto_examples_plot_SimpleLineTest.py` (``plot_SimpleLineTest.py``)                 | 00:31.736 | 0.0 MB |
 +---------------------------------------------------------------------------------------------------+-----------+--------+
