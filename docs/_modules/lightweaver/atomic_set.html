@@ -172,6 +172,7 @@
 <span class="kn">from</span> <span class="nn">scipy.linalg</span> <span class="kn">import</span> <span class="n">solve</span>
 <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">newton_krylov</span>
 <span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">njit</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
 
 <span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">lte_pops_impl</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">ne</span><span class="p">,</span> <span class="n">nTotal</span><span class="p">,</span> <span class="n">stages</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span>
@@ -625,7 +626,7 @@
 <span class="sd">            dimensionality.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">table</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="n">table</span><span class="o">.</span><span class="n">atoms</span> <span class="o">=</span> <span class="p">{</span><span class="n">a</span><span class="o">.</span><span class="n">element</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">dimensioned_view</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">}</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">atoms</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">dimensioned_view</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="k">return</span> <span class="n">table</span></div>
 
 <div class="viewcode-block" id="AtomicStateTable.unit_view"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicStateTable.unit_view">[docs]</a>    <span class="k">def</span> <span class="nf">unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -634,7 +635,7 @@
 <span class="sd">        `astropy.units`.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">table</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="n">table</span><span class="o">.</span><span class="n">atoms</span> <span class="o">=</span> <span class="p">{</span><span class="n">a</span><span class="o">.</span><span class="n">element</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">unit_view</span><span class="p">()</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">}</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">atoms</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">unit_view</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="k">return</span> <span class="n">table</span></div>
 
 <div class="viewcode-block" id="AtomicStateTable.dimensioned_unit_view"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicStateTable.dimensioned_unit_view">[docs]</a>    <span class="k">def</span> <span class="nf">dimensioned_unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
