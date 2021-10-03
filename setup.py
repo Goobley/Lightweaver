@@ -11,12 +11,9 @@ def readme():
 posixArgs = ["-std=c++17", "-Wno-sign-compare", "-funroll-loops"]
 if 'LW_CI_BUILD'  in os.environ:
     # NOTE(cmo): Compile for sandy bridge or newer when building on CI
-    if not(platform.system() == 'Darwin' \
-       and 'ARCHFLAGS' in os.environ \
-       and os.environ['ARCHFLAGS'].endswith('arm64')):
-        # NOTE(cmo): These are clearly wrong for M1, but it doesn't really seem
-        # to support optimisation flags outside of native (and then only
-        # sometimes), so give it nothing.
+    if platform.system() != 'Darwin':
+        # NOTE(cmo): Remove specific optimisation flags for macOS, 
+        # since they seem to cause trouble with M1.
         posixArgs += ["-march=corei7-avx", "-mtune=corei7-avx"]
 else:
     # NOTE(cmo): Local compile

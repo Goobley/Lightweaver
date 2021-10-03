@@ -46,9 +46,7 @@ jobs:
         CIBW_ARCHS: auto64
         CIBW_ENVIRONMENT: 'LW_CI_BUILD=true'
         CIBW_BUILD_VERBOSITY: 1
-        CIBW_ARCHS_MACOS: x86_64
-        # NOTE(cmo): Should be able to use universal2 on macos in the future,
-        # but no point making it now as pyPI will just download most specific.
+        CIBW_ARCHS_MACOS: x86_64 universal2
 
     - uses: actions/upload-artifact@v2
       with:
