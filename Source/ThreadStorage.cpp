@@ -126,9 +126,10 @@ void TransitionStorageFactory::accumulate_prd_rates(const std::vector<size_t>& i
     accumulate_rates(indices);
 }
 
-AtomStorageFactory::AtomStorageFactory(Atom* a, bool detail)
+AtomStorageFactory::AtomStorageFactory(Atom* a, bool detail, int fsWidthSimd)
     : atom(a),
-      detailedStatic(detail)
+      detailedStatic(detail),
+      fsWidth(fsWidthSimd)
 {
     tStorage.reserve(atom->trans.size());
     for (auto t : atom->trans)
@@ -166,17 +167,23 @@ Atom* AtomStorageFactory::copy_atom()
     for (auto& t : tStorage)
         a->trans.emplace_back(t.copy_transition());
 
-    if (detailedStatic)
-        return a;
+    if (!detailedStatic)
+    {
+        as.Gamma = F64Arr3D(0.0, Nlevel, Nlevel, Nspace);
+        a->Gamma = as.Gamma;
+        as.U = F64Arr2D(0.0, Nlevel, Nspace);
+        a->U = as.U;
+        as.eta = F64Arr(0.0, Nspace);
+        a->eta = as.eta;
+        as.chi = F64Arr2D(0.0, Nlevel, Nspace);
+        a->chi = as.chi;
+    }
 
-    as.Gamma = F64Arr3D(0.0, Nlevel, Nlevel, Nspace);
-    a->Gamma = as.Gamma;
-    as.U = F64Arr2D(0.0, Nlevel, Nspace);
-    a->U = as.U;
-    as.eta = F64Arr(0.0, Nspace);
-    a->eta = as.eta;
-    as.chi = F64Arr2D(0.0, Nlevel, Nspace);
-    a->chi = as.chi;
+    if (fsWidth > 1)
+    {
+        as.wideStorage = WideAtomStorage(*a, detailedStatic, Nspace, fsWidth);
+        a->wideScratch = &as.wideStorage;
+    }
 
     return a;
 }
@@ -329,6 +336,7 @@ void IntensityCoreFactory::initialise(Context* ctx)
     spect = ctx->spect;
     background = ctx->background;
     depthData = ctx->depthData;
+    fsWidth = ctx->formalSolver.width;
     formal_solver = ctx->formalSolver.solver;
     interp = ctx->interpFn;
     // if (ctx->Nthreads <= 1)
@@ -338,20 +346,20 @@ void IntensityCoreFactory::initialise(Context* ctx)
     activeAtoms.reserve(ctx->activeAtoms.size());
     for (auto a : ctx->activeAtoms)
     {
-        activeAtoms.emplace_back(AtomStorageFactory(a, detailedStatic=false));
+        activeAtoms.emplace_back(AtomStorageFactory(a, detailedStatic=false, ctx->formalSolver.width));
     }
 
     detailedAtoms.reserve(ctx->detailedAtoms.size());
     for (auto a : ctx->detailedAtoms)
     {
-        detailedAtoms.emplace_back(AtomStorageFactory(a, detailedStatic=true));
+        detailedAtoms.emplace_back(AtomStorageFactory(a, detailedStatic=true, ctx->formalSolver.width));
     }
 }
 
 IntensityCoreData* IntensityCoreFactory::new_intensity_core(bool psiOperator)
 {
     const int Nspace = atmos->Nspace;
-    arrayStorage.emplace_back(std::make_unique<IntensityCoreStorage>(Nspace));
+    arrayStorage.emplace_back(std::make_unique<IntensityCoreStorage>(Nspace, fsWidth));
     auto& as = *arrayStorage.back();
     auto& fd = as.formal;
     auto& iCore = as.core;
@@ -366,6 +374,16 @@ IntensityCoreData* IntensityCoreFactory::new_intensity_core(bool psiOperator)
     if (psiOperator)
         fd.Psi = as.PsiStar;
 
+    if (fsWidth > 1)
+    {
+        fd.wideData = &as.wideFormal;
+        fd.wideData->chi = as.wideCore.chiTot;
+        fd.wideData->S = as.wideCore.S;
+        fd.wideData->I = as.wideCore.I;
+        if (psiOperator)
+            fd.wideData->Psi = as.wideCore.PsiStar;
+    }
+
     iCore.JDag = &as.JDag;
     iCore.chiTot = as.chiTot;
     iCore.etaTot = as.etaTot;
@@ -377,6 +395,10 @@ IntensityCoreData* IntensityCoreFactory::new_intensity_core(bool psiOperator)
     iCore.Ieff = as.Ieff;
     if (psiOperator)
         iCore.PsiStar = as.PsiStar;
+
+    iCore.wideData = nullptr;
+    if (fsWidth > 1)
+        iCore.wideData = &as.wideCore;
 
     as.activeAtoms.reserve(activeAtoms.size());
     for (auto& atom : activeAtoms)

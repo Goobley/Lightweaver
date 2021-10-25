@@ -13,14 +13,34 @@ struct DepthData;
 
 namespace LwInternal
 {
+    struct WideFormalData
+    {
+        F64View2D chi;
+        F64View2D S;
+        F64View2D I;
+        F64View2D Psi;
+    };
+
     struct FormalData
     {
+        int width;
         Atmosphere* atmos;
         F64View chi;
         F64View S;
         F64View I;
         F64View Psi;
+        WideFormalData* wideData;
         Interp2d interp;
+
+        FormalData() : width(1),
+                       atmos(nullptr),
+                       chi(),
+                       S(),
+                       I(),
+                       Psi(),
+                       wideData(nullptr),
+                       interp()
+        {}
     };
 
     struct FormalDataStokes
@@ -30,6 +50,34 @@ namespace LwInternal
         F64View2D S;
         F64View2D I;
         FormalData fdIntens;
+    };
+
+    struct WideIntensityCoreData
+    {
+        F64Arr2D I;
+        F64Arr2D S;
+        F64Arr2D JDag;
+        F64Arr2D chiTot;
+        F64Arr2D etaTot;
+        F64Arr2D Uji;
+        F64Arr2D Vij;
+        F64Arr2D Vji;
+        F64Arr2D Ieff;
+        F64Arr2D PsiStar;
+
+        WideIntensityCoreData() = default;
+        WideIntensityCoreData(int Nspace, int width)
+            : I(Nspace, width),
+              S(Nspace, width),
+              JDag(Nspace, width),
+              chiTot(Nspace, width),
+              etaTot(Nspace, width),
+              Uji(Nspace, width),
+              Vij(Nspace, width),
+              Vji(Nspace, width),
+              Ieff(Nspace, width),
+              PsiStar(Nspace, width)
+        {}
     };
 
     struct IntensityCoreData
@@ -52,6 +100,9 @@ namespace LwInternal
         F64View S;
         F64View Ieff;
         F64View PsiStar;
+        WideIntensityCoreData* wideData;
+
+        IntensityCoreData() : wideData(nullptr) {};
     };
 
     struct StokesCoreData

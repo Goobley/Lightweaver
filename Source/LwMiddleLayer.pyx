@@ -2862,6 +2862,9 @@ cdef class LwContext:
         cdef FormalSolver fs = fsMan.manager.formalSolvers[fsIdx]
         self.ctx.formalSolver = fs
 
+        # NOTE(cmo): If the FS is wide we may need to reconfigure the wide backing stores.
+        self.update_threads()
+
     def set_interp_fn(self, interpFn):
         '''
         For internal use. Set the interpolation function through the

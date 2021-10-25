@@ -48,15 +48,18 @@ struct AtomStorage
     F64Arr2D U;
     F64Arr2D chi;
     Atom atom;
+    WideAtomStorage wideStorage;
 };
+
 
 struct AtomStorageFactory
 {
     Atom* atom;
     bool detailedStatic;
+    int fsWidth;
     std::vector<std::unique_ptr<AtomStorage>> aStorage;
     std::vector<TransitionStorageFactory> tStorage;
-    AtomStorageFactory(Atom* a, bool detail);
+    AtomStorageFactory(Atom* a, bool detail, int fsWidth);
     Atom* copy_atom();
     void erase(Atom* atom);
     void accumulate_Gamma_rates();
@@ -82,9 +85,11 @@ struct IntensityCoreStorage
     std::vector<Atom*> activeAtoms;
     std::vector<Atom*> detailedAtoms;
     IntensityCoreData core;
+    WideIntensityCoreData wideCore;
     FormalData formal;
+    WideFormalData wideFormal;
 
-    IntensityCoreStorage(int Nspace)
+    IntensityCoreStorage(int Nspace, int fsWidth)
         : I(F64Arr(0.0, Nspace)),
           S(F64Arr(0.0, Nspace)),
           JDag(F64Arr(0.0, Nspace)),
@@ -94,8 +99,14 @@ struct IntensityCoreStorage
           Vij(F64Arr(0.0, Nspace)),
           Vji(F64Arr(0.0, Nspace)),
           Ieff(F64Arr(0.0, Nspace)),
-          PsiStar(F64Arr(0.0, Nspace))
-    {}
+          PsiStar(F64Arr(0.0, Nspace)),
+          wideCore()
+    {
+        if (fsWidth > 1)
+        {
+            wideCore = WideIntensityCoreData(Nspace, fsWidth);
+        }
+    }
 };
 
 struct IntensityCoreFactory
@@ -104,6 +115,7 @@ struct IntensityCoreFactory
     Spectrum* spect;
     Background* background;
     DepthData* depthData;
+    int fsWidth;
     LwFsFn formal_solver;
     InterpFn interp;
     std::vector<AtomStorageFactory> activeAtoms;
@@ -113,7 +125,13 @@ struct IntensityCoreFactory
     IntensityCoreFactory() : atmos(nullptr),
                              spect(nullptr),
                              background(nullptr),
-                             depthData(nullptr)
+                             depthData(nullptr),
+                             fsWidth(1),
+                             formal_solver(),
+                             interp(),
+                             activeAtoms(),
+                             detailedAtoms(),
+                             arrayStorage()
     {}
 
     void initialise(Context* ctx);

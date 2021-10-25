@@ -66,6 +66,21 @@ using LwInternal::IntensityCoreData;
 // }
 // #endif
 
+WideAtomStorage::WideAtomStorage(const Atom& atom, bool detailedStatic, int Nspace, int width)
+    : eta(),
+      gij(atom.Ntrans, Nspace, width),
+      wla(atom.Ntrans, Nspace, width),
+      U(),
+      chi()
+{
+    if (detailedStatic)
+        return;
+
+    eta = F64Arr2D(Nspace, width);
+    U = F64Arr3D(atom.Nlevel, Nspace, width);
+    chi = F64Arr3D(atom.Nlevel, Nspace, width);
+}
+
 void Transition::compute_phi_la(const Atmosphere& atmos, const F64View& aDamp,
                                 const F64View& vBroad, int lt)
 {
@@ -796,16 +811,100 @@ void gather_opacity_emissivity(IntensityCoreData* data, bool computeOperator, in
     }
 }
 
+void gather_opacity_emissivity_wide(IntensityCoreData* data, bool computeOperator,
+                                    int la, int mu, bool toObs, int width)
+{
+    JasUnpack(*(*data), activeAtoms, detailedAtoms);
+    // JasUnpack((*data), Uji, Vij, Vji, chiTot, etaTot);
+    JasUnpack((*data->wideData), Uji, Vij, Vji, chiTot, etaTot);
+    const int Nspace = data->atmos->Nspace;
+
+    for (int a = 0; a < activeAtoms.size(); ++a)
+    {
+        auto& atom = *activeAtoms[a];
+        atom.zero_angle_dependent_vars();
+    }
+
+    for (int a = 0; a < activeAtoms.size(); ++a)
+    {
+        auto& atom = *activeAtoms[a];
+        for (int kr = 0; kr < atom.Ntrans; ++kr)
+        {
+            auto& t = *atom.trans[kr];
+            bool anyActive = false;
+            for (int laW = la; laW < la + width; ++laW)
+                anyActive = anyActive || t.active[laW];
+            if (!anyActive)
+                continue;
+
+            t.uv_wide(atom.wideScratch->gij(kr), la, width, mu, toObs, Uji, Vij, Vji);
+
+            for (int laS = 0; laS < width; ++laS)
+            {
+                for (int k = 0; k < Nspace; ++k)
+                {
+                    f64 chi = atom.n(t.i, k) * Vij(k, laS) - atom.n(t.j, k) * Vji(k, laS);
+                    f64 eta = atom.n(t.j, k) * Uji(k, laS);
+
+                    auto& wide = *atom.wideScratch;
+                    if (computeOperator)
+                    {
+                        wide.chi(t.i, k, laS) += chi;
+                        wide.chi(t.j, k, laS) -= chi;
+                        wide.U(t.j, k, laS) += Uji(k, laS);
+                        wide.eta(k, laS) += eta;
+                    }
+                    chiTot(k, laS) += chi;
+                    etaTot(k, laS) += eta;
+                }
+            }
+        }
+    }
+    for (int a = 0; a < detailedAtoms.size(); ++a)
+    {
+        auto& atom = *detailedAtoms[a];
+        for (int kr = 0; kr < atom.Ntrans; ++kr)
+        {
+            auto& t = *atom.trans[kr];
+            bool anyActive = false;
+            for (int laW = la; laW < la + width; ++laW)
+                anyActive = anyActive || t.active[laW];
+            if (!anyActive)
+                continue;
+
+            t.uv_wide(atom.wideScratch->gij(kr), la, width, mu, toObs, Uji, Vij, Vji);
+
+            for (int laS = 0; laS < width; ++laS)
+            {
+                for (int k = 0; k < Nspace; ++k)
+                {
+                    f64 chi = atom.n(t.i, k) * Vij(k, laS) - atom.n(t.j, k) * Vji(k, laS);
+                    f64 eta = atom.n(t.j, k) * Uji(k, laS);
+
+                    chiTot(k, laS) += chi;
+                    etaTot(k, laS) += eta;
+                }
+            }
+        }
+    }
+    // TODO(cmo): Do we need to write back into scalar, or no need?  I don't
+    // think anything here is accessible outside of the core, so probably not
+    // worried.
+}
+
 f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
 {
     JasUnpack(*data, atmos, spect, fd, background);
     JasUnpack(*data, activeAtoms, detailedAtoms, JDag);
     JasUnpack(data, chiTot, etaTot, Uji, Vij, Vji);
-    JasUnpack(data, I, S, Ieff, PsiStar);
-    const LwFsFn formal_solver = data.formal_solver;
+    JasUnpack(data, I, S, Ieff, PsiStar, wideData);
     const int Nspace = atmos.Nspace;
     const int Nrays = atmos.Nrays;
     const int Nspect = spect.wavelength.shape(0);
+    const int fsWidth = data.fd->width;
+    const LwFsFn formal_solver = data.formal_solver;
+    // NOTE(cmo): Effective formal solver width to not roll off array
+    const int fsEffWidth = min(data.fd->width, Nspect - la);
     const bool updateJ = mode & FsMode::UpdateJ;
     const bool updateRates = mode & FsMode::UpdateRates;
     const bool prdRatesOnly = mode & FsMode::PrdOnly;
@@ -815,24 +914,31 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
     const bool storeDepthData = (data.depthData && data.depthData->fill);
 
     JDag = spect.J(la);
+    if (wideData)
+    {
+        for (int laW = la; laW < la + fsEffWidth; ++laW)
+            for (int k = 0; k < Nspace; ++k)
+                data.wideData->JDag(k, laW - la) = spect.J(laW, k);
+    }
     F64View J = spect.J(la);
     if (updateJ)
         J.fill(0.0);
 
     for (int a = 0; a < activeAtoms.size(); ++a)
-        activeAtoms[a]->setup_wavelength(la);
+        activeAtoms[a]->setup_wavelength(la, fsEffWidth);
     for (int a = 0; a < detailedAtoms.size(); ++a)
-        detailedAtoms[a]->setup_wavelength(la);
+        detailedAtoms[a]->setup_wavelength(la, fsEffWidth);
 
     // NOTE(cmo): If we only have continua then opacity is angle independent
-    const bool continuaOnly = continua_only(data, la);
+    bool continuaOnly = true;
+    for (int laW = la; laW < la + fsEffWidth; ++laW)
+        continuaOnly = continuaOnly && continua_only(data, laW);
 
     int toObsStart = 0;
     int toObsEnd = 2;
     if (upOnly)
         toObsStart = 1;
 
-    f64 dJMax = 0.0;
     for (int mu = 0; mu < Nrays; ++mu)
     {
         for (int toObsI = toObsStart; toObsI < toObsEnd; toObsI += 1)
@@ -840,38 +946,88 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
             bool toObs = (bool)toObsI;
             if (!continuaOnly || (continuaOnly && (mu == 0 && toObsI == 0)))
             {
-                chiTot.fill(0.0);
-                etaTot.fill(0.0);
 
                 // Gathers from all active non-background transitions
-                gather_opacity_emissivity(&data, computeOperator, la, mu, toObs);
-
-                for (int k = 0; k < Nspace; ++k)
+                if (!wideData)
                 {
-                    chiTot(k) += background.chi(la, k);
-                    etaTot(k) += background.eta(la, k);
-                    S(k) = (etaTot(k) + background.sca(la, k) * JDag(k)) / chiTot(k);
-                }
-                if (storeDepthData)
-                {
-                    auto& depth = *data.depthData;
-                    if (!continuaOnly)
+                    chiTot.fill(0.0);
+                    etaTot.fill(0.0);
+                    gather_opacity_emissivity(&data, computeOperator, la, mu, toObs);
+                    for (int k = 0; k < Nspace; ++k)
                     {
-                        for (int k = 0; k < Nspace; ++k)
+                        chiTot(k) += background.chi(la, k);
+                        etaTot(k) += background.eta(la, k);
+                        S(k) = (etaTot(k) + background.sca(la, k) * JDag(k)) / chiTot(k);
+                    }
+                    if (storeDepthData)
+                    {
+                        auto& depth = *data.depthData;
+                        if (!continuaOnly)
                         {
-                            depth.chi(la, mu, toObsI, k) = chiTot(k);
-                            depth.eta(la, mu, toObsI, k) = etaTot(k);
+                            for (int k = 0; k < Nspace; ++k)
+                            {
+                                depth.chi(la, mu, toObsI, k) = chiTot(k);
+                                depth.eta(la, mu, toObsI, k) = etaTot(k);
+                            }
+                        }
+                        else
+                        {
+                            for (int mu = 0; mu < Nrays; ++mu)
+                                for (int toObsI = 0; toObsI < 2; toObsI += 1)
+                                    for (int k = 0; k < Nspace; ++k)
+                                    {
+                                        depth.chi(la, mu, toObsI, k) = chiTot(k);
+                                        depth.eta(la, mu, toObsI, k) = etaTot(k);
+                                    }
                         }
                     }
-                    else
+                }
+                else
+                {
+                    assert(false);
+                    wideData->chiTot.fill(0.0);
+                    wideData->etaTot.fill(0.0);
+                    gather_opacity_emissivity_wide(&data, computeOperator, la,
+                                                   mu, toObs, fsEffWidth);
+                    for (int k = 0; k < Nspace; ++k)
                     {
-                        for (int mu = 0; mu < Nrays; ++mu)
-                            for (int toObsI = 0; toObsI < 2; toObsI += 1)
-                                for (int k = 0; k < Nspace; ++k)
+                        for (int laS = 0; laS < fsEffWidth; ++laS)
+                        {
+                            const int laW = laS + la;
+                            wideData->chiTot(k, laS) += background.chi(laW, k);
+                            wideData->etaTot(k, laS) += background.eta(laW, k);
+                            wideData->S(k, laS) = (wideData->etaTot(k, laS) + background.sca(laW, k) * wideData->JDag(k, laS)) / wideData->chiTot(k, laS);
+                        }
+                    }
+                    if (storeDepthData)
+                    {
+                        auto& depth = *data.depthData;
+                        if (!continuaOnly)
+                        {
+                            for (int k = 0; k < Nspace; ++k)
+                            {
+                                for (int laS = 0; laS < fsEffWidth; ++laS)
                                 {
-                                    depth.chi(la, mu, toObsI, k) = chiTot(k);
-                                    depth.eta(la, mu, toObsI, k) = etaTot(k);
+                                    const int laW = la + laS;
+                                    depth.chi(laW, mu, toObsI, k) = wideData->chiTot(k, laS);
+                                    depth.eta(laW, mu, toObsI, k) = wideData->etaTot(k, laS);
                                 }
+                            }
+                        }
+                        else
+                        {
+                            for (int mu = 0; mu < Nrays; ++mu)
+                                for (int toObsI = 0; toObsI < 2; toObsI += 1)
+                                    for (int k = 0; k < Nspace; ++k)
+                                    {
+                                        for (int laS = 0; laS < fsEffWidth; ++laS)
+                                        {
+                                            const int laW = la + laS;
+                                            depth.chi(laW, mu, toObsI, k) = wideData->chiTot(k, laS);
+                                            depth.eta(laW, mu, toObsI, k) = wideData->etaTot(k, laS);
+                                        }
+                                    }
+                        }
                     }
                 }
             }
@@ -902,22 +1058,55 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                     printf("Unexpected Ndim!\n");
             }
 
-            if (updateJ)
+            if (!wideData)
             {
-                for (int k = 0; k < Nspace; ++k)
+                if (updateJ)
                 {
-                    J(k) += 0.5 * atmos.wmu(mu) * I(k);
-                }
-
-                if (spect.JRest && spect.hPrdActive && spect.hPrdActive(la))
-                {
-                    int hPrdLa = spect.la_to_hPrdLa(la);
                     for (int k = 0; k < Nspace; ++k)
                     {
-                        const auto& coeffs = spect.JCoeffs(hPrdLa, mu, toObs, k);
-                        for (const auto& c : coeffs)
+                        J(k) += 0.5 * atmos.wmu(mu) * I(k);
+                    }
+
+                    if (spect.JRest && spect.hPrdActive && spect.hPrdActive(la))
+                    {
+                        int hPrdLa = spect.la_to_hPrdLa(la);
+                        for (int k = 0; k < Nspace; ++k)
                         {
-                            spect.JRest(c.idx, k) += 0.5 * atmos.wmu(mu) * c.frac * I(k);
+                            const auto& coeffs = spect.JCoeffs(hPrdLa, mu, toObs, k);
+                            for (const auto& c : coeffs)
+                            {
+                                spect.JRest(c.idx, k) += 0.5 * atmos.wmu(mu) * c.frac * I(k);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                assert(false);
+                if (updateJ)
+                {
+                    for (int k = 0; k < Nspace; ++k)
+                    {
+                        for (int laS = 0; laS < fsEffWidth; ++laS)
+                            spect.J(la + laS, k) += 0.5 * atmos.wmu(mu) * wideData->I(k, laS);
+                    }
+
+                    for (int laS = 0; laS < fsEffWidth; ++laS)
+                    {
+                        if (spect.JRest && spect.hPrdActive && spect.hPrdActive(la + laS))
+                        {
+                            const int laW = la + laS;
+                            int hPrdLa = spect.la_to_hPrdLa(laW);
+                            for (int k = 0; k < Nspace; ++k)
+                            {
+                                const auto& coeffs = spect.JCoeffs(hPrdLa, mu, toObs, k);
+                                for (const auto& c : coeffs)
+                                {
+                                    spect.JRest(c.idx, k) += 0.5 * atmos.wmu(mu)
+                                                             * c.frac * wideData->I(k, laS);
+                                }
+                            }
                         }
                     }
                 }
@@ -929,44 +1118,102 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                 {
                     auto& atom = *activeAtoms[a];
 
-                    if (computeOperator)
+                    if (!wideData)
                     {
-                        if (lambdaIterate)
-                            PsiStar.fill(0.0);
-
-                        for (int k = 0; k < Nspace; ++k)
+                        if (computeOperator)
                         {
-                            Ieff(k) = I(k) - PsiStar(k) * atom.eta(k);
+                            if (lambdaIterate)
+                                PsiStar.fill(0.0);
+
+                            for (int k = 0; k < Nspace; ++k)
+                            {
+                                Ieff(k) = I(k) - PsiStar(k) * atom.eta(k);
+                            }
+                        }
+
+                        for (int kr = 0; kr < atom.Ntrans; ++kr)
+                        {
+                            auto& t = *atom.trans[kr];
+                            if (!t.active(la))
+                                continue;
+
+                            const f64 wmu = 0.5 * atmos.wmu(mu);
+                            t.uv(la, mu, toObs, Uji, Vij, Vji);
+
+                            for (int k = 0; k < Nspace; ++k)
+                            {
+                                const f64 wlamu = atom.wla(kr, k) * wmu;
+
+                                if (computeOperator)
+                                {
+                                    f64 integrand = (Uji(k) + Vji(k) * Ieff(k)) - (PsiStar(k) * atom.chi(t.i, k) * atom.U(t.j, k));
+                                    atom.Gamma(t.i, t.j, k) += integrand * wlamu;
+
+                                    integrand = (Vij(k) * Ieff(k)) - (PsiStar(k) * atom.chi(t.j, k) * atom.U(t.i, k));
+                                    atom.Gamma(t.j, t.i, k) += integrand * wlamu;
+                                }
+
+                                if ((updateRates && !prdRatesOnly)
+                                    || (prdRatesOnly && t.rhoPrd))
+                                {
+                                    t.Rij(k) += I(k) * Vij(k) * wlamu;
+                                    t.Rji(k) += (Uji(k) + I(k) * Vij(k)) * wlamu;
+                                }
+                            }
                         }
                     }
-
-                    for (int kr = 0; kr < atom.Ntrans; ++kr)
+                    else
                     {
-                        auto& t = *atom.trans[kr];
-                        if (!t.active(la))
-                            continue;
-
-                        const f64 wmu = 0.5 * atmos.wmu(mu);
-                        t.uv(la, mu, toObs, Uji, Vij, Vji);
-
-                        for (int k = 0; k < Nspace; ++k)
+                        assert(false);
+                        JasUnpack((*wideData), Uji, Vji, Vij, Ieff, I, PsiStar);
+                        if (computeOperator)
                         {
-                            const f64 wlamu = atom.wla(kr, k) * wmu;
+                            if (lambdaIterate)
+                                PsiStar.fill(0.0);
 
-                            if (computeOperator)
+                            for (int k = 0; k < Nspace; ++k)
                             {
-                                f64 integrand = (Uji(k) + Vji(k) * Ieff(k)) - (PsiStar(k) * atom.chi(t.i, k) * atom.U(t.j, k));
-                                atom.Gamma(t.i, t.j, k) += integrand * wlamu;
-
-                                integrand = (Vij(k) * Ieff(k)) - (PsiStar(k) * atom.chi(t.j, k) * atom.U(t.i, k));
-                                atom.Gamma(t.j, t.i, k) += integrand * wlamu;
+                                for (int laS = 0; laS < fsEffWidth; ++laS)
+                                    Ieff(k, laS) = I(k, laS) - PsiStar(k, laS) * atom.wideScratch->eta(k, laS);
                             }
+                        }
 
-                            if ((updateRates && !prdRatesOnly)
-                                || (prdRatesOnly && t.rhoPrd))
+                        for (int kr = 0; kr < atom.Ntrans; ++kr)
+                        {
+                            auto& t = *atom.trans[kr];
+                            bool anyActive = false;
+                            for (int laW = la; laW < la + fsEffWidth; ++laW)
+                                anyActive = anyActive || t.active[laW];
+                            if (!anyActive)
+                                continue;
+
+                            const f64 wmu = 0.5 * atmos.wmu(mu);
+                            t.uv_wide(atom.wideScratch->gij(kr), la, fsEffWidth, mu, toObs,
+                                      wideData->Uji, wideData->Vij, wideData->Vji);
+
+
+                            for (int k = 0; k < Nspace; ++k)
                             {
-                                t.Rij(k) += I(k) * Vij(k) * wlamu;
-                                t.Rji(k) += (Uji(k) + I(k) * Vij(k)) * wlamu;
+                                for (int laS = 0; laS < fsEffWidth; ++laS)
+                                {
+                                    const f64 wlamu = atom.wideScratch->wla(kr, k, laS) * wmu;
+
+                                    if (computeOperator)
+                                    {
+                                        f64 integrand = (Uji(k, laS) + Vji(k, laS) * Ieff(k, laS)) - (PsiStar(k, laS) * atom.wideScratch->chi(t.i, k, laS) * atom.wideScratch->U(t.j, k, laS));
+                                        atom.Gamma(t.i, t.j, k) += integrand * wlamu;
+
+                                        integrand = (Vij(k, laS) * Ieff(k, laS)) - (PsiStar(k, laS) * atom.wideScratch->chi(t.j, k, laS) * atom.wideScratch->U(t.i, k, laS));
+                                        atom.Gamma(t.j, t.i, k) += integrand * wlamu;
+                                    }
+
+                                    if ((updateRates && !prdRatesOnly)
+                                        || (prdRatesOnly && t.rhoPrd))
+                                    {
+                                        t.Rij(k) += I(k, laS) * Vij(k, laS) * wlamu;
+                                        t.Rji(k) += (Uji(k, laS) + I(k, laS) * Vij(k, laS)) * wlamu;
+                                    }
+                                }
                             }
                         }
                     }
@@ -974,24 +1221,60 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
             }
             if (updateRates && !prdRatesOnly)
             {
-                for (int a = 0; a < detailedAtoms.size(); ++a)
+                if (!wideData)
                 {
-                    auto& atom = *detailedAtoms[a];
-
-                    for (int kr = 0; kr < atom.Ntrans; ++kr)
+                    for (int a = 0; a < detailedAtoms.size(); ++a)
                     {
-                        auto& t = *atom.trans[kr];
-                        if (!t.active(la))
-                            continue;
+                        auto& atom = *detailedAtoms[a];
 
-                        const f64 wmu = 0.5 * atmos.wmu(mu);
-                        t.uv(la, mu, toObs, Uji, Vij, Vji);
-
-                        for (int k = 0; k < Nspace; ++k)
+                        for (int kr = 0; kr < atom.Ntrans; ++kr)
                         {
-                            const f64 wlamu = atom.wla(kr, k) * wmu;
-                            t.Rij(k) += I(k) * Vij(k) * wlamu;
-                            t.Rji(k) += (Uji(k) + I(k) * Vij(k)) * wlamu;
+                            auto& t = *atom.trans[kr];
+                            if (!t.active(la))
+                                continue;
+
+                            const f64 wmu = 0.5 * atmos.wmu(mu);
+                            t.uv(la, mu, toObs, Uji, Vij, Vji);
+
+                            for (int k = 0; k < Nspace; ++k)
+                            {
+                                const f64 wlamu = atom.wla(kr, k) * wmu;
+                                t.Rij(k) += I(k) * Vij(k) * wlamu;
+                                t.Rji(k) += (Uji(k) + I(k) * Vij(k)) * wlamu;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    assert(false);
+                    for (int a = 0; a < detailedAtoms.size(); ++a)
+                    {
+                        auto& atom = *detailedAtoms[a];
+
+                        for (int kr = 0; kr < atom.Ntrans; ++kr)
+                        {
+                            auto& t = *atom.trans[kr];
+                            bool anyActive = false;
+                            for (int laW = la; laW < la + fsEffWidth; ++laW)
+                                anyActive = anyActive || t.active[laW];
+                            if (!anyActive)
+                                continue;
+
+                            const f64 wmu = 0.5 * atmos.wmu(mu);
+                            t.uv_wide(atom.wideScratch->gij(kr), la, fsEffWidth, mu, toObs,
+                                      wideData->Uji, wideData->Vij, wideData->Vji);
+
+                            for (int k = 0; k < Nspace; ++k)
+                            {
+                                for (int laS = 0; laS < fsEffWidth; ++laS)
+                                {
+                                    const f64 wlamu = atom.wideScratch->wla(kr, k, laS) * wmu;
+                                    t.Rij(k) += wideData->I(k, laS) * wideData->Vij(k, laS) * wlamu;
+                                    t.Rji(k) += (wideData->Uji(k, laS) +
+                                                 wideData->I(k, laS) * wideData->Vij(k, laS)) * wlamu;
+                                }
+                            }
                         }
                     }
                 }
@@ -999,17 +1282,42 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
             if (storeDepthData)
             {
                 auto& depth = *data.depthData;
-                for (int k = 0; k < Nspace; ++k)
-                    depth.I(la, mu, toObsI, k) = I(k);
+                if (!wideData)
+                {
+                    for (int k = 0; k < Nspace; ++k)
+                        depth.I(la, mu, toObsI, k) = I(k);
+                }
+                else
+                {
+                    for (int k = 0; k < Nspace; ++k)
+                        for (int laS = 0; laS < fsEffWidth; ++laS)
+                            depth.I(la + laS, mu, toObsI, k) = wideData->I(k, laS);
+                }
             }
         }
     }
+
+    f64 dJMax = 0.0;
     if (updateJ)
     {
-        for (int k = 0; k < Nspace; ++k)
+        if (!wideData)
         {
-            f64 dJ = abs(1.0 - JDag(k) / J(k));
-            dJMax = max(dJ, dJMax);
+            for (int k = 0; k < Nspace; ++k)
+            {
+                f64 dJ = abs(1.0 - JDag(k) / J(k));
+                dJMax = max(dJ, dJMax);
+            }
+        }
+        else
+        {
+            for (int k = 0; k < Nspace; ++k)
+            {
+                for (int laS = 0; laS < fsEffWidth; ++laS)
+                {
+                    f64 dJ = abs(1.0 - wideData->JDag(k, laS) / spect.J(la + laS, k));
+                    dJMax = max(dJ, dJMax);
+                }
+            }
         }
     }
     return dJMax;
