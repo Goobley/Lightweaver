@@ -132,7 +132,6 @@ struct Transition
                 for (int k = 0; k < Vij.shape(0); ++k)
                 {
                     Vij(k, laS) = hc_4pi * Bij * p(k);
-                    // TODO(cmo): Get the right gij
                     Vji(k, laS) = gijw(k, laS) * Vij(k, laS);
                 }
                 // NOTE(cmo): Do the HPRD linear interpolation on rho here

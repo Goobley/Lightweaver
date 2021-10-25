@@ -2786,7 +2786,7 @@ cdef class LwContext:
         self.depthData = LwDepthData(*shape)
         self.ctx.depthData = &self.depthData.depthData
 
-        self.set_formal_solver(formalSolver)
+        self.set_formal_solver(formalSolver, inConstructor=True)
         self.set_interp_fn(interpFn)
         self.setup_threads(Nthreads)
 
@@ -2849,7 +2849,7 @@ cdef class LwContext:
 
         self.setup_threads(state['kwargs']['Nthreads'])
 
-    def set_formal_solver(self, formalSolver):
+    def set_formal_solver(self, formalSolver, inConstructor=False):
         '''
         For internal use. Set the formal solver through the constructor.
         '''
@@ -2863,7 +2863,9 @@ cdef class LwContext:
         self.ctx.formalSolver = fs
 
         # NOTE(cmo): If the FS is wide we may need to reconfigure the wide backing stores.
-        self.update_threads()
+        # But we haven't initialised that system yet when calling in the constructor.
+        if not inConstructor:
+            self.update_threads()
 
     def set_interp_fn(self, interpFn):
         '''

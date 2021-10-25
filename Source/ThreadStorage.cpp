@@ -374,6 +374,7 @@ IntensityCoreData* IntensityCoreFactory::new_intensity_core(bool psiOperator)
     if (psiOperator)
         fd.Psi = as.PsiStar;
 
+    fd.wideData = nullptr;
     if (fsWidth > 1)
     {
         fd.wideData = &as.wideFormal;
