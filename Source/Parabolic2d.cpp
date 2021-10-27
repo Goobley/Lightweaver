@@ -240,9 +240,11 @@ f64 interp_param(const IntersectionData& grid, const IntersectionResult& loc,
     return result;
 }
 
-void piecewise_parabolic_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
+void piecewise_parabolic_2d(FormalData* fd, int la, int mu, bool toObs,
+                            const F64View1D& wave)
 {
     auto& atmos = fd->atmos;
+    const f64 wav = wave(la);
     // printf(".............................................\n");
     // printf("%d %d %d %d\n", atmos->Nspace, atmos->Nx, atmos->Ny, atmos->Nz);
     assert(bool(atmos->intersections));

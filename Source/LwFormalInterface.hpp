@@ -25,7 +25,8 @@ namespace LwInternal
     struct FormalData;
 }
 
-typedef void(*LwFsFn)(LwInternal::FormalData* fd, int la, int mu, bool toObs, f64 wav);
+typedef void(*LwFsFn)(LwInternal::FormalData* fd, int la, int mu,
+                      bool toObs, const F64View1D& wav);
 struct FormalSolver
 {
     int Ndim;

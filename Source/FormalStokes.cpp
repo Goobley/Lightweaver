@@ -352,11 +352,13 @@ void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs,
 
 namespace LwInternal
 {
-void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int la, int mu, bool toObs, f64 wav, bool polarisedFrequency)
+void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int la, int mu, bool toObs,
+                                 const F64View1D& wave, bool polarisedFrequency)
 {
+    const f64 wav = wave(la);
     if (!polarisedFrequency)
     {
-        piecewise_bezier3_1d(&fd->fdIntens, la, mu, toObs, wav);
+        piecewise_bezier3_1d(&fd->fdIntens, la, mu, toObs, wave);
         return;
     }
 
@@ -587,7 +589,9 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ)
             {
                 case 1:
                 {
-                    piecewise_stokes_bezier3_1d(&fd, la, mu, toObs, spect.wavelength(la), polarisedFrequency);
+                    piecewise_stokes_bezier3_1d(&fd, la, mu, toObs,
+                                                spect.wavelength,
+                                                polarisedFrequency);
                     spect.I(la, mu, 0) = I(0, 0);
                     spect.Quv(0, la, mu, 0) = I(1, 0);
                     spect.Quv(1, la, mu, 0) = I(2, 0);

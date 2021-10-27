@@ -422,8 +422,9 @@ f64 interp_besser_2d(const IntersectionData& grid, const IntersectionResult& loc
 }
 
 
-void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
+void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, const F64View1D& wave)
 {
+    const f64 wav = wave(la);
     auto& atmos = fd->atmos;
     auto& interp_param = fd->interp;
     // printf(".............................................\n");
@@ -728,9 +729,10 @@ BesserCoeffs besser_coeffs(f64 t)
     }
 }
 
-void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
+void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, const F64View1D& wave)
 {
     // NOTE(cmo): Implmentation of BESSER method following Stepan & Trujillo Bueno (2013) A&A, 557, A143. This is a 2D variant for scalar intensity, but following the same limiting principles, used to integrate chi and S.
+    const f64 wav = wave(la);
     auto& atmos = fd->atmos;
     auto& interp_param = fd->interp;
     // printf(".............................................\n");

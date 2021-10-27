@@ -524,8 +524,9 @@ void piecewise_besser_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
 
 namespace LwInternal
 {
-void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
+void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs, const F64View1D& wave)
 {
+    const f64 wav = wave(la);
     JasUnpack((*fd), atmos, I, chi);
     f64 zmu = 0.5 / atmos->muz(mu);
     auto height = atmos->height;
@@ -589,8 +590,9 @@ void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
     piecewise_linear_1d_impl(fd, zmu, toObs, Iupw);
 }
 
-void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
+void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, const F64View1D& wave)
 {
+    const f64 wav = wave(la);
     JasUnpack((*fd), atmos, chi);
     // This is 1.0 here, as we are normally effectively rolling in the averaging
     // factor for dtau, whereas it's explicit in this solver
@@ -657,8 +659,9 @@ void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
     piecewise_bezier3_1d_impl(fd, zmu, toObs, Iupw);
 }
 
-void piecewise_besser_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
+void piecewise_besser_1d(FormalData* fd, int la, int mu, bool toObs, const F64View1D& wave)
 {
+    const f64 wav = wave(la);
     JasUnpack((*fd), atmos, chi);
     // This is 1.0 here, as we are normally effectively rolling in the averaging
     // factor for dtau, whereas it's explicit in this solver
@@ -1039,7 +1042,7 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                     // piecewise_bezier3_1d(&fd, la, mu, toObs, spect.wavelength(la));
                     // piecewise_besser_1d(&fd, la, mu, toObs, spect.wavelength(la));
                     // piecewise_linear_1d(&fd, la, mu, toObs, spect.wavelength(la));
-                    formal_solver(&fd, la, mu, toObs, spect.wavelength(la));
+                    formal_solver(&fd, la, mu, toObs, spect.wavelength);
                     spect.I(la, mu, 0) = I(0);
                 } break;
 
@@ -1048,7 +1051,7 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                     // piecewise_linear_2d(&fd, la, mu, toObs, spect.wavelength(la));
                     // piecewise_besser_2d(&fd, la, mu, toObs, spect.wavelength(la));
                     // piecewise_parabolic_2d(&fd, la, mu, toObs, spect.wavelength(la));
-                    formal_solver(&fd, la, mu, toObs, spect.wavelength(la));
+                    formal_solver(&fd, la, mu, toObs, spect.wavelength);
                     auto I2 = I.reshape(atmos.Nz, atmos.Nx);
                     for (int j = 0; j < atmos.Nx; ++j)
                         spect.I(la, mu, j) = I2(0, j);
