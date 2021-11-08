@@ -118,12 +118,21 @@ struct Transition
     {
         namespace C = Constants;
 
+        const int Nspace = Vij.shape(0);
         for (int laW = la; laW < la + width; ++laW)
         {
             const int lt = lt_idx(laW);
             const int laS = laW - la;
-            if (!active[laW])
+            if (!active(laW))
+            {
+                for (int k = 0; k < Nspace; ++k)
+                {
+                    Vij(k, laS) = 0.0;
+                    Vji(k, laS) = 0.0;
+                    Uji(k, laS) = 0.0;
+                }
                 continue;
+            }
 
             if (type == TransitionType::LINE)
             {

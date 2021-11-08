@@ -924,8 +924,17 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                 data.wideData->JDag(k, laW - la) = spect.J(laW, k);
     }
     F64View J = spect.J(la);
-    if (updateJ)
-        J.fill(0.0);
+    if (!wideData)
+    {
+        if (updateJ)
+            J.fill(0.0);
+    }
+    else
+    {
+        for (int laW = la; laW < la + fsEffWidth; ++laW)
+            for (int k = 0; k < Nspace; ++k)
+                spect.J(laW, k) = 0.0;
+    }
 
     for (int a = 0; a < activeAtoms.size(); ++a)
         activeAtoms[a]->setup_wavelength(la, fsEffWidth);
@@ -987,7 +996,6 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                 }
                 else
                 {
-                    assert(false);
                     wideData->chiTot.fill(0.0);
                     wideData->etaTot.fill(0.0);
                     gather_opacity_emissivity_wide(&data, computeOperator, la,
@@ -1043,7 +1051,15 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                     // piecewise_besser_1d(&fd, la, mu, toObs, spect.wavelength(la));
                     // piecewise_linear_1d(&fd, la, mu, toObs, spect.wavelength(la));
                     formal_solver(&fd, la, mu, toObs, spect.wavelength);
-                    spect.I(la, mu, 0) = I(0);
+                    if (!wideData)
+                    {
+                        spect.I(la, mu, 0) = I(0);
+                    }
+                    else
+                    {
+                        for (int laS = 0; laS < fsEffWidth; ++laS)
+                            spect.I(la + laS, mu, 0) = wideData->I(0, laS);
+                    }
                 } break;
 
                 case 2:
@@ -1052,9 +1068,19 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                     // piecewise_besser_2d(&fd, la, mu, toObs, spect.wavelength(la));
                     // piecewise_parabolic_2d(&fd, la, mu, toObs, spect.wavelength(la));
                     formal_solver(&fd, la, mu, toObs, spect.wavelength);
-                    auto I2 = I.reshape(atmos.Nz, atmos.Nx);
-                    for (int j = 0; j < atmos.Nx; ++j)
-                        spect.I(la, mu, j) = I2(0, j);
+                    if (!wideData)
+                    {
+                        auto I2 = I.reshape(atmos.Nz, atmos.Nx);
+                        for (int j = 0; j < atmos.Nx; ++j)
+                            spect.I(la, mu, j) = I2(0, j);
+                    }
+                    else
+                    {
+                        auto I2 = wideData->I.reshape(atmos.Nz, atmos.Nx, fsWidth);
+                        for (int j = 0; j < atmos.Nx; ++j)
+                            for (int laS = 0; laS < fsEffWidth; ++laS)
+                                spect.I(la + laS, mu, j) = I2(0, j, laS);
+                    }
                 } break;
 
                 default:
@@ -1086,7 +1112,6 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
             }
             else
             {
-                assert(false);
                 if (updateJ)
                 {
                     for (int k = 0; k < Nspace; ++k)
@@ -1167,7 +1192,6 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                     }
                     else
                     {
-                        assert(false);
                         JasUnpack((*wideData), Uji, Vji, Vij, Ieff, I, PsiStar);
                         if (computeOperator)
                         {
@@ -1250,7 +1274,6 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                 }
                 else
                 {
-                    assert(false);
                     for (int a = 0; a < detailedAtoms.size(); ++a)
                     {
                         auto& atom = *detailedAtoms[a];
@@ -1429,6 +1452,9 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
 #ifdef CMO_BASIC_PROFILE
         hrc::time_point preMidTime = hrc::now();
 #endif
+        int numFs = Nspect;
+        if (ctx.formalSolver.width > 1)
+            numFs = (Nspect + ctx.formalSolver.width - 1) / ctx.formalSolver.width;
 
         struct FsTaskData
         {
@@ -1436,6 +1462,7 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
             f64 dJ;
             i64 dJIdx;
             bool lambdaIterate;
+            int width;
         };
         FsTaskData* taskData = (FsTaskData*)malloc(ctx.Nthreads * sizeof(FsTaskData));
         for (int t = 0; t < ctx.Nthreads; ++t)
@@ -1444,6 +1471,7 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
             taskData[t].dJ = 0.0;
             taskData[t].dJIdx = 0;
             taskData[t].lambdaIterate = lambdaIterate;
+            taskData[t].width = ctx.formalSolver.width;
         }
 
         auto fs_task = [](void* data, scheduler* s,
@@ -1456,7 +1484,7 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
 
             for (i64 la = p.start; la < p.end; ++la)
             {
-                f64 dJ = intensity_core(*td.core, la, mode);
+                f64 dJ = intensity_core(*td.core, la * td.width, mode);
                 td.dJ = max_idx(td.dJ, dJ, td.dJIdx, la);
             }
         };
@@ -1464,7 +1492,7 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
         {
             sched_task formalSolutions;
             scheduler_add(&ctx.threading.sched, &formalSolutions,
-                          fs_task, (void*)taskData, Nspect, 4);
+                          fs_task, (void*)taskData, numFs, 4);
             scheduler_join(&ctx.threading.sched, &formalSolutions);
         }
 #ifdef CMO_BASIC_PROFILE
@@ -1503,6 +1531,7 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
         int t = duration_cast<nanoseconds>(endTime - midTime).count();
         printf("[FS]  First: %d ns, Second: %d ns, Third: %d ns, Ratio: %.3e\n", f, s, t, (f64)f/(f64)s);
 #endif
+        free(taskData);
         return dJMax;
     }
 }
