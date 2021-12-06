@@ -2534,6 +2534,13 @@ cdef class LwAtom:
         return np.asarray(self.nStar)
 
     @property
+    def stages(self):
+        '''
+        The ionisation stage of each level of this model.
+        '''
+        return np.asarray(self.stages)
+
+    @property
     def trans(self):
         '''
         List of computational transitions (LwTransition).
@@ -3435,6 +3442,13 @@ cdef class LwContext:
         All active computational atomic models (LwAtom).
         '''
         return self.activeAtoms
+
+    @property
+    def detailedAtoms(self):
+        '''
+        All detailed static computational atomic models (LwAtom).
+        '''
+        return self.detailedAtoms
 
     @property
     def spect(self):
