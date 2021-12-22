@@ -638,6 +638,13 @@ class AtomicContinuum(AtomicTransition):
         deltaE = self.jLevel.E_SI - self.iLevel.E_SI
         return Const.HC / deltaE
 
+    @property
+    def polarisable(self) -> bool:
+        '''
+        Returns whether this continuum is polarisable, always False.
+        '''
+        return False
+
 @dataclass(eq=False)
 class ExplicitContinuum(AtomicContinuum):
     '''

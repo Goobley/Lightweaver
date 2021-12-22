@@ -63,6 +63,8 @@ void Atmosphere::update_projections()
             f64 cscTheta = 1.0 / sqrt(1.0 - square(muz(mu)));
             for (int k = 0; k < Nspace; ++k)
             {
+                // NOTE(cmo): Basic projection using spherical polar
+                // coordinates.
                 f64 sinGamma = sin(gammaB(k));
                 f64 bx = sinGamma * cos(chiB(k));
                 f64 by = sinGamma * sin(chiB(k));

@@ -17,6 +17,7 @@ if 'LW_CI_BUILD'  in os.environ:
         posixArgs += ["-march=corei7-avx", "-mtune=corei7-avx"]
 else:
     # NOTE(cmo): Local compile
+    # posixArgs += ["-march=native", "-mtune=native", "-g", "-Og", "-UNDEBUG"]
     posixArgs += ["-march=native", "-mtune=native"]
 
 # TODO(cmo): Find similar architecture args for MSVC

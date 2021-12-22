@@ -408,6 +408,9 @@ PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
         }
     }
 
+    if (prdLines.size() == 0)
+        return {0, 0.0};
+
     const int Nspect = spect.wavelength.shape(0);
     auto& idxsForFs = spect.hPrdIdxs;
     std::vector<int> prdIdxs;

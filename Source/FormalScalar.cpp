@@ -509,8 +509,9 @@ void piecewise_besser_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
 
 namespace LwInternal
 {
-void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
+void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs, const F64View1D& wave)
 {
+    const f64 wav = wave(la);
     JasUnpack((*fd), atmos, I, chi);
     f64 zmu = 0.5 / atmos->muz(mu);
     auto height = atmos->height;
@@ -574,8 +575,9 @@ void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
     piecewise_linear_1d_impl(fd, zmu, toObs, Iupw);
 }
 
-void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
+void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, const F64View1D& wave)
 {
+    const f64 wav = wave(la);
     JasUnpack((*fd), atmos, chi);
     // This is 1.0 here, as we are normally effectively rolling in the averaging
     // factor for dtau, whereas it's explicit in this solver
@@ -642,8 +644,9 @@ void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
     piecewise_bezier3_1d_impl(fd, zmu, toObs, Iupw);
 }
 
-void piecewise_besser_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav)
+void piecewise_besser_1d(FormalData* fd, int la, int mu, bool toObs, const F64View1D& wave)
 {
+    const f64 wav = wave(la);
     JasUnpack((*fd), atmos, chi);
     // This is 1.0 here, as we are normally effectively rolling in the averaging
     // factor for dtau, whereas it's explicit in this solver
@@ -802,10 +805,13 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
     JasUnpack(*data, activeAtoms, detailedAtoms, JDag);
     JasUnpack(data, chiTot, etaTot, Uji, Vij, Vji);
     JasUnpack(data, I, S, Ieff, PsiStar);
-    const LwFsFn formal_solver = data.formal_solver;
     const int Nspace = atmos.Nspace;
     const int Nrays = atmos.Nrays;
     const int Nspect = spect.wavelength.shape(0);
+    const int fsWidth = data.fd->width;
+    const LwFsFn formal_solver = data.formal_solver;
+    // NOTE(cmo): Effective formal solver width to not roll off array
+    const int fsEffWidth = min(data.fd->width, Nspect - la);
     const bool updateJ = mode & FsMode::UpdateJ;
     const bool updateRates = mode & FsMode::UpdateRates;
     const bool prdRatesOnly = mode & FsMode::PrdOnly;
@@ -820,19 +826,20 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
         J.fill(0.0);
 
     for (int a = 0; a < activeAtoms.size(); ++a)
-        activeAtoms[a]->setup_wavelength(la);
+        activeAtoms[a]->setup_wavelength(la, fsEffWidth);
     for (int a = 0; a < detailedAtoms.size(); ++a)
-        detailedAtoms[a]->setup_wavelength(la);
+        detailedAtoms[a]->setup_wavelength(la, fsEffWidth);
 
     // NOTE(cmo): If we only have continua then opacity is angle independent
-    const bool continuaOnly = continua_only(data, la);
+    bool continuaOnly = true;
+    for (int laW = la; laW < la + fsEffWidth; ++laW)
+        continuaOnly = continuaOnly && continua_only(data, laW);
 
     int toObsStart = 0;
     int toObsEnd = 2;
     if (upOnly)
         toObsStart = 1;
 
-    f64 dJMax = 0.0;
     for (int mu = 0; mu < Nrays; ++mu)
     {
         for (int toObsI = toObsStart; toObsI < toObsEnd; toObsI += 1)
@@ -840,12 +847,11 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
             bool toObs = (bool)toObsI;
             if (!continuaOnly || (continuaOnly && (mu == 0 && toObsI == 0)))
             {
-                chiTot.fill(0.0);
-                etaTot.fill(0.0);
 
                 // Gathers from all active non-background transitions
+                chiTot.fill(0.0);
+                etaTot.fill(0.0);
                 gather_opacity_emissivity(&data, computeOperator, la, mu, toObs);
-
                 for (int k = 0; k < Nspace; ++k)
                 {
                     chiTot(k) += background.chi(la, k);
@@ -880,22 +886,18 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
             {
                 case 1:
                 {
-                    // piecewise_bezier3_1d(&fd, la, mu, toObs, spect.wavelength(la));
-                    // piecewise_besser_1d(&fd, la, mu, toObs, spect.wavelength(la));
-                    // piecewise_linear_1d(&fd, la, mu, toObs, spect.wavelength(la));
-                    formal_solver(&fd, la, mu, toObs, spect.wavelength(la));
+                    formal_solver(&fd, la, mu, toObs, spect.wavelength);
                     spect.I(la, mu, 0) = I(0);
+
                 } break;
 
                 case 2:
                 {
-                    // piecewise_linear_2d(&fd, la, mu, toObs, spect.wavelength(la));
-                    // piecewise_besser_2d(&fd, la, mu, toObs, spect.wavelength(la));
-                    // piecewise_parabolic_2d(&fd, la, mu, toObs, spect.wavelength(la));
-                    formal_solver(&fd, la, mu, toObs, spect.wavelength(la));
+                    formal_solver(&fd, la, mu, toObs, spect.wavelength);
                     auto I2 = I.reshape(atmos.Nz, atmos.Nx);
                     for (int j = 0; j < atmos.Nx; ++j)
                         spect.I(la, mu, j) = I2(0, j);
+
                 } break;
 
                 default:
@@ -928,7 +930,6 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                 for (int a = 0; a < activeAtoms.size(); ++a)
                 {
                     auto& atom = *activeAtoms[a];
-
                     if (computeOperator)
                     {
                         if (lambdaIterate)
@@ -966,7 +967,7 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                                 || (prdRatesOnly && t.rhoPrd))
                             {
                                 t.Rij(k) += I(k) * Vij(k) * wlamu;
-                                t.Rji(k) += (Uji(k) + I(k) * Vij(k)) * wlamu;
+                                t.Rji(k) += (Uji(k) + I(k) * Vji(k)) * wlamu;
                             }
                         }
                     }
@@ -991,7 +992,7 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                         {
                             const f64 wlamu = atom.wla(kr, k) * wmu;
                             t.Rij(k) += I(k) * Vij(k) * wlamu;
-                            t.Rji(k) += (Uji(k) + I(k) * Vij(k)) * wlamu;
+                            t.Rji(k) += (Uji(k) + I(k) * Vji(k)) * wlamu;
                         }
                     }
                 }
@@ -1004,6 +1005,8 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
             }
         }
     }
+
+    f64 dJMax = 0.0;
     if (updateJ)
     {
         for (int k = 0; k < Nspace; ++k)
@@ -1118,6 +1121,9 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
 #ifdef CMO_BASIC_PROFILE
         hrc::time_point preMidTime = hrc::now();
 #endif
+        int numFs = Nspect;
+        if (ctx.formalSolver.width > 1)
+            numFs = (Nspect + ctx.formalSolver.width - 1) / ctx.formalSolver.width;
 
         struct FsTaskData
         {
@@ -1125,6 +1131,7 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
             f64 dJ;
             i64 dJIdx;
             bool lambdaIterate;
+            int width;
         };
         FsTaskData* taskData = (FsTaskData*)malloc(ctx.Nthreads * sizeof(FsTaskData));
         for (int t = 0; t < ctx.Nthreads; ++t)
@@ -1133,6 +1140,7 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
             taskData[t].dJ = 0.0;
             taskData[t].dJIdx = 0;
             taskData[t].lambdaIterate = lambdaIterate;
+            taskData[t].width = ctx.formalSolver.width;
         }
 
         auto fs_task = [](void* data, scheduler* s,
@@ -1145,7 +1153,7 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
 
             for (i64 la = p.start; la < p.end; ++la)
             {
-                f64 dJ = intensity_core(*td.core, la, mode);
+                f64 dJ = intensity_core(*td.core, la * td.width, mode);
                 td.dJ = max_idx(td.dJ, dJ, td.dJIdx, la);
             }
         };
@@ -1153,7 +1161,7 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
         {
             sched_task formalSolutions;
             scheduler_add(&ctx.threading.sched, &formalSolutions,
-                          fs_task, (void*)taskData, Nspect, 4);
+                          fs_task, (void*)taskData, numFs, 4);
             scheduler_join(&ctx.threading.sched, &formalSolutions);
         }
 #ifdef CMO_BASIC_PROFILE
@@ -1166,7 +1174,8 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
             dJMax = max_idx(dJMax, taskData[t].dJ, maxIdx, taskData[t].dJIdx);
 
 
-        ctx.threading.intensityCores.accumulate_Gamma_rates_parallel(ctx);
+        // ctx.threading.intensityCores.accumulate_Gamma_rates_parallel(ctx);
+        ctx.threading.intensityCores.accumulate_Gamma_rates();
 
         for (int a = 0; a < activeAtoms.size(); ++a)
         {
@@ -1192,6 +1201,7 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
         int t = duration_cast<nanoseconds>(endTime - midTime).count();
         printf("[FS]  First: %d ns, Second: %d ns, Third: %d ns, Ratio: %.3e\n", f, s, t, (f64)f/(f64)s);
 #endif
+        free(taskData);
         return dJMax;
     }
 }

@@ -7,6 +7,8 @@
 #include "LwMisc.hpp"
 #include "LwTransition.hpp"
 
+struct Atom;
+
 struct Atom
 {
     Atmosphere* atmos;
@@ -32,7 +34,7 @@ struct Atom
     int Nlevel;
     int Ntrans;
 
-    inline void setup_wavelength(int laIdx)
+    inline void setup_wavelength(int laIdx, int fsWidth=1)
     {
         namespace C = Constants;
         constexpr f64 pi4_h = 4.0 * C::Pi / C::HPlanck;

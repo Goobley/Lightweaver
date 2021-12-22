@@ -15,12 +15,22 @@ namespace LwInternal
 {
     struct FormalData
     {
+        int width;
         Atmosphere* atmos;
         F64View chi;
         F64View S;
         F64View I;
         F64View Psi;
         Interp2d interp;
+
+        FormalData() : width(1),
+                       atmos(nullptr),
+                       chi(),
+                       S(),
+                       I(),
+                       Psi(),
+                       interp()
+        {}
     };
 
     struct FormalDataStokes
@@ -52,6 +62,8 @@ namespace LwInternal
         F64View S;
         F64View Ieff;
         F64View PsiStar;
+
+        IntensityCoreData() = default;
     };
 
     struct StokesCoreData
@@ -108,10 +120,14 @@ namespace LwInternal
         return static_cast<FsMode>(static_cast<u32>(a) | static_cast<u32>(b));
     }
 
-    void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav);
-    void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, f64 wav);
-    void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav);
-    void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav);
+    void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs,
+                             const F64View1D& wave);
+    void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs,
+                              const F64View1D& wave);
+    void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs,
+                             const F64View1D& wave);
+    void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs,
+                             const F64View1D& wave);
     void piecewise_parabolic_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav);
     void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int la, int mu, bool toObs, f64 wav, bool polarisedFrequency);
     f64 intensity_core(IntensityCoreData& data, int la, FsMode mode);

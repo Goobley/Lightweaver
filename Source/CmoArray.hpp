@@ -8,9 +8,94 @@
 #include <cassert>
 #include <utility>
 
+#ifdef _WIN32
+#include <malloc.h>
+#else
+#include <cstdlib>
+#endif
+
 namespace Jasnah
 {
-// NOTE(cmo): The standards commitee are very emphatic now that indices and
+
+// NOTE(cmo): C++17 implementation of a basic POD aligned allocator
+namespace Detail
+{
+template <typename T>
+T* aligned_alloc(size_t n, size_t alignment);
+
+template <typename T>
+void deallocate(T* ptr, size_t n);
+
+#ifdef _WIN32
+template <typename T>
+T* aligned_alloc(size_t n, size_t alignment)
+{
+    return (T*)_aligned_malloc(n * sizeof(T), alignment);
+}
+
+template <typename T>
+void deallocate(T* ptr, size_t n)
+{
+    _aligned_free(ptr);
+}
+#else
+template <typename T>
+T* aligned_alloc(size_t n, size_t alignment)
+{
+    void* result;
+    int error = posix_memalign(&result, alignment, n * sizeof(T));
+
+    return error == 0 ? (T*)result : nullptr;
+}
+
+template <typename T>
+void deallocate(T* ptr, size_t n)
+{
+    free(ptr);
+}
+#endif
+}
+
+template <typename T, size_t Alignment>
+struct PodAlignedAllocator
+{
+    using value_type = T;
+    using size_type = std::size_t;
+    using difference_type = std::ptrdiff_t;
+
+    template <class U> struct rebind
+    {
+        typedef PodAlignedAllocator<U, Alignment> other;
+    };
+
+    T* allocate(std::size_t n)
+    {
+        T* result = Detail::aligned_alloc<T>(n, Alignment);
+        if (result == nullptr)
+            throw std::bad_alloc();
+
+        return result;
+    }
+
+    void deallocate(T* ptr, size_t n)
+    {
+        Detail::deallocate(ptr, n);
+    }
+};
+
+template <class T1, size_t A1, class T2, size_t A2>
+bool operator==(const PodAlignedAllocator<T1, A1>&, const PodAlignedAllocator<T2, A2>&)
+{
+    return A1 == A2;
+}
+
+template <class T1, size_t A1, class T2, size_t A2>
+bool operator!=(const PodAlignedAllocator<T1, A1>&, const PodAlignedAllocator<T2, A2>&)
+{
+    return A1 != A2;
+}
+
+// NOTE(cmo): The standards committee are very emphatic now that indices and
 // lengths of arrays should be signed. This makes sense when differencing etc.
 // and it looks like std2 will actually follow this convention. We may as well
 // get on board now.
@@ -23,11 +108,11 @@ typedef int64_t i64;
     #define DO_BOUNDS_CHECK_M1()
 #endif
 
-template <typename T> struct Array1Own;
-template <typename T> struct Array2Own;
-template <typename T> struct Array3Own;
-template <typename T> struct Array4Own;
-template <typename T> struct Array5Own;
+template <typename T, class Alloc> struct Array1Own;
+template <typename T, class Alloc> struct Array2Own;
+template <typename T, class Alloc> struct Array3Own;
+template <typename T, class Alloc> struct Array4Own;
+template <typename T, class Alloc> struct Array5Own;
 template <typename T> struct Array2NonOwn;
 template <typename T> struct Array3NonOwn;
 template <typename T> struct Array4NonOwn;
@@ -47,7 +132,8 @@ struct Array1NonOwn
     {}
     Array1NonOwn(const Array1NonOwn& other) = default;
     Array1NonOwn(Array1NonOwn&& other) = default;
-    Array1NonOwn(Array1Own<T>& other) : data(other.data()), Ndim(other.Ndim), dim0(other.dim0)
+    template <class Alloc>
+    Array1NonOwn(Array1Own<T, Alloc>& other) : data(other.data()), Ndim(other.Ndim), dim0(other.dim0)
     {}
 
     template<typename U = T, typename = std::enable_if_t<std::is_const<U>::value>>
@@ -201,10 +287,10 @@ struct Array1NonOwn
     }
 };
 
-template <typename T>
+template <typename T, class Alloc = PodAlignedAllocator<T, 32>>
 struct Array1Own
 {
-    std::vector<T> dataStore;
+    std::vector<T, Alloc> dataStore;
     i64 Ndim;
     i64 dim0;
     Array1Own() : dataStore(), Ndim(1), dim0(0)
@@ -402,7 +488,8 @@ struct Array2NonOwn
     {}
     Array2NonOwn(const Array2NonOwn& other) = default;
     Array2NonOwn(Array2NonOwn&& other) = default;
-    Array2NonOwn(Array2Own<T>& other) : data(other.data()), Ndim(other.Ndim), dim(other.dim)
+    template <class Alloc>
+    Array2NonOwn(Array2Own<T, Alloc>& other) : data(other.data()), Ndim(other.Ndim), dim(other.dim)
     {}
     template<typename U = T, typename = std::enable_if_t<std::is_const<U>::value>>
     Array2NonOwn(const Array2NonOwn<typename std::remove_const<T>::type>& other) : data(other.data()), Ndim(other.Ndim), dim(other.dim)
@@ -559,10 +646,10 @@ struct Array2NonOwn
     }
 };
 
-template <typename T>
+template <typename T, class Alloc = PodAlignedAllocator<T, 32>>
 struct Array2Own
 {
-    std::vector<T> dataStore;
+    std::vector<T, Alloc> dataStore;
     i64 Ndim;
     std::array<i64, 2> dim;
     Array2Own() : dataStore(), Ndim(2), dim{}
@@ -771,7 +858,8 @@ struct Array3NonOwn
     {}
     Array3NonOwn(const Array3NonOwn& other) = default;
     Array3NonOwn(Array3NonOwn&& other) = default;
-    Array3NonOwn(Array3Own<T>& other) : data(other.data()), Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
+    template <class Alloc>
+    Array3NonOwn(Array3Own<T, Alloc>& other) : data(other.data()), Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
     {}
     template<typename U = T, typename = std::enable_if_t<std::is_const<U>::value>>
     Array3NonOwn(const Array3NonOwn<typename std::remove_const<T>::type>& other) : data(other.data()), Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
@@ -938,10 +1026,10 @@ struct Array3NonOwn
     }
 };
 
-template <typename T>
+template <typename T, class Alloc = PodAlignedAllocator<T, 32>>
 struct Array3Own
 {
-    std::vector<T> dataStore;
+    std::vector<T, Alloc> dataStore;
     i64 Ndim;
     std::array<i64, 3> dim;
     std::array<i64, 2> dimProd;
@@ -1164,7 +1252,8 @@ struct Array4NonOwn
     {}
     Array4NonOwn(const Array4NonOwn& other) = default;
     Array4NonOwn(Array4NonOwn&& other) = default;
-    Array4NonOwn(Array4Own<T>& other) : data(other.data()), Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
+    template <class Alloc>
+    Array4NonOwn(Array4Own<T, Alloc>& other) : data(other.data()), Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
     {}
     template<typename U = T, typename = std::enable_if_t<std::is_const<U>::value>>
     Array4NonOwn(const Array4NonOwn<typename std::remove_const<T>::type>& other) : data(other.data()), Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
@@ -1342,10 +1431,10 @@ struct Array4NonOwn
     }
 };
 
-template <typename T>
+template <typename T, class Alloc = PodAlignedAllocator<T, 32>>
 struct Array4Own
 {
-    std::vector<T> dataStore;
+    std::vector<T, Alloc> dataStore;
     i64 Ndim;
     std::array<i64, 4> dim;
     std::array<i64, 3> dimProd;
@@ -1581,7 +1670,8 @@ struct Array5NonOwn
     {}
     Array5NonOwn(const Array5NonOwn& other) = default;
     Array5NonOwn(Array5NonOwn&& other) = default;
-    Array5NonOwn(Array5Own<T>& other) : data(other.data()), Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
+    template <class Alloc>
+    Array5NonOwn(Array5Own<T, Alloc>& other) : data(other.data()), Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
     {}
     template<typename U = T, typename = std::enable_if_t<std::is_const<U>::value>>
     Array5NonOwn(const Array5NonOwn<typename std::remove_const<T>::type>& other) : data(other.data()), Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
@@ -1767,10 +1857,10 @@ struct Array5NonOwn
     }
 };
 
-template <typename T>
+template <typename T, class Alloc = PodAlignedAllocator<T, 32>>
 struct Array5Own
 {
-    std::vector<T> dataStore;
+    std::vector<T, Alloc> dataStore;
     i64 Ndim;
     std::array<i64, 5> dim;
     std::array<i64, 4> dimProd;

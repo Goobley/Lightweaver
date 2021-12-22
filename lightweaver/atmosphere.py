@@ -6,7 +6,7 @@ import numpy as np
 from .witt import witt
 import lightweaver.constants as Const
 from numpy.polynomial.legendre import leggauss
-from .utils import ConvergenceError, view_flatten, get_data_path
+from .utils import ConvergenceError, view_flatten, check_shape_exception, get_data_path
 from .atomic_table import PeriodicTable, AtomicAbundance, DefaultAtomicAbundance
 import astropy.units as u
 import pickle
@@ -684,8 +684,12 @@ class Atmosphere:
         Nrays : int
             Number of rays in angular discretisation used.
         '''
-        if self.muz is None:
+        try:
+            if self.muz is None:
+                raise AttributeError('Nrays not set, call atmos.rays or .quadrature first')
+        except AttributeError:
             raise AttributeError('Nrays not set, call atmos.rays or .quadrature first')
+
 
         return self.muz.shape[0]
 
@@ -867,21 +871,40 @@ class Atmosphere:
             depthScale = (depthScale << u.m).value
         elif scale == ScaleType.ColumnMass:
             depthScale = (depthScale << u.kg / u.m**2).value
+
+        check_shape = lambda x, xName: check_shape_exception(x,
+                                            depthScale.shape[0], 1, xName)
         temperature = (temperature << u.K).value
+        check_shape(temperature, 'temperature')
         vlos = (vlos << u.m / u.s).value
+        check_shape(vlos, 'vlos')
         vturb = (vturb << u.m / u.s).value
+        check_shape(vturb, 'vturb')
         if ne is not None:
             ne = (ne << u.m**(-3)).value
+            check_shape(ne, 'ne')
         if hydrogenPops is not None:
             hydrogenPops = (hydrogenPops << u.m**(-3)).value
+            if hydrogenPops.shape[1] != depthScale.shape[0]:
+                raise ValueError(f'Array hydrogenPops does not have the expected second dimension: {depthScale.shape[0]} (got: {hydrogenPops.shape[1]}).')
         if nHTot is not None:
             nHTot = (nHTot << u.m**(-3)).value
+            check_shape(nHTot)
         if B is not None:
             B = (B << u.T).value
+            check_shape(B)
+            if gammaB is None or chiB is None:
+                raise ValueError('B is set, both gammaB and chiB must be also.')
         if gammaB is not None:
             gammaB = (gammaB << u.rad).value
+            check_shape(gammaB)
+            if B is None or chiB is None:
+                raise ValueError('gammaB is set, both B and chiB must be also.')
         if chiB is not None:
             chiB = (chiB << u.rad).value
+            check_shape(chiB)
+            if gammaB is None or B is None:
+                raise ValueError('chiB is set, both B and gammaB must be also.')
 
         if lowerBc is None:
             lowerBc = ThermalisedRadiation()
@@ -1133,7 +1156,8 @@ class Atmosphere:
         B : np.ndarray, optional.
             Magnetic field strength [T].
         gammaB : np.ndarray, optional
-            Co-altitude of magnetic field vector [radians].
+            Inclination (co-altitude) of magnetic field vector to the z-axis
+            [radians].
         chiB : np.ndarray, optional
             Azimuth of magnetic field vector (in x-y plane, from x) [radians].
         xLowerBc : BoundaryCondition, optional
