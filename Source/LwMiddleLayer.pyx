@@ -7,7 +7,7 @@ from libcpp.vector cimport vector
 from libc.math cimport sqrt, exp, copysign
 from .atmosphere import BoundaryCondition, ZeroRadiation, ThermalisedRadiation, PeriodicRadiation, NoBc
 from .atomic_model import AtomicLine, LineType, LineProfileState
-from .utils import InitialSolution, ExplodingMatrixError, UnityCrswIterator
+from .utils import InitialSolution, ExplodingMatrixError, UnityCrswIterator, check_shape_exception
 from .atomic_table import PeriodicTable
 from .atomic_set import lte_pops
 from weno4 import weno4
@@ -479,23 +479,56 @@ cdef class LwAtmosphere:
         self.Nwave = Nwave
         self.pyAtmos = atmos
 
+        cdef int Nspace = atmos.Nspace
+        self.atmos.Nspace = Nspace
+        cdef int Nrays = atmos.Nrays
+        self.atmos.Nrays = Nrays
+
+        cdef int Ndim = atmos.Ndim
+        self.atmos.Ndim = Ndim
+        cdef int Nx = atmos.Nx
+        self.atmos.Nx = Nx
+        cdef int Ny = atmos.Ny
+        self.atmos.Ny = Ny
+        cdef int Nz = atmos.Nz
+        self.atmos.Nz = Nz
+
         self.x = atmos.x
+        check_shape_exception(self.x, Nx, name='x')
         self.y = atmos.y
+        check_shape_exception(self.y, Ny, name='y')
         self.z = atmos.z
+        check_shape_exception(self.z, Nz, name='y')
 
         self.temperature = atmos.temperature
+        check_shape_exception(self.temperature, Nspace, name='temperature')
         self.ne = atmos.ne
+        check_shape_exception(self.ne, Nspace, name='ne')
 
         self.vz = atmos.vz
+        check_shape_exception(self.vz, Nspace, name='vz')
         self.vx = atmos.vx
         self.vy = atmos.vy
+        if Ndim >= 2:
+            check_shape_exception(self.vx, Nspace, name='vx')
+        if Ndim >= 3:
+            check_shape_exception(self.vy, Nspace, name='vy')
 
         self.vturb = atmos.vturb
+        check_shape_exception(self.vturb, Nspace, name='vturb')
         self.nHTot = atmos.nHTot
-        self.muz = atmos.muz
-        self.muy = atmos.muy
-        self.mux = atmos.mux
-        self.wmu = atmos.wmu
+        check_shape_exception(self.nHTot, Nspace, name='vturb')
+        try:
+            self.muz = atmos.muz
+            check_shape_exception(self.muz, Nrays, name='muz')
+            self.muy = atmos.muy
+            check_shape_exception(self.muy, Nrays, name='muy')
+            self.mux = atmos.mux
+            check_shape_exception(self.mux, Nrays, name='mux')
+            self.wmu = atmos.wmu
+            check_shape_exception(self.wmu, Nrays, name='wmu')
+        except AttributeError as e:
+            raise ValueError(f'One of the quadrature values not found, was .quadrature called on the Atmosphere object? (Caught: {e}')
         self.atmos.z = f64_view(self.z)
         self.atmos.height = f64_view(self.z)
         self.atmos.x = f64_view(self.x)
@@ -512,24 +545,13 @@ cdef class LwAtmosphere:
         self.atmos.mux = f64_view(self.mux)
         self.atmos.wmu = f64_view(self.wmu)
 
-        cdef int Nspace = atmos.Nspace
-        self.atmos.Nspace = Nspace
-        cdef int Nrays = atmos.Nrays
-        self.atmos.Nrays = Nrays
-
-        cdef int Ndim = atmos.Ndim
-        self.atmos.Ndim = Ndim
-        cdef int Nx = atmos.Nx
-        self.atmos.Nx = Nx
-        cdef int Ny = atmos.Ny
-        self.atmos.Ny = Ny
-        cdef int Nz = atmos.Nz
-        self.atmos.Nz = Nz
-
         if atmos.B is not None:
             self.B = atmos.B
+            check_shape_exception(self.B, Nspace, name='B')
             self.gammaB = atmos.gammaB
+            check_shape_exception(self.gammaB, Nspace, name='gammaB')
             self.chiB = atmos.chiB
+            check_shape_exception(self.chiB, Nspace, name='chiB')
             if self.B.shape[0] != self.gammaB.shape[0] or self.B.shape[0] != self.chiB.shape[0]:
                 raise ValueError(f'Shapes of B, gammaB, and chiB don\'t match, verify that these are correctly set in the Atmosphere provided to Context. (B: {self.B.shape}, chiB: {self.chiB.shape}, gammaB: {self.gammaB.shape}.')
             self.atmos.B = f64_view(self.B)

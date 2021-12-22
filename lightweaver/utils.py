@@ -2,7 +2,7 @@ import lightweaver.constants as C
 from copy import copy, deepcopy
 import numpy as np
 import os
-from typing import Union, Tuple, Sequence, TYPE_CHECKING
+from typing import Optional, Union, Tuple, Sequence, TYPE_CHECKING
 from dataclasses import dataclass
 from enum import Enum, auto
 from astropy import units
@@ -242,6 +242,33 @@ def view_flatten(x: np.ndarray) -> np.ndarray:
     y = x.view()
     y.shape = (x.size,)
     return y
+
+def check_shape_exception(a: np.ndarray, shape: Union[int, Tuple[int]],
+                          ndim: Optional[int]=1, name: Optional[str]='array'):
+    '''
+    Ensure that an array matches the expected number of dimensions and shape.
+    Raise a ValueError if not, quoting the array's name (if provided)
+
+    Parameters
+    ----------
+    a : np.ndarray
+        The array to verify.
+    shape : int or Tuple[int]
+        The length (for a 1D array), or shape for a multi-dimensional array.
+    ndim : int, optional
+        The expected number of dimensions (default: 1)
+    name : str, optional
+        The name to in any exception (default: array)
+
+    '''
+    if isinstance(shape, int):
+        shape = (shape,)
+
+    if a.ndim != ndim:
+        raise ValueError(f'Array ({name}) does not have the expected number of dimensions: {ndim} (got: {a.ndim}).')
+
+    if a.shape != shape:
+        raise ValueError(f'Array ({name}) does not have the expected shape: {shape} (got: {a.shape}).')
 
 def compute_radiative_losses(ctx) -> np.ndarray:
     '''
