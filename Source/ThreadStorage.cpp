@@ -179,12 +179,6 @@ Atom* AtomStorageFactory::copy_atom()
         a->chi = as.chi;
     }
 
-    if (fsWidth > 1)
-    {
-        as.wideStorage = WideAtomStorage(*a, detailedStatic, Nspace, fsWidth);
-        a->wideScratch = &as.wideStorage;
-    }
-
     return a;
 }
 
@@ -374,18 +368,6 @@ IntensityCoreData* IntensityCoreFactory::new_intensity_core(bool psiOperator)
     if (psiOperator)
         fd.Psi = as.PsiStar;
 
-    fd.wideData = nullptr;
-    if (fsWidth > 1)
-    {
-        fd.width = fsWidth;
-        fd.wideData = &as.wideFormal;
-        fd.wideData->chi = as.wideCore.chiTot;
-        fd.wideData->S = as.wideCore.S;
-        fd.wideData->I = as.wideCore.I;
-        if (psiOperator)
-            fd.wideData->Psi = as.wideCore.PsiStar;
-    }
-
     iCore.JDag = &as.JDag;
     iCore.chiTot = as.chiTot;
     iCore.etaTot = as.etaTot;
@@ -397,10 +379,6 @@ IntensityCoreData* IntensityCoreFactory::new_intensity_core(bool psiOperator)
     iCore.Ieff = as.Ieff;
     if (psiOperator)
         iCore.PsiStar = as.PsiStar;
-
-    iCore.wideData = nullptr;
-    if (fsWidth > 1)
-        iCore.wideData = &as.wideCore;
 
     as.activeAtoms.reserve(activeAtoms.size());
     for (auto& atom : activeAtoms)

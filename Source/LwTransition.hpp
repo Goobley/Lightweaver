@@ -113,67 +113,6 @@ struct Transition
         }
     }
 
-    inline void uv_wide(F64View2D gijw, int la, int width, int mu, bool toObs,
-                        F64View2D Uji, F64View2D Vij, F64View2D Vji) const
-    {
-        namespace C = Constants;
-
-        const int Nspace = Vij.shape(0);
-        for (int laW = la; laW < la + width; ++laW)
-        {
-            const int lt = lt_idx(laW);
-            const int laS = laW - la;
-            if (!active(laW))
-            {
-                for (int k = 0; k < Nspace; ++k)
-                {
-                    Vij(k, laS) = 0.0;
-                    Vji(k, laS) = 0.0;
-                    Uji(k, laS) = 0.0;
-                }
-                continue;
-            }
-
-            if (type == TransitionType::LINE)
-            {
-                constexpr f64 hc_4pi = 0.25 * C::HC / C::Pi;
-                auto p = phi(lt, mu, (int)toObs);
-                for (int k = 0; k < Vij.shape(0); ++k)
-                {
-                    Vij(k, laS) = hc_4pi * Bij * p(k);
-                    Vji(k, laS) = gijw(k, laS) * Vij(k, laS);
-                }
-                // NOTE(cmo): Do the HPRD linear interpolation on rho here
-                // As we make Uji, Vij, and Vji explicit, there shouldn't be any need for direct access to gij
-                if (hPrdCoeffs)
-                {
-                    for (int k = 0; k < Vij.shape(0); ++k)
-                    {
-                        const auto& coeffs = hPrdCoeffs(lt, mu, toObs, k);
-                        f64 rho = (1.0 - coeffs.frac) * rhoPrd(coeffs.i0, k) + coeffs.frac * rhoPrd(coeffs.i1, k);
-                        Vji(k, laS) *= rho;
-                    }
-                }
-                for (int k = 0; k < Vij.shape(0); ++k)
-                {
-                    Uji(k, laS) = Aji / Bji * Vji(k, laS);
-                }
-            }
-            else
-            {
-                constexpr f64 twoHc = 2.0 * C::HC / cube(C::NM_TO_M);
-                const f64 hcl = twoHc / cube(wavelength(lt));
-                const f64 a = alpha(lt);
-                for (int k = 0; k < Vij.shape(0); ++k)
-                {
-                    Vij(k, laS) = a;
-                    Vji(k, laS) = gijw(k, laS) * Vij(k, laS);
-                    Uji(k, laS) = hcl * Vji(k, laS);
-                }
-            }
-        }
-    }
-
     inline void zero_rates()
     {
         Rij.fill(0.0);

@@ -7,6 +7,7 @@
 
 namespace Bezier
 {
+#if 0
 inline f64 my_copysign(f64 a, f64 b)
 {
     // NOTE(cmo): Copy sign of b onto a.
@@ -23,6 +24,12 @@ inline f64 my_copysign(f64 a, f64 b)
     pa.i |= pb.i & 1ULL << 63; // or with sign bit of b
     return pa.f;
 }
+#else
+inline f64 my_copysign(f64 a, f64 b)
+{
+    return std::copysign(a, b);
+}
+#endif
 
 #ifdef USE_FRITSCH_DERIVATIVE
 inline f64 cent_deriv(f64 dsup, f64 dsdn, f64 chiup, f64 chic, f64 chidn)

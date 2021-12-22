@@ -48,7 +48,6 @@ struct AtomStorage
     F64Arr2D U;
     F64Arr2D chi;
     Atom atom;
-    WideAtomStorage wideStorage;
 };
 
 
@@ -85,9 +84,7 @@ struct IntensityCoreStorage
     std::vector<Atom*> activeAtoms;
     std::vector<Atom*> detailedAtoms;
     IntensityCoreData core;
-    WideIntensityCoreData wideCore;
     FormalData formal;
-    WideFormalData wideFormal;
 
     IntensityCoreStorage(int Nspace, int fsWidth)
         : I(F64Arr(0.0, Nspace)),
@@ -99,14 +96,8 @@ struct IntensityCoreStorage
           Vij(F64Arr(0.0, Nspace)),
           Vji(F64Arr(0.0, Nspace)),
           Ieff(F64Arr(0.0, Nspace)),
-          PsiStar(F64Arr(0.0, Nspace)),
-          wideCore()
-    {
-        if (fsWidth > 1)
-        {
-            wideCore = WideIntensityCoreData(Nspace, fsWidth);
-        }
-    }
+          PsiStar(F64Arr(0.0, Nspace))
+    {}
 };
 
 struct IntensityCoreFactory

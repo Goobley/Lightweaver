@@ -8,17 +8,6 @@
 #include "LwTransition.hpp"
 
 struct Atom;
-struct WideAtomStorage
-{
-    F64Arr2D eta;
-    F64Arr3D gij;
-    F64Arr3D wla;
-    F64Arr3D U;
-    F64Arr3D chi;
-
-    WideAtomStorage() = default;
-    WideAtomStorage(const Atom& atom, bool detailedStatic, int Nspace, int width);
-};
 
 struct Atom
 {
@@ -37,8 +26,6 @@ struct Atom
     F64View2D wla;
     F64View2D U;
     F64View2D chi;
-
-    WideAtomStorage* wideScratch;
 
     std::vector<Transition*> trans;
 
@@ -95,59 +82,6 @@ struct Atom
             if (!t.gij)
                 t.gij = g;
         }
-        if (wideScratch)
-            setup_wavelength_wide(laIdx, fsWidth);
-    }
-
-    inline void setup_wavelength_wide(int laStart, int fsWidth)
-    {
-        namespace C = Constants;
-        constexpr f64 pi4_h = 4.0 * C::Pi / C::HPlanck;
-        constexpr f64 hc_4pi = 0.25 * C::HC / C::Pi;
-        constexpr f64 pi4_hc = 1.0 / hc_4pi;
-        constexpr f64 hc_k = C::HC / (C::KBoltzmann * C::NM_TO_M);
-        const int Nspace = nStar.shape(1);
-        wideScratch->gij.fill(0.0);
-        wideScratch->wla.fill(0.0);
-
-        for (int laIdx = laStart; laIdx < laStart + fsWidth; ++laIdx)
-        {
-            const int laW = laIdx - laStart;
-            for (int kr = 0; kr < Ntrans; ++kr)
-            {
-                auto& t = *trans[kr];
-                if (!t.active(laIdx))
-                    continue;
-
-                const int lt = t.lt_idx(laIdx);
-                auto wlambda = t.wlambda(lt);
-                if (t.type == TransitionType::LINE)
-                {
-                    for (int k = 0; k < Nspace; ++k)
-                    {
-                        wideScratch->gij(kr, k, laW) = t.Bji / t.Bij;
-                        wideScratch->wla(kr, k, laW) = wlambda * t.wphi(k) * pi4_hc;
-                    }
-                }
-                else
-                {
-                    const f64 hc_kl = hc_k / t.wavelength(t.lt_idx(laIdx));
-                    const f64 wlambda_lambda = wlambda / t.wavelength(t.lt_idx(laIdx));
-                    for (int k = 0; k < Nspace; ++k)
-                    {
-                        wideScratch->gij(kr, k, laW) = nStar(t.i, k) / nStar(t.j, k) * exp(-hc_kl / atmos->temperature(k));
-                        wideScratch->wla(kr, k, laW) = wlambda_lambda * pi4_h;
-                    }
-                }
-
-                // NOTE(cmo): We have to do a linear interpolation on rhoPrd in the
-                // case of hybrid PRD, so we can't pre-multiply here in that
-                // instance.
-                if (t.rhoPrd && !t.hPrdCoeffs)
-                    for (int k = 0; k < Nspace; ++k)
-                        wideScratch->gij(kr, k, laW) *= t.rhoPrd(lt, k);
-            }
-        }
     }
 
     inline void zero_angle_dependent_vars()
@@ -155,13 +89,6 @@ struct Atom
         eta.fill(0.0);
         U.fill(0.0);
         chi.fill(0.0);
-
-        if (wideScratch)
-        {
-            wideScratch->eta.fill(0.0);
-            wideScratch->chi.fill(0.0);
-            wideScratch->U.fill(0.0);
-        }
     }
 
     inline void zero_rates()
