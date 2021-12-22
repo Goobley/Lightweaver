@@ -707,7 +707,14 @@
 <span class="sd">        The maximum (edge) wavelength at which this transition contributes [m].</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">deltaE</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jLevel</span><span class="o">.</span><span class="n">E_SI</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">iLevel</span><span class="o">.</span><span class="n">E_SI</span>
-        <span class="k">return</span> <span class="n">Const</span><span class="o">.</span><span class="n">HC</span> <span class="o">/</span> <span class="n">deltaE</span></div>
+        <span class="k">return</span> <span class="n">Const</span><span class="o">.</span><span class="n">HC</span> <span class="o">/</span> <span class="n">deltaE</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">polarisable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns whether this continuum is polarisable, always False.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
 
 <div class="viewcode-block" id="ExplicitContinuum"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.ExplicitContinuum">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">ExplicitContinuum</span><span class="p">(</span><span class="n">AtomicContinuum</span><span class="p">):</span>

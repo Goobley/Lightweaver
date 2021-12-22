@@ -77,7 +77,7 @@
 <span class="kn">from</span> <span class="nn">.witt</span> <span class="kn">import</span> <span class="n">witt</span>
 <span class="kn">import</span> <span class="nn">lightweaver.constants</span> <span class="k">as</span> <span class="nn">Const</span>
 <span class="kn">from</span> <span class="nn">numpy.polynomial.legendre</span> <span class="kn">import</span> <span class="n">leggauss</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">ConvergenceError</span><span class="p">,</span> <span class="n">view_flatten</span><span class="p">,</span> <span class="n">get_data_path</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">ConvergenceError</span><span class="p">,</span> <span class="n">view_flatten</span><span class="p">,</span> <span class="n">check_shape_exception</span><span class="p">,</span> <span class="n">get_data_path</span>
 <span class="kn">from</span> <span class="nn">.atomic_table</span> <span class="kn">import</span> <span class="n">PeriodicTable</span><span class="p">,</span> <span class="n">AtomicAbundance</span><span class="p">,</span> <span class="n">DefaultAtomicAbundance</span>
 <span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
 <span class="kn">import</span> <span class="nn">pickle</span>
@@ -755,8 +755,12 @@
 <span class="sd">        Nrays : int</span>
 <span class="sd">            Number of rays in angular discretisation used.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">muz</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">muz</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;Nrays not set, call atmos.rays or .quadrature first&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;Nrays not set, call atmos.rays or .quadrature first&#39;</span><span class="p">)</span>
+
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">muz</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
@@ -938,21 +942,40 @@
             <span class="n">depthScale</span> <span class="o">=</span> <span class="p">(</span><span class="n">depthScale</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
         <span class="k">elif</span> <span class="n">scale</span> <span class="o">==</span> <span class="n">ScaleType</span><span class="o">.</span><span class="n">ColumnMass</span><span class="p">:</span>
             <span class="n">depthScale</span> <span class="o">=</span> <span class="p">(</span><span class="n">depthScale</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">kg</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="n">check_shape</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">xName</span><span class="p">:</span> <span class="n">check_shape_exception</span><span class="p">(</span><span class="n">x</span><span class="p">,</span>
+                                            <span class="n">depthScale</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="n">xName</span><span class="p">)</span>
         <span class="n">temperature</span> <span class="o">=</span> <span class="p">(</span><span class="n">temperature</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">K</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">check_shape</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="s1">&#39;temperature&#39;</span><span class="p">)</span>
         <span class="n">vlos</span> <span class="o">=</span> <span class="p">(</span><span class="n">vlos</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">check_shape</span><span class="p">(</span><span class="n">vlos</span><span class="p">,</span> <span class="s1">&#39;vlos&#39;</span><span class="p">)</span>
         <span class="n">vturb</span> <span class="o">=</span> <span class="p">(</span><span class="n">vturb</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">check_shape</span><span class="p">(</span><span class="n">vturb</span><span class="p">,</span> <span class="s1">&#39;vturb&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">ne</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ne</span> <span class="o">=</span> <span class="p">(</span><span class="n">ne</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">check_shape</span><span class="p">(</span><span class="n">ne</span><span class="p">,</span> <span class="s1">&#39;ne&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">hydrogenPops</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">hydrogenPops</span> <span class="o">=</span> <span class="p">(</span><span class="n">hydrogenPops</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">if</span> <span class="n">hydrogenPops</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">depthScale</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Array hydrogenPops does not have the expected second dimension: </span><span class="si">{</span><span class="n">depthScale</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1"> (got: </span><span class="si">{</span><span class="n">hydrogenPops</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">).&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">nHTot</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">nHTot</span> <span class="o">=</span> <span class="p">(</span><span class="n">nHTot</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">check_shape</span><span class="p">(</span><span class="n">nHTot</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">B</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">B</span> <span class="o">=</span> <span class="p">(</span><span class="n">B</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">check_shape</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">gammaB</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">chiB</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;B is set, both gammaB and chiB must be also.&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">gammaB</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">gammaB</span> <span class="o">=</span> <span class="p">(</span><span class="n">gammaB</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">check_shape</span><span class="p">(</span><span class="n">gammaB</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">B</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">chiB</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;gammaB is set, both B and chiB must be also.&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">chiB</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">chiB</span> <span class="o">=</span> <span class="p">(</span><span class="n">chiB</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">check_shape</span><span class="p">(</span><span class="n">chiB</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">gammaB</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">B</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;chiB is set, both B and gammaB must be also.&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">lowerBc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">lowerBc</span> <span class="o">=</span> <span class="n">ThermalisedRadiation</span><span class="p">()</span>
@@ -1204,7 +1227,8 @@
 <span class="sd">        B : np.ndarray, optional.</span>
 <span class="sd">            Magnetic field strength [T].</span>
 <span class="sd">        gammaB : np.ndarray, optional</span>
-<span class="sd">            Co-altitude of magnetic field vector [radians].</span>
+<span class="sd">            Inclination (co-altitude) of magnetic field vector to the z-axis</span>
+<span class="sd">            [radians].</span>
 <span class="sd">        chiB : np.ndarray, optional</span>
 <span class="sd">            Azimuth of magnetic field vector (in x-y plane, from x) [radians].</span>
 <span class="sd">        xLowerBc : BoundaryCondition, optional</span>
