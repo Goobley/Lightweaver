@@ -574,7 +574,7 @@ IterationCores::~IterationCores()
 
 void IterationCores::accumulate_Gamma_rates()
 {
-    factory->accumulate_Gamma_rates(indices);
+    factory->accumulate_Gamma_rates();
 }
 
 void IterationCores::accumulate_Gamma_rates_parallel(Context& ctx)

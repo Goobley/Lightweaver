@@ -1133,7 +1133,8 @@ class Atmosphere:
         B : np.ndarray, optional.
             Magnetic field strength [T].
         gammaB : np.ndarray, optional
-            Co-altitude of magnetic field vector [radians].
+            Inclination (co-altitude) of magnetic field vector to the z-axis
+            [radians].
         chiB : np.ndarray, optional
             Azimuth of magnetic field vector (in x-y plane, from x) [radians].
         xLowerBc : BoundaryCondition, optional

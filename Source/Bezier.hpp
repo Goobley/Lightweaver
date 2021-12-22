@@ -7,6 +7,23 @@
 
 namespace Bezier
 {
+inline f64 my_copysign(f64 a, f64 b)
+{
+    // NOTE(cmo): Copy sign of b onto a.
+    // The standard library one doesn't seem to inline in Windows
+    union Pun
+    {
+        double f;
+        uint64_t i;
+    };
+    Pun pa, pb;
+    pa.f = abs(a);
+    pb.f = b;
+
+    pa.i |= pb.i & 1ULL << 63; // or with sign bit of b
+    return pa.f;
+}
+
 #ifdef USE_FRITSCH_DERIVATIVE
 inline f64 cent_deriv(f64 dsup, f64 dsdn, f64 chiup, f64 chic, f64 chidn)
 {
@@ -35,7 +52,7 @@ inline f64 cent_deriv(f64 dsuw, f64 dsdw, f64 yuw, f64 y0, f64 ydw)
     const f64 S0 = (ydw - y0) / dsdw;
     const f64 Suw = (y0 - yuw) / dsuw;
     const f64 P0 = abs((Suw * dsdw + S0 * dsuw) / (dsdw + dsuw));
-    return (std::copysign(1.0, S0) + std::copysign(1.0, Suw)) * min(abs(Suw), min(abs(S0), 0.5 * P0));
+    return (my_copysign(1.0, S0) + my_copysign(1.0, Suw)) * min(abs(Suw), min(abs(S0), 0.5 * P0));
 }
 #endif
 

@@ -76,6 +76,29 @@ inline __m256d polynomial_13_full(__m256d x, f64 c0, f64 c1, f64 c2,
     return _mm256_fmadd_pd(ttt13, x8, ttt7);
 }
 
+inline __m256d polynomial_7_full(__m256d x, f64 c0, f64 c1, f64 c2,
+                                 f64 c3, f64 c4, f64 c5, f64 c6, f64 c7)
+{
+
+    // c7*x^7 + ... + c2*x^2 + c1*x + c0
+
+    __m256d x2 = _mm256_mul_pd(x, x);
+    __m256d x4 = _mm256_mul_pd(x2, x2);
+
+    // NOTE(cmo): Do all the inner powers first
+    __m256d t1 = _mm256_fmadd_pd(_mm256_set1_pd(c1), x, _mm256_set1_pd(c0));
+    __m256d t3 = _mm256_fmadd_pd(_mm256_set1_pd(c3), x, _mm256_set1_pd(c2));
+    __m256d t5 = _mm256_fmadd_pd(_mm256_set1_pd(c5), x, _mm256_set1_pd(c4));
+    __m256d t7 = _mm256_fmadd_pd(_mm256_set1_pd(c7), x, _mm256_set1_pd(c6));
+
+    // NOTE(cmo): Next layer
+    __m256d tt3 = _mm256_fmadd_pd(t3, x2, t1);
+    __m256d tt7 = _mm256_fmadd_pd(t7, x2, t5);
+    __m256d ttt7 = _mm256_fmadd_pd(tt7, x4, tt3);
+
+    return ttt7;
+}
+
 inline __m256d pow2n (const __m256d n) {
     const __m256d pow2_52 = _mm256_set1_pd(4503599627370496.0);   // 2^52
     const __m256d bias = _mm256_set1_pd(1023.0);                  // bias in exponent
@@ -184,9 +207,11 @@ inline w4x w01_expansion(__m256d xIn)
     x = _mm256_fnmadd_pd(r, _mm256_set1_pd(ln2dHi), x);
     x = _mm256_fnmadd_pd(r, _mm256_set1_pd(ln2dLo), x);
 
-    __m256d z0 = polynomial_13_full(x, w0_0, w0_1, w0_2, w0_3, w0_4, w0_5,
-                                       w0_6, w0_7, w0_8, w0_9, w0_10, w0_11,
-                                       w0_12, w0_13);
+    // __m256d z0 = polynomial_13_full(x, w0_0, w0_1, w0_2, w0_3, w0_4, w0_5,
+    //                                    w0_6, w0_7, w0_8, w0_9, w0_10, w0_11,
+    //                                    w0_12, w0_13);
+    __m256d z0 = polynomial_7_full(x, w0_0, w0_1, w0_2, w0_3, w0_4, w0_5,
+                                      w0_6, w0_7);
 
     __m256d n2 = pow2n(r);
 
@@ -207,9 +232,11 @@ inline w4x w01_expansion(__m256d xIn)
     if (mask) // If any need expansion treatment
     {
         // This series is not good for larger x, hence the condition
-        __m256d z1 = polynomial_13_full(x, w1_0, w1_1, w1_2, w1_3, w1_4, w1_5,
-                                        w1_6, w1_7, w1_8, w1_9, w1_10, w1_11,
-                                        w1_12, w1_13);
+        // __m256d z1 = polynomial_13_full(x, w1_0, w1_1, w1_2, w1_3, w1_4, w1_5,
+        //                                 w1_6, w1_7, w1_8, w1_9, w1_10, w1_11,
+        //                                 w1_12, w1_13);
+        __m256d z1 = polynomial_7_full(x, w1_0, w1_1, w1_2, w1_3, w1_4, w1_5,
+                                          w1_6, w1_7);
                             //  direct,  expansion,             if need expansion
         ws.w1 = _mm256_blendv_pd(ws.w1, _mm256_mul_pd(z1, n2), w1Cond);
     }

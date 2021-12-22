@@ -1505,7 +1505,8 @@ f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
             dJMax = max_idx(dJMax, taskData[t].dJ, maxIdx, taskData[t].dJIdx);
 
 
-        ctx.threading.intensityCores.accumulate_Gamma_rates_parallel(ctx);
+        // ctx.threading.intensityCores.accumulate_Gamma_rates_parallel(ctx);
+        ctx.threading.intensityCores.accumulate_Gamma_rates();
 
         for (int a = 0; a < activeAtoms.size(); ++a)
         {

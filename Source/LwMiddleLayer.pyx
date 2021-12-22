@@ -530,6 +530,8 @@ cdef class LwAtmosphere:
             self.B = atmos.B
             self.gammaB = atmos.gammaB
             self.chiB = atmos.chiB
+            if self.B.shape[0] != self.gammaB.shape[0] or self.B.shape[0] != self.chiB.shape[0]:
+                raise ValueError(f'Shapes of B, gammaB, and chiB don\'t match, verify that these are correctly set in the Atmosphere provided to Context. (B: {self.B.shape}, chiB: {self.chiB.shape}, gammaB: {self.gammaB.shape}.')
             self.atmos.B = f64_view(self.B)
             self.atmos.gammaB = f64_view(self.gammaB)
             self.atmos.chiB = f64_view(self.chiB)
@@ -2470,7 +2472,7 @@ cdef class LwAtom:
         '''
         np.asarray(self.vBroad)[:] = self.atomicModel.vBroad(self.atmos)
         for t in self.trans:
-            if polarised and t.polarisable:
+            if polarised:
                 t.compute_polarised_profiles()
             else:
                 t.compute_phi()
