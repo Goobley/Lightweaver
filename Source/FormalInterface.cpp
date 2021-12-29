@@ -1,5 +1,6 @@
 #include "LwFormalInterface.hpp"
 #include "LwInternal.hpp"
+#include "Lightweaver.hpp"
 #include <cstring>
 #include <cassert>
 
@@ -10,7 +11,6 @@ bool FormalSolverManager::load_fs_from_path(const char* path)
     PlatformSharedLibrary lib{};
     if (!load_library(&lib, path))
     {
-        printf("Fail1\n");
         return false;
     }
 
@@ -19,7 +19,6 @@ bool FormalSolverManager::load_fs_from_path(const char* path)
     FsProvider fs_provider = load_function<FsProvider>(lib, "fs_provider");
     if (!fs_provider)
     {
-        printf("Fail2\n");
         return false;
     }
 
@@ -30,10 +29,10 @@ bool FormalSolverManager::load_fs_from_path(const char* path)
 
 FormalSolverManager::FormalSolverManager()
 {
-    formalSolvers.emplace_back(FormalSolver{1, 1, "piecewise_linear_1d", piecewise_linear_1d});
-    formalSolvers.emplace_back(FormalSolver{1, 1, "piecewise_bezier3_1d", piecewise_bezier3_1d});
-    formalSolvers.emplace_back(FormalSolver{2, 1, "piecewise_linear_2d", piecewise_linear_2d});
-    formalSolvers.emplace_back(FormalSolver{2, 1, "piecewise_besser_2d", piecewise_besser_2d});
+    formalSolvers.emplace_back(FormalSolver{piecewise_linear_1d, 1, 1, "piecewise_linear_1d"});
+    formalSolvers.emplace_back(FormalSolver{piecewise_bezier3_1d, 1, 1, "piecewise_bezier3_1d"});
+    formalSolvers.emplace_back(FormalSolver{piecewise_linear_2d, 2, 1, "piecewise_linear_2d"});
+    formalSolvers.emplace_back(FormalSolver{piecewise_besser_2d, 2, 1, "piecewise_besser_2d"});
 }
 
 FormalSolverManager::~FormalSolverManager()
@@ -65,4 +64,34 @@ bool InterpFnManager::load_fn_from_path(const char* path)
     InterpFn interp = interp_provider();
     fns.emplace_back(interp);
     return true;
+}
+
+bool FSIterationMatricesManager::load_fns_from_path(const char* path)
+{
+    PlatformSharedLibrary lib{};
+    if (!load_library(&lib, path))
+    {
+        return false;
+    }
+
+    libs.emplace_back(lib);
+
+    auto fs_provider = load_function<FSIterationMatricesProvider>(lib, "fs_iteration_matrices_provider");
+    if (!fs_provider)
+    {
+        return false;
+    }
+
+    FormalSolverIterationMatricesFns fs = fs_provider();
+    fns.emplace_back(fs);
+    return true;
+}
+
+FSIterationMatricesManager::FSIterationMatricesManager()
+{
+    fns.emplace_back(FormalSolverIterationMatricesFns{formal_sol_gamma_matrices, false, -1, true, "mali_full_precond"});
+}
+
+FSIterationMatricesManager::~FSIterationMatricesManager()
+{
 }

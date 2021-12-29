@@ -24,15 +24,16 @@ namespace LwInternal
 {
     struct FormalData;
 }
+struct Context;
 
 typedef void(*LwFsFn)(LwInternal::FormalData* fd, int la, int mu,
                       bool toObs, const F64View1D& wav);
 struct FormalSolver
 {
+    LwFsFn solver;
     int Ndim;
     int width; // NOTE(cmo): For SIMD later on.
     const char* name;
-    LwFsFn solver;
 };
 
 typedef FormalSolver(*FsProvider)();
@@ -52,9 +53,9 @@ typedef f64(*Interp2d)(const IntersectionData& grid, const IntersectionResult& l
 
 struct InterpFn
 {
+    Interp2d interp_2d;
     int Ndim;
     const char* name;
-    Interp2d interp_2d;
     InterpFn() : Ndim(),
                  name(""),
                  interp_2d(nullptr)
@@ -75,6 +76,29 @@ struct InterpFnManager
     InterpFnManager();
     ~InterpFnManager();
     bool load_fn_from_path(const char* path);
+};
+
+typedef f64(*FormalSolIterFn)(Context& ctx, bool lambdaIterate);
+
+struct FormalSolverIterationMatricesFns
+{
+    FormalSolIterFn fs_iter;
+    bool dimensionSpecific;
+    int Ndim;
+    bool respectsFormalSolver;
+    const char* name;
+};
+
+typedef FormalSolverIterationMatricesFns(*FSIterationMatricesProvider)();
+
+struct FSIterationMatricesManager
+{
+    std::vector<FormalSolverIterationMatricesFns> fns;
+    std::vector<PlatformSharedLibrary> libs;
+
+    FSIterationMatricesManager();
+    ~FSIterationMatricesManager();
+    bool load_fns_from_path(const char* path);
 };
 
 #else

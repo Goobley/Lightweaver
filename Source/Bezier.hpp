@@ -2,13 +2,15 @@
 #define CMO_BEZIER_HPP
 
 #include "Constants.hpp"
+#include "Simd.hpp"
 #include <cmath>
 
 
 namespace Bezier
 {
-#if 0
-inline f64 my_copysign(f64 a, f64 b)
+#ifdef __STDC_IEC_559__
+// NOTE(cmo): This checks to ensure we have a valid IEE754 environment
+inline ForceInline f64 my_copysign(f64 a, f64 b)
 {
     // NOTE(cmo): Copy sign of b onto a.
     // The standard library one doesn't seem to inline in Windows
@@ -53,7 +55,7 @@ inline f64 cent_deriv(f64 dsup, f64 dsdn, f64 chiup, f64 chic, f64 chidn)
     return wprime;
 }
 #else
-inline f64 cent_deriv(f64 dsuw, f64 dsdw, f64 yuw, f64 y0, f64 ydw)
+inline ForceInline f64 cent_deriv(f64 dsuw, f64 dsdw, f64 yuw, f64 y0, f64 ydw)
 {
     // Steffen (1990) derivatives
     const f64 S0 = (ydw - y0) / dsdw;
@@ -76,7 +78,7 @@ inline void cent_deriv(F64View& wprime, f64 dsup, f64 dsdn, const F64View& chiup
         wprime(i) = cent_deriv(dsup, dsdn, chiup(i), chic(i), chidn(i));
 }
 
-inline void Bezier3_coeffs(f64 dt, f64* alpha, f64* beta, f64* gamma, f64* delta, f64* edt)
+inline ForceInline void Bezier3_coeffs(f64 dt, f64* alpha, f64* beta, f64* gamma, f64* delta, f64* edt)
 {
     /* ---
 

@@ -1,0 +1,1 @@
+cl /GS /GL /W3 /Gy /Zc:wchar_t /Z7 /Gm- /O2 /sdl- /Zc:inline /D "NDEBUG" /D "_CONSOLE" /D "_UNICODE" /D "UNICODE" /errorReport:prompt /WX- /Zc:forScope /arch:AVX2 /Gd /MD /std:c++17 /FC /EHsc /nologo /diagnostics:column /DEBUG:FULL BasicLwDriver.cpp
