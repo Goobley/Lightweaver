@@ -17,20 +17,16 @@ bool load_library(PlatformSharedLibrary* lib, const char* path)
     int wPathLen = MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, path, -1, wPath.data(), 0);
     wPath.resize(wPathLen);
     MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, path, -1, wPath.data(), wPathLen);
-    printf("Loading from path (converted) %ls\n", wPath.data());
     int absPathLen = GetFullPathNameW(wPath.data(), 0, nullptr, nullptr);
     std::vector<WCHAR> absPath(absPathLen);
     GetFullPathNameW(wPath.data(), absPathLen, absPath.data(), nullptr);
-    printf("Abs path (converted) %ls\n", absPath.data());
     HMODULE handle = LoadLibraryW(absPath.data());
     if (!handle)
     {
-        printf("Couldn't load DLL\n");
         lib->handle = nullptr;
         return false;
     }
     lib->handle = handle;
-    printf("loaded DLL\n");
     return true;
 }
 
@@ -38,7 +34,6 @@ template <typename F>
 F load_function(PlatformSharedLibrary lib, const char* name)
 {
     F f = (F)GetProcAddress(lib.handle, name);
-    printf("Attempted function load\n");
 
     return f;
 }
