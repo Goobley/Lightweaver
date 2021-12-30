@@ -8,8 +8,8 @@
 
 namespace Bezier
 {
-#ifdef __STDC_IEC_559__
-// NOTE(cmo): This checks to ensure we have a valid IEE754 environment
+#if defined(__STDC_IEC_559__) || (defined(_WIN32) && defined(_M_AMD64))
+// NOTE(cmo): This checks to ensure we have a valid IEE754 environment~ish
 inline ForceInline f64 my_copysign(f64 a, f64 b)
 {
     // NOTE(cmo): Copy sign of b onto a.

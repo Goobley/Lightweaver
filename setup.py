@@ -12,7 +12,7 @@ posixArgs = ["-std=c++17", "-Wno-sign-compare", "-funroll-loops"]
 if 'LW_CI_BUILD'  in os.environ:
     # NOTE(cmo): Compile for sandy bridge or newer when building on CI
     if platform.system() != 'Darwin':
-        # NOTE(cmo): Remove specific optimisation flags for macOS, 
+        # NOTE(cmo): Remove specific optimisation flags for macOS,
         # since they seem to cause trouble with M1.
         posixArgs += ["-march=corei7-avx", "-mtune=corei7-avx"]
 else:
@@ -23,15 +23,19 @@ else:
 # TODO(cmo): Find similar architecture args for MSVC
 
 posixLibs = ['dl']
-msvcArgs = ["/std:c++17"]
+# msvcArgs = ["/std:c++17"]
+msvcArgs = ["/std:c++17", "/Z7", "/arch:AVX2"]
+msvcLinkArgs = ['/DEBUG:FULL']
 msvcLibs = []
 
 if platform.system() == 'Windows':
     compileArgs = msvcArgs
     libs = msvcLibs
+    linkArgs = msvcLinkArgs
 else:
     compileArgs = posixArgs
     libs = posixLibs
+    linkArgs = None
 
 setup(
     name='lightweaver',
@@ -45,6 +49,7 @@ setup(
             include_dirs=[np.get_include()],
             libraries=libs,
             extra_compile_args=compileArgs,
+            extra_link_args=linkArgs,
             language="c++")],
         language_level=3),
     install_requires=['numpy', 'scipy', 'matplotlib', 'numba', 'parse',
