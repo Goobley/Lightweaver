@@ -1,7 +1,7 @@
 #include <utility>
 // NOTE(cmo): Machine-Generated!
 template <SimdType simd, typename ...Args>
-auto dispatch_intensity_core_opt_(bool first, bool second, bool third, bool fourth, Args&& ...args)
+inline auto dispatch_intensity_core_opt_(bool first, bool second, bool third, bool fourth, Args&& ...args)
 -> decltype(intensity_core_opt<simd, false, false, false, false>(std::forward<Args>(args)...))
 {
     u32 dispatcher__ = first;

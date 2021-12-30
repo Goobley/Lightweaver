@@ -297,14 +297,14 @@ int main(void)
     ctx.background = &bg;
     ctx.activeAtoms = activeAtoms;
     ctx.detailedAtoms = detailedAtoms;
-    ctx.Nthreads = 4;
+    ctx.Nthreads = 8;
     // ctx.formalSolver = fsManager.formalSolvers[0]; // linear
     ctx.formalSolver = fsManager.formalSolvers[1]; // Bezier
     ctx.initialise_threads();
     ctx.depthData = nullptr;
 
     int Nscatter = 10;
-    for (int i = 0; i < 500; ++i)
+    for (int i = 0; i < 300; ++i)
     {
         f64 dJ = formal_sol_gamma_matrices(ctx);
         // printf("%.2e\n", dJ);

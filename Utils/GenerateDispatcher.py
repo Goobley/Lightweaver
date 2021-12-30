@@ -2,7 +2,7 @@ boilerPlateNonTemplate = '''\
 #include <utility>
 // NOTE(cmo): Machine-Generated!
 template <typename ...Args>
-auto dispatch_{FnName}_({ArgList}, Args&& ...args)
+inline auto dispatch_{FnName}_({ArgList}, Args&& ...args)
 -> {ReturnType}
 {{
 {SwitchGenBlock}
@@ -22,7 +22,7 @@ boilerPlateSimdTemplate = '''\
 #include <utility>
 // NOTE(cmo): Machine-Generated!
 template <SimdType simd, typename ...Args>
-auto dispatch_{FnName}_({ArgList}, Args&& ...args)
+inline auto dispatch_{FnName}_({ArgList}, Args&& ...args)
 -> {ReturnType}
 {{
 {SwitchGenBlock}
@@ -124,7 +124,8 @@ def create_textual_specialisation_switch_bools_simd(numSpec : int, fnName : str)
 
 
 if __name__ == '__main__':
-    functions = [('chi_eta_aux_accum', 5), ('intensity_core_opt', 4)]
+    functions = [('chi_eta_aux_accum', 4), ('intensity_core_opt', 4),
+                 ('compute_full_operator_rates', 2)]
 
     for fnName, nSpec in functions:
         with open(f'Dispatch_{fnName}.ipp', 'w') as f:

@@ -854,7 +854,7 @@ void gather_opacity_emissivity(IntensityCoreData* data, bool computeOperator, in
     }
 }
 
-template <SimdType simd, bool chiiClean, bool chijClean, bool ujClean,
+template <SimdType simd, bool iClean, bool jClean,
           bool FirstTrans, bool ComputeOperator,
           typename std::enable_if_t<simd == SimdType::Scalar, bool> = true>
 inline ForceInline void
@@ -871,30 +871,24 @@ chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
 
         if constexpr (ComputeOperator)
         {
-            if constexpr (chiiClean)
+            if constexpr (iClean)
             {
                 atom->chi(t.i, k) += chi;
             }
             else
             {
                 atom->chi(t.i, k) = chi;
+                atom->U(t.i, k) = 0.0;
             }
 
-            if constexpr (chijClean)
+            if constexpr (jClean)
             {
                 atom->chi(t.j, k) -= chi;
-            }
-            else
-            {
-                atom->chi(t.j, k) = -chi;
-            }
-
-            if constexpr (ujClean)
-            {
                 atom->U(t.j, k) += Uji(k);
             }
             else
             {
+                atom->chi(t.j, k) = -chi;
                 atom->U(t.j, k) = Uji(k);
             }
 
@@ -909,11 +903,11 @@ chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
         }
 
         chiTot(k) += chi;
-        etaTot(k) += chi;
+        etaTot(k) += eta;
     }
 }
 
-template <SimdType simd, bool chiiClean, bool chijClean, bool ujClean,
+template <SimdType simd, bool iClean, bool jClean,
           bool FirstTrans, bool ComputeOperator,
           typename std::enable_if_t<simd == SimdType::AVX2FMA, bool> = true>
 inline void ForceInline
@@ -926,11 +920,13 @@ chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
     const int kRemainder = Nspace % Stride;
     const int kMax = Nspace - kRemainder;
 
+    __m256d zeroWide = _mm256_setzero_pd();
+
     int k = 0;
     for (; k < kMax; k += Stride)
     {
         __m256d nik = _mm256_loadu_pd(&atom->n(t.i, k));
-        __m256d njk = _mm256_loadu_pd(&atom->n(t.i, k));
+        __m256d njk = _mm256_loadu_pd(&atom->n(t.j, k));
         __m256d Vijk = _mm256_load_pd(&Vij(k));
         __m256d Vjik = _mm256_load_pd(&Vji(k));
         __m256d Ujik = _mm256_load_pd(&Uji(k));
@@ -942,7 +938,7 @@ chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
 
         if constexpr (ComputeOperator)
         {
-            if constexpr (chiiClean)
+            if constexpr (iClean)
             {
                 // atom->chi(t.i, k) += chi;
                 __m256d chiic = _mm256_loadu_pd(&atom->chi(t.i, k));
@@ -952,29 +948,24 @@ chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
             {
                 // atom->chi(t.i, k) = chi;
                 _mm256_storeu_pd(&atom->chi(t.i, k), chik);
+                // atom->U(t.i, k) = 0.0;
+                _mm256_storeu_pd(&atom->U(t.i, k), zeroWide);
             }
 
-            if constexpr (chijClean)
+            if constexpr (jClean)
             {
                 // atom->chi(t.j, k) -= chi;
                 __m256d chijc = _mm256_loadu_pd(&atom->chi(t.j, k));
                 _mm256_storeu_pd(&atom->chi(t.j, k), _mm256_sub_pd(chijc, chik));
-            }
-            else
-            {
-                // atom->chi(t.j, k) = -chi;
-                __m256d chim = _mm256_xor_pd(chik, _mm256_set1_pd(-0.0));
-                _mm256_storeu_pd(&atom->chi(t.j, k), chim);
-            }
-
-            if constexpr (ujClean)
-            {
                 // atom->U(t.j, k) += Uji(k);
                 __m256d Uc = _mm256_loadu_pd(&atom->U(t.j, k));
                 _mm256_storeu_pd(&atom->U(t.j, k), _mm256_add_pd(Uc, Ujik));
             }
             else
             {
+                // atom->chi(t.j, k) = -chi;
+                __m256d chim = _mm256_xor_pd(chik, _mm256_set1_pd(-0.0));
+                _mm256_storeu_pd(&atom->chi(t.j, k), chim);
                 // atom->U(t.j, k) = Uji(k);
                 _mm256_storeu_pd(&atom->U(t.j, k), Ujik);
             }
@@ -993,7 +984,7 @@ chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
         }
 
         // chiTot(k) += chi;
-        // etaTot(k) += chi;
+        // etaTot(k) += eta;
         __m256d etaTotc = _mm256_load_pd(&etaTot(k));
         __m256d chiTotc = _mm256_load_pd(&chiTot(k));
         _mm256_store_pd(&etaTot(k), _mm256_add_pd(etaTotc, etak));
@@ -1006,30 +997,24 @@ chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
 
         if constexpr (ComputeOperator)
         {
-            if constexpr (chiiClean)
+            if constexpr (iClean)
             {
                 atom->chi(t.i, k) += chi;
             }
             else
             {
                 atom->chi(t.i, k) = chi;
+                atom->U(t.i, k) = 0.0;
             }
 
-            if constexpr (chijClean)
+            if constexpr (jClean)
             {
                 atom->chi(t.j, k) -= chi;
-            }
-            else
-            {
-                atom->chi(t.j, k) = -chi;
-            }
-
-            if constexpr (ujClean)
-            {
                 atom->U(t.j, k) += Uji(k);
             }
             else
             {
+                atom->chi(t.j, k) = -chi;
                 atom->U(t.j, k) = Uji(k);
             }
 
@@ -1044,7 +1029,7 @@ chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
         }
 
         chiTot(k) += chi;
-        etaTot(k) += chi;
+        etaTot(k) += eta;
     }
 }
 
@@ -1060,21 +1045,18 @@ gather_opacity_emissivity_opt(IntensityCoreData* data,
     JasUnpack((*data), Uji, Vij, Vji, chiTot, etaTot);
     const int Nspace = data->atmos->Nspace;
     constexpr int Stride = SimdWidth[(size_t)SimdType::AVX2FMA];
-    bool firstTrans = true;
 
     for (int a = 0; a < activeAtoms.size(); ++a)
     {
         auto& atom = *activeAtoms[a];
-        constexpr int StackAlloc = 64;
-        bool chiCleanStore[StackAlloc] = { false };
-        bool* chiClean = chiCleanStore;
-        bool etaCleanStore[StackAlloc] = { false };
-        bool* etaClean = etaCleanStore;
+        constexpr int StackAlloc = 128;
+        bool ijCleanStore[StackAlloc] = { false };
+        bool* ijClean = ijCleanStore;
         bool heapAlloc = false;
+        bool firstTrans = true;
         if (atom.Nlevel > StackAlloc)
         {
-            chiClean = (bool*)calloc(atom.Nlevel, 1);
-            etaClean = (bool*)calloc(atom.Nlevel, 1);
+            ijClean = (bool*)calloc(atom.Nlevel, 1);
             heapAlloc = true;
         }
         for (int kr = 0; kr < atom.Ntrans; ++kr)
@@ -1084,19 +1066,16 @@ gather_opacity_emissivity_opt(IntensityCoreData* data,
                 continue;
 
             uv_opt<simd>(&t, la, mu, toObs, Uji, Vij, Vji);
-            dispatch_chi_eta_aux_accum_<simd>(chiClean[t.i], chiClean[t.j],
-                                              etaClean[t.j], firstTrans,
-                                              computeOperator,
+            dispatch_chi_eta_aux_accum_<simd>(ijClean[t.i], ijClean[t.j],
+                                              firstTrans, computeOperator,
                                               data, &atom, t);
             firstTrans = false;
-            chiClean[t.i] = true;
-            chiClean[t.j] = true;
-            etaClean[t.j] = true;
+            ijClean[t.i] = true;
+            ijClean[t.j] = true;
         }
         if (heapAlloc)
         {
-            free(chiClean);
-            free(etaClean);
+            free(ijClean);
         }
     }
     for (int a = 0; a < detailedAtoms.size(); ++a)
@@ -1116,8 +1095,8 @@ gather_opacity_emissivity_opt(IntensityCoreData* data,
 
 template <SimdType simd>
 inline ForceInline void
-compute_Ieff(F64View& I, F64View& PsiStar,
-             F64View& eta, F64View& Ieff)
+compute_full_Ieff(F64View& I, F64View& PsiStar,
+                  F64View& eta, F64View& Ieff)
 {
 
     const int Nspace = I.shape(0);
@@ -1130,8 +1109,8 @@ compute_Ieff(F64View& I, F64View& PsiStar,
 
 template <>
 inline ForceInline void
-compute_Ieff<SimdType::AVX2FMA>(F64View& I, F64View& PsiStar,
-                                F64View& eta, F64View& Ieff)
+compute_full_Ieff<SimdType::AVX2FMA>(F64View& I, F64View& PsiStar,
+                                     F64View& eta, F64View& Ieff)
 {
 
     constexpr SimdType simd = SimdType::AVX2FMA;
@@ -1153,6 +1132,125 @@ compute_Ieff<SimdType::AVX2FMA>(F64View& I, F64View& PsiStar,
         Ieff(k) = I(k) - PsiStar(k) * eta(k);
     }
 }
+
+template <SimdType simd, bool ComputeOperator, bool ComputeRates,
+          typename std::enable_if_t<simd == SimdType::Scalar, bool> = true>
+inline void
+compute_full_operator_rates(Atom* a, int kr, f64 wmu,
+                            IntensityCoreData* data)
+{
+    JasUnpack((*data), Uji, Vij, Vji, PsiStar, Ieff, I);
+    const int Nspace = Uji.shape(0);
+    auto& atom = *a;
+    auto& t = *atom.trans[kr];
+    for (int k = 0; k < Nspace; ++k)
+    {
+        const f64 wlamu = atom.wla(kr, k) * wmu;
+        if constexpr (ComputeOperator)
+        {
+            f64 integrand = (Uji(k) + Vji(k) * Ieff(k)) - (PsiStar(k) * atom.chi(t.i, k) * atom.U(t.j, k));
+            atom.Gamma(t.i, t.j, k) += integrand * wlamu;
+
+            integrand = (Vij(k) * Ieff(k)) - (PsiStar(k) * atom.chi(t.j, k) * atom.U(t.i, k));
+            atom.Gamma(t.j, t.i, k) += integrand * wlamu;
+        }
+
+        if constexpr (ComputeRates)
+        {
+            t.Rij(k) += I(k) * Vij(k) * wlamu;
+            t.Rji(k) += (Uji(k) + I(k) * Vji(k)) * wlamu;
+        }
+    }
+}
+
+template <SimdType simd, bool ComputeOperator, bool ComputeRates,
+          typename std::enable_if_t<simd == SimdType::AVX2FMA, bool> = true>
+inline void
+compute_full_operator_rates(Atom* a, int kr, f64 wmu,
+                            IntensityCoreData* data)
+{
+    JasUnpack((*data), Uji, Vij, Vji, PsiStar, Ieff, I);
+    constexpr int Stride = SimdWidth[(size_t)simd];
+    const int Nspace = Uji.shape(0);
+    const int kRemainder = Nspace % Stride;
+    const int kMax = Nspace - kRemainder;
+    auto& atom = *a;
+    auto& t = *atom.trans[kr];
+    int k = 0;
+    for (; k < kMax; k += Stride)
+    {
+        // const f64 wlamu = atom.wla(kr, k) * wmu;
+        __m256d wlamuk = _mm256_mul_pd(_mm256_loadu_pd(&atom.wla(kr, k)),
+                                       _mm256_set1_pd(wmu));
+        __m256d Ujik = _mm256_load_pd(&Uji(k));
+        __m256d Vjik = _mm256_load_pd(&Vji(k));
+        __m256d Vijk = _mm256_load_pd(&Vij(k));
+        if constexpr (ComputeOperator)
+        {
+            __m256d Ieffk = _mm256_load_pd(&Ieff(k));
+            __m256d PsiStark = _mm256_load_pd(&PsiStar(k));
+            __m256d atomChiik = _mm256_loadu_pd(&atom.chi(t.i, k));
+            __m256d atomChijk = _mm256_loadu_pd(&atom.chi(t.j, k));
+            __m256d atomUik = _mm256_loadu_pd(&atom.U(t.i, k));
+            __m256d atomUjk = _mm256_loadu_pd(&atom.U(t.j, k));
+
+            // f64 integrand = (Uji(k) + Vji(k) * Ieff(k)) - (PsiStar(k) * atom.chi(t.i, k) * atom.U(t.j, k));
+            __m256d term1 = _mm256_fmadd_pd(Vjik, Ieffk, Ujik);
+            __m256d chiU = _mm256_mul_pd(atomChiik, atomUjk);
+            __m256d integrand = _mm256_fnmadd_pd(PsiStark, chiU, term1);
+            // atom.Gamma(t.i, t.j, k) += integrand * wlamu;
+            __m256d currentIntegral = _mm256_loadu_pd(&atom.Gamma(t.i, t.j, k));
+            __m256d integralChunk = _mm256_fmadd_pd(integrand, wlamuk, currentIntegral);
+            _mm256_storeu_pd(&atom.Gamma(t.i, t.j, k), integralChunk);
+
+            // integrand = (Vij(k) * Ieff(k)) - (PsiStar(k) * atom.chi(t.j, k) * atom.U(t.i, k));
+            chiU = _mm256_mul_pd(atomChijk, atomUik);
+            __m256d term2 = _mm256_mul_pd(PsiStark, chiU);
+            integrand = _mm256_fmsub_pd(Vijk, Ieffk, term2);
+            // atom.Gamma(t.j, t.i, k) += integrand * wlamu;
+            currentIntegral = _mm256_loadu_pd(&atom.Gamma(t.j, t.i, k));
+            integralChunk = _mm256_fmadd_pd(integrand, wlamuk, currentIntegral);
+            _mm256_storeu_pd(&atom.Gamma(t.j, t.i, k), integralChunk);
+        }
+
+        if constexpr (ComputeRates)
+        {
+            __m256d Ik = _mm256_load_pd(&I(k));
+            // t.Rij(k) += I(k) * Vij(k) * wlamu;
+            __m256d Rijk = _mm256_load_pd(&t.Rij(k));
+            __m256d integrand = _mm256_mul_pd(Ik, Vijk);
+            __m256d integralChunk = _mm256_fmadd_pd(integrand, wlamuk, Rijk);
+            _mm256_store_pd(&t.Rij(k), integralChunk);
+
+            // t.Rji(k) += (Uji(k) + I(k) * Vji(k)) * wlamu;
+            __m256d Rjik = _mm256_load_pd(&t.Rji(k));
+            integrand = _mm256_fmadd_pd(Ik, Vjik, Ujik);
+            integralChunk = _mm256_fmadd_pd(integrand, wlamuk, Rjik);
+            _mm256_store_pd(&t.Rji(k), integralChunk);
+        }
+    }
+    for (; k < Nspace; ++k)
+    {
+        const f64 wlamu = atom.wla(kr, k) * wmu;
+        if constexpr (ComputeOperator)
+        {
+            f64 integrand = (Uji(k) + Vji(k) * Ieff(k)) - (PsiStar(k) * atom.chi(t.i, k) * atom.U(t.j, k));
+            atom.Gamma(t.i, t.j, k) += integrand * wlamu;
+
+            integrand = (Vij(k) * Ieff(k)) - (PsiStar(k) * atom.chi(t.j, k) * atom.U(t.i, k));
+            atom.Gamma(t.j, t.i, k) += integrand * wlamu;
+        }
+
+        if constexpr (ComputeRates)
+        {
+            t.Rij(k) += I(k) * Vij(k) * wlamu;
+            t.Rji(k) += (Uji(k) + I(k) * Vji(k)) * wlamu;
+        }
+    }
+}
+
+#include "Dispatch_compute_full_operator_rates.ipp"
+
 
 f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
 {
@@ -1425,13 +1523,13 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
             if (!continuaOnly || (continuaOnly && (mu == 0 && toObsI == 0)))
             {
 
-                // Gathers from all active non-background transitions
                 for (int k = 0; k < Nspace; ++k)
                 {
                     chiTot(k) = background.chi(la, k);
                     etaTot(k) = background.eta(la, k);
                 }
-                // gather_opacity_emissivity(&data, computeOperator, la, mu, toObs);
+                // Gathers from all active non-background transitions
+                // gather_opacity_emissivity(&data, ComputeOperator, la, mu, toObs);
                 gather_opacity_emissivity_opt<simd>(&data, ComputeOperator, la, mu, toObs);
                 for (int k = 0; k < Nspace; ++k)
                 {
@@ -1514,7 +1612,7 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
                         if (lambdaIterate)
                             PsiStar.fill(0.0);
 
-                        compute_Ieff<simd>(I, PsiStar, atom.eta, Ieff);
+                        compute_full_Ieff<simd>(I, PsiStar, atom.eta, Ieff);
                     }
 
                     for (int kr = 0; kr < atom.Ntrans; ++kr)
@@ -1524,30 +1622,12 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
                             continue;
 
                         const f64 wmu = 0.5 * atmos.wmu(mu);
-                        t.uv(la, mu, toObs, Uji, Vij, Vji);
+                        uv_opt<simd>(&t, la, mu, toObs, Uji, Vij, Vji);
 
-                        for (int k = 0; k < Nspace; ++k)
-                        {
-                            const f64 wlamu = atom.wla(kr, k) * wmu;
-
-                            // TODO(cmo): Need to unwinde the conditions here to
-                            // allow for better specialised generation
-                            if constexpr (ComputeOperator)
-                            {
-                                f64 integrand = (Uji(k) + Vji(k) * Ieff(k)) - (PsiStar(k) * atom.chi(t.i, k) * atom.U(t.j, k));
-                                atom.Gamma(t.i, t.j, k) += integrand * wlamu;
-
-                                integrand = (Vij(k) * Ieff(k)) - (PsiStar(k) * atom.chi(t.j, k) * atom.U(t.i, k));
-                                atom.Gamma(t.j, t.i, k) += integrand * wlamu;
-                            }
-
-                            if ((UpdateRates && !PrdRatesOnly)
-                                || (PrdRatesOnly && t.rhoPrd))
-                            {
-                                t.Rij(k) += I(k) * Vij(k) * wlamu;
-                                t.Rji(k) += (Uji(k) + I(k) * Vji(k)) * wlamu;
-                            }
-                        }
+                        const bool computeRates = (UpdateRates && !PrdRatesOnly) ||
+                                            (UpdateRates && PrdRatesOnly && t.rhoPrd);
+                        dispatch_compute_full_operator_rates_<simd>(ComputeOperator,
+                                                computeRates, &atom, kr, wmu, &data);
                     }
                 }
             }
@@ -1564,14 +1644,10 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
                             continue;
 
                         const f64 wmu = 0.5 * atmos.wmu(mu);
-                        t.uv(la, mu, toObs, Uji, Vij, Vji);
+                        uv_opt<simd>(&t, la, mu, toObs, Uji, Vij, Vji);
 
-                        for (int k = 0; k < Nspace; ++k)
-                        {
-                            const f64 wlamu = atom.wla(kr, k) * wmu;
-                            t.Rij(k) += I(k) * Vij(k) * wlamu;
-                            t.Rji(k) += (Uji(k) + I(k) * Vji(k)) * wlamu;
-                        }
+                        compute_full_operator_rates<simd, false, true>(&atom, kr,
+                                                                       wmu, &data);
                     }
                 }
             }
