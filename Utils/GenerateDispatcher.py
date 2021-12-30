@@ -124,7 +124,7 @@ def create_textual_specialisation_switch_bools_simd(numSpec : int, fnName : str)
 
 
 if __name__ == '__main__':
-    functions = [('chi_eta_aux_accum', 4), ('intensity_core_opt', 4)]
+    functions = [('chi_eta_aux_accum', 5), ('intensity_core_opt', 4)]
 
     for fnName, nSpec in functions:
         with open(f'Dispatch_{fnName}.ipp', 'w') as f:

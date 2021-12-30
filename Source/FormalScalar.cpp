@@ -854,7 +854,8 @@ void gather_opacity_emissivity(IntensityCoreData* data, bool computeOperator, in
     }
 }
 
-template <SimdType simd, bool iClean, bool jClean, bool FirstTrans, bool ComputeOperator,
+template <SimdType simd, bool chiiClean, bool chijClean, bool ujClean,
+          bool FirstTrans, bool ComputeOperator,
           typename std::enable_if_t<simd == SimdType::Scalar, bool> = true>
 inline ForceInline void
 chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
@@ -870,7 +871,7 @@ chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
 
         if constexpr (ComputeOperator)
         {
-            if constexpr (iClean)
+            if constexpr (chiiClean)
             {
                 atom->chi(t.i, k) += chi;
             }
@@ -879,13 +880,22 @@ chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
                 atom->chi(t.i, k) = chi;
             }
 
-            if constexpr (jClean)
+            if constexpr (chijClean)
             {
                 atom->chi(t.j, k) -= chi;
             }
             else
             {
                 atom->chi(t.j, k) = -chi;
+            }
+
+            if constexpr (ujClean)
+            {
+                atom->U(t.j, k) += Uji(k);
+            }
+            else
+            {
+                atom->U(t.j, k) = Uji(k);
             }
 
             if constexpr (FirstTrans)
@@ -903,7 +913,8 @@ chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
     }
 }
 
-template <SimdType simd, bool iClean, bool jClean, bool FirstTrans, bool ComputeOperator,
+template <SimdType simd, bool chiiClean, bool chijClean, bool ujClean,
+          bool FirstTrans, bool ComputeOperator,
           typename std::enable_if_t<simd == SimdType::AVX2FMA, bool> = true>
 inline void ForceInline
 chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
@@ -931,7 +942,7 @@ chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
 
         if constexpr (ComputeOperator)
         {
-            if constexpr (iClean)
+            if constexpr (chiiClean)
             {
                 // atom->chi(t.i, k) += chi;
                 __m256d chiic = _mm256_loadu_pd(&atom->chi(t.i, k));
@@ -943,7 +954,7 @@ chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
                 _mm256_storeu_pd(&atom->chi(t.i, k), chik);
             }
 
-            if constexpr (jClean)
+            if constexpr (chijClean)
             {
                 // atom->chi(t.j, k) -= chi;
                 __m256d chijc = _mm256_loadu_pd(&atom->chi(t.j, k));
@@ -954,6 +965,18 @@ chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
                 // atom->chi(t.j, k) = -chi;
                 __m256d chim = _mm256_xor_pd(chik, _mm256_set1_pd(-0.0));
                 _mm256_storeu_pd(&atom->chi(t.j, k), chim);
+            }
+
+            if constexpr (ujClean)
+            {
+                // atom->U(t.j, k) += Uji(k);
+                __m256d Uc = _mm256_loadu_pd(&atom->U(t.j, k));
+                _mm256_storeu_pd(&atom->U(t.j, k), _mm256_add_pd(Uc, Ujik));
+            }
+            else
+            {
+                // atom->U(t.j, k) = Uji(k);
+                _mm256_storeu_pd(&atom->U(t.j, k), Ujik);
             }
 
             if constexpr (FirstTrans)
@@ -983,7 +1006,7 @@ chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
 
         if constexpr (ComputeOperator)
         {
-            if constexpr (iClean)
+            if constexpr (chiiClean)
             {
                 atom->chi(t.i, k) += chi;
             }
@@ -992,13 +1015,22 @@ chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
                 atom->chi(t.i, k) = chi;
             }
 
-            if constexpr (jClean)
+            if constexpr (chijClean)
             {
                 atom->chi(t.j, k) -= chi;
             }
             else
             {
                 atom->chi(t.j, k) = -chi;
+            }
+
+            if constexpr (ujClean)
+            {
+                atom->U(t.j, k) += Uji(k);
+            }
+            else
+            {
+                atom->U(t.j, k) = Uji(k);
             }
 
             if constexpr (FirstTrans)
@@ -1033,16 +1065,16 @@ gather_opacity_emissivity_opt(IntensityCoreData* data,
     for (int a = 0; a < activeAtoms.size(); ++a)
     {
         auto& atom = *activeAtoms[a];
-        constexpr int StackAlloc = 32;
-        bool jCleanStore[StackAlloc] = { false };
-        bool* jClean = jCleanStore;
-        bool iCleanStore[StackAlloc] = { false };
-        bool* iClean = iCleanStore;
+        constexpr int StackAlloc = 64;
+        bool chiCleanStore[StackAlloc] = { false };
+        bool* chiClean = chiCleanStore;
+        bool etaCleanStore[StackAlloc] = { false };
+        bool* etaClean = etaCleanStore;
         bool heapAlloc = false;
         if (atom.Nlevel > StackAlloc)
         {
-            jClean = (bool*)calloc(atom.Nlevel, 1);
-            iClean = (bool*)calloc(atom.Nlevel, 1);
+            chiClean = (bool*)calloc(atom.Nlevel, 1);
+            etaClean = (bool*)calloc(atom.Nlevel, 1);
             heapAlloc = true;
         }
         for (int kr = 0; kr < atom.Ntrans; ++kr)
@@ -1052,17 +1084,19 @@ gather_opacity_emissivity_opt(IntensityCoreData* data,
                 continue;
 
             uv_opt<simd>(&t, la, mu, toObs, Uji, Vij, Vji);
-            dispatch_chi_eta_aux_accum_<simd>(iClean[t.i], jClean[t.j],
-                                              firstTrans, computeOperator,
+            dispatch_chi_eta_aux_accum_<simd>(chiClean[t.i], chiClean[t.j],
+                                              etaClean[t.j], firstTrans,
+                                              computeOperator,
                                               data, &atom, t);
             firstTrans = false;
-            iClean[t.i] = true;
-            jClean[t.j] = true;
+            chiClean[t.i] = true;
+            chiClean[t.j] = true;
+            etaClean[t.j] = true;
         }
         if (heapAlloc)
         {
-            free(iClean);
-            free(jClean);
+            free(chiClean);
+            free(etaClean);
         }
     }
     for (int a = 0; a < detailedAtoms.size(); ++a)
@@ -1075,7 +1109,7 @@ gather_opacity_emissivity_opt(IntensityCoreData* data,
                 continue;
 
             uv_opt<simd>(&t, la, mu, toObs, Uji, Vij, Vji);
-            chi_eta_aux_accum<simd, false, false, false, false>(data, &atom, t);
+            chi_eta_aux_accum<simd, false, false, false, false, false>(data, &atom, t);
         }
     }
 }
@@ -1470,7 +1504,7 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
                 }
             }
 
-            if (updateJ || ComputeOperator)
+            if constexpr (UpdateRates || ComputeOperator)
             {
                 for (int a = 0; a < activeAtoms.size(); ++a)
                 {
