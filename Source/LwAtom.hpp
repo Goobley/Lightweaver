@@ -11,11 +11,14 @@ struct Atom;
 
 struct Atom
 {
+    int Nlevel;
+    int Ntrans;
+
     Atmosphere* atmos;
     F64View2D n;
     F64View2D nStar;
-    F64View vBroad;
     F64View nTotal;
+    F64View vBroad;
     F64View stages;
 
     F64View3D Gamma;
@@ -23,6 +26,7 @@ struct Atom
 
     F64View eta;
     F64View2D gij;
+
     F64View2D wla;
     F64View2D U;
     F64View2D chi;
@@ -31,8 +35,6 @@ struct Atom
 
     Ng ng;
 
-    int Nlevel;
-    int Ntrans;
 
     inline void setup_wavelength(int laIdx, int fsWidth=1)
     {

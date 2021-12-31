@@ -24,6 +24,7 @@ Transition* TransitionStorageFactory::copy_transition()
 
     t->type = trans->type;
     t->Nblue = trans->Nblue;
+    t->Nred = trans->Nred;
     t->i = trans->i;
     t->j = trans->j;
     t->polarised = trans->polarised;

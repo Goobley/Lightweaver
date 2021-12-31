@@ -675,7 +675,7 @@ void piecewise_besser_1d(FormalData* fd, int la, int mu, bool toObs, const F64Vi
     piecewise_besser_1d_impl(fd, zmu, toObs, Iupw);
 }
 
-bool continua_only(const IntensityCoreData& data, int la)
+inline bool continua_only(const IntensityCoreData& data, int la)
 {
     JasUnpack(*data, activeAtoms, detailedAtoms);
     bool continuaOnly = true;
@@ -685,7 +685,7 @@ bool continua_only(const IntensityCoreData& data, int la)
         for (int kr = 0; kr < atom.Ntrans; ++kr)
         {
             auto& t = *atom.trans[kr];
-            if (!t.active(la))
+            if (!t.is_active(la))
                 continue;
             continuaOnly = continuaOnly && (t.type == CONTINUUM);
         }
@@ -696,7 +696,7 @@ bool continua_only(const IntensityCoreData& data, int la)
         for (int kr = 0; kr < atom.Ntrans; ++kr)
         {
             auto& t = *atom.trans[kr];
-            if (!t.active(la))
+            if (!t.is_active(la))
                 continue;
             continuaOnly = continuaOnly && (t.type == CONTINUUM);
         }
@@ -1062,7 +1062,7 @@ gather_opacity_emissivity_opt(IntensityCoreData* data,
         for (int kr = 0; kr < atom.Ntrans; ++kr)
         {
             auto& t = *atom.trans[kr];
-            if (!t.active(la))
+            if (!t.is_active(la))
                 continue;
 
             uv_opt<simd>(&t, la, mu, toObs, Uji, Vij, Vji);
@@ -1084,7 +1084,7 @@ gather_opacity_emissivity_opt(IntensityCoreData* data,
         for (int kr = 0; kr < atom.Ntrans; ++kr)
         {
             auto& t = *atom.trans[kr];
-            if (!t.active(la))
+            if (!t.is_active(la))
                 continue;
 
             uv_opt<simd>(&t, la, mu, toObs, Uji, Vij, Vji);
@@ -1618,7 +1618,7 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
                     for (int kr = 0; kr < atom.Ntrans; ++kr)
                     {
                         auto& t = *atom.trans[kr];
-                        if (!t.active(la))
+                        if (!t.is_active(la))
                             continue;
 
                         const f64 wmu = 0.5 * atmos.wmu(mu);
@@ -1640,7 +1640,7 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
                     for (int kr = 0; kr < atom.Ntrans; ++kr)
                     {
                         auto& t = *atom.trans[kr];
-                        if (!t.active(la))
+                        if (!t.is_active(la))
                             continue;
 
                         const f64 wmu = 0.5 * atmos.wmu(mu);

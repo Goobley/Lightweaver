@@ -205,6 +205,7 @@ cdef extern from "Lightweaver.hpp":
         f64 lambda0
         f64 dopplerWidth
         int Nblue
+        int Nred
         int i
         int j
         F64View wavelength
@@ -1654,7 +1655,10 @@ cdef class LwTransition:
         self.trans.i = trans.i
         self.trans.j = trans.j
         self.trans.polarised = False
-        self.trans.Nblue = spect.blueIdx[transId]
+        Nblue = spect.blueIdx[transId]
+        self.trans.Nblue = Nblue
+        Nred = spect.redIdx[transId]
+        self.trans.Nred = Nred
         cdef int Nlambda = self.wavelength.shape[0]
         cdef int Nspace = self.atmos.Nspace
         cdef int Nrays = self.atmos.Nrays

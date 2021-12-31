@@ -19,15 +19,21 @@ namespace LwInternal
 
 struct Transition
 {
+    // NOTE(cmo): Transitions are often queried only for whether they are active, so
+    // bring Nblue and Nred in on the first cache line
+    int Nblue;
+    int Nred;
+
     enum TransitionType type;
+    int i;
+    int j;
+
     f64 Aji;
     f64 Bji;
     f64 Bij;
     f64 lambda0;
     f64 dopplerWidth;
-    int Nblue;
-    int i;
-    int j;
+
     F64View wavelength;
     F64View gij;
     F64View alpha;
@@ -42,6 +48,8 @@ struct Transition
     F64View4D psiV;
     F64View Qelast;
     F64View aDamp;
+    // NOTE(cmo): This was probably a bad idea for cache locality, and I can't
+    // remember why I did it.
     BoolView active;
 
     F64View Rij;
@@ -67,6 +75,11 @@ struct Transition
     inline int lt_idx(int la) const
     {
         return la - Nblue;
+    }
+
+    inline bool is_active(int la) const
+    {
+        return (la >= Nblue) && (la < Nred);
     }
 
     inline void uv(int la, int mu, bool toObs, F64View Uji, F64View Vij, F64View Vji) const

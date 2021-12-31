@@ -173,6 +173,10 @@ class SpectrumConfiguration:
     blueIdx : Dict[(Element, i, j), int]
         The index at which each local grid starts in the global wavelength
         array.
+    redIdx : Dict[(Element, i, j), int]
+        The index at which each local grid has ended in the global wavelength
+        array (exclusive,
+        i.e. transWavelength = globalWavelength[blueIdx:redIdx]).
     activeTrans : Dict[(Element, i, j), bool]
         Whether this transition is ever active (contributing in either an
         active or detailed static sense) over the range of wavelength.
@@ -184,6 +188,7 @@ class SpectrumConfiguration:
     models: List[AtomicModel]
     transWavelengths: Dict[Tuple[Element, int, int], np.ndarray]
     blueIdx: Dict[Tuple[Element, int, int], int]
+    redIdx: Dict[Tuple[Element, int, int], int]
     activeTrans: Dict[Tuple[Element, int, int], bool]
     activeWavelengths: Dict[Tuple[Element, int, int], np.ndarray]
 
@@ -205,11 +210,13 @@ class SpectrumConfiguration:
         '''
         Nblue = np.searchsorted(self.wavelength, wavelengths[0])
         Nred = min(np.searchsorted(self.wavelength, wavelengths[-1])+1, self.wavelength.shape[0])
+        Nwavelengths = wavelengths.shape[0]
 
         activeTrans = {k: np.any(v[Nblue:Nred]) for k, v in self.activeWavelengths.items()}
         transGrids = {k: np.copy(wavelengths) for k, active in activeTrans.items() if active}
         activeWavelengths = {k: np.ones_like(wavelengths, dtype=np.bool8) for k in transGrids}
         blueIdx = {k: 0 for k in transGrids}
+        redIdx = {k: Nwavelengths for k in transGrids}
 
         def test_atom_active(atom: AtomicModel) -> bool:
             for t in atom.transitions:
@@ -222,8 +229,11 @@ class SpectrumConfiguration:
             if test_atom_active(atom):
                 models.append(atom)
 
-        return SpectrumConfiguration(radSet=self.radSet, wavelength=wavelengths, models=models, transWavelengths=transGrids,
-                                     blueIdx=blueIdx, activeTrans=activeTrans, activeWavelengths=activeWavelengths)
+        return SpectrumConfiguration(radSet=self.radSet, wavelength=wavelengths,
+                                     models=models, transWavelengths=transGrids,
+                                     blueIdx=blueIdx, redIdx=redIdx,
+                                     activeTrans=activeTrans,
+                                     activeWavelengths=activeWavelengths)
 
 
 @dataclass
@@ -956,7 +966,8 @@ class RadiativeSet:
         # molecules (even then it should be pretty tiny)
         return eqPops
 
-    def compute_wavelength_grid(self, extraWavelengths: Optional[np.ndarray]=None, lambdaReference=500.0) -> SpectrumConfiguration:
+    def compute_wavelength_grid(self, extraWavelengths: Optional[np.ndarray]=None,
+                                lambdaReference=500.0) -> SpectrumConfiguration:
         '''
         Compute the global wavelength grid from the current configuration of
         the RadiativeSet.
@@ -1011,8 +1022,11 @@ class RadiativeSet:
         activeWavelengths = {k: ((grid >= v[0]) & (grid <= v[-1])) for k, v in transGrids.items()}
         activeTrans = {k: True for k in transGrids}
 
-        return SpectrumConfiguration(radSet=self, wavelength=grid, models=models, transWavelengths=transGrids,
-                                     blueIdx=blueIdx, activeTrans=activeTrans, activeWavelengths=activeWavelengths)
+        return SpectrumConfiguration(radSet=self, wavelength=grid, models=models,
+                                     transWavelengths=transGrids,
+                                     blueIdx=blueIdx, redIdx=redIdx,
+                                     activeTrans=activeTrans,
+                                     activeWavelengths=activeWavelengths)
 
 
 def hminus_pops(atmos: Atmosphere, hPops: AtomicState) -> np.ndarray:
