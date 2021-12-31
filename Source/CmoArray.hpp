@@ -287,7 +287,7 @@ struct Array1NonOwn
     }
 };
 
-template <typename T, class Alloc = PodAlignedAllocator<T, 32>>
+template <typename T, class Alloc = PodAlignedAllocator<T, 64>>
 struct Array1Own
 {
     std::vector<T, Alloc> dataStore;
@@ -646,7 +646,7 @@ struct Array2NonOwn
     }
 };
 
-template <typename T, class Alloc = PodAlignedAllocator<T, 32>>
+template <typename T, class Alloc = PodAlignedAllocator<T, 64>>
 struct Array2Own
 {
     std::vector<T, Alloc> dataStore;
@@ -1026,7 +1026,7 @@ struct Array3NonOwn
     }
 };
 
-template <typename T, class Alloc = PodAlignedAllocator<T, 32>>
+template <typename T, class Alloc = PodAlignedAllocator<T, 64>>
 struct Array3Own
 {
     std::vector<T, Alloc> dataStore;
@@ -1431,7 +1431,7 @@ struct Array4NonOwn
     }
 };
 
-template <typename T, class Alloc = PodAlignedAllocator<T, 32>>
+template <typename T, class Alloc = PodAlignedAllocator<T, 64>>
 struct Array4Own
 {
     std::vector<T, Alloc> dataStore;
@@ -1857,7 +1857,7 @@ struct Array5NonOwn
     }
 };
 
-template <typename T, class Alloc = PodAlignedAllocator<T, 32>>
+template <typename T, class Alloc = PodAlignedAllocator<T, 64>>
 struct Array5Own
 {
     std::vector<T, Alloc> dataStore;
