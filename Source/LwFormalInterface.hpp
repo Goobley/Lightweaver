@@ -4,6 +4,9 @@
 #include "Constants.hpp"
 #include "LwAtmosphere.hpp"
 
+struct Context;
+struct Atom;
+struct Transition;
 struct PlatformSharedLibrary;
 namespace LwInternal
 {
@@ -79,14 +82,29 @@ struct InterpFnManager
 };
 
 typedef f64(*FormalSolIterFn)(Context& ctx, bool lambdaIterate);
+typedef void(*AllocPerAtomScratch)(Atom* atom, bool detailedStatic);
+typedef void(*FreePerAtomScratch)(Atom* atom);
+typedef void(*AllocPerTransScratch)(Transition* trans);
+typedef void(*FreePerTransScratch)(Transition* trans);
+typedef void(*AllocGlobalScratch)(Context* ctx);
+typedef void(*FreeGlobalScratch)(Context* ctx);
+typedef void(*AccumulateOverThreads)(Context* ctx);
 
 struct FormalSolverIterationMatricesFns
 {
-    FormalSolIterFn fs_iter;
-    bool dimensionSpecific;
     int Ndim;
+    bool dimensionSpecific;
     bool respectsFormalSolver;
     const char* name;
+
+    FormalSolIterFn fs_iter;
+    AllocPerAtomScratch alloc_per_atom;
+    FreePerAtomScratch free_per_atom;
+    AllocPerTransScratch alloc_per_trans;
+    FreePerTransScratch free_per_trans;
+    AllocGlobalScratch alloc_global_scratch;
+    FreeGlobalScratch free_global_scratch;
+    AccumulateOverThreads accumulate_over_threads;
 };
 
 typedef FormalSolverIterationMatricesFns(*FSIterationMatricesProvider)();

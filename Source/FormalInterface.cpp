@@ -89,7 +89,10 @@ bool FSIterationMatricesManager::load_fns_from_path(const char* path)
 
 FSIterationMatricesManager::FSIterationMatricesManager()
 {
-    fns.emplace_back(FormalSolverIterationMatricesFns{formal_sol_gamma_matrices, false, -1, true, "mali_full_precond"});
+    fns.emplace_back(FormalSolverIterationMatricesFns{
+                        -1, false, true, "mali_full_precond",
+                        formal_sol_gamma_matrices_impl
+                        });
 }
 
 FSIterationMatricesManager::~FSIterationMatricesManager()

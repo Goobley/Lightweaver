@@ -47,6 +47,16 @@ cdef extern from "LwFormalInterface.hpp":
         vector[InterpFn] fns
         bool_t load_fn_from_path(const char* path)
 
+    cdef cppclass FormalSolverIterationMatricesFns:
+        bool_t dimensionSpecific
+        bool_t respectsFormalSolver
+        int Ndim
+        const char* name
+
+    cdef cppclass FSIterationMatricesManager:
+        vector[FormalSolverIterationMatricesFns] fns
+        bool_t load_fns_from_path(const char* path)
+
 cdef extern from "Lightweaver.hpp":
     cdef enum RadiationBc:
         UNINITIALISED
@@ -276,6 +286,7 @@ cdef extern from "Lightweaver.hpp":
         int Nthreads
         FormalSolver formalSolver
         InterpFn interpFn
+        FormalSolverIterationMatricesFns iterFns
         void initialise_threads()
         void update_threads()
 
@@ -2778,7 +2789,8 @@ cdef class LwContext:
                  crswCallback=None, Nthreads=1,
                  backgroundProvider=None,
                  formalSolver=None,
-                 interpFn=None):
+                 interpFn=None,
+                 fsIterScheme=None):
         self.__dict__ = {}
         self.kwargs = {'atmos': atmos, 'spect': spect, 'eqPops': eqPops, 'ngOptions': ngOptions, 'initSol': initSol, 'conserveCharge': conserveCharge, 'hprd': hprd, 'Nthreads': Nthreads, 'backgroundProvider': backgroundProvider, 'formalSolver': formalSolver, 'interpFn': interpFn}
 
@@ -2823,6 +2835,7 @@ cdef class LwContext:
 
         self.set_formal_solver(formalSolver, inConstructor=True)
         self.set_interp_fn(interpFn)
+        self.set_fs_iter_scheme(fsIterScheme)
         self.setup_threads(Nthreads)
 
         self.compute_profiles()
@@ -2909,7 +2922,7 @@ cdef class LwContext:
         '''
         cdef LwInterpFnManager interpMan = InterpFns
         cdef int interpIdx
-        cdef InterpFn
+        cdef InterpFn interp
         try:
             if interpFn is not None:
                 interpIdx = interpMan.names.index(interpFn)
@@ -2918,9 +2931,21 @@ cdef class LwContext:
             interp = interpMan.manager.fns[interpIdx]
             self.ctx.interpFn = interp
             return
-        except:
-            pass
-        # self.ctx.interpFn = InterpFn()
+        except ValueError as e:
+            if self.ctx.atmos.Ndim > 1:
+                raise e
+
+    def set_fs_iter_scheme(self, fsIterScheme):
+        cdef LwFSIterationManager manager = FsIterationSchemes
+        cdef int iterIdx
+        cdef FormalSolverIterationMatricesFns iterFns
+
+        if fsIterScheme is not None:
+            iterIdx = manager.names.index(fsIterScheme)
+        else:
+            iterIdx = manager.default_scheme()
+        iterFns = manager.manager.fns[iterIdx]
+        self.ctx.iterFns = iterFns
 
     @property
     def Nthreads(self):
@@ -3890,5 +3915,39 @@ cdef class LwInterpFnManager:
         else:
             raise ValueError("Unexpected Ndim")
 
+cdef class LwFSIterationManager:
+    cdef FSIterationMatricesManager manager
+    cdef public list paths
+    cdef public list names
+
+    def __init__(self):
+        self.paths = []
+        self.names = []
+        cdef int i
+        cdef int size
+        cdef const char* name
+
+        for i in range(self.manager.fns.size()):
+            name = self.manager.fns[i].name
+            self.names.append(name.decode('UTF-8'))
+
+    def load_interp_fn_from_path(self, str path):
+        if path in self.paths:
+            raise ValueError('Tried to load a pre-existing path')
+
+        self.paths.append(path)
+        byteStore = path.encode('UTF-8')
+        cdef const char* cPath = byteStore
+        cdef bool_t success = self.manager.load_fns_from_path(cPath)
+        if not success:
+            raise ValueError('Failed to load iteration scheme from library at %s' % path)
+
+        cdef const char* name = self.manager.fns[self.manager.fns.size()-1].name
+        self.names.append(name.decode('UTF-8'))
+
+    def default_scheme(self):
+        return self.names.index('mali_full_precond')
+
 FormalSolvers = LwFormalSolverManager()
 InterpFns = LwInterpFnManager()
+FsIterationSchemes = LwFSIterationManager()

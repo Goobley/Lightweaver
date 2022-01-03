@@ -21,13 +21,15 @@ struct Atom
     F64View vBroad;
     F64View stages;
 
+    void* methodScratch;
+
     F64View3D Gamma;
     F64View3D C;
 
-    F64View eta;
+    F64View2D wla;
     F64View2D gij;
 
-    F64View2D wla;
+    F64View eta;
     F64View2D U;
     F64View2D chi;
 

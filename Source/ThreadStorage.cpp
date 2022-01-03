@@ -5,7 +5,10 @@
 namespace LwInternal
 {
 
-TransitionStorageFactory::TransitionStorageFactory(Transition* t) : trans(t)
+TransitionStorageFactory::TransitionStorageFactory(Transition* t,
+                                                   PerTransFns perFns)
+    : trans(t),
+      methodFns(perFns)
 {}
 
 Transition* TransitionStorageFactory::copy_transition()
@@ -16,6 +19,7 @@ Transition* TransitionStorageFactory::copy_transition()
     tStorage.emplace_back(std::make_unique<TransitionStorage>());
     auto& ts = *tStorage.back().get();
     Transition* t = &ts.trans;
+    ts.free_method_scratch = methodFns.free_per;
 
     ts.Rij = F64Arr(0.0, trans->Rij.shape(0));
     t->Rij = ts.Rij;
@@ -64,6 +68,9 @@ Transition* TransitionStorageFactory::copy_transition()
     {
         t->alpha = trans->alpha;
     }
+
+    if (methodFns.alloc_per)
+        methodFns.alloc_per(t);
 
     return t;
 }
@@ -127,14 +134,16 @@ void TransitionStorageFactory::accumulate_prd_rates(const std::vector<size_t>& i
     accumulate_rates(indices);
 }
 
-AtomStorageFactory::AtomStorageFactory(Atom* a, bool detail, int fsWidthSimd)
+AtomStorageFactory::AtomStorageFactory(Atom* a, bool detail,
+                                       int fsWidthSimd, PerAtomTransFns perFns)
     : atom(a),
       detailedStatic(detail),
-      fsWidth(fsWidthSimd)
+      fsWidth(fsWidthSimd),
+      methodFns(perFns.perAtom)
 {
     tStorage.reserve(atom->trans.size());
     for (auto t : atom->trans)
-        tStorage.emplace_back(TransitionStorageFactory(t));
+        tStorage.emplace_back(TransitionStorageFactory(t, perFns.perTrans));
 }
 
 Atom* AtomStorageFactory::copy_atom()
@@ -179,6 +188,9 @@ Atom* AtomStorageFactory::copy_atom()
         as.chi = F64Arr2D(0.0, Nlevel, Nspace);
         a->chi = as.chi;
     }
+
+    if (methodFns.alloc_per)
+        methodFns.alloc_per(a, detailedStatic);
 
     return a;
 }
@@ -337,17 +349,24 @@ void IntensityCoreFactory::initialise(Context* ctx)
     // if (ctx->Nthreads <= 1)
     //     return;
 
+    PerAtomTransFns methodScratchFns{ PerAtomFns  { ctx->iterFns.alloc_per_atom,
+                                                    ctx->iterFns.free_per_atom },
+                                      PerTransFns { ctx->iterFns.alloc_per_trans,
+                                                    ctx->iterFns.free_per_trans } };
+
     bool detailedStatic = false;
     activeAtoms.reserve(ctx->activeAtoms.size());
     for (auto a : ctx->activeAtoms)
     {
-        activeAtoms.emplace_back(AtomStorageFactory(a, detailedStatic=false, ctx->formalSolver.width));
+        activeAtoms.emplace_back(AtomStorageFactory(a, detailedStatic=false,
+                                  ctx->formalSolver.width, methodScratchFns));
     }
 
     detailedAtoms.reserve(ctx->detailedAtoms.size());
     for (auto a : ctx->detailedAtoms)
     {
-        detailedAtoms.emplace_back(AtomStorageFactory(a, detailedStatic=true, ctx->formalSolver.width));
+        detailedAtoms.emplace_back(AtomStorageFactory(a, detailedStatic=true,
+                                    ctx->formalSolver.width, methodScratchFns));
     }
 }
 
@@ -576,6 +595,18 @@ void IterationCores::clear()
 void ThreadData::initialise(Context* ctx)
 {
     threadDataFactory.initialise(ctx);
+
+    if (ctx->iterFns.alloc_global_scratch)
+    {
+        ctx->iterFns.alloc_global_scratch(ctx);
+        clear_global_scratch = [ctx](){
+            ctx->iterFns.free_global_scratch(ctx);
+            // NOTE(cmo): Clear self after a call to avoid any double free
+            // behaviour
+            ctx->threading.clear_global_scratch = {};
+        };
+    }
+
     if (ctx->Nthreads <= 1)
         return;
 
@@ -649,6 +680,8 @@ void ThreadData::clear(Context* ctx)
         free(schedMemory);
         schedMemory = nullptr;
     }
+    if (clear_global_scratch)
+        clear_global_scratch();
     intensityCores.clear();
     threadDataFactory.clear();
 }

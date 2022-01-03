@@ -56,6 +56,8 @@ struct Transition
     F64View Rji;
     F64View2D rhoPrd;
 
+    void* methodScratch;
+
     F64View3D gII;
     Prd::RhoCoeffView hPrdCoeffs;
     Prd::PrdStorage prdStorage;

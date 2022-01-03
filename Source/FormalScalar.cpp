@@ -1854,13 +1854,18 @@ f64 formal_sol_iteration_matrices_scalar(Context& ctx, LwInternal::FsMode mode)
 
 }
 
-f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
+f64 formal_sol_gamma_matrices_impl(Context& ctx, bool lambdaIterate)
 {
     FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates);
     if (lambdaIterate)
         mode = mode | FsMode::PureLambdaIteration;
 
     return formal_sol_iteration_matrices_scalar(ctx, mode);
+}
+
+f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
+{
+    return ctx.iterFns.fs_iter(ctx, lambdaIterate);
 }
 
 #if 0

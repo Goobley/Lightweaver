@@ -19,18 +19,51 @@ struct Spectrum;
 
 namespace LwInternal
 {
+
+struct PerTransFns
+{
+    AllocPerTransScratch alloc_per;
+    FreePerTransScratch free_per;
+};
+
+struct PerAtomFns
+{
+    AllocPerAtomScratch alloc_per;
+    FreePerAtomScratch free_per;
+};
+
+struct PerAtomTransFns
+{
+    PerAtomFns perAtom;
+    PerTransFns perTrans;
+};
+
 struct TransitionStorage
 {
     F64Arr Rij;
     F64Arr Rji;
     Transition trans;
+    FreePerTransScratch free_method_scratch;
+
+    TransitionStorage() = default;
+    TransitionStorage(const TransitionStorage&) = delete;
+    TransitionStorage(TransitionStorage&&) = delete;
+    inline TransitionStorage& operator=(const TransitionStorage&) = delete;
+    inline TransitionStorage& operator=(TransitionStorage&&) = delete;
+    ~TransitionStorage()
+    {
+        if (free_method_scratch)
+            free_method_scratch(&trans);
+    }
 };
 
 struct TransitionStorageFactory
 {
     Transition* trans;
+    bool detailedStatic;
     std::vector<std::unique_ptr<TransitionStorage>> tStorage;
-    TransitionStorageFactory(Transition* t);
+    PerTransFns methodFns;
+    TransitionStorageFactory(Transition* t, PerTransFns perFns);
     Transition* copy_transition();
     void erase(Transition* t);
     void accumulate_rates();
@@ -48,8 +81,19 @@ struct AtomStorage
     F64Arr2D U;
     F64Arr2D chi;
     Atom atom;
-};
+    FreePerAtomScratch free_method_scratch;
 
+    AtomStorage() = default;
+    AtomStorage(const AtomStorage&) = delete;
+    AtomStorage(AtomStorage&&) = delete;
+    inline AtomStorage& operator=(const AtomStorage&) = delete;
+    inline AtomStorage& operator=(AtomStorage&&) = delete;
+    ~AtomStorage()
+    {
+        if (free_method_scratch)
+            free_method_scratch(&atom);
+    }
+};
 
 struct AtomStorageFactory
 {
@@ -58,7 +102,8 @@ struct AtomStorageFactory
     int fsWidth;
     std::vector<std::unique_ptr<AtomStorage>> aStorage;
     std::vector<TransitionStorageFactory> tStorage;
-    AtomStorageFactory(Atom* a, bool detail, int fsWidth);
+    PerAtomFns methodFns;
+    AtomStorageFactory(Atom* a, bool detail, int fsWidth, PerAtomTransFns perFns);
     Atom* copy_atom();
     void erase(Atom* atom);
     void accumulate_Gamma_rates();
@@ -162,6 +207,7 @@ struct ThreadData
     IterationCores intensityCores;
     scheduler sched;
     void* schedMemory;
+    std::function<void()> clear_global_scratch;
 
     ThreadData() : threadDataFactory(),
                    intensityCores(),
@@ -182,6 +228,10 @@ struct ThreadData
             schedMemory = nullptr;
         }
     }
+    ThreadData(const ThreadData&) = delete;
+    ThreadData(ThreadData&&) = delete;
+    inline ThreadData& operator=(const ThreadData&) = delete;
+    inline ThreadData& operator=(ThreadData&&) = delete;
 };
 
 }
