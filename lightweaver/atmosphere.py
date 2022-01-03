@@ -3,7 +3,8 @@ from copy import copy
 from enum import Enum, auto
 from typing import Sequence, TYPE_CHECKING, Optional, Union, TypeVar, Type
 import numpy as np
-from .witt import witt
+# from .witt import witt
+from .wittmann import Wittmann
 import lightweaver.constants as Const
 from numpy.polynomial.legendre import leggauss
 from .utils import ConvergenceError, view_flatten, check_shape_exception, get_data_path
@@ -119,7 +120,7 @@ class PeriodicRadiation(BoundaryCondition):
     '''
     pass
 
-def get_top_pressure(eos: witt, temp, ne=None, rho=None):
+def get_top_pressure(eos: Wittmann, temp, ne=None, rho=None):
     '''
     Return a pressure for the top of atmosphere.
     For internal use.
@@ -929,7 +930,7 @@ class Atmosphere:
             abundance = DefaultAtomicAbundance
 
         wittAbundances = np.array([abundance[e] for e in PeriodicTable.elements])
-        eos = witt(abund_init=wittAbundances)
+        eos = Wittmann(abund_init=wittAbundances)
 
         Nspace = depthScale.shape[0]
         if nHTot is None and ne is not None:
@@ -1006,7 +1007,8 @@ class Atmosphere:
                 pe = np.zeros(Nspace)
                 pgas[0] = Ptop
                 pe[0] = PeTop
-                chi_c[0] = eos.contOpacity(temperature[0], pgas[0], pe[0], np.array([5000.0]))
+                chi_c[0] = eos.cont_opacity(temperature[0], pgas[0], pe[0],
+                                            np.array([5000.0]))
                 avg_mol_weight = lambda k: abundance.massPerH / (abundance.totalAbundance + pe[k] / pgas[k])
                 rho[0] = Ptop * avg_mol_weight(0) / Avog / eos.BK / temperature[0]
                 chi_c[0] /= rho[0]
@@ -1025,7 +1027,8 @@ class Atmosphere:
 
                         pe[k] = eos.pe_from_pg(temperature[k], pgas[k])
                         prevChi = chi_c[k]
-                        chi_c[k] = eos.contOpacity(temperature[k], pgas[k], pe[k], np.array([5000.0]))
+                        chi_c[k] = eos.cont_opacity(temperature[k], pgas[k], pe[k],
+                                                    np.array([5000.0]))
                         rho[k] = pgas[k] * avg_mol_weight(k) / Avog / eos.BK / temperature[k]
                         chi_c[k] /= rho[k]
 
@@ -1049,7 +1052,8 @@ class Atmosphere:
 
         chi_c = np.zeros_like(depthScale)
         for k in range(depthScale.shape[0]):
-            chi_c[k] = eos.contOpacity(temperature[k], pgas[k], pe[k], np.array([5000.0])) / Const.CM_TO_M
+            chi_c[k] = eos.cont_opacity(temperature[k], pgas[k], pe[k],
+                                        np.array([5000.0])) / Const.CM_TO_M
 
         # NOTE(cmo): We should now have a uniform minimum set of data (other
         # than the scale type), allowing us to simply convert between the
@@ -1235,7 +1239,7 @@ class Atmosphere:
             abundance = DefaultAtomicAbundance
 
         wittAbundances = np.array([abundance[e] for e in PeriodicTable.elements])
-        eos = witt(abund_init=wittAbundances)
+        eos = Wittmann(abund_init=wittAbundances)
 
         flatHeight = view_flatten(height)
         flatTemperature = view_flatten(temperature)

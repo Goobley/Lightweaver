@@ -7,7 +7,6 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from astropy import units
 import astropy.units as u
-from specutils.utils.wcs_utils import vac_to_air as spec_vac_to_air, air_to_vac as spec_air_to_vac
 from numba import njit
 from scipy import special
 from weno4 import weno4
@@ -152,6 +151,9 @@ def vac_to_air(wavelength: np.ndarray) -> np.ndarray:
     result : float or array-like or astropy.Quantity
         The converted wavelength in [nm].
     '''
+    # NOTE(cmo): Moved this import here as it's very slow
+    ### HACK
+    from specutils.utils.wcs_utils import vac_to_air as spec_vac_to_air
     return spec_vac_to_air(wavelength << units.nm, method='edlen1966').value
 
 def air_to_vac(wavelength: np.ndarray) -> np.ndarray:
@@ -168,6 +170,9 @@ def air_to_vac(wavelength: np.ndarray) -> np.ndarray:
     result : float or array-like or astropy.Quantity
         The converted wavelength in [nm].
     '''
+    # NOTE(cmo): Moved this import here as it's very slow
+    ### HACK
+    from specutils.utils.wcs_utils import air_to_vac as spec_air_to_vac
     return spec_air_to_vac(wavelength << units.nm, scheme='iteration', method='edlen1966').value
 
 def convert_specific_intensity(wavelength: np.ndarray,

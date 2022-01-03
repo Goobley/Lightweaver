@@ -629,7 +629,7 @@ class Wittmann:
                                      self.pfData.pf, self.pfData.Tpf,
                                      verbose=self.verbose, prec=self.prec,
                                      Ncontr=self.Ncontr)
-        rho = pe * self.rho_from_H / (fe_out * temp)
+        rho = pe * self.rhoFromH / (fe_out * temp)
         return rho
 
 
@@ -739,13 +739,8 @@ class Wittmann:
         # divided by the partition functions
         n = self.get_background_partials(iT, Pgas, Pe, divide_by_u=True)
 
-
         # get background opacity
         opac, scat = cop(iT, TKEV, TK, HTK, TLOG, xna, xne, w, *n)
-
-        # opac, scat = cop(iT,  TKEV, TK, HTK, TLOG, xna, xne, w, n[0], n[1],
-        #                       n[2], n[3],n[4], n[5], n[6], n[7], n[8], n[9], n[10], n[11],
-        #                       n[12], n[13], n[14], n[15], n[16])
         return opac
 
 
