@@ -47,14 +47,14 @@ cdef extern from "LwFormalInterface.hpp":
         vector[InterpFn] fns
         bool_t load_fn_from_path(const char* path)
 
-    cdef cppclass FormalSolverIterationMatricesFns:
+    cdef cppclass FsIterationFns:
         bool_t dimensionSpecific
         bool_t respectsFormalSolver
         int Ndim
         const char* name
 
-    cdef cppclass FSIterationMatricesManager:
-        vector[FormalSolverIterationMatricesFns] fns
+    cdef cppclass FsIterationFnsManager:
+        vector[FsIterationFns] fns
         bool_t load_fns_from_path(const char* path)
 
 cdef extern from "Lightweaver.hpp":
@@ -286,7 +286,7 @@ cdef extern from "Lightweaver.hpp":
         int Nthreads
         FormalSolver formalSolver
         InterpFn interpFn
-        FormalSolverIterationMatricesFns iterFns
+        FsIterationFns iterFns
         void initialise_threads()
         void update_threads()
 
@@ -2936,9 +2936,9 @@ cdef class LwContext:
                 raise e
 
     def set_fs_iter_scheme(self, fsIterScheme):
-        cdef LwFSIterationManager manager = FsIterationSchemes
+        cdef LwFsIterationManager manager = FsIterationSchemes
         cdef int iterIdx
-        cdef FormalSolverIterationMatricesFns iterFns
+        cdef FsIterationFns iterFns
 
         if fsIterScheme is not None:
             iterIdx = manager.names.index(fsIterScheme)
@@ -3915,8 +3915,8 @@ cdef class LwInterpFnManager:
         else:
             raise ValueError("Unexpected Ndim")
 
-cdef class LwFSIterationManager:
-    cdef FSIterationMatricesManager manager
+cdef class LwFsIterationManager:
+    cdef FsIterationFnsManager manager
     cdef public list paths
     cdef public list names
 
@@ -3950,4 +3950,4 @@ cdef class LwFSIterationManager:
 
 FormalSolvers = LwFormalSolverManager()
 InterpFns = LwInterpFnManager()
-FsIterationSchemes = LwFSIterationManager()
+FsIterationSchemes = LwFsIterationManager()

@@ -13,7 +13,7 @@ from scipy.optimize import newton_krylov
 from numba import njit
 import astropy.units as u
 
-@njit
+@njit(cache=True)
 def lte_pops_impl(temperature, ne, nTotal, stages, energies,
                   gs, nStar=None, debye=True, computeDiff=False):
     Nlevel = stages.shape[0]

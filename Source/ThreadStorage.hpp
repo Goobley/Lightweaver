@@ -99,11 +99,13 @@ struct AtomStorageFactory
 {
     Atom* atom;
     bool detailedStatic;
+    bool wlaGijStorage;
     int fsWidth;
     std::vector<std::unique_ptr<AtomStorage>> aStorage;
     std::vector<TransitionStorageFactory> tStorage;
     PerAtomFns methodFns;
-    AtomStorageFactory(Atom* a, bool detail, int fsWidth, PerAtomTransFns perFns);
+    AtomStorageFactory(Atom* a, bool detail, bool wlaStorage,
+                       int fsWidth, PerAtomTransFns perFns);
     Atom* copy_atom();
     void erase(Atom* atom);
     void accumulate_Gamma_rates();
@@ -227,6 +229,8 @@ struct ThreadData
             free(schedMemory);
             schedMemory = nullptr;
         }
+        if (clear_global_scratch)
+            clear_global_scratch();
     }
     ThreadData(const ThreadData&) = delete;
     ThreadData(ThreadData&&) = delete;

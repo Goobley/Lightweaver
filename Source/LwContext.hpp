@@ -29,7 +29,7 @@ struct Context
     LwInternal::ThreadData threading;
     FormalSolver formalSolver;
     InterpFn interpFn;
-    FormalSolverIterationMatricesFns iterFns;
+    FsIterationFns iterFns;
     void* methodScratch;
 
     void initialise_threads()

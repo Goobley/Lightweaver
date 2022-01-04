@@ -21,8 +21,6 @@ struct Atom
     F64View vBroad;
     F64View stages;
 
-    void* methodScratch;
-
     F64View3D Gamma;
     F64View3D C;
 
@@ -34,6 +32,8 @@ struct Atom
     F64View2D chi;
 
     std::vector<Transition*> trans;
+
+    void* methodScratch;
 
     Ng ng;
 

@@ -35,18 +35,10 @@ FormalSolverManager::FormalSolverManager()
     formalSolvers.emplace_back(FormalSolver{piecewise_besser_2d, 2, 1, "piecewise_besser_2d"});
 }
 
-FormalSolverManager::~FormalSolverManager()
-{
-}
-
 InterpFnManager::InterpFnManager()
 {
     fns.emplace_back(InterpFn(2, "interp_linear_2d", interp_linear_2d));
     fns.emplace_back(InterpFn(2, "interp_besser_2d", interp_besser_2d));
-}
-
-InterpFnManager::~InterpFnManager()
-{
 }
 
 bool InterpFnManager::load_fn_from_path(const char* path)
@@ -66,7 +58,7 @@ bool InterpFnManager::load_fn_from_path(const char* path)
     return true;
 }
 
-bool FSIterationMatricesManager::load_fns_from_path(const char* path)
+bool FsIterationFnsManager::load_fns_from_path(const char* path)
 {
     PlatformSharedLibrary lib{};
     if (!load_library(&lib, path))
@@ -76,25 +68,22 @@ bool FSIterationMatricesManager::load_fns_from_path(const char* path)
 
     libs.emplace_back(lib);
 
-    auto fs_provider = load_function<FSIterationMatricesProvider>(lib, "fs_iteration_matrices_provider");
+    auto fs_provider = load_function<FsIterationFnsProvider>(lib, "fs_iteration_fns_provider");
     if (!fs_provider)
     {
         return false;
     }
 
-    FormalSolverIterationMatricesFns fs = fs_provider();
+    FsIterationFns fs = fs_provider();
     fns.emplace_back(fs);
     return true;
 }
 
-FSIterationMatricesManager::FSIterationMatricesManager()
+FsIterationFnsManager::FsIterationFnsManager()
 {
-    fns.emplace_back(FormalSolverIterationMatricesFns{
-                        -1, false, true, "mali_full_precond",
+    fns.emplace_back(FsIterationFns{
+                        -1, false, true, true, true,
+                        "mali_full_precond",
                         formal_sol_gamma_matrices_impl
                         });
-}
-
-FSIterationMatricesManager::~FSIterationMatricesManager()
-{
 }

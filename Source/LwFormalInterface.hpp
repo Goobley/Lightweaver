@@ -47,7 +47,6 @@ struct FormalSolverManager
     std::vector<PlatformSharedLibrary> libs;
 
     FormalSolverManager();
-    ~FormalSolverManager();
     bool load_fs_from_path(const char* path);
 };
 
@@ -77,7 +76,6 @@ struct InterpFnManager
     std::vector<PlatformSharedLibrary> libs;
 
     InterpFnManager();
-    ~InterpFnManager();
     bool load_fn_from_path(const char* path);
 };
 
@@ -90,11 +88,13 @@ typedef void(*AllocGlobalScratch)(Context* ctx);
 typedef void(*FreeGlobalScratch)(Context* ctx);
 typedef void(*AccumulateOverThreads)(Context* ctx);
 
-struct FormalSolverIterationMatricesFns
+struct FsIterationFns
 {
     int Ndim;
     bool dimensionSpecific;
     bool respectsFormalSolver;
+    bool defaultPerAtomStorage;
+    bool defaultWlaGijStorage;
     const char* name;
 
     FormalSolIterFn fs_iter;
@@ -107,15 +107,14 @@ struct FormalSolverIterationMatricesFns
     AccumulateOverThreads accumulate_over_threads;
 };
 
-typedef FormalSolverIterationMatricesFns(*FSIterationMatricesProvider)();
+typedef FsIterationFns(*FsIterationFnsProvider)();
 
-struct FSIterationMatricesManager
+struct FsIterationFnsManager
 {
-    std::vector<FormalSolverIterationMatricesFns> fns;
+    std::vector<FsIterationFns> fns;
     std::vector<PlatformSharedLibrary> libs;
 
-    FSIterationMatricesManager();
-    ~FSIterationMatricesManager();
+    FsIterationFnsManager();
     bool load_fns_from_path(const char* path);
 };
 

@@ -134,10 +134,11 @@ void TransitionStorageFactory::accumulate_prd_rates(const std::vector<size_t>& i
     accumulate_rates(indices);
 }
 
-AtomStorageFactory::AtomStorageFactory(Atom* a, bool detail,
+AtomStorageFactory::AtomStorageFactory(Atom* a, bool detail, bool wlaStorage,
                                        int fsWidthSimd, PerAtomTransFns perFns)
     : atom(a),
       detailedStatic(detail),
+      wlaGijStorage(wlaStorage),
       fsWidth(fsWidthSimd),
       methodFns(perFns.perAtom)
 {
@@ -165,7 +166,7 @@ Atom* AtomStorageFactory::copy_atom()
     const int Nlevel = a->Nlevel;
     const int Nspace = a->atmos->Nspace;
 
-    if (a->Ntrans > 0)
+    if (a->Ntrans > 0 && wlaGijStorage)
     {
         as.gij = F64Arr2D(0.0, a->Ntrans, Nspace);
         a->gij = as.gij;
@@ -354,18 +355,20 @@ void IntensityCoreFactory::initialise(Context* ctx)
                                       PerTransFns { ctx->iterFns.alloc_per_trans,
                                                     ctx->iterFns.free_per_trans } };
 
-    bool detailedStatic = false;
+    bool detailedStatic = !ctx->iterFns.defaultPerAtomStorage;
+    bool wlaGijStorage = ctx->iterFns.defaultWlaGijStorage;
     activeAtoms.reserve(ctx->activeAtoms.size());
     for (auto a : ctx->activeAtoms)
     {
-        activeAtoms.emplace_back(AtomStorageFactory(a, detailedStatic=false,
+        activeAtoms.emplace_back(AtomStorageFactory(a, detailedStatic, wlaGijStorage,
                                   ctx->formalSolver.width, methodScratchFns));
     }
 
     detailedAtoms.reserve(ctx->detailedAtoms.size());
+    detailedStatic = true;
     for (auto a : ctx->detailedAtoms)
     {
-        detailedAtoms.emplace_back(AtomStorageFactory(a, detailedStatic=true,
+        detailedAtoms.emplace_back(AtomStorageFactory(a, detailedStatic, wlaGijStorage,
                                     ctx->formalSolver.width, methodScratchFns));
     }
 }
