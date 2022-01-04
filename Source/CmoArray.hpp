@@ -121,27 +121,24 @@ template <typename T> struct Array5NonOwn;
 template <typename T>
 struct Array1NonOwn
 {
+    constexpr static i64 Ndim = 1;
     T* data;
-    i64 Ndim;
     i64 dim0;
-    Array1NonOwn() : data(nullptr), Ndim(1), dim0(0)
+    Array1NonOwn() : data(nullptr), dim0(0)
     {}
-    Array1NonOwn(T* data_, i64 dim) : data(data_), Ndim(1), dim0(dim)
+    Array1NonOwn(T* data_, i64 dim) : data(data_), dim0(dim)
     {}
-    Array1NonOwn(std::vector<T>* vec) : data(vec->data()), Ndim(1), dim0(vec->size())
+    Array1NonOwn(std::vector<T>* vec) : data(vec->data()), dim0(vec->size())
     {}
     Array1NonOwn(const Array1NonOwn& other) = default;
     Array1NonOwn(Array1NonOwn&& other) = default;
     template <class Alloc>
-    Array1NonOwn(Array1Own<T, Alloc>& other) : data(other.data()), Ndim(other.Ndim), dim0(other.dim0)
+    Array1NonOwn(Array1Own<T, Alloc>& other) : data(other.data()), dim0(other.dim0)
     {}
 
     template<typename U = T, typename = std::enable_if_t<std::is_const<U>::value>>
-    Array1NonOwn(const Array1NonOwn<typename std::remove_const<T>::type>& other) : data(other.data()), Ndim(other.Ndim), dim0(other.dim0)
+    Array1NonOwn(const Array1NonOwn<typename std::remove_const<T>::type>& other) : data(other.data()), dim0(other.dim0)
     {}
-
-    // Array1NonOwn&
-    // operator=(const Array1NonOwn other) = default;
 
     Array1NonOwn&
     operator=(const Array1NonOwn& other) = default;
@@ -290,16 +287,16 @@ struct Array1NonOwn
 template <typename T, class Alloc = PodAlignedAllocator<T, 64>>
 struct Array1Own
 {
+    constexpr static i64 Ndim = 1;
     std::vector<T, Alloc> dataStore;
-    i64 Ndim;
     i64 dim0;
-    Array1Own() : dataStore(), Ndim(1), dim0(0)
+    Array1Own() : dataStore(), dim0(0)
     {}
-    Array1Own(i64 size) : dataStore(size), Ndim(1), dim0(size)
+    Array1Own(i64 size) : dataStore(size), dim0(size)
     {}
-    Array1Own(T val, i64 size) : dataStore(size, val), Ndim(1), dim0(size)
+    Array1Own(T val, i64 size) : dataStore(size, val), dim0(size)
     {}
-    Array1Own(const Array1NonOwn<T>& other) : dataStore(other.data, other.data + other.dim0), Ndim(other.Ndim), dim0(other.dim0)
+    Array1Own(const Array1NonOwn<T>& other) : dataStore(other.data, other.data + other.dim0), dim0(other.dim0)
     {}
     Array1Own(const Array1Own& other) = default;
     Array1Own(Array1Own&& other) = default;
@@ -307,7 +304,6 @@ struct Array1Own
     Array1Own&
     operator=(const Array1NonOwn<T>& other)
     {
-        Ndim = other.Ndim;
         dim0 = other.dim0;
         dataStore.assign(other.data, other.data + other.dim0);
         return *this;
@@ -479,20 +475,20 @@ struct Array1Own
 template <typename T>
 struct Array2NonOwn
 {
+    constexpr static i64 Ndim = 2;
     T* data;
-    i64 Ndim;
     std::array<i64, 2> dim;
-    Array2NonOwn() : data(nullptr), Ndim(2), dim{}
+    Array2NonOwn() : data(nullptr), dim{}
     {}
-    Array2NonOwn(T* data_, i64 dim0, i64 dim1) : data(data_), Ndim(2), dim{dim0, dim1}
+    Array2NonOwn(T* data_, i64 dim0, i64 dim1) : data(data_), dim{dim0, dim1}
     {}
     Array2NonOwn(const Array2NonOwn& other) = default;
     Array2NonOwn(Array2NonOwn&& other) = default;
     template <class Alloc>
-    Array2NonOwn(Array2Own<T, Alloc>& other) : data(other.data()), Ndim(other.Ndim), dim(other.dim)
+    Array2NonOwn(Array2Own<T, Alloc>& other) : data(other.data()), dim(other.dim)
     {}
     template<typename U = T, typename = std::enable_if_t<std::is_const<U>::value>>
-    Array2NonOwn(const Array2NonOwn<typename std::remove_const<T>::type>& other) : data(other.data()), Ndim(other.Ndim), dim(other.dim)
+    Array2NonOwn(const Array2NonOwn<typename std::remove_const<T>::type>& other) : data(other.data()), dim(other.dim)
     {}
 
     Array2NonOwn&
@@ -649,16 +645,16 @@ struct Array2NonOwn
 template <typename T, class Alloc = PodAlignedAllocator<T, 64>>
 struct Array2Own
 {
+    constexpr static i64 Ndim = 2;
     std::vector<T, Alloc> dataStore;
-    i64 Ndim;
     std::array<i64, 2> dim;
-    Array2Own() : dataStore(), Ndim(2), dim{}
+    Array2Own() : dataStore(), dim{}
     {}
-    Array2Own(i64 size1, i64 size2) : dataStore(size1*size2), Ndim(2), dim{size1, size2}
+    Array2Own(i64 size1, i64 size2) : dataStore(size1*size2), dim{size1, size2}
     {}
-    Array2Own(T val, i64 size1, i64 size2) : dataStore(size1*size2, val), Ndim(2), dim{size1, size2}
+    Array2Own(T val, i64 size1, i64 size2) : dataStore(size1*size2, val), dim{size1, size2}
     {}
-    Array2Own(const Array2NonOwn<T>& other) : dataStore(other.data, other.data+other.dim[0]*other.dim[1]), Ndim(other.Ndim), dim(other.dim)
+    Array2Own(const Array2NonOwn<T>& other) : dataStore(other.data, other.data+other.dim[0]*other.dim[1]), dim(other.dim)
     {}
     Array2Own(const Array2Own& other) = default;
     Array2Own(Array2Own&& other) = default;
@@ -666,7 +662,6 @@ struct Array2Own
     Array2Own&
     operator=(const Array2NonOwn<T>& other)
     {
-        Ndim = other.Ndim;
         dim = other.dim;
         auto len = dim[0]*dim[1];
         dataStore.assign(other.data, other.data+len);
@@ -848,21 +843,21 @@ struct Array2Own
 template <typename T>
 struct Array3NonOwn
 {
+    constexpr static i64 Ndim = 3;
     T* data;
-    i64 Ndim;
     std::array<i64, 3> dim;
     std::array<i64, 2> dimProd;
-    Array3NonOwn() : data(nullptr), Ndim(3), dim{0}, dimProd{0}
+    Array3NonOwn() : data(nullptr), dim{0}, dimProd{0}
     {}
-    Array3NonOwn(T* data_, i64 dim0, i64 dim1, i64 dim2) : data(data_), Ndim(3), dim{dim0, dim1, dim2}, dimProd{dim1*dim2, dim2}
+    Array3NonOwn(T* data_, i64 dim0, i64 dim1, i64 dim2) : data(data_), dim{dim0, dim1, dim2}, dimProd{dim1*dim2, dim2}
     {}
     Array3NonOwn(const Array3NonOwn& other) = default;
     Array3NonOwn(Array3NonOwn&& other) = default;
     template <class Alloc>
-    Array3NonOwn(Array3Own<T, Alloc>& other) : data(other.data()), Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
+    Array3NonOwn(Array3Own<T, Alloc>& other) : data(other.data()), dim(other.dim), dimProd(other.dimProd)
     {}
     template<typename U = T, typename = std::enable_if_t<std::is_const<U>::value>>
-    Array3NonOwn(const Array3NonOwn<typename std::remove_const<T>::type>& other) : data(other.data()), Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
+    Array3NonOwn(const Array3NonOwn<typename std::remove_const<T>::type>& other) : data(other.data()), dim(other.dim), dimProd(other.dimProd)
     {}
 
     Array3NonOwn&
@@ -1029,18 +1024,18 @@ struct Array3NonOwn
 template <typename T, class Alloc = PodAlignedAllocator<T, 64>>
 struct Array3Own
 {
+    constexpr static i64 Ndim = 3;
     std::vector<T, Alloc> dataStore;
-    i64 Ndim;
     std::array<i64, 3> dim;
     std::array<i64, 2> dimProd;
-    Array3Own() : dataStore(), Ndim(3), dim{}, dimProd{}
+    Array3Own() : dataStore(), dim{}, dimProd{}
     {}
-    Array3Own(i64 dim0, i64 dim1, i64 dim2) : dataStore(dim0*dim1*dim2), Ndim(3), dim{dim0, dim1, dim2}, dimProd{dim1*dim2, dim2}
+    Array3Own(i64 dim0, i64 dim1, i64 dim2) : dataStore(dim0*dim1*dim2), dim{dim0, dim1, dim2}, dimProd{dim1*dim2, dim2}
     {}
-    Array3Own(T val, i64 dim0, i64 dim1, i64 dim2) : dataStore(dim0*dim1*dim2, val), Ndim(3), dim{dim0, dim1, dim2}, dimProd{dim1*dim2, dim2}
+    Array3Own(T val, i64 dim0, i64 dim1, i64 dim2) : dataStore(dim0*dim1*dim2, val), dim{dim0, dim1, dim2}, dimProd{dim1*dim2, dim2}
     {}
     Array3Own(const Array3NonOwn<T>& other) : dataStore(other.data, other.data+other.dim[0]*other.dim[1]*other.dim[2]),
-                                              Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
+                                               dim(other.dim), dimProd(other.dimProd)
     {}
     Array3Own(const Array3Own& other) = default;
     Array3Own(Array3Own&& other) = default;
@@ -1048,7 +1043,6 @@ struct Array3Own
     Array3Own&
     operator=(const Array3NonOwn<T>& other)
     {
-        Ndim = other.Ndim;
         dim = other.dim;
         dimProd = other.dimProd;
         auto len = other.dim[0]*other.dim[1]*other.dim[2];
@@ -1241,22 +1235,22 @@ struct Array3Own
 template <typename T>
 struct Array4NonOwn
 {
+    constexpr static i64 Ndim = 4;
     T* data;
-    i64 Ndim;
     std::array<i64, 4> dim;
     std::array<i64, 3> dimProd;
-    Array4NonOwn() : data(nullptr), Ndim(4), dim{0}, dimProd{0}
+    Array4NonOwn() : data(nullptr), dim{0}, dimProd{0}
     {}
-    Array4NonOwn(T* data_, i64 dim0, i64 dim1, i64 dim2, i64 dim3) : data(data_), Ndim(4), dim{dim0, dim1, dim2, dim3},
+    Array4NonOwn(T* data_, i64 dim0, i64 dim1, i64 dim2, i64 dim3) : data(data_), dim{dim0, dim1, dim2, dim3},
                                                                                  dimProd{dim1*dim2*dim3, dim2*dim3, dim3}
     {}
     Array4NonOwn(const Array4NonOwn& other) = default;
     Array4NonOwn(Array4NonOwn&& other) = default;
     template <class Alloc>
-    Array4NonOwn(Array4Own<T, Alloc>& other) : data(other.data()), Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
+    Array4NonOwn(Array4Own<T, Alloc>& other) : data(other.data()), dim(other.dim), dimProd(other.dimProd)
     {}
     template<typename U = T, typename = std::enable_if_t<std::is_const<U>::value>>
-    Array4NonOwn(const Array4NonOwn<typename std::remove_const<T>::type>& other) : data(other.data()), Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
+    Array4NonOwn(const Array4NonOwn<typename std::remove_const<T>::type>& other) : data(other.data()), dim(other.dim), dimProd(other.dimProd)
     {}
 
     Array4NonOwn&
@@ -1434,20 +1428,20 @@ struct Array4NonOwn
 template <typename T, class Alloc = PodAlignedAllocator<T, 64>>
 struct Array4Own
 {
+    constexpr static i64 Ndim = 4;
     std::vector<T, Alloc> dataStore;
-    i64 Ndim;
     std::array<i64, 4> dim;
     std::array<i64, 3> dimProd;
-    Array4Own() : dataStore(), Ndim(4), dim{}, dimProd{}
+    Array4Own() : dataStore(), dim{}, dimProd{}
     {}
-    Array4Own(i64 dim0, i64 dim1, i64 dim2, i64 dim3) : dataStore(dim0*dim1*dim2*dim3), Ndim(4), dim{dim0, dim1, dim2, dim3},
+    Array4Own(i64 dim0, i64 dim1, i64 dim2, i64 dim3) : dataStore(dim0*dim1*dim2*dim3), dim{dim0, dim1, dim2, dim3},
                                                                     dimProd{dim1*dim2*dim3, dim2*dim3, dim3}
     {}
-    Array4Own(T val, i64 dim0, i64 dim1, i64 dim2, i64 dim3) : dataStore(dim0*dim1*dim2*dim3, val), Ndim(4), dim{dim0, dim1, dim2, dim3},
+    Array4Own(T val, i64 dim0, i64 dim1, i64 dim2, i64 dim3) : dataStore(dim0*dim1*dim2*dim3, val), dim{dim0, dim1, dim2, dim3},
                                                                               dimProd{dim1*dim2*dim3, dim2*dim3, dim3}
     {}
     Array4Own(const Array4NonOwn<T>& other) : dataStore(other.data, other.data+other.dim[0]*other.dimProd[0]),
-                                              Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
+                                              dim(other.dim), dimProd(other.dimProd)
     {}
 
     Array4Own(const Array4Own& other) = default;
@@ -1456,7 +1450,6 @@ struct Array4Own
     Array4Own&
     operator=(const Array4NonOwn<T>& other)
     {
-        Ndim = other.Ndim;
         dim = other.dim;
         dimProd = other.dimProd;
         auto len = other.dimProd[0] * other.dim[0];
@@ -1659,22 +1652,22 @@ struct Array4Own
 template <typename T>
 struct Array5NonOwn
 {
+    constexpr static i64 Ndim = 5;
     T* data;
-    i64 Ndim;
     std::array<i64, 5> dim;
     std::array<i64, 4> dimProd;
-    Array5NonOwn() : data(nullptr), Ndim(5), dim{0}, dimProd{0}
+    Array5NonOwn() : data(nullptr), dim{0}, dimProd{0}
     {}
-    Array5NonOwn(T* data_, i64 dim0, i64 dim1, i64 dim2, i64 dim3, i64 dim4) : data(data_), Ndim(5), dim{dim0,dim1,dim2,dim3,dim4},
+    Array5NonOwn(T* data_, i64 dim0, i64 dim1, i64 dim2, i64 dim3, i64 dim4) : data(data_), dim{dim0,dim1,dim2,dim3,dim4},
                                                                                               dimProd{dim1*dim2*dim3*dim4, dim2*dim3*dim4, dim3*dim4, dim4}
     {}
     Array5NonOwn(const Array5NonOwn& other) = default;
     Array5NonOwn(Array5NonOwn&& other) = default;
     template <class Alloc>
-    Array5NonOwn(Array5Own<T, Alloc>& other) : data(other.data()), Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
+    Array5NonOwn(Array5Own<T, Alloc>& other) : data(other.data()), dim(other.dim), dimProd(other.dimProd)
     {}
     template<typename U = T, typename = std::enable_if_t<std::is_const<U>::value>>
-    Array5NonOwn(const Array5NonOwn<typename std::remove_const<T>::type>& other) : data(other.data()), Ndim(other.Ndim), dim(other.dim), dimProd(other.dimProd)
+    Array5NonOwn(const Array5NonOwn<typename std::remove_const<T>::type>& other) : data(other.data()), dim(other.dim), dimProd(other.dimProd)
     {}
 
     Array5NonOwn&
@@ -1860,19 +1853,19 @@ struct Array5NonOwn
 template <typename T, class Alloc = PodAlignedAllocator<T, 64>>
 struct Array5Own
 {
+    constexpr static i64 Ndim = 5;
     std::vector<T, Alloc> dataStore;
-    i64 Ndim;
     std::array<i64, 5> dim;
     std::array<i64, 4> dimProd;
-    Array5Own() : dataStore(), Ndim(5), dim{}, dimProd{}
+    Array5Own() : dataStore(), dim{}, dimProd{}
     {}
-    Array5Own(i64 d0, i64 d1, i64 d2, i64 d3, i64 d4) : dataStore(d0*d1*d2*d3*d4), Ndim(5), dim{d0,d1,d2,d3,d4},
+    Array5Own(i64 d0, i64 d1, i64 d2, i64 d3, i64 d4) : dataStore(d0*d1*d2*d3*d4), dim{d0,d1,d2,d3,d4},
                                                                        dimProd{d1*d2*d3*d4, d2*d3*d4, d3*d4, d4}
     {}
-    Array5Own(T val, i64 d0, i64 d1, i64 d2, i64 d3, i64 d4) : dataStore(d0*d1*d2*d3*d4, val), Ndim(5), dim{d0,d1,d2,d3,d4},
+    Array5Own(T val, i64 d0, i64 d1, i64 d2, i64 d3, i64 d4) : dataStore(d0*d1*d2*d3*d4, val), dim{d0,d1,d2,d3,d4},
                                                                               dimProd{d1*d2*d3*d4, d2*d3*d4, d3*d4, d4}
     {}
-    Array5Own(const Array5NonOwn<T>& other) : dataStore(other.data, other.data+other.dim[0]*other.dimProd[0]), Ndim(other.Ndim),
+    Array5Own(const Array5NonOwn<T>& other) : dataStore(other.data, other.data+other.dim[0]*other.dimProd[0]),
                                               dim(other.dim), dimProd(other.dimProd)
     {}
     Array5Own(const Array5Own& other) = default;
@@ -1881,7 +1874,6 @@ struct Array5Own
     Array5Own&
     operator=(const Array5NonOwn<T>& other)
     {
-        Ndim = other.Ndim;
         dim = other.dim;
         dimProd = other.dimProd;
         dataStore.assign(other.data, other.data+other.dim[0]*other.dimProd[0]);
