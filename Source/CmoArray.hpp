@@ -209,7 +209,7 @@ struct Array1NonOwn
     {
         if (d0 * d1 != dim0)
         {
-            printf("Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim0, d0, d1);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim0, d0, d1);
             assert(d0 * d1 == dim0);
         }
         return Array2NonOwn(data, d0, d1);
@@ -219,7 +219,7 @@ struct Array1NonOwn
     {
         if (d0 * d1 != dim0)
         {
-            printf("Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim0, d0, d1);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim0, d0, d1);
             assert(d0 * d1 == dim0);
         }
         return Array2NonOwn(data, d0, d1);
@@ -229,7 +229,7 @@ struct Array1NonOwn
     {
         if (d0 * d1 * d2 != dim0)
         {
-            printf("Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim0, d0, d1, d2);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim0, d0, d1, d2);
             assert(d0 * d1 * d2 == dim0);
         }
         return Array3NonOwn(data, d0, d1, d2);
@@ -239,7 +239,7 @@ struct Array1NonOwn
     {
         if (d0 * d1 * d2 != dim0)
         {
-            printf("Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim0, d0, d1, d2);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim0, d0, d1, d2);
             assert(d0 * d1 * d2 == dim0);
         }
         return Array3NonOwn(data, d0, d1, d2);
@@ -249,7 +249,7 @@ struct Array1NonOwn
     {
         if (d0 * d1 * d2 * d3 != dim0)
         {
-            printf("Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim0, d0, d1, d2, d3);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim0, d0, d1, d2, d3);
             assert(d0 * d1 * d2 * d3 == dim0);
         }
         return Array4NonOwn(data, d0, d1, d2, d3);
@@ -259,7 +259,7 @@ struct Array1NonOwn
     {
         if (d0 * d1 * d2 * d3 != dim0)
         {
-            printf("Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim0, d0, d1, d2, d3);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim0, d0, d1, d2, d3);
             assert(d0 * d1 * d2 * d3 == dim0);
         }
         return Array4NonOwn(data, d0, d1, d2, d3);
@@ -269,7 +269,7 @@ struct Array1NonOwn
     {
         if (d0 * d1 * d2 * d3 * d4 != dim0)
         {
-            printf("Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim0, d0, d1, d2, d3, d4);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim0, d0, d1, d2, d3, d4);
             assert(d0 * d1 * d2 * d3 * d4 == dim0);
         }
         return Array5NonOwn(data, d0, d1, d2, d3, d4);
@@ -279,7 +279,7 @@ struct Array1NonOwn
     {
         if (d0 * d1 * d2 * d3 * d4 != dim0)
         {
-            printf("Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim0, d0, d1, d2, d3, d4);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim0, d0, d1, d2, d3, d4);
             assert(d0 * d1 * d2 * d3 * d4 == dim0);
         }
         return Array5NonOwn(data, d0, d1, d2, d3, d4);
@@ -390,7 +390,7 @@ struct Array1Own
     {
         if (d0 * d1 != dim0)
         {
-            printf("Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim0, d0, d1);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim0, d0, d1);
             assert(d0 * d1 == dim0);
         }
         return Array2NonOwn(data(), d0, d1);
@@ -400,7 +400,7 @@ struct Array1Own
     {
         if (d0 * d1 != dim0)
         {
-            printf("Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim0, d0, d1);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim0, d0, d1);
             assert(d0 * d1 == dim0);
         }
         return Array2NonOwn(data(), d0, d1);
@@ -410,7 +410,7 @@ struct Array1Own
     {
         if (d0 * d1 * d2 != dim0)
         {
-            printf("Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim0, d0, d1, d2);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim0, d0, d1, d2);
             assert(d0 * d1 * d2 == dim0);
         }
         return Array3NonOwn(data(), d0, d1, d2);
@@ -420,7 +420,7 @@ struct Array1Own
     {
         if (d0 * d1 * d2 != dim0)
         {
-            printf("Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim0, d0, d1, d2);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim0, d0, d1, d2);
             assert(d0 * d1 * d2 == dim0);
         }
         return Array3NonOwn(data(), d0, d1, d2);
@@ -430,7 +430,7 @@ struct Array1Own
     {
         if (d0 * d1 * d2 * d3 != dim0)
         {
-            printf("Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim0, d0, d1, d2, d3);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim0, d0, d1, d2, d3);
             assert(d0 * d1 * d2 * d3 == dim0);
         }
         return Array4NonOwn(data(), d0, d1, d2, d3);
@@ -440,7 +440,7 @@ struct Array1Own
     {
         if (d0 * d1 * d2 * d3 != dim0)
         {
-            printf("Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim0, d0, d1, d2, d3);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim0, d0, d1, d2, d3);
             assert(d0 * d1 * d2 * d3 == dim0);
         }
         return Array4NonOwn(data(), d0, d1, d2, d3);
@@ -450,7 +450,7 @@ struct Array1Own
     {
         if (d0 * d1 * d2 * d3 * d4 != dim0)
         {
-            printf("Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim0, d0, d1, d2, d3, d4);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim0, d0, d1, d2, d3, d4);
             assert(d0 * d1 * d2 * d3 * d4 == dim0);
         }
         return Array5NonOwn(data(), d0, d1, d2, d3, d4);
@@ -460,7 +460,7 @@ struct Array1Own
     {
         if (d0 * d1 * d2 * d3 * d4 != dim0)
         {
-            printf("Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim0, d0, d1, d2, d3, d4);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim0, d0, d1, d2, d3, d4);
             assert(d0 * d1 * d2 * d3 * d4 == dim0);
         }
         return Array5NonOwn(data(), d0, d1, d2, d3, d4);
@@ -571,7 +571,7 @@ struct Array2NonOwn
     {
         if (d0 != dim[0] * dim[1])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], d0);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], d0);
             assert(d0 == dim[0] * dim[1]);
         }
         return Array1NonOwn(data, d0);
@@ -580,7 +580,7 @@ struct Array2NonOwn
     {
         if (d0 != dim[0] * dim[1])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], d0);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], d0);
             assert(d0 == dim[0] * dim[1]);
         }
         return Array1NonOwn(data, d0);
@@ -590,7 +590,7 @@ struct Array2NonOwn
     {
         if (d0 * d1 * d2 != dim[0] * dim[1])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], d0, d1, d2);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], d0, d1, d2);
             assert(d0 * d1 * d2 == dim[0] * dim[1]);
         }
         return Array3NonOwn(data, d0, d1, d2);
@@ -599,7 +599,7 @@ struct Array2NonOwn
     {
         if (d0 * d1 * d2 != dim[0] * dim[1])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], d0, d1, d2);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], d0, d1, d2);
             assert(d0 * d1 * d2 == dim[0] * dim[1]);
         }
         return Array3NonOwn(data, d0, d1, d2);
@@ -609,7 +609,7 @@ struct Array2NonOwn
     {
         if (d0 * d1 * d2 * d3 != dim[0] * dim[1])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], d0, d1, d2, d3);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], d0, d1, d2, d3);
             assert(d0 * d1 * d2 * d3 == dim[0] * dim[1]);
         }
         return Array4NonOwn(data, d0, d1, d2, d3);
@@ -618,7 +618,7 @@ struct Array2NonOwn
     {
         if (d0 * d1 * d2 * d3 != dim[0] * dim[1])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], d0, d1, d2, d3);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], d0, d1, d2, d3);
             assert(d0 * d1 * d2 * d3 == dim[0] * dim[1]);
         }
         return Array4NonOwn(data, d0, d1, d2, d3);
@@ -628,7 +628,7 @@ struct Array2NonOwn
     {
         if (d0 * d1 * d2 * d3 * d4 != dim[0] * dim[1])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], d0, d1, d2, d3, d4);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], d0, d1, d2, d3, d4);
             assert(d0 * d1 * d2 * d3 * d4 == dim[0] * dim[1]);
         }
         return Array5NonOwn(data, d0, d1, d2, d3, d4);
@@ -637,7 +637,7 @@ struct Array2NonOwn
     {
         if (d0 * d1 * d2 * d3 * d4 != dim[0] * dim[1])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], d0, d1, d2, d3, d4);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], d0, d1, d2, d3, d4);
             assert(d0 * d1 * d2 * d3 * d4 == dim[0] * dim[1]);
         }
         return Array5NonOwn(data, d0, d1, d2, d3, d4);
@@ -762,7 +762,7 @@ struct Array2Own
     {
         if (d0 != dim[0] * dim[1])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], d0);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], d0);
             assert(d0 == dim[0] * dim[1]);
         }
         return Array1NonOwn(data(), d0);
@@ -771,7 +771,7 @@ struct Array2Own
     {
         if (d0 != dim[0] * dim[1])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], d0);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], d0);
             assert(d0 == dim[0] * dim[1]);
         }
         return Array1NonOwn(data(), d0);
@@ -781,7 +781,7 @@ struct Array2Own
     {
         if (d0 * d1 * d2 != dim[0] * dim[1])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], d0, d1, d2);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], d0, d1, d2);
             assert(d0 * d1 * d2 == dim[0] * dim[1]);
         }
         return Array3NonOwn(data(), d0, d1, d2);
@@ -790,7 +790,7 @@ struct Array2Own
     {
         if (d0 * d1 * d2 != dim[0] * dim[1])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], d0, d1, d2);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], d0, d1, d2);
             assert(d0 * d1 * d2 == dim[0] * dim[1]);
         }
         return Array3NonOwn(data(), d0, d1, d2);
@@ -800,7 +800,7 @@ struct Array2Own
     {
         if (d0 * d1 * d2 * d3 != dim[0] * dim[1])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], d0, d1, d2, d3);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], d0, d1, d2, d3);
             assert(d0 * d1 * d2 * d3 == dim[0] * dim[1]);
         }
         return Array4NonOwn(data(), d0, d1, d2, d3);
@@ -809,7 +809,7 @@ struct Array2Own
     {
         if (d0 * d1 * d2 * d3 != dim[0] * dim[1])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], d0, d1, d2, d3);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], d0, d1, d2, d3);
             assert(d0 * d1 * d2 * d3 == dim[0] * dim[1]);
         }
         return Array4NonOwn(data(), d0, d1, d2, d3);
@@ -819,7 +819,7 @@ struct Array2Own
     {
         if (d0 * d1 * d2 * d3 * d4 != dim[0] * dim[1])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], d0, d1, d2, d3, d4);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], d0, d1, d2, d3, d4);
             assert(d0 * d1 * d2 * d3 * d4 == dim[0] * dim[1]);
         }
         return Array5NonOwn(data(), d0, d1, d2, d3, d4);
@@ -828,7 +828,7 @@ struct Array2Own
     {
         if (d0 * d1 * d2 * d3 * d4 != dim[0] * dim[1])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], d0, d1, d2, d3, d4);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], d0, d1, d2, d3, d4);
             assert(d0 * d1 * d2 * d3 * d4 == dim[0] * dim[1]);
         }
         return Array5NonOwn(data(), d0, d1, d2, d3, d4);
@@ -950,7 +950,7 @@ struct Array3NonOwn
     {
         if (d0 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], dim[2], d0);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], dim[2], d0);
             assert(d0 == dimProd[0] * dim[0]);
         }
         return Array1NonOwn(data, d0);
@@ -959,7 +959,7 @@ struct Array3NonOwn
     {
         if (d0 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], dim[2], d0);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], dim[2], d0);
             assert(d0 == dimProd[0] * dim[0]);
         }
         return Array1NonOwn(data, d0);
@@ -969,7 +969,7 @@ struct Array3NonOwn
     {
         if (d0 * d1 != dim[0] * dim[1] * dim[2])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], d0, d1);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], d0, d1);
             assert(d0 * d1 == dimProd[0] * dim[0]);
         }
         return Array2NonOwn(data, d0, d1);
@@ -978,7 +978,7 @@ struct Array3NonOwn
     {
         if (d0 * d1 != dim[0] * dim[1] * dim[2])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], d0, d1);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], d0, d1);
             assert(d0 * d1 == dimProd[0] * dim[0]);
         }
         return Array2NonOwn(data, d0, d1);
@@ -988,7 +988,7 @@ struct Array3NonOwn
     {
         if (d0 * d1 * d2 * d3 != dim[0] * dim[1] * dim[2])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], d0, d1, d2, d3);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], d0, d1, d2, d3);
             assert(d0 * d1 * d2 * d3 == dimProd[0] * dim[0]);
         }
         return Array4NonOwn(data, d0, d1, d2, d3);
@@ -997,7 +997,7 @@ struct Array3NonOwn
     {
         if (d0 * d1 * d2 * d3 != dim[0] * dim[1] * dim[2])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], d0, d1, d2, d3);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], d0, d1, d2, d3);
             assert(d0 * d1 * d2 * d3 == dimProd[0] * dim[0]);
         }
         return Array4NonOwn(data, d0, d1, d2, d3);
@@ -1007,7 +1007,7 @@ struct Array3NonOwn
     {
         if (d0 * d1 * d2 * d3 * d4 != dim[0] * dim[1] * dim[2])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], d0, d1, d2, d3, d4);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], d0, d1, d2, d3, d4);
             assert(d0 * d1 * d2 * d3 * d4 == dimProd[0] * dim[0]);
         }
         return Array5NonOwn(data, d0, d1, d2, d3, d4);
@@ -1016,7 +1016,7 @@ struct Array3NonOwn
     {
         if (d0 * d1 * d2 * d3 * d4 != dim[0] * dim[1] * dim[2])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], d0, d1, d2, d3, d4);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], d0, d1, d2, d3, d4);
             assert(d0 * d1 * d2 * d3 * d4 == dimProd[0] * dim[0]);
         }
         return Array5NonOwn(data, d0, d1, d2, d3, d4);
@@ -1154,7 +1154,7 @@ struct Array3Own
     {
         if (d0 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], dim[2], d0);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], dim[2], d0);
             assert(d0 == dimProd[0] * dim[0]);
         }
         return Array1NonOwn(data(), d0);
@@ -1163,7 +1163,7 @@ struct Array3Own
     {
         if (d0 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], dim[2], d0);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], dim[2], d0);
             assert(d0 == dimProd[0] * dim[0]);
         }
         return Array1NonOwn(data(), d0);
@@ -1173,7 +1173,7 @@ struct Array3Own
     {
         if (d0 * d1 != dim[0] * dim[1] * dim[2])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], d0, d1);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], d0, d1);
             assert(d0 * d1 == dimProd[0] * dim[0]);
         }
         return Array2NonOwn(data(), d0, d1);
@@ -1182,7 +1182,7 @@ struct Array3Own
     {
         if (d0 * d1 != dim[0] * dim[1] * dim[2])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], d0, d1);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], d0, d1);
             assert(d0 * d1 == dimProd[0] * dim[0]);
         }
         return Array2NonOwn(data(), d0, d1);
@@ -1192,7 +1192,7 @@ struct Array3Own
     {
         if (d0 * d1 * d2 * d3 != dim[0] * dim[1] * dim[2])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], d0, d1, d2, d3);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], d0, d1, d2, d3);
             assert(d0 * d1 * d2 * d3 == dimProd[0] * dim[0]);
         }
         return Array4NonOwn(data(), d0, d1, d2, d3);
@@ -1201,7 +1201,7 @@ struct Array3Own
     {
         if (d0 * d1 * d2 * d3 != dim[0] * dim[1] * dim[2])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], d0, d1, d2, d3);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], d0, d1, d2, d3);
             assert(d0 * d1 * d2 * d3 == dimProd[0] * dim[0]);
         }
         return Array4NonOwn(data(), d0, d1, d2, d3);
@@ -1211,7 +1211,7 @@ struct Array3Own
     {
         if (d0 * d1 * d2 * d3 * d4 != dim[0] * dim[1] * dim[2])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], d0, d1, d2, d3, d4);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], d0, d1, d2, d3, d4);
             assert(d0 * d1 * d2 * d3 * d4 == dimProd[0] * dim[0]);
         }
         return Array5NonOwn(data(), d0, d1, d2, d3, d4);
@@ -1220,7 +1220,7 @@ struct Array3Own
     {
         if (d0 * d1 * d2 * d3 * d4 != dim[0] * dim[1] * dim[2])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], d0, d1, d2, d3, d4);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], d0, d1, d2, d3, d4);
             assert(d0 * d1 * d2 * d3 * d4 == dimProd[0] * dim[0]);
         }
         return Array5NonOwn(data(), d0, d1, d2, d3, d4);
@@ -1354,7 +1354,7 @@ struct Array4NonOwn
     {
         if (d0 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0);
             assert(d0 == dimProd[0] * dim[0]);
         }
         return Array1NonOwn(data, d0);
@@ -1363,7 +1363,7 @@ struct Array4NonOwn
     {
         if (d0 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0);
             assert(d0 == dimProd[0] * dim[0]);
         }
         return Array1NonOwn(data, d0);
@@ -1373,7 +1373,7 @@ struct Array4NonOwn
     {
         if (d0 * d1 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0, d1);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0, d1);
             assert(d0 * d1 == dimProd[0] * dim[0]);
         }
         return Array2NonOwn(data, d0, d1);
@@ -1382,7 +1382,7 @@ struct Array4NonOwn
     {
         if (d0 * d1 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0, d1);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0, d1);
             assert(d0 * d1 == dimProd[0] * dim[0]);
         }
         return Array2NonOwn(data, d0, d1);
@@ -1392,7 +1392,7 @@ struct Array4NonOwn
     {
         if (d0 * d1 * d2 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0, d1, d2);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0, d1, d2);
             assert(d0 * d1 * d2 == dimProd[0] * dim[0]);
         }
         return Array3NonOwn(data, d0, d1, d2);
@@ -1401,7 +1401,7 @@ struct Array4NonOwn
     {
         if (d0 * d1 * d2 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0, d1, d2);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0, d1, d2);
             assert(d0 * d1 * d2 == dimProd[0] * dim[0]);
         }
         return Array3NonOwn(data, d0, d1, d2);
@@ -1411,7 +1411,7 @@ struct Array4NonOwn
     {
         if (d0 * d1 * d2 * d3 * d4 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0, d1, d2, d3, d4);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0, d1, d2, d3, d4);
             assert(d0 * d1 * d2 * d3 * d4 == dimProd[0] * dim[0]);
         }
         return Array5NonOwn(data, d0, d1, d2, d3, d4);
@@ -1420,7 +1420,7 @@ struct Array4NonOwn
     {
         if (d0 * d1 * d2 * d3 * d4 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0, d1, d2, d3, d4);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0, d1, d2, d3, d4);
             assert(d0 * d1 * d2 * d3 * d4 == dimProd[0] * dim[0]);
         }
         return Array5NonOwn(data, d0, d1, d2, d3, d4);
@@ -1571,7 +1571,7 @@ struct Array4Own
     {
         if (d0 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0);
             assert(d0 == dimProd[0] * dim[0]);
         }
         return Array1NonOwn(data(), d0);
@@ -1580,7 +1580,7 @@ struct Array4Own
     {
         if (d0 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0);
             assert(d0 == dimProd[0] * dim[0]);
         }
         return Array1NonOwn(data(), d0);
@@ -1590,7 +1590,7 @@ struct Array4Own
     {
         if (d0 * d1 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0, d1);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0, d1);
             assert(d0 * d1 == dimProd[0] * dim[0]);
         }
         return Array2NonOwn(data(), d0, d1);
@@ -1599,7 +1599,7 @@ struct Array4Own
     {
         if (d0 * d1 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0, d1);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0, d1);
             assert(d0 * d1 == dimProd[0] * dim[0]);
         }
         return Array2NonOwn(data(), d0, d1);
@@ -1609,7 +1609,7 @@ struct Array4Own
     {
         if (d0 * d1 * d2 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0, d1, d2);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0, d1, d2);
             assert(d0 * d1 * d2 == dimProd[0] * dim[0]);
         }
         return Array3NonOwn(data(), d0, d1, d2);
@@ -1618,7 +1618,7 @@ struct Array4Own
     {
         if (d0 * d1 * d2 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0, d1, d2);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0, d1, d2);
             assert(d0 * d1 * d2 == dimProd[0] * dim[0]);
         }
         return Array3NonOwn(data(), d0, d1, d2);
@@ -1628,7 +1628,7 @@ struct Array4Own
     {
         if (d0 * d1 * d2 * d3 * d4 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0, d1, d2, d3, d4);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0, d1, d2, d3, d4);
             assert(d0 * d1 * d2 * d3 * d4 == dimProd[0] * dim[0]);
         }
         return Array5NonOwn(data(), d0, d1, d2, d3, d4);
@@ -1637,7 +1637,7 @@ struct Array4Own
     {
         if (d0 * d1 * d2 * d3 * d4 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0, d1, d2, d3, d4);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], d0, d1, d2, d3, d4);
             assert(d0 * d1 * d2 * d3 * d4 == dimProd[0] * dim[0]);
         }
         return Array5NonOwn(data(), d0, d1, d2, d3, d4);
@@ -1779,7 +1779,7 @@ struct Array5NonOwn
     {
         if (d0 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0);
             assert(d0 == dimProd[0] * dim[0]);
         }
         return Array1NonOwn(data, d0);
@@ -1788,7 +1788,7 @@ struct Array5NonOwn
     {
         if (d0 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0);
             assert(d0 == dimProd[0] * dim[0]);
         }
         return Array1NonOwn(data, d0);
@@ -1798,7 +1798,7 @@ struct Array5NonOwn
     {
         if (d0 * d1 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1);
             assert(d0 * d1 == dimProd[0] * dim[0]);
         }
         return Array2NonOwn(data, d0, d1);
@@ -1807,7 +1807,7 @@ struct Array5NonOwn
     {
         if (d0 * d1 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1);
             assert(d0 * d1 == dimProd[0] * dim[0]);
         }
         return Array2NonOwn(data, d0, d1);
@@ -1817,7 +1817,7 @@ struct Array5NonOwn
     {
         if (d0 * d1 * d2 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1, d2);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1, d2);
             assert(d0 * d1 * d2 == dimProd[0] * dim[0]);
         }
         return Array3NonOwn(data, d0, d1, d2);
@@ -1826,7 +1826,7 @@ struct Array5NonOwn
     {
         if (d0 * d1 * d2 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1, d2);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1, d2);
             assert(d0 * d1 * d2 == dimProd[0] * dim[0]);
         }
         return Array3NonOwn(data, d0, d1, d2);
@@ -1836,7 +1836,7 @@ struct Array5NonOwn
     {
         if (d0 * d1 * d2 * d3 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1, d2, d3);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1, d2, d3);
             assert(d0 * d1 * d2 * d3 == dimProd[0] * dim[0]);
         }
         return Array4NonOwn(data, d0, d1, d2, d3);
@@ -1845,7 +1845,7 @@ struct Array5NonOwn
     {
         if (d0 * d1 * d2 * d3 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1, d2, d3);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1, d2, d3);
             assert(d0 * d1 * d2 * d3 == dimProd[0] * dim[0]);
         }
         return Array4NonOwn(data, d0, d1, d2, d3);
@@ -2003,7 +2003,7 @@ struct Array5Own
     {
         if (d0 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0);
             assert(d0 == dimProd[0] * dim[0]);
         }
         return Array1NonOwn(data(), d0);
@@ -2012,7 +2012,7 @@ struct Array5Own
     {
         if (d0 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0);
             assert(d0 == dimProd[0] * dim[0]);
         }
         return Array1NonOwn(data(), d0);
@@ -2022,7 +2022,7 @@ struct Array5Own
     {
         if (d0 * d1 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1);
             assert(d0 * d1 == dimProd[0] * dim[0]);
         }
         return Array2NonOwn(data(), d0, d1);
@@ -2031,7 +2031,7 @@ struct Array5Own
     {
         if (d0 * d1 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1);
             assert(d0 * d1 == dimProd[0] * dim[0]);
         }
         return Array2NonOwn(data(), d0, d1);
@@ -2041,7 +2041,7 @@ struct Array5Own
     {
         if (d0 * d1 * d2 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1, d2);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1, d2);
             assert(d0 * d1 * d2 == dimProd[0] * dim[0]);
         }
         return Array3NonOwn(data(), d0, d1, d2);
@@ -2050,7 +2050,7 @@ struct Array5Own
     {
         if (d0 * d1 * d2 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1, d2);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1, d2);
             assert(d0 * d1 * d2 == dimProd[0] * dim[0]);
         }
         return Array3NonOwn(data(), d0, d1, d2);
@@ -2060,7 +2060,7 @@ struct Array5Own
     {
         if (d0 * d1 * d2 * d3 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1, d2, d3);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1, d2, d3);
             assert(d0 * d1 * d2 * d3 == dimProd[0] * dim[0]);
         }
         return Array4NonOwn(data(), d0, d1, d2, d3);
@@ -2069,7 +2069,7 @@ struct Array5Own
     {
         if (d0 * d1 * d2 * d3 != dimProd[0] * dim[0])
         {
-            printf("Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1, d2, d3);
+            fprintf(stderr, "Cannot reshape array [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "] to [%" PRId64 " x %" PRId64 " x %" PRId64 " x %" PRId64 "]\n", dim[0], dim[1], dim[2], dim[3], dim[4], d0, d1, d2, d3);
             assert(d0 * d1 * d2 * d3 == dimProd[0] * dim[0]);
         }
         return Array4NonOwn(data(), d0, d1, d2, d3);
