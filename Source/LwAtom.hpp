@@ -45,8 +45,6 @@ struct Atom
         constexpr f64 hc_4pi = 0.25 * C::HC / C::Pi;
         constexpr f64 pi4_hc = 1.0 / hc_4pi;
         constexpr f64 hc_k = C::HC / (C::KBoltzmann * C::NM_TO_M);
-        gij.fill(0.0);
-        wla.fill(0.0);
         for (int kr = 0; kr < Ntrans; ++kr)
         {
             auto& t = *trans[kr];

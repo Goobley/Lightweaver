@@ -704,6 +704,13 @@ inline bool continua_only(const IntensityCoreData& data, int la)
     return continuaOnly;
 }
 
+template <SimdType simd>
+inline ForceInline
+void setup_wavelength_opt(Atom* atom, int laIdx)
+{
+    return atom->setup_wavelength(laIdx);
+}
+
 template <SimdType type>
 inline ForceInline void
 uv_opt(Transition* t, int la, int mu, bool toObs, F64View Uji, F64View Vij, F64View Vji)
@@ -1177,9 +1184,11 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
         J.fill(0.0);
 
     for (int a = 0; a < activeAtoms.size(); ++a)
-        activeAtoms[a]->setup_wavelength(la, fsEffWidth);
+        // activeAtoms[a]->setup_wavelength(la, fsEffWidth);
+        setup_wavelength_opt<simd>(activeAtoms[a], la);
     for (int a = 0; a < detailedAtoms.size(); ++a)
-        detailedAtoms[a]->setup_wavelength(la, fsEffWidth);
+        // detailedAtoms[a]->setup_wavelength(la, fsEffWidth);
+        setup_wavelength_opt<simd>(detailedAtoms[a], la);
 
     // NOTE(cmo): If we only have continua then opacity is angle independent
     // bool continuaOnly = true;

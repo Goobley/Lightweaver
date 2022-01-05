@@ -15,6 +15,179 @@
 
 namespace LwInternal
 {
+inline ForceInline __m128d fmadd_pd(__m128d a, __m128d b, __m128d c)
+{
+    return _mm_add_pd(_mm_mul_pd(a, b), c);
+}
+
+inline __m128d polynomial_13_lin(__m128d x, f64 c2, f64 c3, f64 c4,
+    f64 c5, f64 c6, f64 c7, f64 c8,
+    f64 c9, f64 c10, f64 c11, f64 c12, f64 c13)
+{
+    // c13*x^13 + ... + c2*x^2 + x + 0
+
+    __m128d x2 = _mm_mul_pd(x, x);
+    __m128d x4 = _mm_mul_pd(x2, x2);
+    __m128d x8 = _mm_mul_pd(x4, x4);
+
+    // NOTE(cmo): Do all the inner powers first
+    __m128d t3 = fmadd_pd(_mm_set1_pd(c3), x, _mm_set1_pd(c2));
+    __m128d t5 = fmadd_pd(_mm_set1_pd(c5), x, _mm_set1_pd(c4));
+    __m128d t7 = fmadd_pd(_mm_set1_pd(c7), x, _mm_set1_pd(c6));
+    __m128d t9 = fmadd_pd(_mm_set1_pd(c9), x, _mm_set1_pd(c8));
+    __m128d t11 = fmadd_pd(_mm_set1_pd(c11), x, _mm_set1_pd(c10));
+    __m128d t13 = fmadd_pd(_mm_set1_pd(c13), x, _mm_set1_pd(c12));
+
+    // NOTE(cmo): Next layer
+    __m128d tt3 = fmadd_pd(t3, x2, x);
+    __m128d tt7 = fmadd_pd(t7, x2, t5);
+    __m128d tt11 = fmadd_pd(t11, x2, t9);
+
+    __m128d ttt7 = fmadd_pd(tt7, x4, tt3);
+    __m128d ttt13 = fmadd_pd(t13, x4, tt11);
+
+    return fmadd_pd(ttt13, x8, ttt7);
+}
+
+inline __m128d pow2n(const __m128d n) {
+    const __m128d pow2_52 = _mm_set1_pd(4503599627370496.0);   // 2^52
+    const __m128d bias = _mm_set1_pd(1023.0);                  // bias in exponent
+    __m128d a = _mm_add_pd(n, _mm_add_pd(bias, pow2_52));   // put n + bias in least significant bits
+    __m128i b = _mm_castpd_si128(a);  // bit-cast to integer
+    __m128i c = _mm_slli_epi64(b, 52); // shift left 52 places to get value into exponent field
+    __m128d d = _mm_castsi128_pd(c);   // bit-cast back to double
+    return d;
+}
+// NOTE(cmo): AVX impl of exp_pd, based on Agner Fog's vector class
+// https://github.com/vectorclass/version2/blob/master/vectormath_exp.h
+// The implementation here, based on a classic Taylor series, rather than a
+// minimax function makes sense for our case, as we primarily value precision
+// close to 0. i.e. we know the behaviour outwith this.
+// Original under Apache v2 license.
+inline __m128d exp_pd_sse2(__m128d xIn)
+{
+    constexpr f64 p2 = 1.0 / 2.0;
+    constexpr f64 p3 = 1.0 / 6.0;
+    constexpr f64 p4 = 1.0 / 24.0;
+    constexpr f64 p5 = 1.0 / 120.0;
+    constexpr f64 p6 = 1.0 / 720.0;
+    constexpr f64 p7 = 1.0 / 5040.0;
+    constexpr f64 p8 = 1.0 / 40320.0;
+    constexpr f64 p9 = 1.0 / 362880.0;
+    constexpr f64 p10 = 1.0 / 3628800.0;
+    constexpr f64 p11 = 1.0 / 39916800.0;
+    constexpr f64 p12 = 1.0 / 479001600.0;
+    constexpr f64 p13 = 1.0 / 6227020800.0;
+
+    constexpr f64 log2e = 1.44269504088896340736;
+
+    constexpr f64 xMax = 708.39;
+    constexpr f64 ln2dHi = 0.693145751953125;
+    constexpr f64 ln2dLo = 1.42860682030941723212e-6;
+
+    __m128d x = xIn;
+
+    __m128d r = _mm_round_pd(_mm_mul_pd(xIn, _mm_set1_pd(log2e)),
+        _MM_FROUND_TO_NEAREST_INT);
+    // nmul_add(a, b, c) -> -(a * b) + c i.e. fnmadd
+    // x = x0 - r * ln2Lo - r * ln2Hi
+    x = _mm_sub_pd(x, _mm_mul_pd(r, _mm_set1_pd(ln2dHi)));
+    x = _mm_sub_pd(x, _mm_mul_pd(r, _mm_set1_pd(ln2dLo)));
+
+    __m128d z = polynomial_13_lin(x, p2, p3, p4, p5, p6, p7, p8,
+        p9, p10, p11, p12, p13);
+    __m128d n2 = pow2n(r);
+    z = _mm_mul_pd(_mm_add_pd(z, _mm_set1_pd(1.0)), n2);
+
+    // TODO(cmo): Probably should have some of the nan/inf error handling code.
+    return z;
+}
+
+template <>
+inline ForceInline
+void setup_wavelength_opt<SimdType::SSE2>(Atom* atom, int laIdx)
+{
+    constexpr SimdType simd = SimdType::SSE2;
+    constexpr int Stride = SimdWidth[(size_t)simd];
+    const int Nspace = atom->atmos->Nspace;
+    const int Nremainder = atom->atmos->Nspace % Stride;
+    const int kMax = Nspace - Nremainder;
+
+    namespace C = Constants;
+    constexpr f64 pi4_h = 4.0 * C::Pi / C::HPlanck;
+    constexpr f64 hc_4pi = 0.25 * C::HC / C::Pi;
+    constexpr f64 pi4_hc = 1.0 / hc_4pi;
+    constexpr f64 hc_k = C::HC / (C::KBoltzmann * C::NM_TO_M);
+
+
+    for (int kr = 0; kr < atom->Ntrans; ++kr)
+    {
+        auto& t = *atom->trans[kr];
+        if (!t.active(laIdx))
+            continue;
+
+        auto g = atom->gij(kr);
+        auto w = atom->wla(kr);
+        const int lt = t.lt_idx(laIdx);
+        auto wlambda = t.wlambda(lt);
+        if (t.type == TransitionType::LINE)
+        {
+            int k = 0;
+            __m128d bRatio = _mm_set1_pd(t.Bji / t.Bij);
+            __m128d wlaPi = _mm_set1_pd(wlambda * pi4_hc);
+            for (; k < kMax; k += Stride)
+            {
+                _mm_storeu_pd(&g(k), bRatio);
+                __m128d wphik = _mm_load_pd(&t.wphi(k));
+                _mm_storeu_pd(&w(k), _mm_mul_pd(wlaPi, wphik));
+            }
+            for (; k < Nspace; ++k)
+            {
+                g(k) = t.Bji / t.Bij;
+                w(k) = wlambda * t.wphi(k) * pi4_hc;
+            }
+        }
+        else
+        {
+            const f64 hc_kl = hc_k / t.wavelength(t.lt_idx(laIdx));
+            const f64 wlambda_lambda = wlambda / t.wavelength(t.lt_idx(laIdx));
+            const auto& atmos = atom->atmos;
+            auto& nStar = atom->nStar;
+            __m128d mhc_kl4x = _mm_set1_pd(-hc_kl);
+            __m128d wTerm = _mm_set1_pd(wlambda_lambda * pi4_h);
+            int k = 0;
+            for (; k < Nspace; k += Stride)
+            {
+                __m128d nik = _mm_loadu_pd(&nStar(t.i, k));
+                __m128d njk = _mm_loadu_pd(&nStar(t.j, k));
+                __m128d temp = _mm_load_pd(&atmos->temperature(k));
+                __m128d gk = _mm_mul_pd(_mm_div_pd(nik, njk),
+                                           exp_pd_sse2(_mm_div_pd(mhc_kl4x, temp)));
+                _mm_storeu_pd(&g(k), gk);
+                _mm_storeu_pd(&w(k), wTerm);
+            }
+            for (; k < Nspace; ++k)
+            {
+                g(k) = nStar(t.i, k) / nStar(t.j, k) * exp(-hc_kl / atmos->temperature(k));
+                w(k) = wlambda_lambda * pi4_h;
+            }
+        }
+
+        // NOTE(cmo): We have to do a linear interpolation on rhoPrd in the
+        // case of hybrid PRD, so we can't pre-multiply here in that
+        // instance.
+        if (t.rhoPrd && !t.hPrdCoeffs)
+        {
+            for (int k = 0; k < g.shape(0); ++k)
+                g(k) *= t.rhoPrd(lt, k);
+
+        }
+
+        if (!t.gij)
+            t.gij = g;
+    }
+}
+
 template <>
 inline ForceInline void
 uv_opt<SimdType::SSE2>(Transition* t, int la, int mu, bool toObs,
