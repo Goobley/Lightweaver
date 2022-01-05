@@ -15,6 +15,7 @@
 #include "ThreadStorage.cpp"
 
 // NOTE(cmo): SIMD Implementations
+#include "SimdImpl_SSE2.cpp"
 #include "SimdImpl_AVX2FMA.cpp"
 #include "SimdImpl_AVX512.cpp"
 

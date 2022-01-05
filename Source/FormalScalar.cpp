@@ -1545,9 +1545,22 @@ f64 formal_sol_iteration_matrices_scalar(Context& ctx, bool lambdaIterate)
     return formal_sol_iteration_matrices_impl<SimdType::Scalar>(ctx, mode);
 }
 
+f64 formal_sol_iteration_matrices_SSE2(Context& ctx, bool lambdaIterate)
+{
+#if defined(__SSE2__)
+    FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates);
+    if (lambdaIterate)
+        mode = mode | FsMode::PureLambdaIteration;
+
+    return formal_sol_iteration_matrices_impl<SimdType::SSE2>(ctx, mode);
+#else
+    assert(false);
+#endif
+}
+
 f64 formal_sol_iteration_matrices_AVX2FMA(Context& ctx, bool lambdaIterate)
 {
-#ifdef __AVX2__
+#if defined(__AVX2__) && defined(__FMA__)
     FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates);
     if (lambdaIterate)
         mode = mode | FsMode::PureLambdaIteration;
