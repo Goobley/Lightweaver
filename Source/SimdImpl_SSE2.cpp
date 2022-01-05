@@ -87,6 +87,7 @@ inline __m128d exp_pd_sse2(__m128d xIn)
 
     __m128d x = xIn;
 
+    // TODO(cmo): This is technically SSE4.1, find a replacement.
     __m128d r = _mm_round_pd(_mm_mul_pd(xIn, _mm_set1_pd(log2e)),
         _MM_FROUND_TO_NEAREST_INT);
     // nmul_add(a, b, c) -> -(a * b) + c i.e. fnmadd

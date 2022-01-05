@@ -1559,7 +1559,7 @@ f64 formal_sol_iteration_matrices_SSE2(Context& ctx, bool lambdaIterate)
     }
     else
     {
-        fprintf(stderr, "Attempted to call %s, but instruction set not available, dropping to Scalar.\nThis message shouldn't appear, please open an issue.", __func__);
+        fprintf(stderr, "Attempted to call %s, but instruction set not available, dropping to Scalar.\nThis message shouldn't appear, please open an issue.\n", __func__);
         return formal_sol_iteration_matrices_scalar(ctx, lambdaIterate);
     }
 }

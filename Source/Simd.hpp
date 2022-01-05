@@ -16,7 +16,7 @@ enum class SimdType
 constexpr inline
 bool SSE2_available()
 {
-#ifdef __SSE2__
+#if (defined(_WIN32) && _M_IX86_FP==2) || defined(__SSE2__)
     return true;
 #else
     return false;
@@ -26,7 +26,8 @@ bool SSE2_available()
 constexpr inline
 bool AVX2FMA_available()
 {
-#if defined(__AVX2__) && defined(__FMA__)
+#if (defined(_WIN32) && defined(__AVX2__)) \
+    || (defined(__AVX2__) && defined(__FMA__))
     return true;
 #else
     return false;
