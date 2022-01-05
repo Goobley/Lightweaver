@@ -6,18 +6,11 @@
 #include "ThreadStorage.hpp"
 
 #include <cmath>
-// #include <fenv.h>
 #include <iostream>
 #include <utility>
 #include <vector>
 #include <algorithm>
 #include <chrono>
-
-#ifdef _WIN32
-#include <intrin.h>
-#else
-#include <x86intrin.h>
-#endif
 
 #ifdef CMO_BASIC_PROFILE
 using hrc = std::chrono::high_resolution_clock;
@@ -1556,41 +1549,53 @@ f64 formal_sol_iteration_matrices_scalar(Context& ctx, bool lambdaIterate)
 
 f64 formal_sol_iteration_matrices_SSE2(Context& ctx, bool lambdaIterate)
 {
-#if defined(__SSE2__)
-    FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates);
-    if (lambdaIterate)
-        mode = mode | FsMode::PureLambdaIteration;
+    if constexpr (SSE2_available())
+    {
+        FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates);
+        if (lambdaIterate)
+            mode = mode | FsMode::PureLambdaIteration;
 
-    return formal_sol_iteration_matrices_impl<SimdType::SSE2>(ctx, mode);
-#else
-    assert(false);
-#endif
+        return formal_sol_iteration_matrices_impl<SimdType::SSE2>(ctx, mode);
+    }
+    else
+    {
+        fprintf(stderr, "Attempted to call %s, but instruction set not available, dropping to Scalar.\nThis message shouldn't appear, please open an issue.", __func__);
+        return formal_sol_iteration_matrices_scalar(ctx, lambdaIterate);
+    }
 }
 
 f64 formal_sol_iteration_matrices_AVX2FMA(Context& ctx, bool lambdaIterate)
 {
-#if defined(__AVX2__) && defined(__FMA__)
-    FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates);
-    if (lambdaIterate)
-        mode = mode | FsMode::PureLambdaIteration;
+    if constexpr (AVX2FMA_available())
+    {
+        FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates);
+        if (lambdaIterate)
+            mode = mode | FsMode::PureLambdaIteration;
 
-    return formal_sol_iteration_matrices_impl<SimdType::AVX2FMA>(ctx, mode);
-#else
-    assert(false);
-#endif
+        return formal_sol_iteration_matrices_impl<SimdType::AVX2FMA>(ctx, mode);
+    }
+    else
+    {
+        fprintf(stderr, "Attempted to call %s, but instruction set not available, dropping to SSE2.\nThis message shouldn't appear, please open an issue.\n", __func__);
+        return formal_sol_iteration_matrices_SSE2(ctx, lambdaIterate);
+    }
 }
 
 f64 formal_sol_iteration_matrices_AVX512(Context& ctx, bool lambdaIterate)
 {
-#ifdef __AVX512F__
-    FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates);
-    if (lambdaIterate)
-        mode = mode | FsMode::PureLambdaIteration;
+    if constexpr (AVX512_available())
+    {
+        FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates);
+        if (lambdaIterate)
+            mode = mode | FsMode::PureLambdaIteration;
 
-    return formal_sol_iteration_matrices_impl<SimdType::AVX512>(ctx, mode);
-#else
-    assert(false);
-#endif
+        return formal_sol_iteration_matrices_impl<SimdType::AVX512>(ctx, mode);
+    }
+    else
+    {
+        fprintf(stderr, "Attempted to call %s, but instruction set not available, dropping to AVX2FMA.\nThis message shouldn't appear, please open an issue.\n", __func__);
+        return formal_sol_iteration_matrices_AVX2FMA(ctx, lambdaIterate);
+    }
 }
 
 f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)

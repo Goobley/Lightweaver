@@ -122,6 +122,8 @@ namespace LwInternal
 
     void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs,
                              const F64View1D& wave);
+    void piecewise_besser_1d(FormalData* fd, int la, int mu, bool toObs,
+                              const F64View1D& wave);
     void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs,
                               const F64View1D& wave);
     void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs,

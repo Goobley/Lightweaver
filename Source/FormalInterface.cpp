@@ -30,6 +30,7 @@ bool FormalSolverManager::load_fs_from_path(const char* path)
 FormalSolverManager::FormalSolverManager()
 {
     formalSolvers.emplace_back(FormalSolver{piecewise_linear_1d, 1, 1, "piecewise_linear_1d"});
+    formalSolvers.emplace_back(FormalSolver{piecewise_besser_1d, 1, 1, "piecewise_besser_1d"});
     formalSolvers.emplace_back(FormalSolver{piecewise_bezier3_1d, 1, 1, "piecewise_bezier3_1d"});
     formalSolvers.emplace_back(FormalSolver{piecewise_linear_2d, 2, 1, "piecewise_linear_2d"});
     formalSolvers.emplace_back(FormalSolver{piecewise_besser_2d, 2, 1, "piecewise_besser_2d"});

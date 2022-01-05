@@ -13,6 +13,37 @@ enum class SimdType
     SIMD_TYPE_COUNT
 };
 
+constexpr inline
+bool SSE2_available()
+{
+#ifdef __SSE2__
+    return true;
+#else
+    return false;
+#endif
+}
+
+constexpr inline
+bool AVX2FMA_available()
+{
+#if defined(__AVX2__) && defined(__FMA__)
+    return true;
+#else
+    return false;
+#endif
+}
+
+constexpr inline
+bool AVX512_available()
+{
+#ifdef __AVX512F__
+// NOTE(cmo): The basic AVX512F seems to cover every intrinsic we use.
+    return true;
+#else
+    return false;
+#endif
+}
+
 constexpr int SimdWidth[(size_t)SimdType::SIMD_TYPE_COUNT] = {1, 2, 4, 8, 2};
 
 #ifdef _WIN32
