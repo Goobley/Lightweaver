@@ -156,7 +156,7 @@ void setup_wavelength_opt<SimdType::SSE2>(Atom* atom, int laIdx)
             __m128d mhc_kl4x = _mm_set1_pd(-hc_kl);
             __m128d wTerm = _mm_set1_pd(wlambda_lambda * pi4_h);
             int k = 0;
-            for (; k < Nspace; k += Stride)
+            for (; k < kMax; k += Stride)
             {
                 __m128d nik = _mm_loadu_pd(&nStar(t.i, k));
                 __m128d njk = _mm_loadu_pd(&nStar(t.j, k));

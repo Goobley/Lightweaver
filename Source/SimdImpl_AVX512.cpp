@@ -151,7 +151,7 @@ void setup_wavelength_opt<SimdType::AVX512>(Atom* atom, int laIdx)
             __m512d mhc_kl4x = _mm512_set1_pd(-hc_kl);
             __m512d wTerm = _mm512_set1_pd(wlambda_lambda * pi4_h);
             int k = 0;
-            for (; k < Nspace; k += Stride)
+            for (; k < kMax; k += Stride)
             {
                 __m512d nik = _mm512_loadu_pd(&nStar(t.i, k));
                 __m512d njk = _mm512_loadu_pd(&nStar(t.j, k));

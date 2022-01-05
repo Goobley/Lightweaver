@@ -151,7 +151,7 @@ void setup_wavelength_opt<SimdType::AVX2FMA>(Atom* atom, int laIdx)
             __m256d mhc_kl4x = _mm256_set1_pd(-hc_kl);
             __m256d wTerm = _mm256_set1_pd(wlambda_lambda * pi4_h);
             int k = 0;
-            for (; k < Nspace; k += Stride)
+            for (; k < kMax; k += Stride)
             {
                 __m256d nik = _mm256_loadu_pd(&nStar(t.i, k));
                 __m256d njk = _mm256_loadu_pd(&nStar(t.j, k));
