@@ -1352,7 +1352,8 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
 #include "Dispatch_intensity_core_opt.ipp"
 }
 
-f64 formal_sol_iteration_matrices_scalar(Context& ctx, LwInternal::FsMode mode)
+template <SimdType simd>
+f64 formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsMode mode)
 {
     JasUnpack(*ctx, atmos, spect, background, depthData);
     JasUnpack(ctx, activeAtoms, detailedAtoms);
@@ -1404,9 +1405,13 @@ f64 formal_sol_iteration_matrices_scalar(Context& ctx, LwInternal::FsMode mode)
         if (lambdaIterate)
             mode = mode | FsMode::PureLambdaIteration;
 
+        const bool storeDepthData = (ctx.depthData && ctx.depthData->fill);
         for (int la = 0; la < Nspect; ++la)
         {
-            f64 dJ = intensity_core(iCore, la, mode);
+            // f64 dJ = intensity_core(iCore, la, mode);
+            f64 dJ = dispatch_intensity_core_opt_<simd>(true, false, true,
+                                                        storeDepthData,
+                                                        iCore, la * ctx.formalSolver.width, mode);
             dJMax = max(dJ, dJMax);
         }
         for (int a = 0; a < activeAtoms.size(); ++a)
@@ -1486,7 +1491,7 @@ f64 formal_sol_iteration_matrices_scalar(Context& ctx, LwInternal::FsMode mode)
                 // template <SimdType simd, bool UpdateRates, bool PrdRatesOnly,
                 //   bool ComputeOperator, bool StoreDepthData>
                 f64 dJ = dispatch_intensity_core_opt_
-                            <SimdType::AVX2FMA>(true, false, true, td.storeDepthData,
+                            <simd>(true, false, true, td.storeDepthData,
                             *td.core, la * td.width, mode);
                 td.dJ = max_idx(td.dJ, dJ, td.dJIdx, la);
             }
@@ -1531,13 +1536,39 @@ f64 formal_sol_iteration_matrices_scalar(Context& ctx, LwInternal::FsMode mode)
 
 }
 
-f64 formal_sol_gamma_matrices_impl(Context& ctx, bool lambdaIterate)
+f64 formal_sol_iteration_matrices_scalar(Context& ctx, bool lambdaIterate)
 {
     FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates);
     if (lambdaIterate)
         mode = mode | FsMode::PureLambdaIteration;
 
-    return formal_sol_iteration_matrices_scalar(ctx, mode);
+    return formal_sol_iteration_matrices_impl<SimdType::Scalar>(ctx, mode);
+}
+
+f64 formal_sol_iteration_matrices_AVX2FMA(Context& ctx, bool lambdaIterate)
+{
+#ifdef __AVX2__
+    FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates);
+    if (lambdaIterate)
+        mode = mode | FsMode::PureLambdaIteration;
+
+    return formal_sol_iteration_matrices_impl<SimdType::AVX2FMA>(ctx, mode);
+#else
+    assert(false);
+#endif
+}
+
+f64 formal_sol_iteration_matrices_AVX512(Context& ctx, bool lambdaIterate)
+{
+#ifdef __AVX512F__
+    FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates);
+    if (lambdaIterate)
+        mode = mode | FsMode::PureLambdaIteration;
+
+    return formal_sol_iteration_matrices_impl<SimdType::AVX512>(ctx, mode);
+#else
+    assert(false);
+#endif
 }
 
 f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)

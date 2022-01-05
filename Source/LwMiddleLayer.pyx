@@ -2792,7 +2792,7 @@ cdef class LwContext:
                  interpFn=None,
                  fsIterScheme=None):
         self.__dict__ = {}
-        self.kwargs = {'atmos': atmos, 'spect': spect, 'eqPops': eqPops, 'ngOptions': ngOptions, 'initSol': initSol, 'conserveCharge': conserveCharge, 'hprd': hprd, 'Nthreads': Nthreads, 'backgroundProvider': backgroundProvider, 'formalSolver': formalSolver, 'interpFn': interpFn}
+        self.kwargs = {'atmos': atmos, 'spect': spect, 'eqPops': eqPops, 'ngOptions': ngOptions, 'initSol': initSol, 'conserveCharge': conserveCharge, 'hprd': hprd, 'Nthreads': Nthreads, 'backgroundProvider': backgroundProvider, 'formalSolver': formalSolver, 'interpFn': interpFn, 'fsIterScheme': fsIterScheme}
 
         self.atmos = LwAtmosphere(atmos, spect.wavelength.shape[0])
         self.spect = LwSpectrum(spect.wavelength, atmos.Nrays,
@@ -2894,6 +2894,7 @@ cdef class LwContext:
         self.ctx.depthData = &self.depthData.depthData
         self.set_formal_solver(self.kwargs['formalSolver'])
         self.set_interp_fn(self.kwargs['interpFn'])
+        self.set_fs_iter_scheme(self.kwargs['fsIterScheme'])
 
         self.setup_threads(state['kwargs']['Nthreads'])
 
@@ -3946,7 +3947,7 @@ cdef class LwFsIterationManager:
         self.names.append(name.decode('UTF-8'))
 
     def default_scheme(self):
-        return self.names.index('mali_full_precond')
+        return self.names.index('mali_full_precond_scalar')
 
 FormalSolvers = LwFormalSolverManager()
 InterpFns = LwInterpFnManager()

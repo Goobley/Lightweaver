@@ -16,6 +16,7 @@
 
 // NOTE(cmo): SIMD Implementations
 #include "SimdImpl_AVX2FMA.cpp"
+#include "SimdImpl_AVX512.cpp"
 
 // NOTE(cmo): This file does a lot of includes,  #defines, and usings that I'm not super keen on, so I suggest leaving it last
 #include "Faddeeva.cc"

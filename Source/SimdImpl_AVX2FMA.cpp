@@ -13,13 +13,6 @@
 #include <algorithm>
 #include <chrono>
 
-#ifdef __AVX2__
-int x = 2;
-#endif
-#ifdef __AVX512__
-int x = 2;
-#endif
-
 namespace LwInternal
 {
 template <>

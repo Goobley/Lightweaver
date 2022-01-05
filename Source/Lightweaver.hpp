@@ -21,7 +21,9 @@ struct NrTimeDependentData
 };
 
 f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate=false);
-f64 formal_sol_gamma_matrices_impl(Context& ctx, bool lambdaIterate=false);
+f64 formal_sol_iteration_matrices_scalar(Context& ctx, bool lambdaIterate=false);
+f64 formal_sol_iteration_matrices_AVX2FMA(Context& ctx, bool lambdaIterate=false);
+f64 formal_sol_iteration_matrices_AVX512(Context& ctx, bool lambdaIterate=false);
 f64 formal_sol_update_rates(Context& ctx);
 f64 formal_sol_update_rates_fixed_J(Context& ctx);
 f64 formal_sol(Context& ctx, bool upOnly=true);
