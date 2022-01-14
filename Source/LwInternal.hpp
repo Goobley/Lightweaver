@@ -86,12 +86,13 @@ namespace LwInternal
 
     inline void w2(f64 dtau, f64* w)
     {
+        constexpr f64 third = 1.0 / 3.0;
         f64 expdt;
 
         if (dtau < 5.0E-4)
         {
             w[0] = dtau * (1.0 - 0.5 * dtau);
-            w[1] = square(dtau) * (0.5 - dtau / 3.0);
+            w[1] = square(dtau) * (0.5 - dtau * third);
         }
         else if (dtau > 50.0)
         {

@@ -225,6 +225,7 @@ void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
     alignas(32) f64 intens[Stride] = {};
 
     int k = k_simdStart;
+    bool first = true;
     for (; simd_end_cond(k); k += (dk * Stride))
     {
         __m256d chik = _mm256_loadu_pd(&chi(k));
@@ -276,6 +277,8 @@ void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
         for (int i = iStart; i != iEnd; i += dI)
         {
             I_upw = edt[i] * I_upw + source[i];
+	    if (k + dk + i >= kMax)
+                continue;
             I(k + dk + i) = I_upw;
             // __m128d Iu = _mm_load_sd(&I_upw);
             // __m128d e = _mm_load_sd(&edt[i]);
@@ -294,11 +297,14 @@ void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
 
         // I(k + dk) = (1.0 - w[0]) * I_upw + w[0] * S(k + dk) + w[1] * dS_uw;
 
-        if constexpr (ComputeOperator)
-        {
-            __m256d Psikdk = _mm256_sub_pd(w2s.w0, _mm256_div_pd(w2s.w1, dtau_uw));
-            _mm256_storeu_pd(&Psi(k+dk), Psikdk);
-        }
+        // if constexpr (ComputeOperator)
+        // {
+        //     __m256d Psikdk = _mm256_sub_pd(w2s.w0, _mm256_div_pd(w2s.w1, dtau_uw));
+        //     _mm256_storeu_pd(&Psi(k+dk), Psikdk);
+        // }
+	if (first)
+             printf("k+dk, %d\n", k+dk);
+	first = false;
         // if constexpr (ComputeOperator)
         // {
         //     for (int i = 0; i < Stride; ++i)
