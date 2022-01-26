@@ -12,7 +12,7 @@ posixArgs = ["-std=c++17", "-Wno-sign-compare", "-funroll-loops"]
 if 'LW_CI_BUILD'  in os.environ:
     # NOTE(cmo): Compile for sandy bridge or newer when building on CI
     if platform.system() != 'Darwin':
-        # NOTE(cmo): Remove specific optimisation flags for macOS, 
+        # NOTE(cmo): Remove specific optimisation flags for macOS,
         # since they seem to cause trouble with M1.
         posixArgs += ["-march=corei7-avx", "-mtune=corei7-avx"]
 else:
@@ -47,7 +47,7 @@ setup(
             extra_compile_args=compileArgs,
             language="c++")],
         language_level=3),
-    install_requires=['numpy', 'scipy', 'matplotlib', 'numba', 'parse',
+    install_requires=['numpy<1.22,>=1.18', 'scipy', 'matplotlib', 'numba>=0.55', 'parse',
                       'specutils', 'tqdm', 'weno4', 'adjustText'],
     author='Chris Osborne',
     author_email='c.osborne.1@research.gla.ac.uk',

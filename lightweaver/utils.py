@@ -2,6 +2,7 @@ import lightweaver.constants as C
 from copy import copy, deepcopy
 import numpy as np
 import os
+import os.path as path
 from typing import Optional, Union, Tuple, Sequence, TYPE_CHECKING
 from dataclasses import dataclass
 from enum import Enum, auto
@@ -127,7 +128,7 @@ def get_data_path():
     global _LwCodeLocation
     if _LwCodeLocation is None:
         _LwCodeLocation, _ = os.path.split(__file__)
-    return _LwCodeLocation + '/Data/'
+    return path.join(_LwCodeLocation, 'Data') + path.sep
 
 def get_default_molecule_path():
     '''
@@ -136,7 +137,7 @@ def get_default_molecule_path():
     global _LwCodeLocation
     if _LwCodeLocation is None:
         _LwCodeLocation, _ = os.path.split(__file__)
-    return _LwCodeLocation + '/Data/DefaultMolecules/'
+    return path.join(_LwCodeLocation, 'Data', 'DefaultMolecules') + path.sep
 
 def vac_to_air(wavelength: np.ndarray) -> np.ndarray:
     '''
