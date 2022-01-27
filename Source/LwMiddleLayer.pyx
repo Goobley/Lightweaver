@@ -7,12 +7,14 @@ from libcpp.vector cimport vector
 from libc.math cimport sqrt, exp, copysign
 from .atmosphere import BoundaryCondition, ZeroRadiation, ThermalisedRadiation, PeriodicRadiation, NoBc
 from .atomic_model import AtomicLine, LineType, LineProfileState
-from .utils import InitialSolution, ExplodingMatrixError, UnityCrswIterator, check_shape_exception
+from .utils import InitialSolution, ExplodingMatrixError, UnityCrswIterator, check_shape_exception, get_fs_iter_libs
 from .atomic_table import PeriodicTable
 from .atomic_set import lte_pops
 from weno4 import weno4
 import lightweaver.constants as Const
+import lightweaver.config as lwConfig
 import time
+import os
 from enum import Enum, auto
 from copy import copy, deepcopy
 
@@ -2792,7 +2794,20 @@ cdef class LwContext:
                  interpFn=None,
                  fsIterScheme=None):
         self.__dict__ = {}
-        self.kwargs = {'atmos': atmos, 'spect': spect, 'eqPops': eqPops, 'ngOptions': ngOptions, 'initSol': initSol, 'conserveCharge': conserveCharge, 'hprd': hprd, 'Nthreads': Nthreads, 'backgroundProvider': backgroundProvider, 'formalSolver': formalSolver, 'interpFn': interpFn, 'fsIterScheme': fsIterScheme}
+        self.kwargs = {
+            'atmos': atmos,
+            'spect': spect,
+            'eqPops': eqPops,
+            'ngOptions': ngOptions,
+            'initSol': initSol,
+            'conserveCharge': conserveCharge,
+            'hprd': hprd,
+            'Nthreads': Nthreads,
+            'backgroundProvider': backgroundProvider,
+            'formalSolver': formalSolver,
+            'interpFn': interpFn,
+            'fsIterScheme': fsIterScheme
+        }
 
         self.atmos = LwAtmosphere(atmos, spect.wavelength.shape[0])
         self.spect = LwSpectrum(spect.wavelength, atmos.Nrays,
@@ -2806,8 +2821,14 @@ cdef class LwContext:
 
         activeAtoms = spect.radSet.activeAtoms
         detailedAtoms = spect.radSet.detailedAtoms
-        self.activeAtoms = [LwAtom(a, self.atmos, eqPops, spect, self.background, ngOptions=ngOptions, initSol=initSol, conserveCharge=conserveCharge) for a in activeAtoms]
-        self.detailedAtoms = [LwAtom(a, self.atmos, eqPops, spect, self.background, ngOptions=None, initSol=InitialSolution.Lte, detailed=True) for a in detailedAtoms]
+        self.activeAtoms = [LwAtom(a, self.atmos, eqPops, spect,
+                                   self.background, ngOptions=ngOptions,
+                                   initSol=initSol,
+                                   conserveCharge=conserveCharge)
+                            for a in activeAtoms]
+        self.detailedAtoms = [LwAtom(a, self.atmos, eqPops, spect,
+                                     self.background, ngOptions=None, initSol=InitialSolution.Lte, detailed=True)
+                              for a in detailedAtoms]
 
         self.ctx.atmos = &self.atmos.atmos
         self.ctx.spect = &self.spect.spect
@@ -3837,9 +3858,9 @@ cdef class LwFormalSolverManager:
             The name of the default formal solver.
         '''
         if Ndim == 1:
-            return self.names.index('piecewise_bezier3_1d')
+            return self.names.index(lwConfig.params['FormalSolver1d'])
         elif Ndim == 2:
-            return self.names.index('piecewise_besser_2d')
+            return self.names.index(lwConfig.params['FormalSolver2d'])
         else:
             raise ValueError()
 
@@ -3932,7 +3953,11 @@ cdef class LwFsIterationManager:
             name = self.manager.fns[i].name
             self.names.append(name.decode('UTF-8'))
 
-    def load_interp_fn_from_path(self, str path):
+        schemes = get_fs_iter_libs()
+        for s in schemes:
+            self.load_fns_from_path(s)
+
+    def load_fns_from_path(self, str path):
         if path in self.paths:
             raise ValueError('Tried to load a pre-existing path')
 
@@ -3947,7 +3972,10 @@ cdef class LwFsIterationManager:
         self.names.append(name.decode('UTF-8'))
 
     def default_scheme(self):
-        return self.names.index('mali_full_precond_scalar')
+        try:
+            return self.names.index('{IterationScheme}_{SimdImpl}'.format(**lwConfig.params))
+        except AttributeError:
+            return self.names.index(lwConfig.params['IterationScheme'])
 
 FormalSolvers = LwFormalSolverManager()
 InterpFns = LwInterpFnManager()

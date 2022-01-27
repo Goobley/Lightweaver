@@ -1,3 +1,4 @@
+#include "Constants.hpp"
 #include "Simd.hpp"
 #include "LwInternal.hpp"
 #include "Lightweaver.hpp"
@@ -12,6 +13,8 @@
 #include <vector>
 #include <algorithm>
 #include <chrono>
+
+#include "SimdFullIterationTemplates.hpp"
 
 namespace LwInternal
 {
@@ -513,4 +516,34 @@ compute_full_operator_rates(Atom* a, int kr, f64 wmu,
         }
     }
 }
+}
+
+using LwInternal::FsMode;
+
+f64 formal_sol_iteration_matrices_SSE2(Context& ctx, bool lambdaIterate)
+{
+    if constexpr (SSE2_available())
+    {
+        FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates);
+        if (lambdaIterate)
+            mode = mode | FsMode::PureLambdaIteration;
+
+        return LwInternal::formal_sol_iteration_matrices_impl<SimdType::SSE2>(ctx, mode);
+    }
+    else
+    {
+        fprintf(stderr, "Attempted to call %s, but instruction set not available.\nThis message shouldn't appear, please open an issue.\n", __func__);
+    }
+}
+
+extern "C"
+{
+    FsIterationFns fs_iteration_fns_provider()
+    {
+        return FsIterationFns {
+            -1, false, true, true, true,
+            "mali_full_precond_SSE2",
+            formal_sol_iteration_matrices_SSE2
+        };
+    }
 }

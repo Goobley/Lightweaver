@@ -17,6 +17,11 @@ struct Atmosphere;
 struct Background;
 struct Spectrum;
 
+// TODO(cmo): Get rid of all the individual erase methods. I don't think we need
+// them for anything, and I also don't believe they're correct due to iterator
+// invalidation in the loops (this could probably be fixed with using
+// std::erase_if), but I think the clears will be sufficient and correct.
+
 namespace LwInternal
 {
 

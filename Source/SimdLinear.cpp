@@ -227,6 +227,15 @@ void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
     int k = k_simdStart;
     for (; simd_end_cond(k); k += (dk * Stride))
     {
+        // NOTE(cmo): There's a lot of issues here for the toObs case.
+        // Nremainder needs to be worked out much more correctly.  e.g. for a
+        // toObs case with Ndep = 300, this will arrive here with k = 0 and dk =
+        // -1, thus loading from before the start of an array.  Clearly this is
+        // already bad, but due to how we write I and Psi, they are writing a
+        // value into I[-1], which I believe is where malloc and co store
+        // important info.
+        // Verified that plausible sized doubles are being written into this
+        // space with the debugger.
         __m256d chik = _mm256_loadu_pd(&chi(k));
         __m256d chikdk = _mm256_loadu_pd(&chi(k + dk));
         __m256d Sk = _mm256_loadu_pd(&S(k));

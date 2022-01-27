@@ -1,3 +1,5 @@
+from .version import version as __version__
+from .config import params as ConfigDict
 from .atmosphere import Atmosphere, ScaleType, BoundaryCondition, NoBc, ZeroRadiation, \
                         ThermalisedRadiation, PeriodicRadiation, Stratifications, Layout
 from .atomic_set import SpectrumConfiguration, RadiativeSet, lte_pops, hminus_pops
@@ -13,7 +15,6 @@ from .utils import NgOptions, InitialSolution, voigt_H, planck, gaunt_bf, Conver
                    compute_height_edges, compute_wavelength_edges, grotrian_diagram
 from .nr_update import nr_post_update
 from .LwCompiled import LwContext
-from .version import version as __version__
 
 # NOTE(cmo): This is here to make it easier to retroactively monkeypatch
 class Context(LwContext):

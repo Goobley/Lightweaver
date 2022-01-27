@@ -1,8 +1,10 @@
 import lightweaver.constants as C
-from copy import copy, deepcopy
+from lightweaver.simd_management import filter_usable_simd_impls
 import numpy as np
+import importlib
 import os
-from typing import Optional, Union, Tuple, Sequence, TYPE_CHECKING
+import os.path as path
+from typing import Optional, Union, Tuple, Sequence, List,TYPE_CHECKING
 from dataclasses import dataclass
 from enum import Enum, auto
 from astropy import units
@@ -11,6 +13,7 @@ from numba import njit
 from scipy import special
 from weno4 import weno4
 from scipy.integrate import trapezoid
+from functools import lru_cache
 
 if TYPE_CHECKING:
     from .atomic_model import AtomicLine, AtomicModel
@@ -118,24 +121,51 @@ class ExplodingMatrixError(Exception):
     '''
     pass
 
-_LwCodeLocation = None
+def get_code_location():
+    '''
+    Returns the directory containing the Lightweaver Python source.
+    '''
+    directory, _ = path.split(path.realpath(__file__))
+    return directory
+
 def get_data_path():
     '''
     Returns the location of the Lightweaver support data.
     '''
-    global _LwCodeLocation
-    if _LwCodeLocation is None:
-        _LwCodeLocation, _ = os.path.split(__file__)
-    return _LwCodeLocation + '/Data/'
+    return path.join(get_code_location(), 'Data') + path.sep
 
 def get_default_molecule_path():
     '''
     Returns the location of the default molecules taken from RH.
     '''
-    global _LwCodeLocation
-    if _LwCodeLocation is None:
-        _LwCodeLocation, _ = os.path.split(__file__)
-    return _LwCodeLocation + '/Data/DefaultMolecules/'
+    return path.join(get_code_location(), 'Data', 'DefaultMolecules') + path.sep
+
+def filter_fs_iter_libs(libs: Sequence[str], exts: Sequence[str]) -> Sequence[str]:
+    '''
+    Filter a list of libraries (e.g. SimdImpl_{SimdType}.{pep3149}.so) with a
+    valid collection of extensions. (As .so is a valid extension, we can't just
+    check the end of the file name).
+    '''
+    result = []
+    for libName in libs:
+        libPrefix = libName.split('.')[0]
+        for ext in exts:
+            if libPrefix + ext == libName:
+                result.append(libName)
+    return result
+
+def get_fs_iter_libs() -> Sequence[str]:
+    '''
+    Returns the paths of the default FsIterationScheme libraries usable on the
+    current machine (due to available SIMD optimisations -- these are detected by NumPy).
+    '''
+    validExts = importlib.machinery.EXTENSION_SUFFIXES
+    iterSchemesDir = path.join(get_code_location(), 'DefaultIterSchemes')
+    schemes = [path.join(iterSchemesDir, x) for x in
+                    filter_usable_simd_impls(
+                        filter_fs_iter_libs(os.listdir(iterSchemesDir), validExts)
+               )]
+    return schemes
 
 def vac_to_air(wavelength: np.ndarray) -> np.ndarray:
     '''

@@ -1,7 +1,7 @@
 #ifndef CMO_ARRAY_HPP
 #define CMO_ARRAY_HPP
 
-#define __STDC_FORMAT_MACROS
+#define __STDC_FORMAT_MACROS 1
 #include <cinttypes>
 #include <cstdint>
 #include <vector>
