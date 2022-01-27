@@ -444,6 +444,7 @@ void IntensityCoreFactory::erase(IntensityCoreData* core)
             a.erase(aa);
     }
 
+    // auto moveLocal = std::move(*storageEntry)
     arrayStorage.erase(storageEntry);
 }
 
@@ -569,8 +570,10 @@ IterationCores::~IterationCores()
     if (!factory)
         return;
 
-    for (const auto& c : cores)
-        factory->erase(c);
+//    for (const auto& c : cores)
+//       factory->erase(c);
+
+    factory->clear();
 }
 
 void IterationCores::accumulate_Gamma_rates()

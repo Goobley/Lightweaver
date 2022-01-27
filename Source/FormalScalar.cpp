@@ -163,7 +163,8 @@ void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
         k_end = Ndep - 1;
     }
     f64 dtau_uw = zmu * (chi(k_start) + chi(k_start + dk)) * abs(height(k_start) - height(k_start + dk));
-    f64 dS_uw = (S(k_start) - S(k_start + dk)) / dtau_uw;
+    f64 rcpDtau_uw = 1.0 / dtau_uw;
+    f64 dS_uw = (S(k_start) - S(k_start + dk)) * rcpDtau_uw;
 
     /* --- Boundary conditions --                        -------------- */
     f64 I_upw = Istart;
@@ -181,17 +182,19 @@ void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
 
         /* --- Piecewise linear here --               -------------- */
         f64 dtau_dw = zmu * (chi(k) + chi(k + dk)) * abs(height(k) - height(k + dk));
-        f64 dS_dw = (S(k) - S(k + dk)) / dtau_dw;
+        f64 rcpDtau_dw = 1.0 / dtau_dw;
+        f64 dS_dw = (S(k) - S(k + dk)) * rcpDtau_dw;
 
         I(k) = (1.0 - w[0]) * I_upw + w[0] * S(k) + w[1] * dS_uw;
 
         if (computeOperator)
-            Psi(k) = w[0] - w[1] / dtau_uw;
+            Psi(k) = w[0] - w[1] * rcpDtau_uw;
 
         /* --- Re-use downwind quantities for next upwind position -- --- */
         I_upw = I(k);
         dS_uw = dS_dw;
         dtau_uw = dtau_dw;
+        rcpDtau_uw = rcpDtau_dw;
     }
 
     /* --- Piecewise linear integration at end of ray -- ---------- */
@@ -199,7 +202,7 @@ void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
     I(k_end) = (1.0 - w[0]) * I_upw + w[0] * S(k_end) + w[1] * dS_uw;
     if (computeOperator)
     {
-        Psi(k_end) = w[0] - w[1] / dtau_uw;
+        Psi(k_end) = w[0] - w[1] * rcpDtau_uw;
         for (int k = 0; k < Psi.shape(0); ++k)
             Psi(k) /= chi(k);
     }

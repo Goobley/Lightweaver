@@ -136,7 +136,7 @@ void setup_wavelength_opt<SimdType::AVX2FMA>(Atom* atom, int laIdx)
             for (; k < kMax; k += Stride)
             {
                 _mm256_storeu_pd(&g(k), bRatio);
-                __m256d wphik = _mm256_load_pd(&t.wphi(k));
+                __m256d wphik = _mm256_loadu_pd(&t.wphi(k));
                 _mm256_storeu_pd(&w(k), _mm256_mul_pd(wlaPi, wphik));
             }
             for (; k < Nspace; ++k)
@@ -158,7 +158,7 @@ void setup_wavelength_opt<SimdType::AVX2FMA>(Atom* atom, int laIdx)
             {
                 __m256d nik = _mm256_loadu_pd(&nStar(t.i, k));
                 __m256d njk = _mm256_loadu_pd(&nStar(t.j, k));
-                __m256d temp = _mm256_load_pd(&atmos->temperature(k));
+                __m256d temp = _mm256_loadu_pd(&atmos->temperature(k));
                 __m256d gk = _mm256_mul_pd(_mm256_div_pd(nik, njk),
                                            exp_pd_avx(_mm256_div_pd(mhc_kl4x, temp)));
                 _mm256_storeu_pd(&g(k), gk);
