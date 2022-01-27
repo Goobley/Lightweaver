@@ -23,7 +23,7 @@ posixArgs = {
 }
 msvcArgs = {
    'baseCompileArgs': ['/std:c++17', '/Z7'],
-   'SSE2Args': None,
+   'SSE2Args': [],
    'AVX2FMAArgs': ['/arch:AVX2'],
    'AVX512Args': ['/arch:AVX512'],
    'libs': None,
