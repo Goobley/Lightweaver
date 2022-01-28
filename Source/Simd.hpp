@@ -16,7 +16,11 @@ enum class SimdType
 constexpr inline
 bool SSE2_available()
 {
-#if (defined(_WIN32) && _M_IX86_FP==2) || defined(__SSE2__)
+// NOTE(cmo) This first attempt doesn't seem to work reliably for the 64-bit
+// compiler.
+// #if (defined(_WIN32) && _M_IX86_FP==2) || defined(__SSE2__)
+#if (defined(_WIN32) && (defined(_M_AMD64) || defined(_M_X64))) \
+  || defined(__SSE2__)
     return true;
 #else
     return false;

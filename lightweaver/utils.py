@@ -13,7 +13,6 @@ from numba import njit
 from scipy import special
 from weno4 import weno4
 from scipy.integrate import trapezoid
-from functools import lru_cache
 
 if TYPE_CHECKING:
     from .atomic_model import AtomicLine, AtomicModel
