@@ -21,7 +21,7 @@ posixArgs = {
    'AVX2FMAArgs': ['-mavx2', '-mfma'],
    'AVX512Args': ['-mavx512f', '-mavx512dq', '-mfma'],
    'libs': ['dl'],
-   'linkArgs': None,
+   'linkArgs': [],
    'stubDefinePrefix': '-DLW_MODULE_STUB_NAME=',
    'fsIterExtensionExports': [],
 }
