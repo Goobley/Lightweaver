@@ -5,6 +5,21 @@ import numpy as np
 import os
 import os.path as path
 import platform
+from copy import copy
+
+# NOTE(cmo): There's an implicit (not great) assumption in the following that a
+# Windows compile will always be done with MSVC. Whilst this is true for me, and
+# on the CI build scripts, this may not be true in general (cygwin-etc). Some
+# modification may be needed for that eventuality to use GNUish flags.
+
+# We slightly abuse the setuptools eco-system to build the SIMD implementations,
+# primarily on Windows. These are not technically Python extension modules, but
+# we do want them to be built easily, using the same toolchain as Lightweaver
+# itself. To this end, we do pretend that they are extension modules. For
+# Windows this means including a stub function PyInit_{ModuleName} that can be
+# exported by the linker, or DLL construction fails. This is handled through
+# compiling and linking against Source/WindowsExtensionStub.cpp whilst defining
+# LW_MODULE_STUB_NAME to be the name of the module to be "exported".
 
 def readme():
     with open('README.md', 'r') as f:
@@ -30,16 +45,31 @@ msvcArgs = {
    'SSE2Args': [],
    'AVX2FMAArgs': ['/arch:AVX2'],
    'AVX512Args': ['/arch:AVX512'],
-   'libs': None,
+   'libs': [],
    'linkArgs': ['/DEBUG:FULL'],
    'stubDefinePrefix': '/DLW_MODULE_STUB_NAME=',
-   'fsIterExtensionExports': ['/EXPORT:fs_iteration_fns_provider'],
+   'fsIterExtensionExports': ['fs_iteration_fns_provider'],
 }
 
-coreSource = [path.join('Source', 'LightweaverAmalgamated.cpp')]
+def prepend_source_dir(x):
+    return [path.join('Source', y) for y in x]
+
+coreSource = prepend_source_dir(['LightweaverAmalgamated.cpp'])
+coreDepends = ['Atmosphere.cpp', 'Background.cpp', 'Background.hpp', 'Bezier.hpp',
+               'CmoArray.hpp', 'Constants.hpp', 'EscapeProbability.cpp', 'Faddeeva.cc',
+               'Faddeeva.hh', 'FastBackground.cpp', 'FastBackground.hpp',
+               'FormalInterface.cpp', 'FormalScalar.cpp', 'FormalScalar2d.cpp',
+               'FormalStokes.cpp', 'LuSolve.cpp', 'LuSolve.hpp', 'LwAtmosphere.hpp',
+               'LwAtom.hpp', 'LwContext.hpp', 'LwFormalInterface.hpp',
+               'LwFormalInterfacePosix.hpp', 'LwFormalInterfaceWin.hpp',
+               'LwInternal.hpp', 'LwMisc.hpp', 'LwTransition.hpp', 'Ng.hpp', 'Prd.cpp',
+               'Simd.hpp', 'SimdFullIterationTemplates.hpp', 'TaskSchedular.h',
+               'TaskStorage.cpp', 'TaskStorage.hpp', 'UpdatePopulations.cpp', 'Utils.hpp']
+coreDepends = prepend_source_dir(coreDepends)
 stubSource = []
 if platform.system() == 'Windows':
-    stubSource.append(path.join('Source', 'WindowsExtensionStub.cpp'))
+    stubSource.append('WindowsExtensionStub.cpp')
+stubSource = prepend_source_dir(stubSource)
 
 if platform.system() == 'Windows':
     buildArgs = msvcArgs
@@ -51,25 +81,34 @@ for simd in SimdImpls:
     if f'LW_NO_{simd}_LIB' in os.environ:
         SimdImpls.remove(simd)
 
+simdImplDepends = {impl: coreDepends + prepend_source_dir([f'SimdImpl_{impl}.cpp'])
+                   for impl in SimdImpls}
+
 def extension_list(args):
     lwExts = []
     lwExts.append(Extension('lightweaver.LwCompiled',
                   sources=[path.join('Source', 'LwMiddleLayer.pyx')] + coreSource,
+                  depends=coreDepends,
                   include_dirs=[np.get_include()],
                   language='c++',
                   extra_compile_args=args['baseCompileArgs'],
                   extra_link_args=args['linkArgs']))
+    lwExts = cythonize(lwExts, language_level=3)
     for simdImpl in SimdImpls:
         lwExts.append(Extension(f'lightweaver.DefaultIterSchemes.SimdImpl_{simdImpl}',
                                 sources=[path.join('Source', f'SimdImpl_{simdImpl}.cpp')] +
                                         coreSource + stubSource,
+                                depends=simdImplDepends[simdImpl],
                                 language='c++',
                                 extra_compile_args=args['baseCompileArgs'] +
-                                                args[f'{simdImpl}Args'] +
-                                                [f'{args["stubDefinePrefix"]}SimdImpl_{simdImpl}'],
-                                extra_link_args=args['linkArgs'] + args['fsIterExtensionExports'],
+                                                   args[f'{simdImpl}Args'] +
+                                                   [f'{args["stubDefinePrefix"]}SimdImpl_{simdImpl}'],
+                                extra_link_args=args['linkArgs'],
+                                # NOTE(cmo): There seems to be a bug with
+                                # export_symbols affecting its arguments, so we
+                                # submit a copy.
+                                export_symbols=copy(args['fsIterExtensionExports']),
                                 optional=True))
-    lwExts = cythonize(lwExts, language_level=3)
     return lwExts
 
 setup(name='lightweaver',
