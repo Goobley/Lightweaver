@@ -176,8 +176,9 @@ void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
     constexpr int Stride = SimdWidth[(size_t)simd];
     auto& height = atmos->height;
     const int Ndep = atmos->Nspace;
-    const int Nremainder = Ndep % Stride;
-    const int kMax = Ndep - Nremainder;
+    const int Ninteg = Ndep - 1;
+    const int Nremainder = Ninteg % Stride;
+    const int kMax = Ndep - Nremainder - 1;
 
     int dk = -1;
     int k_start = Ndep - 1;
@@ -193,12 +194,18 @@ void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
         k_simdEnd = kMax;
     }
 
+    // if (Nremainder != 0)
+    // {
+    //     printf("%d, %d, %d, %d, %d, %d\n", Ndep, Nremainder, k_start,
+    //                                        k_end, k_simdStart, k_simdEnd);
+    // }
+
     auto simd_end_cond = [toObs, Nremainder, kMax](int k)
     {
         if (toObs)
-            return k >= Nremainder;
+            return k > Nremainder;
         else
-            return k < kMax;
+            return k != kMax;
     };
 
     // if (Nremainder == 0)
@@ -247,7 +254,8 @@ void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
                                         _mm256_mul_pd(_mm256_add_pd(chik, chikdk),
                                                       mm256_abs_pd(_mm256_sub_pd(
                                                             heightk, heightkdk))));
-        __m256d dS_uw = _mm256_div_pd(_mm256_sub_pd(Sk, Skdk), dtau_uw);
+        __m256d rcpDtau_uw = _mm256_div_pd(One, dtau_uw);
+        __m256d dS_uw = _mm256_mul_pd(_mm256_sub_pd(Sk, Skdk), rcpDtau_uw);
 
         // for (int i = 0; i < Stride; ++i)
         // {
@@ -275,26 +283,24 @@ void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
         int iStart = 0;
         int iEnd = Stride;
         int dI = 1;
-        int kBase = k;
         if (toObs)
         {
             iStart = Stride - 1;
             iEnd = -1;
             dI = -1;
-            kBase = k - dk*(Stride-1);
         }
         for (int i = iStart; i != iEnd; i += dI)
         {
             I_upw = edt[i] * I_upw + source[i];
-	    if (k + dk + i >= kMax)
-                continue;
-            I(k + dk + i) = I_upw;
+	    // if (k + dk + i >= kMax)
+        //         continue;
             // __m128d Iu = _mm_load_sd(&I_upw);
             // __m128d e = _mm_load_sd(&edt[i]);
             // __m128d s = _mm_load_sd(&source[i]);
             // Iu = _mm_fmadd_sd(e, Iu, s);
             // _mm_store_sd(&I_upw, Iu);
             // intens[i] = I_upw;
+            I(k + dk + i) = I_upw;
         }
         // _mm256_storeu_pd(&I(k+dk), _mm256_load_pd(intens));
 
@@ -306,14 +312,16 @@ void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
 
         // I(k + dk) = (1.0 - w[0]) * I_upw + w[0] * S(k + dk) + w[1] * dS_uw;
 
-        // if constexpr (ComputeOperator)
-        // {
-        //     __m256d Psikdk = _mm256_sub_pd(w2s.w0, _mm256_div_pd(w2s.w1, dtau_uw));
-        //     _mm256_storeu_pd(&Psi(k+dk), Psikdk);
-        // }
-	if (first)
-             printf("k+dk, %d\n", k+dk);
-	first = false;
+        if constexpr (ComputeOperator)
+        {
+            __m256d Psikdk = _mm256_div_pd(_mm256_sub_pd(w2s.w0,
+                                                         _mm256_mul_pd(w2s.w1, rcpDtau_uw)),
+                                                         chikdk);
+            _mm256_storeu_pd(&Psi(k+dk), Psikdk);
+        }
+	// if (first)
+    //          printf("k+dk, %d\n", k+dk);
+	// first = false;
         // if constexpr (ComputeOperator)
         // {
         //     for (int i = 0; i < Stride; ++i)
@@ -324,19 +332,21 @@ void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
     }
     if (Nremainder != 0)
     {
-        if (toObs)
-            k -= (dk * (Stride-1));
+        // if (toObs)
+        //     k -= (dk * (Stride-1));
+        k = k_simdEnd;
         for (; k != k_end; k += dk)
         {
             f64 dtau_uw = zmu * (chi(k) + chi(k + dk)) * abs(height(k) - height(k + dk));
-            f64 dS_uw = (S(k) - S(k + dk)) / dtau_uw;
+            f64 rcpDtau_uw = 1.0 / dtau_uw;
+            f64 dS_uw = (S(k) - S(k + dk)) * rcpDtau_uw;
             f64 w[2];
             w2(dtau_uw, w);
 
             I(k + dk) = (1.0 - w[0]) * I_upw + w[0] * S(k + dk) + w[1] * dS_uw;
 
             if constexpr (ComputeOperator)
-                Psi(k + dk) = w[0] - w[1] / dtau_uw;
+                Psi(k + dk) = (w[0] - w[1] * rcpDtau_uw) / chi(k+dk);
 
             I_upw = I(k + dk);
         }
@@ -348,12 +358,12 @@ void piecewise_linear_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
     // f64 w[2];
     // w2(dtau_uw, w);
     // I(k_end) = (1.0 - w[0]) * I_upw + w[0] * S(k_end) + w[1] * dS_uw;
-    if constexpr (ComputeOperator)
-    {
-        // Psi(k_end) = w[0] - w[1] / dtau_uw;
-        for (int k = 0; k < Psi.shape(0); ++k)
-            Psi(k) /= chi(k);
-    }
+    // if constexpr (ComputeOperator)
+    // {
+    //     // Psi(k_end) = w[0] - w[1] / dtau_uw;
+    //     for (int k = 0; k < Psi.shape(0); ++k)
+    //         Psi(k) /= chi(k);
+    // }
 }
 
 void piecewise_linear_1d_AVX2FMA(FormalData* fd, int la, int mu,
