@@ -890,20 +890,20 @@ class Atmosphere:
                 raise ValueError(f'Array hydrogenPops does not have the expected second dimension: {depthScale.shape[0]} (got: {hydrogenPops.shape[1]}).')
         if nHTot is not None:
             nHTot = (nHTot << u.m**(-3)).value
-            check_shape(nHTot)
+            check_shape(nHTot, 'nHTot')
         if B is not None:
             B = (B << u.T).value
-            check_shape(B)
+            check_shape(B, 'B')
             if gammaB is None or chiB is None:
                 raise ValueError('B is set, both gammaB and chiB must be also.')
         if gammaB is not None:
             gammaB = (gammaB << u.rad).value
-            check_shape(gammaB)
+            check_shape(gammaB, 'gammaB')
             if B is None or chiB is None:
                 raise ValueError('gammaB is set, both B and chiB must be also.')
         if chiB is not None:
             chiB = (chiB << u.rad).value
-            check_shape(chiB)
+            check_shape(chiB, 'chiB')
             if gammaB is None or B is None:
                 raise ValueError('chiB is set, both B and gammaB must be also.')
 
