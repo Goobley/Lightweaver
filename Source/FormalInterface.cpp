@@ -87,19 +87,4 @@ FsIterationFnsManager::FsIterationFnsManager()
                         "mali_full_precond_scalar",
                         formal_sol_iteration_matrices_scalar
                         });
-    // fns.emplace_back(FsIterationFns{
-    //                     -1, false, true, true, true,
-    //                     "mali_full_precond_SSE2",
-    //                     formal_sol_iteration_matrices_SSE2
-    //                     });
-    // fns.emplace_back(FsIterationFns{
-    //                     -1, false, true, true, true,
-    //                     "mali_full_precond_AVX2FMA",
-    //                     formal_sol_iteration_matrices_AVX2FMA
-    //                     });
-    // fns.emplace_back(FsIterationFns{
-    //                     -1, false, true, true, true,
-    //                     "mali_full_precond_AVX512",
-    //                     formal_sol_iteration_matrices_AVX512
-    //                     });
 }

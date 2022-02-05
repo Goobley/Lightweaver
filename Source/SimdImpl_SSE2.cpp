@@ -485,16 +485,16 @@ compute_full_operator_rates(Atom* a, int kr, f64 wmu,
         {
             __m128d Ik = _mm_load_pd(&I(k));
             // t.Rij(k) += I(k) * Vij(k) * wlamu;
-            __m128d Rijk = _mm_load_pd(&t.Rij(k));
+            __m128d Rijk = _mm_loadu_pd(&t.Rij(k));
             __m128d integrand = _mm_mul_pd(Ik, Vijk);
             __m128d integralChunk = _mm_add_pd(_mm_mul_pd(integrand, wlamuk), Rijk);
-            _mm_store_pd(&t.Rij(k), integralChunk);
+            _mm_storeu_pd(&t.Rij(k), integralChunk);
 
             // t.Rji(k) += (Uji(k) + I(k) * Vji(k)) * wlamu;
-            __m128d Rjik = _mm_load_pd(&t.Rji(k));
+            __m128d Rjik = _mm_loadu_pd(&t.Rji(k));
             integrand = _mm_add_pd(_mm_mul_pd(Ik, Vjik), Ujik);
             integralChunk = _mm_add_pd(_mm_mul_pd(integrand, wlamuk), Rjik);
-            _mm_store_pd(&t.Rji(k), integralChunk);
+            _mm_storeu_pd(&t.Rji(k), integralChunk);
         }
     }
     for (; k < Nspace; ++k)

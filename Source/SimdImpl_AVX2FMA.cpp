@@ -477,16 +477,16 @@ compute_full_operator_rates(Atom* a, int kr, f64 wmu,
         {
             __m256d Ik = _mm256_load_pd(&I(k));
             // t.Rij(k) += I(k) * Vij(k) * wlamu;
-            __m256d Rijk = _mm256_load_pd(&t.Rij(k));
+            __m256d Rijk = _mm256_loadu_pd(&t.Rij(k));
             __m256d integrand = _mm256_mul_pd(Ik, Vijk);
             __m256d integralChunk = _mm256_fmadd_pd(integrand, wlamuk, Rijk);
-            _mm256_store_pd(&t.Rij(k), integralChunk);
+            _mm256_storeu_pd(&t.Rij(k), integralChunk);
 
             // t.Rji(k) += (Uji(k) + I(k) * Vji(k)) * wlamu;
-            __m256d Rjik = _mm256_load_pd(&t.Rji(k));
+            __m256d Rjik = _mm256_loadu_pd(&t.Rji(k));
             integrand = _mm256_fmadd_pd(Ik, Vjik, Ujik);
             integralChunk = _mm256_fmadd_pd(integrand, wlamuk, Rjik);
-            _mm256_store_pd(&t.Rji(k), integralChunk);
+            _mm256_storeu_pd(&t.Rji(k), integralChunk);
         }
     }
     for (; k < Nspace; ++k)

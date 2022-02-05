@@ -7,7 +7,37 @@
 #include "LwMisc.hpp"
 #include "LwTransition.hpp"
 
-struct Atom;
+#include <algorithm>
+
+namespace LwInternal
+{
+struct AtomScratchStore
+{
+    F64Arr2D wla;
+    F64Arr2D gij;
+    F64Arr1D eta;
+    F64Arr2D U;
+    F64Arr2D chi;
+
+    AtomScratchStore() = default;
+    AtomScratchStore(int Nlevel, int Ntrans, i64 Nspace, bool detailed,
+                     bool wlaGijStorage, bool defaultPerAtomStorage)
+    {
+        if (Ntrans > 0 && wlaGijStorage)
+        {
+            wla = F64Arr2D(Ntrans, Nspace);
+            gij = F64Arr2D(Ntrans, Nspace);
+        }
+
+        if ((!detailed) && (defaultPerAtomStorage))
+        {
+            eta = F64Arr1D(Nspace);
+            U = F64Arr2D(Nlevel, Nspace);
+            chi = F64Arr2D(Nlevel, Nspace);
+        }
+    }
+};
+}
 
 struct Atom
 {
@@ -17,26 +47,37 @@ struct Atom
     Atmosphere* atmos;
     F64View2D n;
     F64View2D nStar;
-    F64View nTotal;
-    F64View vBroad;
-    F64View stages;
+    F64View1D nTotal;
+    F64View1D vBroad;
+    F64View1D stages;
 
     F64View3D Gamma;
     F64View3D C;
 
     F64View2D wla;
     F64View2D gij;
-
-    F64View eta;
+    F64View1D eta;
     F64View2D U;
     F64View2D chi;
 
     std::vector<Transition*> trans;
 
+    Ng ng;
+    LwInternal::AtomScratchStore scratch;
     void* methodScratch;
 
-    Ng ng;
-
+    void init_scratch(i64 Nspace, bool detailed,
+                      bool wlaGijStorage, bool defaultPerAtomStorage)
+    {
+        scratch = LwInternal::AtomScratchStore(Nlevel, Ntrans, Nspace,
+                                               detailed, wlaGijStorage,
+                                               defaultPerAtomStorage);
+        wla = scratch.wla;
+        gij = scratch.gij;
+        eta = scratch.eta;
+        U = scratch.U;
+        chi = scratch.chi;
+    }
 
     inline void setup_wavelength(int laIdx, int fsWidth=1)
     {

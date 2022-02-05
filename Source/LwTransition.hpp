@@ -4,6 +4,8 @@
 #include "CmoArray.hpp"
 #include "LwAtmosphere.hpp"
 #include "LwMisc.hpp"
+
+#include <algorithm>
 #include <functional>
 
 enum TransitionType
@@ -136,6 +138,8 @@ struct Transition
 
     inline void recompute_gII()
     {
+        // NOTE(cmo): This is just a flag to recompute it in a deferred manner
+        // next time the prd_scatter function is run.
         if (!gII)
             return;
 

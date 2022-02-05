@@ -86,12 +86,14 @@ struct PodAlignedAllocator
 };
 
 template <class T1, size_t A1, class T2, size_t A2>
+constexpr
 bool operator==(const PodAlignedAllocator<T1, A1>&, const PodAlignedAllocator<T2, A2>&)
 {
     return A1 == A2;
 }
 
 template <class T1, size_t A1, class T2, size_t A2>
+constexpr
 bool operator!=(const PodAlignedAllocator<T1, A1>&, const PodAlignedAllocator<T2, A2>&)
 {
     return A1 != A2;
@@ -120,10 +122,18 @@ template <typename T> struct Array3NonOwn;
 template <typename T> struct Array4NonOwn;
 template <typename T> struct Array5NonOwn;
 
+// NOTE(cmo): g++7/8 with gdb-8 can have issues handling the constexpr static
+// inline declarations in these structs (to the extent it segfaults the
+// debugger). The same gdb with clang++-9 is fine. If you run into issues on
+// such a platform, these can be redefined as `const static inline` (per C++17),
+// and it should work fine as the debugger no longer dies looking for storage
+// for these. The code produced by g++-7/8 seems to be totally fine though, this
+// is just a problem when debugging.
+
 template <typename T>
 struct Array1NonOwn
 {
-    constexpr static i64 Ndim = 1;
+    constexpr static inline i64 Ndim = 1;
     T* data;
     i64 dim0;
     Array1NonOwn() : data(nullptr), dim0(0)
@@ -147,6 +157,15 @@ struct Array1NonOwn
 
     Array1NonOwn&
     operator=(Array1NonOwn&& other) = default;
+
+    template <class Alloc>
+    Array1NonOwn&
+    operator=(Array1Own<T, Alloc>& other)
+    {
+        data = other.data();
+        dim0 = other.dim0;
+        return *this;
+    }
 
     inline explicit operator bool() const
     {
@@ -289,7 +308,7 @@ struct Array1NonOwn
 template <typename T, class Alloc = PodAlignedAllocator<T, 64>>
 struct Array1Own
 {
-    constexpr static i64 Ndim = 1;
+    constexpr static inline i64 Ndim = 1;
     std::vector<T, Alloc> dataStore;
     i64 dim0;
     Array1Own() : dataStore(), dim0(0)
@@ -477,7 +496,7 @@ struct Array1Own
 template <typename T>
 struct Array2NonOwn
 {
-    constexpr static i64 Ndim = 2;
+    constexpr static inline i64 Ndim = 2;
     T* data;
     std::array<i64, 2> dim;
     Array2NonOwn() : data(nullptr), dim{}
@@ -498,6 +517,15 @@ struct Array2NonOwn
 
     Array2NonOwn&
     operator=(Array2NonOwn&& other) = default;
+
+    template <class Alloc>
+    Array2NonOwn&
+    operator=(Array2Own<T, Alloc>& other)
+    {
+        data = other.data();
+        dim = other.dim;
+        return *this;
+    }
 
     void fill(T val)
     {
@@ -647,7 +675,7 @@ struct Array2NonOwn
 template <typename T, class Alloc = PodAlignedAllocator<T, 64>>
 struct Array2Own
 {
-    constexpr static i64 Ndim = 2;
+    constexpr static inline i64 Ndim = 2;
     std::vector<T, Alloc> dataStore;
     std::array<i64, 2> dim;
     Array2Own() : dataStore(), dim{}
@@ -845,7 +873,7 @@ struct Array2Own
 template <typename T>
 struct Array3NonOwn
 {
-    constexpr static i64 Ndim = 3;
+    constexpr static inline i64 Ndim = 3;
     T* data;
     std::array<i64, 3> dim;
     std::array<i64, 2> dimProd;
@@ -867,6 +895,16 @@ struct Array3NonOwn
 
     Array3NonOwn&
     operator=(Array3NonOwn&& other) = default;
+
+    template <class Alloc>
+    Array3NonOwn&
+    operator=(Array3Own<T, Alloc>& other)
+    {
+        data = other.data();
+        dim = other.dim;
+        dimProd = other.dimProd;
+        return *this;
+    }
 
     inline explicit operator bool() const
     {
@@ -1026,7 +1064,7 @@ struct Array3NonOwn
 template <typename T, class Alloc = PodAlignedAllocator<T, 64>>
 struct Array3Own
 {
-    constexpr static i64 Ndim = 3;
+    constexpr static inline i64 Ndim = 3;
     std::vector<T, Alloc> dataStore;
     std::array<i64, 3> dim;
     std::array<i64, 2> dimProd;
@@ -1237,7 +1275,7 @@ struct Array3Own
 template <typename T>
 struct Array4NonOwn
 {
-    constexpr static i64 Ndim = 4;
+    constexpr static inline i64 Ndim = 4;
     T* data;
     std::array<i64, 4> dim;
     std::array<i64, 3> dimProd;
@@ -1260,6 +1298,16 @@ struct Array4NonOwn
 
     Array4NonOwn&
     operator=(Array4NonOwn&& other) = default;
+
+    template <class Alloc>
+    Array4NonOwn&
+    operator=(Array4Own<T, Alloc>& other)
+    {
+        data = other.data();
+        dim = other.dim;
+        dimProd = other.dimProd;
+        return *this;
+    }
 
     inline explicit operator bool() const
     {
@@ -1430,7 +1478,7 @@ struct Array4NonOwn
 template <typename T, class Alloc = PodAlignedAllocator<T, 64>>
 struct Array4Own
 {
-    constexpr static i64 Ndim = 4;
+    constexpr static inline i64 Ndim = 4;
     std::vector<T, Alloc> dataStore;
     std::array<i64, 4> dim;
     std::array<i64, 3> dimProd;
@@ -1654,7 +1702,7 @@ struct Array4Own
 template <typename T>
 struct Array5NonOwn
 {
-    constexpr static i64 Ndim = 5;
+    constexpr static inline i64 Ndim = 5;
     T* data;
     std::array<i64, 5> dim;
     std::array<i64, 4> dimProd;
@@ -1677,6 +1725,16 @@ struct Array5NonOwn
 
     Array5NonOwn&
     operator=(Array5NonOwn&& other) = default;
+
+    template <class Alloc>
+    Array5NonOwn&
+    operator=(Array5Own<T, Alloc>& other)
+    {
+        data = other.data();
+        dim = other.dim;
+        dimProd = other.dimProd;
+        return *this;
+    }
 
     inline explicit operator bool() const
     {
@@ -1855,7 +1913,7 @@ struct Array5NonOwn
 template <typename T, class Alloc = PodAlignedAllocator<T, 64>>
 struct Array5Own
 {
-    constexpr static i64 Ndim = 5;
+    constexpr static inline i64 Ndim = 5;
     std::vector<T, Alloc> dataStore;
     std::array<i64, 5> dim;
     std::array<i64, 4> dimProd;

@@ -1,7 +1,6 @@
 import numpy as np
 cimport numpy as np
 from CmoArray cimport *
-# from CmoArrayHelper cimport *
 from libcpp cimport bool as bool_t
 from libcpp.vector cimport vector
 from libc.math cimport sqrt, exp, copysign
@@ -24,7 +23,7 @@ include 'CmoArrayHelper.pyx'
 np.import_array()
 
 ctypedef np.int8_t i8
-# ctypedef Array1NonOwn[np.int32_t] I32View
+# ctypedef np.int64_t i64
 ctypedef Array1NonOwn[np.int32_t] I32View
 ctypedef Array1NonOwn[bool_t] BoolView
 ctypedef Array2NonOwn[np.int32_t] BcIdxs
@@ -50,9 +49,11 @@ cdef extern from "LwFormalInterface.hpp":
         bool_t load_fn_from_path(const char* path)
 
     cdef cppclass FsIterationFns:
+        int Ndim
         bool_t dimensionSpecific
         bool_t respectsFormalSolver
-        int Ndim
+        bool_t defaultPerAtomStorage
+        bool_t defaultWlaGijStorage
         const char* name
 
     cdef cppclass FsIterationFnsManager:
@@ -259,18 +260,13 @@ cdef extern from "Lightweaver.hpp":
         F64View3D Gamma
         F64View3D C
 
-        F64View eta
-        F64View2D gij
-        F64View2D wla
-        F64View2D U
-        F64View2D chi
-
         vector[Transition*] trans
         Ng ng
 
         int Nlevel
         int Ntrans
         void setup_wavelength(int la)
+        void init_scratch(np.int64_t Nspace, bool_t detailed, bool_t wlaGijStorage, bool_t defaulPerAtomStorage)
 
     cdef cppclass DepthData:
         bool_t fill
@@ -1718,6 +1714,7 @@ cdef class LwTransition:
         state['transModel'] = self.transModel
         state['type'] = self.type
         state['Nblue'] = self.trans.Nblue
+        state['Nred'] = self.trans.Nred
         transId = self.transModel.transId
         state['wavelength'] = self.spect.transWavelengths[transId]
         state['active'] = np.asarray(self.active)
@@ -1772,6 +1769,7 @@ cdef class LwTransition:
         self.trans.i = trans.i
         self.trans.j = trans.j
         self.trans.Nblue = state['Nblue']
+        self.trans.Nred = state['Nred']
         self.trans.polarised = state['polarised']
 
         if state['type'] == 'Line':
@@ -2212,7 +2210,14 @@ cdef class LwAtom:
     ngOptions : NgOptions, optional
         The Ng acceleration options (default: None)
     conserveCharge : bool, optional
-        Whether to conserve charge whilst setting populations from escape probability (ignored otherwise) (default: False).
+        Whether to conserve charge whilst setting populations from escape
+        probability (ignored otherwise) (default: False).
+    fsIterSchemeProperties : dict, optional
+        The properties of the FsIterScheme used as a dict, can be obtained from
+        the `FsIterSchemeManager`. Only necessary keys are boolean
+        `defaultWlaGijStorage` and `defaultPerAtomStorage` to determine
+        allocation of `wla`, `gij`, `eta`, `U`, and `chi` on the underlying
+        object. If not supplied, both of these default to True.
     '''
     cdef Atom atom
     cdef f64[::1] vBroad
@@ -2221,21 +2226,19 @@ cdef class LwAtom:
     cdef f64[::1] nTotal
     cdef f64[:,::1] nStar
     cdef f64[:,::1] n
-    cdef f64[::1] eta
-    cdef f64[:,::1] chi
-    cdef f64[:,::1] U
-    cdef f64[:,::1] gij
-    cdef f64[:,::1] wla
     cdef f64[::1] stages
+
     cdef public object atomicModel
     cdef public object modelPops
     cdef LwAtmosphere atmos
     cdef object eqPops
     cdef list trans
     cdef bool_t detailed
+    cdef dict fsIterSchemeProperties
 
     def __init__(self, atom, atmos, eqPops, spect, background,
-                 detailed=False, initSol=None, ngOptions=None, conserveCharge=False):
+                 detailed=False, initSol=None, ngOptions=None,
+                 conserveCharge=False, fsIterSchemeProperties=None):
         self.atomicModel = atom
         self.detailed = detailed
         cdef LwAtmosphere a = atmos
@@ -2264,12 +2267,27 @@ cdef class LwAtom:
         self.atom.Nlevel = Nlevel
         self.atom.Ntrans = Ntrans
 
+        cdef bool_t defaultPerAtomStorage = True
+        cdef bool_t defaultWlaGijStorage = True
+        if fsIterSchemeProperties is not None:
+            self.fsIterSchemeProperties = fsIterSchemeProperties
+            defaultPerAtomStorage = fsIterSchemeProperties['defaultPerAtomStorage']
+            defaultWlaGijStorage = fsIterSchemeProperties['defaultWlaGijStorage']
+        else:
+            self.fsIterSchemeProperties = {
+                'defaultPerAtomStorage': defaultPerAtomStorage,
+                'defaultWlaGijStorage': defaultPerAtomStorage
+            }
+
         if not self.detailed:
-            self.Gamma = np.zeros((Nlevel, Nlevel, a.Nspace))
+            self.Gamma = np.zeros((Nlevel, Nlevel, atmos.Nspace))
             self.atom.Gamma = f64_view_3(self.Gamma)
 
             self.C = np.zeros((Nlevel, Nlevel, atmos.Nspace))
             self.atom.C = f64_view_3(self.C)
+
+        self.atom.init_scratch(self.atmos.Nspace, detailed,
+                               defaultWlaGijStorage, defaultPerAtomStorage)
 
         self.stages = np.array([l.stage for l in self.atomicModel.levels], dtype=np.float64)
         self.atom.stages = f64_view(self.stages)
@@ -2283,21 +2301,6 @@ cdef class LwAtom:
         if self.detailed:
             doInitSol = False
             ngOptions = None
-
-        if Ntrans > 0:
-            self.gij = np.zeros((Ntrans, atmos.Nspace))
-            self.atom.gij = f64_view_2(self.gij)
-            self.wla = np.zeros((Ntrans, atmos.Nspace))
-            self.atom.wla = f64_view_2(self.wla)
-
-        if not self.detailed:
-            self.U = np.zeros((Nlevel, atmos.Nspace))
-            self.atom.U = f64_view_2(self.U)
-
-            self.eta = np.zeros(atmos.Nspace)
-            self.atom.eta = f64_view(self.eta)
-            self.chi = np.zeros((Nlevel, atmos.Nspace))
-            self.atom.chi = f64_view_2(self.chi)
 
         if initSol is None:
             initSol = InitialSolution.Lte
@@ -2328,24 +2331,12 @@ cdef class LwAtom:
         state['stages'] = np.asarray(self.stages)
         state['Ng'] = (self.atom.ng.Norder, self.atom.ng.Nperiod, self.atom.ng.Ndelay)
         if self.detailed:
-            state['U'] = None
-            state['eta'] = None
-            state['chi'] = None
             state['Gamma'] = None
             state['C'] = None
         else:
-            state['U'] = np.asarray(self.U)
-            state['eta'] = np.asarray(self.eta)
-            state['chi'] = np.asarray(self.chi)
             state['Gamma'] = np.asarray(self.Gamma)
             state['C'] = np.asarray(self.C)
-        cdef int Ntrans = len(self.trans)
-        if Ntrans > 0:
-            state['gij'] = np.asarray(self.gij)
-            state['wla'] = np.asarray(self.wla)
-        else:
-            state['gij'] = None
-            state['wla'] = None
+        state['fsIterSchemeProperties'] = self.fsIterSchemeProperties
 
         return state
 
@@ -2381,15 +2372,6 @@ cdef class LwAtom:
             self.C = state['C']
             self.atom.C = f64_view_3(self.C)
 
-            self.U = state['U']
-            self.atom.U = f64_view_2(self.U)
-
-            self.eta = state['eta']
-            self.atom.eta = f64_view(self.eta)
-            self.chi = state['chi']
-            self.atom.chi = f64_view_2(self.chi)
-
-
         self.stages = state['stages']
         self.atom.stages = f64_view(self.stages)
         self.nStar = state['nStar']
@@ -2397,14 +2379,13 @@ cdef class LwAtom:
         self.n = state['n']
         self.atom.n = f64_view_2(self.n)
 
-        if Ntrans > 0:
-            self.gij = state['gij']
-            self.atom.gij = f64_view_2(self.gij)
-            self.wla = state['wla']
-            self.atom.wla = f64_view_2(self.wla)
-
         ng = state['Ng']
         self.atom.ng = Ng(ng[0], ng[1], ng[2], self.atom.n.flatten())
+        self.fsIterSchemeProperties = state['fsIterSchemeProperties']
+        cdef bool_t defaultPerAtomStorage = self.fsIterSchemeProperties['defaultPerAtomStorage']
+        cdef bool_t defaultWlaGijStorage = self.fsIterSchemeProperties['defaultWlaGijStorage']
+        self.atom.init_scratch(self.atmos.Nspace, self.detailed,
+                               defaultWlaGijStorage, defaultPerAtomStorage)
 
     def load_pops_rates_prd_from_state(self, prevState, popsOnly=False, preserveProfiles=False):
         if not self.detailed:
@@ -2808,6 +2789,7 @@ cdef class LwContext:
             'interpFn': interpFn,
             'fsIterScheme': fsIterScheme
         }
+        cdef dict fsIterSchemeProperties = self.get_fs_iter_scheme_properties(fsIterScheme)
 
         self.atmos = LwAtmosphere(atmos, spect.wavelength.shape[0])
         self.spect = LwSpectrum(spect.wavelength, atmos.Nrays,
@@ -2824,10 +2806,13 @@ cdef class LwContext:
         self.activeAtoms = [LwAtom(a, self.atmos, eqPops, spect,
                                    self.background, ngOptions=ngOptions,
                                    initSol=initSol,
-                                   conserveCharge=conserveCharge)
+                                   conserveCharge=conserveCharge,
+                                   fsIterSchemeProperties=fsIterSchemeProperties)
                             for a in activeAtoms]
         self.detailedAtoms = [LwAtom(a, self.atmos, eqPops, spect,
-                                     self.background, ngOptions=None, initSol=InitialSolution.Lte, detailed=True)
+                                     self.background, ngOptions=None,
+                                     initSol=InitialSolution.Lte, detailed=True,
+                                     fsIterSchemeProperties=fsIterSchemeProperties)
                               for a in detailedAtoms]
 
         self.ctx.atmos = &self.atmos.atmos
@@ -2913,11 +2898,11 @@ cdef class LwContext:
         shape = (self.spect.I.shape[0], self.atmos.Nrays, self.atmos.Nspace)
         self.depthData = state['depthData']
         self.ctx.depthData = &self.depthData.depthData
-        self.set_formal_solver(self.kwargs['formalSolver'])
+        self.set_formal_solver(self.kwargs['formalSolver'], inConstructor=True)
         self.set_interp_fn(self.kwargs['interpFn'])
         self.set_fs_iter_scheme(self.kwargs['fsIterScheme'])
 
-        self.setup_threads(state['kwargs']['Nthreads'])
+        self.setup_threads(self.kwargs['Nthreads'])
 
     def set_formal_solver(self, formalSolver, inConstructor=False):
         '''
@@ -2968,6 +2953,17 @@ cdef class LwContext:
             iterIdx = manager.default_scheme()
         iterFns = manager.manager.fns[iterIdx]
         self.ctx.iterFns = iterFns
+
+    def get_fs_iter_scheme_properties(self, fsIterScheme):
+        cdef LwFsIterationManager manager = FsIterationSchemes
+        cdef FsIterationFns iterFns
+        cdef dict result
+
+        if fsIterScheme is not None:
+            result = manager.scheme_properties(fsIterScheme)
+        else:
+            result = manager.scheme_properties(manager.default_scheme_name())
+        return result
 
     @property
     def Nthreads(self):
@@ -3840,7 +3836,7 @@ cdef class LwFormalSolverManager:
         if not success:
             raise ValueError('Failed to load Formal Solver from library at %s' % path)
 
-        cdef const char* name = self.manager.formalSolvers[self.manager.formalSolvers.size()-1].name
+        cdef const char* name = self.manager.formalSolvers.at(self.manager.formalSolvers.size()-1).name
         self.names.append(name.decode('UTF-8'))
 
     def default_formal_solver(self, Ndim):
@@ -3914,7 +3910,7 @@ cdef class LwInterpFnManager:
         if not success:
             raise ValueError('Failed to load interpolation function from library at %s' % path)
 
-        cdef const char* name = self.manager.fns[self.manager.fns.size()-1].name
+        cdef const char* name = self.manager.fns.at(self.manager.fns.size()-1).name
         self.names.append(name.decode('UTF-8'))
 
     def default_interp(self, Ndim):
@@ -3968,14 +3964,27 @@ cdef class LwFsIterationManager:
         if not success:
             raise ValueError('Failed to load iteration scheme from library at %s' % path)
 
-        cdef const char* name = self.manager.fns[self.manager.fns.size()-1].name
+        cdef const char* name = self.manager.fns.at(self.manager.fns.size()-1).name
         self.names.append(name.decode('UTF-8'))
+
+    def scheme_properties(self, str name):
+        cdef int idx = self.names.index(name)
+        cdef FsIterationFns scheme = self.manager.fns.at(idx)
+        return {'name': name,
+                'Ndim': scheme.Ndim,
+                'dimensionSpecific': scheme.dimensionSpecific,
+                'respectsFormalSolver': scheme.respectsFormalSolver,
+                'defaultPerAtomStorage': scheme.defaultPerAtomStorage,
+                'defaultWlaGijStorage': scheme.defaultWlaGijStorage}
 
     def default_scheme(self):
         try:
             return self.names.index('{IterationScheme}_{SimdImpl}'.format(**lwConfig.params))
         except AttributeError:
-            return self.names.index(lwConfig.params['IterationScheme'])
+            return self.names.index(lwConfig.params['{IterationScheme}'.format(**lwConfig.params)])
+
+    def default_scheme_name(self):
+        return self.names[self.default_scheme()]
 
 FormalSolvers = LwFormalSolverManager()
 InterpFns = LwInterpFnManager()

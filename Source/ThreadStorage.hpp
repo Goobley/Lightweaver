@@ -17,11 +17,6 @@ struct Atmosphere;
 struct Background;
 struct Spectrum;
 
-// TODO(cmo): Get rid of all the individual erase methods. I don't think we need
-// them for anything, and I also don't believe they're correct due to iterator
-// invalidation in the loops (this could probably be fixed with using
-// std::erase_if), but I think the clears will be sufficient and correct.
-
 namespace LwInternal
 {
 
@@ -70,21 +65,13 @@ struct TransitionStorageFactory
     PerTransFns methodFns;
     TransitionStorageFactory(Transition* t, PerTransFns perFns);
     Transition* copy_transition();
-    void erase(Transition* t);
     void accumulate_rates();
-    void accumulate_rates(const std::vector<size_t>& indices);
     void accumulate_prd_rates();
-    void accumulate_prd_rates(const std::vector<size_t>& indices);
 };
 
 struct AtomStorage
 {
     F64Arr3D Gamma;
-    F64Arr eta;
-    F64Arr2D gij;
-    F64Arr2D wla;
-    F64Arr2D U;
-    F64Arr2D chi;
     Atom atom;
     FreePerAtomScratch free_method_scratch;
 
@@ -105,20 +92,19 @@ struct AtomStorageFactory
     Atom* atom;
     bool detailedStatic;
     bool wlaGijStorage;
+    bool defaultPerAtomStorage;
     int fsWidth;
     std::vector<std::unique_ptr<AtomStorage>> aStorage;
     std::vector<TransitionStorageFactory> tStorage;
     PerAtomFns methodFns;
     AtomStorageFactory(Atom* a, bool detail, bool wlaStorage,
+                       bool defaultPerAtomStorage,
                        int fsWidth, PerAtomTransFns perFns);
     Atom* copy_atom();
-    void erase(Atom* atom);
+    void accumulate_Gamma();
     void accumulate_Gamma_rates();
-    void accumulate_Gamma_rates(const std::vector<size_t>& indices);
     void accumulate_prd_rates();
-    void accumulate_prd_rates(const std::vector<size_t>& indices);
-    void accumulate_Gamma_rates_parallel(scheduler* s);
-    void accumulate_Gamma_rates_parallel(scheduler* s, const std::vector<size_t>& indices);
+    void accumulate_rates();
 };
 
 struct IntensityCoreStorage
@@ -178,15 +164,11 @@ struct IntensityCoreFactory
     {}
 
     void initialise(Context* ctx);
-    IntensityCoreData* new_intensity_core(bool psiOperator);
-    void erase(IntensityCoreData* core);
+    IntensityCoreData* new_intensity_core();
+    IntensityCoreData* single_thread_intensity_core();
     void accumulate_Gamma_rates();
-    void accumulate_Gamma_rates(const std::vector<size_t>& indices);
-    void accumulate_Gamma_rates(Context& ctx, const std::vector<size_t>& indices);
     void accumulate_prd_rates();
-    void accumulate_prd_rates(const std::vector<size_t>& indices);
     void accumulate_Gamma_rates_parallel(Context& ctx);
-    void accumulate_Gamma_rates_parallel(Context& ctx, const std::vector<size_t>& indices);
     void clear();
 };
 

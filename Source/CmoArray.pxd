@@ -7,7 +7,7 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         Array1NonOwn()
         Array1NonOwn(T*, size_t)
         Array1NonOwn(Array1Own[T]&)
-        Array1NonOwn& operator=(Array1Own[T]&) # This function doesn't actually exist, but cython seems to need to believe it does to assign an Arr to a View
+        Array1NonOwn& operator=(Array1Own[T]&)
         T operator[](size_t) const
         T& operator[](size_t)
         T operator()(size_t) const
@@ -43,7 +43,7 @@ cdef extern from "CmoArray.hpp" namespace "Jasnah":
         Array2NonOwn()
         Array2NonOwn(T*, size_t, size_t)
         Array2NonOwn(Array2Own[T]&)
-        Array2NonOwn& operator=(Array2Own[T]&) # This function doesn't actually exist, but cython seems to need to believe it does to assign an Arr to a View
+        Array2NonOwn& operator=(Array2Own[T]&)
         T operator[](size_t) const
         T& operator[](size_t)
         T operator()(size_t, size_t) const

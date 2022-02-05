@@ -777,7 +777,7 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
         for (int toObsI = toObsStart; toObsI < toObsEnd; toObsI += 1)
         {
             bool toObs = (bool)toObsI;
-            if (!continuaOnly || (continuaOnly && (mu == 0 && toObsI == 0)))
+            if (!continuaOnly || (continuaOnly && (mu == 0 && toObsI == toObsStart)))
             {
 
                 // Gathers from all active non-background transitions
