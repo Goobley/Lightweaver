@@ -119,12 +119,13 @@ struct IntensityCoreStorage
     F64Arr Vji;
     F64Arr Ieff;
     F64Arr PsiStar;
+    F64Arr2D JRest;
     std::vector<Atom*> activeAtoms;
     std::vector<Atom*> detailedAtoms;
     IntensityCoreData core;
     FormalData formal;
 
-    IntensityCoreStorage(int Nspace, int fsWidth)
+    IntensityCoreStorage(int Nspace, int NhPrd)
         : I(F64Arr(0.0, Nspace)),
           S(F64Arr(0.0, Nspace)),
           JDag(F64Arr(0.0, Nspace)),
@@ -134,8 +135,14 @@ struct IntensityCoreStorage
           Vij(F64Arr(0.0, Nspace)),
           Vji(F64Arr(0.0, Nspace)),
           Ieff(F64Arr(0.0, Nspace)),
-          PsiStar(F64Arr(0.0, Nspace))
-    {}
+          PsiStar(F64Arr(0.0, Nspace)),
+          JRest()
+    {
+        if (NhPrd > 0)
+        {
+            JRest = F64Arr2D(NhPrd, Nspace);
+        }
+    }
 };
 
 struct IntensityCoreFactory
@@ -166,6 +173,7 @@ struct IntensityCoreFactory
     void initialise(Context* ctx);
     IntensityCoreData* new_intensity_core();
     IntensityCoreData* single_thread_intensity_core();
+    void accumulate_JRest();
     void accumulate_Gamma_rates();
     void accumulate_prd_rates();
     void accumulate_Gamma_rates_parallel(Context& ctx);

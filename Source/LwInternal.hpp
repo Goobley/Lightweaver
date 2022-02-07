@@ -62,6 +62,7 @@ namespace LwInternal
         F64View S;
         F64View Ieff;
         F64View PsiStar;
+        F64View2D JRest;
 
         IntensityCoreData() = default;
     };

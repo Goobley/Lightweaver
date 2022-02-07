@@ -736,7 +736,7 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
     JasUnpack(*data, atmos, spect, fd, background);
     JasUnpack(*data, activeAtoms, detailedAtoms, JDag);
     JasUnpack(data, chiTot, etaTot, Uji, Vij, Vji);
-    JasUnpack(data, I, S, Ieff, PsiStar);
+    JasUnpack(data, I, S, Ieff, PsiStar, JRest);
     const int Nspace = atmos.Nspace;
     const int Nrays = atmos.Nrays;
     const int Nspect = spect.wavelength.shape(0);
@@ -843,7 +843,7 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                     J(k) += 0.5 * atmos.wmu(mu) * I(k);
                 }
 
-                if (spect.JRest && spect.hPrdActive && spect.hPrdActive(la))
+                if (JRest && spect.hPrdActive && spect.hPrdActive(la))
                 {
                     int hPrdLa = spect.la_to_hPrdLa(la);
                     for (int k = 0; k < Nspace; ++k)
@@ -851,7 +851,7 @@ f64 intensity_core(IntensityCoreData& data, int la, FsMode mode)
                         const auto& coeffs = spect.JCoeffs(hPrdLa, mu, toObs, k);
                         for (const auto& c : coeffs)
                         {
-                            spect.JRest(c.idx, k) += 0.5 * atmos.wmu(mu) * c.frac * I(k);
+                            JRest(c.idx, k) += 0.5 * atmos.wmu(mu) * c.frac * I(k);
                         }
                     }
                 }

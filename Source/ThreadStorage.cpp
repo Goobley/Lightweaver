@@ -229,7 +229,7 @@ void IntensityCoreFactory::initialise(Context* ctx)
 IntensityCoreData* IntensityCoreFactory::single_thread_intensity_core()
 {
     const int Nspace = atmos->Nspace;
-    arrayStorage.emplace_back(std::make_unique<IntensityCoreStorage>(Nspace, fsWidth));
+    arrayStorage.emplace_back(std::make_unique<IntensityCoreStorage>(Nspace, 0));
     auto& as = *arrayStorage.back();
     auto& fd = as.formal;
     auto& iCore = as.core;
@@ -253,6 +253,7 @@ IntensityCoreData* IntensityCoreFactory::single_thread_intensity_core()
     iCore.I = as.I;
     iCore.Ieff = as.Ieff;
     iCore.PsiStar = as.PsiStar;
+    iCore.JRest = spect->JRest;
 
     as.activeAtoms.reserve(activeAtoms.size());
     for (auto& atom : activeAtoms)
@@ -274,7 +275,8 @@ IntensityCoreData* IntensityCoreFactory::single_thread_intensity_core()
 IntensityCoreData* IntensityCoreFactory::new_intensity_core()
 {
     const int Nspace = atmos->Nspace;
-    arrayStorage.emplace_back(std::make_unique<IntensityCoreStorage>(Nspace, fsWidth));
+    const int NhPrd = If spect->JRest Then spect->JRest.shape(0) Else 0 End;
+    arrayStorage.emplace_back(std::make_unique<IntensityCoreStorage>(Nspace, NhPrd));
     auto& as = *arrayStorage.back();
     auto& fd = as.formal;
     auto& iCore = as.core;
@@ -298,6 +300,7 @@ IntensityCoreData* IntensityCoreFactory::new_intensity_core()
     iCore.I = as.I;
     iCore.Ieff = as.Ieff;
     iCore.PsiStar = as.PsiStar;
+    iCore.JRest = as.JRest;
 
     as.activeAtoms.reserve(activeAtoms.size());
     for (auto& atom : activeAtoms)
@@ -316,12 +319,30 @@ IntensityCoreData* IntensityCoreFactory::new_intensity_core()
     return &iCore;
 }
 
+void IntensityCoreFactory::accumulate_JRest()
+{
+    if (!spect->JRest || arrayStorage.size() == 1)
+        return;
+
+    auto JRestFlat = spect->JRest.flatten();
+    JRestFlat.fill(0.0);
+    for (auto& iCore : arrayStorage)
+    {
+        auto JRestOther = iCore->JRest.flatten();
+        for (int i = 0; i < JRestFlat.shape(0); ++i)
+        {
+            JRestFlat(i) += JRestOther(i);
+        }
+    }
+}
+
 void IntensityCoreFactory::accumulate_Gamma_rates()
 {
     for (auto& a : activeAtoms)
         a.accumulate_Gamma_rates();
     for (auto& a : detailedAtoms)
         a.accumulate_Gamma_rates();
+    accumulate_JRest();
 }
 
 void IntensityCoreFactory::accumulate_Gamma_rates_parallel(Context& ctx)
@@ -373,6 +394,7 @@ void IntensityCoreFactory::accumulate_Gamma_rates_parallel(Context& ctx)
         sched_task accumulation;
         scheduler_add(&ctx.threading.sched, &accumulation, acc_task,
                       (void*)taskData.data(), taskData.size(), 1);
+        accumulate_JRest();
         scheduler_join(&ctx.threading.sched, &accumulation);
     }
 }
@@ -381,6 +403,7 @@ void IntensityCoreFactory::accumulate_prd_rates()
 {
     for (auto& a : activeAtoms)
         a.accumulate_prd_rates();
+    accumulate_JRest();
 }
 
 void IntensityCoreFactory::clear()

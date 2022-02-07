@@ -284,7 +284,7 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
     JasUnpack(*data, atmos, spect, fd, background);
     JasUnpack(*data, activeAtoms, detailedAtoms, JDag);
     JasUnpack(data, chiTot, etaTot, Uji, Vij, Vji);
-    JasUnpack(data, I, S, Ieff, PsiStar);
+    JasUnpack(data, I, S, Ieff, PsiStar, JRest);
     const int Nspace = atmos.Nspace;
     const int Nrays = atmos.Nrays;
     const int Nspect = spect.wavelength.shape(0);
@@ -392,7 +392,7 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
                     J(k) += 0.5 * atmos.wmu(mu) * I(k);
                 }
 
-                if (spect.JRest && spect.hPrdActive && spect.hPrdActive(la))
+                if (JRest && spect.hPrdActive && spect.hPrdActive(la))
                 {
                     int hPrdLa = spect.la_to_hPrdLa(la);
                     for (int k = 0; k < Nspace; ++k)
@@ -400,7 +400,7 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
                         const auto& coeffs = spect.JCoeffs(hPrdLa, mu, toObs, k);
                         for (const auto& c : coeffs)
                         {
-                            spect.JRest(c.idx, k) += 0.5 * atmos.wmu(mu) * c.frac * I(k);
+                            JRest(c.idx, k) += 0.5 * atmos.wmu(mu) * c.frac * I(k);
                         }
                     }
                 }
@@ -541,11 +541,19 @@ inline bool should_parallelise_zeroing(const Context& ctx)
            || ctx.atmos->Nspace >= 256);
 }
 
-inline void zero_Gamma_rates(Context* ctx)
+inline void zero_Gamma_rates_JRest(Context* ctx)
 {
     JasUnpack((*ctx), activeAtoms, detailedAtoms);
     auto& cores = ctx->threading.intensityCores;
     auto Nthreads = ctx->Nthreads;
+
+    auto zero_JRest = [](decltype(cores.cores)& c)
+    {
+        for (auto& core : c)
+        {
+            core->JRest.fill(0.0);
+        }
+    };
 
     if (should_parallelise_zeroing(*ctx))
     {
@@ -575,6 +583,8 @@ inline void zero_Gamma_rates(Context* ctx)
         sched_task zeroing;
         scheduler_add(&ctx->threading.sched, &zeroing, zero_task,
                         (void*)(&zeroTaskData), zeroTaskData.size(), 1);
+        if (ctx->spect->JRest)
+            zero_JRest(cores.cores);
         scheduler_join(&ctx->threading.sched, &zeroing);
     }
     }
@@ -592,6 +602,8 @@ inline void zero_Gamma_rates(Context* ctx)
                 a->zero_rates();
             }
         }
+        if (ctx->spect->JRest)
+            zero_JRest(cores.cores);
     }
 }
 
@@ -645,10 +657,7 @@ f64 formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsMode mode)
     {
         auto& cores = ctx.threading.intensityCores;
 
-        if (spect.JRest)
-            spect.JRest.fill(0.0);
-
-        zero_Gamma_rates(&ctx);
+        zero_Gamma_rates_JRest(&ctx);
 
         int numFs = Nspect;
         if (ctx.formalSolver.width > 1)

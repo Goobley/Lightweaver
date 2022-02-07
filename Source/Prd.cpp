@@ -278,6 +278,7 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelengthIdxs)
         JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
         JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
         JasPack(iCore, I, S, Ieff);
+        iCore.JRest = spect.JRest;
         iCore.formal_solver = ctx.formalSolver.solver;
 
         for (auto& a : activeAtoms)
@@ -318,9 +319,9 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelengthIdxs)
                     }
                 }
             }
+            if (core->JRest)
+                core->JRest.fill(0.0);
         }
-        if (spect.JRest)
-            spect.JRest.fill(0.0);
 
         struct FsTaskData
         {
@@ -357,6 +358,7 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelengthIdxs)
                           fs_task, (void*)taskData, wavelengthIdxs.shape(0), 4);
             scheduler_join(&ctx.threading.sched, &formalSolutions);
         }
+        // TODO(cmo): Not free'd!
 
         f64 dJMax = 0.0;
         i64 maxIdx = 0;
