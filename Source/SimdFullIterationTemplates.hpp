@@ -234,7 +234,7 @@ gather_opacity_emissivity_opt(IntensityCoreData* data,
 template <SimdType simd>
 inline ForceInline void
 compute_source_fn(F64View& S, const F64View& etaTot, const F64View& chiTot,
-                  const F64View2D& sca, const F64View& JDag)
+                  const F64View& sca, const F64View& JDag)
 {
     const int Nspace = S.shape(0);
     for (int k = 0; k < Nspace; ++k)
@@ -312,10 +312,8 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
         J.fill(0.0);
 
     for (int a = 0; a < activeAtoms.size(); ++a)
-        // activeAtoms[a]->setup_wavelength(la, fsEffWidth);
         setup_wavelength_opt<simd>(activeAtoms[a], la);
     for (int a = 0; a < detailedAtoms.size(); ++a)
-        // detailedAtoms[a]->setup_wavelength(la, fsEffWidth);
         setup_wavelength_opt<simd>(detailedAtoms[a], la);
 
     // NOTE(cmo): If we only have continua then opacity is angle independent
@@ -340,7 +338,7 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
                 // Gathers from all active non-background transitions
                 // gather_opacity_emissivity(&data, ComputeOperator, la, mu, toObs);
                 gather_opacity_emissivity_opt<simd>(&data, ComputeOperator, la, mu, toObs);
-                compute_source_fn<simd>(S, etaTot, chiTot, background.sca, JDag);
+                compute_source_fn<simd>(S, etaTot, chiTot, background.sca(la), JDag);
                 if constexpr (StoreDepthData)
                 {
                     auto& depth = *data.depthData;
