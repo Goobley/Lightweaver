@@ -233,6 +233,18 @@ gather_opacity_emissivity_opt(IntensityCoreData* data,
 
 template <SimdType simd>
 inline ForceInline void
+compute_source_fn(F64View& S, const F64View& etaTot, const F64View& chiTot,
+                  const F64View2D& sca, const F64View& JDag)
+{
+    const int Nspace = S.shape(0);
+    for (int k = 0; k < Nspace; ++k)
+    {
+        S(k) = (etaTot(k) + sca(la, k) * JDag(k)) / chiTot(k);
+    }
+}
+
+template <SimdType simd>
+inline ForceInline void
 compute_full_Ieff(F64View& I, F64View& PsiStar,
                   F64View& eta, F64View& Ieff)
 {
@@ -288,17 +300,11 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
     const int Nspace = atmos.Nspace;
     const int Nrays = atmos.Nrays;
     const int Nspect = spect.wavelength.shape(0);
-    const int fsWidth = data.fd->width;
     const LwFsFn formal_solver = data.formal_solver;
-    // NOTE(cmo): Effective formal solver width to not roll off array
-    const int fsEffWidth = min(data.fd->width, Nspect - la);
+
     const bool updateJ = mode & FsMode::UpdateJ;
-    // const bool updateRates = mode & FsMode::UpdateRates;
-    // const bool prdRatesOnly = mode & FsMode::PrdOnly;
     const bool lambdaIterate = mode & FsMode::PureLambdaIteration;
     const bool upOnly = mode & FsMode::UpOnly;
-    // const bool computeOperator = bool(PsiStar);
-    // const bool storeDepthData = (data.depthData && data.depthData->fill);
 
     JDag = spect.J(la);
     F64View J = spect.J(la);
@@ -334,11 +340,7 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
                 // Gathers from all active non-background transitions
                 // gather_opacity_emissivity(&data, ComputeOperator, la, mu, toObs);
                 gather_opacity_emissivity_opt<simd>(&data, ComputeOperator, la, mu, toObs);
-                // TODO(cmo): Vectorise source fn calculation
-                for (int k = 0; k < Nspace; ++k)
-                {
-                    S(k) = (etaTot(k) + background.sca(la, k) * JDag(k)) / chiTot(k);
-                }
+                compute_source_fn<simd>(S, etaTot, chiTot, background.sca, JDag);
                 if constexpr (StoreDepthData)
                 {
                     auto& depth = *data.depthData;

@@ -1,5 +1,6 @@
 #include "Lightweaver.hpp"
 #include "Utils.hpp"
+#include "SimdFullIterationTemplates.hpp"
 
 namespace PrdCores
 {
@@ -330,13 +331,16 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelengthIdxs)
             i64 dJIdx;
             ConstView<int> idxs;
         };
-        FsTaskData* taskData = (FsTaskData*)malloc(ctx.Nthreads * sizeof(FsTaskData));
+        std::vector<FsTaskData> taskData;
+        taskData.reserve(ctx.Nthreads);
         for (int t = 0; t < ctx.Nthreads; ++t)
         {
-            taskData[t].core = cores.cores[t];
-            taskData[t].dJ = 0.0;
-            taskData[t].dJIdx = 0;
-            taskData[t].idxs = wavelengthIdxs;
+            FsTaskData td;
+            td.core = cores.cores[t];
+            td.dJ = 0.0;
+            td.dJIdx = 0;
+            td.idxs = wavelengthIdxs;
+            taskData.emplace_back(td);
         }
 
         auto fs_task = [](void* data, scheduler* s,
@@ -347,7 +351,9 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelengthIdxs)
                            | FsMode::PrdOnly);
             for (i64 la = p.start; la < p.end; ++la)
             {
-                f64 dJ = intensity_core(*td.core, td.idxs(la), mode);
+                f64 dJ = intensity_core_opt<SimdType::Scalar,
+                                            true, true, false, false>
+                                            (*td.core, td.idxs(la), mode);
                 td.dJ = max_idx(td.dJ, dJ, td.dJIdx, la);
             }
         };
@@ -355,10 +361,9 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelengthIdxs)
         {
             sched_task formalSolutions;
             scheduler_add(&ctx.threading.sched, &formalSolutions,
-                          fs_task, (void*)taskData, wavelengthIdxs.shape(0), 4);
+                          fs_task, (void*)taskData.data(), wavelengthIdxs.shape(0), 4);
             scheduler_join(&ctx.threading.sched, &formalSolutions);
         }
-        // TODO(cmo): Not free'd!
 
         f64 dJMax = 0.0;
         i64 maxIdx = 0;
@@ -402,6 +407,14 @@ PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
             }
         }
     }
+    auto JC = spect.JCoeffs.flatten();
+    int maxC = 0;
+    for (int i = 0; i < JC.shape(0); ++i)
+    {
+        if (JC(i).size() > maxC)
+            maxC = JC(i).size();
+    }
+    printf("%d\n-----\n", maxC);
 
     if (prdLines.size() == 0)
         return {0, 0.0};
@@ -507,6 +520,42 @@ PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
 
     return {iter, dRho};
 }
+
+#if 0
+void setup_hprd(Context& ctx)
+{
+    namespace C = Constants;
+    JasUnpack(*ctx, atmos, spect);
+    JasUnpack(ctx, activeAtoms);
+
+    struct PrdData
+    {
+        Transition* line;
+        const Atom& atom;
+
+        PrdData(Transition* l, const Atom& a)
+            : line(l), atom(a)
+        {}
+    };
+    std::vector<PrdData> prdLines;
+    prdLines.reserve(16);
+    for (auto& a : activeAtoms)
+    {
+        for (auto& t : a->trans)
+        {
+            if (t->rhoPrd)
+            {
+                prdLines.emplace_back(PrdData { t, *a });
+            }
+        }
+    }
+
+    if (prdLines.size() == 0)
+        return;
+
+
+}
+#endif
 
 // TODO(cmo): This isn't super clear, rewrite it.
 void configure_hprd_coeffs(Context& ctx)
