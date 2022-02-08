@@ -239,7 +239,7 @@ compute_source_fn(F64View& S, const F64View& etaTot, const F64View& chiTot,
     const int Nspace = S.shape(0);
     for (int k = 0; k < Nspace; ++k)
     {
-        S(k) = (etaTot(k) + sca(la, k) * JDag(k)) / chiTot(k);
+        S(k) = (etaTot(k) + sca(k) * JDag(k)) / chiTot(k);
     }
 }
 
