@@ -116,7 +116,58 @@ constexpr int max_fine_grid_size()
     return max(3 * PrdQWing, 2 * PrdQSpread) / PrdDQ + 1;
 }
 
-void prd_scatter(Transition* t, F64View PjQj, const Atom& atom, const Atmosphere& atmos, const Spectrum& spect)
+void optimised_fine_linear(F64View xTable, F64View yTable, F64View x, F64View y)
+{
+    // NOTE(cmo): Here we are going to work on the assumption that x is
+    // monotonic increasing, and varying slowly in comparison to xTable. This is the case
+    // of the fine wavelength grid against the line's base grid. For that reason
+    // we will find the initial index with upper bound, and then linearly search
+    // upwards from there.
+
+    const int N = x.shape(0);
+    const int Ntable = xTable.shape(0);
+    if (N < 1)
+        return;
+
+    // NOTE(cmo): Iter is a an iterator to the location in the table that upper
+    // bounds our point.
+    double* iter;
+    double* start = xTable.data;
+    double* end = start + Ntable;
+    if (x(0) <= xTable(0))
+        iter = &xTable(0);
+    else if (x(0) >= xTable(Ntable - 1))
+        iter = &xTable(Ntable - 1);
+    else
+        iter = std::upper_bound(start, end, x(0));
+
+    for (int i = 0; i < x.shape(0); ++i)
+    {
+        while (iter < end && *iter <= x(i))
+            ++iter;
+
+        if (iter == end)
+        {
+            y(i) = yTable(Ntable - 1);
+            continue;
+        }
+        else if (iter == start)
+        {
+            y(i) = yTable(0);
+            continue;
+        }
+
+        auto prev = iter - 1;
+        auto xp = *prev;
+        auto xn = *iter;
+        f64 t = (x(i) - xp) / (xn - xp);
+        y(i) = (1.0 - t) * yTable(prev - start) + t * yTable(iter - start);
+    }
+}
+
+void prd_scatter(Transition* t, F64View PjQj, const Atom& atom,
+                 const Atmosphere& atmos, const Spectrum& spect,
+                 scheduler* sched)
 {
     auto& trans = *t;
 
@@ -131,119 +182,280 @@ void prd_scatter(Transition* t, F64View PjQj, const Atom& atom, const Atmosphere
         trans.gII = trans.prdStorage.gII;
     }
 
-    // Reset Rho
+    // NOTE(cmo): Reset Rho
     trans.rhoPrd.fill(1.0);
 
-    F64Arr Jk(Nlambda);
-    F64Arr qAbs(Nlambda);
-    F64Arr JFine(maxFineGrid);
-    F64Arr qp(maxFineGrid);
-    F64Arr wq(maxFineGrid);
 
-    for (int k = 0; k < atmos.Nspace; ++k)
+    if (!sched)
     {
-
-        // NOTE(cmo): This isn't gamma as Pj / (Pj + Qj), but instead the whole
-        // prefactor to the scattering integral prefactor for a particular line,
-        // i.e. gamma * n_k B_{kj} / (n_j P_k)
-        // This simplifies into the expression below, remembering that PjQj = Pj + Qj
-        f64 gammaPrefactor = atom.n(trans.i, k) / atom.n(trans.j, k) * trans.Bij / PjQj(k);
-        f64 Jbar = trans.Rij(k) / trans.Bij;
-
-        // NOTE(cmo): Local mean intensity (in rest frame if using HPRD).
-        if (spect.JRest)
+        F64Arr Jk(Nlambda);
+        F64Arr qAbs(Nlambda);
+        F64Arr JFine(maxFineGrid);
+        F64Arr qp(maxFineGrid);
+        F64Arr wq(maxFineGrid);
+        for (int k = 0; k < atmos.Nspace; ++k)
         {
-            for (int la = 0; la < Nlambda; ++la)
-            {
-                int prdLa = spect.la_to_prdLa(la + trans.Nblue);
-                Jk(la) = spect.JRest(prdLa, k);
-                // Jk(la) = spect.JRest(la + trans.Nblue, k);
-            }
-        }
-        else
-        {
-            for (int la = 0; la < Nlambda; ++la)
-            {
-                Jk(la) = spect.J(la + trans.Nblue, k);
-            }
-        }
-        // NOTE(cmo): Local wavelength in doppler units
-        for (int la = 0; la < Nlambda; ++la)
-        {
-            qAbs(la) = (trans.wavelength(la) - trans.lambda0) * C::CLight / (trans.lambda0 * atom.vBroad(k));
-        }
 
-        for (int la = 0; la < Nlambda; ++la)
-        {
-            f64 qEmit = qAbs(la);
+            // NOTE(cmo): This isn't gamma as Pj / (Pj + Qj), but instead the whole
+            // prefactor to the scattering integral prefactor for a particular line,
+            // i.e. gamma * n_k B_{kj} / (n_j P_k)
+            // This simplifies into the expression below, remembering that PjQj = Pj + Qj
+            f64 gammaPrefactor = atom.n(trans.i, k) / atom.n(trans.j, k) * trans.Bij / PjQj(k);
+            f64 Jbar = trans.Rij(k) / trans.Bij;
 
-            // NOTE(cmo): Find integration range around qEmit for which GII is
-            // non-zero. (Resonance PRD case only). Follows Uitenbroek 2001.
-            int q0, qN;
-            if (abs(qEmit) < PrdQCore)
+            // NOTE(cmo): Local mean intensity (in rest frame if using HPRD).
+            if (spect.JRest)
             {
-                q0 = -PrdQWing;
-                qN = PrdQWing;
-            }
-            else if (abs(qEmit) < PrdQWing)
-            {
-                if (qEmit > 0.0)
+                for (int la = 0; la < Nlambda; ++la)
                 {
-                    q0 = -PrdQWing;
-                    qN = qEmit + PrdQSpread;
-                }
-                else
-                {
-                    q0 = qEmit - PrdQSpread;
-                    qN = PrdQWing;
+                    int prdLa = spect.la_to_prdLa(la + trans.Nblue);
+                    Jk(la) = spect.JRest(prdLa, k);
                 }
             }
             else
             {
-                q0 = qEmit - PrdQSpread;
-                qN = qEmit + PrdQSpread;
+                for (int la = 0; la < Nlambda; ++la)
+                {
+                    Jk(la) = spect.J(la + trans.Nblue, k);
+                }
             }
-            // NOTE(cmo): Set up fine linear grid over this range.
-            int Np = int((f64)(qN - q0) / PrdDQ) + 1;
-            qp(0) = q0;
-            for (int lap = 1; lap < Np; ++lap)
-                qp(lap) = qp(lap - 1) + PrdDQ;
-
-            // NOTE(cmo): Linearly interpolate mean intensity onto this grid.
-            linear(qAbs, Jk, qp.slice(0, Np), JFine);
-
-            if (initialiseGii)
+            // NOTE(cmo): Local wavelength in doppler units
+            for (int la = 0; la < Nlambda; ++la)
             {
-                // NOTE(cmo): Compute gII if needed.
-                // Integration weights for general trapezoidal rule obtained
-                // from averaging extended Simpson's rule with modified
-                // Simpson's rule where both edge regions are treated with
-                // trapezoid rule. Takes accuracy up to O(1/N^3). Explained in
-                // Press et al, Num Rec Sec4.2.
-                wq.fill(PrdDQ);
-                wq(0) = 5.0 / 12.0 * PrdDQ;
-                wq(1) = 13.0 / 12.0 * PrdDQ;
-                wq(Np - 1) = 5.0 / 12.0 * PrdDQ;
-                wq(Np - 2) = 13.0 / 12.0 * PrdDQ;
+                qAbs(la) = (trans.wavelength(la) - trans.lambda0) * C::CLight / (trans.lambda0 * atom.vBroad(k));
+            }
+
+            for (int la = 0; la < Nlambda; ++la)
+            {
+                f64 qEmit = qAbs(la);
+
+                // NOTE(cmo): Find integration range around qEmit for which GII is
+                // non-zero. (Resonance PRD case only). Follows Uitenbroek 2001.
+                int q0, qN;
+                if (abs(qEmit) < PrdQCore)
+                {
+                    q0 = -PrdQWing;
+                    qN = PrdQWing;
+                }
+                else if (abs(qEmit) < PrdQWing)
+                {
+                    if (qEmit > 0.0)
+                    {
+                        q0 = -PrdQWing;
+                        qN = qEmit + PrdQSpread;
+                    }
+                    else
+                    {
+                        q0 = qEmit - PrdQSpread;
+                        qN = PrdQWing;
+                    }
+                }
+                else
+                {
+                    q0 = qEmit - PrdQSpread;
+                    qN = qEmit + PrdQSpread;
+                }
+                // NOTE(cmo): Set up fine linear grid over this range.
+                int Np = int((f64)(qN - q0) / PrdDQ) + 1;
+                qp(0) = q0;
+                for (int lap = 1; lap < Np; ++lap)
+                    qp(lap) = qp(lap - 1) + PrdDQ;
+
+                // NOTE(cmo): Linearly interpolate mean intensity onto this grid.
+                linear(qAbs, Jk, qp.slice(0, Np), JFine);
+
+                if (initialiseGii)
+                {
+                    // NOTE(cmo): Compute gII if needed.
+                    // Integration weights for general trapezoidal rule obtained
+                    // from averaging extended Simpson's rule with modified
+                    // Simpson's rule where both edge regions are treated with
+                    // trapezoid rule. Takes accuracy up to O(1/N^3). Explained in
+                    // Press et al, Num Rec Sec4.2.
+                    wq.fill(PrdDQ);
+                    wq(0) = 5.0 / 12.0 * PrdDQ;
+                    wq(1) = 13.0 / 12.0 * PrdDQ;
+                    wq(Np - 1) = 5.0 / 12.0 * PrdDQ;
+                    wq(Np - 2) = 13.0 / 12.0 * PrdDQ;
+                    for (int lap = 0; lap < Np; ++lap)
+                        trans.gII(la, k, lap) = GII(trans.aDamp(k), qEmit, qp(lap)) * wq(lap);
+                }
+                F64View gII = trans.gII(la, k);
+
+                // NOTE(cmo): Compute and normalise scattering integral.
+                f64 gNorm = 0.0;
+                f64 scatInt = 0.0;
                 for (int lap = 0; lap < Np; ++lap)
-                    trans.gII(la, k, lap) = GII(trans.aDamp(k), qEmit, qp(lap)) * wq(lap);
+                {
+                    // NOTE(cmo): Normalisation of the scattering integral is very
+                    // important, as discussed in HM2014 Sec 15.4. Whilst this
+                    // procedure may slightly distort the redistribution function,
+                    // it ensures that no photons are gained or lost in this
+                    // evaluation.
+                    gNorm += gII(lap);
+                    scatInt += JFine(lap) * gII(lap);
+                }
+                trans.rhoPrd(la, k) += gammaPrefactor * (scatInt / gNorm - Jbar);
             }
-            F64View gII = trans.gII(la, k);
+        }
+    }
+    else
+    {
+        struct ThreadData
+        {
+            Transition& trans;
+            const Atom& atom;
+            const Spectrum& spect;
+            const Atmosphere& atmos;
+            const F64View& PjQj;
+            const bool computeGii;
 
-            // NOTE(cmo): Compute and normalise scattering integral.
-            f64 gNorm = 0.0;
-            f64 scatInt = 0.0;
-            for (int lap = 0; lap < Np; ++lap)
+            F64Arr Jk;
+            F64Arr qAbs;
+            F64Arr JFine;
+            F64Arr qp;
+            F64Arr wq;
+
+            ThreadData(Transition& t, const Atom& a,
+                       const Spectrum& s, const Atmosphere& atmos,
+                       const F64View& Pj, bool initialiseG,
+                       int Nlambda, int maxFineGrid)
+                : trans(t),
+                  atom(a),
+                  spect(s),
+                  atmos(atmos),
+                  PjQj(Pj),
+                  computeGii(initialiseG),
+                  Jk(Nlambda),
+                  qAbs(Nlambda),
+                  JFine(maxFineGrid),
+                  qp(maxFineGrid),
+                  wq(maxFineGrid)
+            {}
+        };
+        std::vector<ThreadData> data;
+        data.reserve(sched->threads_num);
+        for (int th = 0; th < sched->threads_num; ++th)
+            data.emplace_back(ThreadData(*t, atom, spect, atmos, PjQj,
+                                         initialiseGii, Nlambda, maxFineGrid));
+
+        auto compute_scattering_int = [](void* userdata, scheduler* s,
+                                         sched_task_partition p, sched_uint threadId)
+        {
+            ThreadData& data = ((ThreadData*)userdata)[threadId];
+            JasUnpack(data, trans, atom, spect, atmos, PjQj);
+            JasUnpack(data, Jk, qAbs, JFine, qp, wq);
+            const bool computeGii = data.computeGii;
+            const int Nlambda = trans.wavelength.shape(0);
+
+            for (int k = p.start; k < p.end; ++k)
             {
-                // NOTE(cmo): Normalisation of the scattering integral is very
-                // important, as discussed in HM2014 Sec 15.4. Whilst this
-                // procedure may slightly distort the redistribution function,
-                // it ensures that no photons are gained or lost in this
-                // evaluation.
-                gNorm += gII(lap);
-                scatInt += JFine(lap) * gII(lap);
+                f64 gammaPrefactor = atom.n(trans.i, k) / atom.n(trans.j, k) * trans.Bij / PjQj(k);
+                f64 Jbar = trans.Rij(k) / trans.Bij;
+
+                // NOTE(cmo): Local mean intensity (in rest frame if using HPRD).
+                if (spect.JRest)
+                {
+                    for (int la = 0; la < Nlambda; ++la)
+                    {
+                        int prdLa = spect.la_to_prdLa(la + trans.Nblue);
+                        Jk(la) = spect.JRest(prdLa, k);
+                    }
+                }
+                else
+                {
+                    for (int la = 0; la < Nlambda; ++la)
+                    {
+                        Jk(la) = spect.J(la + trans.Nblue, k);
+                    }
+                }
+                // NOTE(cmo): Local wavelength in doppler units
+                for (int la = 0; la < Nlambda; ++la)
+                {
+                    qAbs(la) = (trans.wavelength(la) - trans.lambda0) * C::CLight / (trans.lambda0 * atom.vBroad(k));
+                }
+
+                for (int la = 0; la < Nlambda; ++la)
+                {
+                    f64 qEmit = qAbs(la);
+
+                    // NOTE(cmo): Find integration range around qEmit for which GII is
+                    // non-zero. (Resonance PRD case only). Follows Uitenbroek 2001.
+                    int q0, qN;
+                    if (abs(qEmit) < PrdQCore)
+                    {
+                        q0 = -PrdQWing;
+                        qN = PrdQWing;
+                    }
+                    else if (abs(qEmit) < PrdQWing)
+                    {
+                        if (qEmit > 0.0)
+                        {
+                            q0 = -PrdQWing;
+                            qN = qEmit + PrdQSpread;
+                        }
+                        else
+                        {
+                            q0 = qEmit - PrdQSpread;
+                            qN = PrdQWing;
+                        }
+                    }
+                    else
+                    {
+                        q0 = qEmit - PrdQSpread;
+                        qN = qEmit + PrdQSpread;
+                    }
+                    // NOTE(cmo): Set up fine linear grid over this range.
+                    int Np = int((f64)(qN - q0) / PrdDQ) + 1;
+                    qp(0) = q0;
+                    for (int lap = 1; lap < Np; ++lap)
+                        qp(lap) = qp(lap - 1) + PrdDQ;
+
+                    // NOTE(cmo): Linearly interpolate mean intensity onto this grid.
+                    // linear(qAbs, Jk, qp.slice(0, Np), JFine);
+                    optimised_fine_linear(qAbs, Jk, qp.slice(0, Np), JFine);
+
+                    if (computeGii)
+                    {
+                        // NOTE(cmo): Compute gII if needed.
+                        // Integration weights for general trapezoidal rule obtained
+                        // from averaging extended Simpson's rule with modified
+                        // Simpson's rule where both edge regions are treated with
+                        // trapezoid rule. Takes accuracy up to O(1/N^3). Explained in
+                        // Press et al, Num Rec Sec4.2.
+                        wq.fill(PrdDQ);
+                        wq(0) = 5.0 / 12.0 * PrdDQ;
+                        wq(1) = 13.0 / 12.0 * PrdDQ;
+                        wq(Np - 1) = 5.0 / 12.0 * PrdDQ;
+                        wq(Np - 2) = 13.0 / 12.0 * PrdDQ;
+                        for (int lap = 0; lap < Np; ++lap)
+                            trans.gII(la, k, lap) = GII(trans.aDamp(k), qEmit, qp(lap)) * wq(lap);
+                    }
+                    F64View gII = trans.gII(la, k);
+
+                    // NOTE(cmo): Compute and normalise scattering integral.
+                    f64 gNorm = 0.0;
+                    f64 scatInt = 0.0;
+                    for (int lap = 0; lap < Np; ++lap)
+                    {
+                        // NOTE(cmo): Normalisation of the scattering integral is very
+                        // important, as discussed in HM2014 Sec 15.4. Whilst this
+                        // procedure may slightly distort the redistribution function,
+                        // it ensures that no photons are gained or lost in this
+                        // evaluation.
+                        gNorm += gII(lap);
+                        scatInt += JFine(lap) * gII(lap);
+                    }
+                    trans.rhoPrd(la, k) += gammaPrefactor * (scatInt / gNorm - Jbar);
+                }
             }
-            trans.rhoPrd(la, k) += gammaPrefactor * (scatInt / gNorm - Jbar);
+        };
+
+        {
+            sched_task scatteringInts;
+            scheduler_add(sched, &scatteringInts, compute_scattering_int,
+                          data.data(), atmos.Nspace, 4);
+            scheduler_join(sched, &scatteringInts);
         }
     }
 }
@@ -448,7 +660,7 @@ PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
             for (auto& p : prdLines)
             {
                 PrdCores::total_depop_elastic_scattering_rate(p.line, p.atom, PjQj);
-                PrdCores::prd_scatter(p.line, PjQj, p.atom, atmos, spect);
+                PrdCores::prd_scatter(p.line, PjQj, p.atom, atmos, spect, nullptr);
                 p.ng.accelerate(p.line->rhoPrd.flatten());
                 dRho = max(dRho, p.ng.max_change());
             }
@@ -488,7 +700,7 @@ PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
                 auto& td = ((PrdTaskData*)data)[lineIdx];
                 auto& p = *td.line;
                 PrdCores::total_depop_elastic_scattering_rate(p.line, p.atom, td.PjQj);
-                PrdCores::prd_scatter(p.line, td.PjQj, p.atom, *td.atmos, *td.spect);
+                PrdCores::prd_scatter(p.line, td.PjQj, p.atom, *td.atmos, *td.spect, s);
                 p.ng.accelerate(p.line->rhoPrd.flatten());
                 td.dRho = max(td.dRho, p.ng.max_change());
             }
