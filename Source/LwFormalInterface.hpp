@@ -79,7 +79,9 @@ struct InterpFnManager
     bool load_fn_from_path(const char* path);
 };
 
+struct PrdIterData;
 typedef f64(*FormalSolIterFn)(Context& ctx, bool lambdaIterate);
+typedef PrdIterData(*RedistPrdLinesFn)(Context& ctx, int maxIter, f64 tol);
 typedef void(*AllocPerAtomScratch)(Atom* atom, bool detailedStatic);
 typedef void(*FreePerAtomScratch)(Atom* atom);
 typedef void(*AllocPerTransScratch)(Transition* trans);
@@ -98,6 +100,7 @@ struct FsIterationFns
     const char* name;
 
     FormalSolIterFn fs_iter;
+    RedistPrdLinesFn redistribute_prd;
     AllocPerAtomScratch alloc_per_atom;
     FreePerAtomScratch free_per_atom;
     AllocPerTransScratch alloc_per_trans;

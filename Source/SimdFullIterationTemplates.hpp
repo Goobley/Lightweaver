@@ -580,12 +580,13 @@ inline void zero_Gamma_rates_JRest(Context* ctx)
             }
         };
     {
+        scheduler* sched = &ctx->threading.sched;
         sched_task zeroing;
-        scheduler_add(&ctx->threading.sched, &zeroing, zero_task,
-                        (void*)(&zeroTaskData), zeroTaskData.size(), 1);
+        sched->add(sched, &zeroing, zero_task,
+                   (void*)(&zeroTaskData), zeroTaskData.size(), 1);
         if (ctx->spect->JRest)
             zero_JRest(cores.cores);
-        scheduler_join(&ctx->threading.sched, &zeroing);
+        sched->join(sched, &zeroing);
     }
     }
     else
@@ -705,10 +706,11 @@ f64 formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsMode mode)
         };
 
         {
+            scheduler* sched = &ctx.threading.sched;
             sched_task formalSolutions;
-            scheduler_add(&ctx.threading.sched, &formalSolutions,
-                          fs_task, (void*)taskData.data(), numFs, 4);
-            scheduler_join(&ctx.threading.sched, &formalSolutions);
+            sched->add(sched, &formalSolutions,
+                       fs_task, (void*)taskData.data(), numFs, 4);
+            sched->join(sched, &formalSolutions);
         }
 
         f64 dJMax = 0.0;

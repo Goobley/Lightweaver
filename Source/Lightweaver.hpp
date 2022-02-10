@@ -22,14 +22,13 @@ struct NrTimeDependentData
 
 f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate=false);
 f64 formal_sol_iteration_matrices_scalar(Context& ctx, bool lambdaIterate=false);
-// f64 formal_sol_iteration_matrices_SSE2(Context& ctx, bool lambdaIterate=false);
-// f64 formal_sol_iteration_matrices_AVX2FMA(Context& ctx, bool lambdaIterate=false);
-// f64 formal_sol_iteration_matrices_AVX512(Context& ctx, bool lambdaIterate=false);
+// TODO(cmo): Simplify these
 f64 formal_sol_update_rates(Context& ctx);
 f64 formal_sol_update_rates_fixed_J(Context& ctx);
 f64 formal_sol(Context& ctx, bool upOnly=true);
 f64 formal_sol_full_stokes(Context& ctx, bool updateJ=true);
 PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol);
+PrdIterData redistribute_prd_lines_scalar(Context& ctx, int maxIter, f64 tol);
 void stat_eq(Atom* atom, int spaceStart=-1, int spaceEnd=-1);
 void time_dependent_update(Atom* atomIn, F64View2D nOld, f64 dt,
                            int spaceStart=-1, int spaceEnd=-1);

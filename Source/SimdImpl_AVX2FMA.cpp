@@ -1,7 +1,7 @@
+#include "Lightweaver.hpp"
 #include "Constants.hpp"
 #include "Simd.hpp"
 #include "LwInternal.hpp"
-#include "Lightweaver.hpp"
 #include "Bezier.hpp"
 #include "JasPP.hpp"
 #include "ThreadStorage.hpp"
@@ -15,6 +15,7 @@
 #include <chrono>
 
 #include "SimdFullIterationTemplates.hpp"
+#include "PrdTemplates.hpp"
 
 namespace LwInternal
 {
@@ -528,6 +529,11 @@ f64 formal_sol_iteration_matrices_AVX2FMA(Context& ctx, bool lambdaIterate)
     }
 }
 
+PrdIterData redistribute_prd_lines_AVX2FMA(Context& ctx, int maxIter, f64 tol)
+{
+    return redistribute_prd_lines_template<SimdType::AVX2FMA>(ctx, maxIter, tol);
+}
+
 extern "C"
 {
     FsIterationFns fs_iteration_fns_provider()
@@ -535,7 +541,8 @@ extern "C"
         return FsIterationFns {
             -1, false, true, true, true,
             "mali_full_precond_AVX2FMA",
-            formal_sol_iteration_matrices_AVX2FMA
+            formal_sol_iteration_matrices_AVX2FMA,
+            redistribute_prd_lines_AVX2FMA
         };
     }
 }

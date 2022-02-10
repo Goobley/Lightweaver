@@ -71,11 +71,7 @@ namespace Prd
         // F64Arr3D gII;
         bool upToDate = false;
         Jasnah::Array2Own<F64Arr> gII;
-        Jasnah::Array2Own<i32> fineStart;
-        Jasnah::Array2Own<i32> fineEnd;
         Jasnah::Array2Own<f64> qWave;
-        Jasnah::Array1Own<F64Arr> qFine;
-        Jasnah::Array1Own<F64Arr> wq;
         Prd::RhoCoeffVec hPrdCoeffs;
     };
 }

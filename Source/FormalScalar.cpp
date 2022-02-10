@@ -95,11 +95,12 @@ void Transition::compute_phi_parallel(LwInternal::ThreadData* threading, const A
             d->t->compute_phi_la(*(d->atmos), *(d->aDamp), *(d->vBroad), la);
     };
 
+    scheduler* s = &threading->sched;
     {
         sched_task lineProfile;
-        scheduler_add(&threading->sched, &lineProfile, compute_profile,
-                      (void*)data, wavelength.shape(0), 1);
-        scheduler_join(&threading->sched, &lineProfile);
+        s->add(s, &lineProfile, compute_profile,
+               (void*)data, wavelength.shape(0), 1);
+        s->join(s, &lineProfile);
     }
 
     free(data);

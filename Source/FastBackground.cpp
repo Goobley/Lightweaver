@@ -132,9 +132,9 @@ void FastBackgroundContext::basic_background(BackgroundData* bd, Atmosphere* atm
 
         {
             sched_task bgOpacities;
-            scheduler_add(&sched, &bgOpacities, background_handler,
-                          (void*)&args, bd->wavelength.shape(0), 20);
-            scheduler_join(&sched, &bgOpacities);
+            sched.add(&sched, &bgOpacities, background_handler,
+                      (void*)&args, bd->wavelength.shape(0), 20);
+            sched.join(&sched, &bgOpacities);
         }
     }
 }
@@ -167,9 +167,9 @@ void FastBackgroundContext::bf_opacities(BackgroundData* bd,
 
         {
             sched_task bfOpacities;
-            scheduler_add(&sched, &bfOpacities, bf_handler,
+            sched.add(&sched, &bfOpacities, bf_handler,
                           (void*)&args, bd->wavelength.shape(0), 20);
-            scheduler_join(&sched, &bfOpacities);
+            sched.join(&sched, &bfOpacities);
         }
     }
 }
@@ -201,9 +201,9 @@ void FastBackgroundContext::rayleigh_scatter(BackgroundData* bd,
 
         {
             sched_task rayleighScatter;
-            scheduler_add(&sched, &rayleighScatter, rayleigh_handler,
-                          (void*)&args, bd->wavelength.shape(0), 40);
-            scheduler_join(&sched, &rayleighScatter);
+            sched.add(&sched, &rayleighScatter, rayleigh_handler,
+                      (void*)&args, bd->wavelength.shape(0), 40);
+            sched.join(&sched, &rayleighScatter);
         }
     }
 }

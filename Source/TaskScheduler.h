@@ -11,11 +11,15 @@ ABOUT:
 
     Project Goals
     - ANSI C: Designed to be easy to embed into other languages
-    - Embeddable: Designed as a single header library to be easy to embed into your code. 
+    - Embeddable: Designed as a single header library to be easy to embed into your code.
     - Lightweight: Designed to be lean so you can use it anywhere easily, and understand it.
-    - Fast, then scalable: Designed for consumer devices first, so performance on a low number of threads is important, followed by scalability.
-    - Braided parallelism: Can issue tasks from another task as well as from the thread which created the Task System.
+    - Fast, then scalable: Designed for consumer devices first, so performance
+      on a low number of threads is important, followed by scalability.
+    - Braided parallelism: Can issue tasks from another task as well as from the
+      thread which created the Task System.
     - Up-front Allocation friendly: Designed for zero allocations during scheduling.
+    - Modified by cmo to add pointers to the scheduler functions into the struct
+      to make it more self-contained to pass around between shared libraries.
 
 DEFINE:
     SCHED_IMPLEMENTATION
@@ -195,34 +199,6 @@ struct sched_semaphore;
 struct sched_thread_args;
 struct sched_pipe;
 
-struct scheduler {
-    struct sched_pipe *pipes;
-    /* pipe for every worker thread */
-    unsigned int threads_num;
-    /* number of worker threads */
-    struct sched_thread_args *args;
-    /* data used in the os thread callback */
-    void *threads;
-    /* os threads array  */
-    volatile sched_int running;
-    /* flag whether the scheduler is running  */
-    volatile sched_int thread_running;
-    /* number of thread that are currently running */
-    volatile sched_int thread_waiting;
-    /* number of thread that are currently active */
-    unsigned partitions_num;
-    unsigned partitions_init_num;
-    /* divider for the array handled by a task */
-    struct sched_semaphore *new_task_semaphore;
-    /* os event to signal work */
-    sched_int have_threads;
-    /* flag whether the os threads have been created */
-    struct sched_profiling profiling;
-    /* profiling callbacks  */
-    sched_size memory;
-    /* memory size */
-};
-
 #define SCHED_DEFAULT (-1)
 SCHED_API void scheduler_init(struct scheduler*, sched_size *needed_memory,
                                 sched_int thread_count, const struct sched_profiling*);
@@ -271,6 +247,52 @@ SCHED_API void scheduler_stop(struct scheduler*, int doWait);
  *  are in a situation where task aren't being continuosly added.
     Input:
     -   boolean flag specifing to wait for all task to finish before stopping */
+
+typedef void (*SchedInitFn)(struct scheduler*, sched_size *needed_memory,
+                            sched_int thread_count, const struct sched_profiling*);
+typedef void (*SchedStartFn)(struct scheduler*, void *memory);
+typedef void (*SchedAddFn)(struct scheduler*, struct sched_task*,
+                           sched_run func, void *pArg, sched_uint size,
+                           sched_uint min_range);
+typedef void (*SchedJoinFn)(struct scheduler*, struct sched_task*);
+typedef void (*SchedWaitFn)(struct scheduler*);
+typedef void (*SchedStopFn)(struct scheduler*, int doWait);
+
+struct scheduler {
+    struct sched_pipe *pipes;
+    /* pipe for every worker thread */
+    unsigned int threads_num;
+    /* number of worker threads */
+    struct sched_thread_args *args;
+    /* data used in the os thread callback */
+    void *threads;
+    /* os threads array  */
+    volatile sched_int running;
+    /* flag whether the scheduler is running  */
+    volatile sched_int thread_running;
+    /* number of thread that are currently running */
+    volatile sched_int thread_waiting;
+    /* number of thread that are currently active */
+    unsigned partitions_num;
+    unsigned partitions_init_num;
+    /* divider for the array handled by a task */
+    struct sched_semaphore *new_task_semaphore;
+    /* os event to signal work */
+    sched_int have_threads;
+    /* flag whether the os threads have been created */
+    struct sched_profiling profiling;
+    /* profiling callbacks  */
+    sched_size memory;
+    /* memory size */
+    SchedInitFn init;
+    SchedStartFn start;
+    SchedAddFn add;
+    SchedJoinFn join;
+    SchedWaitFn wait;
+    SchedStopFn stop;
+    /* scheduler API */
+};
+
 
 #ifdef __cplusplus
 }
@@ -996,6 +1018,14 @@ scheduler_init(struct scheduler *s, sched_size *memory,
     *memory += sched_pipe_align + sched_arg_align;
     *memory += sched_thread_align + sched_semaphore_align;
     s->memory = *memory;
+
+    /* NOTE(cmo): Load scheduler functions into struct */
+    s->init = scheduler_init;
+    s->start = scheduler_start;
+    s->add = scheduler_add;
+    s->join = scheduler_join;
+    s->wait = scheduler_wait;
+    s->stop = scheduler_stop;
 }
 
 SCHED_API void
@@ -1133,7 +1163,7 @@ static void parallel_task(void *pArg, struct scheduler *s, struct sched_task_par
     /* Do something here, cann issue additional tasks into the scheduler */
     puts(".");
 }
-int main(int argc, const char **argv) 
+int main(int argc, const char **argv)
 {
     void *memory;
     sched_size needed_memory;

@@ -391,11 +391,12 @@ void IntensityCoreFactory::accumulate_Gamma_rates_parallel(Context& ctx)
     };
 
     {
+        scheduler* sched = &ctx.threading.sched;
         sched_task accumulation;
-        scheduler_add(&ctx.threading.sched, &accumulation, acc_task,
-                      (void*)taskData.data(), taskData.size(), 1);
+        sched->add(sched, &accumulation, acc_task,
+                   (void*)taskData.data(), taskData.size(), 1);
         accumulate_JRest();
-        scheduler_join(&ctx.threading.sched, &accumulation);
+        sched->join(sched, &accumulation);
     }
 }
 

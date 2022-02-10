@@ -1,10 +1,12 @@
 #include "Lightweaver.hpp"
 #include "Utils.hpp"
 #include "SimdFullIterationTemplates.hpp"
+#include "PrdTemplates.hpp"
 
 namespace PrdCores
 {
-void total_depop_elastic_scattering_rate(const Transition* trans, const Atom& atom, F64View PjQj)
+void total_depop_elastic_scattering_rate(const Transition* trans, const Atom& atom,
+                                         F64View PjQj)
 {
     // NOTE(cmo): Contrary to first appearance when reading the RH paper, this
     // doesn't return Pj but instread Pj + Qj
@@ -28,11 +30,9 @@ void total_depop_elastic_scattering_rate(const Transition* trans, const Atom& at
 
 
 constexpr f64 PrdQWing = 4.0;
-constexpr f64 PrdQCore = 4.0;
+constexpr f64 PrdQCore = 2.0;
 constexpr f64 PrdQSpread = 5.0;
-constexpr f64 CmoPrdQSpread = 10.0;
-constexpr f64 PrdDQ = 0.25;
-constexpr f64 CmoPrdMinDQ = 0.05;
+constexpr f64 PrdDQ = 0.15;
 
 /*
     * Gouttebroze's fast approximation for
@@ -47,76 +47,84 @@ inline f64 G_zero(f64 x)
     return 1.0 / (abs(x) + sqrt(square(x) + 1.273239545));
 }
 
-f64 GII(f64 adamp, f64 q_emit, f64 q_abs)
+f64 GII(f64 aDamp, f64 qEmit, f64 qAbs)
 {
+    // NOTE(cmo): qAbs: nu, qEmit: nu'
+    // Specialised for non XRD case. Change waveratio to allow XRD.
     constexpr f64 waveratio = 1.0;
     namespace C = Constants;
-    f64 gii, pcore, aq_emit, umin, epsilon, giiwing, u1, phicore, phiwing;
 
-    /* --- Symmetrize with respect to emission frequency --   --------- */
-
-    if (q_emit < 0.0)
+    // The function is symmetric about nu' = 0
+    if (qEmit < 0.0)
     {
-        q_emit = -q_emit;
-        q_abs = -q_abs;
+        qEmit = -qEmit;
+        qAbs = -qAbs;
     }
-    pcore = 0.0;
-    gii = 0.0;
 
-    /* --- Core region --                                     --------- */
 
-    if (q_emit < PrdQWing)
+    f64 giiCore = 0.0;
+    f64 coreFactor = 0.0;
+    if (qEmit < PrdQWing)
     {
-        if ((q_abs < -PrdQWing) || (q_abs > q_emit + waveratio * PrdQSpread))
-            return gii;
-        if (abs(q_abs) <= q_emit)
-            gii = G_zero(q_emit);
+        // In core, or "transition", i.e. core value is needed.
+        if ((qAbs < -PrdQWing) || (qAbs > qEmit + waveratio * PrdQSpread))
+            // Outside the range of Rii
+            return 0.0;
+
+        if (abs(qAbs) <= qEmit)
+            giiCore = G_zero(qEmit);
         else
-            gii = exp(square(q_emit) - square(q_abs)) * G_zero(q_abs);
+            giiCore = exp(square(qEmit) - square(qAbs)) * G_zero(qAbs);
 
-        if (q_emit >= PrdQCore)
+        if (qEmit >= PrdQCore && qEmit <= PrdQWing)
         {
-            phicore = exp(-square(q_emit));
-            phiwing = adamp / (sqrt(C::Pi) * (square(adamp) + square(q_emit)));
-            pcore = phicore / (phicore + phiwing);
+            // "transition" regime
+            f64 phiCore = exp(-square(qEmit));
+            f64 phiWing = aDamp / (sqrt(C::Pi) * (square(aDamp) + square(qEmit)));
+            coreFactor = phiCore / (phiCore + phiWing);
         }
+        else
+            return giiCore;
     }
-    /* --- Wing region --                                     --------- */
 
-    if (q_emit >= PrdQCore)
+    f64 gii = 0.0;
+    if (qEmit >= PrdQCore)
     {
-        aq_emit = waveratio * q_emit;
-        if (q_emit >= PrdQWing)
-        {
-            if (abs(q_abs - aq_emit) > waveratio * PrdQSpread)
-                return gii;
-            pcore = 0.0;
-        }
-        umin = abs((q_abs - aq_emit) / (1.0 + waveratio));
-        giiwing = (1.0 + waveratio) * (1.0 - 2.0 * umin * G_zero(umin)) * exp(-square(umin));
+        // Wing value needed.
+        f64 aqEmit = waveratio * qEmit;
+        if ((qEmit >= PrdQWing) &&
+            (abs(qAbs - aqEmit) > waveratio * PrdQSpread))
+                // Outside the range of Rii
+                return 0.0;
+
+        f64 uMin = abs((qAbs - aqEmit) / (1.0 + waveratio));
+        f64 giiWing = (1.0 + waveratio) * (1.0 - 2.0 * uMin * G_zero(uMin))
+                        * exp(-square(uMin)) / (2.0 * waveratio * sqrt(C::Pi));
 
         if (waveratio == 1.0)
         {
-            epsilon = q_abs / aq_emit;
-            giiwing *= (2.75 - (2.5 - 0.75 * epsilon) * epsilon);
+            // Gouttebroze 1986 second order expansion for Rii.
+            f64 ratio = qAbs / qEmit;
+            giiWing *= (2.75 - (2.5 - 0.75 * ratio) * ratio);
         }
         else
         {
-            u1 = abs((q_abs - aq_emit) / (waveratio - 1.0));
-            giiwing -= abs(1.0 - waveratio) * (1.0 - 2.0 * u1 * G_zero(u1)) * exp(-square(u1));
+            // Uitenbroek 1989 general wing term.
+            f64 u1 = abs((qAbs - aqEmit) / (waveratio - 1.0));
+            giiWing -= abs(1.0 - waveratio) * (1.0 - 2.0 * u1 * G_zero(u1))
+                        * exp(-square(u1));
         }
-        /* --- Linear combination of core- and wing contributions ------- */
 
-        giiwing = giiwing / (2.0 * waveratio * sqrt(C::Pi));
-        gii = pcore * gii + (1.0 - pcore) * giiwing;
+        // Compute the linear combination of core and wing terms (with
+        // coreFactor = 0), if not in the "transition" range.
+        gii = coreFactor * giiCore + (1.0 - coreFactor) * giiWing;
     }
     return gii;
 }
 
 constexpr int max_fine_grid_size()
 {
-    // return max(3 * PrdQWing, 2 * PrdQSpread) / PrdDQ + 1;
-    return (3 * CmoPrdQSpread) / PrdDQ + 1;
+    return max(2 * PrdQWing + PrdQSpread, 2 * PrdQSpread) / PrdDQ + 1;
 }
 
 void optimised_fine_linear(F64View xTable, F64View yTable, F64View x, F64View y)
@@ -134,9 +142,9 @@ void optimised_fine_linear(F64View xTable, F64View yTable, F64View x, F64View y)
 
     // NOTE(cmo): Iter is a an iterator to the location in the table that upper
     // bounds our point.
-    double* iter;
-    double* start = xTable.data;
-    double* end = start + Ntable;
+    f64* iter;
+    f64* start = xTable.data;
+    f64* end = start + Ntable;
     if (x(0) <= xTable(0))
         iter = &xTable(0);
     else if (x(0) >= xTable(Ntable - 1))
@@ -168,6 +176,136 @@ void optimised_fine_linear(F64View xTable, F64View yTable, F64View x, F64View y)
     }
 }
 
+void optimised_fine_linear_fixed_spacing(F64View xTable, F64View yTable,
+                                         f64 xStart, f64 xStep, int N, F64View y)
+{
+    // NOTE(cmo): Here we are going to work on the assumption that x is
+    // monotonic increasing from xStart with N fixed steps of xStep, and typically
+    // varying slowly in comparison to xTable. This is the case of the fine
+    // wavelength grid against the line's base grid. For that reason we will
+    // find the initial index with upper bound, and then linearly search upwards
+    // from there.
+
+    const int Ntable = xTable.shape(0);
+    if (N < 1)
+        return;
+
+    // NOTE(cmo): Iter is a an iterator to the location in the table that upper
+    // bounds our point.
+    f64* iter;
+    f64* start = xTable.data;
+    f64* end = start + Ntable;
+    f64 x = xStart;
+    if (x <= xTable(0))
+        iter = &xTable(0);
+    else if (x >= xTable(Ntable - 1))
+        iter = &xTable(Ntable - 1);
+    else
+        iter = std::upper_bound(start, end, x);
+
+    for (int i = 0; i < N; ++i)
+    {
+        x = xStart + i * xStep;
+        while (iter < end && *iter <= x)
+            ++iter;
+
+        if (iter == end)
+        {
+            y(i) = yTable(Ntable - 1);
+            continue;
+        }
+        else if (iter == start)
+        {
+            y(i) = yTable(0);
+            continue;
+        }
+
+        auto prev = iter - 1;
+        auto xp = *prev;
+        auto xn = *iter;
+        f64 t = (x - xp) / (xn - xp);
+        y(i) = (1.0 - t) * yTable(prev - start) + t * yTable(iter - start);
+    }
+}
+
+
+std::pair<f64, f64>
+scattering_int_range(f64 qEmit)
+{
+    // NOTE(cmo): Find integration range around qEmit for which GII is
+    // non-zero. (Resonance PRD case only).
+    f64 q0, qN;
+    if (abs(qEmit) < PrdQCore)
+    {
+        q0 = -PrdQWing;
+        qN = PrdQWing;
+    }
+    else if (abs(qEmit) < PrdQWing)
+    {
+        if (qEmit > 0.0)
+        {
+            q0 = -PrdQWing;
+            qN = qEmit + PrdQSpread;
+        }
+        else
+        {
+            q0 = qEmit - PrdQSpread;
+            qN = PrdQWing;
+        }
+    }
+    else
+    {
+        q0 = qEmit - PrdQSpread;
+        qN = qEmit + PrdQSpread;
+    }
+    return { q0, qN };
+}
+
+std::pair<i32, i32>
+fine_grid_idxs(f64 qEmit, const F64View& qFine)
+{
+    auto [q0, qN] = scattering_int_range(qEmit);
+    auto start = qFine.data;
+    const int NlambdaFine = qFine.shape(0);
+    auto startIdx = std::upper_bound(start, start + NlambdaFine,
+                                        q0) - start;
+    if (startIdx != 0)
+        startIdx -= 1;
+    auto endIdx = std::upper_bound(start, start + NlambdaFine,
+                                    qN) - start;
+    return { startIdx, endIdx };
+}
+
+
+struct ThreadData
+{
+    Transition& trans;
+    const Atom& atom;
+    const Spectrum& spect;
+    const Atmosphere& atmos;
+    const F64View& PjQj;
+    const bool computeGii;
+
+    F64Arr Jk;
+    F64Arr JFine;
+
+    ThreadData(Transition& t, const Atom& a,
+                const Spectrum& s, const Atmosphere& atmos,
+                const F64View& Pj, bool initialiseG,
+                int Nlambda, int maxFineGrid)
+        : trans(t),
+          atom(a),
+          spect(s),
+          atmos(atmos),
+          PjQj(Pj),
+          computeGii(initialiseG),
+          Jk(Nlambda),
+          JFine(maxFineGrid)
+    {}
+};
+
+
+#if 0
 struct PrdLineGrid
 {
     F64Arr q;
@@ -190,11 +328,6 @@ PrdLineGrid compute_prd_line_grid(Transition* t, const F64View& qTrans)
         {
             qp.emplace_back(qp.back() + PrdDQ);
         }
-        else if (qTrans(i) < qp.back() + CmoPrdMinDQ)
-        {
-            qp.emplace_back(qp.back() + CmoPrdMinDQ);
-            i += 1;
-        }
         else
         {
             qp.emplace_back(qTrans(i));
@@ -214,42 +347,238 @@ PrdLineGrid compute_prd_line_grid(Transition* t, const F64View& qTrans)
     dq(NlambdaFine - 1) = 0.5 * (q(NlambdaFine - 1) - q(NlambdaFine - 2));
     return PrdLineGrid { q, dq };
 }
-
-std::pair<i32, i32>
-fine_grid_idxs(f64 qEmit, const F64View& qFine)
+void cmo_scattering_int(void* userdata, scheduler* s,
+                        sched_task_partition p, sched_uint threadId)
 {
-    // NOTE(cmo): Find integration range around qEmit for which GII is
-    // non-zero. (Resonance PRD case only).
-    int q0, qN;
-    if (abs(qEmit) < CmoPrdQSpread)
+    // NOTE(cmo): This function uses an approach that creates one fine
+    // wavelength grid for each depth, and allows J to only be interpolated once
+    // per depth. As it needs to contain at least the every wavelength in the
+    // line's grid (so the integrals can be centred), and no gaps greater than
+    // PrdDQ, we end up dramatically oversampling the integral in the line core
+    // and it is a little slower than the other approach (for the case of
+    // optimised linear interpolation). I am leaving the approach here, as it
+    // may be valuable if a more accurate (and expensive) form of interpolation
+    // were instead desired.
+    // To use this approach, add
+    /*
+        Jasnah::Array2Own<i32> fineStart;
+        Jasnah::Array2Own<i32> fineEnd;
+        Jasnah::Array1Own<F64Arr> qFine;
+        Jasnah::Array1Own<F64Arr> wq;
+    */
+    // into the PrdStorage struct, and change the call in prd_scatter
+    namespace C = Constants;
+    ThreadData& data = ((ThreadData*)userdata)[threadId];
+    JasUnpack(data, trans, atom, spect, atmos, PjQj);
+    JasUnpack(data, Jk);
+    const bool computeGii = data.computeGii;
+    const int Nlambda = trans.wavelength.shape(0);
+
+    for (int k = p.start; k < p.end; ++k)
     {
-        if (qEmit > 0.0)
+        f64 gammaPrefactor = atom.n(trans.i, k) / atom.n(trans.j, k) * trans.Bij / PjQj(k);
+        f64 Jbar = trans.Rij(k) / trans.Bij;
+
+        // NOTE(cmo): Local mean intensity (in rest frame if using HPRD).
+        if (spect.JRest)
         {
-            q0 = -CmoPrdQSpread;
-            qN = qEmit + CmoPrdQSpread;
+            for (int la = 0; la < Nlambda; ++la)
+            {
+                int prdLa = spect.la_to_prdLa(la + trans.Nblue);
+                Jk(la) = spect.JRest(prdLa, k);
+            }
         }
         else
         {
-            q0 = qEmit - CmoPrdQSpread;
-            qN = CmoPrdQSpread;
+            for (int la = 0; la < Nlambda; ++la)
+            {
+                Jk(la) = spect.J(la + trans.Nblue, k);
+            }
+        }
+
+        if (computeGii)
+        {
+            JasUnpack(trans.prdStorage, gII, qWave, qFine, wq);
+            JasUnpack(trans.prdStorage, fineStart, fineEnd);
+            auto qWavek = qWave(k);
+            for (int la = 0; la < Nlambda; ++la)
+            {
+                f64 qEmit = (trans.wavelength(la) - trans.lambda0)
+                        * C::CLight / (trans.lambda0 * atom.vBroad(k));
+                qWavek(la) = qEmit;
+            }
+            auto grid = compute_prd_line_grid(&trans, qWavek);
+            qFine(k) = grid.q;
+            wq(k) = grid.dq;
+
+            f64 aDamp = trans.aDamp(k);
+            for (int la = 0; la < Nlambda; ++la)
+            {
+                f64 qEmit = qWavek(la);
+                auto [startIdx, endIdx] = fine_grid_idxs(qEmit, qFine(k));
+                fineStart(k, la) = startIdx;
+                fineEnd(k, la) = endIdx;
+
+                int len = endIdx - startIdx;
+                gII(k, la) = F64Arr(len);
+                auto& gIILine = gII(k, la);
+                auto qFinek = qFine(k);
+                for (int laFine = startIdx; laFine < endIdx; ++laFine)
+                {
+                    int lag = laFine - startIdx;
+                    gIILine(lag) = GII(aDamp, qEmit, qFinek(laFine));
+                }
+            }
+        }
+        auto& coeffs = trans.prdStorage;
+        F64Arr JFine(coeffs.qFine(k).shape(0));
+        optimised_fine_linear(coeffs.qWave(k), Jk, coeffs.qFine(k), JFine);
+
+        for (int la = 0; la < Nlambda; ++la)
+        {
+            f64 qEmit = coeffs.qWave(k, la);
+            int startIdx = coeffs.fineStart(k, la);
+            int endIdx = coeffs.fineEnd(k, la);
+
+            F64View gII = coeffs.gII(k, la);
+            F64View wq = coeffs.wq(k);
+
+            // NOTE(cmo): Compute and normalise scattering integral.
+            f64 gNorm = 0.0;
+            f64 scatInt = 0.0;
+            for (int laF = startIdx; laF < endIdx; ++laF)
+            {
+                // NOTE(cmo): Normalisation of the scattering integral is very
+                // important, as discussed in HM2014 Sec 15.4. Whilst this
+                // procedure may slightly distort the redistribution function,
+                // it ensures that no photons are gained or lost in this
+                // evaluation.
+                f64 gii = gII(laF - startIdx);
+                gii *= wq(laF);
+                gNorm += gii;
+                scatInt += JFine(laF) * gii;
+            }
+            trans.rhoPrd(la, k) += gammaPrefactor * (scatInt / gNorm - Jbar);
+        }
+    }
+}
+#endif
+
+void scattering_int(ThreadData& data, int k)
+{
+    namespace C = Constants;
+    JasUnpack(data, trans, atom, spect, atmos, PjQj);
+    JasUnpack(data, Jk, JFine);
+    const bool computeGii = data.computeGii;
+    const int Nlambda = trans.wavelength.shape(0);
+
+    // NOTE(cmo): This isn't gamma as Pj / (Pj + Qj), but instead the whole
+    // prefactor to the scattering integral prefactor for a particular line,
+    // i.e. gamma * n_k B_{kj} / (n_j P_k)
+    // This simplifies into the expression below, remembering that PjQj = Pj + Qj
+    f64 gammaPrefactor = atom.n(trans.i, k) / atom.n(trans.j, k) * trans.Bij / PjQj(k);
+    f64 Jbar = trans.Rij(k) / trans.Bij;
+
+    // NOTE(cmo): Local mean intensity (in rest frame if using HPRD).
+    if (spect.JRest)
+    {
+        for (int la = 0; la < Nlambda; ++la)
+        {
+            int prdLa = spect.la_to_prdLa(la + trans.Nblue);
+            Jk(la) = spect.JRest(prdLa, k);
         }
     }
     else
     {
-        q0 = qEmit - CmoPrdQSpread;
-        qN = qEmit + CmoPrdQSpread;
+        for (int la = 0; la < Nlambda; ++la)
+        {
+            Jk(la) = spect.J(la + trans.Nblue, k);
+        }
     }
-    auto start = qFine.data;
-    const int NlambdaFine = qFine.shape(0);
-    auto startIdx = std::upper_bound(start, start + NlambdaFine,
-                                        q0) - start;
-    if (startIdx != 0)
-        startIdx -= 1;
-    auto endIdx = std::upper_bound(start, start + NlambdaFine,
-                                    qN) - start;
-    return { startIdx, endIdx };
+
+    if (computeGii)
+    {
+        auto qWavek = trans.prdStorage.qWave(k);
+        for (int la = 0; la < Nlambda; ++la)
+        {
+            f64 qEmit = (trans.wavelength(la) - trans.lambda0)
+                    * C::CLight / (trans.lambda0 * atom.vBroad(k));
+            qWavek(la) = qEmit;
+        }
+    }
+    auto& coeffs = trans.prdStorage;
+
+    for (int la = 0; la < Nlambda; ++la)
+    {
+        f64 qEmit = coeffs.qWave(k, la);
+        auto [q0, qN] = scattering_int_range(qEmit);
+
+        // NOTE(cmo): Our grid is just linearly spaced in PrdDQ, so no need to
+        // make it explicit, as we can adapt the surrounding functions.
+        int Np = int((f64)(qN - q0) / PrdDQ) + 1;
+
+        // NOTE(cmo): Linearly interpolate mean intensity onto this grid.
+        optimised_fine_linear_fixed_spacing(coeffs.qWave(k), Jk, q0, PrdDQ, Np, JFine);
+
+        if (computeGii)
+        {
+            // NOTE(cmo): Compute gII if needed.
+            // Integration weights for general trapezoidal rule obtained
+            // from averaging extended Simpson's rule with modified
+            // Simpson's rule where both edge regions are treated with
+            // trapezoid rule. Takes accuracy up to O(1/N^3). Explained in
+            // Press et al, Num Rec Sec4.2.
+            // NOTE(cmo): Avoid needing explicit storage for wq
+            JasUnpack(trans.prdStorage, gII, qWave);
+            auto qWavek = qWave(k);
+            f64 aDamp = trans.aDamp(k);
+            f64 qEmit = qWavek(la);
+            gII(k, la) = F64Arr(Np);
+            auto& gIILine = gII(k, la);
+            f64 qPrime = q0;
+            gIILine(0) = GII(aDamp, qEmit, qPrime) * 5.0 / 12.0 * PrdDQ;
+            qPrime += PrdDQ;
+            gIILine(1) = GII(aDamp, qEmit, qPrime) * 13.0 / 12.0 * PrdDQ;
+            for (int laFine = 2; laFine < Np - 2; ++laFine)
+            {
+                qPrime += PrdDQ;
+                gIILine(laFine) = GII(aDamp, qEmit, qPrime) * PrdDQ;
+            }
+            qPrime += PrdDQ;
+            gIILine(Np - 2) = GII(aDamp, qEmit, qPrime) * 13.0 / 12.0 * PrdDQ;
+            qPrime += PrdDQ;
+            gIILine(Np - 1) = GII(aDamp, qEmit, qPrime) * 5.0 / 12.0 * PrdDQ;
+        }
+
+        F64View gII = coeffs.gII(k, la);
+
+        // NOTE(cmo): Compute and normalise scattering integral.
+        f64 gNorm = 0.0;
+        f64 scatInt = 0.0;
+        for (int laF = 0; laF < Np; ++laF)
+        {
+            // NOTE(cmo): Normalisation of the scattering integral is very
+            // important, as discussed in HM2014 Sec 15.4. Whilst this
+            // procedure may slightly distort the redistribution function,
+            // it ensures that no photons are gained or lost in this
+            // evaluation.
+            f64 gii = gII(laF);
+            gNorm += gii;
+            scatInt += JFine(laF) * gii;
+        }
+        trans.rhoPrd(la, k) += gammaPrefactor * (scatInt / gNorm - Jbar);
+    }
 }
 
+void scattering_int_handler(void* userdata, scheduler* s,
+                            sched_task_partition p, sched_uint threadId)
+{
+    ThreadData& data = ((ThreadData*)userdata)[threadId];
+    for (int k = p.start; k < p.end; ++k)
+    {
+        scattering_int(data, k);
+    }
+}
 
 void prd_scatter(Transition* t, F64View PjQj, const Atom& atom,
                  const Atmosphere& atmos, const Spectrum& spect,
@@ -265,17 +594,21 @@ void prd_scatter(Transition* t, F64View PjQj, const Atom& atom,
     constexpr int maxFineGrid = max_fine_grid_size();
     if (initialiseGii)
     {
-        JasUnpack(trans.prdStorage, gII, qWave, qFine, wq);
-        JasUnpack(trans.prdStorage, fineStart, fineEnd);
+        JasUnpack(trans.prdStorage, gII, qWave);
         auto& c = trans.prdStorage;
         if (!gII)
         {
             gII = decltype(c.gII)(atmos.Nspace, Nlambda);
             qWave = decltype(c.qWave)(atmos.Nspace, Nlambda);
+#if 0
+            // NOTE(cmo): For cmo_scattering_int
+            JasUnpack(trans.prdStorage, qFine, wq);
+            JasUnpack(trans.prdStorage, fineStart, fineEnd);
             qFine = decltype(c.qFine)(atmos.Nspace);
             wq = decltype(c.wq)(atmos.Nspace);
             fineStart = decltype(c.fineStart)(atmos.Nspace, Nlambda);
             fineEnd = decltype(c.fineEnd)(atmos.Nspace, Nlambda);
+#endif
         }
         trans.prdStorage.upToDate = true;
     }
@@ -283,559 +616,43 @@ void prd_scatter(Transition* t, F64View PjQj, const Atom& atom,
     // NOTE(cmo): Reset Rho
     trans.rhoPrd.fill(1.0);
 
-
     if (!sched)
     {
-        F64Arr Jk(Nlambda);
-        F64Arr qAbs(Nlambda);
-        F64Arr JFine(maxFineGrid);
-        F64Arr qp(maxFineGrid);
-        F64Arr wq(maxFineGrid);
+        ThreadData data(trans, atom, spect, atmos,
+                        PjQj, initialiseGii, Nlambda, maxFineGrid);
         for (int k = 0; k < atmos.Nspace; ++k)
         {
-
-            // NOTE(cmo): This isn't gamma as Pj / (Pj + Qj), but instead the whole
-            // prefactor to the scattering integral prefactor for a particular line,
-            // i.e. gamma * n_k B_{kj} / (n_j P_k)
-            // This simplifies into the expression below, remembering that PjQj = Pj + Qj
-            f64 gammaPrefactor = atom.n(trans.i, k) / atom.n(trans.j, k) * trans.Bij / PjQj(k);
-            f64 Jbar = trans.Rij(k) / trans.Bij;
-
-            // NOTE(cmo): Local mean intensity (in rest frame if using HPRD).
-            if (spect.JRest)
-            {
-                for (int la = 0; la < Nlambda; ++la)
-                {
-                    int prdLa = spect.la_to_prdLa(la + trans.Nblue);
-                    Jk(la) = spect.JRest(prdLa, k);
-                }
-            }
-            else
-            {
-                for (int la = 0; la < Nlambda; ++la)
-                {
-                    Jk(la) = spect.J(la + trans.Nblue, k);
-                }
-            }
-            // NOTE(cmo): Local wavelength in doppler units
-            for (int la = 0; la < Nlambda; ++la)
-            {
-                qAbs(la) = (trans.wavelength(la) - trans.lambda0) * C::CLight / (trans.lambda0 * atom.vBroad(k));
-            }
-
-            for (int la = 0; la < Nlambda; ++la)
-            {
-                f64 qEmit = qAbs(la);
-
-                // NOTE(cmo): Find integration range around qEmit for which GII is
-                // non-zero. (Resonance PRD case only). Follows Uitenbroek 2001.
-                int q0, qN;
-#if 0
-                if (abs(qEmit) < PrdQCore)
-                {
-                    q0 = -PrdQWing;
-                    qN = PrdQWing;
-                }
-                else if (abs(qEmit) < PrdQWing)
-                {
-                    if (qEmit > 0.0)
-                    {
-                        q0 = -PrdQWing;
-                        qN = qEmit + PrdQSpread;
-                    }
-                    else
-                    {
-                        q0 = qEmit - PrdQSpread;
-                        qN = PrdQWing;
-                    }
-                }
-                else
-                {
-                    q0 = qEmit - PrdQSpread;
-                    qN = qEmit + PrdQSpread;
-                }
-#else
-                if (abs(qEmit) < CmoPrdQSpread)
-                {
-                    if (qEmit > 0.0)
-                    {
-                        q0 = -CmoPrdQSpread;
-                        qN = qEmit + CmoPrdQSpread;
-                    }
-                    else
-                    {
-                        q0 = qEmit - CmoPrdQSpread;
-                        qN = CmoPrdQSpread;
-                    }
-                }
-                else
-                {
-                    q0 = qEmit - CmoPrdQSpread;
-                    qN = qEmit + CmoPrdQSpread;
-                }
-#endif
-                // NOTE(cmo): Set up fine linear grid over this range.
-                int Np = int((f64)(qN - q0) / PrdDQ) + 1;
-                qp(0) = q0;
-                for (int lap = 1; lap < Np; ++lap)
-                    qp(lap) = qp(lap - 1) + PrdDQ;
-
-                // NOTE(cmo): Linearly interpolate mean intensity onto this grid.
-                optimised_fine_linear(qAbs, Jk, qp.slice(0, Np), JFine);
-
-                if (initialiseGii)
-                {
-                    // NOTE(cmo): Compute gII if needed.
-                    // Integration weights for general trapezoidal rule obtained
-                    // from averaging extended Simpson's rule with modified
-                    // Simpson's rule where both edge regions are treated with
-                    // trapezoid rule. Takes accuracy up to O(1/N^3). Explained in
-                    // Press et al, Num Rec Sec4.2.
-                    wq.fill(PrdDQ);
-                    wq(0) = 5.0 / 12.0 * PrdDQ;
-                    wq(1) = 13.0 / 12.0 * PrdDQ;
-                    wq(Np - 1) = 5.0 / 12.0 * PrdDQ;
-                    wq(Np - 2) = 13.0 / 12.0 * PrdDQ;
-                    for (int lap = 0; lap < Np; ++lap)
-                        trans.gII(la, k, lap) = GII(trans.aDamp(k), qEmit, qp(lap)) * wq(lap);
-                }
-                F64View gII = trans.gII(la, k);
-
-                // NOTE(cmo): Compute and normalise scattering integral.
-                f64 gNorm = 0.0;
-                f64 scatInt = 0.0;
-                for (int lap = 0; lap < Np; ++lap)
-                {
-                    // NOTE(cmo): Normalisation of the scattering integral is very
-                    // important, as discussed in HM2014 Sec 15.4. Whilst this
-                    // procedure may slightly distort the redistribution function,
-                    // it ensures that no photons are gained or lost in this
-                    // evaluation.
-                    gNorm += gII(lap);
-                    scatInt += JFine(lap) * gII(lap);
-                }
-                trans.rhoPrd(la, k) += gammaPrefactor * (scatInt / gNorm - Jbar);
-            }
+            scattering_int(data, k);
         }
     }
     else
     {
-        struct ThreadData
-        {
-            Transition& trans;
-            const Atom& atom;
-            const Spectrum& spect;
-            const Atmosphere& atmos;
-            const F64View& PjQj;
-            const bool computeGii;
-
-            F64Arr Jk;
-            F64Arr qAbs;
-            F64Arr JFine;
-            F64Arr qp;
-            F64Arr wq;
-
-            ThreadData(Transition& t, const Atom& a,
-                       const Spectrum& s, const Atmosphere& atmos,
-                       const F64View& Pj, bool initialiseG,
-                       int Nlambda, int maxFineGrid)
-                : trans(t),
-                  atom(a),
-                  spect(s),
-                  atmos(atmos),
-                  PjQj(Pj),
-                  computeGii(initialiseG),
-                  Jk(Nlambda),
-                  qAbs(Nlambda),
-                  JFine(maxFineGrid),
-                  qp(maxFineGrid),
-                  wq(maxFineGrid)
-            {}
-        };
         std::vector<ThreadData> data;
         data.reserve(sched->threads_num);
         for (int th = 0; th < sched->threads_num; ++th)
-            data.emplace_back(ThreadData(*t, atom, spect, atmos, PjQj,
+            data.emplace_back(ThreadData(trans, atom, spect, atmos, PjQj,
                                          initialiseGii, Nlambda, maxFineGrid));
-
-        auto compute_scattering_int = [](void* userdata, scheduler* s,
-                                         sched_task_partition p, sched_uint threadId)
-        {
-            ThreadData& data = ((ThreadData*)userdata)[threadId];
-            JasUnpack(data, trans, atom, spect, atmos, PjQj);
-            JasUnpack(data, Jk);
-            const bool computeGii = data.computeGii;
-            const int Nlambda = trans.wavelength.shape(0);
-
-            for (int k = p.start; k < p.end; ++k)
-            {
-                f64 gammaPrefactor = atom.n(trans.i, k) / atom.n(trans.j, k) * trans.Bij / PjQj(k);
-                f64 Jbar = trans.Rij(k) / trans.Bij;
-
-                // NOTE(cmo): Local mean intensity (in rest frame if using HPRD).
-                if (spect.JRest)
-                {
-                    for (int la = 0; la < Nlambda; ++la)
-                    {
-                        int prdLa = spect.la_to_prdLa(la + trans.Nblue);
-                        Jk(la) = spect.JRest(prdLa, k);
-                    }
-                }
-                else
-                {
-                    for (int la = 0; la < Nlambda; ++la)
-                    {
-                        Jk(la) = spect.J(la + trans.Nblue, k);
-                    }
-                }
-
-                if (computeGii)
-                {
-                    JasUnpack(trans.prdStorage, gII, qWave, qFine, wq);
-                    JasUnpack(trans.prdStorage, fineStart, fineEnd);
-                    auto qWavek = qWave(k);
-                    for (int la = 0; la < Nlambda; ++la)
-                    {
-                        f64 qEmit = (trans.wavelength(la) - trans.lambda0)
-                                * C::CLight / (trans.lambda0 * atom.vBroad(k));
-                        qWavek(la) = qEmit;
-                    }
-                    auto grid = compute_prd_line_grid(&trans, qWavek);
-                    qFine(k) = grid.q;
-                    wq(k) = grid.dq;
-
-                    f64 aDamp = trans.aDamp(k);
-                    for (int la = 0; la < Nlambda; ++la)
-                    {
-                        f64 qEmit = qWavek(la);
-                        auto [startIdx, endIdx] = fine_grid_idxs(qEmit, qFine(k));
-                        fineStart(k, la) = startIdx;
-                        fineEnd(k, la) = endIdx;
-
-                        int len = endIdx - startIdx;
-                        gII(k, la) = F64Arr(len);
-                        auto& gIILine = gII(k, la);
-                        auto qFinek = qFine(k);
-                        for (int laFine = startIdx; laFine < endIdx; ++laFine)
-                        {
-                            int lag = laFine - startIdx;
-                            gIILine(lag) = GII(aDamp, qEmit, qFinek(laFine));
-                        }
-                    }
-                }
-                auto& coeffs = trans.prdStorage;
-                F64Arr JFine(coeffs.qFine(k).shape(0));
-                optimised_fine_linear(coeffs.qWave(k), Jk, coeffs.qFine(k), JFine);
-
-                for (int la = 0; la < Nlambda; ++la)
-                {
-                    f64 qEmit = coeffs.qWave(k, la);
-                    int startIdx = coeffs.fineStart(k, la);
-                    int endIdx = coeffs.fineEnd(k, la);
-
-                    F64View gII = coeffs.gII(k, la);
-                    F64View wq = coeffs.wq(k);
-
-                    // NOTE(cmo): Compute and normalise scattering integral.
-                    f64 gNorm = 0.0;
-                    f64 scatInt = 0.0;
-                    for (int laF = startIdx; laF < endIdx; ++laF)
-                    {
-                        // NOTE(cmo): Normalisation of the scattering integral is very
-                        // important, as discussed in HM2014 Sec 15.4. Whilst this
-                        // procedure may slightly distort the redistribution function,
-                        // it ensures that no photons are gained or lost in this
-                        // evaluation.
-                        f64 gii = gII(laF - startIdx);
-                        gii *= wq(laF);
-                        gNorm += gii;
-                        scatInt += JFine(laF) * gii;
-                    }
-                    trans.rhoPrd(la, k) += gammaPrefactor * (scatInt / gNorm - Jbar);
-                }
-            }
-        };
 
         {
             sched_task scatteringInts;
-            scheduler_add(sched, &scatteringInts, compute_scattering_int,
+            sched->add(sched, &scatteringInts, scattering_int_handler,
                           data.data(), atmos.Nspace, 4);
-            scheduler_join(sched, &scatteringInts);
+            sched->join(sched, &scatteringInts);
         }
     }
 }
-}
-
-f64 formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelengthIdxs)
-{
-    using namespace LwInternal;
-    JasUnpack(*ctx, atmos, spect, background, depthData);
-    JasUnpack(ctx, activeAtoms, detailedAtoms);
-
-    const int Nspace = atmos.Nspace;
-
-    if (ctx.Nthreads <= 1)
-    {
-        F64Arr chiTot = F64Arr(Nspace);
-        F64Arr etaTot = F64Arr(Nspace);
-        F64Arr S = F64Arr(Nspace);
-        F64Arr Uji = F64Arr(Nspace);
-        F64Arr Vij = F64Arr(Nspace);
-        F64Arr Vji = F64Arr(Nspace);
-        F64Arr I = F64Arr(Nspace);
-        F64Arr Ieff = F64Arr(Nspace);
-        F64Arr JDag = F64Arr(Nspace);
-        FormalData fd;
-        fd.atmos = &atmos;
-        fd.chi = chiTot;
-        fd.S = S;
-        fd.I = I;
-        fd.interp = ctx.interpFn.interp_2d;
-        IntensityCoreData iCore;
-        JasPackPtr(iCore, atmos, spect, fd, background, depthData);
-        JasPackPtr(iCore, activeAtoms, detailedAtoms, JDag);
-        JasPack(iCore, chiTot, etaTot, Uji, Vij, Vji);
-        JasPack(iCore, I, S, Ieff);
-        iCore.JRest = spect.JRest;
-        iCore.formal_solver = ctx.formalSolver.solver;
-
-        for (auto& a : activeAtoms)
-        {
-            for (auto& t : a->trans)
-            {
-                if (t->rhoPrd)
-                {
-                    t->zero_rates();
-                }
-            }
-        }
-        if (spect.JRest)
-            spect.JRest.fill(0.0);
-
-        f64 dJMax = 0.0;
-
-        for (int i = 0; i < wavelengthIdxs.shape(0); ++i)
-        {
-            const f64 la = wavelengthIdxs(i);
-            f64 dJ = intensity_core(iCore, la, (FsMode::UpdateJ | FsMode::UpdateRates | FsMode::PrdOnly));
-            dJMax = max(dJ, dJMax);
-        }
-        return dJMax;
-    }
-    else
-    {
-        auto& cores = ctx.threading.intensityCores;
-        for (auto& core : cores.cores)
-        {
-            for (auto& a : *core->activeAtoms)
-            {
-                for (auto& t : a->trans)
-                {
-                    if (t->rhoPrd)
-                    {
-                        t->zero_rates();
-                    }
-                }
-            }
-            if (core->JRest)
-                core->JRest.fill(0.0);
-        }
-
-        struct FsTaskData
-        {
-            IntensityCoreData* core;
-            f64 dJ;
-            i64 dJIdx;
-            ConstView<int> idxs;
-        };
-        std::vector<FsTaskData> taskData;
-        taskData.reserve(ctx.Nthreads);
-        for (int t = 0; t < ctx.Nthreads; ++t)
-        {
-            FsTaskData td;
-            td.core = cores.cores[t];
-            td.dJ = 0.0;
-            td.dJIdx = 0;
-            td.idxs = wavelengthIdxs;
-            taskData.emplace_back(td);
-        }
-
-        auto fs_task = [](void* data, scheduler* s,
-                          sched_task_partition p, sched_uint threadId)
-        {
-            auto& td = ((FsTaskData*)data)[threadId];
-            FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates
-                           | FsMode::PrdOnly);
-            for (i64 la = p.start; la < p.end; ++la)
-            {
-                f64 dJ = intensity_core_opt<SimdType::Scalar,
-                                            true, true, false, false>
-                                            (*td.core, td.idxs(la), mode);
-                td.dJ = max_idx(td.dJ, dJ, td.dJIdx, la);
-            }
-        };
-
-        {
-            sched_task formalSolutions;
-            scheduler_add(&ctx.threading.sched, &formalSolutions,
-                          fs_task, (void*)taskData.data(), wavelengthIdxs.shape(0), 4);
-            scheduler_join(&ctx.threading.sched, &formalSolutions);
-        }
-
-        f64 dJMax = 0.0;
-        i64 maxIdx = 0;
-        for (int t = 0; t < ctx.Nthreads; ++t)
-            dJMax = max_idx(dJMax, taskData[t].dJ, maxIdx, taskData[t].dJIdx);
-
-
-        ctx.threading.intensityCores.accumulate_prd_rates();
-        return dJMax;
-    }
-}
-
-f64 formal_sol_prd_update_rates(Context& ctx, const std::vector<int>& wavelengthIdxs)
-{
-    return formal_sol_prd_update_rates(ctx, ConstView<int>(wavelengthIdxs.data(), wavelengthIdxs.size()));
 }
 
 PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
 {
-    struct PrdData
-    {
-        Transition* line;
-        const Atom& atom;
-        Ng ng;
+    if (!ctx.iterFns.redistribute_prd)
+        return redistribute_prd_lines_scalar(ctx, maxIter, tol);
+    return ctx.iterFns.redistribute_prd(ctx, maxIter, tol);
+}
 
-        PrdData(Transition* l, const Atom& a, Ng&& n)
-            : line(l), atom(a), ng(n)
-        {}
-    };
-    JasUnpack(*ctx, atmos, spect);
-    JasUnpack(ctx, activeAtoms);
-    std::vector<PrdData> prdLines;
-    prdLines.reserve(10);
-    for (auto& a : activeAtoms)
-    {
-        for (auto& t : a->trans)
-        {
-            if (t->rhoPrd)
-            {
-                prdLines.emplace_back(PrdData(t, *a, Ng(0, 0, 0, t->rhoPrd.flatten())));
-            }
-        }
-    }
-    auto JC = spect.JCoeffs.flatten();
-    int maxC = 0;
-    for (int i = 0; i < JC.shape(0); ++i)
-    {
-        if (JC(i).size() > maxC)
-            maxC = JC(i).size();
-    }
-    printf("%d\n-----\n", maxC);
-
-    if (prdLines.size() == 0)
-        return {0, 0.0};
-
-    const int Nspect = spect.wavelength.shape(0);
-    auto& idxsForFs = spect.hPrdIdxs;
-    std::vector<int> prdIdxs;
-    if (spect.hPrdIdxs.size() == 0)
-    {
-        prdIdxs.reserve(Nspect);
-        for (int la = 0; la < Nspect; ++la)
-        {
-            bool prdLinePresent = false;
-            for (auto& p : prdLines)
-                prdLinePresent = (p.line->active(la) || prdLinePresent);
-            if (prdLinePresent)
-                prdIdxs.emplace_back(la);
-        }
-        idxsForFs = prdIdxs;
-    }
-
-    int iter = 0;
-    f64 dRho = 0.0;
-    if (ctx.Nthreads <= 1)
-    {
-        F64Arr PjQj(atmos.Nspace);
-        while (iter < maxIter)
-        {
-            ++iter;
-            dRho = 0.0;
-            for (auto& p : prdLines)
-            {
-                PrdCores::total_depop_elastic_scattering_rate(p.line, p.atom, PjQj);
-                PrdCores::prd_scatter(p.line, PjQj, p.atom, atmos, spect, nullptr);
-                p.ng.accelerate(p.line->rhoPrd.flatten());
-                dRho = max(dRho, p.ng.max_change());
-            }
-
-            formal_sol_prd_update_rates(ctx, idxsForFs);
-
-            if (dRho < tol)
-                break;
-        }
-    }
-    else
-    {
-        struct PrdTaskData
-        {
-            F64Arr PjQj;
-            PrdData* line;
-            f64 dRho;
-            Atmosphere* atmos;
-            Spectrum* spect;
-        };
-        auto taskData = std::vector<PrdTaskData>(prdLines.size());
-        for (int i = 0; i < prdLines.size(); ++i)
-        {
-            auto& p = taskData[i];
-            p.PjQj = F64Arr(atmos.Nspace);
-            p.line = &prdLines[i];
-            p.dRho = 0.0;
-            p.atmos = &atmos;
-            p.spect = &spect;
-        }
-
-        auto prd_task = [](void* data, scheduler* s,
-                           sched_task_partition part, sched_uint threadId)
-        {
-            for (i64 lineIdx = part.start; lineIdx < part.end; ++lineIdx)
-            {
-                auto& td = ((PrdTaskData*)data)[lineIdx];
-                auto& p = *td.line;
-                PrdCores::total_depop_elastic_scattering_rate(p.line, p.atom, td.PjQj);
-                PrdCores::prd_scatter(p.line, td.PjQj, p.atom, *td.atmos, *td.spect, s);
-                p.ng.accelerate(p.line->rhoPrd.flatten());
-                td.dRho = max(td.dRho, p.ng.max_change());
-            }
-        };
-
-        while (iter < maxIter)
-        {
-            ++iter;
-            dRho = 0.0;
-            for (auto& p : taskData)
-                p.dRho = 0.0;
-
-            {
-                sched_task prdScatter;
-                scheduler_add(&ctx.threading.sched, &prdScatter, prd_task, (void*)taskData.data(), prdLines.size(), 1);
-                scheduler_join(&ctx.threading.sched, &prdScatter);
-            }
-            formal_sol_prd_update_rates(ctx, idxsForFs);
-
-            for (const auto& p : taskData)
-            {
-                dRho = max(dRho, p.dRho);
-            }
-            if (dRho < tol)
-                break;
-
-        }
-    }
-
-    return {iter, dRho};
+PrdIterData redistribute_prd_lines_scalar(Context& ctx, int maxIter, f64 tol)
+{
+    return redistribute_prd_lines_template<SimdType::Scalar>(ctx, maxIter, tol);
 }
 
 #if 0
