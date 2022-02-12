@@ -81,6 +81,7 @@ struct InterpFnManager
 
 struct PrdIterData;
 typedef f64(*FormalSolIterFn)(Context& ctx, bool lambdaIterate);
+typedef f64(*SimpleFormalSol)(Context& ctx, bool upOnly);
 typedef PrdIterData(*RedistPrdLinesFn)(Context& ctx, int maxIter, f64 tol);
 typedef void(*AllocPerAtomScratch)(Atom* atom, bool detailedStatic);
 typedef void(*FreePerAtomScratch)(Atom* atom);
@@ -100,6 +101,7 @@ struct FsIterationFns
     const char* name;
 
     FormalSolIterFn fs_iter;
+    SimpleFormalSol simple_fs;
     RedistPrdLinesFn redistribute_prd;
     AllocPerAtomScratch alloc_per_atom;
     FreePerAtomScratch free_per_atom;

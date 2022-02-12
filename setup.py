@@ -32,12 +32,13 @@ posixArgs = {
                       + (posixCiArgs if ('LW_CI_BUILD' in os.environ
                                         and platform.system() != 'Darwin')
                          else posixLocalArgs),
-   'SSE2Args': ['-msse4.2'],
+   'SSE2Args': ['-msse2'],
    'AVX2FMAArgs': ['-mavx2', '-mfma'],
    'AVX512Args': ['-mavx512f', '-mavx512dq', '-mfma'],
    'libs': ['dl'],
    'linkArgs': [],
    'stubDefinePrefix': '-DLW_MODULE_STUB_NAME=',
+   'lwCoreDefine': ['-DLW_CORE_LIB'],
    'fsIterExtensionExports': [],
 }
 msvcArgs = {
@@ -48,6 +49,7 @@ msvcArgs = {
    'libs': [],
    'linkArgs': ['/DEBUG:FULL'],
    'stubDefinePrefix': '/DLW_MODULE_STUB_NAME=',
+   'lwCoreDefine': ['/DLW_CORE_LIB'],
    'fsIterExtensionExports': ['fs_iteration_fns_provider'],
 }
 
@@ -63,7 +65,7 @@ coreDepends = ['Atmosphere.cpp', 'Background.cpp', 'Background.hpp', 'Bezier.hpp
                'LwAtom.hpp', 'LwContext.hpp', 'LwFormalInterface.hpp',
                'LwFormalInterfacePosix.hpp', 'LwFormalInterfaceWin.hpp',
                'LwInternal.hpp', 'LwMisc.hpp', 'LwTransition.hpp', 'Ng.hpp', 'Prd.cpp',
-               'Simd.hpp', 'SimdFullIterationTemplates.hpp', 'TaskSchedular.h',
+               'Simd.hpp', 'SimdFullIterationTemplates.hpp', 'TaskScheduler.h',
                'TaskStorage.cpp', 'TaskStorage.hpp', 'UpdatePopulations.cpp', 'Utils.hpp']
 coreDepends = prepend_source_dir(coreDepends)
 stubSource = []
@@ -91,7 +93,7 @@ def extension_list(args):
                   depends=coreDepends,
                   include_dirs=[np.get_include()],
                   language='c++',
-                  extra_compile_args=args['baseCompileArgs'],
+                  extra_compile_args=args['baseCompileArgs'] + args['lwCoreDefine'],
                   extra_link_args=args['linkArgs']))
     lwExts = cythonize(lwExts, language_level=3)
     for simdImpl in SimdImpls:

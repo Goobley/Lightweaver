@@ -498,7 +498,7 @@ void scattering_int(ThreadData& data, int k)
 
     if (computeGii)
     {
-        auto qWavek = trans.prdStorage.qWave(k);
+        auto qWavek = trans.prdData->qWave(k);
         for (int la = 0; la < Nlambda; ++la)
         {
             f64 qEmit = (trans.wavelength(la) - trans.lambda0)
@@ -506,7 +506,7 @@ void scattering_int(ThreadData& data, int k)
             qWavek(la) = qEmit;
         }
     }
-    auto& coeffs = trans.prdStorage;
+    auto& coeffs = *trans.prdData;
 
     for (int la = 0; la < Nlambda; ++la)
     {
@@ -529,7 +529,7 @@ void scattering_int(ThreadData& data, int k)
             // trapezoid rule. Takes accuracy up to O(1/N^3). Explained in
             // Press et al, Num Rec Sec4.2.
             // NOTE(cmo): Avoid needing explicit storage for wq
-            JasUnpack(trans.prdStorage, gII, qWave);
+            JasUnpack((*trans.prdData), gII, qWave);
             auto qWavek = qWave(k);
             f64 aDamp = trans.aDamp(k);
             f64 qEmit = qWavek(la);
@@ -589,13 +589,12 @@ void prd_scatter(Transition* t, F64View PjQj, const Atom& atom,
     namespace C = Constants;
     const int Nlambda = trans.wavelength.shape(0);
 
-    // bool initialiseGii = (!trans.gII) || (trans.gII(0, 0, 0) < 0.0);
-    bool initialiseGii = !trans.prdStorage.upToDate;
+    bool initialiseGii = !trans.prdData->upToDate;
     constexpr int maxFineGrid = max_fine_grid_size();
     if (initialiseGii)
     {
-        JasUnpack(trans.prdStorage, gII, qWave);
-        auto& c = trans.prdStorage;
+        JasUnpack((*trans.prdData), gII, qWave);
+        auto& c = *trans.prdData;
         if (!gII)
         {
             gII = decltype(c.gII)(atmos.Nspace, Nlambda);
@@ -610,7 +609,7 @@ void prd_scatter(Transition* t, F64View PjQj, const Atom& atom,
             fineEnd = decltype(c.fineEnd)(atmos.Nspace, Nlambda);
 #endif
         }
-        trans.prdStorage.upToDate = true;
+        trans.prdData->upToDate = true;
     }
 
     // NOTE(cmo): Reset Rho
@@ -636,7 +635,7 @@ void prd_scatter(Transition* t, F64View PjQj, const Atom& atom,
         {
             sched_task scatteringInts;
             sched->add(sched, &scatteringInts, scattering_int_handler,
-                          data.data(), atmos.Nspace, 4);
+                          data.data(), atmos.Nspace, 8);
             sched->join(sched, &scatteringInts);
         }
     }
@@ -921,5 +920,11 @@ void configure_hprd_coeffs(Context& ctx)
                 }
             }
         }
+    }
+    for (auto& p : prdLines)
+    {
+        // NOTE(cmo): Recompute gII every time this is called because it's
+        // likely that the atmosphere has changed if this is being called again.
+        p.line->recompute_gII();
     }
 }

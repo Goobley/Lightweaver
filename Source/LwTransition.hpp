@@ -60,9 +60,13 @@ struct Transition
 
     void* methodScratch;
 
-    F64View3D gII;
+    Prd::PrdStorage* prdData;
+
     Prd::RhoCoeffView hPrdCoeffs;
     Prd::PrdStorage prdStorage;
+
+    Transition() : prdData(&prdStorage)
+    {}
 
     inline f64 wlambda(int la) const
     {
@@ -140,10 +144,7 @@ struct Transition
     {
         // NOTE(cmo): This is just a flag to recompute it in a deferred manner
         // next time the prd_scatter function is run.
-        if (!gII)
-            return;
-
-        gII(0,0,0) = -1.0;
+        prdStorage.upToDate = false;
     }
 
     void compute_phi(const Atmosphere& atmos, F64View aDamp, F64View vBroad);

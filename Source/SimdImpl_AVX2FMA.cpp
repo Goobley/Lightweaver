@@ -400,6 +400,57 @@ chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
 
 template <>
 inline ForceInline void
+compute_source_fn<SimdType::AVX2FMA>(F64View& S, F64View& etaTot,
+                                     F64View& chiTot, F64View& sca,
+                                     F64View& JDag)
+{
+    constexpr SimdType simd = SimdType::AVX2FMA;
+    constexpr int Stride = SimdWidth[(size_t)simd];
+    const int Nspace = S.shape(0);
+    const int Nremainder = Nspace % Stride;
+    const int kMax = Nspace - Nremainder;
+    int k = 0;
+    for (; k < kMax; k += Stride)
+    {
+        __m256d etak = _mm256_load_pd(&etaTot(k));
+        __m256d chik = _mm256_load_pd(&chiTot(k));
+        __m256d scak = _mm256_loadu_pd(&sca(k));
+        __m256d Jk = _mm256_loadu_pd(&JDag(k));
+        __m256d num = _mm256_fmadd_pd(scak, Jk, etak);
+        __m256d Sk = _mm256_div_pd(num, chik);
+        _mm256_store_pd(&S(k), Sk);
+    }
+    for (; k < Nspace; ++k)
+    {
+        S(k) = (etaTot(k) + sca(k) * JDag(k)) / chiTot(k);
+    }
+}
+
+template <>
+inline ForceInline void
+accumulate_J<SimdType::AVX2FMA>(f64 halfwmu, F64View& J, F64View& I)
+{
+    constexpr SimdType simd = SimdType::AVX2FMA;
+    constexpr int Stride = SimdWidth[(size_t)simd];
+    const int Nspace = I.shape(0);
+    const int Nremainder = Nspace % Stride;
+    const int kMax = Nspace - Nremainder;
+    int k = 0;
+    __m256d halfwmuWide = _mm256_set1_pd(halfwmu);
+    for (; k < kMax; k += Stride)
+    {
+        __m256d Jk = _mm256_loadu_pd(&J(k));
+        __m256d Ik = _mm256_load_pd(&I(k));
+        _mm256_storeu_pd(&J(k), _mm256_fmadd_pd(halfwmuWide, Ik, Jk));
+    }
+    for (; k < Nspace; ++k)
+    {
+        J(k) += halfwmu * I(k);
+    }
+}
+
+template <>
+inline ForceInline void
 compute_full_Ieff<SimdType::AVX2FMA>(F64View& I, F64View& PsiStar,
                                      F64View& eta, F64View& Ieff)
 {
@@ -529,6 +580,14 @@ f64 formal_sol_iteration_matrices_AVX2FMA(Context& ctx, bool lambdaIterate)
     }
 }
 
+f64 formal_sol_AVX2FMA(Context& ctx, bool upOnly)
+{
+    FsMode mode = FsMode::FsOnly;
+    if (upOnly)
+        mode = mode | FsMode::UpOnly;
+    return LwInternal::formal_sol_impl<SimdType::AVX2FMA>(ctx, mode);
+}
+
 PrdIterData redistribute_prd_lines_AVX2FMA(Context& ctx, int maxIter, f64 tol)
 {
     return redistribute_prd_lines_template<SimdType::AVX2FMA>(ctx, maxIter, tol);
@@ -542,6 +601,7 @@ extern "C"
             -1, false, true, true, true,
             "mali_full_precond_AVX2FMA",
             formal_sol_iteration_matrices_AVX2FMA,
+            formal_sol_AVX2FMA,
             redistribute_prd_lines_AVX2FMA
         };
     }

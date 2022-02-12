@@ -24,88 +24,17 @@ inline ForceInline __m128d fmadd_pd(__m128d a, __m128d b, __m128d c)
     return _mm_add_pd(_mm_mul_pd(a, b), c);
 }
 
-inline __m128d polynomial_13_lin(__m128d x, f64 c2, f64 c3, f64 c4,
-    f64 c5, f64 c6, f64 c7, f64 c8,
-    f64 c9, f64 c10, f64 c11, f64 c12, f64 c13)
-{
-    // c13*x^13 + ... + c2*x^2 + x + 0
-
-    __m128d x2 = _mm_mul_pd(x, x);
-    __m128d x4 = _mm_mul_pd(x2, x2);
-    __m128d x8 = _mm_mul_pd(x4, x4);
-
-    // NOTE(cmo): Do all the inner powers first
-    __m128d t3 = fmadd_pd(_mm_set1_pd(c3), x, _mm_set1_pd(c2));
-    __m128d t5 = fmadd_pd(_mm_set1_pd(c5), x, _mm_set1_pd(c4));
-    __m128d t7 = fmadd_pd(_mm_set1_pd(c7), x, _mm_set1_pd(c6));
-    __m128d t9 = fmadd_pd(_mm_set1_pd(c9), x, _mm_set1_pd(c8));
-    __m128d t11 = fmadd_pd(_mm_set1_pd(c11), x, _mm_set1_pd(c10));
-    __m128d t13 = fmadd_pd(_mm_set1_pd(c13), x, _mm_set1_pd(c12));
-
-    // NOTE(cmo): Next layer
-    __m128d tt3 = fmadd_pd(t3, x2, x);
-    __m128d tt7 = fmadd_pd(t7, x2, t5);
-    __m128d tt11 = fmadd_pd(t11, x2, t9);
-
-    __m128d ttt7 = fmadd_pd(tt7, x4, tt3);
-    __m128d ttt13 = fmadd_pd(t13, x4, tt11);
-
-    return fmadd_pd(ttt13, x8, ttt7);
-}
-
-inline __m128d pow2n(const __m128d n) {
-    const __m128d pow2_52 = _mm_set1_pd(4503599627370496.0);   // 2^52
-    const __m128d bias = _mm_set1_pd(1023.0);                  // bias in exponent
-    __m128d a = _mm_add_pd(n, _mm_add_pd(bias, pow2_52));   // put n + bias in least significant bits
-    __m128i b = _mm_castpd_si128(a);  // bit-cast to integer
-    __m128i c = _mm_slli_epi64(b, 52); // shift left 52 places to get value into exponent field
-    __m128d d = _mm_castsi128_pd(c);   // bit-cast back to double
-    return d;
-}
-// NOTE(cmo): AVX impl of exp_pd, based on Agner Fog's vector class
-// https://github.com/vectorclass/version2/blob/master/vectormath_exp.h
-// The implementation here, based on a classic Taylor series, rather than a
-// minimax function makes sense for our case, as we primarily value precision
-// close to 0. i.e. we know the behaviour outwith this.
-// Original under Apache v2 license.
 inline __m128d exp_pd_sse2(__m128d xIn)
 {
-    constexpr f64 p2 = 1.0 / 2.0;
-    constexpr f64 p3 = 1.0 / 6.0;
-    constexpr f64 p4 = 1.0 / 24.0;
-    constexpr f64 p5 = 1.0 / 120.0;
-    constexpr f64 p6 = 1.0 / 720.0;
-    constexpr f64 p7 = 1.0 / 5040.0;
-    constexpr f64 p8 = 1.0 / 40320.0;
-    constexpr f64 p9 = 1.0 / 362880.0;
-    constexpr f64 p10 = 1.0 / 3628800.0;
-    constexpr f64 p11 = 1.0 / 39916800.0;
-    constexpr f64 p12 = 1.0 / 479001600.0;
-    constexpr f64 p13 = 1.0 / 6227020800.0;
-
-    constexpr f64 log2e = 1.44269504088896340736;
-
-    constexpr f64 xMax = 708.39;
-    constexpr f64 ln2dHi = 0.693145751953125;
-    constexpr f64 ln2dLo = 1.42860682030941723212e-6;
-
-    __m128d x = xIn;
-
-    // TODO(cmo): This is technically SSE4.1, find a replacement.
-    __m128d r = _mm_round_pd(_mm_mul_pd(xIn, _mm_set1_pd(log2e)),
-        _MM_FROUND_TO_NEAREST_INT);
-    // nmul_add(a, b, c) -> -(a * b) + c i.e. fnmadd
-    // x = x0 - r * ln2Lo - r * ln2Hi
-    x = _mm_sub_pd(x, _mm_mul_pd(r, _mm_set1_pd(ln2dHi)));
-    x = _mm_sub_pd(x, _mm_mul_pd(r, _mm_set1_pd(ln2dLo)));
-
-    __m128d z = polynomial_13_lin(x, p2, p3, p4, p5, p6, p7, p8,
-        p9, p10, p11, p12, p13);
-    __m128d n2 = pow2n(r);
-    z = _mm_mul_pd(_mm_add_pd(z, _mm_set1_pd(1.0)), n2);
-
-    // TODO(cmo): Probably should have some of the nan/inf error handling code.
-    return z;
+    // NOTE(cmo): This is just a thin wrapper around the system exp, as I don't
+    // think SSE2 will be commonly used, and the lack of fma + round isn't great
+    // for performance here anyway.
+    alignas(16) f64 xs[2];
+    _mm_store_pd(xs, xIn);
+    for (int i = 0; i < 2; ++i)
+        xs[i] = exp(xs[i]);
+    __m128d xOut = _mm_load_pd(xs);
+    return xOut;
 }
 
 template <>
@@ -406,8 +335,59 @@ chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
 
 template <>
 inline ForceInline void
+compute_source_fn<SimdType::SSE2>(F64View& S, F64View& etaTot,
+                                  F64View& chiTot, F64View& sca,
+                                  F64View& JDag)
+{
+    constexpr SimdType simd = SimdType::SSE2;
+    constexpr int Stride = SimdWidth[(size_t)simd];
+    const int Nspace = S.shape(0);
+    const int Nremainder = Nspace % Stride;
+    const int kMax = Nspace - Nremainder;
+    int k = 0;
+    for (; k < kMax; k += Stride)
+    {
+        __m128d etak = _mm_load_pd(&etaTot(k));
+        __m128d chik = _mm_load_pd(&chiTot(k));
+        __m128d scak = _mm_loadu_pd(&sca(k));
+        __m128d Jk = _mm_loadu_pd(&JDag(k));
+        __m128d num = fmadd_pd(scak, Jk, etak);
+        __m128d Sk = _mm_div_pd(num, chik);
+        _mm_store_pd(&S(k), Sk);
+    }
+    for (; k < Nspace; ++k)
+    {
+        S(k) = (etaTot(k) + sca(k) * JDag(k)) / chiTot(k);
+    }
+}
+
+template <>
+inline ForceInline void
+accumulate_J<SimdType::SSE2>(f64 halfwmu, F64View& J, F64View& I)
+{
+    constexpr SimdType simd = SimdType::SSE2;
+    constexpr int Stride = SimdWidth[(size_t)simd];
+    const int Nspace = I.shape(0);
+    const int Nremainder = Nspace % Stride;
+    const int kMax = Nspace - Nremainder;
+    int k = 0;
+    __m128d halfwmuWide = _mm_set1_pd(halfwmu);
+    for (; k < kMax; k += Stride)
+    {
+        __m128d Jk = _mm_loadu_pd(&J(k));
+        __m128d Ik = _mm_load_pd(&I(k));
+        _mm_storeu_pd(&J(k), fmadd_pd(halfwmuWide, Ik, Jk));
+    }
+    for (; k < Nspace; ++k)
+    {
+        J(k) += halfwmu * I(k);
+    }
+}
+
+template <>
+inline ForceInline void
 compute_full_Ieff<SimdType::SSE2>(F64View& I, F64View& PsiStar,
-                                     F64View& eta, F64View& Ieff)
+                                  F64View& eta, F64View& Ieff)
 {
 
     constexpr SimdType simd = SimdType::SSE2;
@@ -537,6 +517,14 @@ f64 formal_sol_iteration_matrices_SSE2(Context& ctx, bool lambdaIterate)
     }
 }
 
+f64 formal_sol_SSE2(Context& ctx, bool upOnly)
+{
+    FsMode mode = FsMode::FsOnly;
+    if (upOnly)
+        mode = mode | FsMode::UpOnly;
+    return LwInternal::formal_sol_impl<SimdType::SSE2>(ctx, mode);
+}
+
 PrdIterData redistribute_prd_lines_SSE2(Context& ctx, int maxIter, f64 tol)
 {
     return redistribute_prd_lines_template<SimdType::SSE2>(ctx, maxIter, tol);
@@ -550,6 +538,7 @@ extern "C"
             -1, false, true, true, true,
             "mali_full_precond_SSE2",
             formal_sol_iteration_matrices_SSE2,
+            formal_sol_SSE2,
             redistribute_prd_lines_SSE2
         };
     }

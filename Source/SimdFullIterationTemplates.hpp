@@ -233,13 +233,24 @@ gather_opacity_emissivity_opt(IntensityCoreData* data,
 
 template <SimdType simd>
 inline ForceInline void
-compute_source_fn(F64View& S, const F64View& etaTot, const F64View& chiTot,
-                  const F64View& sca, const F64View& JDag)
+compute_source_fn(F64View& S, F64View& etaTot, F64View& chiTot,
+                  F64View& sca, F64View& JDag)
 {
     const int Nspace = S.shape(0);
     for (int k = 0; k < Nspace; ++k)
     {
         S(k) = (etaTot(k) + sca(k) * JDag(k)) / chiTot(k);
+    }
+}
+
+template <SimdType simd>
+inline ForceInline void
+accumulate_J(f64 halfwmu, F64View& J, F64View& I)
+{
+    const int Nspace = J.shape(0);
+    for (int k = 0; k < Nspace; ++k)
+    {
+        J(k) += halfwmu * I(k);
     }
 }
 
@@ -336,9 +347,12 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
                 memcpy(chiTot.data, &background.chi(la, 0), Nspace * sizeof(f64));
                 memcpy(etaTot.data, &background.eta(la, 0), Nspace * sizeof(f64));
                 // Gathers from all active non-background transitions
-                // gather_opacity_emissivity(&data, ComputeOperator, la, mu, toObs);
                 gather_opacity_emissivity_opt<simd>(&data, ComputeOperator, la, mu, toObs);
-                compute_source_fn<simd>(S, etaTot, chiTot, background.sca(la), JDag);
+                // NOTE(cmo): These are to keep the type checker happy, the
+                // optimiser will likely elide.
+                auto sca = background.sca(la);
+                auto JView = JDag.slice(0, Nspace);
+                compute_source_fn<simd>(S, etaTot, chiTot, sca, JView);
                 if constexpr (StoreDepthData)
                 {
                     auto& depth = *data.depthData;
@@ -386,11 +400,7 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
 
             if (updateJ)
             {
-                // TODO(cmo): Break this out.
-                for (int k = 0; k < Nspace; ++k)
-                {
-                    J(k) += 0.5 * atmos.wmu(mu) * I(k);
-                }
+                accumulate_J<simd>(0.5 * atmos.wmu(mu), J, I);
 
                 if (JRest && spect.hPrdActive && spect.hPrdActive(la))
                 {
@@ -726,6 +736,67 @@ f64 formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsMode mode)
             finalise_Gamma<simd>(*activeAtoms[a]);
         }
         return dJMax;
+    }
+}
+
+template <SimdType simd>
+f64 formal_sol_impl(Context& ctx, LwInternal::FsMode mode)
+{
+    JasUnpack(*ctx, atmos, spect, background, depthData);
+    JasUnpack(ctx, activeAtoms, detailedAtoms);
+
+    const int Nspace = atmos.Nspace;
+    const int Nspect = spect.wavelength.shape(0);
+
+    if (ctx.Nthreads <= 1)
+    {
+        // NOTE(cmo): We're now creating a default core for single threaded work
+        auto& iCore = *ctx.threading.intensityCores.cores[0];
+
+        for (int la = 0; la < Nspect; ++la)
+        {
+            intensity_core_opt<simd, false, false, false, false>(iCore, la, mode);
+        }
+        return 0.0;
+    }
+    else
+    {
+        auto& cores = ctx.threading.intensityCores;
+
+        struct FsTaskData
+        {
+            IntensityCoreData* core;
+            FsMode mode;
+        };
+        std::vector<FsTaskData> taskData;
+        taskData.reserve(ctx.Nthreads);
+        for (int t = 0; t < ctx.Nthreads; ++t)
+        {
+            FsTaskData td;
+            td.core = cores.cores[t];
+            td.mode = mode;
+            taskData.emplace_back(td);
+        }
+
+        auto fs_task = [](void* data, scheduler* s,
+                          sched_task_partition p, sched_uint threadId)
+        {
+            auto& td = ((FsTaskData*)data)[threadId];
+            for (i64 la = p.start; la < p.end; ++la)
+            {
+                intensity_core_opt<simd, false, false, false, false>(*td.core, la, td.mode);
+            }
+        };
+
+        {
+            scheduler* sched = &ctx.threading.sched;
+            sched_task formalSolutions;
+            sched->add(sched, &formalSolutions,
+                       fs_task, (void*)taskData.data(), Nspect, 4);
+            sched->join(sched, &formalSolutions);
+        }
+
+        return 0.0;
     }
 }
 }

@@ -54,14 +54,9 @@ Transition* TransitionStorageFactory::copy_transition()
         t->psiV = trans->psiV;
 
         if (trans->rhoPrd)
-        {
             t->rhoPrd = trans->rhoPrd;
-            if (trans->gII)
-                t->gII = trans->gII;
-
-            if (trans->hPrdCoeffs)
-                t->hPrdCoeffs = trans->hPrdCoeffs;
-        }
+        t->hPrdCoeffs = trans->hPrdCoeffs;
+        t->prdData = &trans->prdStorage;
 
     }
     else

@@ -121,10 +121,6 @@ cdef extern from "Lightweaver.hpp":
 cdef extern from "Lightweaver.hpp" namespace "PrdCores":
     cdef int max_fine_grid_size()
 
-# cdef extern from "Lightweaver.hpp" namespace "Prd":
-    # cdef cppclass PrdStorage:
-    #     F64Arr3D gII
-
 cdef extern from "Background.hpp":
     cdef cppclass BackgroundData:
         F64View chPops
@@ -240,8 +236,6 @@ cdef extern from "Lightweaver.hpp":
         F64View Rij
         F64View Rji
         F64View2D rhoPrd
-        F64View3D gII
-        # PrdStorage prdStorage
 
         void recompute_gII()
         void uv(int la, int mu, bool_t toObs, F64View Uji, F64View Vij, F64View Vji)
@@ -1593,20 +1587,6 @@ cdef class RayleighScatterer:
 
         return True
 
-# cdef gII_to_numpy(F64Arr3D gII):
-#     if gII.data() is NULL:
-#         raise AttributeError
-#     cdef np.npy_intp shape[3]
-#     shape[0] = <np.npy_intp> gII.shape(0)
-#     shape[1] = <np.npy_intp> gII.shape(1)
-#     shape[2] = <np.npy_intp> gII.shape(2)
-#     cdef f64[:,:,::1] ndarray = np.PyArray_SimpleNewFromData(3, &shape[0],
-#                                             np.NPY_FLOAT64, <void*>gII.data())
-#     return ndarray.copy()
-
-# cdef gII_from_numpy(Transition trans, f64[:,:,::1] gII):
-#     trans.prdStorage.gII = F64Arr3D(f64_view_3(gII))
-
 cdef class LwTransition:
     '''
     Storage and access to transition data used by backend. Instantiated by
@@ -1748,10 +1728,6 @@ cdef class LwTransition:
             except AttributeError:
                 state['rhoPrd'] = None
 
-            # try:
-            #     state['gII'] = np.asarray(gII_to_numpy(self.trans.prdStorage.gII))
-            # except AttributeError:
-            #     state['gII'] = None
         else:
             state['alpha'] = np.asarray(self.alpha)
         return state
@@ -1790,9 +1766,6 @@ cdef class LwTransition:
             if state['rhoPrd'] is not None:
                 self.rhoPrd = state['rhoPrd']
                 self.trans.rhoPrd = f64_view_2(self.rhoPrd)
-            # if state['gII'] is not None:
-            #     gII_from_numpy(self.trans, state['gII'])
-            #     self.trans.gII = self.trans.prdStorage.gII
 
             if state['polarised']:
                 self.phiQ = state['phiQ']
@@ -1835,10 +1808,6 @@ cdef class LwTransition:
            and np.all(self.wavelength == prevState['wavelength']):
             if prevState['rhoPrd'] is not None:
                 np.asarray(self.rhoPrd)[:] = prevState['rhoPrd']
-
-            # if prevState['gII'] is not None:
-            #     gII_from_numpy(self.trans, prevState['gII'])
-            #     self.trans.gII = self.trans.prdStorage.gII
 
             if preserveProfiles:
                 np.asarray(self.phi)[:] = prevState['phi']

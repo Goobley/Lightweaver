@@ -22,10 +22,8 @@ struct NrTimeDependentData
 
 f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate=false);
 f64 formal_sol_iteration_matrices_scalar(Context& ctx, bool lambdaIterate=false);
-// TODO(cmo): Simplify these
-f64 formal_sol_update_rates(Context& ctx);
-f64 formal_sol_update_rates_fixed_J(Context& ctx);
 f64 formal_sol(Context& ctx, bool upOnly=true);
+f64 formal_sol_scalar(Context& ctx, bool upOnly=true);
 f64 formal_sol_full_stokes(Context& ctx, bool updateJ=true);
 PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol);
 PrdIterData redistribute_prd_lines_scalar(Context& ctx, int maxIter, f64 tol);

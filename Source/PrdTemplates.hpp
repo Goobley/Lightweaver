@@ -44,7 +44,8 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelengthIdxs)
         for (int i = 0; i < wavelengthIdxs.shape(0); ++i)
         {
             const f64 la = wavelengthIdxs(i);
-            f64 dJ = intensity_core(iCore, la, (FsMode::UpdateJ | FsMode::UpdateRates | FsMode::PrdOnly));
+            FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates | FsMode::PrdOnly);
+            f64 dJ = intensity_core_opt<simd, true, true, false, false>(iCore, la, mode);
             dJMax = max(dJ, dJMax);
         }
         return dJMax;
