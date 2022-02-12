@@ -23,6 +23,19 @@ EV = 1.602176565E-12        # Electron Volt to erg
 CM1_TO_EV = HH*CC/EV        # CM^-1 to eV
 ME = 9.10938188E-28         # mass of electron
 
+@dataclass
+class CgsConstants:
+    BK: float = BK                 # Boltzmann [erg K]
+    EE: float = EE                 # Electron charge
+    HH: float = HH                 # Planck [erg s]
+    PI: float = PI                 # PI number
+    CC: float = CC                 # Speed of light [cm/s]
+    AMU: float = AMU               # Atomic mass unit
+    EV: float = EV                 # Electron Volt to erg
+    CM1_TO_EV: float = CM1_TO_EV   # CM^-1 to eV
+    ME: float = ME                 # mass of electron
+cgs = CgsConstants()
+
 SahaFac =  ((2.0 * PI * ME * BK) / (HH*HH))**1.5
 
 # Default abundances

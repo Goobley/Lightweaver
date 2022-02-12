@@ -3,8 +3,7 @@ from copy import copy
 from enum import Enum, auto
 from typing import Sequence, TYPE_CHECKING, Optional, Union, TypeVar, Type
 import numpy as np
-# from .witt import witt
-from .wittmann import Wittmann
+from .wittmann import Wittmann, cgs
 import lightweaver.constants as Const
 from numpy.polynomial.legendre import leggauss
 from .utils import ConvergenceError, view_flatten, check_shape_exception, get_data_path
@@ -137,7 +136,7 @@ def get_top_pressure(eos: Wittmann, temp, ne=None, rho=None):
 
     '''
     if ne is not None:
-        pe = ne * Const.CM_TO_M**3 * eos.BK * temp
+        pe = ne * Const.CM_TO_M**3 * cgs.BK * temp
         return eos.pg_from_pe(temp, pe)
     elif rho is not None:
         return eos.pg_from_rho(temp, rho)
@@ -936,7 +935,7 @@ class Atmosphere:
         if nHTot is None and ne is not None:
             if verbose:
                 print('Setting nHTot from electron pressure.')
-            pe = ne * Const.CM_TO_M**3 * eos.BK * temperature
+            pe = ne * Const.CM_TO_M**3 * cgs.BK * temperature
             rho = np.zeros(Nspace)
             for k in range(Nspace):
                 rho[k] = eos.rho_from_pe(temperature[k], pe[k])
@@ -948,7 +947,7 @@ class Atmosphere:
             pe = np.zeros(Nspace)
             for k in range(Nspace):
                 pe[k] = eos.pe_from_rho(temperature[k], rho[k])
-            ne = np.copy(pe / (eos.BK * temperature) / Const.CM_TO_M**3)
+            ne = np.copy(pe / (cgs.BK * temperature) / Const.CM_TO_M**3)
         elif ne is None and nHTot is None:
             if Pgas is not None and Pgas.shape[0] != Nspace:
                 raise ValueError('Dimensions of Pgas do not match atmospheric depth')
@@ -1010,7 +1009,7 @@ class Atmosphere:
                 chi_c[0] = eos.cont_opacity(temperature[0], pgas[0], pe[0],
                                             np.array([5000.0]))
                 avg_mol_weight = lambda k: abundance.massPerH / (abundance.totalAbundance + pe[k] / pgas[k])
-                rho[0] = Ptop * avg_mol_weight(0) / Avog / eos.BK / temperature[0]
+                rho[0] = Ptop * avg_mol_weight(0) / Avog / cgs.BK / temperature[0]
                 chi_c[0] /= rho[0]
 
                 for k in range(1, Nspace):
@@ -1021,7 +1020,7 @@ class Atmosphere:
                             dtau = tau[k] - tau[k-1]
                             pgas[k] = pgas[k-1] + gravAcc * dtau / (0.5 * (chi_c[k-1] + chi_c[k]))
                         elif scale == ScaleType.Geometric:
-                            pgas[k] = pgas[k-1] * np.exp(-gravAcc / Avog / eos.BK * avg_mol_weight(k-1) * 0.5 * (1.0 / temperature[k-1] + 1.0 / temperature[k]) * (height[k] - height[k-1]))
+                            pgas[k] = pgas[k-1] * np.exp(-gravAcc / Avog / cgs.BK * avg_mol_weight(k-1) * 0.5 * (1.0 / temperature[k-1] + 1.0 / temperature[k]) * (height[k] - height[k-1]))
                         else:
                             pgas[k] = gravAcc * cmass[k]
 
@@ -1029,7 +1028,7 @@ class Atmosphere:
                         prevChi = chi_c[k]
                         chi_c[k] = eos.cont_opacity(temperature[k], pgas[k], pe[k],
                                                     np.array([5000.0]))
-                        rho[k] = pgas[k] * avg_mol_weight(k) / Avog / eos.BK / temperature[k]
+                        rho[k] = pgas[k] * avg_mol_weight(k) / Avog / cgs.BK / temperature[k]
                         chi_c[k] /= rho[k]
 
                         change = np.abs(prevChi - chi_c[k]) / (prevChi + chi_c[k])
@@ -1038,7 +1037,7 @@ class Atmosphere:
                     else:
                         raise ConvergenceError('No convergence in HSE at depth point %d, last change %2.4e' % (k, change))
             nHTot = np.copy(rho / (Const.CM_TO_M**3 / Const.G_TO_KG) / (Const.Amu * abundance.massPerH))
-            ne = np.copy(pe / (eos.BK * temperature) / Const.CM_TO_M**3)
+            ne = np.copy(pe / (cgs.BK * temperature) / Const.CM_TO_M**3)
 
         # NOTE(cmo): Compute final pgas, pe from EOS that will be used for
         # background opacity.
@@ -1248,7 +1247,7 @@ class Atmosphere:
             if verbose:
                 print('Setting nHTot from electron pressure.')
             flatNe = view_flatten(ne)
-            pe = flatNe * Const.CM_TO_M**3 * eos.BK * flatTemperature
+            pe = flatNe * Const.CM_TO_M**3 * cgs.BK * flatTemperature
             rho = np.zeros(Nspace)
             for k in range(Nspace):
                 rho[k] = eos.rho_from_pe(flatTemperature[k], pe[k])
@@ -1261,7 +1260,7 @@ class Atmosphere:
             pe = np.zeros(Nspace)
             for k in range(Nspace):
                 pe[k] = eos.pe_from_rho(flatTemperature[k], rho[k])
-            ne = np.copy(pe / (eos.BK * flatTemperature) / Const.CM_TO_M**3)
+            ne = np.copy(pe / (cgs.BK * flatTemperature) / Const.CM_TO_M**3)
         elif ne is None and nHTot is None:
             raise ValueError('Cannot omit both ne and nHTot (currently).')
         flatX = view_flatten(x)
