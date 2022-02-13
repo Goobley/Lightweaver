@@ -1,13 +1,13 @@
 // Copyright (c) 2013 Doug Binks
-//
+// 
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
 // arising from the use of this software.
-//
+// 
 // Permission is granted to anyone to use this software for any purpose,
 // including commercial applications, and to alter it and redistribute it
 // freely, subject to the following restrictions:
-//
+// 
 // 1. The origin of this software must not be misrepresented; you must not
 //    claim that you wrote the original software. If you use this software
 //    in a product, an acknowledgement in the product documentation would be
@@ -66,7 +66,7 @@ namespace enki
 // each software thread gets it's own copy of gtl_threadNum, so this is safe to use as a static variable
 static thread_local uint32_t                             gtl_threadNum       = 0;
 
-namespace enki
+namespace enki 
 {
     struct SubTaskSet
     {
@@ -97,7 +97,7 @@ namespace enki
         TaskScheduler*           pTaskScheduler;
     };
 
-    struct alignas(enki::gc_CacheLineSize) ThreadDataStore
+    struct alignas(enki::gc_CacheLineSize) ThreadDataStore 
     {
         semaphoreid_t*           pWaitNewPinnedTaskSemaphore = nullptr;
         std::atomic<ThreadState> threadState = { ENKI_THREAD_STATE_NONE };
@@ -138,7 +138,7 @@ namespace
         while( __rdtsc() < end )
         {
             _mm_pause();
-        }
+        }        
     }
     #else
     static void SpinWait( uint32_t spinCount_ )
@@ -147,7 +147,7 @@ namespace
         {
             // TODO: may have NOP or yield equiv
             --spinCount_;
-        }
+        }        
     }
     #endif
 }
@@ -160,9 +160,9 @@ static void SafeCallback( ProfilerCallbackFunc func_, uint32_t threadnum_ )
     }
 }
 
-
+   
 ENKITS_API void* enki::DefaultAllocFunc( size_t align_, size_t size_, void* userData_, const char* file_, int line_ )
-{
+{ 
     (void)userData_; (void)file_; (void)line_;
     void* pRet;
 #ifdef _WIN32
@@ -458,7 +458,7 @@ bool TaskScheduler::TryRunTask( uint32_t threadNum_, uint32_t priority_, uint32_
         }
         ++checkCount;
     }
-
+        
     if( bHaveTask )
     {
         // update hint, will preserve value unless actually got task from another thread.
@@ -650,14 +650,14 @@ void TaskScheduler::WakeThreadsForTaskCompletion()
 
 bool TaskScheduler::WakeSuspendedThreadsWithPinnedTasks()
 {
-    uint32_t threadNum = this->GetThreadNum();
+    uint32_t threadNum = gtl_threadNum;
     for( uint32_t t = 1; t < m_NumThreads; ++t )
     {
         // distribute thread checks more evenly by starting at our thread number rather than 0.
         uint32_t thread = ( threadNum + t ) % m_NumThreads;
 
         ThreadState state = m_pThreadDataStore[ thread ].threadState.load( std::memory_order_acquire );
-
+            
         ENKI_ASSERT( state != ENKI_THREAD_STATE_NONE );
 
         if( state == ENKI_THREAD_STATE_WAIT_NEW_TASKS || state == ENKI_THREAD_STATE_WAIT_TASK_COMPLETION )
@@ -756,7 +756,7 @@ void TaskScheduler::AddTaskSetToPipe( ITaskSet* pTaskSet_ )
     ENKI_ASSERT( pTaskSet_->m_RunningCount == 0 );
     InitDependencies( pTaskSet_ );
     pTaskSet_->m_RunningCount.store( gc_TaskStartCount, std::memory_order_relaxed );
-    AddTaskSetToPipeInt( pTaskSet_, this->GetThreadNum() );
+    AddTaskSetToPipeInt( pTaskSet_, gtl_threadNum );
 }
 
 void  TaskScheduler::AddPinnedTaskInt( IPinnedTask* pTask_ )
@@ -804,7 +804,7 @@ void TaskScheduler::InitDependencies( ICompletable* pCompletable_ )
 
 void TaskScheduler::RunPinnedTasks()
 {
-    uint32_t threadNum = this->GetThreadNum();
+    uint32_t threadNum = gtl_threadNum;
     ThreadState prevThreadState = m_pThreadDataStore[threadNum].threadState.load( std::memory_order_relaxed );
     m_pThreadDataStore[threadNum].threadState.store( ENKI_THREAD_STATE_RUNNING, std::memory_order_relaxed );
     std::atomic_thread_fence(std::memory_order_acquire);
@@ -832,7 +832,7 @@ void TaskScheduler::RunPinnedTasks( uint32_t threadNum_, uint32_t priority_ )
 
 void    TaskScheduler::WaitforTask( const ICompletable* pCompletable_, enki::TaskPriority priorityOfLowestToRun_ )
 {
-    uint32_t threadNum = this->GetThreadNum();
+    uint32_t threadNum = gtl_threadNum;
     uint32_t hintPipeToCheck_io = threadNum + 1;    // does not need to be clamped.
 
     // waiting for a task is equivalent to 'running' for thread state purpose as we may run tasks whilst waiting
@@ -876,7 +876,7 @@ void    TaskScheduler::WaitforTask( const ICompletable* pCompletable_, enki::Tas
     {
             for( int priority = 0; priority <= priorityOfLowestToRun_; ++priority )
             {
-                if( TryRunTask( this->GetThreadNum(), priority, hintPipeToCheck_io ) )
+                if( TryRunTask( gtl_threadNum, priority, hintPipeToCheck_io ) )
                 {
                     break;
                 }
@@ -900,7 +900,7 @@ void TaskScheduler::WaitforAll()
     m_bWaitforAllCalled.store( true, std::memory_order_release );
 
     bool bHaveTasks = true;
-    uint32_t ourThreadNum = this->GetThreadNum();
+    uint32_t ourThreadNum = gtl_threadNum;
     uint32_t hintPipeToCheck_io = ourThreadNum  + 1;    // does not need to be clamped.
     bool otherThreadsRunning = false; // account for this thread
     uint32_t spinCount = 0;
@@ -1009,7 +1009,7 @@ void    TaskScheduler::WaitforAllAndShutdown()
 
 void TaskScheduler::WaitForNewPinnedTasks()
 {
-    uint32_t threadNum = this->GetThreadNum();
+    uint32_t threadNum = gtl_threadNum;
     ThreadState prevThreadState = m_pThreadDataStore[threadNum].threadState.load( std::memory_order_relaxed );
     m_pThreadDataStore[threadNum].threadState.store( ENKI_THREAD_STATE_WAIT_NEW_PINNED_TASKS, std::memory_order_seq_cst );
 
@@ -1087,7 +1087,7 @@ T* TaskScheduler::New( const char* file_, int line_, Args&&... args_ )
 template< typename T >
 void TaskScheduler::Delete( T* p_, const char* file_, int line_  )
 {
-    p_->~T();
+    p_->~T(); 
     this->Free(p_, file_, line_ );
 }
 
@@ -1165,7 +1165,7 @@ namespace enki
     {
         HANDLE      sem;
     };
-
+    
     inline void SemaphoreCreate( semaphoreid_t& semaphoreid )
     {
 #ifdef _XBOX_ONE
@@ -1210,27 +1210,27 @@ namespace enki
 
 namespace enki
 {
-
+    
     struct semaphoreid_t
     {
         dispatch_semaphore_t   sem;
     };
-
+    
     inline void SemaphoreCreate( semaphoreid_t& semaphoreid )
     {
         semaphoreid.sem = dispatch_semaphore_create(0);
     }
-
+    
     inline void SemaphoreClose( semaphoreid_t& semaphoreid )
     {
         dispatch_release( semaphoreid.sem );
     }
-
+    
     inline void SemaphoreWait( semaphoreid_t& semaphoreid  )
     {
         dispatch_semaphore_wait( semaphoreid.sem, DISPATCH_TIME_FOREVER );
     }
-
+    
     inline void SemaphoreSignal( semaphoreid_t& semaphoreid, int32_t countWaiting )
     {
         while( countWaiting-- > 0 )
@@ -1247,29 +1247,29 @@ namespace enki
 
 namespace enki
 {
-
+    
     struct semaphoreid_t
     {
         sem_t   sem;
     };
-
+    
     inline void SemaphoreCreate( semaphoreid_t& semaphoreid )
     {
         int err = sem_init( &semaphoreid.sem, 0, 0 );
         ENKI_ASSERT( err == 0 );
         (void)err;
     }
-
+    
     inline void SemaphoreClose( semaphoreid_t& semaphoreid )
     {
         sem_destroy( &semaphoreid.sem );
     }
-
+    
     inline void SemaphoreWait( semaphoreid_t& semaphoreid  )
     {
         while( sem_wait( &semaphoreid.sem ) == -1 && errno == EINTR ) {}
     }
-
+    
     inline void SemaphoreSignal( semaphoreid_t& semaphoreid, int32_t countWaiting )
     {
         while( countWaiting-- > 0 )
@@ -1298,7 +1298,7 @@ void TaskScheduler::SetCustomAllocator( CustomAllocator customAllocator_ )
     m_Config.customAllocator = customAllocator_;
 }
 
-Dependency::Dependency( const ICompletable* pDependencyTask_, ICompletable* pTaskToRunOnCompletion_ )
+Dependency::Dependency( const ICompletable* pDependencyTask_, ICompletable* pTaskToRunOnCompletion_ ) 
     : pTaskToRunOnCompletion( pTaskToRunOnCompletion_ )
     , pDependencyTask( pDependencyTask_ )
     , pNext( pDependencyTask->m_pDependents )

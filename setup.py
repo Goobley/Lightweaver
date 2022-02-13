@@ -1,6 +1,8 @@
 from setuptools import setup
+from setuptools.command.build_ext import build_ext
 from setuptools.extension import Extension
 from Cython.Build import cythonize
+from distutils.sysconfig import get_config_var
 import numpy as np
 import os
 import os.path as path
@@ -21,6 +23,27 @@ from copy import copy
 # compiling and linking against Source/WindowsExtensionStub.cpp whilst defining
 # LW_MODULE_STUB_NAME to be the name of the module to be "exported".
 
+buildDir = path.join('.', 'build')
+class LwSharedLibraryNoExtension(Extension):
+    pass
+
+# NOTE(cmo): Based on https://stackoverflow.com/a/60285245/3847013 , but
+# modified for current setuptools, and to catch only the necessary library
+class LwBuildExt(build_ext):
+    def get_ext_filename(self, fullname):
+        filename = super().get_ext_filename(fullname)
+        so_ext = os.getenv('SETUPTOOLS_EXT_SUFFIX')
+        if not so_ext:
+            so_ext = get_config_var('EXT_SUFFIX')
+
+        if fullname in self.ext_map:
+            extension = self.ext_map[fullname]
+            if isinstance(extension, LwSharedLibraryNoExtension):
+                base_ext = path.splitext(filename)[1]
+                filename = filename.replace(so_ext, "") + base_ext
+        return filename
+
+
 def readme():
     with open('README.md', 'r') as f:
         return f.read()
@@ -35,8 +58,9 @@ posixArgs = {
    'SSE2Args': ['-msse2'],
    'AVX2FMAArgs': ['-mavx2', '-mfma'],
    'AVX512Args': ['-mavx512f', '-mavx512dq', '-mfma'],
-   'libs': ['dl'],
-   'linkArgs': [],
+   'libs': ['dl', 'enkiTS'],
+   'libDirs': [path.join(buildDir, 'lightweaver')],
+   'linkArgs': ['-Wl,-rpath=$ORIGIN', '-Wl,-zlazy'],
    'stubDefinePrefix': '-DLW_MODULE_STUB_NAME=',
    'lwCoreDefine': ['-DLW_CORE_LIB'],
    'fsIterExtensionExports': [],
@@ -46,7 +70,8 @@ msvcArgs = {
    'SSE2Args': [],
    'AVX2FMAArgs': ['/arch:AVX2'],
    'AVX512Args': ['/arch:AVX512'],
-   'libs': [],
+   'libs': ['enkiTS'],
+   'libDirs': [path.join(buildDir, 'lightweaver')],
    'linkArgs': ['/DEBUG:FULL'],
    'stubDefinePrefix': '/DLW_MODULE_STUB_NAME=',
    'lwCoreDefine': ['/DLW_CORE_LIB'],
@@ -88,11 +113,16 @@ simdImplDepends = {impl: coreDepends + prepend_source_dir([f'SimdImpl_{impl}.cpp
 
 def extension_list(args):
     lwExts = []
+    lwExts.append(LwSharedLibraryNoExtension('lightweaver.libenkiTS',
+                  sources=[path.join('Source', 'TaskScheduler.cpp')],
+                  language='c++'))
     lwExts.append(Extension('lightweaver.LwCompiled',
                   sources=[path.join('Source', 'LwMiddleLayer.pyx')] + coreSource,
                   depends=coreDepends,
                   include_dirs=[np.get_include()],
                   language='c++',
+                  libraries=args['libs'],
+                  library_dirs=args['libDirs'],
                   extra_compile_args=args['baseCompileArgs'] + args['lwCoreDefine'],
                   extra_link_args=args['linkArgs']))
     lwExts = cythonize(lwExts, language_level=3)
@@ -102,6 +132,8 @@ def extension_list(args):
                                         coreSource + stubSource,
                                 depends=simdImplDepends[simdImpl],
                                 language='c++',
+                                libraries=args['libs'],
+                                library_dirs=args['libDirs'],
                                 extra_compile_args=args['baseCompileArgs'] +
                                                    args[f'{simdImpl}Args'] +
                                                    [f'{args["stubDefinePrefix"]}SimdImpl_{simdImpl}'],
@@ -124,7 +156,13 @@ setup(name='lightweaver',
       url='http://github.com/Goobley/Lightweaver',
       description='Non-LTE Radiative Transfer Framework in Python',
       ext_modules=extension_list(buildArgs),
+      cmdclass={'build_ext': LwBuildExt},
       include_package_data=True,
       long_description=readme(),
       long_description_content_type='text/markdown',
-      python_requires='>=3.8')
+      python_requires='>=3.8',
+      options={
+          'build': {
+              'build_lib': buildDir
+          }
+      })
