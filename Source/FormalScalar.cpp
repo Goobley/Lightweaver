@@ -4,6 +4,7 @@
 #include "JasPP.hpp"
 #include "Simd.hpp"
 #include "ThreadStorage.hpp"
+#include "TaskSetWrapper.hpp"
 
 #include <cmath>
 #include <iostream>
@@ -82,28 +83,26 @@ void Transition::compute_phi_parallel(LwInternal::ThreadData* threading, const A
         F64View* vBroad;
     };
 
-    LineProfileData* data = (LineProfileData*)malloc(sizeof(LineProfileData));
-    data->t = this;
-    data->atmos = &atmos;
-    data->aDamp = &aDamp;
-    data->vBroad = &vBroad;
-    auto compute_profile = [](void* data, scheduler* s,
-                               sched_task_partition p, sched_uint threadId)
+    LineProfileData data;
+    data.t = this;
+    data.atmos = &atmos;
+    data.aDamp = &aDamp;
+    data.vBroad = &vBroad;
+    auto compute_profile = [](void* data, enki::TaskScheduler* s,
+                               enki::TaskSetPartition p, u32 threadId)
     {
         LineProfileData* d = (LineProfileData*)data;
         for (i64 la = p.start; la < p.end; ++la)
             d->t->compute_phi_la(*(d->atmos), *(d->aDamp), *(d->vBroad), la);
     };
 
-    scheduler* s = &threading->sched;
+    enki::TaskScheduler* sched = &threading->sched;
     {
-        sched_task lineProfile;
-        s->add(s, &lineProfile, compute_profile,
-               (void*)data, wavelength.shape(0), 1);
-        s->join(s, &lineProfile);
+        LwTaskSet lineProfile((void*)&data, sched, wavelength.shape(0),
+                              1, compute_profile);
+        sched->AddTaskSetToPipe(&lineProfile);
+        sched->WaitforTask(&lineProfile);
     }
-
-    free(data);
 }
 
 void Transition::compute_wphi(const Atmosphere& atmos)

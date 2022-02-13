@@ -5,6 +5,7 @@
 #include "LwAtom.hpp"
 #include "LwTransition.hpp"
 #include "LwInternal.hpp"
+#include "TaskSetWrapper.hpp"
 
 #include <array>
 #include <cstring>
@@ -576,8 +577,8 @@ inline void zero_Gamma_rates_JRest(Context* ctx)
             for (auto* a : *cores.cores[c]->detailedAtoms)
                 zeroTaskData.emplace_back(a);
         }
-        auto zero_task = [](void* data, scheduler* s,
-                            sched_task_partition p, sched_uint threadId)
+        auto zero_task = [](void* data, enki::TaskScheduler* s,
+                            enki::TaskSetPartition p, u32 threadId)
 
         {
             auto& taskData = *(decltype(zeroTaskData)*)data;
@@ -590,13 +591,13 @@ inline void zero_Gamma_rates_JRest(Context* ctx)
             }
         };
     {
-        scheduler* sched = &ctx->threading.sched;
-        sched_task zeroing;
-        sched->add(sched, &zeroing, zero_task,
-                   (void*)(&zeroTaskData), zeroTaskData.size(), 1);
+        enki::TaskScheduler* sched = &ctx->threading.sched;
+        LwTaskSet zeroing(&zeroTaskData, sched, zeroTaskData.size(),
+                          1, zero_task);
+        sched->AddTaskSetToPipe(&zeroing);
         if (ctx->spect->JRest)
             zero_JRest(cores.cores);
-        sched->join(sched, &zeroing);
+        sched->WaitforTask(&zeroing);
     }
     }
     else
@@ -698,8 +699,8 @@ f64 formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsMode mode)
             taskData.emplace_back(td);
         }
 
-        auto fs_task = [](void* data, scheduler* s,
-                          sched_task_partition p, sched_uint threadId)
+        auto fs_task = [](void* data, enki::TaskScheduler* s,
+                          enki::TaskSetPartition p, u32 threadId)
         {
             auto& td = ((FsTaskData*)data)[threadId];
             FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates);
@@ -716,11 +717,10 @@ f64 formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsMode mode)
         };
 
         {
-            scheduler* sched = &ctx.threading.sched;
-            sched_task formalSolutions;
-            sched->add(sched, &formalSolutions,
-                       fs_task, (void*)taskData.data(), numFs, 4);
-            sched->join(sched, &formalSolutions);
+            enki::TaskScheduler* sched = &ctx.threading.sched;
+            LwTaskSet formalSolutions(taskData.data(), sched, numFs, 4, fs_task);
+            sched->AddTaskSetToPipe(&formalSolutions);
+            sched->WaitforTask(&formalSolutions);
         }
 
         f64 dJMax = 0.0;
@@ -778,8 +778,8 @@ f64 formal_sol_impl(Context& ctx, LwInternal::FsMode mode)
             taskData.emplace_back(td);
         }
 
-        auto fs_task = [](void* data, scheduler* s,
-                          sched_task_partition p, sched_uint threadId)
+        auto fs_task = [](void* data, enki::TaskScheduler* s,
+                          enki::TaskSetPartition p, u32 threadId)
         {
             auto& td = ((FsTaskData*)data)[threadId];
             for (i64 la = p.start; la < p.end; ++la)
@@ -789,11 +789,11 @@ f64 formal_sol_impl(Context& ctx, LwInternal::FsMode mode)
         };
 
         {
-            scheduler* sched = &ctx.threading.sched;
-            sched_task formalSolutions;
-            sched->add(sched, &formalSolutions,
-                       fs_task, (void*)taskData.data(), Nspect, 4);
-            sched->join(sched, &formalSolutions);
+            enki::TaskScheduler* sched = &ctx.threading.sched;
+            LwTaskSet formalSolutions(taskData.data(), sched, Nspect,
+                                      4, fs_task);
+            sched->AddTaskSetToPipe(&formalSolutions);
+            sched->WaitforTask(&formalSolutions);
         }
 
         return 0.0;

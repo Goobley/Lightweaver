@@ -1,5 +1,7 @@
 #include "Lightweaver.hpp"
+#include "TaskSetWrapper.hpp"
 #include <atomic>
+#include <list>
 
 void stat_eq(Atom* atomIn, int spaceStart, int spaceEnd)
 {
@@ -62,7 +64,7 @@ void parallel_stat_eq(Context* ctx, int chunkSize)
     };
 
     std::vector<UpdateData> threadData = std::vector<UpdateData>(Natom);
-    std::vector<sched_task> atomTasks = std::vector<sched_task>(Natom);
+    std::list<LwTaskSet> atomTasks; // NOTE(cmo): This type is only move-constructible with a throwing constructor, so list is much easier to work with.
     for (int a = 0; a < Natom; ++a)
     {
         threadData[a].atom = ctx->activeAtoms[a];
@@ -70,8 +72,8 @@ void parallel_stat_eq(Context* ctx, int chunkSize)
     }
 
 
-    auto stat_eq_handler = [](void* data, scheduler* s,
-                              sched_task_partition p, sched_uint threadId)
+    auto stat_eq_handler = [](void* data, enki::TaskScheduler* s,
+                              enki::TaskSetPartition p, u32 threadId)
     {
         UpdateData* d = (UpdateData*)data;
         try
@@ -84,20 +86,17 @@ void parallel_stat_eq(Context* ctx, int chunkSize)
         }
     };
 
-    scheduler* s = &ctx->threading.sched;
-    for (int a = 0; a < Natom; ++a)
-        s->add(s, &atomTasks[a], stat_eq_handler,
-               (void*)(&threadData[a]), ctx->atmos->Nspace, chunkSize);
-    for (int a = 0; a < Natom; ++a)
-        s->join(s, &atomTasks[a]);
+    enki::TaskScheduler* s = &ctx->threading.sched;
     for (int a = 0; a < Natom; ++a)
     {
-        if (!sched_task_done(&atomTasks[a]))
-        {
-            printf("Scheduler failed to finish atom task %d\n", a);
-            s->wait(s);
-        }
+        atomTasks.emplace_back(&threadData[a], s, ctx->atmos->Nspace,
+                               chunkSize, stat_eq_handler);
     }
+
+    for (auto& task : atomTasks)
+        s->AddTaskSetToPipe(&task);
+    for (auto& task : atomTasks)
+        s->WaitforTask(&task);
 
     bool throwNeeded = false;
     for (int a = 0; a < Natom; ++a)
@@ -164,7 +163,7 @@ void parallel_time_dep_update(Context* ctx, const std::vector<F64View2D>& oldPop
     };
 
     std::vector<UpdateData> threadData = std::vector<UpdateData>(Natom);
-    std::vector<sched_task> atomTasks = std::vector<sched_task>(Natom);
+    std::list<LwTaskSet> atomTasks;
     for (int a = 0; a < Natom; ++a)
     {
         threadData[a].atom = ctx->activeAtoms[a];
@@ -173,8 +172,8 @@ void parallel_time_dep_update(Context* ctx, const std::vector<F64View2D>& oldPop
         threadData[a].exceptionThrown = false;
     }
 
-    auto update_handler = [](void* data, scheduler* s,
-                             sched_task_partition p, sched_uint threadId)
+    auto update_handler = [](void* data, enki::TaskScheduler* s,
+                             enki::TaskSetPartition p, u32 threadId)
     {
         UpdateData* d = (UpdateData*)data;
         try
@@ -187,21 +186,17 @@ void parallel_time_dep_update(Context* ctx, const std::vector<F64View2D>& oldPop
         }
     };
 
-    scheduler* s = &ctx->threading.sched;
-    for (int a = 0; a < Natom; ++a)
-        s->add(s, &atomTasks[a], update_handler,
-               (void*)(&threadData[a]), ctx->atmos->Nspace, chunkSize);
-    for (int a = 0; a < Natom; ++a)
-        s->join(s, &atomTasks[a]);
+    enki::TaskScheduler* s = &ctx->threading.sched;
     for (int a = 0; a < Natom; ++a)
     {
-        if (!sched_task_done(&atomTasks[a]))
-        {
-            printf("Scheduler failed to finish atom task %d\n", a);
-            s->wait(s);
-        }
+        atomTasks.emplace_back(&threadData[a], s, ctx->atmos->Nspace,
+                               chunkSize, update_handler);
     }
 
+    for (auto& task : atomTasks)
+        s->AddTaskSetToPipe(&task);
+    for (auto& task : atomTasks)
+        s->WaitforTask(&task);
 
     bool throwNeeded = false;
     for (int a = 0; a < Natom; ++a)
@@ -422,8 +417,8 @@ void parallel_nr_post_update(Context* ctx, std::vector<Atom*>* atoms,
         threadData[t].exceptionThrown = false;
     }
 
-    auto update_handler = [](void* data, scheduler* s,
-                             sched_task_partition p, sched_uint threadId)
+    auto update_handler = [](void* data, enki::TaskScheduler* s,
+                             enki::TaskSetPartition p, u32 threadId)
     {
         UpdateData* d = &((UpdateData*)data)[threadId];
         try
@@ -438,16 +433,11 @@ void parallel_nr_post_update(Context* ctx, std::vector<Atom*>* atoms,
     };
 
     {
-        scheduler* sched = &ctx->threading.sched;
-        sched_task nrUpdate;
-        sched->add(sched, &nrUpdate, update_handler,
-                   (void*)threadData.data(), ctx->atmos->Nspace, chunkSize);
-        sched->join(sched, &nrUpdate);
-        if (!sched_task_done(&nrUpdate))
-        {
-            printf("Scheduler failed to finish nrUpdate\n");
-            sched->wait(sched);
-        }
+        enki::TaskScheduler* sched = &ctx->threading.sched;
+        LwTaskSet nrUpdate(threadData.data(), sched, ctx->atmos->Nspace,
+                           chunkSize, update_handler);
+        sched->AddTaskSetToPipe(&nrUpdate);
+        sched->WaitforTaskSet(&nrUpdate);
     }
 
     bool throwNeeded = false;

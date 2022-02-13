@@ -202,14 +202,12 @@ struct ThreadData
 {
     IntensityCoreFactory threadDataFactory;
     IterationCores intensityCores;
-    scheduler sched;
-    void* schedMemory;
+    enki::TaskScheduler sched;
     std::function<void()> clear_global_scratch;
 
     ThreadData() : threadDataFactory(),
                    intensityCores(),
-                   sched(),
-                   schedMemory(nullptr)
+                   sched()
     {}
 
 
@@ -218,12 +216,7 @@ struct ThreadData
 
     ~ThreadData()
     {
-        if (schedMemory)
-        {
-            scheduler_stop(&sched, 1);
-            free(schedMemory);
-            schedMemory = nullptr;
-        }
+        sched.WaitforAllAndShutdown();
         if (clear_global_scratch)
             clear_global_scratch();
     }

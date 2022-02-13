@@ -2,6 +2,7 @@
 #include "Utils.hpp"
 #include "SimdFullIterationTemplates.hpp"
 #include "PrdTemplates.hpp"
+#include "TaskSetWrapper.hpp"
 
 namespace PrdCores
 {
@@ -570,8 +571,8 @@ void scattering_int(ThreadData& data, int k)
     }
 }
 
-void scattering_int_handler(void* userdata, scheduler* s,
-                            sched_task_partition p, sched_uint threadId)
+void scattering_int_handler(void* userdata, enki::TaskScheduler* s,
+                            enki::TaskSetPartition p, u32 threadId)
 {
     ThreadData& data = ((ThreadData*)userdata)[threadId];
     for (int k = p.start; k < p.end; ++k)
@@ -582,7 +583,7 @@ void scattering_int_handler(void* userdata, scheduler* s,
 
 void prd_scatter(Transition* t, F64View PjQj, const Atom& atom,
                  const Atmosphere& atmos, const Spectrum& spect,
-                 scheduler* sched)
+                 enki::TaskScheduler* sched)
 {
     auto& trans = *t;
 
@@ -627,16 +628,17 @@ void prd_scatter(Transition* t, F64View PjQj, const Atom& atom,
     else
     {
         std::vector<ThreadData> data;
-        data.reserve(sched->threads_num);
-        for (int th = 0; th < sched->threads_num; ++th)
+        int Nthreads = sched->GetNumTaskThreads();
+        data.reserve(Nthreads);
+        for (int th = 0; th < Nthreads; ++th)
             data.emplace_back(ThreadData(trans, atom, spect, atmos, PjQj,
                                          initialiseGii, Nlambda, maxFineGrid));
 
         {
-            sched_task scatteringInts;
-            sched->add(sched, &scatteringInts, scattering_int_handler,
-                          data.data(), atmos.Nspace, 8);
-            sched->join(sched, &scatteringInts);
+            LwTaskSet scatteringInts(data.data(), sched, atmos.Nspace, 8,
+                                     scattering_int_handler);
+            sched->AddTaskSetToPipe(&scatteringInts);
+            sched->WaitforTask(&scatteringInts);
         }
     }
 }

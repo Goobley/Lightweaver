@@ -3,6 +3,7 @@
 
 #include "Lightweaver.hpp"
 #include "SimdFullIterationTemplates.hpp"
+#include "TaskSetWrapper.hpp"
 
 namespace PrdCores
 {
@@ -11,7 +12,7 @@ void total_depop_elastic_scattering_rate(const Transition* trans, const Atom& at
 
 void prd_scatter(Transition* t, F64View PjQj, const Atom& atom,
                  const Atmosphere& atmos, const Spectrum& spect,
-                 scheduler* sched);
+                 enki::TaskScheduler* sched);
 }
 
 template <SimdType simd>
@@ -88,8 +89,8 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelengthIdxs)
             taskData.emplace_back(td);
         }
 
-        auto fs_task = [](void* data, scheduler* s,
-                          sched_task_partition p, sched_uint threadId)
+        auto fs_task = [](void* data, enki::TaskScheduler* s,
+                          enki::TaskSetPartition p, u32 threadId)
         {
             auto& td = ((FsTaskData*)data)[threadId];
             FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates
@@ -104,11 +105,11 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelengthIdxs)
         };
 
         {
-            scheduler* sched = &ctx.threading.sched;
-            sched_task formalSolutions;
-            sched->add(sched, &formalSolutions,
-                       fs_task, (void*)taskData.data(), wavelengthIdxs.shape(0), 4);
-            sched->join(sched, &formalSolutions);
+            enki::TaskScheduler* sched = &ctx.threading.sched;
+            LwTaskSet formalSolutions(taskData.data(), sched, wavelengthIdxs.shape(0),
+                                      4, fs_task);
+            sched->AddTaskSetToPipe(&formalSolutions);
+            sched->WaitforTask(&formalSolutions);
         }
 
         f64 dJMax = 0.0;
@@ -228,8 +229,8 @@ PrdIterData redistribute_prd_lines_template(Context& ctx, int maxIter, f64 tol)
             p.spect = &spect;
         }
 
-        auto prd_task = [](void* data, scheduler* s,
-                           sched_task_partition part, sched_uint threadId)
+        auto prd_task = [](void* data, enki::TaskScheduler* s,
+                           enki::TaskSetPartition part, u32 threadId)
         {
             for (i64 lineIdx = part.start; lineIdx < part.end; ++lineIdx)
             {
@@ -250,11 +251,11 @@ PrdIterData redistribute_prd_lines_template(Context& ctx, int maxIter, f64 tol)
                 p.dRho = 0.0;
 
             {
-                scheduler* sched = &ctx.threading.sched;
-                sched_task prdScatter;
-                sched->add(sched, &prdScatter, prd_task,
-                           (void*)taskData.data(), prdLines.size(), 1);
-                sched->join(sched, &prdScatter);
+                enki::TaskScheduler* sched = &ctx.threading.sched;
+                LwTaskSet prdScatter(taskData.data(), sched,
+                                     prdLines.size(), 1, prd_task);
+                sched->AddTaskSetToPipe(&prdScatter);
+                sched->WaitforTask(&prdScatter);
             }
             formal_sol_prd_update_rates<simd>(ctx, idxsForFs);
 

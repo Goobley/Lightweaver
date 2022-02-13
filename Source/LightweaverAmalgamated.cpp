@@ -14,10 +14,6 @@
 #include "EscapeProbability.cpp"
 #include "ThreadStorage.cpp"
 
+#include "TaskScheduler.cpp"
 // NOTE(cmo): This file does a lot of includes,  #defines, and usings that I'm not super keen on, so I suggest leaving it last
 #include "Faddeeva.cc"
-#ifdef LW_CORE_LIB
-#define SCHED_IMPLEMENTATION
-#define SCHED_PIPE_SIZE_LOG2 14 // 384 KB of job storage per thread
-#include "TaskScheduler.h"
-#endif

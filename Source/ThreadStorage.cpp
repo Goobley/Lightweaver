@@ -359,8 +359,8 @@ void IntensityCoreFactory::accumulate_Gamma_rates_parallel(Context& ctx)
         taskData.emplace_back(AccData{ &detailedAtoms[j], 0 });
     }
 
-    auto acc_task = [](void* userdata, scheduler* s,
-                       sched_task_partition p, sched_uint threadId)
+    auto acc_task = [](void* userdata, enki::TaskScheduler* s,
+                       enki::TaskSetPartition p, u32 threadId)
     {
         for (i64 j = p.start; j < p.end; ++j)
         {
@@ -386,12 +386,12 @@ void IntensityCoreFactory::accumulate_Gamma_rates_parallel(Context& ctx)
     };
 
     {
-        scheduler* sched = &ctx.threading.sched;
-        sched_task accumulation;
-        sched->add(sched, &accumulation, acc_task,
-                   (void*)taskData.data(), taskData.size(), 1);
+        enki::TaskScheduler* sched = &ctx.threading.sched;
+        LwTaskSet accumulation(taskData.data(), sched, taskData.size(),
+                               1, acc_task);
+        sched->AddTaskSetToPipe(&accumulation);
         accumulate_JRest();
-        sched->join(sched, &accumulation);
+        sched->WaitforTask(&accumulation);
     }
 }
 
@@ -493,15 +493,12 @@ void ThreadData::initialise(Context* ctx)
     if (ctx->Nthreads <= 1)
         return;
 
-    if (schedMemory)
+    if (sched.GetNumTaskThreads() > 0)
     {
         throw std::runtime_error("Tried to re- initialise_threads for a Context");
     }
 
-    sched_size memNeeded;
-    scheduler_init(&sched, &memNeeded, ctx->Nthreads, nullptr);
-    schedMemory = calloc(memNeeded, 1);
-    scheduler_start(&sched, schedMemory);
+    sched.Initialize(ctx->Nthreads);
 
     for (Atom* a : ctx->activeAtoms)
     {
@@ -556,12 +553,7 @@ void ThreadData::clear(Context* ctx)
         }
     }
 
-    if (schedMemory)
-    {
-        scheduler_stop(&sched, 1);
-        free(schedMemory);
-        schedMemory = nullptr;
-    }
+    sched.WaitforAllAndShutdown();
     if (clear_global_scratch)
         clear_global_scratch();
     intensityCores.clear();
