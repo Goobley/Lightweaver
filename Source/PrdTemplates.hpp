@@ -109,7 +109,7 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelengthIdxs)
             const int Nla = wavelengthIdxs.shape(0);
             const int taskSize = max(Nla / ctx.Nthreads / 16, 1);
             LwTaskSet formalSolutions(taskData.data(), sched, wavelengthIdxs.shape(0),
-                                      4, fs_task);
+                                      taskSize, fs_task);
             sched->AddTaskSetToPipe(&formalSolutions);
             sched->WaitforTask(&formalSolutions);
         }

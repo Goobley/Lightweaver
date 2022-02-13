@@ -635,7 +635,7 @@ void prd_scatter(Transition* t, F64View PjQj, const Atom& atom,
                                          initialiseGii, Nlambda, maxFineGrid));
 
         {
-            const int taskSize = max(atmos.Nspace / Nthreads / 16, 1);
+            const int taskSize = max(atmos.Nspace / Nthreads, 1);
             LwTaskSet scatteringInts(data.data(), sched, atmos.Nspace, taskSize,
                                      scattering_int_handler);
             sched->AddTaskSetToPipe(&scatteringInts);

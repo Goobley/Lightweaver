@@ -63,10 +63,12 @@ posixArgs = {
    'linkArgs': ['-Wl,-rpath=$ORIGIN', '-Wl,-zlazy'],
    'stubDefinePrefix': '-DLW_MODULE_STUB_NAME=',
    'lwCoreDefine': ['-DLW_CORE_LIB'],
+   'enkiTSBuild': ['-DENKITS_BUILD_DLL'],
+   'enkiExportLib': [],
    'fsIterExtensionExports': [],
 }
 msvcArgs = {
-   'baseCompileArgs': ['/std:c++17', '/Z7'],
+   'baseCompileArgs': ['/std:c++17', '/Z7', '/DENKITS_DLL'],
    'SSE2Args': [],
    'AVX2FMAArgs': ['/arch:AVX2'],
    'AVX512Args': ['/arch:AVX512'],
@@ -75,6 +77,8 @@ msvcArgs = {
    'linkArgs': ['/DEBUG:FULL'],
    'stubDefinePrefix': '/DLW_MODULE_STUB_NAME=',
    'lwCoreDefine': ['/DLW_CORE_LIB'],
+   'enkiTSBuild': ['/DENKITS_BUILD_DLL'],
+   'enkiExportLib': ['/IMPLIB:' + path.join(f'{buildDir}', 'lightweaver', 'enkiTS.lib')],
    'fsIterExtensionExports': ['fs_iteration_fns_provider'],
 }
 
@@ -114,7 +118,10 @@ simdImplDepends = {impl: coreDepends + prepend_source_dir([f'SimdImpl_{impl}.cpp
 def extension_list(args):
     lwExts = []
     lwExts.append(LwSharedLibraryNoExtension('lightweaver.libenkiTS',
-                  sources=[path.join('Source', 'TaskScheduler.cpp')],
+                  sources=[path.join('Source', 'TaskScheduler.cpp')] + stubSource,
+                  extra_compile_args=[f'{args["stubDefinePrefix"]}libenkiTS']
+                                     + args['enkiTSBuild'],
+                  extra_link_args=args['enkiExportLib'],
                   language='c++'))
     lwExts.append(Extension('lightweaver.LwCompiled',
                   sources=[path.join('Source', 'LwMiddleLayer.pyx')] + coreSource,
