@@ -44,7 +44,7 @@ namespace enki
 {
     static const int32_t  gc_TaskStartCount          = 2;
     static const int32_t  gc_TaskAlmostCompleteCount = 1; // GetIsComplete() will return false, but execution is done and about to complete
-    static const uint32_t gc_PipeSizeLog2            = 8;
+    static const uint32_t gc_PipeSizeLog2            = 14;
     static const uint32_t gc_SpinCount               = 10;
     static const uint32_t gc_SpinBackOffMulitplier   = 100;
     static const uint32_t gc_MaxNumInitialPartitions = 8;
