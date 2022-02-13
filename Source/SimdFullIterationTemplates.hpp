@@ -718,7 +718,8 @@ f64 formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsMode mode)
 
         {
             enki::TaskScheduler* sched = &ctx.threading.sched;
-            LwTaskSet formalSolutions(taskData.data(), sched, numFs, 4, fs_task);
+            const int taskSize = max(numFs / ctx.Nthreads / 16, 1);
+            LwTaskSet formalSolutions(taskData.data(), sched, numFs, taskSize, fs_task);
             sched->AddTaskSetToPipe(&formalSolutions);
             sched->WaitforTask(&formalSolutions);
         }
@@ -790,8 +791,9 @@ f64 formal_sol_impl(Context& ctx, LwInternal::FsMode mode)
 
         {
             enki::TaskScheduler* sched = &ctx.threading.sched;
+            const int taskSize = max(Nspect / ctx.Nthreads / 16, 1);
             LwTaskSet formalSolutions(taskData.data(), sched, Nspect,
-                                      4, fs_task);
+                                      taskSize, fs_task);
             sched->AddTaskSetToPipe(&formalSolutions);
             sched->WaitforTask(&formalSolutions);
         }
