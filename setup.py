@@ -23,7 +23,9 @@ from copy import copy
 # compiling and linking against Source/WindowsExtensionStub.cpp whilst defining
 # LW_MODULE_STUB_NAME to be the name of the module to be "exported".
 
-buildDir = path.join('.', 'build')
+buildDir = 'LwBuild'
+
+
 class LwSharedLibraryNoExtension(Extension):
     pass
 
@@ -155,6 +157,7 @@ def extension_list(args):
 setup(name='lightweaver',
       setup_requires=['setuptools_scm'],
       use_scm_version=True,
+      packages=['lightweaver'],
       install_requires=['numpy<1.22,>=1.19', 'scipy', 'matplotlib', 'numba>=0.55',
                         'parse', 'specutils', 'tqdm', 'weno4', 'adjustText', 'pyyaml'],
       author='Chris Osborne',
