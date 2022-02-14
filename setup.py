@@ -1,18 +1,25 @@
+from typing import Sequence
 from setuptools import setup
 from setuptools.command.build_ext import build_ext
 from setuptools.extension import Extension
+import warnings
+from distutils.file_util import copy_file
 from Cython.Build import cythonize
 from distutils.sysconfig import get_config_var
 import numpy as np
 import os
 import os.path as path
-import platform
+import sys
 from copy import copy
+from typing import Dict, List, Union
 
 # NOTE(cmo): There's an implicit (not great) assumption in the following that a
 # Windows compile will always be done with MSVC. Whilst this is true for me, and
 # on the CI build scripts, this may not be true in general (cygwin-etc). Some
 # modification may be needed for that eventuality to use GNUish flags.
+# As we are now using sys.platform rather than platform.system(), there is an
+# option to distinguish between win32 and cygwin, but I don't have a cygwin
+# environment.
 
 # We slightly abuse the setuptools eco-system to build the SIMD implementations,
 # primarily on Windows. These are not technically Python extension modules, but
@@ -22,9 +29,11 @@ from copy import copy
 # exported by the linker, or DLL construction fails. This is handled through
 # compiling and linking against Source/WindowsExtensionStub.cpp whilst defining
 # LW_MODULE_STUB_NAME to be the name of the module to be "exported".
+# This is also done for enkiTS. However, now that we're defining our own
+# build_ext, we can check for our own library type and not add the `PyInit`
+# symbol when `build_ext.get_export_symbols` is called.
 
 buildDir = 'LwBuild'
-
 
 class LwSharedLibraryNoExtension(Extension):
     pass
@@ -45,42 +54,97 @@ class LwBuildExt(build_ext):
                 filename = filename.replace(so_ext, "") + base_ext
         return filename
 
+    def run(self):
+        # NOTE(cmo): For any of our LwSharedLibraryNoExtension on Windows, make sure the necessary /IMPLIB is put in the right place (we need it), so add an /IMPLIB call to
+        if sys.platform == 'win32':
+            for ext in self.extensions:
+                if isinstance(ext, LwSharedLibraryNoExtension):
+                    fullname = self.get_ext_fullname(ext.name)
+                    filename = self.get_ext_filename(fullname)
+                    output = path.splitext(path.join(self.build_lib, filename))[0]
+                    output += '.lib'
+                    extras = [f'/IMPLIB:{output}']
+                    # NOTE(cmo): Don't clobber anyone else holding a reference to this list.
+                    ext.extra_link_args = ext.extra_link_args + extras
+
+        super().run()
+
+    def copy_extensions_to_source(self):
+        super().copy_extensions_to_source()
+        if sys.platform != 'win32':
+            return
+
+        if not self.inplace:
+            warnings.warn('This block was only anticipated to run on an inplace (development) build, results may be not as expected.')
+
+        build_py = self.get_finalized_command('build_py')
+        for ext in self.extensions:
+            if isinstance(ext, LwSharedLibraryNoExtension):
+                fullname = self.get_ext_fullname(ext.name)
+                modpath = fullname.split('.')
+                package = '.'.join(modpath[:-1])
+                package_dir = build_py.get_package_dir(package)
+
+                filename = self.get_ext_filename(fullname)
+                base_file = path.splitext(filename)[0]
+                for file_ext in ['.exp', '.lib']:
+                    extra_file_name = base_file + file_ext
+                    dest_filename = os.path.join(package_dir,
+                                                os.path.basename(extra_file_name))
+                    src_filename = os.path.join(self.build_lib, extra_file_name)
+
+                    copy_file(
+                        src_filename, dest_filename, verbose=self.verbose,
+                        dry_run=self.dry_run
+                    )
+
 
 def readme():
     with open('README.md', 'r') as f:
         return f.read()
 
-posixCiArgs = ['-march=corei7-avx', '-mtune=corei7-avx']
+posixCiArgs : Dict[str, List[str]] = {
+    'linux': ['-march=corei7-avx', '-mtune=corei7-avx'],
+    'darwin': [],
+    'win32': [],
+    'cygwin': [],
+    'aix': []
+}
+posixRpathImpl = {
+    'linux': '-Wl,-rpath=$ORIGIN',
+    'darwin': '-Wl,-rpath=@loader_path',
+    'win32': [],
+    'cygwin': [],
+    'aix': []
+}
 posixLocalArgs = ['-march=native', '-mtune=native']
-posixArgs = {
+posixArgs : Dict[str, Union[str, List[str]]] = {
    'baseCompileArgs': ['-std=c++17', '-Wno-sign-compare']
-                      + (posixCiArgs if ('LW_CI_BUILD' in os.environ
-                                        and platform.system() != 'Darwin')
+                      # TODO(cmo): Wrong if here
+                      + (posixCiArgs[sys.platform] if 'LW_CI_BUILD' in os.environ
                          else posixLocalArgs),
    'SSE2Args': ['-msse2'],
    'AVX2FMAArgs': ['-mavx2', '-mfma'],
    'AVX512Args': ['-mavx512f', '-mavx512dq', '-mfma'],
    'libs': ['dl', 'enkiTS'],
    'libDirs': [path.join(buildDir, 'lightweaver')],
-   'linkArgs': ['-Wl,-rpath=$ORIGIN', '-Wl,-zlazy'],
+   'linkArgs': [posixRpathImpl[sys.platform], '-Wl,-zlazy'],
    'stubDefinePrefix': '-DLW_MODULE_STUB_NAME=',
    'lwCoreDefine': ['-DLW_CORE_LIB'],
    'enkiTSBuild': ['-DENKITS_BUILD_DLL'],
-   'enkiExportLib': [],
    'fsIterExtensionExports': [],
 }
-msvcArgs = {
+msvcArgs : Dict[str, Union[str, List[str]]] = {
    'baseCompileArgs': ['/std:c++17', '/Z7', '/DENKITS_DLL'],
    'SSE2Args': [],
    'AVX2FMAArgs': ['/arch:AVX2'],
    'AVX512Args': ['/arch:AVX512'],
-   'libs': ['enkiTS'],
+   'libs': ['libenkiTS'],
    'libDirs': [path.join(buildDir, 'lightweaver')],
    'linkArgs': ['/DEBUG:FULL'],
    'stubDefinePrefix': '/DLW_MODULE_STUB_NAME=',
    'lwCoreDefine': ['/DLW_CORE_LIB'],
    'enkiTSBuild': ['/DENKITS_BUILD_DLL'],
-   'enkiExportLib': ['/IMPLIB:' + path.join(f'{buildDir}', 'lightweaver', 'enkiTS.lib')],
    'fsIterExtensionExports': ['fs_iteration_fns_provider'],
 }
 
@@ -100,11 +164,11 @@ coreDepends = ['Atmosphere.cpp', 'Background.cpp', 'Background.hpp', 'Bezier.hpp
                'TaskStorage.cpp', 'TaskStorage.hpp', 'UpdatePopulations.cpp', 'Utils.hpp']
 coreDepends = prepend_source_dir(coreDepends)
 stubSource = []
-if platform.system() == 'Windows':
+if sys.platform == 'win32':
     stubSource.append('WindowsExtensionStub.cpp')
 stubSource = prepend_source_dir(stubSource)
 
-if platform.system() == 'Windows':
+if sys.platform == 'win32':
     buildArgs = msvcArgs
 else:
     buildArgs = posixArgs
@@ -123,7 +187,6 @@ def extension_list(args):
                   sources=[path.join('Source', 'TaskScheduler.cpp')] + stubSource,
                   extra_compile_args=[f'{args["stubDefinePrefix"]}libenkiTS']
                                      + args['enkiTSBuild'],
-                  extra_link_args=args['enkiExportLib'],
                   language='c++'))
     lwExts.append(Extension('lightweaver.LwCompiled',
                   sources=[path.join('Source', 'LwMiddleLayer.pyx')] + coreSource,
@@ -147,9 +210,9 @@ def extension_list(args):
                                                    args[f'{simdImpl}Args'] +
                                                    [f'{args["stubDefinePrefix"]}SimdImpl_{simdImpl}'],
                                 extra_link_args=args['linkArgs'],
-                                # NOTE(cmo): There seems to be a bug with
+                                # NOTE(cmo): There is a bug with
                                 # export_symbols affecting its arguments, so we
-                                # submit a copy.
+                                # submit a copy. See setuptools #3058
                                 export_symbols=copy(args['fsIterExtensionExports']),
                                 optional=True))
     return lwExts
@@ -166,7 +229,7 @@ setup(name='lightweaver',
       url='http://github.com/Goobley/Lightweaver',
       description='Non-LTE Radiative Transfer Framework in Python',
       ext_modules=extension_list(buildArgs),
-      cmdclass={'build_ext': LwBuildExt},
+      cmdclass={'build_ext': LwBuildExt },
       include_package_data=True,
       long_description=readme(),
       long_description_content_type='text/markdown',
