@@ -1,17 +1,17 @@
-from typing import Sequence
-from setuptools import setup
-from setuptools.command.build_ext import build_ext
-from setuptools.extension import Extension
-import warnings
-from distutils.file_util import copy_file
-from Cython.Build import cythonize
-from distutils.sysconfig import get_config_var
-import numpy as np
 import os
 import os.path as path
 import sys
+import warnings
 from copy import copy
+from distutils.file_util import copy_file
+from distutils.sysconfig import get_config_var
 from typing import Dict, List, Union
+
+import numpy as np
+from Cython.Build import cythonize
+from setuptools import setup
+from setuptools.command.build_ext import build_ext
+from setuptools.extension import Extension
 
 # NOTE(cmo): There's an implicit (not great) assumption in the following that a
 # Windows compile will always be done with MSVC. Whilst this is true for me, and
@@ -87,7 +87,7 @@ class LwBuildExt(build_ext):
         if sys.platform != 'darwin':
             return
 
-        lw_shlibs = [ext for ext in self.extensions 
+        lw_shlibs = [ext for ext in self.extensions
                      if isinstance(ext, LwSharedLibraryNoExtension)]
         if lw_shlibs:
             self.setup_shlib_compiler()
@@ -224,7 +224,7 @@ def extension_list(args):
     lwExts = []
     lwExts.append(LwSharedLibraryNoExtension('lightweaver.libenkiTS',
                   sources=[path.join('Source', 'TaskScheduler.cpp')] + stubSource,
-                  extra_compile_args=args['baseCompileArgs'] 
+                  extra_compile_args=args['baseCompileArgs']
                                      + [f'{args["stubDefinePrefix"]}libenkiTS']
                                      + args['enkiTSBuild'],
                   language='c++'))
