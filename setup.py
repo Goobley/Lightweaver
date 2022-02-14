@@ -55,8 +55,10 @@ class LwBuildExt(build_ext):
         return filename
 
     def run(self):
-        # NOTE(cmo): For any of our LwSharedLibraryNoExtension on Windows, make sure the necessary /IMPLIB is put in the right place (we need it), so add an /IMPLIB call to
         if sys.platform == 'win32':
+            # NOTE(cmo): For any of our LwSharedLibraryNoExtension on Windows,
+            # make sure the necessary /IMPLIB is put in the right place (we need
+            # it), so add an /IMPLIB call too
             for ext in self.extensions:
                 if isinstance(ext, LwSharedLibraryNoExtension):
                     fullname = self.get_ext_fullname(ext.name)
@@ -66,8 +68,46 @@ class LwBuildExt(build_ext):
                     extras = [f'/IMPLIB:{output}']
                     # NOTE(cmo): Don't clobber anyone else holding a reference to this list.
                     ext.extra_link_args = ext.extra_link_args + extras
-
+        elif sys.platform == 'darwin':
+            # NOTE(cmo): On macOS we need to set the install_name of these
+            # libraries to minimise the amount of rpath shenanigans.
+            for ext in self.extensions:
+                if isinstance(ext, LwSharedLibraryNoExtension):
+                    fullname = self.get_ext_fullname(ext.name)
+                    filename = self.get_ext_filename(fullname)
+                    lib_name = path.split(filename)[1]
+                    if any(arg == '-install_name' for arg in ext.extra_link_args):
+                        continue
+                    install_name = ['-install_name', f'@rpath/{lib_name}']
+                    ext.extra_link_args = ext.extra_link_args + install_name
         super().run()
+
+    def finalize_options(self):
+        super().finalize_options()
+        if sys.platform != 'darwin':
+            return
+
+        lw_shlibs = [ext for ext in self.extensions 
+                     if isinstance(ext, LwSharedLibraryNoExtension)]
+        if lw_shlibs:
+            self.setup_shlib_compiler()
+
+    def build_extension(self, ext):
+        if sys.platform != 'darwin':
+            return super().build_extension(ext)
+
+        if not isinstance(ext, LwSharedLibraryNoExtension):
+            return super().build_extension(ext)
+
+        # NOTE(cmo): Based on build_extension in setuptools, on macOS we need
+        # the shlib_compiler, to output a dynamic library, rather than a bundle
+        # as is normally used.
+        try:
+            _compiler = self.compiler
+            self.compiler = self.shlib_compiler
+            super().build_extension(ext)
+        finally:
+            self.compiler = _compiler
 
     def copy_extensions_to_source(self):
         super().copy_extensions_to_source()
@@ -110,9 +150,9 @@ posixCiArgs : Dict[str, List[str]] = {
     'cygwin': [],
     'aix': []
 }
-posixRpathImpl = {
-    'linux': '-Wl,-rpath=$ORIGIN',
-    'darwin': '-Wl,-rpath=@loader_path',
+posixLinkerArgs = {
+    'linux': ['-Wl,-rpath,$ORIGIN', '-Wl,-zlazy'],
+    'darwin': ['-Wl,-rpath,@loader_path'],
     'win32': [],
     'cygwin': [],
     'aix': []
@@ -120,7 +160,6 @@ posixRpathImpl = {
 posixLocalArgs = ['-march=native', '-mtune=native']
 posixArgs : Dict[str, Union[str, List[str]]] = {
    'baseCompileArgs': ['-std=c++17', '-Wno-sign-compare']
-                      # TODO(cmo): Wrong if here
                       + (posixCiArgs[sys.platform] if 'LW_CI_BUILD' in os.environ
                          else posixLocalArgs),
    'SSE2Args': ['-msse2'],
@@ -128,7 +167,7 @@ posixArgs : Dict[str, Union[str, List[str]]] = {
    'AVX512Args': ['-mavx512f', '-mavx512dq', '-mfma'],
    'libs': ['dl', 'enkiTS'],
    'libDirs': [path.join(buildDir, 'lightweaver')],
-   'linkArgs': [posixRpathImpl[sys.platform], '-Wl,-zlazy'],
+   'linkArgs': posixLinkerArgs[sys.platform],
    'stubDefinePrefix': '-DLW_MODULE_STUB_NAME=',
    'lwCoreDefine': ['-DLW_CORE_LIB'],
    'enkiTSBuild': ['-DENKITS_BUILD_DLL'],
@@ -185,7 +224,8 @@ def extension_list(args):
     lwExts = []
     lwExts.append(LwSharedLibraryNoExtension('lightweaver.libenkiTS',
                   sources=[path.join('Source', 'TaskScheduler.cpp')] + stubSource,
-                  extra_compile_args=[f'{args["stubDefinePrefix"]}libenkiTS']
+                  extra_compile_args=args['baseCompileArgs'] 
+                                     + [f'{args["stubDefinePrefix"]}libenkiTS']
                                      + args['enkiTSBuild'],
                   language='c++'))
     lwExts.append(Extension('lightweaver.LwCompiled',
