@@ -39,6 +39,13 @@ lightweaver.barklem module
    :members:
    :show-inheritance:
 
+lightweaver.benchmark module
+-------------------------------------
+
+.. automodule:: lightweaver.benchmark
+   :members:
+   :show-inheritance:
+
 lightweaver.broadening module
 -----------------------------
 
@@ -50,6 +57,13 @@ lightweaver.collisional\_rates module
 -------------------------------------
 
 .. automodule:: lightweaver.collisional_rates
+   :members:
+   :show-inheritance:
+
+lightweaver.config module
+-------------------------------------
+
+.. automodule:: lightweaver.config
    :members:
    :show-inheritance:
 
@@ -85,6 +99,13 @@ lightweaver.rh\_atoms module
 ----------------------------
 
 .. automodule:: lightweaver.rh_atoms
+   :members:
+   :show-inheritance:
+
+lightweaver.simd_management module
+-------------------------------------
+
+.. automodule:: lightweaver.simd_management
    :members:
    :show-inheritance:
 
