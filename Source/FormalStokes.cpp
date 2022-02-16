@@ -161,21 +161,11 @@ inline void prod(const F64View2D& a, const F64View& b, F64View& c)
             c(i) += a(i, k) * b(k);
 }
 
-// inline void prod(f32 a[4][4], f64 b[4], f64 c[4])
-// {
-//     for (int i = 0; i < 4; ++i)
-//         c[i] = 0.0;
-
-//     for (int i = 0; i < 4; ++i)
-//         for (int k = 0; k < 4; ++k)
-//             c[i] += f64(a[i][k]) * b[k];
-// }
-
 #define StackStoredView2D(name, dim0, dim1) f64 name ## Storage[dim0*dim1]; auto name = F64View2D(name ## Storage, dim0, dim1);
 #define StackStoredView(name, dim0) f64 name ## Storage[dim0]; auto name = F64View(name ## Storage, dim0);
 
-#define GLU_MAT 1
-void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs, f64 Istart[4], bool polarisedFrequency)
+void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs,
+                                      f64 Istart[4], bool polarisedFrequency)
 {
     JasUnpack((*fd), atmos, chi, S, I);
     const auto& height = atmos->height;
@@ -430,7 +420,7 @@ void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int la, int mu, bool toOb
 
 namespace GammaFsCores
 {
-f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ)
+f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ, bool upOnly)
 {
     JasUnpack(*data, atmos, spect, fd, background);
     JasUnpack(*data, activeAtoms, detailedAtoms, JDag);
@@ -475,15 +465,20 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ)
         }
     }
 
+    int toObsStart = 0;
+    int toObsEnd = 2;
+    if (upOnly)
+        toObsStart = 1;
+
     f64 dJMax = 0.0;
     for (int mu = 0; mu < Nrays; ++mu)
     {
-        for (int toObsI = 0; toObsI < 2; toObsI += 1)
+        for (int toObsI = toObsStart; toObsI < toObsEnd; toObsI += 1)
         {
             bool toObs = (bool)toObsI;
             bool polarisedFrequency = false;
             // const f64 sign = If toObs Then 1.0 Else -1.0 End;
-            if (!continuaOnly || (continuaOnly && (mu == 0 && toObsI == 0)))
+            if (!continuaOnly || (continuaOnly && (mu == 0 && toObsI == toObsStart)))
             {
                 chiTot.fill(0.0);
                 etaTot.fill(0.0);
@@ -635,7 +630,7 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ)
 }
 }
 
-f64 formal_sol_full_stokes(Context& ctx, bool updateJ)
+f64 formal_sol_full_stokes(Context& ctx, bool updateJ, bool upOnly)
 {
     // feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
     JasUnpack(*ctx, atmos, spect, background);
@@ -675,7 +670,7 @@ f64 formal_sol_full_stokes(Context& ctx, bool updateJ)
     f64 dJMax = 0.0;
     for (int la = 0; la < Nspect; ++la)
     {
-        f64 dJ = GammaFsCores::stokes_fs_core(core, la, true);
+        f64 dJ = GammaFsCores::stokes_fs_core(core, la, updateJ, upOnly);
         dJMax = max(dJ, dJMax);
     }
     return dJMax;

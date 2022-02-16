@@ -292,12 +292,11 @@ cdef extern from "Lightweaver.hpp":
 
     cdef f64 formal_sol_gamma_matrices(Context& ctx)
     cdef f64 formal_sol_gamma_matrices(Context& ctx, bool_t lambdaIterate)
-    cdef f64 formal_sol_update_rates(Context& ctx)
-    cdef f64 formal_sol_update_rates_fixed_J(Context& ctx)
     cdef f64 formal_sol(Context& ctx)
     cdef f64 formal_sol(Context& ctx, bool_t upOnly)
     cdef f64 formal_sol_full_stokes(Context& ctx) except +
     cdef f64 formal_sol_full_stokes(Context& ctx, bool_t updateJ) except +
+    cdef f64 formal_sol_full_stokes(Context& ctx, bool_t updateJ, bool_t upOnly) except +
     cdef PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
     cdef void stat_eq(Atom* atom) except +
     cdef void parallel_stat_eq(Context* ctx) except +
@@ -3410,7 +3409,7 @@ cdef class LwContext:
 
         self.spect.setup_stokes()
 
-    cpdef single_stokes_fs(self, recompute=False):
+    cpdef single_stokes_fs(self, recompute=False, updateJ=False, upOnly=True):
         '''
         Compute a full Stokes formal solution across all wakelengths in the
         grid, setting up the Context first (it is rarely necessary to call
@@ -3424,12 +3423,17 @@ cdef class LwContext:
         ----------
         recompute : bool, optional
             If previously called, and called again with `recompute = True`
-            the line profiles will be recomputed.
+            the line profiles will be recomputed. (Default: False)
+        updateJ : bool, optional
+            Whether to update J on the Context during the calculation (Default: False)
+        upOnly : bool, optional
+            Whether to compute the formal solver only for upgoing rays (used in
+            final synthesis).
         '''
         self.setup_stokes(recompute=recompute)
 
         self.atmos.compute_bcs(self.spect)
-        cdef f64 dJ = formal_sol_full_stokes(self.ctx)
+        cdef f64 dJ = formal_sol_full_stokes(self.ctx, updateJ, upOnly)
         return dJ
 
     cpdef prd_redistribute(self, int maxIter=3, f64 tol=1e-2, printUpdate=True):
@@ -3676,8 +3680,7 @@ cdef class LwContext:
             condition can be ignored.
         upOnly : bool, optional
             Whether to only compute upgoing rays. Mostly affects the handling of
-            boundary conditions for 2D atmospheres. Only applies to scalar
-            formal solvers.  (default: True).
+            boundary conditions for 2D atmospheres. (Default: True).
         returnCtx : bool, optional
             Whether to return the Context used to compute the formal solution
             for these rays. If true, it will be returned as the second value.
@@ -3731,7 +3734,7 @@ cdef class LwContext:
             rayCtx = self.construct_from_state_dict_with(state, spect=spect)
 
         if stokes:
-            rayCtx.single_stokes_fs()
+            rayCtx.single_stokes_fs(upOnly=upOnly)
             Iwav = np.asarray(rayCtx.spect.I)
             quv = np.asarray(rayCtx.spect.Quv)
             if squeeze:
