@@ -1417,7 +1417,7 @@ cdef class LwBackground:
     Storage and driver for the background computations in Lightweaver. The
     storage is allocated and managed by this class, before being passed to
     C++ when necessary. This class is also responsible for calling the
-    BackgroundProvider instance used (by default BasicBackground).
+    BackgroundProvider instance used (by default FastBackground with one thread).
     '''
     cdef Background background
     cdef object eqPops
@@ -1445,7 +1445,7 @@ cdef class LwBackground:
         self.sca = np.zeros((Nlambda, Nspace))
 
         if provider is None:
-            self.provider = BasicBackground(eqPops, radSet, wavelength)
+            self.provider = FastBackground(eqPops, radSet, wavelength, Nthreads=1)
         else:
             self.provider = provider(eqPops, radSet, wavelength)
 
