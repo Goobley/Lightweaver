@@ -1,16 +1,18 @@
-from lightweaver.simd_management import get_available_simd_suffixes, LwSimdImplsAndFlags
-from copy import copy
-import astropy.config as conf
-from typing import Optional
 import os.path as path
-import yaml
 import warnings
+from copy import copy
+from typing import List, Optional
+
+import astropy.config as conf
+import yaml
+from lightweaver.simd_management import (LwSimdImplsAndFlags,
+                                         get_available_simd_suffixes)
 
 Defaults = {
     'FormalSolver1d': 'piecewise_bezier3_1d',
     'FormalSolver2d': 'piecewise_besser_2d',
     'IterationScheme': 'mali_full_precond',
-    'SimdImpl': 'Scalar',
+    'SimdImpl': 'scalar',
 }
 
 params = copy(Defaults)
@@ -60,7 +62,12 @@ def update_config_dict(configPath: Optional[str]):
     '''
     Updates the configuration dict (`lightweaver.ConfigDict`), from the config
     file. If there is no config file, the defaults are used, and the most
-    advanced instruction set is chosen for the SimdImpl.
+    advanced instruction set is chosen for the SimdImpl. If the SimdImpl in the config file is too advanced for the current CPU, the maximum available is chosen.
+
+    Parameters
+    ----------
+    configPath :  str, optional
+        The path to the config file, or None.
     '''
     if configPath is None:
         warnings.warn('No config file found, using defaults. For optimised vectorised code, please run `lightweaver.benchmark()`, otherwise the most advanced instruction set supported by your machine will be picked, which may not be the fastest (due to e.g. aggressive AVX offsets).')
@@ -69,12 +76,22 @@ def update_config_dict(configPath: Optional[str]):
 
     with open(configPath, 'r') as f:
         confDict = yaml.safe_load(f)
-        params.update(confDict)
+    params.update(confDict)
+
+    availableSimd : List[str] = get_available_simd_suffixes()
+    if params['SimdImpl'] not in ['scalar'] + availableSimd:
+        set_most_advanced_simd_impl()
+        warnings.warn('SimdImpl was set to an overly advanced instruction set for the current CPU, setting to the maximum supported by your CPU.')
 
 
 def update_config_file(configPath: str):
     '''
     Updates the config file to the current values of the config dict.
+
+    Parameters
+    ----------
+    configPath : str
+        The path to the config file.
     '''
     with open(configPath, 'w') as f:
         yaml.safe_dump(params, f)

@@ -15,6 +15,7 @@ from .utils import NgOptions, InitialSolution, voigt_H, planck, gaunt_bf, Conver
                    compute_height_edges, compute_wavelength_edges, grotrian_diagram
 from .nr_update import nr_post_update
 from .LwCompiled import LwContext
+from .benchmark import benchmark
 
 # NOTE(cmo): This is here to make it easier to retroactively monkeypatch
 class Context(LwContext):
