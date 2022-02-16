@@ -43,7 +43,7 @@ def configure_context(Nspace=500, fsIterScheme=None):
     ctx = LwContext(atmos, spect, eqPops, fsIterScheme=fsIterScheme)
     return ctx
 
-def benchmark(Niter=50, Nrep=3, verbose=True, writeConfig=True):
+def benchmark(Niter=50, Nrep=3, verbose=True, writeConfig=True, warmUp=True):
     '''
     Benchmark the various SIMD implementations for Lightweaver's formal solver
     and iteration functions.
@@ -59,6 +59,9 @@ def benchmark(Niter=50, Nrep=3, verbose=True, writeConfig=True):
     writeConfig : bool, optional
         Whether to writ the optimal method to the user's config file. (Default:
         True)
+    warmUp : bool, optional
+        Whether to run a Context first (discarded) to ensure that all numba jit
+        code is jitted and warm. (Default: True)
     '''
     timer = time.perf_counter
 
@@ -68,6 +71,11 @@ def benchmark(Niter=50, Nrep=3, verbose=True, writeConfig=True):
     suffixes = get_available_simd_suffixes()
     suffixes = ['scalar'] + suffixes
     methods = [f'mali_full_precond_{suffix}' for suffix in suffixes]
+
+    if warmUp:
+        ctx = configure_context(fsIterScheme=methods[0])
+        for _ in range(max(Niter / 5, 10)):
+            ctx.formal_sol_gamma_matrices(printUpdate=False)
 
     timings = [0.0] * len(suffixes)
     it = tqdm(methods * Nrep) if verbose else methods * Nrep
@@ -92,8 +100,6 @@ def benchmark(Niter=50, Nrep=3, verbose=True, writeConfig=True):
             print(f'Selecting method: {methods[minIdx]}')
 
         impl = suffixes[minIdx]
-        if impl == 'scalar':
-            impl = 'Scalar'
         rcParams['SimdImpl'] = impl
 
         path = get_config_path()
