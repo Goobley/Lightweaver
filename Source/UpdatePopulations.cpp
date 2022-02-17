@@ -3,7 +3,7 @@
 #include <atomic>
 #include <list>
 
-void stat_eq(Atom* atomIn, int spaceStart, int spaceEnd)
+void stat_eq_impl(Atom* atomIn, int spaceStart, int spaceEnd)
 {
     auto& atom = *atomIn;
     const int Nlevel = atom.Nlevel;
@@ -44,6 +44,11 @@ void stat_eq(Atom* atomIn, int spaceStart, int spaceEnd)
     }
 }
 
+void stat_eq(Context& ctx,  Atom* atom, int spaceStart, int spaceEnd)
+{
+    return ctx.iterFns.stat_eq(atom, spaceStart, spaceEnd);
+}
+
 void parallel_stat_eq(Context* ctx, int chunkSize)
 {
     const int Natom = ctx->activeAtoms.size();
@@ -52,7 +57,7 @@ void parallel_stat_eq(Context* ctx, int chunkSize)
     {
         for (Atom* atom : ctx->activeAtoms)
         {
-            stat_eq(atom);
+            stat_eq_impl(atom);
         }
         return;
     }
@@ -78,7 +83,7 @@ void parallel_stat_eq(Context* ctx, int chunkSize)
         UpdateData* d = (UpdateData*)data;
         try
         {
-            stat_eq(d->atom, p.start, p.end);
+            stat_eq_impl(d->atom, p.start, p.end);
         }
         catch (const std::runtime_error& e)
         {
@@ -107,8 +112,8 @@ void parallel_stat_eq(Context* ctx, int chunkSize)
         throw std::runtime_error("Singular Matrix");
 }
 
-void time_dependent_update(Atom* atomIn, F64View2D nOld, f64 dt,
-                           int spaceStart, int spaceEnd)
+void time_dependent_update_impl(Atom* atomIn, F64View2D nOld, f64 dt,
+                                int spaceStart, int spaceEnd)
 {
     auto& atom  = *atomIn;
     const int Nlevel = atom.Nlevel;
@@ -140,6 +145,12 @@ void time_dependent_update(Atom* atomIn, F64View2D nOld, f64 dt,
     }
 }
 
+void time_dependent_update(Context& ctx, Atom* atomIn, F64View2D nOld, f64 dt,
+                           int spaceStart, int spaceEnd)
+{
+    return ctx.iterFns.time_dep_update(atomIn, nOld, dt, spaceStart, spaceEnd);
+}
+
 void parallel_time_dep_update(Context* ctx, const std::vector<F64View2D>& oldPops,
                               f64 dt, int chunkSize)
 {
@@ -149,7 +160,7 @@ void parallel_time_dep_update(Context* ctx, const std::vector<F64View2D>& oldPop
     {
         for (int a = 0; a < Natom; ++a)
         {
-            time_dependent_update(ctx->activeAtoms[a], oldPops[a], dt);
+            time_dependent_update_impl(ctx->activeAtoms[a], oldPops[a], dt);
         }
         return;
     }
@@ -178,7 +189,7 @@ void parallel_time_dep_update(Context* ctx, const std::vector<F64View2D>& oldPop
         UpdateData* d = (UpdateData*)data;
         try
         {
-            time_dependent_update(d->atom, d->nOld, d->dt, p.start, p.end);
+            time_dependent_update_impl(d->atom, d->nOld, d->dt, p.start, p.end);
         }
         catch (const std::runtime_error& e)
         {
@@ -271,12 +282,12 @@ void Ftd(int k, const NrTimeDependentData& timeDepData,
     F(Neqn - 1) -= backgroundNe;
 }
 
-void nr_post_update(Context* ctx, std::vector<Atom*>* atoms,
-                    const std::vector<F64View3D>& dC,
-                    F64View backgroundNe,
-                    const NrTimeDependentData& timeDepData,
-                    f64 crswVal,
-                    int spaceStart, int spaceEnd)
+void nr_post_update_impl(Context& ctx, std::vector<Atom*>* atoms,
+                         const std::vector<F64View3D>& dC,
+                         F64View backgroundNe,
+                         const NrTimeDependentData& timeDepData,
+                         f64 crswVal,
+                         int spaceStart, int spaceEnd)
 {
     const bool fdCollisionRates = dC.size() > 0;
     const bool timeDep = (timeDepData.nPrev.size() != 0);
@@ -287,7 +298,7 @@ void nr_post_update(Context* ctx, std::vector<Atom*>* atoms,
     if (spaceStart < 0 && spaceEnd < 0)
     {
         spaceStart = 0;
-        spaceEnd = ctx->atmos->Nspace;
+        spaceEnd = ctx.atmos->Nspace;
     }
 
     f64 maxChange = 0.0;
@@ -300,9 +311,9 @@ void nr_post_update(Context* ctx, std::vector<Atom*>* atoms,
     {
         dF.fill(0.0);
         if (timeDep)
-            Ftd(k, timeDepData, ctx->atmos->ne(k), backgroundNe(k), *atoms, Fg);
+            Ftd(k, timeDepData, ctx.atmos->ne(k), backgroundNe(k), *atoms, Fg);
         else
-            F(k, ctx->atmos->ne(k), backgroundNe(k), *atoms, Fg);
+            F(k, ctx.atmos->ne(k), backgroundNe(k), *atoms, Fg);
 
         int start = 0;
         for (int a = 0; a < atoms->size(); ++a)
@@ -327,7 +338,7 @@ void nr_post_update(Context* ctx, std::vector<Atom*>* atoms,
                 if (t->type == TransitionType::CONTINUUM)
                 {
                     f64 preconRji = atom->Gamma(t->i, t->j, k) - crswVal * atom->C(t->i, t->j, k);
-                    f64 entry = -(preconRji / ctx->atmos->ne(k)) * atom->n(t->j, k);
+                    f64 entry = -(preconRji / ctx.atmos->ne(k)) * atom->n(t->j, k);
                     if (timeDep)
                         entry *= -theta * timeDepData.dt;
                     dF(start + t->i, Neqn-1) += entry;
@@ -371,24 +382,24 @@ void nr_post_update(Context* ctx, std::vector<Atom*>* atoms,
             }
             start += atom->Nlevel;
         }
-        ctx->atmos->ne(k) += Fg(Neqn-1);
+        ctx.atmos->ne(k) += Fg(Neqn-1);
     }
 }
 
-void parallel_nr_post_update(Context* ctx, std::vector<Atom*>* atoms,
+void parallel_nr_post_update(Context& ctx, std::vector<Atom*>* atoms,
                              const std::vector<F64View3D>& dC,
                              F64View backgroundNe,
                              const NrTimeDependentData& timeDepData,
                              f64 crswVal,
                              int chunkSize)
 {
-    if (chunkSize <= 0 || ctx->atmos->Nspace <= chunkSize)
+    if (chunkSize <= 0 || ctx.atmos->Nspace <= chunkSize)
     {
-        nr_post_update(ctx, atoms, dC, backgroundNe, timeDepData, crswVal);
+        nr_post_update_impl(ctx, atoms, dC, backgroundNe, timeDepData, crswVal);
         return;
     }
 
-    const int Nthreads = ctx->Nthreads;
+    const int Nthreads = ctx.Nthreads;
     struct UpdateData
     {
         Context* ctx;
@@ -408,7 +419,7 @@ void parallel_nr_post_update(Context* ctx, std::vector<Atom*>* atoms,
     std::vector<UpdateData> threadData = std::vector<UpdateData>(Nthreads);
     for (int t = 0; t < Nthreads; ++t)
     {
-        threadData[t].ctx = ctx;
+        threadData[t].ctx = &ctx;
         threadData[t].atoms = atoms;
         threadData[t].dC = &dC;
         threadData[t].backgroundNe = backgroundNe;
@@ -423,7 +434,7 @@ void parallel_nr_post_update(Context* ctx, std::vector<Atom*>* atoms,
         UpdateData* d = &((UpdateData*)data)[threadId];
         try
         {
-            nr_post_update(d->ctx, d->atoms, *d->dC, d->backgroundNe,
+            nr_post_update_impl(*d->ctx, d->atoms, *d->dC, d->backgroundNe,
                            *d->timeDepData, d->crswVal, p.start, p.end);
         }
         catch (const std::runtime_error& e)
@@ -433,8 +444,8 @@ void parallel_nr_post_update(Context* ctx, std::vector<Atom*>* atoms,
     };
 
     {
-        enki::TaskScheduler* sched = &ctx->threading.sched;
-        LwTaskSet nrUpdate(threadData.data(), sched, ctx->atmos->Nspace,
+        enki::TaskScheduler* sched = &ctx.threading.sched;
+        LwTaskSet nrUpdate(threadData.data(), sched, ctx.atmos->Nspace,
                            chunkSize, update_handler);
         sched->AddTaskSetToPipe(&nrUpdate);
         sched->WaitforTaskSet(&nrUpdate);
@@ -448,4 +459,15 @@ void parallel_nr_post_update(Context* ctx, std::vector<Atom*>* atoms,
     if (throwNeeded)
         throw std::runtime_error("Singular Matrix");
 
+}
+
+void nr_post_update(Context& ctx, std::vector<Atom*>* atoms,
+                    const std::vector<F64View3D>& dC,
+                    F64View backgroundNe,
+                    const NrTimeDependentData& timeDepData,
+                    f64 crswVal,
+                    int spaceStart, int spaceEnd)
+{
+    return ctx.iterFns.nr_post_update(ctx, atoms, dC, backgroundNe, timeDepData,
+                                      crswVal, spaceStart, spaceEnd);
 }

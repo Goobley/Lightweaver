@@ -6,13 +6,7 @@
 #include "LwTransition.hpp"
 #include "LwAtom.hpp"
 #include "LwContext.hpp"
-
-// TODO(cmo): Do similar for standard iteration to get index of dJMax
-struct PrdIterData
-{
-    int iter;
-    f64 dRho;
-};
+#include "LwIterationResult.hpp"
 
 struct NrTimeDependentData
 {
@@ -20,30 +14,33 @@ struct NrTimeDependentData
     std::vector<F64View2D> nPrev;
 };
 
-f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate=false);
-f64 formal_sol_iteration_matrices_scalar(Context& ctx, bool lambdaIterate=false);
-f64 formal_sol(Context& ctx, bool upOnly=true);
-f64 formal_sol_scalar(Context& ctx, bool upOnly=true);
-f64 formal_sol_full_stokes(Context& ctx, bool updateJ=false, bool upOnly=true);
-PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol);
-PrdIterData redistribute_prd_lines_scalar(Context& ctx, int maxIter, f64 tol);
-void stat_eq(Atom* atom, int spaceStart=-1, int spaceEnd=-1);
-void time_dependent_update(Atom* atomIn, F64View2D nOld, f64 dt,
+IterationResult formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate=false);
+IterationResult formal_sol_iteration_matrices_scalar(Context& ctx, bool lambdaIterate=false);
+IterationResult formal_sol(Context& ctx, bool upOnly=true);
+IterationResult formal_sol_scalar(Context& ctx, bool upOnly=true);
+IterationResult formal_sol_full_stokes(Context& ctx, bool updateJ=false, bool upOnly=true);
+IterationResult formal_sol_full_stokes_impl(Context& ctx, bool updateJ=false,
+                                            bool upOnly=true);
+IterationResult redistribute_prd_lines(Context& ctx, int maxIter, f64 tol);
+IterationResult redistribute_prd_lines_scalar(Context& ctx, int maxIter, f64 tol);
+void stat_eq(Context& ctx,  Atom* atom, int spaceStart=-1, int spaceEnd=-1);
+void stat_eq_impl(Atom* atom, int spaceStart=-1, int spaceEnd=-1);
+void time_dependent_update(Context& ctx, Atom* atomIn, F64View2D nOld, f64 dt,
                            int spaceStart=-1, int spaceEnd=-1);
-void parallel_stat_eq(Context* ctx, int chunkSize=20);
-void parallel_time_dep_update(Context* ctx, const std::vector<F64View2D>& oldPops,
-                              f64 dt, int chunkSize=20);
-void nr_post_update(Context* ctx, std::vector<Atom*>* atoms,
+void time_dependent_update_impl(Atom* atomIn, F64View2D nOld, f64 dt,
+                                int spaceStart=-1, int spaceEnd=-1);
+void nr_post_update(Context& ctx, std::vector<Atom*>* atoms,
                     const std::vector<F64View3D>& dC,
                     F64View backgroundNe,
                     const NrTimeDependentData& timeDepData,
                     f64 crswVal,
                     int spaceStart=-1, int spaceEnd=-1);
-void parallel_nr_post_update(Context* ctx, std::vector<Atom*>* atoms,
-                             const std::vector<F64View3D>& dC,
-                             F64View backgroundNe,
-                             const NrTimeDependentData& timeDepData,
-                             f64 crswVal, int chunkSize=5);
+void nr_post_update_impl(Context& ctx, std::vector<Atom*>* atoms,
+                         const std::vector<F64View3D>& dC,
+                         F64View backgroundNe,
+                         const NrTimeDependentData& timeDepData,
+                         f64 crswVal,
+                         int spaceStart=-1, int spaceEnd=-1);
 void configure_hprd_coeffs(Context& ctx);
 
 namespace EscapeProbability

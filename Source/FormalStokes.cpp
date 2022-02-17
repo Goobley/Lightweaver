@@ -630,9 +630,8 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ, bool upOnly)
 }
 }
 
-f64 formal_sol_full_stokes(Context& ctx, bool updateJ, bool upOnly)
+IterationResult formal_sol_full_stokes_impl(Context& ctx, bool updateJ, bool upOnly)
 {
-    // feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
     JasUnpack(*ctx, atmos, spect, background);
     JasUnpack(ctx, activeAtoms, detailedAtoms);
 
@@ -642,7 +641,6 @@ f64 formal_sol_full_stokes(Context& ctx, bool updateJ, bool upOnly)
     const int Nspace = atmos.Nspace;
     const int Nrays = atmos.Nrays;
     const int Nspect = spect.wavelength.shape(0);
-    // auto Iplus = spect.I;
 
     F64Arr2D chiTot = F64Arr2D(7, Nspace);
     F64Arr2D etaTot = F64Arr2D(4, Nspace);
@@ -668,10 +666,23 @@ f64 formal_sol_full_stokes(Context& ctx, bool updateJ, bool upOnly)
     JasPack(core, chiTot, etaTot, Uji, Vij, Vji, I, S);
 
     f64 dJMax = 0.0;
+    int maxIdx = 0;
     for (int la = 0; la < Nspect; ++la)
     {
         f64 dJ = GammaFsCores::stokes_fs_core(core, la, updateJ, upOnly);
-        dJMax = max(dJ, dJMax);
+        dJMax = max_idx(dJ, dJMax, maxIdx, la);
     }
-    return dJMax;
+    IterationResult result{};
+    result.updatedJ = updateJ;
+    if (updateJ)
+    {
+        result.dJMax = dJMax;
+        result.dJMaxIdx = maxIdx;
+    }
+    return result;
+}
+
+IterationResult formal_sol_full_stokes(Context& ctx, bool updateJ, bool upOnly)
+{
+    return ctx.iterFns.full_stokes_fs(ctx, updateJ, upOnly);
 }

@@ -564,7 +564,7 @@ compute_full_operator_rates(Atom* a, int kr, f64 wmu,
 
 using LwInternal::FsMode;
 
-f64 formal_sol_iteration_matrices_AVX512(Context& ctx, bool lambdaIterate)
+IterationResult formal_sol_iteration_matrices_AVX512(Context& ctx, bool lambdaIterate)
 {
     if constexpr (AVX512_available())
     {
@@ -580,7 +580,7 @@ f64 formal_sol_iteration_matrices_AVX512(Context& ctx, bool lambdaIterate)
     }
 }
 
-f64 formal_sol_AVX512(Context& ctx, bool upOnly)
+IterationResult formal_sol_AVX512(Context& ctx, bool upOnly)
 {
     FsMode mode = FsMode::FsOnly;
     if (upOnly)
@@ -588,7 +588,7 @@ f64 formal_sol_AVX512(Context& ctx, bool upOnly)
     return LwInternal::formal_sol_impl<SimdType::AVX512>(ctx, mode);
 }
 
-PrdIterData redistribute_prd_lines_AVX512(Context& ctx, int maxIter, f64 tol)
+IterationResult redistribute_prd_lines_AVX512(Context& ctx, int maxIter, f64 tol)
 {
     return redistribute_prd_lines_template<SimdType::AVX512>(ctx, maxIter, tol);
 }
@@ -602,7 +602,11 @@ extern "C"
             "mali_full_precond_AVX512",
             formal_sol_iteration_matrices_AVX512,
             formal_sol_AVX512,
-            redistribute_prd_lines_AVX512
+            formal_sol_full_stokes_impl,
+            redistribute_prd_lines_AVX512,
+            stat_eq_impl,
+            time_dependent_update_impl,
+            nr_post_update_impl
         };
     }
 }

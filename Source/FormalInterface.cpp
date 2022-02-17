@@ -87,6 +87,10 @@ FsIterationFnsManager::FsIterationFnsManager()
                         "mali_full_precond_scalar",
                         formal_sol_iteration_matrices_scalar,
                         formal_sol_scalar,
+                        formal_sol_full_stokes_impl,
                         redistribute_prd_lines_scalar,
+                        stat_eq_impl,
+                        time_dependent_update_impl,
+                        nr_post_update_impl
                         });
 }

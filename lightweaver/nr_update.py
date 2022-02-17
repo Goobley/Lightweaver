@@ -1,6 +1,5 @@
 import numpy as np
 from .atomic_set import lte_pops
-from scipy.linalg import solve
 from .atomic_table import PeriodicTable
 
 def nr_post_update(self, fdCollisionRates=True, hOnly=False,
@@ -9,7 +8,6 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False,
     '''
     Compute the Newton-Raphson terms for updating the electron density
     through charge conservation. Is attached to the Context object.
-
     Parameters
     ----------
     fdCollisionRates : bool, optional
@@ -37,7 +35,6 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False,
     printUpdate : bool, optional
         Whether to print information on the size of the update (default:
         None, to apply automatic behaviour).
-
     Returns
     -------
     dPops : float

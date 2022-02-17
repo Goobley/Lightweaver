@@ -3,6 +3,7 @@
 
 #include "Constants.hpp"
 #include "LwAtmosphere.hpp"
+#include "LwIterationResult.hpp"
 
 struct Context;
 struct Atom;
@@ -28,6 +29,7 @@ namespace LwInternal
     struct FormalData;
 }
 struct Context;
+struct NrTimeDependentData;
 
 typedef void(*LwFsFn)(LwInternal::FormalData* fd, int la, int mu,
                       bool toObs, const F64View1D& wav);
@@ -80,9 +82,20 @@ struct InterpFnManager
 };
 
 struct PrdIterData;
-typedef f64(*FormalSolIterFn)(Context& ctx, bool lambdaIterate);
-typedef f64(*SimpleFormalSol)(Context& ctx, bool upOnly);
-typedef PrdIterData(*RedistPrdLinesFn)(Context& ctx, int maxIter, f64 tol);
+typedef IterationResult(*FormalSolIterFn)(Context& ctx, bool lambdaIterate);
+typedef IterationResult(*SimpleFormalSol)(Context& ctx, bool upOnly);
+typedef IterationResult(*FullStokesFormalSol)(Context& ctx, bool updateJ, bool upOnly);
+typedef IterationResult(*RedistPrdLinesFn)(Context& ctx, int maxIter, f64 tol);
+typedef void(*StatEqFn)(Atom* atom, int spaceStart, int spaceEnd);
+typedef void(*TimeDepUpdateFn)(Atom* atomIn, F64View2D nOld, f64 dt,
+                               int spaceStart, int spaceEnd);
+typedef void(*NrPostUpdateFn)(Context& ctx, std::vector<Atom*>* atoms,
+                              const std::vector<F64View3D>& dC,
+                              F64View backgroundNe,
+                              const NrTimeDependentData& timeDepData,
+                              f64 crswVal,
+                              int spaceStart, int spaceEnd);
+
 typedef void(*AllocPerAtomScratch)(Atom* atom, bool detailedStatic);
 typedef void(*FreePerAtomScratch)(Atom* atom);
 typedef void(*AllocPerTransScratch)(Transition* trans);
@@ -102,7 +115,12 @@ struct FsIterationFns
 
     FormalSolIterFn fs_iter;
     SimpleFormalSol simple_fs;
+    FullStokesFormalSol full_stokes_fs;
     RedistPrdLinesFn redistribute_prd;
+    StatEqFn stat_eq;
+    TimeDepUpdateFn time_dep_update;
+    NrPostUpdateFn nr_post_update;
+
     AllocPerAtomScratch alloc_per_atom;
     FreePerAtomScratch free_per_atom;
     AllocPerTransScratch alloc_per_trans;

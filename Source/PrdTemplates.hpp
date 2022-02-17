@@ -16,7 +16,7 @@ void prd_scatter(Transition* t, F64View PjQj, const Atom& atom,
 }
 
 template <SimdType simd>
-f64 formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelengthIdxs)
+IterationResult formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelengthIdxs)
 {
     using namespace LwInternal;
     JasUnpack(*ctx, atmos, spect, background, depthData);
@@ -41,15 +41,20 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelengthIdxs)
             spect.JRest.fill(0.0);
 
         f64 dJMax = 0.0;
+        int maxIdx = 0;
 
         for (int i = 0; i < wavelengthIdxs.shape(0); ++i)
         {
-            const f64 la = wavelengthIdxs(i);
+            const int la = wavelengthIdxs(i);
             FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates | FsMode::PrdOnly);
             f64 dJ = intensity_core_opt<simd, true, true, false, false>(iCore, la, mode);
-            dJMax = max(dJ, dJMax);
+            dJMax = max_idx(dJ, dJMax, maxIdx, la);
         }
-        return dJMax;
+        IterationResult result{};
+        result.updatedJ = true;
+        result.dJMax = dJMax;
+        result.dJMaxIdx = maxIdx;
+        return result;
     }
     else
     {
@@ -121,18 +126,22 @@ f64 formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelengthIdxs)
 
 
         ctx.threading.intensityCores.accumulate_prd_rates();
-        return dJMax;
+        IterationResult result{};
+        result.updatedJ = true;
+        result.dJMax = dJMax;
+        result.dJMaxIdx = maxIdx;
+        return result;
     }
 }
 
 template <SimdType simd>
-f64 formal_sol_prd_update_rates(Context& ctx, const std::vector<int>& wavelengthIdxs)
+IterationResult formal_sol_prd_update_rates(Context& ctx, const std::vector<int>& wavelengthIdxs)
 {
     return formal_sol_prd_update_rates<simd>(ctx, ConstView<int>(wavelengthIdxs.data(), wavelengthIdxs.size()));
 }
 
 template <SimdType simd>
-PrdIterData redistribute_prd_lines_template(Context& ctx, int maxIter, f64 tol)
+IterationResult redistribute_prd_lines_template(Context& ctx, int maxIter, f64 tol)
 {
     struct PrdData
     {
@@ -158,17 +167,16 @@ PrdIterData redistribute_prd_lines_template(Context& ctx, int maxIter, f64 tol)
             }
         }
     }
-    auto JC = spect.JCoeffs.flatten();
-    int maxC = 0;
-    for (int i = 0; i < JC.shape(0); ++i)
-    {
-        if (JC(i).size() > maxC)
-            maxC = JC(i).size();
-    }
-    printf("%d\n-----\n", maxC);
 
     if (prdLines.size() == 0)
-        return {0, 0.0};
+        return IterationResult{};
+
+    IterationResult result{};
+    JasUnpack(result, dRho, dRhoMaxIdx, dJPrdMax, dJPrdMaxIdx);
+    dRho.reserve(maxIter * prdLines.size());
+    dRhoMaxIdx.reserve(maxIter * prdLines.size());
+    dJPrdMax.reserve(maxIter);
+    dJPrdMaxIdx.reserve(maxIter);
 
     const int Nspect = spect.wavelength.shape(0);
     auto& idxsForFs = spect.hPrdIdxs;
@@ -188,25 +196,32 @@ PrdIterData redistribute_prd_lines_template(Context& ctx, int maxIter, f64 tol)
     }
 
     int iter = 0;
-    f64 dRho = 0.0;
+    f64 dRhoMax = 0.0;
+    int maxIdx = 0;
     if (ctx.Nthreads <= 1)
     {
         F64Arr PjQj(atmos.Nspace);
         while (iter < maxIter)
         {
             ++iter;
-            dRho = 0.0;
+            dRhoMax = 0.0;
             for (auto& p : prdLines)
             {
                 PrdCores::total_depop_elastic_scattering_rate(p.line, p.atom, PjQj);
                 PrdCores::prd_scatter(p.line, PjQj, p.atom, atmos, spect, nullptr);
                 p.ng.accelerate(p.line->rhoPrd.flatten());
-                dRho = max(dRho, p.ng.max_change());
+                auto maxChange = p.ng.max_change();
+                dRhoMax = max(dRhoMax, maxChange.dMax);
+
+                dRho.emplace_back(maxChange.dMax);
+                dRhoMaxIdx.emplace_back(maxChange.dMaxIdx);
             }
 
-            formal_sol_prd_update_rates<simd>(ctx, idxsForFs);
+            auto maxChange = formal_sol_prd_update_rates<simd>(ctx, idxsForFs);
+            dJPrdMax.emplace_back(maxChange.dJMax);
+            dJPrdMaxIdx.emplace_back(maxChange.dJMaxIdx);
 
-            if (dRho < tol)
+            if (dRhoMax < tol)
                 break;
         }
     }
@@ -217,6 +232,7 @@ PrdIterData redistribute_prd_lines_template(Context& ctx, int maxIter, f64 tol)
             F64Arr PjQj;
             PrdData* line;
             f64 dRho;
+            i64 dRhoMaxIdx;
             Atmosphere* atmos;
             Spectrum* spect;
         };
@@ -227,6 +243,7 @@ PrdIterData redistribute_prd_lines_template(Context& ctx, int maxIter, f64 tol)
             p.PjQj = F64Arr(atmos.Nspace);
             p.line = &prdLines[i];
             p.dRho = 0.0;
+            p.dRhoMaxIdx = 0;
             p.atmos = &atmos;
             p.spect = &spect;
         }
@@ -241,16 +258,16 @@ PrdIterData redistribute_prd_lines_template(Context& ctx, int maxIter, f64 tol)
                 PrdCores::total_depop_elastic_scattering_rate(p.line, p.atom, td.PjQj);
                 PrdCores::prd_scatter(p.line, td.PjQj, p.atom, *td.atmos, *td.spect, s);
                 p.ng.accelerate(p.line->rhoPrd.flatten());
-                td.dRho = max(td.dRho, p.ng.max_change());
+                auto maxChange = p.ng.max_change();
+                td.dRho = maxChange.dMax;
+                td.dRhoMaxIdx = maxChange.dMaxIdx;
             }
         };
 
         while (iter < maxIter)
         {
             ++iter;
-            dRho = 0.0;
-            for (auto& p : taskData)
-                p.dRho = 0.0;
+            dRhoMax = 0.0;
 
             {
                 enki::TaskScheduler* sched = &ctx.threading.sched;
@@ -259,19 +276,27 @@ PrdIterData redistribute_prd_lines_template(Context& ctx, int maxIter, f64 tol)
                 sched->AddTaskSetToPipe(&prdScatter);
                 sched->WaitforTask(&prdScatter);
             }
-            formal_sol_prd_update_rates<simd>(ctx, idxsForFs);
+            auto maxChange = formal_sol_prd_update_rates<simd>(ctx, idxsForFs);
+            dJPrdMax.emplace_back(maxChange.dJMax);
+            dJPrdMaxIdx.emplace_back(maxChange.dJMaxIdx);
 
             for (const auto& p : taskData)
             {
-                dRho = max(dRho, p.dRho);
-            }
-            if (dRho < tol)
-                break;
+                dRhoMax = max(dRhoMax, p.dRho);
 
+                dRho.emplace_back(p.dRho);
+                dRhoMaxIdx.emplace_back(p.dRhoMaxIdx);
+            }
+
+            if (dRhoMax < tol)
+                break;
         }
     }
 
-    return {iter, dRho};
+    result.updatedRho = true;
+    result.updatedJPrd = true;
+    result.NprdSubIter = iter;
+    return result;
 }
 #else
 #endif

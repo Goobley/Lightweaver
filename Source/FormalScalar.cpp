@@ -672,67 +672,9 @@ void piecewise_besser_1d(FormalData* fd, int la, int mu, bool toObs, const F64Vi
 
     piecewise_besser_1d_impl(fd, zmu, toObs, Iupw);
 }
-
-void gather_opacity_emissivity(IntensityCoreData* data, bool computeOperator, int la, int mu, bool toObs)
-{
-    JasUnpack(*(*data), activeAtoms, detailedAtoms);
-    JasUnpack((*data), Uji, Vij, Vji, chiTot, etaTot);
-    const int Nspace = data->atmos->Nspace;
-
-    for (int a = 0; a < activeAtoms.size(); ++a)
-    {
-        auto& atom = *activeAtoms[a];
-        atom.zero_angle_dependent_vars();
-        for (int kr = 0; kr < atom.Ntrans; ++kr)
-        {
-            auto& t = *atom.trans[kr];
-            if (!t.active(la))
-                continue;
-
-            t.uv(la, mu, toObs, Uji, Vij, Vji);
-
-            for (int k = 0; k < Nspace; ++k)
-            {
-                f64 chi = atom.n(t.i, k) * Vij(k) - atom.n(t.j, k) * Vji(k);
-                f64 eta = atom.n(t.j, k) * Uji(k);
-
-                if (computeOperator)
-                {
-                    atom.chi(t.i, k) += chi;
-                    atom.chi(t.j, k) -= chi;
-                    atom.U(t.j, k) += Uji(k);
-                    atom.eta(k) += eta;
-                }
-                chiTot(k) += chi;
-                etaTot(k) += eta;
-            }
-        }
-    }
-    for (int a = 0; a < detailedAtoms.size(); ++a)
-    {
-        auto& atom = *detailedAtoms[a];
-        for (int kr = 0; kr < atom.Ntrans; ++kr)
-        {
-            auto& t = *atom.trans[kr];
-            if (!t.active(la))
-                continue;
-
-            t.uv(la, mu, toObs, Uji, Vij, Vji);
-
-            for (int k = 0; k < Nspace; ++k)
-            {
-                f64 chi = atom.n(t.i, k) * Vij(k) - atom.n(t.j, k) * Vji(k);
-                f64 eta = atom.n(t.j, k) * Uji(k);
-
-                chiTot(k) += chi;
-                etaTot(k) += eta;
-            }
-        }
-    }
-}
 }
 
-f64 formal_sol_iteration_matrices_scalar(Context& ctx, bool lambdaIterate)
+IterationResult formal_sol_iteration_matrices_scalar(Context& ctx, bool lambdaIterate)
 {
     FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates);
     if (lambdaIterate)
@@ -741,12 +683,12 @@ f64 formal_sol_iteration_matrices_scalar(Context& ctx, bool lambdaIterate)
     return LwInternal::formal_sol_iteration_matrices_impl<SimdType::Scalar>(ctx, mode);
 }
 
-f64 formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
+IterationResult formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
 {
     return ctx.iterFns.fs_iter(ctx, lambdaIterate);
 }
 
-f64 formal_sol_scalar(Context& ctx, bool upOnly)
+IterationResult formal_sol_scalar(Context& ctx, bool upOnly)
 {
     FsMode mode = FsMode::FsOnly;
     if (upOnly)
@@ -754,7 +696,7 @@ f64 formal_sol_scalar(Context& ctx, bool upOnly)
     return formal_sol_impl<SimdType::Scalar>(ctx, mode);
 }
 
-f64 formal_sol(Context& ctx, bool upOnly)
+IterationResult formal_sol(Context& ctx, bool upOnly)
 {
     return ctx.iterFns.simple_fs(ctx, upOnly);
 }

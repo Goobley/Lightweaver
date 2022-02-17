@@ -60,6 +60,28 @@ cdef extern from "LwFormalInterface.hpp":
         vector[FsIterationFns] fns
         bool_t load_fns_from_path(const char* path)
 
+cdef extern from "LwIterationResult.hpp":
+    cdef cppclass IterationResult:
+        bool_t updatedJ
+        f64 dJMax
+        int dJMaxIdx
+
+        bool_t updatedPops
+        vector[f64] dPops
+        vector[int] dPopsMaxIdx
+
+        bool_t updatedNe
+        f64 dNe
+        int dNeMax
+
+        bool_t updatedRho
+        vector[f64] dRho
+        vector[int] dRhoMaxIdx
+        int NprdSubIter
+        bool_t updatedJPrd
+        vector[f64] dJPrdMax
+        vector[int] dJPrdMaxIdx
+
 cdef extern from "Lightweaver.hpp":
     cdef enum RadiationBc:
         UNINITIALISED
@@ -172,6 +194,10 @@ cdef extern from "FastBackground.hpp":
 
 
 cdef extern from "Ng.hpp":
+    cdef cppclass NgChange:
+        f64 dMax
+        np.int64_t dMaxIdx
+
     cdef cppclass Ng:
         int Norder
         int Nperiod
@@ -180,8 +206,8 @@ cdef extern from "Ng.hpp":
         Ng()
         Ng(int nOrder, int nPeriod, int nDelay, F64View sol)
         bool_t accelerate(F64View sol)
-        f64 max_change()
-        f64 relative_change_from_prev(F64View newSol)
+        NgChange max_change()
+        NgChange relative_change_from_prev(F64View newSol)
         void clear()
 
 cdef extern from "Lightweaver.hpp":
@@ -290,41 +316,29 @@ cdef extern from "Lightweaver.hpp":
         f64 dt
         vector[F64View2D] nPrev
 
-    cdef f64 formal_sol_gamma_matrices(Context& ctx)
-    cdef f64 formal_sol_gamma_matrices(Context& ctx, bool_t lambdaIterate)
-    cdef f64 formal_sol(Context& ctx)
-    cdef f64 formal_sol(Context& ctx, bool_t upOnly)
-    cdef f64 formal_sol_full_stokes(Context& ctx) except +
-    cdef f64 formal_sol_full_stokes(Context& ctx, bool_t updateJ) except +
-    cdef f64 formal_sol_full_stokes(Context& ctx, bool_t updateJ, bool_t upOnly) except +
-    cdef PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
-    cdef void stat_eq(Atom* atom) except +
-    cdef void parallel_stat_eq(Context* ctx) except +
-    cdef void parallel_stat_eq(Context* ctx, int chunkSize) except +
-    cdef void time_dependent_update(Atom* atomIn, F64View2D nOld, f64 dt) except +
-    cdef void parallel_time_dep_update(Context* ctx, const vector[F64View2D]&,
-                                       f64 dt) except +
-    cdef void parallel_time_dep_update(Context* ctx, const vector[F64View2D]&,
-                                       f64 dt, int chunkSize) except +
-    cdef void nr_post_update(Context* ctx, vector[Atom*]* atoms,
+    cdef IterationResult formal_sol_gamma_matrices(Context& ctx)
+    cdef IterationResult formal_sol_gamma_matrices(Context& ctx, bool_t lambdaIterate)
+    cdef IterationResult formal_sol(Context& ctx)
+    cdef IterationResult formal_sol(Context& ctx, bool_t upOnly)
+    cdef IterationResult formal_sol_full_stokes(Context& ctx) except +
+    cdef IterationResult formal_sol_full_stokes(Context& ctx, bool_t updateJ) except +
+    cdef IterationResult formal_sol_full_stokes(Context& ctx, bool_t updateJ,
+                                                bool_t upOnly) except +
+    cdef IterationResult redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
+    cdef void stat_eq(Context& ctx, Atom* atom) except +
+    cdef void stat_eq_impl(Atom* atom) except +
+    cdef void time_dependent_update(Context& ctx,  Atom* atomIn,
+                                    F64View2D nOld, f64 dt) except +
+    cdef void nr_post_update(Context& ctx, vector[Atom*]* atoms,
                              const vector[F64View3D]& dC,
                              F64View backgroundNe,
                              const NrTimeDependentData& timeDepData,
                              f64 crswVal) except +
-    cdef void parallel_nr_post_update(Context* ctx, vector[Atom*]* atoms,
-                                      const vector[F64View3D]& dC,
-                                      F64View backgroundNe,
-                                      const NrTimeDependentData& timeDepData,
-                                      f64 crswVal) except +
-    cdef void parallel_nr_post_update(Context* ctx, vector[Atom*]* atoms,
-                                      const vector[F64View3D]& dC,
-                                      F64View backgroundNe,
-                                      const NrTimeDependentData& timeDepData,
-                                      f64 crswVal, int chunkSize) except +
     cdef void configure_hprd_coeffs(Context& ctx)
 
 cdef extern from "Lightweaver.hpp" namespace "EscapeProbability":
-    cdef void gamma_matrices_escape_prob(Atom* a, Background& background, const Atmosphere& atmos)
+    cdef void gamma_matrices_escape_prob(Atom* a, Background& background,
+                                         const Atmosphere& atmos)
 
 cdef class LwDepthData:
     '''
@@ -2399,6 +2413,7 @@ cdef class LwAtom:
         cdef np.ndarray[np.double_t, ndim=3] Gamma
         cdef np.ndarray[np.double_t, ndim=3] C
         cdef f64 delta
+        cdef NgChange maxChange
         cdef int k
         cdef np.ndarray[np.double_t, ndim=1] deltaNe
 
@@ -2416,11 +2431,12 @@ cdef class LwAtom:
             Gamma += C
             gamma_matrices_escape_prob(&self.atom, bg.background, a.atmos)
             try:
-                stat_eq(&self.atom)
+                stat_eq_impl(&self.atom)
             except:
                 raise ExplodingMatrixError('Singular Matrix')
             self.atom.ng.accelerate(self.atom.n.flatten())
-            delta = self.atom.ng.max_change()
+            maxChange = self.atom.ng.max_change()
+            delta = maxChange.dMax
             if delta < 3e-2:
                 end = time.time()
                 # print('Converged: %s, %d\nTime: %f' % (self.atomicModel.element.name, it, end-start))
@@ -3029,41 +3045,26 @@ cdef class LwContext:
 
         self.atmos.compute_bcs(self.spect)
 
-        cdef f64 dJ = formal_sol_gamma_matrices(self.ctx, lambdaIterate)
+        cdef IterationResult maxChange = formal_sol_gamma_matrices(self.ctx, lambdaIterate)
         if printUpdate:
-            print('dJ = %.2e' % dJ)
-        return dJ
+            print('dJ = %.2e' % maxChange.dJMax)
+        return maxChange.dJMax
 
     cpdef formal_sol(self, upOnly=True):
         '''
-        Compute the formal solution across all wavelengths (single threaded,
-        rarely used due to the almost insignificant cost of the Gamma terms
-        in `formal_sol_gamma_matrices`, but currently still used by
-        `compute_rays`). Only computes upgoing rays by default, which has implication on boundary conditions in 2D.
+        Compute the formal solution across all wavelengths (used by
+        `compute_rays`). Only computes upgoing rays by default, which has
+        implication on boundary conditions in 2D.
 
         Parameters
         ----------
         upOnly : bool, optional
             Only compute upgoing rays, (default: True)
-
-        Returns
-        -------
-        dJ : float
-            The maximum relative change in J in the atmosphere.
         '''
-        # cdef LwAtom atom
-        # cdef np.ndarray[np.double_t, ndim=3] Gamma
-        # for atom in self.activeAtoms:
-        #     Gamma = np.asarray(atom.Gamma)
-        #     Gamma.fill(0.0)
-        #     atom.compute_collisions()
-        #     Gamma += atom.C
 
         self.atmos.compute_bcs(self.spect)
-        cdef f64 dJ = formal_sol(self.ctx, upOnly)
-        # cdef f64 dJ = formal_sol_gamma_matrices(self.ctx)
-        # print('dJ = %.2e' % dJ)
-        return dJ
+        formal_sol(self.ctx, upOnly)
+
 
     cpdef update_deps(self, temperature=True, ne=True, vturb=True,
                       vlos=True, B=True, background=True, hprd=True):
@@ -3112,6 +3113,7 @@ cdef class LwContext:
         '''
         cdef LwAtom atom
         cdef Atom* a
+        cdef NgChange maxChange
         cdef f64 delta
         cdef f64 maxDelta = 0.0
         cdef int i
@@ -3119,7 +3121,8 @@ cdef class LwContext:
 
         for i, atom in enumerate(atoms):
             a = &atom.atom
-            delta = a.ng.relative_change_from_prev(a.n.flatten())
+            maxChange = a.ng.relative_change_from_prev(a.n.flatten())
+            delta = maxChange.dMax
             maxDelta = max(maxDelta, delta)
             if printUpdate:
                 s = '    %s delta = %6.4e' % (atom.atomicModel.element.name, delta)
@@ -3133,6 +3136,7 @@ cdef class LwContext:
         '''
         cdef LwAtom atom
         cdef Atom* a
+        cdef NgChange maxChange
         cdef f64 delta
         cdef f64 maxDelta = 0.0
         cdef int i
@@ -3141,7 +3145,8 @@ cdef class LwContext:
         for i, atom in enumerate(atoms):
             a = &atom.atom
             accelerated = a.ng.accelerate(a.n.flatten())
-            delta = a.ng.max_change()
+            maxChange = a.ng.max_change()
+            delta = maxChange.dMax
             maxDelta = max(maxDelta, delta)
             if printUpdate:
                 s = '    %s delta = %6.4e' % (atom.atomicModel.element.name, delta)
@@ -3217,20 +3222,9 @@ cdef class LwContext:
                 a.ng.accelerate(a.n.flatten())
 
         try:
-            # if self.Nthreads > 1:
-            # HACK(cmo): Due to extremely difficult to debug crashes, and the
-            # tiny performance effect we're disabling parallel population
-            # updates. This is fine as the compiled single threaded version is
-            # still used.
-            if False:
-                prevTimePopsVec.reserve(len(prevTimePops))
-                for i in range(len(atoms)):
-                    prevTimePopsVec.push_back(f64_view_2(prevTimePops[i]))
-                parallel_time_dep_update(&self.ctx, prevTimePopsVec, dt, chunkSize)
-            else:
-                for i, atom in enumerate(atoms):
-                    a = &atom.atom
-                    time_dependent_update(a, f64_view_2(prevTimePops[i]), dt)
+            for i, atom in enumerate(atoms):
+                a = &atom.atom
+                time_dependent_update(self.ctx, a, f64_view_2(prevTimePops[i]), dt)
         except:
             raise ExplodingMatrixError('Singular Matrix')
 
@@ -3305,17 +3299,9 @@ cdef class LwContext:
                 a.ng.accelerate(a.n.flatten())
 
         try:
-            # if self.Nthreads > 1:
-            # HACK(cmo): Due to extremely difficult to debug crashes, and the
-            # tiny performance effect we're disabling parallel population
-            # updates. This is fine as the compiled single threaded version is
-            # still used.
-            if False:
-                parallel_stat_eq(&self.ctx, chunkSize)
-            else:
-                for atom in atoms:
-                    a = &atom.atom
-                    stat_eq(a)
+            for atom in atoms:
+                a = &atom.atom
+                stat_eq(self.ctx, a)
         except:
             raise ExplodingMatrixError('Singular Matrix')
 
@@ -3358,15 +3344,7 @@ cdef class LwContext:
             dCVec.push_back(f64_view_3(c))
 
         try:
-            # if self.Nthreads > 1:
-            # HACK(cmo): Due to extremely difficult to debug crashes, and the
-            # tiny performance effect we're disabling parallel population
-            # updates. This is fine as the compiled single threaded version is
-            # still used.
-            if False:
-                parallel_nr_post_update(&self.ctx, &atomVec, dCVec, f64_view(backgroundNe), td, crsw, chunkSize);
-            else:
-                nr_post_update(&self.ctx, &atomVec, dCVec, f64_view(backgroundNe), td, crsw);
+            nr_post_update(self.ctx, &atomVec, dCVec, f64_view(backgroundNe), td, crsw);
         except:
             raise ExplodingMatrixError('Singular Matrix')
 
@@ -3433,8 +3411,8 @@ cdef class LwContext:
         self.setup_stokes(recompute=recompute)
 
         self.atmos.compute_bcs(self.spect)
-        cdef f64 dJ = formal_sol_full_stokes(self.ctx, updateJ, upOnly)
-        return dJ
+        cdef IterationResult maxChange = formal_sol_full_stokes(self.ctx, updateJ, upOnly)
+        return maxChange.dJMax
 
     cpdef prd_redistribute(self, int maxIter=3, f64 tol=1e-2, printUpdate=True):
         '''
@@ -3454,10 +3432,18 @@ cdef class LwContext:
             Whether to print information about the iteration process i.e. the size of the update to rho and the number of iterations taken (Default: True).
 
         '''
-        cdef PrdIterData prdIter = redistribute_prd_lines(self.ctx, maxIter, tol)
+        cdef IterationResult prdIter = redistribute_prd_lines(self.ctx, maxIter, tol)
+        cdef f64 dRhoMax = 0.0
+        cdef int iterCount = prdIter.NprdSubIter
+        cdef int i
+        cdef int Natoms = len(self.activeAtoms)
+        if iterCount > 0:
+            for i in range((iterCount-1) * Natoms, iterCount * Natoms):
+                dRhoMax = max(dRhoMax, prdIter.dRho[i])
+
         if printUpdate:
-            print('      PRD dRho = %.2e, (sub-iterations: %d)' % (prdIter.dRho, prdIter.iter))
-        return prdIter.dRho, prdIter.iter
+            print('      PRD dRho = %.2e, (sub-iterations: %d)' % (dRhoMax, iterCount))
+        return dRhoMax, iterCount
 
     cdef configure_hprd_coeffs(self):
         '''

@@ -1,6 +1,7 @@
 #ifndef CMO_SIMDFULLITERATIONTEMPLATES_HPP
 #define CMO_SIMDFULLITERATIONTEMPLATES_HPP
 #include "Constants.hpp"
+#include "LwIterationResult.hpp"
 #include "Simd.hpp"
 #include "LwAtom.hpp"
 #include "LwTransition.hpp"
@@ -620,7 +621,7 @@ inline void zero_Gamma_rates_JRest(Context* ctx)
 }
 
 template <SimdType simd>
-f64 formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsMode mode)
+IterationResult formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsMode mode)
 {
     JasUnpack(*ctx, atmos, spect, background, depthData);
     JasUnpack(ctx, activeAtoms, detailedAtoms);
@@ -647,6 +648,7 @@ f64 formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsMode mode)
         }
 
         f64 dJMax = 0.0;
+        int maxIdx = 0;
         FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates);
         if (lambdaIterate)
             mode = mode | FsMode::PureLambdaIteration;
@@ -657,13 +659,17 @@ f64 formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsMode mode)
             f64 dJ = dispatch_intensity_core_opt_<simd>(true, false, true,
                                                         storeDepthData,
                                                         iCore, la * ctx.formalSolver.width, mode);
-            dJMax = max(dJ, dJMax);
+            dJMax = max_idx(dJ, dJMax, maxIdx, la);
         }
         for (int a = 0; a < activeAtoms.size(); ++a)
         {
             finalise_Gamma<simd>(*activeAtoms[a]);
         }
-        return dJMax;
+        IterationResult result{};
+        result.updatedJ = true;
+        result.dJMax = dJMax;
+        result.dJMaxIdx = maxIdx;
+        return result;
     }
     else
     {
@@ -736,12 +742,17 @@ f64 formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsMode mode)
         {
             finalise_Gamma<simd>(*activeAtoms[a]);
         }
-        return dJMax;
+
+        IterationResult result{};
+        result.updatedJ = true;
+        result.dJMax = dJMax;
+        result.dJMaxIdx = maxIdx;
+        return result;
     }
 }
 
 template <SimdType simd>
-f64 formal_sol_impl(Context& ctx, LwInternal::FsMode mode)
+IterationResult formal_sol_impl(Context& ctx, LwInternal::FsMode mode)
 {
     JasUnpack(*ctx, atmos, spect, background, depthData);
     JasUnpack(ctx, activeAtoms, detailedAtoms);
@@ -758,7 +769,7 @@ f64 formal_sol_impl(Context& ctx, LwInternal::FsMode mode)
         {
             intensity_core_opt<simd, false, false, false, false>(iCore, la, mode);
         }
-        return 0.0;
+        return IterationResult{};
     }
     else
     {
@@ -798,7 +809,7 @@ f64 formal_sol_impl(Context& ctx, LwInternal::FsMode mode)
             sched->WaitforTask(&formalSolutions);
         }
 
-        return 0.0;
+        return IterationResult{};
     }
 }
 }
