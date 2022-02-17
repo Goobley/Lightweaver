@@ -9,6 +9,7 @@ from .atomic_model import AtomicLine, LineType, LineProfileState
 from .utils import InitialSolution, ExplodingMatrixError, UnityCrswIterator, check_shape_exception, get_fs_iter_libs
 from .atomic_table import PeriodicTable
 from .atomic_set import lte_pops
+from .iteration_update import IterationUpdate
 from weno4 import weno4
 import lightweaver.constants as Const
 import lightweaver.config as lwConfig
@@ -16,6 +17,7 @@ import time
 import os
 from enum import Enum, auto
 from copy import copy, deepcopy
+import warnings
 
 include 'CmoArrayHelper.pyx'
 
@@ -69,10 +71,11 @@ cdef extern from "LwIterationResult.hpp":
         bool_t updatedPops
         vector[f64] dPops
         vector[int] dPopsMaxIdx
+        bool_t ngAccelerated
 
         bool_t updatedNe
         f64 dNe
-        int dNeMax
+        int dNeMaxIdx
 
         bool_t updatedRho
         vector[f64] dRho
@@ -1147,7 +1150,6 @@ cdef class BasicBackground(BackgroundProvider):
 
     cpdef bf_opacities(self, LwAtmosphere atmos, f64[:,::1] chi, f64[:,::1] eta):
         atoms = self.radSet.passiveAtoms
-        # print([a.name for a in atoms])
         if len(atoms) == 0:
             return
 
@@ -2439,7 +2441,6 @@ cdef class LwAtom:
             delta = maxChange.dMax
             if delta < 3e-2:
                 end = time.time()
-                # print('Converged: %s, %d\nTime: %f' % (self.atomicModel.element.name, it, end-start))
                 break
         else:
             print('Escape probability didn\'t converge for %s, setting LTE populations' % self.atomicModel.element.name)
@@ -3002,7 +3003,7 @@ cdef class LwContext:
             atom.compute_profiles(polarised=polarised)
 
     cpdef formal_sol_gamma_matrices(self, fixCollisionalRates=False, lambdaIterate=False,
-                                    printUpdate=True):
+                                    printUpdate=None):
         '''
         Compute the formal solution across all wavelengths and fill in the
         Gamma matrix for each active atom, allowing the populations to then
@@ -3021,20 +3022,24 @@ cdef class LwContext:
             (default: False).
         printUpdate : bool, optional
             Whether to print the maximum relative change in J and any changes in
-            CRSW (default: True).
+            CRSW (default: True). (Deprecated)
 
         Returns
         -------
-        dJ : float
-            The maximum relative change in J in the atmosphere.
+        update: IterationUpdate
+            An object representing the updates to the model. See
+            `IterationUpdate` for details.
         '''
+        if printUpdate is None:
+            printUpdate = True
+        else:
+            warnings.warn('The use of `printUpdate` is now deprecated, as this function no longer prints.', DeprecationWarning)
+
         cdef LwAtom atom
         cdef np.ndarray[np.double_t, ndim=3] Gamma
         cdef f64 crswVal = self.crswCallback()
         if crswVal == 1.0:
             self.crswDone = True
-        elif printUpdate:
-            print('CRSW: %.2e'%crswVal)
 
         for atom in self.activeAtoms:
             Gamma = np.asarray(atom.Gamma)
@@ -3046,9 +3051,9 @@ cdef class LwContext:
         self.atmos.compute_bcs(self.spect)
 
         cdef IterationResult maxChange = formal_sol_gamma_matrices(self.ctx, lambdaIterate)
-        if printUpdate:
-            print('dJ = %.2e' % maxChange.dJMax)
-        return maxChange.dJMax
+        update = IterationUpdate_from_IterationResult(self, maxChange)
+        update.crsw = crswVal
+        return update
 
     cpdef formal_sol(self, upOnly=True):
         '''
@@ -3060,10 +3065,18 @@ cdef class LwContext:
         ----------
         upOnly : bool, optional
             Only compute upgoing rays, (default: True)
+
+        Returns
+        -------
+        update: IterationUpdate
+            An object representing the updates to the model. See
+            `IterationUpdate` for details.
         '''
 
         self.atmos.compute_bcs(self.spect)
-        formal_sol(self.ctx, upOnly)
+        cdef IterationResult maxChange = formal_sol(self.ctx, upOnly)
+        update = IterationUpdate_from_IterationResult(self, maxChange)
+        return update
 
 
     cpdef update_deps(self, temperature=True, ne=True, vturb=True,
@@ -3107,7 +3120,7 @@ cdef class LwContext:
         if self.hprd and hprd:
             self.update_hprd_coeffs()
 
-    cpdef rel_diff_pops(self, printUpdate=True):
+    cpdef rel_diff_pops(self, printUpdate=None):
         '''
         Internal.
         '''
@@ -3118,19 +3131,24 @@ cdef class LwContext:
         cdef f64 maxDelta = 0.0
         cdef int i
         atoms = self.activeAtoms
+        if printUpdate is None:
+            printUpdate = True
+        else:
+            warnings.warn('The use of `printUpdate` is now deprecated, as this function no longer prints.', DeprecationWarning)
+
+        update = IterationUpdate(self, updatedPops=True)
 
         for i, atom in enumerate(atoms):
             a = &atom.atom
             maxChange = a.ng.relative_change_from_prev(a.n.flatten())
             delta = maxChange.dMax
             maxDelta = max(maxDelta, delta)
-            if printUpdate:
-                s = '    %s delta = %6.4e' % (atom.atomicModel.element.name, delta)
-                print(s)
+            update.dPops.append(maxChange.dMax)
+            update.dPopsMaxIdx.append(maxChange.dMaxIdx)
 
-        return maxDelta
+        return update
 
-    cpdef rel_diff_ng_accelerate(self, printUpdate=True):
+    cpdef rel_diff_ng_accelerate(self, printUpdate=None):
         '''
         Internal.
         '''
@@ -3141,6 +3159,12 @@ cdef class LwContext:
         cdef f64 maxDelta = 0.0
         cdef int i
         atoms = self.activeAtoms
+        if printUpdate is None:
+            printUpdate = True
+        else:
+            warnings.warn('The use of `printUpdate` is now deprecated, as this function no longer prints.', DeprecationWarning)
+
+        update = IterationUpdate(self, updatedPops=True)
 
         for i, atom in enumerate(atoms):
             a = &atom.atom
@@ -3148,13 +3172,11 @@ cdef class LwContext:
             maxChange = a.ng.max_change()
             delta = maxChange.dMax
             maxDelta = max(maxDelta, delta)
-            if printUpdate:
-                s = '    %s delta = %6.4e' % (atom.atomicModel.element.name, delta)
-                if accelerated:
-                    s += ' (accelerated)'
-                print(s)
+            update.dPops.append(maxChange.dMax)
+            update.dPopsMaxIdx.append(maxChange.dMaxIdx)
+            update.ngAccelerated = accelerated
 
-        return maxDelta
+        return update
 
     cpdef time_dep_update(self, f64 dt, prevTimePops=None, ngUpdate=None,
                           printUpdate=None, int chunkSize=20):
@@ -3182,15 +3204,15 @@ cdef class LwContext:
             initialisation).
         printUpdate : bool, optional
             Whether to print information on the size of the update (default:
-            None, to apply automatic behaviour).
+            None, to apply automatic behaviour). Deprecated.
         chunkSize : int, optional
             Not currently used.
 
         Returns
         -------
-        dPops : float
-            The maximum relative change of any of the NLTE populations in the
-            atmosphere.
+        update: IterationUpdate
+            An object representing the updates to the model. See
+            `IterationUpdate` for details.
         prevTimePops : list of np.ndarray
             The input needed as `prevTimePops` if this function is to be called
             again for this timestep.
@@ -3203,8 +3225,8 @@ cdef class LwContext:
             else:
                 ngUpdate = True
 
-        if printUpdate is None:
-            printUpdate = ngUpdate
+        if printUpdate is not None:
+            warnings.warn('The use of `printUpdate` is now deprecated, as this function no longer prints.', DeprecationWarning)
 
         cdef LwAtom atom
         cdef Atom* a
@@ -3229,11 +3251,11 @@ cdef class LwContext:
             raise ExplodingMatrixError('Singular Matrix')
 
         if ngUpdate:
-            maxDelta = self.rel_diff_ng_accelerate(printUpdate=printUpdate)
+            update = self.rel_diff_ng_accelerate(printUpdate=printUpdate)
         else:
-            maxDelta = self.rel_diff_pops(printUpdate=printUpdate)
+            update = self.rel_diff_pops(printUpdate=printUpdate)
 
-        return maxDelta, prevTimePops
+        return update, prevTimePops
 
     cpdef time_dep_restore_prev_pops(self, prevTimePops):
         '''
@@ -3262,7 +3284,7 @@ cdef class LwContext:
         for atom in self.activeAtoms:
             atom.atom.ng.clear()
 
-    cpdef stat_equil(self, printUpdate=True, int chunkSize=20):
+    cpdef stat_equil(self, printUpdate=None, int chunkSize=20):
         '''
         Update the populations of active atoms using the current values of
         their Gamma matrices. This function solves the time-independent statistical
@@ -3272,15 +3294,15 @@ cdef class LwContext:
         ----------
         printUpdate : bool, optional
             Whether to print information on the size of the update (default:
-            True).
+            True). Deprecated.
         chunkSize : int, optional
             Not currently used.
 
         Returns
         -------
-        dPops : float
-            The maximum relative change of any of the NLTE populations in the
-            atmosphere.
+        update: IterationUpdate
+            An object representing the updates to the model. See
+            `IterationUpdate` for details.
         '''
         atoms = self.activeAtoms
 
@@ -3292,6 +3314,11 @@ cdef class LwContext:
         cdef LwTransition t
         cdef int k
         cdef np.ndarray[np.double_t, ndim=1] deltaNe
+
+        if printUpdate is None:
+            printUpdate = True
+        else:
+            warnings.warn('The use of `printUpdate` is now deprecated, as this function no longer prints.', DeprecationWarning)
 
         for atom in atoms:
             a = &atom.atom
@@ -3307,17 +3334,20 @@ cdef class LwContext:
 
         if self.conserveCharge:
             neStart = np.copy(self.atmos.ne)
-            self.nr_post_update(ngUpdate=False, printUpdate=False)
+            self.nr_post_update(ngUpdate=False)
 
-        maxDelta = self.rel_diff_ng_accelerate(printUpdate=printUpdate)
+        update = self.rel_diff_ng_accelerate(printUpdate=printUpdate)
         if self.conserveCharge:
             neDiff = ((np.asarray(self.atmos.ne) - neStart)
-                      / np.asarray(self.atmos.ne)).max()
-            maxDelta = max(maxDelta, neDiff)
-            if printUpdate:
-                print('    ne delta = %6.4e' % neDiff)
+                      / np.asarray(self.atmos.ne))
+            neDiffMaxIdx = neDiff.argmax()
+            neDiffMax = neDiff[neDiffMaxIdx]
+            maxDelta = max(maxDelta, neDiffMax)
+            update.updatedNe = True
+            update.dNeMax = neDiffMax
+            update.dNeMaxIdx = neDiffMaxIdx
 
-        return maxDelta
+        return update
 
     def _nr_post_update_impl(self, atoms, dC, f64[::1] backgroundNe,
                              timeDependentData=None, int chunkSize=5):
@@ -3407,14 +3437,21 @@ cdef class LwContext:
         upOnly : bool, optional
             Whether to compute the formal solver only for upgoing rays (used in
             final synthesis).
+
+        Returns
+        -------
+        update: IterationUpdate
+            An object representing the updates to the model. See
+            `IterationUpdate` for details.
         '''
         self.setup_stokes(recompute=recompute)
 
         self.atmos.compute_bcs(self.spect)
         cdef IterationResult maxChange = formal_sol_full_stokes(self.ctx, updateJ, upOnly)
-        return maxChange.dJMax
+        update = IterationUpdate_from_IterationResult(self, maxChange)
+        return update
 
-    cpdef prd_redistribute(self, int maxIter=3, f64 tol=1e-2, printUpdate=True):
+    cpdef prd_redistribute(self, int maxIter=3, f64 tol=1e-2, printUpdate=None):
         '''
         Update emission profile ratio rho by computing the scattering integral
         for each prd line. Does not affect the populations, interleave before
@@ -3429,21 +3466,22 @@ cdef class LwContext:
             relative change in rho falls below this threshold then this function
             returns i.e. `maxIter` iterations do not need to be taken (Default: 1e-2).
         printUpdate : bool, optional
-            Whether to print information about the iteration process i.e. the size of the update to rho and the number of iterations taken (Default: True).
+            Whether to print information about the iteration process i.e. the size of the update to rho and the number of iterations taken (Default: True). Deprecated.
 
+        Returns
+        -------
+        update: IterationUpdate
+            An object representing the updates to the model. See
+            `IterationUpdate` for details.
         '''
-        cdef IterationResult prdIter = redistribute_prd_lines(self.ctx, maxIter, tol)
-        cdef f64 dRhoMax = 0.0
-        cdef int iterCount = prdIter.NprdSubIter
-        cdef int i
-        cdef int Natoms = len(self.activeAtoms)
-        if iterCount > 0:
-            for i in range((iterCount-1) * Natoms, iterCount * Natoms):
-                dRhoMax = max(dRhoMax, prdIter.dRho[i])
+        if printUpdate is None:
+            printUpdate = True
+        else:
+            warnings.warn('The use of `printUpdate` is now deprecated, as this function no longer prints.', DeprecationWarning)
 
-        if printUpdate:
-            print('      PRD dRho = %.2e, (sub-iterations: %d)' % (dRhoMax, iterCount))
-        return dRhoMax, iterCount
+        cdef IterationResult prdIter = redistribute_prd_lines(self.ctx, maxIter, tol)
+        update = IterationUpdate_from_IterationResult(self, prdIter)
+        return update
 
     cdef configure_hprd_coeffs(self):
         '''
@@ -3943,6 +3981,40 @@ cdef class LwFsIterationManager:
 
     def default_scheme_name(self):
         return self.names[self.default_scheme()]
+
+cdef fvec2list(const vector[f64]& v):
+    cdef int i
+    result = []
+    for i in range(v.size()):
+        result.append(v[i])
+    return result
+
+cdef ivec2list(const vector[int]& v):
+    cdef int i
+    result = []
+    for i in range(v.size()):
+        result.append(v[i])
+    return result
+
+cdef IterationUpdate_from_IterationResult(LwContext ctx, IterationResult result):
+    update = IterationUpdate(ctx, updatedJ=result.updatedJ,
+                                  dJMax=result.dJMax,
+                                  dJMaxIdx=result.dJMaxIdx,
+                                  updatedPops=result.updatedPops,
+                                  dPops=fvec2list(result.dPops),
+                                  dPopsMaxIdx=ivec2list(result.dPopsMaxIdx),
+                                  ngAccelerated=result.ngAccelerated,
+                                  updatedNe=result.updatedNe,
+                                  dNeMax=result.dNe,
+                                  dNeMaxIdx=result.dNeMaxIdx,
+                                  updatedRho=result.updatedRho,
+                                  NprdSubIter=result.NprdSubIter,
+                                  dRho=fvec2list(result.dRho),
+                                  dRhoMaxIdx=ivec2list(result.dRhoMaxIdx),
+                                  updatedJPrd=result.updatedJPrd,
+                                  dJPrdMax=fvec2list(result.dJPrdMax),
+                                  dJPrdMaxIdx=ivec2list(result.dJPrdMaxIdx))
+    return update
 
 FormalSolvers = LwFormalSolverManager()
 InterpFns = LwInterpFnManager()

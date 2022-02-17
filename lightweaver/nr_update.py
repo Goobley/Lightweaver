@@ -92,12 +92,14 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False,
     self.eqPops.update_lte_atoms_Hmin_pops(self.atmos.pyAtmos, conserveCharge=False, quiet=True)
 
     if ngUpdate:
-        maxDelta = self.rel_diff_ng_accelerate(printUpdate=printUpdate)
+        update = self.rel_diff_ng_accelerate(printUpdate=printUpdate)
     else:
-        maxDelta = self.rel_diff_pops(printUpdate=printUpdate)
+        update = self.rel_diff_pops(printUpdate=printUpdate)
     neDiff = ((np.asarray(self.atmos.ne) - neStart)
-                / np.asarray(self.atmos.ne)).max()
-    maxDelta = max(maxDelta, neDiff)
-    if printUpdate:
-        print('    ne delta = %6.4e' % neDiff)
-    return maxDelta
+                / np.asarray(self.atmos.ne))
+    neDiffMaxIdx = neDiff.argmax()
+    neDiffMax = neDiff[neDiffMaxIdx]
+    update.updatedNe = True
+    update.dNeMax = neDiffMax
+    update.dNeMaxIdx = neDiffMaxIdx
+    return update
