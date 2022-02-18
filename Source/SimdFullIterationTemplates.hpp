@@ -27,26 +27,6 @@ uv_opt(Transition* t, int la, int mu, bool toObs, F64View Uji, F64View Vij, F64V
     return t->uv(la, mu, toObs, Uji, Vij, Vji);
 }
 
-struct CachedTrans
-{
-    int atomIdx;
-    int kr;
-};
-
-template <int CacheSize=32>
-struct CachedContributingTrans
-{
-    // NOTE(cmo): This struct is ~4kB at default size, which seems not too
-    // unreasonable (same order as printf's typical buffers)
-    bool continuaOnly;
-    bool activeOverflow;
-    bool staticOverflow;
-    int Nactive;
-    int Nstatic;
-    std::array<CachedTrans, CacheSize> activeCache;
-    std::array<CachedTrans, CacheSize> staticCache;
-};
-
 inline bool continua_only(const IntensityCoreData& data, int la)
 {
     JasUnpack(*data, activeAtoms, detailedAtoms);
@@ -74,51 +54,6 @@ inline bool continua_only(const IntensityCoreData& data, int la)
         }
     }
     return continuaOnly;
-}
-
-inline CachedContributingTrans<>
-cached_continua_only(const IntensityCoreData& data, int la)
-{
-    JasUnpack(*data, activeAtoms, detailedAtoms);
-    CachedContributingTrans<> result{};
-    JasUnpack(result, continuaOnly, Nactive,
-              Nstatic, activeCache, staticCache);
-    const int maxCache = activeCache.size();
-    for (int a = 0; a < activeAtoms.size(); ++a)
-    {
-        auto& atom = *activeAtoms[a];
-        for (int kr = 0; kr < atom.Ntrans; ++kr)
-        {
-            auto& t = *atom.trans[kr];
-            if (!t.is_active(la))
-                continue;
-            continuaOnly = continuaOnly && (t.type == CONTINUUM);
-            if (!result.activeOverflow)
-            {
-                activeCache[Nactive++] = { a, kr };
-                if (Nactive == maxCache)
-                    result.activeOverflow = true;
-            }
-        }
-    }
-    for (int a = 0; a < detailedAtoms.size(); ++a)
-    {
-        auto& atom = *detailedAtoms[a];
-        for (int kr = 0; kr < atom.Ntrans; ++kr)
-        {
-            auto& t = *atom.trans[kr];
-            if (!t.is_active(la))
-                continue;
-            continuaOnly = continuaOnly && (t.type == CONTINUUM);
-            if (!result.staticOverflow)
-            {
-                staticCache[Nstatic++] = { a, kr };
-                if (Nstatic == maxCache)
-                    result.staticOverflow = true;
-            }
-        }
-    }
-    return result;
 }
 
 template <SimdType simd, bool iClean, bool jClean,
@@ -330,8 +265,7 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
         setup_wavelength_opt<simd>(detailedAtoms[a], la);
 
     // NOTE(cmo): If we only have continua then opacity is angle independent
-    const auto transCache = cached_continua_only(data, la);
-    const bool continuaOnly = transCache.continuaOnly;
+    const bool continuaOnly = continua_only(data, la);
 
     int toObsStart = 0;
     int toObsEnd = 2;
@@ -345,7 +279,6 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
             bool toObs = (bool)toObsI;
             if (!continuaOnly || (continuaOnly && (mu == 0 && toObsI == toObsStart)))
             {
-
                 memcpy(chiTot.data, &background.chi(la, 0), Nspace * sizeof(f64));
                 memcpy(etaTot.data, &background.eta(la, 0), Nspace * sizeof(f64));
                 // Gathers from all active non-background transitions
@@ -420,63 +353,30 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
 
             if constexpr (UpdateRates || ComputeOperator)
             {
-                if (!transCache.activeOverflow)
+                for (int a = 0; a < activeAtoms.size(); ++a)
                 {
-                    int prevAtomIdx = -1;
-                    for (int cacheIdx = 0; cacheIdx < transCache.Nactive; ++cacheIdx)
+                    auto& atom = *activeAtoms[a];
+                    if constexpr (ComputeOperator)
                     {
-                        auto cached = transCache.activeCache[cacheIdx];
-                        auto& atom = *activeAtoms[cached.atomIdx];
-                        auto& t = *atom.trans[cached.kr];
+                        if (lambdaIterate)
+                            PsiStar.fill(0.0);
 
-                        if constexpr (ComputeOperator)
-                        {
-                            if (cached.atomIdx != prevAtomIdx)
-                            {
-                                if (lambdaIterate)
-                                    PsiStar.fill(0.0);
+                        compute_full_Ieff<simd>(I, PsiStar, atom.eta, Ieff);
+                    }
 
-                                compute_full_Ieff<simd>(I, PsiStar, atom.eta, Ieff);
-                                prevAtomIdx = cached.atomIdx;
-                            }
+                    for (int kr = 0; kr < atom.Ntrans; ++kr)
+                    {
+                        auto& t = *atom.trans[kr];
+                        if (!t.is_active(la))
+                            continue;
 
-                        }
                         const f64 wmu = 0.5 * atmos.wmu(mu);
                         uv_opt<simd>(&t, la, mu, toObs, Uji, Vij, Vji);
 
                         const bool computeRates = (UpdateRates && !PrdRatesOnly) ||
                                             (UpdateRates && PrdRatesOnly && t.rhoPrd);
                         dispatch_compute_full_operator_rates_<simd>(ComputeOperator,
-                                                computeRates, &atom, cached.kr, wmu, &data);
-                    }
-                }
-                else
-                {
-                    for (int a = 0; a < activeAtoms.size(); ++a)
-                    {
-                        auto& atom = *activeAtoms[a];
-                        if constexpr (ComputeOperator)
-                        {
-                            if (lambdaIterate)
-                                PsiStar.fill(0.0);
-
-                            compute_full_Ieff<simd>(I, PsiStar, atom.eta, Ieff);
-                        }
-
-                        for (int kr = 0; kr < atom.Ntrans; ++kr)
-                        {
-                            auto& t = *atom.trans[kr];
-                            if (!t.is_active(la))
-                                continue;
-
-                            const f64 wmu = 0.5 * atmos.wmu(mu);
-                            uv_opt<simd>(&t, la, mu, toObs, Uji, Vij, Vji);
-
-                            const bool computeRates = (UpdateRates && !PrdRatesOnly) ||
-                                                (UpdateRates && PrdRatesOnly && t.rhoPrd);
-                            dispatch_compute_full_operator_rates_<simd>(ComputeOperator,
-                                                    computeRates, &atom, kr, wmu, &data);
-                        }
+                                                computeRates, &atom, kr, wmu, &data);
                     }
                 }
             }
