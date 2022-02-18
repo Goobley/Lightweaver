@@ -95,6 +95,19 @@ class PfData: # Just a container for the PF
     eion: NList[np.ndarray]
     Tpf: np.ndarray
 
+    def __getstate__(self):
+        return {
+            'pf': list(self.pf),
+            'eion': list(self.eion),
+            'Tpf': list(self.Tpf)
+            }
+
+    def __setstate__(self, s):
+        self.pf = NList(s['pf'])
+        self.eion = NList(s['eion'])
+        self.Tpf = s['Tpf']
+
+
 
 @njit(cache=True)
 def nsaha(t, xne, u0, u1, eion):
@@ -561,6 +574,9 @@ class Wittmann:
         # Reads Kurucz's partition functions and ionization potentials from a file
         # Taken from RH (Uitenbroek 2001)
         #
+        # NOTE(cmo): There is probably a case that could speed this up further
+        # by pickling the default set of arguments into a preprepared data
+        # structure, if desirable
 
         ff = open(ifile,'rb')
         f = ff.read()
