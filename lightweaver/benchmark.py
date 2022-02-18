@@ -74,7 +74,7 @@ def benchmark(Niter=50, Nrep=3, verbose=True, writeConfig=True, warmUp=True):
 
     if warmUp:
         ctx = configure_context(fsIterScheme=methods[0])
-        for _ in range(max(Niter / 5, 10)):
+        for _ in range(max(Niter // 5, 10)):
             ctx.formal_sol_gamma_matrices(printUpdate=False)
 
     timings = [0.0] * len(suffixes)
