@@ -50,7 +50,7 @@ jobs:
         # over it.
         # Thanks: https://vinayak.io/2020/10/13/day-45-i-have-linux-and-macos-wheels/
         CIBW_REPAIR_WHEEL_COMMAND_LINUX: "LD_LIBRARY_PATH=$(pwd)/LwBuild/lightweaver/:$LD_LIBRARY_PATH auditwheel repair -w {dest_dir} {wheel}"
-        CIBW_REPAIR_WHEEL_COMMAND_MACOS: "DYLD_LIBRARY_PATH=$(pwd)/LwBuild/lightweaver/:$DYLD_LIBRARY_PATH delocate-listdeps {wheel} && delocate-wheel -w {dest_dir} -v {wheel}"
+        CIBW_REPAIR_WHEEL_COMMAND_MACOS: "DYLD_LIBRARY_PATH=$(pwd)/LwBuild/lightweaver/:$DYLD_LIBRARY_PATH && export DYLD_LIBRARY_PATH && delocate-listdeps {wheel} && delocate-wheel -w {dest_dir} -v {wheel}"
 
     - uses: actions/upload-artifact@v2
       with:
