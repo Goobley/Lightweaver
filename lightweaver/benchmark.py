@@ -1,10 +1,10 @@
 import time
 
 import numpy as np
-from lightweaver.config import update_config_file
 from tqdm import tqdm
 from weno4 import weno4
 
+from lightweaver.config import update_config_file
 from .atmosphere import Atmosphere, ScaleType
 from .atomic_set import RadiativeSet
 from .config import params as rcParams
@@ -18,7 +18,8 @@ __all__ = ['benchmark']
 
 def configure_context(Nspace=500, fsIterScheme=None):
     '''
-    Configure a FALC context (with more or fewer depth points), 1 thread and a particular iteration scheme. For use in benchmarking.
+    Configure a FALC context (with more or fewer depth points), 1 thread and a
+    particular iteration scheme. For use in benchmarking.
 
     Parameters
     ----------
@@ -91,7 +92,8 @@ def benchmark(Niter=50, Nrep=3, verbose=True, writeConfig=True, warmUp=True):
     timings = [t / Nrep for t in timings]
     if verbose:
         for idx, method in enumerate(methods):
-            print(f'Timing for method "{method}": {timings[idx]:.3f} s ({Niter} iterations, {Nrep} repetitions)')
+            print(f'Timing for method "{method}": {timings[idx]:.3f} s '
+                  f'({Niter} iterations, {Nrep} repetitions)')
 
     if writeConfig:
         minTiming = min(timings)
@@ -108,4 +110,4 @@ def benchmark(Niter=50, Nrep=3, verbose=True, writeConfig=True, warmUp=True):
         update_config_file(path)
 
     if verbose:
-        print(f'Benchmark complete.')
+        print('Benchmark complete.')

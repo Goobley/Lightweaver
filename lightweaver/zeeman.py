@@ -1,7 +1,8 @@
-import numpy as np
-from typing import Optional, cast, Iterator, TYPE_CHECKING
-from fractions import Fraction
 from dataclasses import dataclass
+from fractions import Fraction
+from typing import TYPE_CHECKING, Iterator, Optional, cast
+
+import numpy as np
 
 if TYPE_CHECKING:
     from .atomic_model import AtomicLine
@@ -37,7 +38,8 @@ def zeeman_strength(Ju: Fraction, Mu: Fraction, Jl: Fraction, Ml: Fraction) -> f
     alpha  = int(Ml - Mu)
     dJ = int(Ju - Jl)
 
-    # These parameters are x2 those in del Toro Iniesta (p. 137), but we normalise after the fact, so it's fine
+    # These parameters are x2 those in del Toro Iniesta (p. 137), but we
+    # normalise after the fact, so it's fine
 
     if dJ == 0: # jMin = ju = jl
         if alpha == 0: # pi trainsitions
@@ -84,7 +86,8 @@ def effective_lande(line: 'AtomicLine'):
     i = line.iLevel
     j = line.jLevel
     if any(x is None for x in [i.J, i.L, i.S, j.J, j.L, j.S]):
-        raise ValueError('Cannot compute gLandeEff as gLandeEff not set and some of J, L and S None for line %s'%repr(line))
+        raise ValueError(('Cannot compute gLandeEff as gLandeEff not set and some of '
+                          'J, L and S None for line %s') % repr(line))
     gL = lande_factor(i.J, i.L, i.S) # type: ignore
     gU = lande_factor(j.J, j.L, j.S) # type: ignore
 

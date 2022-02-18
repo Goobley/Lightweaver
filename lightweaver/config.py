@@ -1,6 +1,6 @@
-import os.path as path
 import warnings
 from copy import copy
+from os import path
 from typing import List, Optional
 
 import astropy.config as conf
@@ -62,7 +62,9 @@ def update_config_dict(configPath: Optional[str]):
     '''
     Updates the configuration dict (`lightweaver.ConfigDict`), from the config
     file. If there is no config file, the defaults are used, and the most
-    advanced instruction set is chosen for the SimdImpl. If the SimdImpl in the config file is too advanced for the current CPU, the maximum available is chosen.
+    advanced instruction set is chosen for the SimdImpl. If the SimdImpl in the
+    config file is too advanced for the current CPU, the maximum available is
+    chosen.
 
     Parameters
     ----------
@@ -70,7 +72,10 @@ def update_config_dict(configPath: Optional[str]):
         The path to the config file, or None.
     '''
     if configPath is None:
-        warnings.warn('No config file found, using defaults. For optimised vectorised code, please run `lightweaver.benchmark()`, otherwise the most advanced instruction set supported by your machine will be picked, which may not be the fastest (due to e.g. aggressive AVX offsets).')
+        warnings.warn('No config file found, using defaults. For optimised vectorised code,'
+                      ' please run `lightweaver.benchmark()`, otherwise the most advanced'
+                      ' instruction set supported by your machine will be picked, which may'
+                      ' not be the fastest (due to e.g. aggressive AVX offsets).')
         set_most_advanced_simd_impl()
         return
 
@@ -81,7 +86,8 @@ def update_config_dict(configPath: Optional[str]):
     availableSimd : List[str] = get_available_simd_suffixes()
     if params['SimdImpl'] not in ['scalar'] + availableSimd:
         set_most_advanced_simd_impl()
-        warnings.warn('SimdImpl was set to an overly advanced instruction set for the current CPU, setting to the maximum supported by your CPU.')
+        warnings.warn('SimdImpl was set to an overly advanced instruction set for the '
+                      'current CPU, setting to the maximum supported by your CPU.')
 
 
 def update_config_file(configPath: str):

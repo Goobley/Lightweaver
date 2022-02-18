@@ -1,18 +1,19 @@
-import lightweaver.constants as C
-from lightweaver.simd_management import filter_usable_simd_impls
-import numpy as np
 import importlib
 import os
-import os.path as path
-from typing import Optional, Union, Tuple, Sequence, List,TYPE_CHECKING
 from dataclasses import dataclass
 from enum import Enum, auto
+from os import path
+from typing import TYPE_CHECKING, Optional, Sequence, Tuple, Union
+
+import numpy as np
 from astropy import units
-import astropy.units as u
 from numba import njit
 from scipy import special
-from weno4 import weno4
 from scipy.integrate import trapezoid
+from weno4 import weno4
+
+import lightweaver.constants as C
+from .simd_management import filter_usable_simd_impls
 
 if TYPE_CHECKING:
     from .atomic_model import AtomicLine, AtomicModel
@@ -173,7 +174,8 @@ def vac_to_air(wavelength: np.ndarray) -> np.ndarray:
     Parameters
     ----------
     wavelength : float or array-like or astropy.Quantity
-        If no units then the wavelength is assumed to be in [nm], otherwise the provided units are used.
+        If no units then the wavelength is assumed to be in [nm], otherwise the
+        provided units are used.
 
     Returns
     -------
@@ -192,7 +194,8 @@ def air_to_vac(wavelength: np.ndarray) -> np.ndarray:
     Parameters
     ----------
     wavelength : float or array-like or astropy.Quantity
-        If no units then the wavelength is assumed to be in [nm], otherwise the provided units are used.
+        If no units then the wavelength is assumed to be in [nm], otherwise the
+        provided units are used.
 
     Returns
     -------
@@ -202,10 +205,12 @@ def air_to_vac(wavelength: np.ndarray) -> np.ndarray:
     # NOTE(cmo): Moved this import here as it's very slow
     ### HACK
     from specutils.utils.wcs_utils import air_to_vac as spec_air_to_vac
-    return spec_air_to_vac(wavelength << units.nm, scheme='iteration', method='edlen1966').value
+    return spec_air_to_vac(wavelength << units.nm, scheme='iteration',
+                           method='edlen1966').value
 
 def convert_specific_intensity(wavelength: np.ndarray,
-                               specInt: np.ndarray, outUnits) -> units.quantity.Quantity:
+                               specInt: np.ndarray,
+                               outUnits) -> units.quantity.Quantity:
     '''
     Convert a specific intensity between different units.
 
@@ -299,10 +304,12 @@ def check_shape_exception(a: np.ndarray, shape: Union[int, Tuple[int]],
         shape = (shape,)
 
     if a.ndim != ndim:
-        raise ValueError(f'Array ({name}) does not have the expected number of dimensions: {ndim} (got: {a.ndim}).')
+        raise ValueError(f'Array ({name}) does not have the expected number '
+                         f'of dimensions: {ndim} (got: {a.ndim}).')
 
     if a.shape != shape:
-        raise ValueError(f'Array ({name}) does not have the expected shape: {shape} (got: {a.shape}).')
+        raise ValueError(f'Array ({name}) does not have the expected shape: '
+                         f'{shape} (got: {a.shape}).')
 
 def compute_radiative_losses(ctx) -> np.ndarray:
     '''
@@ -323,7 +330,6 @@ def compute_radiative_losses(ctx) -> np.ndarray:
         The radiative gains losses for each depth and wavelength in the
         simulation.
     '''
-    spect = ctx.kwargs['spect']
     atmos = ctx.kwargs['atmos']
 
     chiTot = ctx.depthData.chi
@@ -369,7 +375,6 @@ def integrate_line_losses(ctx, loss : np.ndarray,
         lines = [lines]
 
     spect = ctx.kwargs['spect']
-    atmos = ctx.kwargs['atmos']
 
     lineLosses = []
     for line in lines:
@@ -392,7 +397,9 @@ def integrate_line_losses(ctx, loss : np.ndarray,
         for k in range(loss.shape[1]):
             lineLoss[k, :] = weno4(wav, ctx.spect.wavelength, loss[:, k])
         lineLosses.append(trapezoid(lineLoss,
-                                    (wav << u.nm).to(u.Hz, equivalencies=u.spectral()).value))
+                                    (wav << units.nm).to(units.Hz,
+                                                         equivalencies=units.spectral()).value)
+                          )
     return lineLosses[0] if len(lineLosses) == 1 else lineLosses
 
 

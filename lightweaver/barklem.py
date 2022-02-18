@@ -1,16 +1,15 @@
-from typing import Tuple, Iterable, List, Sequence, TYPE_CHECKING
-from dataclasses import dataclass, field
-from parse import parse
+from typing import TYPE_CHECKING, Sequence, Tuple
+
 import numpy as np
-if TYPE_CHECKING:
-    from .atomic_model import AtomicLevel, AtomicLine, AtomicModel
-import string
-from .atomic_table import PeriodicTable
-from .utils import get_data_path
 from scipy.interpolate import RectBivariateSpline
 from scipy.special import gamma
+
 import lightweaver.constants as Const
-import os
+from .atomic_table import PeriodicTable
+from .utils import get_data_path
+
+if TYPE_CHECKING:
+    from .atomic_model import AtomicLine, AtomicModel
 
 DeltaNeff = 0.1
 
@@ -48,7 +47,8 @@ class Barklem:
                                  line: 'AtomicLine',
                                  vals: Sequence[float]) -> Sequence[float]:
         '''
-        Returns the cross section data for use in the Van der Waals collisional broadening routines.
+        Returns the cross section data for use in the Van der Waals collisional
+        broadening routines.
         See:
 
           - Anstee & O'Mara 1995, MNRAS 276, 859-866
@@ -115,7 +115,8 @@ class Barklem:
 
             deltaEi = (atom.levels[ic].E - atom.levels[i].E) * Const.HC / Const.CM_TO_M
             deltaEj = (atom.levels[ic].E - atom.levels[j].E) * Const.HC / Const.CM_TO_M
-            E_Rydberg = Const.ERydberg / (1.0 + Const.MElectron / (atom.element.mass * Const.Amu))
+            E_Rydberg = Const.ERydberg / (1.0 + Const.MElectron
+                                           / (atom.element.mass * Const.Amu))
 
             neff1 = Z * np.sqrt(E_Rydberg / deltaEi)
             neff2 = Z * np.sqrt(E_Rydberg / deltaEj)
@@ -129,14 +130,17 @@ class Barklem:
                 raise BarklemCrossSectionError('neff2 outside table.')
 
 
-            result[0] = RectBivariateSpline(table.neff1, table.neff2, table.cross)(neff1, neff2)
-            result[1] = RectBivariateSpline(table.neff1, table.neff2, table.alpha)(neff1, neff2)
+            result[0] = RectBivariateSpline(table.neff1, table.neff2,
+                                            table.cross)(neff1, neff2)
+            result[1] = RectBivariateSpline(table.neff1, table.neff2,
+                                            table.alpha)(neff1, neff2)
 
         reducedMass = Const.Amu / (1.0 / PeriodicTable[1].mass + 1.0 / atom.element.mass)
         meanVel = np.sqrt(8.0 * Const.KBoltzmann / (np.pi * reducedMass))
         meanCross = Const.RBohr**2 * (meanVel / 1.0e4)**(-vals[1])
 
-        result[0] = vals[0] * 2.0 * (4.0 / np.pi)**(vals[1]/2.0) * gamma(4.0 - vals[1] / 2.0) * meanVel * meanCross
+        result[0] = (vals[0] * 2.0 * (4.0 / np.pi)**(vals[1]/2.0)
+                     * gamma(4.0 - vals[1] / 2.0) * meanVel * meanCross)
 
         # Use Unsold for Helium contribution
         result[2] = 1.0

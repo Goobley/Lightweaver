@@ -30,8 +30,10 @@ class ConvergenceCriteria:
     def is_converged(self, JUpdate: IterationUpdate, popsUpdate: IterationUpdate,
                      prdUpdate: Optional[IterationUpdate]) -> bool:
         '''
-        This function takes the IterationUpdate objects from `ctx.formal_sol_gamma_matrices` and `ctx.stat_equil` and optionally from `ctx.prd_redistribute` (or None).
-        Should return a bool indicated whether the Context is sufficiently converged.
+        This function takes the IterationUpdate objects from
+        `ctx.formal_sol_gamma_matrices` and `ctx.stat_equil` and optionally from
+        `ctx.prd_redistribute` (or None).  Should return a bool indicated
+        whether the Context is sufficiently converged.
         '''
         raise NotImplementedError
 
@@ -178,7 +180,7 @@ def iterate_ctx_se(ctx: 'Context', Nscatter: int=3, NmaxIter: int=2000,
                 duration = endTime - startTime
                 line = '-' * 80
                 if printNow:
-                    print(f'Final Iteration shown above.')
+                    print('Final Iteration shown above.')
                 else:
                     print(line)
                     print(f'Final Iteration: {it}')
@@ -188,7 +190,8 @@ def iterate_ctx_se(ctx: 'Context', Nscatter: int=3, NmaxIter: int=2000,
                     if prd and dRhoUpdate is not None:
                         print(dRhoUpdate.compact_representation())
                 print(line)
-                print(f'Context converged to statistical equilibrium in {it} iterations after {duration:.2f} s.')
+                print(f'Context converged to statistical equilibrium in {it}'
+                      f' iterations after {duration:.2f} s.')
                 print(line)
             return
 
@@ -207,5 +210,6 @@ def iterate_ctx_se(ctx: 'Context', Nscatter: int=3, NmaxIter: int=2000,
             if prd and dRhoUpdate is not None:
                 print(dRhoUpdate.compact_representation())
             print(line)
-            print(f'Context FAILED to converge to statistical equilibrium after {it} iterations (took {duration:.2f} s).')
+            print(f'Context FAILED to converge to statistical equilibrium after {it}'
+                  f' iterations (took {duration:.2f} s).')
             print(line)

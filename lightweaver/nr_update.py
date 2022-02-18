@@ -1,6 +1,8 @@
 import numpy as np
+
 from .atomic_set import lte_pops
 from .atomic_table import PeriodicTable
+
 
 def nr_post_update(self, fdCollisionRates=True, hOnly=False,
                    timeDependentData=None, chunkSize=5,
@@ -45,15 +47,11 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False,
         raise ValueError('Calling nr_post_update without Hydrogen active.')
 
     if ngUpdate is None:
-        if self.conserveCharge:
-            ngUpdate = True
-        else:
-            ngUpdate = False
+        ngUpdate = self.conserveCharge
 
     if printUpdate is None:
         printUpdate = ngUpdate
 
-    timeDependent = (timeDependentData is not None)
     atoms = self.activeAtoms[:1] if hOnly else self.activeAtoms
     crswVal = self.crswCallback.val
 
@@ -63,7 +61,7 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False,
         backgroundAtoms = self.kwargs['spect'].radSet.passiveAtoms
 
     backgroundNe = np.zeros_like(self.atmos.ne)
-    for idx, atomModel in enumerate(backgroundAtoms):
+    for atomModel in backgroundAtoms:
         lteStages = np.array([l.stage for l in atomModel.levels])
         atom = self.kwargs['eqPops'].atomicPops[atomModel.element]
         backgroundNe += (lteStages[:, None] * atom.n[:, :]).sum(axis=0)

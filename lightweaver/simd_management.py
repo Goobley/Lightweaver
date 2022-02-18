@@ -1,6 +1,7 @@
+from os import path
+from typing import List
+
 from numpy.core._multiarray_umath import __cpu_features__
-import os.path as path
-from typing import Sequence
 
 # NOTE(cmo): These are added in reverse order of preference (due to width), i.e.
 # try to use the key furthest down the list.
@@ -10,7 +11,7 @@ LwSimdImplsAndFlags = {
     'AVX512': ['AVX512F', 'AVX512DQ']
 }
 
-def get_available_simd_suffixes() -> Sequence[str]:
+def get_available_simd_suffixes() -> List[str]:
     '''
     Verifies the necessary flags against the features NumPy indicates are
     available, and returns a list of available LightweaverSimdImpls
@@ -21,7 +22,7 @@ def get_available_simd_suffixes() -> Sequence[str]:
             validExts.append(impl)
     return validExts
 
-def filter_usable_simd_impls(implLibs: Sequence[str]) -> Sequence[str]:
+def filter_usable_simd_impls(implLibs: List[str]) -> List[str]:
     '''
     Filter a list of SimdImpl library names, returning those that are usable on
     the current machine.
@@ -39,4 +40,3 @@ def filter_usable_simd_impls(implLibs: Sequence[str]) -> Sequence[str]:
                 result.append(lib)
                 break
     return result
-
