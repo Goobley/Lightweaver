@@ -487,7 +487,7 @@ class Atmosphere:
         The magnitude of the stratified magnetic field throughout the
         atmosphere (Tesla).
     gammaB : np.ndarray, optional
-        Co-altitude of magnetic field vector (radians) throughout the
+        Co-altitude (latitude) of magnetic field vector (radians) throughout the
         atmosphere from the local vertical.
     chiB : np.ndarray, optional
         Azimuth of magnetic field vector (radians) in the x-y plane, measured

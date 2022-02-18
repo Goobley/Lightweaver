@@ -3,6 +3,7 @@ from .config import params as ConfigDict
 from .atmosphere import Atmosphere, ScaleType, BoundaryCondition, NoBc, ZeroRadiation, \
                         ThermalisedRadiation, PeriodicRadiation, Stratifications, Layout
 from .atomic_set import SpectrumConfiguration, RadiativeSet, lte_pops, hminus_pops
+from .atomic_model import reconfigure_atom
 from .atomic_table import PeriodicTable, AtomicAbundance, KuruczPfTable, \
                           DefaultAtomicAbundance, Element, Isotope
 from .constants import *
@@ -17,6 +18,7 @@ from .nr_update import nr_post_update
 from .LwCompiled import LwContext
 from .benchmark import benchmark
 from .iteration_update import IterationUpdate
+from .iterate_ctx import ConvergenceCriteria, DefaultConvergenceCriteria, iterate_ctx_se
 
 # NOTE(cmo): This is here to make it easier to retroactively monkeypatch
 class Context(LwContext):

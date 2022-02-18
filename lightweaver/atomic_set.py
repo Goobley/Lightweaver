@@ -1,12 +1,11 @@
 from dataclasses import dataclass, field
 from .atomic_table import PeriodicTable, Element, Isotope, AtomicAbundance, DefaultAtomicAbundance, KuruczPf, KuruczPfTable
-from .atomic_model import AtomicTransition, AtomicLine, AtomicModel, AtomicContinuum, element_sort
+from .atomic_model import AtomicModel, element_sort, LineType
 from .atmosphere import Atmosphere
-from .molecule import Molecule, MolecularTable
+from .molecule import MolecularTable
 import lightweaver.constants as Const
 from typing import List, Sequence, Set, Optional, Any, Union, Dict, Tuple, Iterable, cast
-from copy import copy, deepcopy
-from collections import OrderedDict
+from copy import copy
 import numpy as np
 from scipy.linalg import solve
 from scipy.optimize import newton_krylov
@@ -182,6 +181,11 @@ class SpectrumConfiguration:
         active or detailed static sense) over the range of wavelength.
     activeWavelengths : Dict[(Element, i, j), np.ndarray]
         A mask of the wavelengths at which this transition is active.
+
+    Properties
+    ----------
+    NprdTrans : int
+        The number of PRD transitions present on the active transitions.
     '''
     radSet: 'RadiativeSet'
     wavelength: np.ndarray
@@ -234,6 +238,20 @@ class SpectrumConfiguration:
                                      blueIdx=blueIdx, redIdx=redIdx,
                                      activeTrans=activeTrans,
                                      activeWavelengths=activeWavelengths)
+
+    @property
+    def NprdTrans(self):
+        try:
+            return self._NprdTrans
+        except AttributeError:
+            count = 0
+            for element in self.radSet.activeSet:
+                atom = self.radSet.atoms[element]
+                for l in atom.lines:
+                    if l.type == LineType.PRD:
+                        count += 1
+            self._NprdTrans = count
+            return count
 
 
 @dataclass
