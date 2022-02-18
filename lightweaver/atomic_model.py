@@ -1,19 +1,16 @@
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from fractions import Fraction
-from typing import List, Tuple, Sequence, Optional, Any, Iterator, cast, TYPE_CHECKING, Callable
-import re
+from typing import TYPE_CHECKING, Callable, Optional, Sequence, Tuple, cast
 
 import numpy as np
 from weno4 import weno4
-from parse import parse
 
 import lightweaver.constants as Const
-from .utils import gaunt_bf, sequence_repr
-from .atomic_table import PeriodicTable, Element
-from .barklem import Barklem
-from .zeeman import compute_zeeman_components, ZeemanComponents
+from .atomic_table import Element, PeriodicTable
 from .broadening import LineBroadening
+from .utils import gaunt_bf, sequence_repr
+from .zeeman import ZeemanComponents, compute_zeeman_components
 
 if TYPE_CHECKING:
     from .atmosphere import Atmosphere
@@ -176,7 +173,9 @@ class AtomicLevel:
         return self.E_SI / Const.EV
 
     def __repr__(self):
-        s = 'AtomicLevel(E=%10.3f, g=%g, label="%s", stage=%d, J=%s, L=%s, S=%s)' % (self.E, self.g, self.label, self.stage, repr(self.J), repr(self.L), repr(self.S))
+        s = ('AtomicLevel(E=%10.3f, g=%g, label="%s", stage=%d, '
+             'J=%s, L=%s, S=%s)') % (self.E, self.g, self.label, self.stage,
+                                    repr(self.J), repr(self.L), repr(self.S))
         return s
 
 class LineType(Enum):
@@ -253,7 +252,8 @@ class LinearCoreExpWings(LineQuadrature):
     def setup(self, line: 'AtomicLine'):
         if self.qWing <= 2.0 * self.qCore:
             # Use linear scale to qWing
-            print("Ratio of qWing / (2*qCore) <= 1\n Using linear spacing for transition %d->%d" % (line.j, line.i))
+            print(('Ratio of qWing / (2*qCore) <= 1\n'
+                   '  Using linear spacing for transition %d->%d') % (line.j, line.i))
             self.beta = 1.0
         else:
             self.beta = self.qWing / (2.0 * self.qCore)
@@ -340,7 +340,8 @@ class LineProfileState:
     wavelength : np.ndarray
         Wavelengths at which to compute the line profile [nm]
     vlosMu : np.ndarray
-        Bulk velocity projected onto each ray in the angular integration scheme [m/s] in an array of [Nmu, Nspace].
+        Bulk velocity projected onto each ray in the angular integration scheme
+        [m/s] in an array of [Nmu, Nspace].
     atmos : Atmosphere
         The associated atmosphere.
     eqPops : SpeciesStateTable
@@ -457,7 +458,7 @@ class AtomicLine(AtomicTransition):
                 ic += 1
             cont = self.atom.levels[ic]
             return cont
-        except:
+        except IndexError:
             raise ValueError('No overlying continuum level found for line %s' % repr(self))
 
     @property
@@ -664,10 +665,11 @@ class ExplicitContinuum(AtomicContinuum):
         if self.j < self.i:
             self.i, self.j = self.j, self.i
         self.atom = atom
-        self.wavelengthGrid = np.asarray(self.wavelengthGrid)
+        self.wavelengthGrid = np.asarray(self.wavelengthGrid) # type: ignore
         if not np.all(np.diff(self.wavelengthGrid) > 0.0):
-            raise ValueError('Wavelength array not monotonically increasing in continuum %s' % repr(self))
-        self.alphaGrid = np.asarray(self.alphaGrid)
+            raise ValueError(('Wavelength array not monotonically'
+                              ' increasing in continuum %s') % repr(self))
+        self.alphaGrid = np.asarray(self.alphaGrid) # type: ignore
         self.jLevel = atom.levels[self.j]
         self.iLevel = atom.levels[self.i]
         if self.lambdaEdge > self.wavelengthGrid[-1]:
@@ -744,7 +746,9 @@ class HydrogenicContinuum(AtomicContinuum):
     minWavelength: float
 
     def __repr__(self):
-        s = 'HydrogenicContinuum(j=%d, i=%d, NlambdaGen=%d, alpha0=%g, minWavelength=%g)' % (self.j, self.i, self.NlambdaGen, self.alpha0, self.minWavelength)
+        s = ('HydrogenicContinuum(j=%d, i=%d, NlambdaGen=%d, alpha0=%g,'
+             ' minWavelength=%g)') % (self.j, self.i, self.NlambdaGen, self.alpha0,
+                                      self.minWavelength)
         return s
 
     def setup(self, atom):
@@ -754,7 +758,8 @@ class HydrogenicContinuum(AtomicContinuum):
         self.jLevel: AtomicLevel = atom.levels[self.j]
         self.iLevel: AtomicLevel = atom.levels[self.i]
         if self.minLambda >= self.lambda0:
-            raise ValueError('Minimum wavelength is larger than continuum edge at %g [nm] in continuum %s' % (self.lambda0, repr(self)))
+            raise ValueError(('Minimum wavelength is larger than continuum edge '
+                              'at %g [nm] in continuum %s') % (self.lambda0, repr(self)))
 
     def alpha(self, wavelength: np.ndarray) -> np.ndarray:
         '''

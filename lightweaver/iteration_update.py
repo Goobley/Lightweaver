@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, List
-import pdb
 
 if TYPE_CHECKING:
     from . import Context
@@ -134,4 +133,3 @@ class IterationUpdate:
             chunks.append(f'    PRD dRho = {dRhoMax:.2e}, (sub-iterations: {iterCount})')
 
         return '\n'.join(chunks)
-

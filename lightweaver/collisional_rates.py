@@ -1,15 +1,17 @@
-from .utils import sequence_repr
-import lightweaver.constants as Const
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Sequence, cast
+
 import numpy as np
-from typing import Sequence, cast, TYPE_CHECKING
-from scipy.special import exp1
 from numba import njit
+from scipy.special import exp1
 from weno4 import weno4
 
+import lightweaver.constants as Const
+from .utils import sequence_repr
+
 if TYPE_CHECKING:
-    from .atomic_model import AtomicModel
     from .atmosphere import Atmosphere
+    from .atomic_model import AtomicModel
     from .atomic_set import SpeciesStateTable
 
 @dataclass
@@ -28,7 +30,8 @@ class CollisionalRates:
     def setup(self, atom):
         pass
 
-    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable',
+                      Cmat: np.ndarray):
         raise NotImplementedError
 
     def __eq__(self, other: object) -> bool:
@@ -49,7 +52,8 @@ class TemperatureInterpolationRates(CollisionalRates):
     def __repr__(self):
         s = '%s(j=%d, i=%d, temperature=%s, rates=%s)' % (type(self).__name__,
                                                           self.j, self.i,
-                                                          sequence_repr(self.temperature), sequence_repr(self.rates))
+                                                          sequence_repr(self.temperature),
+                                                          sequence_repr(self.rates))
         return s
 
     def setup(self, atom):
@@ -71,9 +75,11 @@ class Omega(TemperatureInterpolationRates):
     '''
     def setup(self, atom):
         super().setup(atom)
-        self.C0 = Const.ERydberg / np.sqrt(Const.MElectron) * np.pi * Const.RBohr**2 * np.sqrt(8.0 / (np.pi * Const.KBoltzmann))
+        self.C0 = (Const.ERydberg / np.sqrt(Const.MElectron) * np.pi *
+                   Const.RBohr**2 * np.sqrt(8.0 / (np.pi * Const.KBoltzmann)))
 
-    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable',
+                      Cmat: np.ndarray):
         C = weno4(atmos.temperature, self.temperature, self.rates)
         C[C < 0.0] = 0.0
         nstar = eqPops.atomicPops[self.atom.element].nStar
@@ -92,11 +98,13 @@ class CI(TemperatureInterpolationRates):
         super().setup(atom)
         self.dE = self.jLevel.E_SI - self.iLevel.E_SI
 
-    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable',
+                     Cmat: np.ndarray):
         C = weno4(atmos.temperature, self.temperature, self.rates)
         C[C < 0.0] = 0.0
         nstar = eqPops.atomicPops[self.atom.element].nStar
-        Cup = C * atmos.ne * np.exp(-self.dE / (Const.KBoltzmann * atmos.temperature)) * np.sqrt(atmos.temperature)
+        Cup = (C * atmos.ne * np.exp(-self.dE / (Const.KBoltzmann * atmos.temperature))
+               * np.sqrt(atmos.temperature))
         Cmat[self.j, self.i, :] += Cup
         Cmat[self.i, self.j, :] += Cup * nstar[self.i] / nstar[self.j]
 
@@ -112,7 +120,8 @@ class CE(TemperatureInterpolationRates):
         super().setup(atom)
         self.gij = self.iLevel.g / self.jLevel.g
 
-    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable',
+                      Cmat: np.ndarray):
         C = weno4(atmos.temperature, self.temperature, self.rates)
         C[C < 0.0] = 0.0
         nstar = eqPops.atomicPops[self.atom.element].nStar
@@ -126,7 +135,8 @@ class CP(TemperatureInterpolationRates):
     Collisional (de-)excitation by protons.
     Units: s^-1 m^3
     '''
-    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable',
+                      Cmat: np.ndarray):
         C = weno4(atmos.temperature, self.temperature, self.rates)
         C[C < 0.0] = 0.0
         nProton = eqPops['H'][-1, :]
@@ -141,7 +151,8 @@ class CH(TemperatureInterpolationRates):
     Collisions with neutral hydrogen.
     Units: s^-1 m^3
     '''
-    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable',
+                      Cmat: np.ndarray):
         C = weno4(atmos.temperature, self.temperature, self.rates)
         C[C < 0.0] = 0.0
         nh0 = eqPops['H'][0, :]
@@ -157,7 +168,8 @@ class ChargeExchangeNeutralH(TemperatureInterpolationRates):
     Units: s^-1 m^3
     Note: downward rate only.
     '''
-    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable',
+                      Cmat: np.ndarray):
         C = weno4(atmos.temperature, self.temperature, self.rates)
         C[C < 0.0] = 0.0
         nh0 = eqPops['H'][0, :]
@@ -172,12 +184,12 @@ class ChargeExchangeProton(TemperatureInterpolationRates):
     Units: s^-1 m^3
     Note: upward rate only.
     '''
-    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable',
+                      Cmat: np.ndarray):
         C = weno4(atmos.temperature, self.temperature, self.rates)
         C[C < 0.0] = 0.0
         nProton = eqPops['H'][-1, :]
         Cup = C * nProton
-        nstar = eqPops.atomicPops[self.atom.element].nStar
         Cmat[self.j, self.i, :] += Cup
 
 def fone(x):
@@ -257,14 +269,17 @@ class Ar85Cdi(CollisionalRates):
         self.jLevel = atom.levels[self.j]
         self.cdi = np.array(self.cdi)
 
-    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable',
+                      Cmat: np.ndarray):
         nstar = eqPops.atomicPops[self.atom.element].nStar
         Cup = np.zeros(atmos.Nspace)
         cdi = cast(np.ndarray, self.cdi)
         for m in range(cdi.shape[0]):
             xj = cdi[m, 0] * Const.EV / (Const.KBoltzmann * atmos.temperature)
             fac = np.exp(-xj) * np.sqrt(xj)
-            fxj = cdi[m, 1] + cdi[m, 2] * (1.0 + xj) + (cdi[m, 3] - xj * (cdi[m, 1] + cdi[m, 2] * (2.0 + xj))) * fone(xj) + cdi[m, 4] * xj * ftwo(xj)
+            fxj = (cdi[m, 1] + cdi[m, 2] * (1.0 + xj)
+                   + (cdi[m, 3] - xj * (cdi[m, 1] + cdi[m, 2] * (2.0 + xj)))
+                   * fone(xj) + cdi[m, 4] * xj * ftwo(xj))
 
             fxj *= fac
             fac = 6.69e-7 / cdi[m, 0]**1.5
@@ -298,7 +313,8 @@ class Burgess(CollisionalRates):
         self.iLevel = atom.levels[self.i]
         self.jLevel = atom.levels[self.j]
 
-    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable',
+                      Cmat: np.ndarray):
         nstar = eqPops.atomicPops[self.atom.element].nStar
         dE = (self.jLevel.E_SI - self.iLevel.E_SI) / Const.EV
         zz = self.iLevel.stage
@@ -310,15 +326,11 @@ class Burgess(CollisionalRates):
         invdEkT = 1.0 / dEkT
         wlog = np.log(1.0 + invdEkT)
         wb = wlog**(betaB / (1.0 + invdEkT))
-        Cup = 2.1715e-8 * cbar * (13.6/dE)**1.5 * np.sqrt(dEkT) * exp1(dEkT) * wb * atmos.ne * Const.CM_TO_M**3
+        Cup = (2.1715e-8 * cbar * (13.6/dE)**1.5 * np.sqrt(dEkT)
+               * exp1(dEkT) * wb * atmos.ne * Const.CM_TO_M**3)
 
         Cup *= self.fudge
         Cdown = Cup * nstar[self.i, :] / nstar[self.j, :]
 
         Cmat[self.j, self.i, :] += Cup
         Cmat[self.i, self.j, :] += Cdown
-
-
-
-# NOTE(cmo): It's probably better to write an AR85-CEA function per atomic model, and skip all the series checking stuff
-# For Helium, after checking gencol and rh it seems to return 0.0 for helium, so it can probably just be removed from the model

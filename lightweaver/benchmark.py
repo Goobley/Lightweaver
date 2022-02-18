@@ -1,14 +1,14 @@
 import time
 
 import numpy as np
-from lightweaver.config import update_config_file
 from tqdm import tqdm
 from weno4 import weno4
 
+from lightweaver.config import update_config_file
 from .atmosphere import Atmosphere, ScaleType
 from .atomic_set import RadiativeSet
 from .config import params as rcParams
-from .config import get_config_path, update_config_file
+from .config import get_home_config_path, update_config_file
 from .fal import Falc82
 from .rh_atoms import CaII_atom, H_6_atom
 from .simd_management import get_available_simd_suffixes
@@ -18,7 +18,8 @@ __all__ = ['benchmark']
 
 def configure_context(Nspace=500, fsIterScheme=None):
     '''
-    Configure a FALC context (with more or fewer depth points), 1 thread and a particular iteration scheme. For use in benchmarking.
+    Configure a FALC context (with more or fewer depth points), 1 thread and a
+    particular iteration scheme. For use in benchmarking.
 
     Parameters
     ----------
@@ -74,7 +75,7 @@ def benchmark(Niter=50, Nrep=3, verbose=True, writeConfig=True, warmUp=True):
 
     if warmUp:
         ctx = configure_context(fsIterScheme=methods[0])
-        for _ in range(max(Niter / 5, 10)):
+        for _ in range(max(Niter // 5, 10)):
             ctx.formal_sol_gamma_matrices(printUpdate=False)
 
     timings = [0.0] * len(suffixes)
@@ -91,7 +92,8 @@ def benchmark(Niter=50, Nrep=3, verbose=True, writeConfig=True, warmUp=True):
     timings = [t / Nrep for t in timings]
     if verbose:
         for idx, method in enumerate(methods):
-            print(f'Timing for method "{method}": {timings[idx]:.3f} s ({Niter} iterations, {Nrep} repetitions)')
+            print(f'Timing for method "{method}": {timings[idx]:.3f} s '
+                  f'({Niter} iterations, {Nrep} repetitions)')
 
     if writeConfig:
         minTiming = min(timings)
@@ -102,10 +104,10 @@ def benchmark(Niter=50, Nrep=3, verbose=True, writeConfig=True, warmUp=True):
         impl = suffixes[minIdx]
         rcParams['SimdImpl'] = impl
 
-        path = get_config_path()
+        path = get_home_config_path()
         if verbose:
             print(f'Writing config to \'{path}\'...')
         update_config_file(path)
 
     if verbose:
-        print(f'Benchmark complete.')
+        print('Benchmark complete.')

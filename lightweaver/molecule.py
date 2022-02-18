@@ -1,13 +1,13 @@
-from parse import parse
-import lightweaver.constants as Const
-from typing import Tuple, Set, List, TYPE_CHECKING, Optional, Union
-from .atomic_table import PeriodicTable, Element
-from .atmosphere import Atmosphere
-import numpy as np
-from numpy.linalg import solve
-from numba import njit
-from dataclasses import dataclass
 from collections import OrderedDict
+from typing import List, Optional, Tuple, Union
+
+import numpy as np
+from numba import njit
+from parse import parse
+
+import lightweaver.constants as Const
+from .atomic_table import Element, PeriodicTable
+
 
 # TODO(cmo): This should really be done with a generator/coroutine
 def get_next_line(data: List[str]) -> Optional[str]:
@@ -15,9 +15,7 @@ def get_next_line(data: List[str]) -> Optional[str]:
         return None
     for i, d in enumerate(data):
         if d.strip().startswith('#') or d.strip() == '':
-            # print('Skipping %s' % d)
             continue
-        # print('Accepting %s' % d)
         break
     d = data[i]
     if i == len(data) - 1:
@@ -121,7 +119,8 @@ class Molecule:
         l = get_next_line(lines)
         self.charge = int(l)
         if self.charge < 0 or self.charge > 1:
-            raise ValueError("Only neutral or singly charged positive molecules are allowed (%s)" % self.name)
+            raise ValueError(('Only neutral or singly charged positive molecules '
+                              'are allowed (%s)') % self.name)
 
         structure = get_next_line(lines)
         constituents = [get_constituent(s.strip()) for s in structure.split(',')]
@@ -135,18 +134,21 @@ class Molecule:
         fitStr = get_next_line(lines)
         self.formationTempRange = [float(f) for f in get_next_line(lines).split()]
         if len(self.formationTempRange) != 2:
-            raise ValueError("Expected two entries for formation temperature range (%s)" % self.name)
+            raise ValueError("Expected two entries for formation temperature range (%s)"
+                              % self.name)
 
         pfCoeffs = get_next_line(lines).split()
         Npf = int(pfCoeffs[0].strip())
         if len(pfCoeffs) != Npf+1:
-            raise ValueError("Unexpected number of partition function fit parameters (%s)" % self.name)
+            raise ValueError("Unexpected number of partition function fit parameters (%s)"
+                             % self.name)
         self.pfCoeffs = np.array([float(f.strip()) for f in pfCoeffs[1:]][::-1])
 
         eqcCoeffs = get_next_line(lines).split()
         Neqc = int(eqcCoeffs[0].strip())
         if len(eqcCoeffs) != Neqc+1:
-            raise ValueError("Unexpected number of equilibrium coefficient fit parameters (%s)" % self.name)
+            raise ValueError(("Unexpected number of equilibrium coefficient "
+                              "fit parameters (%s)") % self.name)
         self.eqcCoeffs = np.array([float(f.strip()) for f in eqcCoeffs[1:]][::-1])
 
         self.weight = 0.0
@@ -154,16 +156,22 @@ class Molecule:
             self.weight += count * ele.mass
 
         if fitStr == 'KURUCZ_70':
-            self.equilibrium_constant = equilibrium_constant_kurucz_70(self.formationTempRange,
-             self.Nnuclei - 1 - self.charge,
-             self.Ediss, self.eqcCoeffs)
+            self.equilibrium_constant = equilibrium_constant_kurucz_70(
+                                                self.formationTempRange,
+                                                self.Nnuclei - 1 - self.charge,
+                                                self.Ediss, self.eqcCoeffs)
         elif fitStr == 'KURUCZ_85':
-            self.equilibrium_constant = equilibrium_constant_kurucz_85(self.formationTempRange,
-            self.Nnuclei - 1 - self.charge, self.Ediss, self.eqcCoeffs)
+            self.equilibrium_constant = equilibrium_constant_kurucz_85(
+                                                self.formationTempRange,
+                                                self.Nnuclei - 1 - self.charge,
+                                                self.Ediss, self.eqcCoeffs)
         elif fitStr == 'SAUVAL_TATUM_84':
-            self.equilibrium_constant = equilibrium_constant_sauval_tatum(self.formationTempRange, self.Ediss, self.eqcCoeffs)
+            self.equilibrium_constant = equilibrium_constant_sauval_tatum(
+                                                self.formationTempRange,
+                                                self.Ediss, self.eqcCoeffs)
         else:
-            raise ValueError('Unknown molecular equilibrium constant fit method %s in molecule %s' % (fitStr, self.name))
+            raise ValueError(('Unknown molecular equilibrium constant fit '
+                              'method %s in molecule %s') % (fitStr, self.name))
 
 class MolecularTable:
     '''
@@ -180,7 +188,8 @@ class MolecularTable:
         for path in paths:
             self.molecules.append(Molecule(path))
 
-        self.indices = OrderedDict(zip([m.name for m in self.molecules], list(range(len(self.molecules)))))
+        self.indices = OrderedDict(zip([m.name for m in self.molecules],
+                                   list(range(len(self.molecules)))))
 
     def __getitem__(self, name: str) -> Molecule:
         name = name.upper()

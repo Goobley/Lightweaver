@@ -74,6 +74,20 @@ lightweaver.fal module
    :members:
    :show-inheritance:
 
+lightweaver.iterate_ctx module
+-------------------------------------
+
+.. automodule:: lightweaver.iterate_ctx
+   :members:
+   :show-inheritance:
+
+lightweaver.iteration_update module
+-------------------------------------
+
+.. automodule:: lightweaver.iteration_update
+   :members:
+   :show-inheritance:
+
 lightweaver.molecule module
 ---------------------------
 
