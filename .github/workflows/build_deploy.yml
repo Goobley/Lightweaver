@@ -42,7 +42,7 @@ jobs:
 
     - run: python -m cibuildwheel --output-dir wheelhouse
       env:
-        CIBW_BUILD: cp38-* cp39-*
+        CIBW_BUILD: cp38-* cp39-* cp310-*
         CIBW_ARCHS: auto64
         CIBW_ENVIRONMENT: 'LW_CI_BUILD=true'
         CIBW_BUILD_VERBOSITY: 1
