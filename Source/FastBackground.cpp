@@ -121,8 +121,8 @@ void FastBackgroundContext::basic_background(BackgroundData* bd, Atmosphere* atm
         bd->eta.fill(0.0);
         bd->scatt.fill(0.0);
 
-        auto background_handler = [](void* data, scheduler* s,
-                                     sched_task_partition p, sched_uint threadId)
+        auto background_handler = [](void* data, enki::TaskScheduler* s,
+                                     enki::TaskSetPartition p, u32 threadId)
         {
             BasicBackgroundData* args = (BasicBackgroundData*)data;
             ::basic_background(args->bd, args->atmos, p.start, p.end);
@@ -131,10 +131,10 @@ void FastBackgroundContext::basic_background(BackgroundData* bd, Atmosphere* atm
         BasicBackgroundData args{bd, atmos};
 
         {
-            sched_task bgOpacities;
-            scheduler_add(&sched, &bgOpacities, background_handler,
-                          (void*)&args, bd->wavelength.shape(0), 20);
-            scheduler_join(&sched, &bgOpacities);
+            LwTaskSet bgOpacities((void*)&args, &sched, bd->wavelength.shape(0),
+                                20, background_handler);
+            sched.AddTaskSetToPipe(&bgOpacities);
+            sched.WaitforTask(&bgOpacities);
         }
     }
 }
@@ -156,8 +156,8 @@ void FastBackgroundContext::bf_opacities(BackgroundData* bd,
             Atmosphere* atmos;
         };
 
-        auto bf_handler = [](void* data, scheduler* s,
-                             sched_task_partition p, sched_uint threadId)
+        auto bf_handler = [](void* data, enki::TaskScheduler* s,
+                                     enki::TaskSetPartition p, u32 threadId)
         {
             BfData* args = (BfData*)data;
             ::bf_opacities(args->bd, *args->atoms, args->atmos, p.start, p.end);
@@ -166,10 +166,10 @@ void FastBackgroundContext::bf_opacities(BackgroundData* bd,
         BfData args{bd, atoms, atmos};
 
         {
-            sched_task bfOpacities;
-            scheduler_add(&sched, &bfOpacities, bf_handler,
-                          (void*)&args, bd->wavelength.shape(0), 20);
-            scheduler_join(&sched, &bfOpacities);
+            LwTaskSet bfOpacities((void*)&args, &sched, bd->wavelength.shape(0),
+                                  20, bf_handler);
+            sched.AddTaskSetToPipe(&bfOpacities);
+            sched.WaitforTask(&bfOpacities);
         }
     }
 }
@@ -190,8 +190,8 @@ void FastBackgroundContext::rayleigh_scatter(BackgroundData* bd,
             Atmosphere* atmos;
         };
 
-        auto rayleigh_handler = [](void* data, scheduler* s,
-                             sched_task_partition p, sched_uint threadId)
+        auto rayleigh_handler = [](void* data, enki::TaskScheduler* s,
+                                     enki::TaskSetPartition p, u32 threadId)
         {
             RayleighData* args = (RayleighData*)data;
             ::rayleigh_scattering(args->bd, *args->atoms, args->atmos, p.start, p.end);
@@ -200,10 +200,10 @@ void FastBackgroundContext::rayleigh_scatter(BackgroundData* bd,
         RayleighData args{bd, atoms, atmos};
 
         {
-            sched_task rayleighScatter;
-            scheduler_add(&sched, &rayleighScatter, rayleigh_handler,
-                          (void*)&args, bd->wavelength.shape(0), 40);
-            scheduler_join(&sched, &rayleighScatter);
+            LwTaskSet rayleighScatter((void*)&args, &sched, bd->wavelength.shape(0),
+                                    40, rayleigh_handler);
+            sched.AddTaskSetToPipe(&rayleighScatter);
+            sched.WaitforTask(&rayleighScatter);
         }
     }
 }

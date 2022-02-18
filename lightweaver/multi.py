@@ -1,10 +1,12 @@
-import lightweaver.constants as C
-from copy import copy, deepcopy
-import numpy as np
 import re
-from typing import Tuple
 from dataclasses import dataclass
+from typing import Tuple
+
+import numpy as np
+
+import lightweaver.constants as C
 from .atmosphere import Atmosphere, ScaleType
+
 
 @dataclass
 class MultiMetadata:
@@ -27,7 +29,8 @@ def read_multi_atmos(filename: str) -> Tuple[MultiMetadata, Atmosphere]:
     Returns
     -------
     meta : MultiMetadata
-        Additional metadata from the MULTI metadata that doesn't appear in a Lightweaver atmosphere (name, gravitational acceleration used).
+        Additional metadata from the MULTI metadata that doesn't appear in a
+        Lightweaver atmosphere (name, gravitational acceleration used).
     atmos : Atmosphere
         The atmosphere loaded into the standard Lightweaver format.
 
@@ -42,7 +45,7 @@ def read_multi_atmos(filename: str) -> Tuple[MultiMetadata, Atmosphere]:
     except FileNotFoundError:
         raise ValueError('Atmosphere file not found (%s)' % filename)
 
-    def get_line(commentPattern='^\s*\*'):
+    def get_line(commentPattern=r'^\s*\*'):
         while len(lines) > 0:
             line = lines.pop(0)
             if not re.match(commentPattern, line):
@@ -107,11 +110,3 @@ def read_multi_atmos(filename: str) -> Tuple[MultiMetadata, Atmosphere]:
                                hydrogenPops=hPops)
 
     return (meta, atmos)
-
-
-
-
-
-
-
-

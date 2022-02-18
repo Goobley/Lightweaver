@@ -68,7 +68,9 @@ namespace Prd
 
     struct PrdStorage
     {
-        F64Arr3D gII;
+        bool upToDate = false;
+        Jasnah::Array2Own<F64Arr> gII;
+        Jasnah::Array2Own<f64> qWave;
         Prd::RhoCoeffVec hPrdCoeffs;
     };
 }

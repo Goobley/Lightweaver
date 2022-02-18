@@ -16,6 +16,12 @@
     #define End ))
 #endif
 
+#define JAS_STRINGIFY_IMPL(x) #x
+#define JasStringify(x) JAS_STRINGIFY_IMPL(x)
+
+#define JAS_CONCAT_IMPL(A, B) A##B
+#define JasConcat(A, B) JAS_CONCAT_IMPL(A, B)
+
 #define JAS_EXPAND(x) x
 
 #define JAS_UNPACK1(_1)

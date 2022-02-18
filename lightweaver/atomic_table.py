@@ -1,10 +1,10 @@
-from typing import Dict, Optional, List, Union, Tuple, TYPE_CHECKING
-from copy import copy, deepcopy
-from collections import OrderedDict
-from xdrlib import Unpacker
-from dataclasses import dataclass, field
-import numpy as np
 import pickle
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, List, Tuple, Union
+from xdrlib import Unpacker
+
+import numpy as np
+
 import lightweaver.constants as Const
 from .utils import get_data_path
 
@@ -213,36 +213,36 @@ class PeriodicTableData:
             try:
                 return self.elems[x]
             except KeyError:
-                raise ValueError('Unable to find Element with Z=%d' % x)
+                raise KeyError('Unable to find Element with Z=%d' % x)
 
         if isinstance(x, tuple) and all(isinstance(y, int) for y in x):
             try:
                 return self.elems[x]
             except KeyError:
-                raise ValueError('Unable to find Isotope with (N=%d, Z=%d)' % x)
+                raise KeyError('Unable to find Isotope with (N=%d, Z=%d)' % x)
 
         if isinstance(x, str):
             x = x.strip()
             if x.startswith('^'):
                 terms = x[1:].split('_')
                 if len(terms) != 2:
-                    raise ValueError('Unable to parse Isotope string %s' % x)
+                    raise KeyError('Unable to parse Isotope string %s' % x)
                 N = int(terms[0])
                 name = normalise_atom_name(terms[1])
                 try:
                     Z = self.nameMapping[name]
                     return self.elems[(N, Z)]
                 except KeyError:
-                    raise ValueError('Unable to find Isotope from string %s' % x)
+                    raise KeyError('Unable to find Isotope from string %s' % x)
             else:
                 name = normalise_atom_name(x)
                 try:
                     Z = self.nameMapping[name]
                     return self.elems[Z]
                 except KeyError:
-                    raise ValueError('Unable to find Element with name %s' % name)
+                    raise KeyError('Unable to find Element with name %s' % name)
 
-        raise ValueError('Cannot find element from %s' % repr(x))
+        raise KeyError('Cannot find element from %s' % repr(x))
 
 
     @classmethod
@@ -314,7 +314,8 @@ class AtomicAbundance:
         if metallicity != 0.0:
             self.apply_metallicity(self.abundance, metallicity)
 
-        self.isotopeProportions = {iso: v for iso, v in self.abundance.items() if type(iso) is Isotope}
+        self.isotopeProportions = {iso: v for iso, v in self.abundance.items()
+                                   if type(iso) is Isotope}
 
         self.convert_isotopes_to_abundances()
         self.compute_stats()
@@ -509,7 +510,8 @@ class KuruczPf:
         T: float = atmos.temperature[k]
         ne: float = atmos.ne[k]
 
-        C1 = (Const.HPlanck / (2.0 * np.pi * Const.MElectron)) * Const.HPlanck / Const.KBoltzmann
+        C1 = ((Const.HPlanck / (2.0 * np.pi * Const.MElectron))
+              * Const.HPlanck / Const.KBoltzmann)
 
         CtNe = 2.0 * (C1/T)**(-1.5) / ne
         Nstage: int = self.ionPot.shape[0]
@@ -518,14 +520,17 @@ class KuruczPf:
         dfjk = np.zeros(Nstage)
 
         # fjk: fractional population of stage j, at atmospheric index k
-        # The first stage starts with a "population" of 1, then via Saha we compute the relative populations of the other stages, before dividing by the sum across these
+        # The first stage starts with a "population" of 1, then via Saha we
+        # compute the relative populations of the other stages, before dividing
+        # by the sum across these
 
         Uk: float = np.interp(T, self.Tpf, self.pf[0, :])
 
         for j in range(1, Nstage):
             Ukp1: float = np.interp(T, self.Tpf, self.pf[j, :])
 
-            fjk[j] = fjk[j-1] * CtNe * np.exp(Ukp1 - Uk - self.ionPot[j-1] / (Const.KBoltzmann * T))
+            fjk[j] = fjk[j-1] * CtNe * np.exp(Ukp1 - Uk - self.ionPot[j-1]
+                                              / (Const.KBoltzmann * T))
             dfjk[j] = -j * fjk[j] / ne
 
             Uk = Ukp1
@@ -558,7 +563,8 @@ class KuruczPf:
         T = atmos.temperature
         ne = atmos.ne
 
-        C1 = (Const.HPlanck / (2.0 * np.pi * Const.MElectron)) * Const.HPlanck / Const.KBoltzmann
+        C1 = ((Const.HPlanck / (2.0 * np.pi * Const.MElectron))
+              * Const.HPlanck / Const.KBoltzmann)
 
         CtNe = 2.0 * (C1/T)**(-1.5) / ne
         Nstage: int = self.ionPot.shape[0]
@@ -567,14 +573,17 @@ class KuruczPf:
         dfj = np.zeros((Nstage, Nspace))
 
         # fjk: fractional population of stage j, at atmospheric index k
-        # The first stage starts with a "population" of 1, then via Saha we compute the relative populations of the other stages, before dividing by the sum across these
+        # The first stage starts with a "population" of 1, then via Saha we
+        # compute the relative populations of the other stages, before dividing
+        # by the sum across these
 
         Uk = np.interp(T, self.Tpf, self.pf[0, :])
 
         for j in range(1, Nstage):
             Ukp1 = np.interp(T, self.Tpf, self.pf[j, 0])
 
-            fj[j] = fj[j-1] * CtNe * np.exp(Ukp1 - Uk - self.ionPot[j-1] / (Const.KBoltzmann * T))
+            fj[j] = fj[j-1] * CtNe * np.exp(Ukp1 - Uk - self.ionPot[j-1]
+                                            / (Const.KBoltzmann * T))
             dfj[j] = -j * fj[j] / ne
 
             Uk[:] = Ukp1
@@ -604,7 +613,8 @@ class KuruczPfTable:
         if atomicAbundance is None:
             atomicAbundance = DefaultAtomicAbundance
         self.atomicAbundance = atomicAbundance
-        kuruczPfPath = get_data_path() + 'pf_Kurucz.input' if kuruczPfPath is None else kuruczPfPath
+        kuruczPfPath = get_data_path() + 'pf_Kurucz.input' if kuruczPfPath is None \
+                                                           else kuruczPfPath
         with open(kuruczPfPath, 'rb') as f:
             s = f.read()
         u = Unpacker(s)
@@ -617,7 +627,9 @@ class KuruczPfTable:
         for i in range(99):
             z = u.unpack_int()
             stages.append(u.unpack_int())
-            pf.append(np.array(u.unpack_farray(stages[-1] * self.Tpf.shape[0], u.unpack_double)).reshape(stages[-1], self.Tpf.shape[0]))
+            pf.append(np.array(u.unpack_farray(stages[-1] * self.Tpf.shape[0],
+                                              u.unpack_double)).reshape(stages[-1],
+                                                                        self.Tpf.shape[0]))
             ionpot.append(np.array(u.unpack_farray(stages[-1], u.unpack_double)))
 
         ionpot = [i * Const.HC / Const.CM_TO_M for i in ionpot]
@@ -634,4 +646,5 @@ class KuruczPfTable:
             raise ValueError('Isotopes not supported by KuruczPf')
 
         zm = x.Z - 1
-        return KuruczPf(element=x, abundance=self.atomicAbundance[x], Tpf=self.Tpf, pf=self.pf[zm], ionPot=self.ionpot[zm])
+        return KuruczPf(element=x, abundance=self.atomicAbundance[x],
+                        Tpf=self.Tpf, pf=self.pf[zm], ionPot=self.ionpot[zm])

@@ -1,13 +1,15 @@
 from dataclasses import dataclass, field
-from typing import Sequence, List, Optional, cast, Any, TYPE_CHECKING
-import lightweaver.constants as Const
+from typing import TYPE_CHECKING, Any, List, Optional, Sequence
+
 import numpy as np
+
+import lightweaver.constants as Const
 from .atomic_table import PeriodicTable
 from .barklem import Barklem
 
 if TYPE_CHECKING:
-    from .atomic_model import AtomicLine
     from .atmosphere import Atmosphere
+    from .atomic_model import AtomicLine
     from .atomic_set import SpeciesStateTable
 
 @dataclass
@@ -77,7 +79,8 @@ class LineBroadening:
 
     def __repr__(self):
         otherStr = '' if self.other is None else ', other=%s' % repr(self.other)
-        s = 'LineBroadening(natural=%s, elastic=%s%s)' % (repr(self.natural), repr(self.elastic), otherStr)
+        s = 'LineBroadening(natural=%s, elastic=%s%s)' % (repr(self.natural),
+                                                          repr(self.elastic), otherStr)
         return s
 
     def __post_init__(self):
@@ -136,7 +139,9 @@ class LineBroadening:
         others = self.compute_other_broadening(self.other, atmos, eqPops)
 
         if natural is None:
-            natural = np.zeros_like(Qelast)
+            if Qelast is None:
+                raise ValueError(f'Insufficient information provided to {self}')
+            natural = np.zeros_like(Qelast) # type: ignore
         elif Qelast is None:
             Qelast = np.zeros_like(natural)
 
@@ -170,7 +175,7 @@ class VdwApprox(StandardLineBroadener):
         try:
             if self.line != other.line:
                 return False
-        except:
+        except AttributeError:
             pass
 
         return True
@@ -308,7 +313,7 @@ class RadiativeBroadening(StandardLineBroadener):
         try:
             if self.line != other.line:
                 return False
-        except:
+        except AttributeError:
             pass
 
         return True
@@ -356,7 +361,7 @@ class QuadraticStarkBroadening(StandardLineBroadener):
         try:
             if self.line != other.line:
                 return False
-        except:
+        except AttributeError:
             pass
 
         return True
@@ -465,7 +470,7 @@ class HydrogenLinearStarkBroadening(StandardLineBroadener):
         try:
             if self.line != other.line:
                 return False
-        except:
+        except AttributeError:
             pass
 
         return True

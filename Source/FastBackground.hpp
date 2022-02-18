@@ -3,6 +3,7 @@
 #include "Lightweaver.hpp"
 #include "CmoArray.hpp"
 #include "TaskScheduler.h"
+#include "TaskSetWrapper.hpp"
 #include "Utils.hpp"
 #include <vector>
 
@@ -54,21 +55,14 @@ struct BackgroundAtom
 struct FastBackgroundContext
 {
     int Nthreads;
-    scheduler sched;
-    void* schedMemory;
+    enki::TaskScheduler sched;
     FastBackgroundContext() : Nthreads(),
-                              sched(),
-                              schedMemory(nullptr)
+                              sched()
     {}
 
     ~FastBackgroundContext()
     {
-        if (schedMemory)
-        {
-            scheduler_stop(&sched, 1);
-            free(schedMemory);
-            schedMemory = nullptr;
-        }
+        sched.WaitforAllAndShutdown();
     }
 
     void initialise(int numThreads)
@@ -76,14 +70,7 @@ struct FastBackgroundContext
         Nthreads = numThreads;
         if (numThreads <= 1)
             return;
-        if (schedMemory)
-        {
-            throw std::runtime_error("Tried to re- initialise_threads for a FastBackgroundContext");
-        }
-        sched_size memNeeded;
-        scheduler_init(&sched, &memNeeded, Nthreads, nullptr);
-        schedMemory = calloc(memNeeded, 1);
-        scheduler_start(&sched, schedMemory);
+        sched.Initialize(Nthreads);
     }
 
     void basic_background(BackgroundData* bd, Atmosphere* atmosphere);

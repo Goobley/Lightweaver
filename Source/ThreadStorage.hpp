@@ -19,54 +19,92 @@ struct Spectrum;
 
 namespace LwInternal
 {
+
+struct PerTransFns
+{
+    AllocPerTransScratch alloc_per;
+    FreePerTransScratch free_per;
+};
+
+struct PerAtomFns
+{
+    AllocPerAtomScratch alloc_per;
+    FreePerAtomScratch free_per;
+};
+
+struct PerAtomTransFns
+{
+    PerAtomFns perAtom;
+    PerTransFns perTrans;
+};
+
 struct TransitionStorage
 {
     F64Arr Rij;
     F64Arr Rji;
     Transition trans;
+    FreePerTransScratch free_method_scratch;
+
+    TransitionStorage() = default;
+    TransitionStorage(const TransitionStorage&) = delete;
+    TransitionStorage(TransitionStorage&&) = delete;
+    inline TransitionStorage& operator=(const TransitionStorage&) = delete;
+    inline TransitionStorage& operator=(TransitionStorage&&) = delete;
+    ~TransitionStorage()
+    {
+        if (free_method_scratch)
+            free_method_scratch(&trans);
+    }
 };
 
 struct TransitionStorageFactory
 {
     Transition* trans;
+    bool detailedStatic;
     std::vector<std::unique_ptr<TransitionStorage>> tStorage;
-    TransitionStorageFactory(Transition* t);
+    PerTransFns methodFns;
+    TransitionStorageFactory(Transition* t, PerTransFns perFns);
     Transition* copy_transition();
-    void erase(Transition* t);
     void accumulate_rates();
-    void accumulate_rates(const std::vector<size_t>& indices);
     void accumulate_prd_rates();
-    void accumulate_prd_rates(const std::vector<size_t>& indices);
 };
 
 struct AtomStorage
 {
     F64Arr3D Gamma;
-    F64Arr eta;
-    F64Arr2D gij;
-    F64Arr2D wla;
-    F64Arr2D U;
-    F64Arr2D chi;
     Atom atom;
-};
+    FreePerAtomScratch free_method_scratch;
 
+    AtomStorage() = default;
+    AtomStorage(const AtomStorage&) = delete;
+    AtomStorage(AtomStorage&&) = delete;
+    inline AtomStorage& operator=(const AtomStorage&) = delete;
+    inline AtomStorage& operator=(AtomStorage&&) = delete;
+    ~AtomStorage()
+    {
+        if (free_method_scratch)
+            free_method_scratch(&atom);
+    }
+};
 
 struct AtomStorageFactory
 {
     Atom* atom;
     bool detailedStatic;
+    bool wlaGijStorage;
+    bool defaultPerAtomStorage;
     int fsWidth;
     std::vector<std::unique_ptr<AtomStorage>> aStorage;
     std::vector<TransitionStorageFactory> tStorage;
-    AtomStorageFactory(Atom* a, bool detail, int fsWidth);
+    PerAtomFns methodFns;
+    AtomStorageFactory(Atom* a, bool detail, bool wlaStorage,
+                       bool defaultPerAtomStorage,
+                       int fsWidth, PerAtomTransFns perFns);
     Atom* copy_atom();
-    void erase(Atom* atom);
+    void accumulate_Gamma();
     void accumulate_Gamma_rates();
-    void accumulate_Gamma_rates(const std::vector<size_t>& indices);
     void accumulate_prd_rates();
-    void accumulate_prd_rates(const std::vector<size_t>& indices);
-    void accumulate_Gamma_rates_parallel(scheduler* s);
-    void accumulate_Gamma_rates_parallel(scheduler* s, const std::vector<size_t>& indices);
+    void accumulate_rates();
 };
 
 struct IntensityCoreStorage
@@ -81,12 +119,13 @@ struct IntensityCoreStorage
     F64Arr Vji;
     F64Arr Ieff;
     F64Arr PsiStar;
+    F64Arr2D JRest;
     std::vector<Atom*> activeAtoms;
     std::vector<Atom*> detailedAtoms;
     IntensityCoreData core;
     FormalData formal;
 
-    IntensityCoreStorage(int Nspace, int fsWidth)
+    IntensityCoreStorage(int Nspace, int NhPrd)
         : I(F64Arr(0.0, Nspace)),
           S(F64Arr(0.0, Nspace)),
           JDag(F64Arr(0.0, Nspace)),
@@ -96,8 +135,14 @@ struct IntensityCoreStorage
           Vij(F64Arr(0.0, Nspace)),
           Vji(F64Arr(0.0, Nspace)),
           Ieff(F64Arr(0.0, Nspace)),
-          PsiStar(F64Arr(0.0, Nspace))
-    {}
+          PsiStar(F64Arr(0.0, Nspace)),
+          JRest()
+    {
+        if (NhPrd > 0)
+        {
+            JRest = F64Arr2D(NhPrd, Nspace);
+        }
+    }
 };
 
 struct IntensityCoreFactory
@@ -126,15 +171,12 @@ struct IntensityCoreFactory
     {}
 
     void initialise(Context* ctx);
-    IntensityCoreData* new_intensity_core(bool psiOperator);
-    void erase(IntensityCoreData* core);
+    IntensityCoreData* new_intensity_core();
+    IntensityCoreData* single_thread_intensity_core();
+    void accumulate_JRest();
     void accumulate_Gamma_rates();
-    void accumulate_Gamma_rates(const std::vector<size_t>& indices);
-    void accumulate_Gamma_rates(Context& ctx, const std::vector<size_t>& indices);
     void accumulate_prd_rates();
-    void accumulate_prd_rates(const std::vector<size_t>& indices);
     void accumulate_Gamma_rates_parallel(Context& ctx);
-    void accumulate_Gamma_rates_parallel(Context& ctx, const std::vector<size_t>& indices);
     void clear();
 };
 
@@ -160,13 +202,12 @@ struct ThreadData
 {
     IntensityCoreFactory threadDataFactory;
     IterationCores intensityCores;
-    scheduler sched;
-    void* schedMemory;
+    enki::TaskScheduler sched;
+    std::function<void()> clear_global_scratch;
 
     ThreadData() : threadDataFactory(),
                    intensityCores(),
-                   sched(),
-                   schedMemory(nullptr)
+                   sched()
     {}
 
 
@@ -175,13 +216,14 @@ struct ThreadData
 
     ~ThreadData()
     {
-        if (schedMemory)
-        {
-            scheduler_stop(&sched, 1);
-            free(schedMemory);
-            schedMemory = nullptr;
-        }
+        sched.WaitforAllAndShutdown();
+        if (clear_global_scratch)
+            clear_global_scratch();
     }
+    ThreadData(const ThreadData&) = delete;
+    ThreadData(ThreadData&&) = delete;
+    inline ThreadData& operator=(const ThreadData&) = delete;
+    inline ThreadData& operator=(ThreadData&&) = delete;
 };
 
 }

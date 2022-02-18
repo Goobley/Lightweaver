@@ -1,15 +1,19 @@
-from dataclasses import dataclass, field, asdict
-from copy import copy
-from enum import Enum, auto
-from typing import Sequence, TYPE_CHECKING, Optional, Union, TypeVar, Type
-import numpy as np
-from .witt import witt
-import lightweaver.constants as Const
-from numpy.polynomial.legendre import leggauss
-from .utils import ConvergenceError, view_flatten, check_shape_exception, get_data_path
-from .atomic_table import PeriodicTable, AtomicAbundance, DefaultAtomicAbundance
-import astropy.units as u
 import pickle
+from copy import copy
+from dataclasses import dataclass
+from enum import Enum, auto
+from typing import TYPE_CHECKING, Optional, Sequence, Union, cast
+
+import astropy.units as u
+import numpy as np
+from numpy.polynomial.legendre import leggauss
+
+import lightweaver.constants as Const
+from .atomic_table import (AtomicAbundance, DefaultAtomicAbundance,
+                           PeriodicTable)
+from .utils import (ConvergenceError, check_shape_exception, get_data_path,
+                    view_flatten)
+from .wittmann import Wittmann, cgs
 
 if TYPE_CHECKING:
     from .LwCompiled import LwSpectrum
@@ -119,7 +123,7 @@ class PeriodicRadiation(BoundaryCondition):
     '''
     pass
 
-def get_top_pressure(eos: witt, temp, ne=None, rho=None):
+def get_top_pressure(eos: Wittmann, temp, ne=None, rho=None):
     '''
     Return a pressure for the top of atmosphere.
     For internal use.
@@ -136,7 +140,7 @@ def get_top_pressure(eos: witt, temp, ne=None, rho=None):
 
     '''
     if ne is not None:
-        pe = ne * Const.CM_TO_M**3 * eos.BK * temp
+        pe = ne * Const.CM_TO_M**3 * cgs.BK * temp
         return eos.pg_from_pe(temp, pe)
     elif rho is not None:
         return eos.pg_from_rho(temp, rho)
@@ -234,7 +238,8 @@ class Stratifications:
 @dataclass
 class Layout:
     '''
-    Storage for basic atmospheric parameters whose presence is determined by problem dimensionality, boundary conditions and optional stratifications.
+    Storage for basic atmospheric parameters whose presence is determined by
+    problem dimensionality, boundary conditions and optional stratifications.
 
     Attributes
     ----------
@@ -252,7 +257,8 @@ class Layout:
     vy : np.ndarray
         y component of plasma velocity (present for Ndim == 3) [m/s].
     vz : np.ndarray
-        z component of plasma velocity (present for all Ndim) [m/s]. Aliased to `vlos` when `Ndim==1`
+        z component of plasma velocity (present for all Ndim) [m/s]. Aliased to
+        `vlos` when `Ndim==1`
     xLowerBc : BoundaryCondition
         Boundary condition for the plane of minimal x-coordinate.
     xUpperBc : BoundaryCondition
@@ -487,7 +493,7 @@ class Atmosphere:
         The magnitude of the stratified magnetic field throughout the
         atmosphere (Tesla).
     gammaB : np.ndarray, optional
-        Co-altitude of magnetic field vector (radians) throughout the
+        Co-altitude (latitude) of magnetic field vector (radians) throughout the
         atmosphere from the local vertical.
     chiB : np.ndarray, optional
         Azimuth of magnetic field vector (radians) in the x-y plane, measured
@@ -885,8 +891,11 @@ class Atmosphere:
             check_shape(ne, 'ne')
         if hydrogenPops is not None:
             hydrogenPops = (hydrogenPops << u.m**(-3)).value
+            hydrogenPops = cast(np.ndarray, hydrogenPops)
             if hydrogenPops.shape[1] != depthScale.shape[0]:
-                raise ValueError(f'Array hydrogenPops does not have the expected second dimension: {depthScale.shape[0]} (got: {hydrogenPops.shape[1]}).')
+                raise ValueError(f'Array hydrogenPops does not have the expected'
+                                 f' second dimension: {depthScale.shape[0]}'
+                                 f' (got: {hydrogenPops.shape[1]}).')
         if nHTot is not None:
             nHTot = (nHTot << u.m**(-3)).value
             check_shape(nHTot, 'nHTot')
@@ -929,17 +938,18 @@ class Atmosphere:
             abundance = DefaultAtomicAbundance
 
         wittAbundances = np.array([abundance[e] for e in PeriodicTable.elements])
-        eos = witt(abund_init=wittAbundances)
+        eos = Wittmann(abund_init=wittAbundances)
 
         Nspace = depthScale.shape[0]
         if nHTot is None and ne is not None:
             if verbose:
                 print('Setting nHTot from electron pressure.')
-            pe = ne * Const.CM_TO_M**3 * eos.BK * temperature
+            pe = ne * Const.CM_TO_M**3 * cgs.BK * temperature
             rho = np.zeros(Nspace)
             for k in range(Nspace):
                 rho[k] = eos.rho_from_pe(temperature[k], pe[k])
-            nHTot = np.copy(rho / (Const.CM_TO_M**3 / Const.G_TO_KG) / (Const.Amu * abundance.massPerH))
+            nHTot = np.copy(rho / (Const.CM_TO_M**3 / Const.G_TO_KG)
+                            / (Const.Amu * abundance.massPerH))
         elif ne is None and nHTot is not None:
             if verbose:
                 print('Setting ne from mass density.')
@@ -947,7 +957,7 @@ class Atmosphere:
             pe = np.zeros(Nspace)
             for k in range(Nspace):
                 pe[k] = eos.pe_from_rho(temperature[k], rho[k])
-            ne = np.copy(pe / (eos.BK * temperature) / Const.CM_TO_M**3)
+            ne = np.copy(pe / (cgs.BK * temperature) / Const.CM_TO_M**3)
         elif ne is None and nHTot is None:
             if Pgas is not None and Pgas.shape[0] != Nspace:
                 raise ValueError('Dimensions of Pgas do not match atmospheric depth')
@@ -976,17 +986,20 @@ class Atmosphere:
                 Avog = 6.022045e23 # Avogadro's Number
                 if Ptop is None and PeTop is not None:
                     if verbose:
-                        print('Setting ne, nHTot to hydrostatic equilibrium (logG=%f) from provided top electron pressure.' % logG)
+                        print(('Setting ne, nHTot to hydrostatic equilibrium (logG=%f)'
+                               ' from provided top electron pressure.') % logG)
                     PeTop *= (Const.CM_TO_M**2 / Const.G_TO_KG)
                     Ptop = eos.pg_from_pe(temperature[0], PeTop)
                 elif Ptop is not None and PeTop is None:
                     if verbose:
-                        print('Setting ne, nHTot to hydrostatic equilibrium (logG=%f) from provided top gas pressure.' % logG)
+                        print(('Setting ne, nHTot to hydrostatic equilibrium (logG=%f)'
+                              ' from provided top gas pressure.') % logG)
                     Ptop *= (Const.CM_TO_M**2 / Const.G_TO_KG)
                     PeTop = eos.pe_from_pg(temperature[0], Ptop)
                 elif Ptop is None and PeTop is None:
                     if verbose:
-                        print('Setting ne, nHTot to hydrostatic equilibrium (logG=%f) from FALC gas pressure at upper boundary temperature.' % logG)
+                        print(('Setting ne, nHTot to hydrostatic equilibrium (logG=%f)'
+                               ' from FALC gas pressure at upper boundary temperature.') % logG)
                     Ptop = get_top_pressure(eos, temperature[0])
                     PeTop = eos.pe_from_pg(temperature[0], Ptop)
                 else:
@@ -1006,9 +1019,11 @@ class Atmosphere:
                 pe = np.zeros(Nspace)
                 pgas[0] = Ptop
                 pe[0] = PeTop
-                chi_c[0] = eos.contOpacity(temperature[0], pgas[0], pe[0], np.array([5000.0]))
-                avg_mol_weight = lambda k: abundance.massPerH / (abundance.totalAbundance + pe[k] / pgas[k])
-                rho[0] = Ptop * avg_mol_weight(0) / Avog / eos.BK / temperature[0]
+                chi_c[0] = eos.cont_opacity(temperature[0], pgas[0], pe[0],
+                                            np.array([5000.0]))
+                avg_mol_weight = lambda k: abundance.massPerH / (abundance.totalAbundance
+                                                                  + pe[k] / pgas[k])
+                rho[0] = Ptop * avg_mol_weight(0) / Avog / cgs.BK / temperature[0]
                 chi_c[0] /= rho[0]
 
                 for k in range(1, Nspace):
@@ -1017,25 +1032,34 @@ class Atmosphere:
                     for it in range(200):
                         if scale == ScaleType.Tau500:
                             dtau = tau[k] - tau[k-1]
-                            pgas[k] = pgas[k-1] + gravAcc * dtau / (0.5 * (chi_c[k-1] + chi_c[k]))
+                            pgas[k] = (pgas[k-1] + gravAcc * dtau
+                                        / (0.5 * (chi_c[k-1] + chi_c[k])))
                         elif scale == ScaleType.Geometric:
-                            pgas[k] = pgas[k-1] * np.exp(-gravAcc / Avog / eos.BK * avg_mol_weight(k-1) * 0.5 * (1.0 / temperature[k-1] + 1.0 / temperature[k]) * (height[k] - height[k-1]))
+                            pgas[k] = pgas[k-1] * np.exp(-gravAcc / Avog /
+                                                         cgs.BK * avg_mol_weight(k-1)
+                                                         * 0.5 * (1.0 / temperature[k-1]
+                                                                  + 1.0 / temperature[k]) *
+                                                         (height[k] - height[k-1]))
                         else:
                             pgas[k] = gravAcc * cmass[k]
 
                         pe[k] = eos.pe_from_pg(temperature[k], pgas[k])
                         prevChi = chi_c[k]
-                        chi_c[k] = eos.contOpacity(temperature[k], pgas[k], pe[k], np.array([5000.0]))
-                        rho[k] = pgas[k] * avg_mol_weight(k) / Avog / eos.BK / temperature[k]
+                        chi_c[k] = eos.cont_opacity(temperature[k], pgas[k], pe[k],
+                                                    np.array([5000.0]))
+                        rho[k] = (pgas[k] * avg_mol_weight(k) / Avog /
+                                  cgs.BK / temperature[k])
                         chi_c[k] /= rho[k]
 
                         change = np.abs(prevChi - chi_c[k]) / (prevChi + chi_c[k])
                         if change < 1e-5:
                             break
                     else:
-                        raise ConvergenceError('No convergence in HSE at depth point %d, last change %2.4e' % (k, change))
-            nHTot = np.copy(rho / (Const.CM_TO_M**3 / Const.G_TO_KG) / (Const.Amu * abundance.massPerH))
-            ne = np.copy(pe / (eos.BK * temperature) / Const.CM_TO_M**3)
+                        raise ConvergenceError(('No convergence in HSE at depth point %d, '
+                                                'last change %2.4e') % (k, change))
+            nHTot = np.copy(rho / (Const.CM_TO_M**3 / Const.G_TO_KG)
+                            / (Const.Amu * abundance.massPerH))
+            ne = np.copy(pe / (cgs.BK * temperature) / Const.CM_TO_M**3)
 
         # NOTE(cmo): Compute final pgas, pe from EOS that will be used for
         # background opacity.
@@ -1049,7 +1073,8 @@ class Atmosphere:
 
         chi_c = np.zeros_like(depthScale)
         for k in range(depthScale.shape[0]):
-            chi_c[k] = eos.contOpacity(temperature[k], pgas[k], pe[k], np.array([5000.0])) / Const.CM_TO_M
+            chi_c[k] = eos.cont_opacity(temperature[k], pgas[k], pe[k],
+                                        np.array([5000.0])) / Const.CM_TO_M
 
         # NOTE(cmo): We should now have a uniform minimum set of data (other
         # than the scale type), allowing us to simply convert between the
@@ -1063,8 +1088,10 @@ class Atmosphere:
                 height[0] = 0.0
                 tau_ref[0] = chi_c[0] / rhoSI[0] * cmass[0]
                 for k in range(1, cmass.shape[0]):
-                    height[k] = height[k-1] - 2.0 * (cmass[k] - cmass[k-1]) / (rhoSI[k-1] + rhoSI[k])
-                    tau_ref[k] = tau_ref[k-1] + 0.5 * (chi_c[k-1] + chi_c[k]) * (height[k-1] - height[k])
+                    height[k] = height[k-1] - 2.0 * ((cmass[k] - cmass[k-1])
+                                                     / (rhoSI[k-1] + rhoSI[k]))
+                    tau_ref[k] = tau_ref[k-1] + 0.5 * ((chi_c[k-1] + chi_c[k])
+                                                       * (height[k-1] - height[k]))
 
                 hTau1 = np.interp(1.0, tau_ref, height)
                 height -= hTau1
@@ -1072,15 +1099,20 @@ class Atmosphere:
                 cmass = np.zeros(Nspace)
                 tau_ref = np.zeros(Nspace)
                 height = depthScale
+                nHTot = cast(np.ndarray, nHTot)
+                ne = cast(np.ndarray, ne)
 
-                cmass[0] = (nHTot[0] * abundance.massPerH + ne[0]) * (Const.KBoltzmann * temperature[0] / 10**logG)
+                cmass[0] = ((nHTot[0] * abundance.massPerH + ne[0])
+                            * (Const.KBoltzmann * temperature[0] / 10**logG))
                 tau_ref[0] = 0.5 * chi_c[0] * (height[0] - height[1])
                 if tau_ref[0] > 1.0:
                     tau_ref[0] = 0.0
 
                 for k in range(1, Nspace):
-                    cmass[k] = cmass[k-1] + 0.5 * (rhoSI[k-1] + rhoSI[k]) * (height[k-1] - height[k])
-                    tau_ref[k] = tau_ref[k-1] + 0.5 * (chi_c[k-1] + chi_c[k]) * (height[k-1] - height[k])
+                    cmass[k] = cmass[k-1] + 0.5 * ((rhoSI[k-1] + rhoSI[k])
+                                                   * (height[k-1] - height[k]))
+                    tau_ref[k] = tau_ref[k-1] + 0.5 * ((chi_c[k-1] + chi_c[k])
+                                                       * (height[k-1] - height[k]))
             elif scale == ScaleType.Tau500:
                 cmass = np.zeros(Nspace)
                 height = np.zeros(Nspace)
@@ -1088,15 +1120,19 @@ class Atmosphere:
 
                 cmass[0] = (tau_ref[0] / chi_c[0]) * rhoSI[0]
                 for k in range(1, Nspace):
-                    height[k] = height[k-1] - 2.0 * (tau_ref[k] - tau_ref[k-1]) / (chi_c[k-1] + chi_c[k])
-                    cmass[k] = cmass[k-1] + 0.5 * (chi_c[k-1] + chi_c[k]) * (height[k-1] - height[k])
+                    height[k] = height[k-1] - 2.0 * ((tau_ref[k] - tau_ref[k-1])
+                                                    / (chi_c[k-1] + chi_c[k]))
+                    cmass[k] = cmass[k-1] + 0.5 * ((chi_c[k-1] + chi_c[k])
+                                                   * (height[k-1] - height[k]))
 
                 hTau1 = np.interp(1.0, tau_ref, height)
                 height -= hTau1
             else:
                 raise ValueError("Other scales not handled yet")
 
-            stratifications: Optional[Stratifications] = Stratifications(cmass=cmass, tauRef=tau_ref)
+            stratifications: Optional[Stratifications] = Stratifications(
+                                                            cmass=cmass,
+                                                            tauRef=tau_ref)
 
         else:
             stratifications = None
@@ -1104,6 +1140,8 @@ class Atmosphere:
         layout = Layout.make_1d(z=height, vz=vlos,
                                 lowerBc=lowerBc, upperBc=upperBc,
                                 stratifications=stratifications)
+        ne = cast(np.ndarray, ne)
+        nHTot = cast(np.ndarray, nHTot)
         atmos = cls(structure=layout, temperature=temperature, vturb=vturb,
                     ne=ne, nHTot=nHTot, B=B, gammaB=gammaB, chiB=chiB)
 
@@ -1202,18 +1240,21 @@ class Atmosphere:
             nHTot = (nHTot << u.m**(-3)).value
         if B is not None:
             B = (B << u.T).value
+            B = cast(np.ndarray, B)
             flatB = view_flatten(B)
         else:
             flatB = None
 
         if gammaB is not None:
             gammaB = (gammaB << u.rad).value
+            gammaB = cast(np.ndarray, gammaB)
             flatGammaB = view_flatten(gammaB)
         else:
             flatGammaB = None
 
         if chiB is not None:
             chiB = (chiB << u.rad).value
+            chiB = cast(np.ndarray, chiB)
             flatChiB = view_flatten(chiB)
         else:
             flatChiB = None
@@ -1235,7 +1276,7 @@ class Atmosphere:
             abundance = DefaultAtomicAbundance
 
         wittAbundances = np.array([abundance[e] for e in PeriodicTable.elements])
-        eos = witt(abund_init=wittAbundances)
+        eos = Wittmann(abund_init=wittAbundances)
 
         flatHeight = view_flatten(height)
         flatTemperature = view_flatten(temperature)
@@ -1244,24 +1285,28 @@ class Atmosphere:
             if verbose:
                 print('Setting nHTot from electron pressure.')
             flatNe = view_flatten(ne)
-            pe = flatNe * Const.CM_TO_M**3 * eos.BK * flatTemperature
+            pe = flatNe * Const.CM_TO_M**3 * cgs.BK * flatTemperature
             rho = np.zeros(Nspace)
             for k in range(Nspace):
                 rho[k] = eos.rho_from_pe(flatTemperature[k], pe[k])
-            nHTot = np.copy(rho / (Const.CM_TO_M**3 / Const.G_TO_KG) / (Const.Amu * abundance.massPerH))
+            nHTot = np.copy(rho / (Const.CM_TO_M**3 / Const.G_TO_KG)
+                            / (Const.Amu * abundance.massPerH))
         elif ne is None and nHTot is not None:
             if verbose:
                 print('Setting ne from mass density.')
             flatNHTot = view_flatten(nHTot)
-            rho = Const.Amu * abundance.massPerH * flatNHTot * Const.CM_TO_M**3 / Const.G_TO_KG
+            rho = (Const.Amu * abundance.massPerH * flatNHTot
+                   * Const.CM_TO_M**3 / Const.G_TO_KG)
             pe = np.zeros(Nspace)
             for k in range(Nspace):
                 pe[k] = eos.pe_from_rho(flatTemperature[k], rho[k])
-            ne = np.copy(pe / (eos.BK * flatTemperature) / Const.CM_TO_M**3)
+            ne = np.copy(pe / (cgs.BK * flatTemperature) / Const.CM_TO_M**3)
         elif ne is None and nHTot is None:
             raise ValueError('Cannot omit both ne and nHTot (currently).')
         flatX = view_flatten(x)
+        nHTot = cast(np.ndarray, nHTot)
         flatNHTot = view_flatten(nHTot)
+        ne = cast(np.ndarray, ne)
         flatNe = view_flatten(ne)
         flatVx = view_flatten(vx)
         flatVz = view_flatten(vz)
@@ -1515,7 +1560,7 @@ class Atmosphere:
         mux, muy, muz = [], [], []
         indexVector = np.ones((self.mux.shape[0], 2), dtype=np.int32) * -1
         count = 0
-        musDone = np.zeros(self.muz.shape[0], dtype=np.bool)
+        musDone = np.zeros(self.muz.shape[0], dtype=np.bool_)
         for mu in range(self.muz.shape[0]):
             for equalMu in np.argwhere(np.abs(self.muz) == self.muz[mu]).reshape(-1)[::-1]:
                 if musDone[equalMu]:
@@ -1542,7 +1587,7 @@ class Atmosphere:
         mux, muy, muz = [], [], []
         indexVector = np.ones((self.mux.shape[0], 2), dtype=np.int32) * -1
         count = 0
-        musDone = np.zeros(self.muz.shape[0], dtype=np.bool)
+        musDone = np.zeros(self.muz.shape[0], dtype=np.bool_)
         for mu in range(self.muz.shape[0]):
             for equalMu in np.argwhere(np.abs(self.muz) == self.muz[mu]).reshape(-1):
                 if musDone[equalMu]:
@@ -1567,9 +1612,11 @@ class Atmosphere:
         self.xUpperBc.set_required_angles(mux, muy, muz, indexVector)
 
         self.yLowerBc.set_required_angles(np.zeros((0)), np.zeros((0)), np.zeros((0)),
-                                          np.ones((self.mux.shape[0], 2), dtype=np.int32) * -1)
+                                          np.ones((self.mux.shape[0], 2),
+                                                  dtype=np.int32) * -1)
         self.yUpperBc.set_required_angles(np.zeros((0)), np.zeros((0)), np.zeros((0)),
-                                          np.ones((self.mux.shape[0], 2), dtype=np.int32) * -1)
+                                          np.ones((self.mux.shape[0], 2),
+                                                  dtype=np.int32) * -1)
 
         if self.Ndim > 2:
             raise ValueError('Only <= 2D atmospheres supported currently.')

@@ -39,6 +39,13 @@ lightweaver.barklem module
    :members:
    :show-inheritance:
 
+lightweaver.benchmark module
+-------------------------------------
+
+.. automodule:: lightweaver.benchmark
+   :members:
+   :show-inheritance:
+
 lightweaver.broadening module
 -----------------------------
 
@@ -53,10 +60,31 @@ lightweaver.collisional\_rates module
    :members:
    :show-inheritance:
 
+lightweaver.config module
+-------------------------------------
+
+.. automodule:: lightweaver.config
+   :members:
+   :show-inheritance:
+
 lightweaver.fal module
 ----------------------
 
 .. automodule:: lightweaver.fal
+   :members:
+   :show-inheritance:
+
+lightweaver.iterate_ctx module
+-------------------------------------
+
+.. automodule:: lightweaver.iterate_ctx
+   :members:
+   :show-inheritance:
+
+lightweaver.iteration_update module
+-------------------------------------
+
+.. automodule:: lightweaver.iteration_update
    :members:
    :show-inheritance:
 
@@ -85,6 +113,13 @@ lightweaver.rh\_atoms module
 ----------------------------
 
 .. automodule:: lightweaver.rh_atoms
+   :members:
+   :show-inheritance:
+
+lightweaver.simd_management module
+-------------------------------------
+
+.. automodule:: lightweaver.simd_management
    :members:
    :show-inheritance:
 

@@ -62,6 +62,7 @@ namespace LwInternal
         F64View S;
         F64View Ieff;
         F64View PsiStar;
+        F64View2D JRest;
 
         IntensityCoreData() = default;
     };
@@ -86,12 +87,13 @@ namespace LwInternal
 
     inline void w2(f64 dtau, f64* w)
     {
+        constexpr f64 third = 1.0 / 3.0;
         f64 expdt;
 
         if (dtau < 5.0E-4)
         {
             w[0] = dtau * (1.0 - 0.5 * dtau);
-            w[1] = square(dtau) * (0.5 - dtau / 3.0);
+            w[1] = square(dtau) * (0.5 - dtau * third);
         }
         else if (dtau > 50.0)
         {
@@ -122,6 +124,8 @@ namespace LwInternal
 
     void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs,
                              const F64View1D& wave);
+    void piecewise_besser_1d(FormalData* fd, int la, int mu, bool toObs,
+                              const F64View1D& wave);
     void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs,
                               const F64View1D& wave);
     void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs,
@@ -130,7 +134,6 @@ namespace LwInternal
                              const F64View1D& wave);
     void piecewise_parabolic_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav);
     void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int la, int mu, bool toObs, f64 wav, bool polarisedFrequency);
-    f64 intensity_core(IntensityCoreData& data, int la, FsMode mode);
     f64 interp_linear_2d(const IntersectionData&, const IntersectionResult&, const F64View2D&);
     f64 interp_besser_2d(const IntersectionData&, const IntersectionResult&, const F64View2D&);
 }

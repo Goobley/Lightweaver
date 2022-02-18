@@ -5,6 +5,13 @@
 #include "CmoArray.hpp"
 #include "LuSolve.hpp"
 #include <cmath>
+#include <tuple>
+
+struct NgChange
+{
+    f64 dMax;
+    i64 dMaxIdx;
+};
 
 struct Ng
 {
@@ -106,42 +113,46 @@ struct Ng
         return true;
     }
 
-    inline f64 relative_change_from_prev(F64View newSol)
+    inline NgChange relative_change_from_prev(F64View newSol)
     {
         if (!init || count < 1)
-            return 0.0;
+            return { 0.0, 0 };
 
         auto sol = previous(storage_index(count-1));
         if (newSol.shape(0) != len)
-            return 0.0;
+            return { 0.0, 0 };
 
         f64 dMax = 0.0;
+        int maxIdx = 0;
         for (int k = 0; k < len; ++k)
         {
             if (newSol(k) != 0.0)
             {
-                dMax = max(dMax, abs((newSol(k) - sol(k)) / newSol(k)));
+                f64 change = abs((newSol(k) - sol(k)) / newSol(k));
+                dMax = max_idx(dMax, change, maxIdx, k);
             }
         }
-        return dMax;
+        return { dMax, maxIdx };
     }
 
-    inline f64 max_change()
+    inline NgChange max_change()
     {
         if (!init || count < 2)
-            return 0.0;
+            return { 0.0, 0 };
 
         auto old = previous(storage_index(count-2));
         auto current = previous(storage_index(count-1));
         f64 dMax = 0.0;
+        int maxIdx = 0;
         for (int k = 0; k < len; ++k)
         {
             if (current(k) != 0.0)
             {
-                dMax = max(dMax, abs((current(k) - old(k)) / current(k)));
+                f64 change = abs((current(k) - old(k)) / current(k));
+                dMax = max_idx(dMax, change, maxIdx, k);
             }
         }
-        return dMax;
+        return { dMax, maxIdx };
     }
 
     inline void clear()

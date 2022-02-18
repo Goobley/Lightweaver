@@ -1,7 +1,8 @@
 import numpy as np
+
 from .atomic_set import lte_pops
-from scipy.linalg import solve
 from .atomic_table import PeriodicTable
+
 
 def nr_post_update(self, fdCollisionRates=True, hOnly=False,
                    timeDependentData=None, chunkSize=5,
@@ -9,7 +10,6 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False,
     '''
     Compute the Newton-Raphson terms for updating the electron density
     through charge conservation. Is attached to the Context object.
-
     Parameters
     ----------
     fdCollisionRates : bool, optional
@@ -37,7 +37,6 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False,
     printUpdate : bool, optional
         Whether to print information on the size of the update (default:
         None, to apply automatic behaviour).
-
     Returns
     -------
     dPops : float
@@ -48,15 +47,11 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False,
         raise ValueError('Calling nr_post_update without Hydrogen active.')
 
     if ngUpdate is None:
-        if self.conserveCharge:
-            ngUpdate = True
-        else:
-            ngUpdate = False
+        ngUpdate = self.conserveCharge
 
     if printUpdate is None:
         printUpdate = ngUpdate
 
-    timeDependent = (timeDependentData is not None)
     atoms = self.activeAtoms[:1] if hOnly else self.activeAtoms
     crswVal = self.crswCallback.val
 
@@ -66,7 +61,7 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False,
         backgroundAtoms = self.kwargs['spect'].radSet.passiveAtoms
 
     backgroundNe = np.zeros_like(self.atmos.ne)
-    for idx, atomModel in enumerate(backgroundAtoms):
+    for atomModel in backgroundAtoms:
         lteStages = np.array([l.stage for l in atomModel.levels])
         atom = self.kwargs['eqPops'].atomicPops[atomModel.element]
         backgroundNe += (lteStages[:, None] * atom.n[:, :]).sum(axis=0)
@@ -95,12 +90,14 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False,
     self.eqPops.update_lte_atoms_Hmin_pops(self.atmos.pyAtmos, conserveCharge=False, quiet=True)
 
     if ngUpdate:
-        maxDelta = self.rel_diff_ng_accelerate(printUpdate=printUpdate)
+        update = self.rel_diff_ng_accelerate(printUpdate=printUpdate)
     else:
-        maxDelta = self.rel_diff_pops(printUpdate=printUpdate)
+        update = self.rel_diff_pops(printUpdate=printUpdate)
     neDiff = ((np.asarray(self.atmos.ne) - neStart)
-                / np.asarray(self.atmos.ne)).max()
-    maxDelta = max(maxDelta, neDiff)
-    if printUpdate:
-        print('    ne delta = %6.4e' % neDiff)
-    return maxDelta
+                / np.asarray(self.atmos.ne))
+    neDiffMaxIdx = neDiff.argmax()
+    neDiffMax = neDiff[neDiffMaxIdx]
+    update.updatedNe = True
+    update.dNeMax = neDiffMax
+    update.dNeMaxIdx = neDiffMaxIdx
+    return update

@@ -1,20 +1,23 @@
 import numpy as np
 cimport numpy as np
 from CmoArray cimport *
-# from CmoArrayHelper cimport *
 from libcpp cimport bool as bool_t
 from libcpp.vector cimport vector
 from libc.math cimport sqrt, exp, copysign
 from .atmosphere import BoundaryCondition, ZeroRadiation, ThermalisedRadiation, PeriodicRadiation, NoBc
 from .atomic_model import AtomicLine, LineType, LineProfileState
-from .utils import InitialSolution, ExplodingMatrixError, UnityCrswIterator, check_shape_exception
+from .utils import InitialSolution, ExplodingMatrixError, UnityCrswIterator, check_shape_exception, get_fs_iter_libs
 from .atomic_table import PeriodicTable
 from .atomic_set import lte_pops
+from .iteration_update import IterationUpdate
 from weno4 import weno4
 import lightweaver.constants as Const
+import lightweaver.config as lwConfig
 import time
+import os
 from enum import Enum, auto
 from copy import copy, deepcopy
+import warnings
 
 include 'CmoArrayHelper.pyx'
 
@@ -22,7 +25,7 @@ include 'CmoArrayHelper.pyx'
 np.import_array()
 
 ctypedef np.int8_t i8
-# ctypedef Array1NonOwn[np.int32_t] I32View
+# ctypedef np.int64_t i64
 ctypedef Array1NonOwn[np.int32_t] I32View
 ctypedef Array1NonOwn[bool_t] BoolView
 ctypedef Array2NonOwn[np.int32_t] BcIdxs
@@ -46,6 +49,41 @@ cdef extern from "LwFormalInterface.hpp":
     cdef cppclass InterpFnManager:
         vector[InterpFn] fns
         bool_t load_fn_from_path(const char* path)
+
+    cdef cppclass FsIterationFns:
+        int Ndim
+        bool_t dimensionSpecific
+        bool_t respectsFormalSolver
+        bool_t defaultPerAtomStorage
+        bool_t defaultWlaGijStorage
+        const char* name
+
+    cdef cppclass FsIterationFnsManager:
+        vector[FsIterationFns] fns
+        bool_t load_fns_from_path(const char* path)
+
+cdef extern from "LwIterationResult.hpp":
+    cdef cppclass IterationResult:
+        bool_t updatedJ
+        f64 dJMax
+        int dJMaxIdx
+
+        bool_t updatedPops
+        vector[f64] dPops
+        vector[int] dPopsMaxIdx
+        bool_t ngAccelerated
+
+        bool_t updatedNe
+        f64 dNe
+        int dNeMaxIdx
+
+        bool_t updatedRho
+        vector[f64] dRho
+        vector[int] dRhoMaxIdx
+        int NprdSubIter
+        bool_t updatedJPrd
+        vector[f64] dJPrdMax
+        vector[int] dJPrdMaxIdx
 
 cdef extern from "Lightweaver.hpp":
     cdef enum RadiationBc:
@@ -108,10 +146,6 @@ cdef extern from "Lightweaver.hpp":
 cdef extern from "Lightweaver.hpp" namespace "PrdCores":
     cdef int max_fine_grid_size()
 
-cdef extern from "Lightweaver.hpp" namespace "Prd":
-    cdef cppclass PrdStorage:
-        F64Arr3D gII
-
 cdef extern from "Background.hpp":
     cdef cppclass BackgroundData:
         F64View chPops
@@ -163,6 +197,10 @@ cdef extern from "FastBackground.hpp":
 
 
 cdef extern from "Ng.hpp":
+    cdef cppclass NgChange:
+        f64 dMax
+        np.int64_t dMaxIdx
+
     cdef cppclass Ng:
         int Norder
         int Nperiod
@@ -171,8 +209,8 @@ cdef extern from "Ng.hpp":
         Ng()
         Ng(int nOrder, int nPeriod, int nDelay, F64View sol)
         bool_t accelerate(F64View sol)
-        f64 max_change()
-        f64 relative_change_from_prev(F64View newSol)
+        NgChange max_change()
+        NgChange relative_change_from_prev(F64View newSol)
         void clear()
 
 cdef extern from "Lightweaver.hpp":
@@ -205,6 +243,7 @@ cdef extern from "Lightweaver.hpp":
         f64 lambda0
         f64 dopplerWidth
         int Nblue
+        int Nred
         int i
         int j
         F64View wavelength
@@ -226,8 +265,6 @@ cdef extern from "Lightweaver.hpp":
         F64View Rij
         F64View Rji
         F64View2D rhoPrd
-        F64View3D gII
-        PrdStorage prdStorage
 
         void recompute_gII()
         void uv(int la, int mu, bool_t toObs, F64View Uji, F64View Vij, F64View Vji)
@@ -246,18 +283,13 @@ cdef extern from "Lightweaver.hpp":
         F64View3D Gamma
         F64View3D C
 
-        F64View eta
-        F64View2D gij
-        F64View2D wla
-        F64View2D U
-        F64View2D chi
-
         vector[Transition*] trans
         Ng ng
 
         int Nlevel
         int Ntrans
         void setup_wavelength(int la)
+        void init_scratch(np.int64_t Nspace, bool_t detailed, bool_t wlaGijStorage, bool_t defaulPerAtomStorage)
 
     cdef cppclass DepthData:
         bool_t fill
@@ -275,6 +307,7 @@ cdef extern from "Lightweaver.hpp":
         int Nthreads
         FormalSolver formalSolver
         InterpFn interpFn
+        FsIterationFns iterFns
         void initialise_threads()
         void update_threads()
 
@@ -286,42 +319,29 @@ cdef extern from "Lightweaver.hpp":
         f64 dt
         vector[F64View2D] nPrev
 
-    cdef f64 formal_sol_gamma_matrices(Context& ctx)
-    cdef f64 formal_sol_gamma_matrices(Context& ctx, bool_t lambdaIterate)
-    cdef f64 formal_sol_update_rates(Context& ctx)
-    cdef f64 formal_sol_update_rates_fixed_J(Context& ctx)
-    cdef f64 formal_sol(Context& ctx)
-    cdef f64 formal_sol(Context& ctx, bool_t upOnly)
-    cdef f64 formal_sol_full_stokes(Context& ctx) except +
-    cdef f64 formal_sol_full_stokes(Context& ctx, bool_t updateJ) except +
-    cdef PrdIterData redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
-    cdef void stat_eq(Atom* atom) except +
-    cdef void parallel_stat_eq(Context* ctx) except +
-    cdef void parallel_stat_eq(Context* ctx, int chunkSize) except +
-    cdef void time_dependent_update(Atom* atomIn, F64View2D nOld, f64 dt) except +
-    cdef void parallel_time_dep_update(Context* ctx, const vector[F64View2D]&,
-                                       f64 dt) except +
-    cdef void parallel_time_dep_update(Context* ctx, const vector[F64View2D]&,
-                                       f64 dt, int chunkSize) except +
-    cdef void nr_post_update(Context* ctx, vector[Atom*]* atoms,
+    cdef IterationResult formal_sol_gamma_matrices(Context& ctx)
+    cdef IterationResult formal_sol_gamma_matrices(Context& ctx, bool_t lambdaIterate)
+    cdef IterationResult formal_sol(Context& ctx)
+    cdef IterationResult formal_sol(Context& ctx, bool_t upOnly)
+    cdef IterationResult formal_sol_full_stokes(Context& ctx) except +
+    cdef IterationResult formal_sol_full_stokes(Context& ctx, bool_t updateJ) except +
+    cdef IterationResult formal_sol_full_stokes(Context& ctx, bool_t updateJ,
+                                                bool_t upOnly) except +
+    cdef IterationResult redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
+    cdef void stat_eq(Context& ctx, Atom* atom) except +
+    cdef void stat_eq_impl(Atom* atom) except +
+    cdef void time_dependent_update(Context& ctx,  Atom* atomIn,
+                                    F64View2D nOld, f64 dt) except +
+    cdef void nr_post_update(Context& ctx, vector[Atom*]* atoms,
                              const vector[F64View3D]& dC,
                              F64View backgroundNe,
                              const NrTimeDependentData& timeDepData,
                              f64 crswVal) except +
-    cdef void parallel_nr_post_update(Context* ctx, vector[Atom*]* atoms,
-                                      const vector[F64View3D]& dC,
-                                      F64View backgroundNe,
-                                      const NrTimeDependentData& timeDepData,
-                                      f64 crswVal) except +
-    cdef void parallel_nr_post_update(Context* ctx, vector[Atom*]* atoms,
-                                      const vector[F64View3D]& dC,
-                                      F64View backgroundNe,
-                                      const NrTimeDependentData& timeDepData,
-                                      f64 crswVal, int chunkSize) except +
     cdef void configure_hprd_coeffs(Context& ctx)
 
 cdef extern from "Lightweaver.hpp" namespace "EscapeProbability":
-    cdef void gamma_matrices_escape_prob(Atom* a, Background& background, const Atmosphere& atmos)
+    cdef void gamma_matrices_escape_prob(Atom* a, Background& background,
+                                         const Atmosphere& atmos)
 
 cdef class LwDepthData:
     '''
@@ -1130,7 +1150,6 @@ cdef class BasicBackground(BackgroundProvider):
 
     cpdef bf_opacities(self, LwAtmosphere atmos, f64[:,::1] chi, f64[:,::1] eta):
         atoms = self.radSet.passiveAtoms
-        # print([a.name for a in atoms])
         if len(atoms) == 0:
             return
 
@@ -1413,7 +1432,7 @@ cdef class LwBackground:
     Storage and driver for the background computations in Lightweaver. The
     storage is allocated and managed by this class, before being passed to
     C++ when necessary. This class is also responsible for calling the
-    BackgroundProvider instance used (by default BasicBackground).
+    BackgroundProvider instance used (by default FastBackground with one thread).
     '''
     cdef Background background
     cdef object eqPops
@@ -1441,7 +1460,7 @@ cdef class LwBackground:
         self.sca = np.zeros((Nlambda, Nspace))
 
         if provider is None:
-            self.provider = BasicBackground(eqPops, radSet, wavelength)
+            self.provider = FastBackground(eqPops, radSet, wavelength, Nthreads=1)
         else:
             self.provider = provider(eqPops, radSet, wavelength)
 
@@ -1583,20 +1602,6 @@ cdef class RayleighScatterer:
 
         return True
 
-cdef gII_to_numpy(F64Arr3D gII):
-    if gII.data() is NULL:
-        raise AttributeError
-    cdef np.npy_intp shape[3]
-    shape[0] = <np.npy_intp> gII.shape(0)
-    shape[1] = <np.npy_intp> gII.shape(1)
-    shape[2] = <np.npy_intp> gII.shape(2)
-    cdef f64[:,:,::1] ndarray = np.PyArray_SimpleNewFromData(3, &shape[0],
-                                            np.NPY_FLOAT64, <void*>gII.data())
-    return ndarray.copy()
-
-cdef gII_from_numpy(Transition trans, f64[:,:,::1] gII):
-    trans.prdStorage.gII = F64Arr3D(f64_view_3(gII))
-
 cdef class LwTransition:
     '''
     Storage and access to transition data used by backend. Instantiated by
@@ -1654,7 +1659,10 @@ cdef class LwTransition:
         self.trans.i = trans.i
         self.trans.j = trans.j
         self.trans.polarised = False
-        self.trans.Nblue = spect.blueIdx[transId]
+        Nblue = spect.blueIdx[transId]
+        self.trans.Nblue = Nblue
+        Nred = spect.redIdx[transId]
+        self.trans.Nred = Nred
         cdef int Nlambda = self.wavelength.shape[0]
         cdef int Nspace = self.atmos.Nspace
         cdef int Nrays = self.atmos.Nrays
@@ -1701,6 +1709,7 @@ cdef class LwTransition:
         state['transModel'] = self.transModel
         state['type'] = self.type
         state['Nblue'] = self.trans.Nblue
+        state['Nred'] = self.trans.Nred
         transId = self.transModel.transId
         state['wavelength'] = self.spect.transWavelengths[transId]
         state['active'] = np.asarray(self.active)
@@ -1734,10 +1743,6 @@ cdef class LwTransition:
             except AttributeError:
                 state['rhoPrd'] = None
 
-            try:
-                state['gII'] = np.asarray(gII_to_numpy(self.trans.prdStorage.gII))
-            except AttributeError:
-                state['gII'] = None
         else:
             state['alpha'] = np.asarray(self.alpha)
         return state
@@ -1755,6 +1760,7 @@ cdef class LwTransition:
         self.trans.i = trans.i
         self.trans.j = trans.j
         self.trans.Nblue = state['Nblue']
+        self.trans.Nred = state['Nred']
         self.trans.polarised = state['polarised']
 
         if state['type'] == 'Line':
@@ -1775,9 +1781,6 @@ cdef class LwTransition:
             if state['rhoPrd'] is not None:
                 self.rhoPrd = state['rhoPrd']
                 self.trans.rhoPrd = f64_view_2(self.rhoPrd)
-            if state['gII'] is not None:
-                gII_from_numpy(self.trans, state['gII'])
-                self.trans.gII = self.trans.prdStorage.gII
 
             if state['polarised']:
                 self.phiQ = state['phiQ']
@@ -1820,10 +1823,6 @@ cdef class LwTransition:
            and np.all(self.wavelength == prevState['wavelength']):
             if prevState['rhoPrd'] is not None:
                 np.asarray(self.rhoPrd)[:] = prevState['rhoPrd']
-
-            if prevState['gII'] is not None:
-                gII_from_numpy(self.trans, prevState['gII'])
-                self.trans.gII = self.trans.prdStorage.gII
 
             if preserveProfiles:
                 np.asarray(self.phi)[:] = prevState['phi']
@@ -2195,7 +2194,14 @@ cdef class LwAtom:
     ngOptions : NgOptions, optional
         The Ng acceleration options (default: None)
     conserveCharge : bool, optional
-        Whether to conserve charge whilst setting populations from escape probability (ignored otherwise) (default: False).
+        Whether to conserve charge whilst setting populations from escape
+        probability (ignored otherwise) (default: False).
+    fsIterSchemeProperties : dict, optional
+        The properties of the FsIterScheme used as a dict, can be obtained from
+        the `FsIterSchemeManager`. Only necessary keys are boolean
+        `defaultWlaGijStorage` and `defaultPerAtomStorage` to determine
+        allocation of `wla`, `gij`, `eta`, `U`, and `chi` on the underlying
+        object. If not supplied, both of these default to True.
     '''
     cdef Atom atom
     cdef f64[::1] vBroad
@@ -2204,21 +2210,19 @@ cdef class LwAtom:
     cdef f64[::1] nTotal
     cdef f64[:,::1] nStar
     cdef f64[:,::1] n
-    cdef f64[::1] eta
-    cdef f64[:,::1] chi
-    cdef f64[:,::1] U
-    cdef f64[:,::1] gij
-    cdef f64[:,::1] wla
     cdef f64[::1] stages
+
     cdef public object atomicModel
     cdef public object modelPops
     cdef LwAtmosphere atmos
     cdef object eqPops
     cdef list trans
     cdef bool_t detailed
+    cdef dict fsIterSchemeProperties
 
     def __init__(self, atom, atmos, eqPops, spect, background,
-                 detailed=False, initSol=None, ngOptions=None, conserveCharge=False):
+                 detailed=False, initSol=None, ngOptions=None,
+                 conserveCharge=False, fsIterSchemeProperties=None):
         self.atomicModel = atom
         self.detailed = detailed
         cdef LwAtmosphere a = atmos
@@ -2247,12 +2251,27 @@ cdef class LwAtom:
         self.atom.Nlevel = Nlevel
         self.atom.Ntrans = Ntrans
 
+        cdef bool_t defaultPerAtomStorage = True
+        cdef bool_t defaultWlaGijStorage = True
+        if fsIterSchemeProperties is not None:
+            self.fsIterSchemeProperties = fsIterSchemeProperties
+            defaultPerAtomStorage = fsIterSchemeProperties['defaultPerAtomStorage']
+            defaultWlaGijStorage = fsIterSchemeProperties['defaultWlaGijStorage']
+        else:
+            self.fsIterSchemeProperties = {
+                'defaultPerAtomStorage': defaultPerAtomStorage,
+                'defaultWlaGijStorage': defaultPerAtomStorage
+            }
+
         if not self.detailed:
-            self.Gamma = np.zeros((Nlevel, Nlevel, a.Nspace))
+            self.Gamma = np.zeros((Nlevel, Nlevel, atmos.Nspace))
             self.atom.Gamma = f64_view_3(self.Gamma)
 
             self.C = np.zeros((Nlevel, Nlevel, atmos.Nspace))
             self.atom.C = f64_view_3(self.C)
+
+        self.atom.init_scratch(self.atmos.Nspace, detailed,
+                               defaultWlaGijStorage, defaultPerAtomStorage)
 
         self.stages = np.array([l.stage for l in self.atomicModel.levels], dtype=np.float64)
         self.atom.stages = f64_view(self.stages)
@@ -2266,21 +2285,6 @@ cdef class LwAtom:
         if self.detailed:
             doInitSol = False
             ngOptions = None
-
-        if Ntrans > 0:
-            self.gij = np.zeros((Ntrans, atmos.Nspace))
-            self.atom.gij = f64_view_2(self.gij)
-            self.wla = np.zeros((Ntrans, atmos.Nspace))
-            self.atom.wla = f64_view_2(self.wla)
-
-        if not self.detailed:
-            self.U = np.zeros((Nlevel, atmos.Nspace))
-            self.atom.U = f64_view_2(self.U)
-
-            self.eta = np.zeros(atmos.Nspace)
-            self.atom.eta = f64_view(self.eta)
-            self.chi = np.zeros((Nlevel, atmos.Nspace))
-            self.atom.chi = f64_view_2(self.chi)
 
         if initSol is None:
             initSol = InitialSolution.Lte
@@ -2311,24 +2315,12 @@ cdef class LwAtom:
         state['stages'] = np.asarray(self.stages)
         state['Ng'] = (self.atom.ng.Norder, self.atom.ng.Nperiod, self.atom.ng.Ndelay)
         if self.detailed:
-            state['U'] = None
-            state['eta'] = None
-            state['chi'] = None
             state['Gamma'] = None
             state['C'] = None
         else:
-            state['U'] = np.asarray(self.U)
-            state['eta'] = np.asarray(self.eta)
-            state['chi'] = np.asarray(self.chi)
             state['Gamma'] = np.asarray(self.Gamma)
             state['C'] = np.asarray(self.C)
-        cdef int Ntrans = len(self.trans)
-        if Ntrans > 0:
-            state['gij'] = np.asarray(self.gij)
-            state['wla'] = np.asarray(self.wla)
-        else:
-            state['gij'] = None
-            state['wla'] = None
+        state['fsIterSchemeProperties'] = self.fsIterSchemeProperties
 
         return state
 
@@ -2364,15 +2356,6 @@ cdef class LwAtom:
             self.C = state['C']
             self.atom.C = f64_view_3(self.C)
 
-            self.U = state['U']
-            self.atom.U = f64_view_2(self.U)
-
-            self.eta = state['eta']
-            self.atom.eta = f64_view(self.eta)
-            self.chi = state['chi']
-            self.atom.chi = f64_view_2(self.chi)
-
-
         self.stages = state['stages']
         self.atom.stages = f64_view(self.stages)
         self.nStar = state['nStar']
@@ -2380,14 +2363,13 @@ cdef class LwAtom:
         self.n = state['n']
         self.atom.n = f64_view_2(self.n)
 
-        if Ntrans > 0:
-            self.gij = state['gij']
-            self.atom.gij = f64_view_2(self.gij)
-            self.wla = state['wla']
-            self.atom.wla = f64_view_2(self.wla)
-
         ng = state['Ng']
         self.atom.ng = Ng(ng[0], ng[1], ng[2], self.atom.n.flatten())
+        self.fsIterSchemeProperties = state['fsIterSchemeProperties']
+        cdef bool_t defaultPerAtomStorage = self.fsIterSchemeProperties['defaultPerAtomStorage']
+        cdef bool_t defaultWlaGijStorage = self.fsIterSchemeProperties['defaultWlaGijStorage']
+        self.atom.init_scratch(self.atmos.Nspace, self.detailed,
+                               defaultWlaGijStorage, defaultPerAtomStorage)
 
     def load_pops_rates_prd_from_state(self, prevState, popsOnly=False, preserveProfiles=False):
         if not self.detailed:
@@ -2433,6 +2415,7 @@ cdef class LwAtom:
         cdef np.ndarray[np.double_t, ndim=3] Gamma
         cdef np.ndarray[np.double_t, ndim=3] C
         cdef f64 delta
+        cdef NgChange maxChange
         cdef int k
         cdef np.ndarray[np.double_t, ndim=1] deltaNe
 
@@ -2450,14 +2433,14 @@ cdef class LwAtom:
             Gamma += C
             gamma_matrices_escape_prob(&self.atom, bg.background, a.atmos)
             try:
-                stat_eq(&self.atom)
+                stat_eq_impl(&self.atom)
             except:
                 raise ExplodingMatrixError('Singular Matrix')
             self.atom.ng.accelerate(self.atom.n.flatten())
-            delta = self.atom.ng.max_change()
+            maxChange = self.atom.ng.max_change()
+            delta = maxChange.dMax
             if delta < 3e-2:
                 end = time.time()
-                # print('Converged: %s, %d\nTime: %f' % (self.atomicModel.element.name, it, end-start))
                 break
         else:
             print('Escape probability didn\'t converge for %s, setting LTE populations' % self.atomicModel.element.name)
@@ -2774,9 +2757,24 @@ cdef class LwContext:
                  crswCallback=None, Nthreads=1,
                  backgroundProvider=None,
                  formalSolver=None,
-                 interpFn=None):
+                 interpFn=None,
+                 fsIterScheme=None):
         self.__dict__ = {}
-        self.kwargs = {'atmos': atmos, 'spect': spect, 'eqPops': eqPops, 'ngOptions': ngOptions, 'initSol': initSol, 'conserveCharge': conserveCharge, 'hprd': hprd, 'Nthreads': Nthreads, 'backgroundProvider': backgroundProvider, 'formalSolver': formalSolver, 'interpFn': interpFn}
+        self.kwargs = {
+            'atmos': atmos,
+            'spect': spect,
+            'eqPops': eqPops,
+            'ngOptions': ngOptions,
+            'initSol': initSol,
+            'conserveCharge': conserveCharge,
+            'hprd': hprd,
+            'Nthreads': Nthreads,
+            'backgroundProvider': backgroundProvider,
+            'formalSolver': formalSolver,
+            'interpFn': interpFn,
+            'fsIterScheme': fsIterScheme
+        }
+        cdef dict fsIterSchemeProperties = self.get_fs_iter_scheme_properties(fsIterScheme)
 
         self.atmos = LwAtmosphere(atmos, spect.wavelength.shape[0])
         self.spect = LwSpectrum(spect.wavelength, atmos.Nrays,
@@ -2790,8 +2788,17 @@ cdef class LwContext:
 
         activeAtoms = spect.radSet.activeAtoms
         detailedAtoms = spect.radSet.detailedAtoms
-        self.activeAtoms = [LwAtom(a, self.atmos, eqPops, spect, self.background, ngOptions=ngOptions, initSol=initSol, conserveCharge=conserveCharge) for a in activeAtoms]
-        self.detailedAtoms = [LwAtom(a, self.atmos, eqPops, spect, self.background, ngOptions=None, initSol=InitialSolution.Lte, detailed=True) for a in detailedAtoms]
+        self.activeAtoms = [LwAtom(a, self.atmos, eqPops, spect,
+                                   self.background, ngOptions=ngOptions,
+                                   initSol=initSol,
+                                   conserveCharge=conserveCharge,
+                                   fsIterSchemeProperties=fsIterSchemeProperties)
+                            for a in activeAtoms]
+        self.detailedAtoms = [LwAtom(a, self.atmos, eqPops, spect,
+                                     self.background, ngOptions=None,
+                                     initSol=InitialSolution.Lte, detailed=True,
+                                     fsIterSchemeProperties=fsIterSchemeProperties)
+                              for a in detailedAtoms]
 
         self.ctx.atmos = &self.atmos.atmos
         self.ctx.spect = &self.spect.spect
@@ -2819,6 +2826,7 @@ cdef class LwContext:
 
         self.set_formal_solver(formalSolver, inConstructor=True)
         self.set_interp_fn(interpFn)
+        self.set_fs_iter_scheme(fsIterScheme)
         self.setup_threads(Nthreads)
 
         self.compute_profiles()
@@ -2875,10 +2883,11 @@ cdef class LwContext:
         shape = (self.spect.I.shape[0], self.atmos.Nrays, self.atmos.Nspace)
         self.depthData = state['depthData']
         self.ctx.depthData = &self.depthData.depthData
-        self.set_formal_solver(self.kwargs['formalSolver'])
+        self.set_formal_solver(self.kwargs['formalSolver'], inConstructor=True)
         self.set_interp_fn(self.kwargs['interpFn'])
+        self.set_fs_iter_scheme(self.kwargs['fsIterScheme'])
 
-        self.setup_threads(state['kwargs']['Nthreads'])
+        self.setup_threads(self.kwargs['Nthreads'])
 
     def set_formal_solver(self, formalSolver, inConstructor=False):
         '''
@@ -2905,7 +2914,7 @@ cdef class LwContext:
         '''
         cdef LwInterpFnManager interpMan = InterpFns
         cdef int interpIdx
-        cdef InterpFn
+        cdef InterpFn interp
         try:
             if interpFn is not None:
                 interpIdx = interpMan.names.index(interpFn)
@@ -2914,9 +2923,32 @@ cdef class LwContext:
             interp = interpMan.manager.fns[interpIdx]
             self.ctx.interpFn = interp
             return
-        except:
-            pass
-        # self.ctx.interpFn = InterpFn()
+        except ValueError as e:
+            if self.ctx.atmos.Ndim > 1:
+                raise e
+
+    def set_fs_iter_scheme(self, fsIterScheme):
+        cdef LwFsIterationManager manager = FsIterationSchemes
+        cdef int iterIdx
+        cdef FsIterationFns iterFns
+
+        if fsIterScheme is not None:
+            iterIdx = manager.names.index(fsIterScheme)
+        else:
+            iterIdx = manager.default_scheme()
+        iterFns = manager.manager.fns[iterIdx]
+        self.ctx.iterFns = iterFns
+
+    def get_fs_iter_scheme_properties(self, fsIterScheme):
+        cdef LwFsIterationManager manager = FsIterationSchemes
+        cdef FsIterationFns iterFns
+        cdef dict result
+
+        if fsIterScheme is not None:
+            result = manager.scheme_properties(fsIterScheme)
+        else:
+            result = manager.scheme_properties(manager.default_scheme_name())
+        return result
 
     @property
     def Nthreads(self):
@@ -2971,7 +3003,7 @@ cdef class LwContext:
             atom.compute_profiles(polarised=polarised)
 
     cpdef formal_sol_gamma_matrices(self, fixCollisionalRates=False, lambdaIterate=False,
-                                    printUpdate=True):
+                                    printUpdate=None):
         '''
         Compute the formal solution across all wavelengths and fill in the
         Gamma matrix for each active atom, allowing the populations to then
@@ -2990,20 +3022,24 @@ cdef class LwContext:
             (default: False).
         printUpdate : bool, optional
             Whether to print the maximum relative change in J and any changes in
-            CRSW (default: True).
+            CRSW (default: True). (Deprecated)
 
         Returns
         -------
-        dJ : float
-            The maximum relative change in J in the atmosphere.
+        update: IterationUpdate
+            An object representing the updates to the model. See
+            `IterationUpdate` for details.
         '''
+        if printUpdate is None:
+            printUpdate = True
+        else:
+            warnings.warn('The use of `printUpdate` is now deprecated, as this function no longer prints.', DeprecationWarning)
+
         cdef LwAtom atom
         cdef np.ndarray[np.double_t, ndim=3] Gamma
         cdef f64 crswVal = self.crswCallback()
         if crswVal == 1.0:
             self.crswDone = True
-        elif printUpdate:
-            print('CRSW: %.2e'%crswVal)
 
         for atom in self.activeAtoms:
             Gamma = np.asarray(atom.Gamma)
@@ -3014,17 +3050,16 @@ cdef class LwContext:
 
         self.atmos.compute_bcs(self.spect)
 
-        cdef f64 dJ = formal_sol_gamma_matrices(self.ctx, lambdaIterate)
-        if printUpdate:
-            print('dJ = %.2e' % dJ)
-        return dJ
+        cdef IterationResult maxChange = formal_sol_gamma_matrices(self.ctx, lambdaIterate)
+        update = IterationUpdate_from_IterationResult(self, maxChange)
+        update.crsw = crswVal
+        return update
 
     cpdef formal_sol(self, upOnly=True):
         '''
-        Compute the formal solution across all wavelengths (single threaded,
-        rarely used due to the almost insignificant cost of the Gamma terms
-        in `formal_sol_gamma_matrices`, but currently still used by
-        `compute_rays`). Only computes upgoing rays by default, which has implication on boundary conditions in 2D.
+        Compute the formal solution across all wavelengths (used by
+        `compute_rays`). Only computes upgoing rays by default, which has
+        implication on boundary conditions in 2D.
 
         Parameters
         ----------
@@ -3033,22 +3068,16 @@ cdef class LwContext:
 
         Returns
         -------
-        dJ : float
-            The maximum relative change in J in the atmosphere.
+        update: IterationUpdate
+            An object representing the updates to the model. See
+            `IterationUpdate` for details.
         '''
-        # cdef LwAtom atom
-        # cdef np.ndarray[np.double_t, ndim=3] Gamma
-        # for atom in self.activeAtoms:
-        #     Gamma = np.asarray(atom.Gamma)
-        #     Gamma.fill(0.0)
-        #     atom.compute_collisions()
-        #     Gamma += atom.C
 
         self.atmos.compute_bcs(self.spect)
-        cdef f64 dJ = formal_sol(self.ctx, upOnly)
-        # cdef f64 dJ = formal_sol_gamma_matrices(self.ctx)
-        # print('dJ = %.2e' % dJ)
-        return dJ
+        cdef IterationResult maxChange = formal_sol(self.ctx, upOnly)
+        update = IterationUpdate_from_IterationResult(self, maxChange)
+        return update
+
 
     cpdef update_deps(self, temperature=True, ne=True, vturb=True,
                       vlos=True, B=True, background=True, hprd=True):
@@ -3091,50 +3120,63 @@ cdef class LwContext:
         if self.hprd and hprd:
             self.update_hprd_coeffs()
 
-    cpdef rel_diff_pops(self, printUpdate=True):
+    cpdef rel_diff_pops(self, printUpdate=None):
         '''
         Internal.
         '''
         cdef LwAtom atom
         cdef Atom* a
+        cdef NgChange maxChange
         cdef f64 delta
         cdef f64 maxDelta = 0.0
         cdef int i
         atoms = self.activeAtoms
+        if printUpdate is None:
+            printUpdate = True
+        else:
+            warnings.warn('The use of `printUpdate` is now deprecated, as this function no longer prints.', DeprecationWarning)
+
+        update = IterationUpdate(self, updatedPops=True)
 
         for i, atom in enumerate(atoms):
             a = &atom.atom
-            delta = a.ng.relative_change_from_prev(a.n.flatten())
+            maxChange = a.ng.relative_change_from_prev(a.n.flatten())
+            delta = maxChange.dMax
             maxDelta = max(maxDelta, delta)
-            if printUpdate:
-                s = '    %s delta = %6.4e' % (atom.atomicModel.element.name, delta)
-                print(s)
+            update.dPops.append(maxChange.dMax)
+            update.dPopsMaxIdx.append(maxChange.dMaxIdx)
 
-        return maxDelta
+        return update
 
-    cpdef rel_diff_ng_accelerate(self, printUpdate=True):
+    cpdef rel_diff_ng_accelerate(self, printUpdate=None):
         '''
         Internal.
         '''
         cdef LwAtom atom
         cdef Atom* a
+        cdef NgChange maxChange
         cdef f64 delta
         cdef f64 maxDelta = 0.0
         cdef int i
         atoms = self.activeAtoms
+        if printUpdate is None:
+            printUpdate = True
+        else:
+            warnings.warn('The use of `printUpdate` is now deprecated, as this function no longer prints.', DeprecationWarning)
+
+        update = IterationUpdate(self, updatedPops=True)
 
         for i, atom in enumerate(atoms):
             a = &atom.atom
             accelerated = a.ng.accelerate(a.n.flatten())
-            delta = a.ng.max_change()
+            maxChange = a.ng.max_change()
+            delta = maxChange.dMax
             maxDelta = max(maxDelta, delta)
-            if printUpdate:
-                s = '    %s delta = %6.4e' % (atom.atomicModel.element.name, delta)
-                if accelerated:
-                    s += ' (accelerated)'
-                print(s)
+            update.dPops.append(maxChange.dMax)
+            update.dPopsMaxIdx.append(maxChange.dMaxIdx)
+            update.ngAccelerated = accelerated
 
-        return maxDelta
+        return update
 
     cpdef time_dep_update(self, f64 dt, prevTimePops=None, ngUpdate=None,
                           printUpdate=None, int chunkSize=20):
@@ -3162,15 +3204,15 @@ cdef class LwContext:
             initialisation).
         printUpdate : bool, optional
             Whether to print information on the size of the update (default:
-            None, to apply automatic behaviour).
+            None, to apply automatic behaviour). Deprecated.
         chunkSize : int, optional
             Not currently used.
 
         Returns
         -------
-        dPops : float
-            The maximum relative change of any of the NLTE populations in the
-            atmosphere.
+        update: IterationUpdate
+            An object representing the updates to the model. See
+            `IterationUpdate` for details.
         prevTimePops : list of np.ndarray
             The input needed as `prevTimePops` if this function is to be called
             again for this timestep.
@@ -3183,8 +3225,8 @@ cdef class LwContext:
             else:
                 ngUpdate = True
 
-        if printUpdate is None:
-            printUpdate = ngUpdate
+        if printUpdate is not None:
+            warnings.warn('The use of `printUpdate` is now deprecated, as this function no longer prints.', DeprecationWarning)
 
         cdef LwAtom atom
         cdef Atom* a
@@ -3202,29 +3244,18 @@ cdef class LwContext:
                 a.ng.accelerate(a.n.flatten())
 
         try:
-            # if self.Nthreads > 1:
-            # HACK(cmo): Due to extremely difficult to debug crashes, and the
-            # tiny performance effect we're disabling parallel population
-            # updates. This is fine as the compiled single threaded version is
-            # still used.
-            if False:
-                prevTimePopsVec.reserve(len(prevTimePops))
-                for i in range(len(atoms)):
-                    prevTimePopsVec.push_back(f64_view_2(prevTimePops[i]))
-                parallel_time_dep_update(&self.ctx, prevTimePopsVec, dt, chunkSize)
-            else:
-                for i, atom in enumerate(atoms):
-                    a = &atom.atom
-                    time_dependent_update(a, f64_view_2(prevTimePops[i]), dt)
+            for i, atom in enumerate(atoms):
+                a = &atom.atom
+                time_dependent_update(self.ctx, a, f64_view_2(prevTimePops[i]), dt)
         except:
             raise ExplodingMatrixError('Singular Matrix')
 
         if ngUpdate:
-            maxDelta = self.rel_diff_ng_accelerate(printUpdate=printUpdate)
+            update = self.rel_diff_ng_accelerate(printUpdate=printUpdate)
         else:
-            maxDelta = self.rel_diff_pops(printUpdate=printUpdate)
+            update = self.rel_diff_pops(printUpdate=printUpdate)
 
-        return maxDelta, prevTimePops
+        return update, prevTimePops
 
     cpdef time_dep_restore_prev_pops(self, prevTimePops):
         '''
@@ -3253,7 +3284,7 @@ cdef class LwContext:
         for atom in self.activeAtoms:
             atom.atom.ng.clear()
 
-    cpdef stat_equil(self, printUpdate=True, int chunkSize=20):
+    cpdef stat_equil(self, printUpdate=None, int chunkSize=20):
         '''
         Update the populations of active atoms using the current values of
         their Gamma matrices. This function solves the time-independent statistical
@@ -3263,15 +3294,15 @@ cdef class LwContext:
         ----------
         printUpdate : bool, optional
             Whether to print information on the size of the update (default:
-            True).
+            True). Deprecated.
         chunkSize : int, optional
             Not currently used.
 
         Returns
         -------
-        dPops : float
-            The maximum relative change of any of the NLTE populations in the
-            atmosphere.
+        update: IterationUpdate
+            An object representing the updates to the model. See
+            `IterationUpdate` for details.
         '''
         atoms = self.activeAtoms
 
@@ -3284,39 +3315,39 @@ cdef class LwContext:
         cdef int k
         cdef np.ndarray[np.double_t, ndim=1] deltaNe
 
+        if printUpdate is None:
+            printUpdate = True
+        else:
+            warnings.warn('The use of `printUpdate` is now deprecated, as this function no longer prints.', DeprecationWarning)
+
         for atom in atoms:
             a = &atom.atom
             if not a.ng.init:
                 a.ng.accelerate(a.n.flatten())
 
         try:
-            # if self.Nthreads > 1:
-            # HACK(cmo): Due to extremely difficult to debug crashes, and the
-            # tiny performance effect we're disabling parallel population
-            # updates. This is fine as the compiled single threaded version is
-            # still used.
-            if False:
-                parallel_stat_eq(&self.ctx, chunkSize)
-            else:
-                for atom in atoms:
-                    a = &atom.atom
-                    stat_eq(a)
+            for atom in atoms:
+                a = &atom.atom
+                stat_eq(self.ctx, a)
         except:
             raise ExplodingMatrixError('Singular Matrix')
 
         if self.conserveCharge:
             neStart = np.copy(self.atmos.ne)
-            self.nr_post_update(ngUpdate=False, printUpdate=False)
+            self.nr_post_update(ngUpdate=False)
 
-        maxDelta = self.rel_diff_ng_accelerate(printUpdate=printUpdate)
+        update = self.rel_diff_ng_accelerate(printUpdate=printUpdate)
         if self.conserveCharge:
             neDiff = ((np.asarray(self.atmos.ne) - neStart)
-                      / np.asarray(self.atmos.ne)).max()
-            maxDelta = max(maxDelta, neDiff)
-            if printUpdate:
-                print('    ne delta = %6.4e' % neDiff)
+                      / np.asarray(self.atmos.ne))
+            neDiffMaxIdx = neDiff.argmax()
+            neDiffMax = neDiff[neDiffMaxIdx]
+            maxDelta = max(maxDelta, neDiffMax)
+            update.updatedNe = True
+            update.dNeMax = neDiffMax
+            update.dNeMaxIdx = neDiffMaxIdx
 
-        return maxDelta
+        return update
 
     def _nr_post_update_impl(self, atoms, dC, f64[::1] backgroundNe,
                              timeDependentData=None, int chunkSize=5):
@@ -3343,15 +3374,7 @@ cdef class LwContext:
             dCVec.push_back(f64_view_3(c))
 
         try:
-            # if self.Nthreads > 1:
-            # HACK(cmo): Due to extremely difficult to debug crashes, and the
-            # tiny performance effect we're disabling parallel population
-            # updates. This is fine as the compiled single threaded version is
-            # still used.
-            if False:
-                parallel_nr_post_update(&self.ctx, &atomVec, dCVec, f64_view(backgroundNe), td, crsw, chunkSize);
-            else:
-                nr_post_update(&self.ctx, &atomVec, dCVec, f64_view(backgroundNe), td, crsw);
+            nr_post_update(self.ctx, &atomVec, dCVec, f64_view(backgroundNe), td, crsw);
         except:
             raise ExplodingMatrixError('Singular Matrix')
 
@@ -3394,7 +3417,7 @@ cdef class LwContext:
 
         self.spect.setup_stokes()
 
-    cpdef single_stokes_fs(self, recompute=False):
+    cpdef single_stokes_fs(self, recompute=False, updateJ=False, upOnly=True):
         '''
         Compute a full Stokes formal solution across all wakelengths in the
         grid, setting up the Context first (it is rarely necessary to call
@@ -3408,15 +3431,27 @@ cdef class LwContext:
         ----------
         recompute : bool, optional
             If previously called, and called again with `recompute = True`
-            the line profiles will be recomputed.
+            the line profiles will be recomputed. (Default: False)
+        updateJ : bool, optional
+            Whether to update J on the Context during the calculation (Default: False)
+        upOnly : bool, optional
+            Whether to compute the formal solver only for upgoing rays (used in
+            final synthesis).
+
+        Returns
+        -------
+        update: IterationUpdate
+            An object representing the updates to the model. See
+            `IterationUpdate` for details.
         '''
         self.setup_stokes(recompute=recompute)
 
         self.atmos.compute_bcs(self.spect)
-        cdef f64 dJ = formal_sol_full_stokes(self.ctx)
-        return dJ
+        cdef IterationResult maxChange = formal_sol_full_stokes(self.ctx, updateJ, upOnly)
+        update = IterationUpdate_from_IterationResult(self, maxChange)
+        return update
 
-    cpdef prd_redistribute(self, int maxIter=3, f64 tol=1e-2, printUpdate=True):
+    cpdef prd_redistribute(self, int maxIter=3, f64 tol=1e-2, printUpdate=None):
         '''
         Update emission profile ratio rho by computing the scattering integral
         for each prd line. Does not affect the populations, interleave before
@@ -3431,13 +3466,22 @@ cdef class LwContext:
             relative change in rho falls below this threshold then this function
             returns i.e. `maxIter` iterations do not need to be taken (Default: 1e-2).
         printUpdate : bool, optional
-            Whether to print information about the iteration process i.e. the size of the update to rho and the number of iterations taken (Default: True).
+            Whether to print information about the iteration process i.e. the size of the update to rho and the number of iterations taken (Default: True). Deprecated.
 
+        Returns
+        -------
+        update: IterationUpdate
+            An object representing the updates to the model. See
+            `IterationUpdate` for details.
         '''
-        cdef PrdIterData prdIter = redistribute_prd_lines(self.ctx, maxIter, tol)
-        if printUpdate:
-            print('      PRD dRho = %.2e, (sub-iterations: %d)' % (prdIter.dRho, prdIter.iter))
-        return prdIter.dRho, prdIter.iter
+        if printUpdate is None:
+            printUpdate = True
+        else:
+            warnings.warn('The use of `printUpdate` is now deprecated, as this function no longer prints.', DeprecationWarning)
+
+        cdef IterationResult prdIter = redistribute_prd_lines(self.ctx, maxIter, tol)
+        update = IterationUpdate_from_IterationResult(self, prdIter)
+        return update
 
     cdef configure_hprd_coeffs(self):
         '''
@@ -3660,8 +3704,7 @@ cdef class LwContext:
             condition can be ignored.
         upOnly : bool, optional
             Whether to only compute upgoing rays. Mostly affects the handling of
-            boundary conditions for 2D atmospheres. Only applies to scalar
-            formal solvers.  (default: True).
+            boundary conditions for 2D atmospheres. (Default: True).
         returnCtx : bool, optional
             Whether to return the Context used to compute the formal solution
             for these rays. If true, it will be returned as the second value.
@@ -3715,7 +3758,7 @@ cdef class LwContext:
             rayCtx = self.construct_from_state_dict_with(state, spect=spect)
 
         if stokes:
-            rayCtx.single_stokes_fs()
+            rayCtx.single_stokes_fs(upOnly=upOnly)
             Iwav = np.asarray(rayCtx.spect.I)
             quv = np.asarray(rayCtx.spect.Quv)
             if squeeze:
@@ -3789,7 +3832,7 @@ cdef class LwFormalSolverManager:
         if not success:
             raise ValueError('Failed to load Formal Solver from library at %s' % path)
 
-        cdef const char* name = self.manager.formalSolvers[self.manager.formalSolvers.size()-1].name
+        cdef const char* name = self.manager.formalSolvers.at(self.manager.formalSolvers.size()-1).name
         self.names.append(name.decode('UTF-8'))
 
     def default_formal_solver(self, Ndim):
@@ -3807,9 +3850,9 @@ cdef class LwFormalSolverManager:
             The name of the default formal solver.
         '''
         if Ndim == 1:
-            return self.names.index('piecewise_bezier3_1d')
+            return self.names.index(lwConfig.params['FormalSolver1d'])
         elif Ndim == 2:
-            return self.names.index('piecewise_besser_2d')
+            return self.names.index(lwConfig.params['FormalSolver2d'])
         else:
             raise ValueError()
 
@@ -3863,7 +3906,7 @@ cdef class LwInterpFnManager:
         if not success:
             raise ValueError('Failed to load interpolation function from library at %s' % path)
 
-        cdef const char* name = self.manager.fns[self.manager.fns.size()-1].name
+        cdef const char* name = self.manager.fns.at(self.manager.fns.size()-1).name
         self.names.append(name.decode('UTF-8'))
 
     def default_interp(self, Ndim):
@@ -3886,5 +3929,93 @@ cdef class LwInterpFnManager:
         else:
             raise ValueError("Unexpected Ndim")
 
+cdef class LwFsIterationManager:
+    cdef FsIterationFnsManager manager
+    cdef public list paths
+    cdef public list names
+
+    def __init__(self):
+        self.paths = []
+        self.names = []
+        cdef int i
+        cdef int size
+        cdef const char* name
+
+        for i in range(self.manager.fns.size()):
+            name = self.manager.fns[i].name
+            self.names.append(name.decode('UTF-8'))
+
+        schemes = get_fs_iter_libs()
+        for s in schemes:
+            self.load_fns_from_path(s)
+
+    def load_fns_from_path(self, str path):
+        if path in self.paths:
+            raise ValueError('Tried to load a pre-existing path')
+
+        self.paths.append(path)
+        byteStore = path.encode('UTF-8')
+        cdef const char* cPath = byteStore
+        cdef bool_t success = self.manager.load_fns_from_path(cPath)
+        if not success:
+            raise ValueError('Failed to load iteration scheme from library at %s' % path)
+
+        cdef const char* name = self.manager.fns.at(self.manager.fns.size()-1).name
+        self.names.append(name.decode('UTF-8'))
+
+    def scheme_properties(self, str name):
+        cdef int idx = self.names.index(name)
+        cdef FsIterationFns scheme = self.manager.fns.at(idx)
+        return {'name': name,
+                'Ndim': scheme.Ndim,
+                'dimensionSpecific': scheme.dimensionSpecific,
+                'respectsFormalSolver': scheme.respectsFormalSolver,
+                'defaultPerAtomStorage': scheme.defaultPerAtomStorage,
+                'defaultWlaGijStorage': scheme.defaultWlaGijStorage}
+
+    def default_scheme(self):
+        try:
+            return self.names.index('{IterationScheme}_{SimdImpl}'.format(**lwConfig.params))
+        except AttributeError:
+            return self.names.index(lwConfig.params['{IterationScheme}'.format(**lwConfig.params)])
+
+    def default_scheme_name(self):
+        return self.names[self.default_scheme()]
+
+cdef fvec2list(const vector[f64]& v):
+    cdef int i
+    result = []
+    for i in range(v.size()):
+        result.append(v[i])
+    return result
+
+cdef ivec2list(const vector[int]& v):
+    cdef int i
+    result = []
+    for i in range(v.size()):
+        result.append(v[i])
+    return result
+
+cdef IterationUpdate_from_IterationResult(LwContext ctx, IterationResult result):
+    update = IterationUpdate(ctx, updatedJ=result.updatedJ,
+                                  dJMax=result.dJMax,
+                                  dJMaxIdx=result.dJMaxIdx,
+                                  updatedPops=result.updatedPops,
+                                  dPops=fvec2list(result.dPops),
+                                  dPopsMaxIdx=ivec2list(result.dPopsMaxIdx),
+                                  ngAccelerated=result.ngAccelerated,
+                                  updatedNe=result.updatedNe,
+                                  dNeMax=result.dNe,
+                                  dNeMaxIdx=result.dNeMaxIdx,
+                                  updatedRho=result.updatedRho,
+                                  NprdSubIter=result.NprdSubIter,
+                                  dRho=fvec2list(result.dRho),
+                                  dRhoMaxIdx=ivec2list(result.dRhoMaxIdx),
+                                  updatedJPrd=result.updatedJPrd,
+                                  dJPrdMax=fvec2list(result.dJPrdMax),
+                                  dJPrdMaxIdx=ivec2list(result.dJPrdMaxIdx))
+    return update
+
 FormalSolvers = LwFormalSolverManager()
 InterpFns = LwInterpFnManager()
+FsIterationSchemes = LwFsIterationManager()

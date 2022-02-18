@@ -3,26 +3,513 @@ Simple EOS and background opacity package
 Coded in python by J. de la Cruz Rodriguez (ISP-SU 2017)
 """
 import numpy as np
-from math import *
-import os
 import xdrlib
 from numba import njit
 from .utils import get_data_path
+from dataclasses import dataclass
+from typing import List, Optional, Iterable
+from numba.typed import List as NList
+from math import log, exp, floor, sqrt
+
+# Some definitions (from NIST)
+
+BK = 1.3806488E-16          # Boltzmann [erg K]
+EE = 4.80320441E-10         # Electron charge
+HH = 6.62606957E-27         # Planck [erg s]
+PI = 3.14159265358979323846 # PI number
+CC = 2.99792458E10          # Speed of light [cm/s]
+AMU = 1.660538921E-24       # Atomic mass unit
+EV = 1.602176565E-12        # Electron Volt to erg
+CM1_TO_EV = HH*CC/EV        # CM^-1 to eV
+ME = 9.10938188E-28         # mass of electron
+
+@dataclass
+class CgsConstants:
+    BK: float = BK                 # Boltzmann [erg K]
+    EE: float = EE                 # Electron charge
+    HH: float = HH                 # Planck [erg s]
+    PI: float = PI                 # PI number
+    CC: float = CC                 # Speed of light [cm/s]
+    AMU: float = AMU               # Atomic mass unit
+    EV: float = EV                 # Electron Volt to erg
+    CM1_TO_EV: float = CM1_TO_EV   # CM^-1 to eV
+    ME: float = ME                 # mass of electron
+cgs = CgsConstants()
+
+SahaFac =  ((2.0 * PI * ME * BK) / (HH*HH))**1.5
+
+# Default abundances
+
+defaultAbundances = 10.0**np.float64( [-0.04048,-1.07,-10.95,-10.89, -9.44, -3.48, -3.99,
+                    -3.11, -7.48, -3.95,  -5.71, -4.46, -5.57, -4.49, -6.59, -4.83,
+                    -6.54, -5.48, -6.82,  -5.68, -8.94, -7.05, -8.04, -6.37, -6.65,
+                    -4.50, -7.12, -5.79,  -7.83, -7.44, -9.16, -8.63, -9.67, -8.69,
+                    -9.41, -8.81, -9.44,  -9.14, -9.80, -9.54,-10.62,-10.12,-20.00,
+                    -10.20,-10.92,-10.35, -11.10,-10.18,-10.58,-10.04,-11.04, -9.80,
+                    -10.53, -9.81,-10.92,  -9.91,-10.82,-10.49,-11.33,-10.54,-20.00,
+                    -11.04,-11.53,-10.92, -11.94,-10.94,-11.78,-11.11,-12.04,-10.96,
+                    -11.28,-11.16,-11.91, -10.93,-11.77,-10.59,-10.69,-10.24,-11.03,
+                    -10.95,-11.14,-10.19, -11.33,-20.00,-20.00,-20.00,-20.00,-20.00,
+                    -20.00,-11.92,-20.00, -12.51,-20.00,-20.00,-20.00,-20.00,-20.00,
+                    -20.00,-20.00])
 
 
-class dum: # Just a container for the PF
-    nstage = 0
-    npi = 0
-    pf  = 0
-    eion = 0
+aMass = np.float64([1.008,  4.003,  6.941,  9.012, 10.811, 12.011, 14.007, 15.999,
+                    18.998, 20.179, 22.990, 24.305, 26.982, 28.086, 30.974, 32.060,
+                    35.453, 39.948, 39.102, 40.080, 44.956, 47.900, 50.941, 51.996,
+                    54.938, 55.847, 58.933, 58.710, 63.546, 65.370, 69.720, 72.590,
+                    74.922, 78.960, 79.904, 83.800, 85.468, 87.620, 88.906, 91.220,
+                    92.906, 95.940, 98.906,101.070,102.905,106.400,107.868,112.400,
+                    114.820,118.690,121.750,127.600,126.905,131.300,132.905,137.340,
+                    138.906,140.120,140.908,144.240,146.000,150.400,151.960,157.250,
+                    158.925,162.500,164.930,167.260,168.934,170.040,174.970,178.490,
+                    180.948,183.850,186.200,190.200,192.200,195.090,196.967,200.590,
+                    204.370,207.190,208.981,210.000,210.000,222.000,223.000,226.025,
+                    227.000,232.038,230.040,238.029,237.048,242.000,242.000,245.000,
+                    248.000,252.000,253.000])
 
-    def __init__(self):
-        pass
+# Energy of a 6 level H atom in erg and corresponding g-values
 
-# ----------------------------------------------------------------------------------------
+hEnergy = np.float64((0.0, 82258.211, 97491.219, 102822.76, 105290.508, 109677.617)) * HH * CC
+hStatg = np.float64((2.0, 8.0, 18.0, 32.0, 50.0, 1.0))
+
+@njit(cache=True)
+def clip_single(x, a, b):
+    # NOTE(cmo): There seems to be a bug in numba where np.clip doesn't work on
+    # single numbers (non-array x) currently
+    if x < a:
+        return a
+    elif x > b:
+        return b
+    return x
 
 
-class witt:
+@njit(cache=True)
+def clip_abs(x, a, b):
+    return np.copysign(clip_single(np.abs(x), a, b), x)
+
+
+@dataclass
+class PfData: # Just a container for the PF
+    pf: NList[np.ndarray]
+    eion: NList[np.ndarray]
+    Tpf: np.ndarray
+
+    def __getstate__(self):
+        return {
+            'pf': list(self.pf),
+            'eion': list(self.eion),
+            'Tpf': list(self.Tpf)
+            }
+
+    def __setstate__(self, s):
+        self.pf = NList(s['pf'])
+        self.eion = NList(s['eion'])
+        self.Tpf = s['Tpf']
+
+
+
+@njit(cache=True)
+def nsaha(t, xne, u0, u1, eion):
+    # operates with t, xne and eion in EV
+    return 2.0 * SahaFac * (u1 / u0) * t**1.5 * np.exp(-eion * EV / (t * BK)) / xne
+
+
+@njit(cache=True)
+def saha(theta, eion, u1, u2, pe):
+    # Operates with theta, eion in eV and pe
+    return u2*np.exp(2.302585093*(9.0804625434325867-theta*eion))/(u1*pe*theta**2.5)
+
+
+@njit(cache=True)
+def init_pe_from_pg(hAbund, t, pg):
+    # Assume that only H is a electron donnor
+    nu = hAbund
+    saha = 10.0**( -0.4771+2.5*np.log10(t)-np.log10(pg)-(13.6*5040.0/t))
+    aaa = 1.0 + saha
+    bbb = -(nu-1.0) * saha
+    ccc = -saha*nu
+    ybh=(-bbb+np.sqrt(bbb*bbb-4.*aaa*ccc))/(2.*aaa)
+    pe=pg*ybh/(1.+ybh)
+
+    return pe
+
+
+@njit(cache=True)
+def pe_from_pg_impl(t, pg, abunds, eion, pf, Tpf,
+                    verbose=False, prec=1e-5, Ncontr=28):
+
+    dif = 1.1
+    pe = init_pe_from_pg(abunds[0], t, pg) # Init Pe assuming only H and increase it 10%
+    ope = pe
+    it = 0
+
+    while np.abs(dif) > prec and it < 250:
+        pe = (ope + pe)*0.5
+        ope = pe
+
+        pe, fe = pe_pg(t, pe, pg, abunds, eion, pf, Tpf)
+        dif = 2.0 * np.abs(pe-ope) / (pe+ope)
+        it += 1
+
+    if(verbose):
+        print("Wittmann: pe_from_pg: convergence Niter = ", (it-1))
+
+    return pe, fe
+
+
+@njit(cache=True)
+def molecb(X):
+    Y = np.empty(2)
+    dy = np.empty(2)
+    Y[0]=-11.206998+X*(2.7942767+X*(7.9196803E-2-X*2.4790744E-2)) # H2
+    Y[1]=-12.533505+X*(4.9251644+X*(-5.6191273E-2+X*3.2687661E-3)) # H
+    dx=(-X*X)/5040.
+
+    dy[0]=dx*(2.7942767+X*(2*7.9196803e-2-X*3*2.4790744e-2))
+    dy[1]=dx*(4.9251644+X*(-2*5.6191273e-2-X*3*3.2687661e-3))
+
+    return Y, dy
+
+
+@njit(cache=True)
+def partition_f(n, t, eion, pf, Tpf, only=0):
+    """
+    Computes the partition function of element "n" for a given temperature
+
+    input:
+            n: Atomic number of the atom -1 (H is 0).
+            t: Temperature in K.
+    Keywords:
+            only: (=int) only return this number first levels of the atom.
+                The default is to return all the levels
+
+
+    """
+    nn = pf[n].shape[0]
+
+    if only != 0:
+        nn = min(nn, only)
+
+    res = np.zeros(nn)
+
+    for ii in range(nn):
+        res[ii] = np.interp(t, Tpf, pf[n][ii])
+
+    return res
+
+
+@njit(cache=True)
+def pe_pg(t, pe, pgas, abunds, eion, pf, Tpf, verbose=False, prec=1e-5, Ncontr=28):
+    g1 = 0.0
+    theta = 5040.0/t
+
+
+    # Init some values
+    if(pe < 0.0):
+        pe = 1.e-15
+        g4 = 0.0
+        g5 = 0.0
+    else:
+        cmol, dcmol = molecb(theta)
+        cmol = np.clip(cmol, -30, 30)
+
+        g4 = pe * 10.0**cmol[0]
+        g5 = pe * 10.0**cmol[1]
+
+    #
+    # H first
+    #
+    u = partition_f(0, t, eion, pf, Tpf, only=3)
+    g2 = saha(theta, eion[0][0], u[0], u[1], pe)  # p(h+)/p(h)
+    g3 = saha(theta, 0.754, 1.0, u[0], pe)        # p(h)/p(h-)
+    g3 = 1.0 / clip_single(g3, 1.e-30, 1.0e30)
+
+    #
+    # Now count electrons contributed by the first
+    # two ionized stages of all contributing atoms
+    #
+    for ii in range(1, Ncontr):
+        alfai = abunds[ii] / abunds[0] # relative to H abundance
+        u = partition_f(ii, t, eion, pf, Tpf, only=3)
+
+        a = saha(theta, eion[ii][0], u[0], u[1], pe)
+        b = saha(theta, eion[ii][1], u[1], u[2], pe)
+
+        c = 1.+a*(1.+b)
+        g1 += alfai/c*a*(1.+2.*b)
+
+
+    # All the math...
+
+    a=1.+g2+g3
+    b=2.*(1.+g2/g5*g4)
+    c=g5
+    d=g2-g3
+    e=g2/g5*g4
+
+    a = clip_abs(a, 1.e-15, 1.e15);
+    d = clip_abs(d, 1.e-15, 1.e15);
+
+    c1=c*b*b+a*d*b-e*a*a
+    c2=2.0*a*e-d*b+a*b*g1
+    c3=-(e+b*g1)
+    f1=0.5*c2/c1
+    f1=-f1 + np.copysign(1.0,c1)* np.sqrt(f1*f1-c3/c1)
+    f5=(1.-a*f1)/b
+    f4=e*f5
+    f3=g3*f1
+    f2=g2*f1
+    fe = clip_single(f2-f3+f4+g1, 1.e-30, 1.e30)
+    phtot = pe/fe
+
+    # Refinement by Wittmann, not sure this is needed in
+    # double prec.
+
+    if(f5 <= 1.e-4):
+        diff = 1.0; const6=g5/pe*f1*f1; const7=f2-f3+g1; it = 0
+
+        while((diff > 1.e-5) and (it < 5)):
+            of5 = f5
+            f5=phtot*const6
+            f4=e*f5
+            fe=const7+f4
+            phtot=pe/fe
+            diff = 0.5 * np.abs(f5-of5) / (f5 + of5)
+            it += 1
+
+    # Recompute pe
+
+    abOthers = (1.0 - abunds[0]) / abunds[0]
+    pe = pgas / (1.+(f1+f2+f3+f4+f5+abOthers)/fe)
+
+    if(pe <= 0.0):
+        pe = 1.e-15
+
+    return pe, fe
+
+
+@njit(cache=True)
+def pe_from_rho_impl(t, xna, abunds, eion, pf, Tpf,
+                     verbose=False, prec=1e-5, Ncontr=28):
+    # xna: fraction of atoms
+    BKT = BK * t
+
+    # now estimate Pgas and iterate
+
+    if(t > 8000):
+        a = 0.5;
+    elif(t > 4000):
+        a = 0.1;
+    elif(t > 2000):
+        a = 0.01;
+    else:
+        a = 0.001;
+
+    xne = a * xna /(1.0 - a)
+    Pgas = (xna+xne)*BKT
+
+    # Iterate
+
+    it = 0
+    dif = 1.0
+
+    while (it < 250) and (np.abs(dif) > prec):
+        Pe, _ = pe_from_pg_impl(t, Pgas, abunds, eion, pf, Tpf,
+                                verbose=verbose, prec=prec, Ncontr=Ncontr)
+        xna_guessed = (Pgas-Pe)/BKT
+        dif = np.abs(xna-xna_guessed)/xna
+
+        Pgas  *= xna/xna_guessed
+
+    return Pe#, Pgas
+
+
+@njit(cache=True)
+def gasc(t, pe, abunds, eion, pf, Tpf, verbose=False, prec=1e-5, Ncontr=28):
+
+    pp = np.zeros(Ncontr+6)
+
+    theta = 5040. / t
+    cmol, dmol = molecb(theta)
+
+    g4 = 10.0**cmol[0]; g5 = 10.0**cmol[1]
+
+    # First H
+    u = partition_f(0, t, eion, pf, Tpf)
+    g2 = saha(theta, eion[0][0], u[0], u[1], pe) # p(h+)/p(h)
+    g3 = 1.0 / saha(theta, 0.754, 1.0, u[0], pe) # p(h)/p(h-)
+    g1 = 0.0
+
+
+    # Other contributions
+    for ii in range(1, Ncontr):
+        alfai = abunds[ii] / abunds[0] # relative to H abundance
+        u = partition_f(ii, t, eion, pf, Tpf, only=3)
+
+        a = saha(theta, eion[ii][0], u[0], u[1], pe)
+        b = saha(theta, eion[ii][1], u[1], u[2], pe)
+
+        c=1.+a*(1.+b) # fraction of n0/ntot
+
+        pp[ii]=alfai/c # abund /ntot (partial pressure of neutral species ii)
+
+        # 1*n1 + 2*n2 + ... j*n_j so we count how many electrons
+        # come from each ionized species
+
+        g1 += pp[ii]*a*(1.+2.*b)
+
+
+    a=1.+g2+g3
+    e=g2/g5*g4
+    b=2.0*(1.0 + e)
+    c=g5
+    d=g2-g3
+    c1=c*b*b+a*d*b-e*a*a
+    c2=2.*a*e-d*b+a*b*g1
+    c3=-(e+b*g1)
+    f1=0.5*c2/c1
+    f1=-f1+ np.copysign(1.0,c1) * np.sqrt(f1*f1-c3/c1)
+    f5=(1.0-a*f1)/b
+
+    f4=e*f5
+    f3=g3*f1
+    f2=g2*f1
+    fe=f2-f3+f4+g1
+    phtot=pe/fe
+
+    # Refinement by Wittmann
+    if(f5 <= 1.e-5):
+        diff = 1.0; const6=g5/pe*f1*f1; const7=f2-f3+g1; it = 0
+
+        while (diff > 1.e-5) and (it < 5):
+            of5 = f5
+            f5=phtot*const6
+            f4=e*f5
+            fe=const7+f4
+            phtot=pe/fe
+            diff = 0.5 * abs(f5-of5) / (f5 + of5)
+            it += 1
+
+    abOthers = (1.0 - abunds[0]) / abunds[0]
+    pg=pe*(1.0+(f1+f2+f3+f4+f5+abOthers)/fe)
+
+    # Store the partial pressures of H too
+
+    pp[Ncontr+0] = f1    #  p(h)/p(h')
+    pp[Ncontr+1] = f2    #  p(h+)/p(h')
+    pp[Ncontr+2] = f5    #  p(h2)/p(h')
+    pp[Ncontr+3] = f3    #  p(h-)/p(h')
+    pp[Ncontr+4] = phtot #  p(h') (total hydrogen!)
+    pp[Ncontr+5] = fe #  p(h') (total hydrogen!)
+
+
+    return pg, pp
+
+
+@njit(cache=True)
+def pg_from_pe_impl(t, pe, abunds, eion, pf, Tpf,
+                    verbose=False, prec=1e-5, Ncontr=28):
+    pg, dum = gasc(t, pe, abunds, eion, pf, Tpf,
+                   verbose=verbose, prec=prec, Ncontr=Ncontr)
+    return pg, dum[-1]
+
+
+@njit(cache=True)
+def rho_from_pe_impl(temp, pe, abunds, eion, pf, Tpf, rhoFromH,
+                     verbose=False, prec=1e-5, Ncontr=28):
+    pg, fe_out = pg_from_pe_impl(temp, pe, abunds, eion, pf, Tpf,
+                                 verbose=verbose, prec=prec, Ncontr=Ncontr)
+    rho = pe * rhoFromH / (fe_out * temp)
+    return rho
+
+
+@njit(cache=True)
+def pg_from_rho_impl(temp, rho, xna, abunds, eion, pf, Tpf, rhoFromH,
+                     verbose=False, prec=1e-5, Ncontr=28):
+    if temp > 8000:
+        a = 0.5;
+    elif temp > 4000:
+        a = 0.1;
+    elif temp > 2000:
+        a = 0.01;
+    else:
+        a = 0.001;
+
+    xne = a * xna /(1.0 - a)
+    pgas = (xna+xne)*BK*temp
+
+    Pe, _ = pe_from_pg_impl(temp, pgas, abunds, eion, pf, Tpf,
+                            verbose=verbose, prec=prec, Ncontr=Ncontr)
+    irho = rho_from_pe_impl(temp, Pe, abunds, eion, pf, Tpf, rhoFromH,
+                            verbose=verbose, prec=prec, Ncontr=Ncontr)
+
+    dif = 1.0
+    it = 0
+    while dif >= prec and it < 100:
+        Pe *= (1.0 + rho / irho)*0.5
+        irho = rho_from_pe_impl(temp, Pe, abunds, eion, pf, Tpf, rhoFromH,
+                                verbose=verbose, prec=prec, Ncontr=Ncontr)
+        dif = np.abs((irho - rho) / (rho))
+        it += 1
+
+    pgas, _ = pg_from_pe_impl(temp, Pe, abunds, eion, pf, Tpf,
+                              verbose=verbose, prec=prec, Ncontr=Ncontr)
+
+    return pgas
+
+
+@njit(cache=True)
+def Boltzmann(t, u, glow, e_pot):
+    # Gives the ratio between the total population of a ionization stage and a given level
+    # The energy levels must be in Erg.
+    return (glow / u) * np.exp(-(e_pot) / (BK*t))
+
+
+@njit(cache=True)
+def get_X_parts(iatom, t, pg, pe, abunds, eion, pf, Tpf,
+                divide_by_u=False, only=0):
+
+    # Precompute partial densities of atoms, electrons
+    # and partial density of iatom with the abundance
+
+    TBK = t * BK
+    xna = (pg-pe) / TBK
+    xne = pe / TBK
+    n_tot = xna * abunds[iatom] # / self.abtot = 1.0
+
+    # Partition function
+
+    u = partition_f(iatom, t, eion, pf, Tpf, only=only)
+    nLev = u.size
+    # Solve saha and get the partial density of each ionized stage
+
+    xpa = np.empty(nLev)
+    xpa[0] = 1.0
+
+    for ii in range(1, nLev):
+        xpa[ii] = nsaha(t, xne, u[ii-1], u[ii], eion[iatom][ii-1])
+
+    for ii in range(nLev-1, 0, -1):
+        xpa[0] = 1.0 + xpa[0]*xpa[ii]
+
+    xpa[0] = 1.0 / xpa[0]
+
+    for ii in range(1, nLev):
+        xpa[ii] *= xpa[ii-1]
+
+    # Now that we have the ratios between ionized stages, multiply by the partial
+    # density of iatom. Divide by the partition function if needed
+
+    if(divide_by_u):
+        xpa[:] *= n_tot / u[:]
+    else:
+        xpa *= n_tot
+
+    return xpa, u
+
+
+class Wittmann:
     """
     EOS described in Mihalas (1970) "Stellar atmospheres"
     It considers in detail H, H+, H- and H2, no other molecules.
@@ -39,62 +526,57 @@ class witt:
     Dependencies: pf_Kurucz.input containing the partition function data.
 
     """
-    # Some definitions (from NIST)
 
-    BK = 1.3806488E-16          # Boltzmann [erg K]
-    EE = 4.80320441E-10         # Electron charge
-    HH = 6.62606957E-27         # Planck [erg s]
-    PI = 3.14159265358979323846 # PI number
-    CC = 2.99792458E10          # Speed of light [cm/s]
-    AMU = 1.660538921E-24       # Atomic mass unit
-    EV = 1.602176565E-12        # Electron Volt to erg
-    CM1_TO_EV = HH*CC/EV        # CM^-1 to eV
-    ME = 9.10938188E-28         # mass of electron
+    def __init__(self, abund_init: Optional[Iterable[float]]=None,
+                 verbose: bool=False, prec: float=1.e-5,
+                 pf_file: str='pf_Kurucz.input'):
 
-    saha_fac =  ((2.0 * PI * ME * BK) / (HH*HH))**1.5
+        self.verbose = verbose
+        self.prec = prec
+        self.Ncontr = 28 # number of species contributing as electron donors (sorted)
 
-    # Default abundances
+        self.abund = defaultAbundances.copy()
+        if abund_init is not None:
+        # Replace default abundances
+            Nabund = len(abund_init)
+            self.abund[0:Nabund] = abund_init
+            if(self.verbose):
+                print('Wittmann: replacing default abundances with user provided values')
 
-    ABUND = 10.0**np.float64( [-0.04048,-1.07,-10.95,-10.89, -9.44, -3.48, -3.99,
-                               -3.11, -7.48, -3.95,  -5.71, -4.46, -5.57, -4.49, -6.59, -4.83,
-                               -6.54, -5.48, -6.82,  -5.68, -8.94, -7.05, -8.04, -6.37, -6.65,
-                               -4.50, -7.12, -5.79,  -7.83, -7.44, -9.16, -8.63, -9.67, -8.69,
-                               -9.41, -8.81, -9.44,  -9.14, -9.80, -9.54,-10.62,-10.12,-20.00,
-                               -10.20,-10.92,-10.35, -11.10,-10.18,-10.58,-10.04,-11.04, -9.80,
-                               -10.53, -9.81,-10.92,  -9.91,-10.82,-10.49,-11.33,-10.54,-20.00,
-                               -11.04,-11.53,-10.92, -11.94,-10.94,-11.78,-11.11,-12.04,-10.96,
-                               -11.28,-11.16,-11.91, -10.93,-11.77,-10.59,-10.69,-10.24,-11.03,
-                               -10.95,-11.14,-10.19, -11.33,-20.00,-20.00,-20.00,-20.00,-20.00,
-                               -20.00,-11.92,-20.00, -12.51,-20.00,-20.00,-20.00,-20.00,-20.00,
-                               -20.00,-20.00])
+        self.abundTot = self.abund.sum()
+        self.abund /= self.abundTot
+        self.abundTot = 1.0
+        self.abOthers = self.abund[1::].sum() / self.abund[0]
 
+        self.aveMass = (self.abund * aMass).sum()
 
-    AMASS = np.float64([1.008,  4.003,  6.941,  9.012, 10.811, 12.011, 14.007, 15.999,
-                        18.998, 20.179, 22.990, 24.305, 26.982, 28.086, 30.974, 32.060,
-                        35.453, 39.948, 39.102, 40.080, 44.956, 47.900, 50.941, 51.996,
-                        54.938, 55.847, 58.933, 58.710, 63.546, 65.370, 69.720, 72.590,
-                        74.922, 78.960, 79.904, 83.800, 85.468, 87.620, 88.906, 91.220,
-                        92.906, 95.940, 98.906,101.070,102.905,106.400,107.868,112.400,
-                        114.820,118.690,121.750,127.600,126.905,131.300,132.905,137.340,
-                        138.906,140.120,140.908,144.240,146.000,150.400,151.960,157.250,
-                        158.925,162.500,164.930,167.260,168.934,170.040,174.970,178.490,
-                        180.948,183.850,186.200,190.200,192.200,195.090,196.967,200.590,
-                        204.370,207.190,208.981,210.000,210.000,222.000,223.000,226.025,
-                        227.000,232.038,230.040,238.029,237.048,242.000,242.000,245.000,
-                        248.000,252.000,253.000])
+        self.massPerH = self.aveMass / aMass[0] / self.abund[0]
+        self.rhoFromH = self.massPerH * aMass[0] * AMU / BK
 
+        self.aveMass *= AMU
 
-    # Energy of a 6 level H atom in erg and corresponding g-values
+        # init arrays for later
+        self.alfai = np.zeros(self.Ncontr)
+        self.chi1  = np.zeros(self.Ncontr)
+        self.chi2  = np.zeros(self.Ncontr)
+        self.u0    = np.zeros(self.Ncontr)
+        self.u1    = np.zeros(self.Ncontr)
+        self.u2    = np.zeros(self.Ncontr)
 
-    eH = np.float64((0.0, 82258.211, 97491.219, 102822.76, 105290.508, 109677.617)) * HH * CC
-    gH = np.float64((2.0, 8.0, 18.0, 32.0, 50.0, 1.0))
-    # ----------------------------------------------------------------------------------------
+        # Init PF
+
+        DATA_PATH = get_data_path() + pf_file
+        self.init_pf_data(DATA_PATH, True)
+
 
     def init_pf_data(self, ifile, to_EV=True):
         #
         # Reads Kurucz's partition functions and ionization potentials from a file
         # Taken from RH (Uitenbroek 2001)
         #
+        # NOTE(cmo): There is probably a case that could speed this up further
+        # by pickling the default set of arguments into a preprepared data
+        # structure, if desirable
 
         ff = open(ifile,'rb')
         f = ff.read()
@@ -105,666 +587,190 @@ class witt:
 
         nelem = 99
 
-        self.tpf = np.float64(data.unpack_farray(npf, data.unpack_double))
-        self.el = [None] * nelem
+        tpf = np.float64(data.unpack_farray(npf, data.unpack_double))
+        pf = NList()
+        eion = NList()
 
         for ii in range(nelem):
             pti = data.unpack_uint()
             nstage = data.unpack_uint()
 
-            self.el[ii] = dum()
+            pfElement = np.array(data.unpack_farray(npf*nstage,
+                                                    data.unpack_double)
+                                ).reshape((nstage, npf))
+            pf.append(pfElement)
+            eionElement = np.array(data.unpack_farray(nstage,
+                                                      data.unpack_double)
+                                  ) * HH * CC
+            if to_EV:
+                eionElement /= EV
+            eion.append(eionElement)
 
-            self.el[ii].pf =  np.float64(data.unpack_farray(npf*nstage, data.unpack_double)).reshape((nstage, npf))
-            self.el[ii].eion =  np.float64(data.unpack_farray(nstage, data.unpack_double)) * self.HH*self.CC
+        self.pfData = PfData(pf, eion, tpf)
 
-
-            self.el[ii].nstage = nstage
-            self.el[ii].npf = pti
-
-            if(to_EV): self.el[ii].eion /= self.EV
-
-    # ----------------------------------------------------------------------------------------
-
-    def acota(self, x, x0, x1):
-
-        if(x < x0): x = x0
-        if(x > x1): x = x1
-
-        return x
-
-    # ----------------------------------------------------------------------------------------
-
-    def acotasig(self, x, x0, x1):
-        if(x < 0):
-            x = -x
-            x = self.acota(x, x0, x1)
-            x = -x
-        else:
-            x = self.acota(x, x0, x1)
-
-        return x
-
-    # ----------------------------------------------------------------------------------------
-
-    def sign(self, a, b):
-        return abs(a) * (b / abs(b))
-
-    # ----------------------------------------------------------------------------------------
-
-    def __init__(self, abund_init = [], verbose = False, prec = 1.e-5, pf_file='pf_Kurucz.input'):
-
-        self.verbose = verbose
-        self.prec = 1.e-5
-        self.ncontr = 28 # number of species contributing as electron donnors (sorted)
-        self.dtype = 'float64'
-
-        # Replace default abundances ?
-        nabund = len(abund_init)
-
-        if(nabund > 0):
-            self.ABUND[0:nabund] = abund_init
-            if(self.verbose): print('witt::__init__: replacing default abundances with user provided values')
-
-        self.abtot = self.ABUND.sum()
-        self.ABUND /= self.abtot
-        self.abtot = 1.0
-        self.ab_others = self.ABUND[1::].sum() / self.ABUND[0]
-
-        self.avw = (self.ABUND * self.AMASS).sum()
-
-        self.muH = self.avw/ self.AMASS[0] / self.ABUND[0]
-        self.rho_from_H = self.muH * self.AMASS[0]*self.AMU / self.BK
-
-        self.avw *=  self.AMU
-
-        # init arrays for later
-
-        self.alfai = np.zeros(self.ncontr, dtype=self.dtype)
-        self.chi1  = np.zeros(self.ncontr, dtype=self.dtype)
-        self.chi2  = np.zeros(self.ncontr, dtype=self.dtype)
-        self.u0    = np.zeros(self.ncontr, dtype=self.dtype)
-        self.u1    = np.zeros(self.ncontr, dtype=self.dtype)
-        self.u2    = np.zeros(self.ncontr, dtype=self.dtype)
-
-        # Init PF
-
-        DATA_PATH = get_data_path() + pf_file
-
-        self.init_pf_data(DATA_PATH, True)
-
-
-
-    # ----------------------------------------------------------------------------------------
-
-    def nsaha(self, t, xne, u0, u1, eion):
-        # operates with t, xne and eion in EV
-        return 2.0 * self.saha_fac * (u1 / u0) * t**1.5 * exp(-eion*self.EV / (t*self.BK)) / xne
-
-    # ----------------------------------------------------------------------------------------
-
-    def saha(self, theta, eion, u1, u2, pe):
-        # Operates with theta, eion in eV and pe
-        return u2*exp(2.302585093*(9.0804625434325867-theta*eion))/(u1*pe*theta**2.5)
-
-    # ----------------------------------------------------------------------------------------
-
-    def init_pe_from_pg(self, t, pg):
-
-        # Assume that only H is a electron donnor
-
-        nu = self.ABUND[0]
-        saha = 10.0**( -0.4771+2.5*log10(t)-log10(pg)-(13.6*5040.0/t))
-        aaa = 1.0 + saha
-        bbb = -(nu-1.0) * saha
-        ccc = -saha*nu
-        ybh=(-bbb+sqrt(bbb*bbb-4.*aaa*ccc))/(2.*aaa)
-        pe=pg*ybh/(1.+ybh)
-
-        return pe
-
-    # ----------------------------------------------------------------------------------------
-
-    def pe_from_pg(self, t, pg, get_fe = False):
-
-        dif = 1.1
-        pe = self.init_pe_from_pg(t, pg) # Init Pe assuming only H and increase it 10%
-        ope = pe
-        it = 0
-
-        while((abs(dif) > self.prec) and (it < 250)):
-            pe = (ope + pe)*0.5
-            ope = pe
-
-            pe,fe = self.pe_pg(t, pe, pg, get_fe=True)
-            dif = 2.0 * abs(pe-ope) / (pe+ope)
-            it += 1
-
-        if(self.verbose): print("witt::pe_from_pg: convergence niter = {0}".format(it-1))
-
-        if(get_fe): return pe, fe
-        return pe
-
-    # ----------------------------------------------------------------------------------------
 
     def pe_from_rho(self, t, rho):
-
         # fraction of atoms
-
-        xna = rho / self.avw
-        BKT = self.BK * t
-
-        # now estimate Pgas and iterate
-
-        if(t > 8000): a = 0.5;
-        elif(t > 4000): a = 0.1;
-        elif(t > 2000): a = 0.01;
-        else: a = 0.001;
-
-        xne = a * xna /(1.0 - a)
-        Pgas = (xna+xne)*BKT
+        xna = rho / self.aveMass
+        return pe_from_rho_impl(t, xna, self.abund, self.pfData.eion,
+                                self.pfData.pf, self.pfData.Tpf,
+                                verbose=self.verbose, prec=self.prec,
+                                Ncontr=self.Ncontr)
 
 
-        # Iterate
+    def pe_from_pg(self, t, pg, get_fe = False):
+        pe, fe = pe_from_pg_impl(t, pg, self.abund, self.pfData.eion,
+                                 self.pfData.pf, self.pfData.Tpf,
+                                 verbose=self.verbose, prec=self.prec,
+                                 Ncontr=self.Ncontr)
 
-        it = 0
-        dif = 1.0
-
-        while((it < 250) and (abs(dif) > self.prec)):
-            oPgas = Pgas
-            Pe = self.pe_from_pg(t, Pgas)
-            xna_guessed = (Pgas-Pe)/BKT
-            dif = abs(xna-xna_guessed)/xna
-
-            Pgas  *= xna/xna_guessed
-
-        return Pe#, Pgas
-
-    # ----------------------------------------------------------------------------------------
-
-    def pg_from_rho(self, temp, rho):
-
-        xna = (rho / self.avw)
-
-        if(temp > 8000): a = 0.5;
-        elif(temp > 4000): a = 0.1;
-        elif(temp > 2000): a = 0.01;
-        else: a = 0.001;
-
-        xne = a * xna /(1.0 - a)
-        pgas = (xna+xne)*self.BK*temp
-
-        Pe = self.pe_from_pg(temp, pgas)
-        irho = self.rho_from_pe(temp, Pe)
-
-        dif = 1.0
-        it = 0
-        while((dif >= self.prec) and (it<100)):
-            Pe *= (1.0 + rho / irho)*0.5
-            irho = self.rho_from_pe(temp, Pe)
-            dif = np.abs((irho - rho) / (rho))
-            it+=1
-
-        pgas = self.pg_from_pe(temp, Pe)
-
-        return pgas
-
-    # ----------------------------------------------------------------------------------------
-
-    def rho_from_pe(self,temp, pe):
-
-        pg, fe_out = self.pg_from_pe(temp, pe, True)
-        rho = pe * self.rho_from_H / (fe_out * temp)
-        return rho
-
-    # ----------------------------------------------------------------------------------------
-
-    def rho_from_pg(self,temp, pg):
-
-        pe, fe_out = self.pe_from_pg(temp, pg, True)
-        rho = pe * self.rho_from_H / (fe_out * temp)
-
-        return rho
-    # ----------------------------------------------------------------------------------------
-
-
-    def molecb(self, X):
-        Y = np.empty(2, dtype=self.dtype); dy = np.empty(2, dtype=self.dtype)
-        Y[0]=-11.206998+X*(2.7942767+X*(7.9196803E-2-X*2.4790744E-2)) # H2
-        Y[1]=-12.533505+X*(4.9251644+X*(-5.6191273E-2+X*3.2687661E-3)) # H
-        dx=(-X*X)/5040.
-
-        dy[0]=dx*(2.7942767+X*(2*7.9196803e-2-X*3*2.4790744e-2))
-        dy[1]=dx*(4.9251644+X*(-2*5.6191273e-2-X*3*3.2687661e-3))
-
-        return Y, dy
-
-    # ----------------------------------------------------------------------------------------
-
-    def pe_pg(self, t, pe, pgas, get_fe=False):
-
-        g1 = 0.; theta = 5040.0/t
-
-
-        # Init some values
-
-        if(pe < 0.0):
-            pe = 1.e-15
-            g4 = 0.0
-            g5 = 0.0
-        else:
-            cmol, dcmol = self.molecb(theta)
-            cmol[0] = self.acota(cmol[0], -30., 30.)
-            cmol[1] = self.acota(cmol[1], -30., 30.)
-
-            g4 = pe * 10.0**cmol[0]
-            g5 = pe * 10.0**cmol[1]
-
-        #
-        # H first
-        #
-        u = self.partition_f(0, t, only=3)
-        g2 = self.saha(theta, self.el[0].eion[0], u[0], u[1], pe) # p(h+)/p(h)
-        g3 = self.saha(theta, 0.754, 1.0, u[0], pe)        # p(h)/p(h-)
-        g3 = 1.0 / self.acota(g3, 1.e-30, 1.0e30)
-
-
-        #
-        # Now count electrons contributed by the first
-        # two ionized stages of all contributing atoms
-        #
-        for ii in range(1, self.ncontr):
-            alfai = self.ABUND[ii] / self.ABUND[0] # relative to H abundance
-            u = self.partition_f(ii, t, only=3)
-
-            a = self.saha(theta, self.el[ii].eion[0], u[0], u[1], pe)
-            b = self.saha(theta, self.el[ii].eion[1], u[1], u[2], pe)
-
-            c = 1.+a*(1.+b)
-            g1 += alfai/c*a*(1.+2.*b)
-
-
-        # All the math...
-
-        a=1.+g2+g3
-        b=2.*(1.+g2/g5*g4)
-        c=g5
-        d=g2-g3
-        e=g2/g5*g4
-
-        a = self.acotasig(a, 1.e-15, 1.e15);
-        d = self.acotasig(d, 1.e-15, 1.e15);
-
-        c1=c*b*b+a*d*b-e*a*a
-        c2=2.0*a*e-d*b+a*b*g1
-        c3=-(e+b*g1)
-        f1=0.5*c2/c1
-        f1=-f1+self.sign(1.,c1)*sqrt(f1*f1-c3/c1)
-        f5=(1.-a*f1)/b
-        f4=e*f5
-        f3=g3*f1
-        f2=g2*f1
-        fe = self.acota(f2-f3+f4+g1, 1.e-30, 1.e30)
-        phtot = pe/fe
-
-        # Refinement by Wittmann, not sure this is needed in
-        # double prec.
-
-        if(f5 <= 1.e-4):
-            diff = 1.0; const6=g5/pe*f1*f1; const7=f2-f3+g1; it = 0
-
-            while((diff > 1.e-5) and (it < 5)):
-                of5 = f5
-                f5=phtot*const6
-                f4=e*f5
-                fe=const7+f4
-                phtot=pe/fe
-                diff = 0.5 * fabs(f5-of5) / (f5 + of5)
-                it += 1
-
-        # Recompute pe
-
-        pe = pgas / (1.+(f1+f2+f3+f4+f5+self.ab_others)/fe)
-
-        if(pe <= 0.0):
-            pe = 1.e-15
-
-        if(get_fe): return pe, fe
+        if(get_fe):
+            return pe, fe
         return pe
 
 
-    # ----------------------------------------------------------------------------------------
-
-    def Boltzmann(self, t, u, glow, e_pot):
-        # Gives the ratio between the total population of a ionization stage and a given level
-        # The energy levels must be in Erg.
-        return (glow / u) * exp(-(e_pot) / (self.BK*t))
-
-    # ----------------------------------------------------------------------------------------
-
-    def getH6pop(self, t, pgas, pe):
-
-
-        # Solve ionization for H
-
-        n, u = self.getXparts(0, t, pgas, pe, divide_by_u = False, return_u = True)
-
-
-        # Define output array
-
-        res = np.empty(6, dtype='float64')
-        res[-1] = n[1] # number of protons
-
-        ratios = np.empty(5, dtype='float64')
-
-        # Solve level populations for the 5 first levels of H
-
-        for ii in range(5):
-            ratios[ii] = self.Boltzmann(t, u[0], self.gH[ii], self.eH[ii])
-
-
-        # particle conservation (with 6 levels in H this line has no effect)
-
-        #ratios /= ratios.sum()
-
-
-        # Multiply the neutral H population by the ratios of level populations
-
-        res[0:5] = n[0] * ratios
-
-
-        return res
-
-
-    # ----------------------------------------------------------------------------------------
-
-    def _itep1(self, x, y, xx):
-        """
-        Linear interpolation routine
-        input:
-             x: array of input x values
-             y: array of input y values
-             xx: scalar x value where the interpolated value of "y must be calculated
-        """
-
-        if(xx <= x[0]): return y[0]
-        elif(xx >= x[-1]): return y[-1]
-        else:
-            idx=np.where(x>xx)[0]
-            p0 = idx[0]
-            p1 = p0-1
-
-            dx = x[p1]-x[p0]
-            u1 = (xx-x[p0]) / dx
-            u0 = 1.0 - u1
-
-            return u0 * y[p0] + u1 * y[p1]
-
-
-    # ----------------------------------------------------------------------------------------
-
-    def partition_f(self, n, t, only=0):
-        """
-        Computes the partition function of element "n" for a given temperature
-
-        input:
-             n: Atomic number of the atom -1 (H is 0).
-             t: Temperature in K.
-        Keywords:
-             only: (=int) only return this number first levels of the atom.
-                   The default is to return all the levels
-
-
-        """
-        nn = self.el[n].nstage
-
-        if(only > 0):
-            nn = min(nn, only)
-            res = np.zeros(only, dtype='float64')
-        else:
-            res = np.zeros(nn, dtype='float64')
-
-        for ii in range(nn):
-            res[ii] = self._itep1( self.tpf, self.el[n].pf[ii], t)
-
-        return res
-
-    # ----------------------------------------------------------------------------------------
+    def pg_from_rho(self, temp, rho):
+        xna = rho / self.aveMass
+        return pg_from_rho_impl(temp, rho, xna, self.abund, self.pfData.eion,
+                                self.pfData.pf, self.pfData.Tpf, self.rhoFromH,
+                                verbose=self.verbose, prec=self.prec,
+                                Ncontr=self.Ncontr)
 
     def pg_from_pe(self, t, pe, get_fe=False):
-
-        pg, dum = self.gasc(t, pe)
-        if(get_fe): return pg, dum[-1]
-
-        return pg
-
-    # ----------------------------------------------------------------------------------------
-
-    def gasc(self, t, pe):
-
-        pp = np.zeros(self.ncontr+6, dtype = self.dtype)
-
-        theta = 5040. / t
-        cmol, dmol = self.molecb(theta)
-
-        g4 = 10.0**cmol[0]; g5 = 10.0**cmol[1]
+        pe, fe = pg_from_pe_impl(t, pe, self.abund, self.pfData.eion,
+                                 self.pfData.pf, self.pfData.Tpf,
+                                 verbose=self.verbose, prec=self.prec,
+                                 Ncontr=self.Ncontr)
+        if get_fe:
+            return pe, fe
+        return pe
 
 
-        # First H
-
-        u = self.partition_f(0, t)
-        g2 = self.saha(theta, self.el[0].eion[0], u[0], u[1], pe) # p(h+)/p(h)
-        g3 = 1.0 / self.saha(theta, 0.754, 1.0, u[0], pe)        # p(h)/p(h-)
-        g1 = 0.0
-
-
-        # Other contributions
-
-        for ii in range(1, self.ncontr):
-            alfai = self.ABUND[ii] / self.ABUND[0] # relative to H abundance
-            u = self.partition_f(ii, t, only=3)
-
-            a = self.saha(theta, self.el[ii].eion[0], u[0], u[1], pe)
-            b = self.saha(theta, self.el[ii].eion[1], u[1], u[2], pe)
-
-            c=1.+a*(1.+b) # fraction of n0/ntot
-
-            pp[ii]=alfai/c # abund /ntot (partial pressure of neutral species ii)
-
-            # 1*n1 + 2*n2 + ... j*n_j so we count how many electrons
-            # come from each ionized species
-
-            g1 += pp[ii]*a*(1.+2.*b)
+    def rho_from_pe(self, temp, pe):
+        return rho_from_pe_impl(temp, pe, self.abund, self.pfData.eion,
+                                self.pfData.pf, self.pfData.Tpf, self.rhoFromH,
+                                verbose=self.verbose, prec=self.prec,
+                                Ncontr=self.Ncontr)
 
 
-        a=1.+g2+g3
-        e=g2/g5*g4
-        b=2.0*(1.0 + e)
-        c=g5
-        d=g2-g3
-        c1=c*b*b+a*d*b-e*a*a
-        c2=2.*a*e-d*b+a*b*g1
-        c3=-(e+b*g1)
-        f1=0.5*c2/c1
-        f1=-f1+self.sign(1.0,c1)*sqrt(f1*f1-c3/c1)
-        f5=(1.0-a*f1)/b
-
-        f4=e*f5
-        f3=g3*f1
-        f2=g2*f1
-        fe=f2-f3+f4+g1
-        phtot=pe/fe
-
-        # Refinement by Wittmann
-        if(f5 <= 1.e-5):
-            diff = 1.0; const6=g5/pe*f1*f1; const7=f2-f3+g1; it = 0
-
-            while((diff > 1.e-5) and (it < 5)):
-                of5 = f5
-                f5=phtot*const6
-                f4=e*f5
-                fe=const7+f4
-                phtot=pe/fe
-                diff = 0.5 * fabs(f5-of5) / (f5 + of5)
-                it += 1
-
-        pg=pe*(1.0+(f1+f2+f3+f4+f5+self.ab_others)/fe)
-
-        # Store the partial pressures of H too
-
-        pp[self.ncontr+0] = f1    #  p(h)/p(h')
-        pp[self.ncontr+1] = f2    #  p(h+)/p(h')
-        pp[self.ncontr+2] = f5    #  p(h2)/p(h')
-        pp[self.ncontr+3] = f3    #  p(h-)/p(h')
-        pp[self.ncontr+4] = phtot #  p(h') (total hydrogen!)
-        pp[self.ncontr+5] = fe #  p(h') (total hydrogen!)
+    def rho_from_pg(self, temp, pg):
+        pe, fe_out = pe_from_pg_impl(temp, pg, self.abund, self.pfData.eion,
+                                     self.pfData.pf, self.pfData.Tpf,
+                                     verbose=self.verbose, prec=self.prec,
+                                     Ncontr=self.Ncontr)
+        rho = pe * self.rhoFromH / (fe_out * temp)
+        return rho
 
 
-        return pg, pp
+    def get_H6_pops(self, t, pgas, pe):
 
-    # ----------------------------------------------------------------------------------------
+        # Solve ionization for H
+        n, u = self.get_X_parts(0, t, pgas, pe, divide_by_u=False, return_u=True)
 
-    def getXparts(self, iatom, t, pg, pe, divide_by_u = False, only = 0, return_u = False):
+        # Define output array
+        res = np.empty(6)
+        res[-1] = n[1] # number of protons
 
-        # Precompute partial densities of atoms, electrons
-        # and partial density of iatom with the abundance
+        ratios = np.empty(5)
+        # Solve level populations for the 5 first levels of H
+        for ii in range(5):
+            ratios[ii] = Boltzmann(t, u[0], hStatg[ii], hEnergy[ii])
 
-        TBK = t * self.BK; xna = (pg-pe) / TBK; xne = pe / TBK
-        n_tot = xna * self.ABUND[iatom] / self.abtot
+        # particle conservation (with 6 levels in H this line has no effect)
+        #ratios /= ratios.sum()
+        # Multiply the neutral H population by the ratios of level populations
+        res[0:5] = n[0] * ratios
 
-
-
-        # Partition function
-
-        u = self.partition_f(iatom, t, only=only)
-        nLev = u.size
-
-
-        # Solve saha and get the partial density of each ionized stage
-
-        xpa = np.empty(nLev, dtype='float64')
-        xpa[0] = 1.0
-
-        for ii in range(1, nLev):
-            xpa[ii] = self.nsaha(t, xne, u[ii-1], u[ii], self.el[iatom].eion[ii-1])
-
-        for ii in range(nLev-1, 0, -1):
-            xpa[0] = 1.0 + xpa[0]*xpa[ii]
-
-        xpa[0] = 1.0 / xpa[0]
-
-        for ii in range(1, nLev):
-            xpa[ii] *= xpa[ii-1]
+        return res
 
 
-        # Now that we have the ratios between ionized stages, multiply by the partial
-        # density of iatom. Divide by the partition function if needed
+    def get_X_parts(self, iatom, t, pg, pe,
+                    divide_by_u=False, only=0, return_u=False):
 
-        if(divide_by_u):
-            xpa[:] *= n_tot / u[:]
-        else:
-            xpa *= n_tot
+        xpa, u = get_X_parts(iatom, t, pg, pe, self.abund, self.pfData.eion,
+                             self.pfData.pf, self.pfData.Tpf,
+                             divide_by_u=divide_by_u, only=only)
 
-        if(return_u): return xpa, u
-        else: return xpa
+        if(return_u):
+            return xpa, u
+        return xpa
 
-    # ----------------------------------------------------------------------------------------
 
-    def getBackgroundPartials(self, t, pg, pe, divide_by_u = True):
+    def get_background_partials(self, t, pg, pe, divide_by_u=True):
 
-        n = np.empty(17, dtype='float64')
-        tbk = t * self.BK
+        n = np.empty(17)
+        tbk = t * BK
 
         # --- He/He+/He++ ---
-
-        xpa = self.getXparts(1, t, pg, pe, divide_by_u = divide_by_u)
-        n[3] = xpa[0]; n[4] = xpa[1]; n[5] = xpa[2]
+        xpa = self.get_X_parts(1, t, pg, pe, divide_by_u=divide_by_u)
+        n[3] = xpa[0]
+        n[4] = xpa[1]
+        n[5] = xpa[2]
 
         # --- C ---
-
-        xpa = self.getXparts(5, t, pg, pe, divide_by_u = divide_by_u)
+        xpa = self.get_X_parts(5, t, pg, pe, divide_by_u=divide_by_u)
         n[6] = xpa[0]
 
-
         # --- Al ---
-
-        xpa = self.getXparts(12, t, pg, pe, divide_by_u = divide_by_u)
+        xpa = self.get_X_parts(12, t, pg, pe, divide_by_u=divide_by_u)
         n[7] = xpa[0]
 
-
         # --- Si/Si+ ---
-
-        xpa = self.getXparts(13, t, pg, pe, divide_by_u = divide_by_u)
-        n[8] = xpa[0]; n[9] = xpa[1]
-
+        xpa = self.get_X_parts(13, t, pg, pe, divide_by_u=divide_by_u)
+        n[8] = xpa[0]
+        n[9] = xpa[1]
 
         # --- Ca/Ca+ ---
-
-        xpa = self.getXparts(19, t, pg, pe, divide_by_u = divide_by_u)
-        n[10] = xpa[0]; n[11] = xpa[1]
-
+        xpa = self.get_X_parts(19, t, pg, pe, divide_by_u=divide_by_u)
+        n[10] = xpa[0]
+        n[11] = xpa[1]
 
         # --- Mg/Mg+ ---
-
-        xpa = self.getXparts(11, t, pg, pe, divide_by_u = divide_by_u)
-        n[12] = xpa[0]; n[13] = xpa[1]
-
+        xpa = self.get_X_parts(11, t, pg, pe, divide_by_u=divide_by_u)
+        n[12] = xpa[0]
+        n[13] = xpa[1]
 
         # --- Fe ---
-
-        xpa = self.getXparts(25, t, pg, pe, divide_by_u = divide_by_u)
+        xpa = self.get_X_parts(25, t, pg, pe, divide_by_u=divide_by_u)
         n[14] = xpa[0]
 
-
         # --- N ---
-
-        xpa = self.getXparts(6, t, pg, pe, divide_by_u = divide_by_u)
+        xpa = self.get_X_parts(6, t, pg, pe, divide_by_u=divide_by_u)
         n[15] = xpa[0]
 
-
         # --- O ---
-
-        xpa = self.getXparts(7, t, pg, pe, divide_by_u = divide_by_u)
+        xpa = self.get_X_parts(7, t, pg, pe, divide_by_u=divide_by_u)
         n[16] = xpa[0]
 
-
         # Get H- and other H densities
+        pfH = 0.5 if divide_by_u else 1.0
 
-        if(divide_by_u): pfH = 0.5
-        else: pfH = 1.0
-
-        dum, pp = self.gasc(t, pe)
-        n[0] = pp[self.ncontr+0]*pp[self.ncontr+4] / tbk * pfH # H / pf[H]
-        n[1] = pp[self.ncontr+1]*pp[self.ncontr+4] / tbk       # H+/ 1.0
-        n[2] = pp[self.ncontr+3]*pp[self.ncontr+4] / tbk       # H-/ 1.0
-
-
+        dum, pp = gasc(t, pe, self.abund, self.pfData.eion,
+                       self.pfData.pf, self.pfData.Tpf,
+                       verbose=self.verbose, prec=self.prec,
+                       Ncontr=self.Ncontr)
+        n[0] = pp[self.Ncontr+0]*pp[self.Ncontr+4] / tbk * pfH # H / pf[H]
+        n[1] = pp[self.Ncontr+1]*pp[self.Ncontr+4] / tbk       # H+/ 1.0
+        n[2] = pp[self.Ncontr+3]*pp[self.Ncontr+4] / tbk       # H-/ 1.0
         return n
 
-    # ----------------------------------------------------------------------------------------
-
-    def contOpacity(self, iT, Pgas, Pe, w):
+    def cont_opacity(self, iT, Pgas, Pe, w):
 
         # Some definitions
-
-        TK = iT * self.BK; TKEV = TK / self.EV
-        HTK = self.HH/TK; TLOG = log(iT);
-        xna = (Pgas-Pe) / TK; xne = Pe / TK
-
+        TK = iT * BK
+        TKEV = TK / EV
+        HTK = HH / TK
+        TLOG = np.log(iT)
+        xna = (Pgas-Pe) / TK
+        xne = Pe / TK
 
         # Partial densities of background absorvers,
         # divided by the partition functions
-
-        n = self.getBackgroundPartials(iT, Pgas, Pe, divide_by_u = True)
-
+        n = self.get_background_partials(iT, Pgas, Pe, divide_by_u=True)
 
         # get background opacity
-
-        opac, scat = cop(iT,  TKEV, TK, HTK, TLOG, xna, xne, w, n[0], n[1],
-                              n[2], n[3],n[4], n[5], n[6], n[7], n[8], n[9], n[10], n[11],
-                              n[12], n[13], n[14], n[15], n[16])
-
+        opac, scat = cop(iT, TKEV, TK, HTK, TLOG, xna, xne, w, *n)
         return opac
-
 
 
 
@@ -1321,7 +1327,7 @@ def H2RAOP(  XH1,  FREQ,  T,  TKEV,  TLOG):
 
 @njit(cache=True)
 def cop( T,  TKEV,  TK,  HKT,  TLOG, XNA,  XNE,  WLGRID, H1,  H2,  HMIN,  HE1,  HE2,
-	 HE3,  C1,  AL1,  SI1,  SI2,CA1,  CA2,  MG1,  MG2,  FE1, N1,  O1):
+	 HE3,  C1,  AL1,  SI1,  SI2, CA1,  CA2,  MG1,  MG2,  FE1, N1,  O1):
 
     nW = len(WLGRID)
     OPACITY = np.zeros(nW)
