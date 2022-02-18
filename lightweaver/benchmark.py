@@ -8,7 +8,7 @@ from weno4 import weno4
 from .atmosphere import Atmosphere, ScaleType
 from .atomic_set import RadiativeSet
 from .config import params as rcParams
-from .config import get_config_path, update_config_file
+from .config import get_home_config_path, update_config_file
 from .fal import Falc82
 from .rh_atoms import CaII_atom, H_6_atom
 from .simd_management import get_available_simd_suffixes
@@ -102,7 +102,7 @@ def benchmark(Niter=50, Nrep=3, verbose=True, writeConfig=True, warmUp=True):
         impl = suffixes[minIdx]
         rcParams['SimdImpl'] = impl
 
-        path = get_config_path()
+        path = get_home_config_path()
         if verbose:
             print(f'Writing config to \'{path}\'...')
         update_config_file(path)
