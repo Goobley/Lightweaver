@@ -1,10 +1,11 @@
 import os
-import os.path as path
+import shutil
 import sys
 import warnings
 from copy import copy
 from distutils.file_util import copy_file
 from distutils.sysconfig import get_config_var
+from os import path
 from typing import Dict, List, Union
 
 import numpy as np
@@ -33,7 +34,8 @@ from setuptools.extension import Extension
 # build_ext, we can check for our own library type and not add the `PyInit`
 # symbol when `build_ext.get_export_symbols` is called.
 
-buildDir = 'LwBuild'
+BuildDir = 'LwBuild'
+CI_BUILD = 'LW_CI_BUILD' in os.environ
 
 class LwSharedLibraryNoExtension(Extension):
     pass
@@ -160,13 +162,13 @@ posixLinkerArgs = {
 posixLocalArgs = ['-march=native', '-mtune=native']
 posixArgs : Dict[str, Union[str, List[str]]] = {
    'baseCompileArgs': ['-std=c++17', '-Wno-sign-compare']
-                      + (posixCiArgs[sys.platform] if 'LW_CI_BUILD' in os.environ
-                         else posixLocalArgs),
+                      + (posixCiArgs[sys.platform] if CI_BUILD
+                                                   else posixLocalArgs),
    'SSE2Args': ['-msse2'],
    'AVX2FMAArgs': ['-mavx2', '-mfma'],
    'AVX512Args': ['-mavx512f', '-mavx512dq', '-mfma'],
    'libs': ['dl', 'enkiTS'],
-   'libDirs': [path.join(buildDir, 'lightweaver')],
+   'libDirs': [path.join(BuildDir, 'lightweaver')],
    'linkArgs': posixLinkerArgs[sys.platform],
    'stubDefinePrefix': '-DLW_MODULE_STUB_NAME=',
    'lwCoreDefine': ['-DLW_CORE_LIB'],
@@ -179,7 +181,7 @@ msvcArgs : Dict[str, Union[str, List[str]]] = {
    'AVX2FMAArgs': ['/arch:AVX2'],
    'AVX512Args': ['/arch:AVX512'],
    'libs': ['libenkiTS'],
-   'libDirs': [path.join(buildDir, 'lightweaver')],
+   'libDirs': [path.join(BuildDir, 'lightweaver')],
    'linkArgs': ['/DEBUG:FULL'],
    'stubDefinePrefix': '/DLW_MODULE_STUB_NAME=',
    'lwCoreDefine': ['/DLW_CORE_LIB'],
@@ -257,6 +259,9 @@ def extension_list(args):
                                 optional=True))
     return lwExts
 
+if CI_BUILD and path.exists(BuildDir) and path.isdir(BuildDir):
+    shutil.rmtree(BuildDir)
+
 setup(name='lightweaver',
       setup_requires=['setuptools_scm'],
       use_scm_version=True,
@@ -276,6 +281,6 @@ setup(name='lightweaver',
       python_requires='>=3.8',
       options={
           'build': {
-              'build_lib': buildDir
+              'build_lib': BuildDir
           }
       })
