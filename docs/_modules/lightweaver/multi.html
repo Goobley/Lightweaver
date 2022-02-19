@@ -69,13 +69,15 @@
            <div itemprop="articleBody">
              
   <h1>Source code for lightweaver.multi</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">lightweaver.constants</span> <span class="k">as</span> <span class="nn">C</span>
-<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span><span class="p">,</span> <span class="n">deepcopy</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+<span></span><span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">lightweaver.constants</span> <span class="k">as</span> <span class="nn">C</span>
 <span class="kn">from</span> <span class="nn">.atmosphere</span> <span class="kn">import</span> <span class="n">Atmosphere</span><span class="p">,</span> <span class="n">ScaleType</span>
+
 
 <div class="viewcode-block" id="MultiMetadata"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.multi.MultiMetadata">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">MultiMetadata</span><span class="p">:</span>
@@ -98,7 +100,8 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    meta : MultiMetadata</span>
-<span class="sd">        Additional metadata from the MULTI metadata that doesn&#39;t appear in a Lightweaver atmosphere (name, gravitational acceleration used).</span>
+<span class="sd">        Additional metadata from the MULTI metadata that doesn&#39;t appear in a</span>
+<span class="sd">        Lightweaver atmosphere (name, gravitational acceleration used).</span>
 <span class="sd">    atmos : Atmosphere</span>
 <span class="sd">        The atmosphere loaded into the standard Lightweaver format.</span>
 
@@ -113,7 +116,7 @@
     <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Atmosphere file not found (</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_line</span><span class="p">(</span><span class="n">commentPattern</span><span class="o">=</span><span class="s1">&#39;^\s*\*&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_line</span><span class="p">(</span><span class="n">commentPattern</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;^\s*\*&#39;</span><span class="p">):</span>
         <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">line</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">commentPattern</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
@@ -178,14 +181,6 @@
                                <span class="n">hydrogenPops</span><span class="o">=</span><span class="n">hPops</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">atmos</span><span class="p">)</span></div>
-
-
-
-
-
-
-
-
 </pre></div>
 
            </div>
@@ -195,7 +190,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020, C. Osborne.</p>
+    <p>&#169; Copyright 2022, C. Osborne.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

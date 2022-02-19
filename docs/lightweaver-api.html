@@ -50,15 +50,20 @@
 <li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.atomic_set">lightweaver.atomic_set module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.atomic_table">lightweaver.atomic_table module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.barklem">lightweaver.barklem module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.benchmark">lightweaver.benchmark module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.broadening">lightweaver.broadening module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.collisional_rates">lightweaver.collisional_rates module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.config">lightweaver.config module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.fal">lightweaver.fal module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.iterate_ctx">lightweaver.iterate_ctx module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.iteration_update">lightweaver.iteration_update module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.molecule">lightweaver.molecule module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.multi">lightweaver.multi module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.nr_update">lightweaver.nr_update module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.rh_atoms">lightweaver.rh_atoms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.simd_management">lightweaver.simd_management module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.utils">lightweaver.utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.witt">lightweaver.witt module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#lightweaver-witt-module">lightweaver.witt module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.zeeman">lightweaver.zeeman module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.LwCompiled">lightweaver.LwCompiled module</a></li>
 </ul>
@@ -177,7 +182,7 @@ atmosphere (Tesla).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="lightweaver.atmosphere.Atmosphere.gammaB">
 <span class="sig-name descname"><span class="pre">gammaB</span></span><a class="headerlink" href="#lightweaver.atmosphere.Atmosphere.gammaB" title="Permalink to this definition"></a></dt>
-<dd><p>Co-altitude of magnetic field vector (radians) throughout the
+<dd><p>Co-altitude (latitude) of magnetic field vector (radians) throughout the
 atmosphere from the local vertical.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -839,7 +844,8 @@ condition (in the case of a callable)</p>
 <dt class="sig sig-object py" id="lightweaver.atmosphere.Layout">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lightweaver.atmosphere.</span></span><span class="sig-name descname"><span class="pre">Layout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Ndim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xLowerBc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.atmosphere.BoundaryCondition" title="lightweaver.atmosphere.BoundaryCondition"><span class="pre">lightweaver.atmosphere.BoundaryCondition</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">xUpperBc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.atmosphere.BoundaryCondition" title="lightweaver.atmosphere.BoundaryCondition"><span class="pre">lightweaver.atmosphere.BoundaryCondition</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">yLowerBc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.atmosphere.BoundaryCondition" title="lightweaver.atmosphere.BoundaryCondition"><span class="pre">lightweaver.atmosphere.BoundaryCondition</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">yUpperBc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.atmosphere.BoundaryCondition" title="lightweaver.atmosphere.BoundaryCondition"><span class="pre">lightweaver.atmosphere.BoundaryCondition</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">zLowerBc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.atmosphere.BoundaryCondition" title="lightweaver.atmosphere.BoundaryCondition"><span class="pre">lightweaver.atmosphere.BoundaryCondition</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">zUpperBc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.atmosphere.BoundaryCondition" title="lightweaver.atmosphere.BoundaryCondition"><span class="pre">lightweaver.atmosphere.BoundaryCondition</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stratifications</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lightweaver.atmosphere.Stratifications" title="lightweaver.atmosphere.Stratifications"><span class="pre">lightweaver.atmosphere.Stratifications</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/atmosphere.html#Layout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.atmosphere.Layout" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Storage for basic atmospheric parameters whose presence is determined by problem dimensionality, boundary conditions and optional stratifications.</p>
+<p>Storage for basic atmospheric parameters whose presence is determined by
+problem dimensionality, boundary conditions and optional stratifications.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="lightweaver.atmosphere.Layout.Ndim">
 <span class="sig-name descname"><span class="pre">Ndim</span></span><a class="headerlink" href="#lightweaver.atmosphere.Layout.Ndim" title="Permalink to this definition"></a></dt>
@@ -909,7 +915,8 @@ condition (in the case of a callable)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="lightweaver.atmosphere.Layout.vz">
 <span class="sig-name descname"><span class="pre">vz</span></span><a class="headerlink" href="#lightweaver.atmosphere.Layout.vz" title="Permalink to this definition"></a></dt>
-<dd><p>z component of plasma velocity (present for all Ndim) [m/s]. Aliased to <cite>vlos</cite> when <cite>Ndim==1</cite></p>
+<dd><p>z component of plasma velocity (present for all Ndim) [m/s]. Aliased to
+<cite>vlos</cite> when <cite>Ndim==1</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>np.ndarray</p>
@@ -1210,7 +1217,7 @@ Commonly used for coronal situations.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="lightweaver.atmosphere.get_top_pressure">
-<span class="sig-prename descclassname"><span class="pre">lightweaver.atmosphere.</span></span><span class="sig-name descname"><span class="pre">get_top_pressure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.witt.witt" title="lightweaver.witt.witt"><span class="pre">lightweaver.witt.witt</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ne</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/atmosphere.html#get_top_pressure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.atmosphere.get_top_pressure" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">lightweaver.atmosphere.</span></span><span class="sig-name descname"><span class="pre">get_top_pressure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">lightweaver.wittmann.Wittmann</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ne</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/atmosphere.html#get_top_pressure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.atmosphere.get_top_pressure" title="Permalink to this definition"></a></dt>
 <dd><p>Return a pressure for the top of atmosphere.
 For internal use.</p>
 <dl class="simple">
@@ -1793,7 +1800,8 @@ optimised voigt implementation for the default case.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="lightweaver.atomic_model.LineProfileState.vlosMu">
 <span class="sig-name descname"><span class="pre">vlosMu</span></span><a class="headerlink" href="#lightweaver.atomic_model.LineProfileState.vlosMu" title="Permalink to this definition"></a></dt>
-<dd><p>Bulk velocity projected onto each ray in the angular integration scheme [m/s] in an array of [Nmu, Nspace].</p>
+<dd><p>Bulk velocity projected onto each ray in the angular integration scheme
+[m/s] in an array of [Nmu, Nspace].</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>np.ndarray</p>
@@ -1969,7 +1977,8 @@ using atom.vBroad if not.</p></li>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lightweaver.atomic_set.</span></span><span class="sig-name descname"><span class="pre">AtomicState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.atomic_model.AtomicModel" title="lightweaver.atomic_model.AtomicModel"><span class="pre">lightweaver.atomic_model.AtomicModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">abundance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nStar</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nTotal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detailed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radiativeRates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/atomic_set.html#AtomicState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.atomic_set.AtomicState" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Container for the state of an atomic model during a simulation.</p>
-<p>This hold both the model, as well as the simulations properties such as abundance, populations and radiative rates.</p>
+<p>This hold both the model, as well as the simulations properties such as
+abundance, populations and radiative rates.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="lightweaver.atomic_set.AtomicState.model">
 <span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#lightweaver.atomic_set.AtomicState.model" title="Permalink to this definition"></a></dt>
@@ -2050,13 +2059,14 @@ stored under (i, j) and (j, i) for each transition.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lightweaver.atomic_set.AtomicState.dimensioned_unit_view">
-<span class="sig-name descname"><span class="pre">dimensioned_unit_view</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/atomic_set.html#AtomicState.dimensioned_unit_view"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.atomic_set.AtomicState.dimensioned_unit_view" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">dimensioned_unit_view</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/atomic_set.html#AtomicState.dimensioned_unit_view"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.atomic_set.AtomicState.dimensioned_unit_view" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a view over the contents of AtomicState reshaped so all data
 has the correct (1/2/3D) dimensionality for the atmospheric model,
 and the correct <cite>astropy.units</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>shape</strong> (<em>tuple</em>) – The shape to reshape to, this can be obtained from Atmosphere.structure.dimensioned_shape</p>
+<dd class="field-odd"><p><strong>shape</strong> (<em>tuple</em>) – The shape to reshape to, this can be obtained from
+Atmosphere.structure.dimensioned_shape</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>state</strong> – An instance of self with the arrays reshaped to the appropriate
@@ -2076,7 +2086,8 @@ has the correct (1/2/3D) dimensionality for the atmospheric model, as
 these are all stored under a flat scheme.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>shape</strong> (<em>tuple</em>) – The shape to reshape to, this can be obtained from Atmosphere.structure.dimensioned_shape</p>
+<dd class="field-odd"><p><strong>shape</strong> (<em>tuple</em>) – The shape to reshape to, this can be obtained from
+Atmosphere.structure.dimensioned_shape</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>state</strong> – An instance of self with the arrays reshaped to the appropriate
@@ -2152,7 +2163,8 @@ has the correct (1/2/3D) dimensionality for the atmospheric model,
 and the correct <cite>astropy.units</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>shape</strong> (<em>tuple</em>) – The shape to reshape to, this can be obtained from Atmosphere.structure.dimensioned_shape</p>
+<dd class="field-odd"><p><strong>shape</strong> (<em>tuple</em>) – The shape to reshape to, this can be obtained from
+Atmosphere.structure.dimensioned_shape</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>state</strong> – An instance of self with the arrays reshaped to the appropriate
@@ -2172,7 +2184,8 @@ has the correct (1/2/3D) dimensionality for the atmospheric model, as
 these are all stored under a flat scheme.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>shape</strong> (<em>tuple</em>) – The shape to reshape to, this can be obtained from Atmosphere.structure.dimensioned_shape</p>
+<dd class="field-odd"><p><strong>shape</strong> (<em>tuple</em>) – The shape to reshape to, this can be obtained from
+Atmosphere.structure.dimensioned_shape</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>state</strong> – An instance of self with the arrays reshaped to the appropriate
@@ -2369,7 +2382,10 @@ Additionally computes a self-consistent LTE electron density.</p>
 <li><p><strong>mols</strong> (<a class="reference internal" href="#lightweaver.molecule.MolecularTable" title="lightweaver.molecule.MolecularTable"><em>MolecularTable</em></a><em>, </em><em>optional</em>) – Molecules to be included in the populations (default: None)</p></li>
 <li><p><strong>nlteStartingPops</strong> (<em>Dict</em><em>[</em><a class="reference internal" href="#lightweaver.atomic_table.Element" title="lightweaver.atomic_table.Element"><em>Element</em></a><em>, </em><em>np.ndarray</em><em>]</em><em>, </em><em>optional</em>) – Starting population override for any active or detailed static
 species.</p></li>
-<li><p><strong>direct</strong> (<em>bool</em>) – Whether to use the direct electron density solver (essentially, Lambda iteration for the fixpoint), this may require many more iterations than the Newton-Krylov solver used otherwise, but may also be more robust.</p></li>
+<li><p><strong>direct</strong> (<em>bool</em>) – Whether to use the direct electron density solver (essentially,
+Lambda iteration for the fixpoint), this may require many more
+iterations than the Newton-Krylov solver used otherwise, but may
+also be more robust.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -2537,7 +2553,7 @@ populations converged (default: 1e-3)</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="lightweaver.atomic_set.SpectrumConfiguration">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lightweaver.atomic_set.</span></span><span class="sig-name descname"><span class="pre">SpectrumConfiguration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radSet</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.atomic_set.RadiativeSet" title="lightweaver.atomic_set.RadiativeSet"><span class="pre">lightweaver.atomic_set.RadiativeSet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lightweaver.atomic_model.AtomicModel" title="lightweaver.atomic_model.AtomicModel"><span class="pre">lightweaver.atomic_model.AtomicModel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transWavelengths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lightweaver.atomic_table.Element" title="lightweaver.atomic_table.Element"><span class="pre">lightweaver.atomic_table.Element</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blueIdx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lightweaver.atomic_table.Element" title="lightweaver.atomic_table.Element"><span class="pre">lightweaver.atomic_table.Element</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activeTrans</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lightweaver.atomic_table.Element" title="lightweaver.atomic_table.Element"><span class="pre">lightweaver.atomic_table.Element</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activeWavelengths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lightweaver.atomic_table.Element" title="lightweaver.atomic_table.Element"><span class="pre">lightweaver.atomic_table.Element</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/atomic_set.html#SpectrumConfiguration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.atomic_set.SpectrumConfiguration" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lightweaver.atomic_set.</span></span><span class="sig-name descname"><span class="pre">SpectrumConfiguration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radSet</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.atomic_set.RadiativeSet" title="lightweaver.atomic_set.RadiativeSet"><span class="pre">lightweaver.atomic_set.RadiativeSet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lightweaver.atomic_model.AtomicModel" title="lightweaver.atomic_model.AtomicModel"><span class="pre">lightweaver.atomic_model.AtomicModel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transWavelengths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lightweaver.atomic_table.Element" title="lightweaver.atomic_table.Element"><span class="pre">lightweaver.atomic_table.Element</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blueIdx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lightweaver.atomic_table.Element" title="lightweaver.atomic_table.Element"><span class="pre">lightweaver.atomic_table.Element</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redIdx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lightweaver.atomic_table.Element" title="lightweaver.atomic_table.Element"><span class="pre">lightweaver.atomic_table.Element</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activeTrans</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lightweaver.atomic_table.Element" title="lightweaver.atomic_table.Element"><span class="pre">lightweaver.atomic_table.Element</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activeWavelengths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lightweaver.atomic_table.Element" title="lightweaver.atomic_table.Element"><span class="pre">lightweaver.atomic_table.Element</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/atomic_set.html#SpectrumConfiguration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.atomic_set.SpectrumConfiguration" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Container for the configuration of common wavelength grid and species
 active at each wavelength.</p>
@@ -2600,6 +2616,19 @@ array.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.atomic_set.SpectrumConfiguration.redIdx">
+<span class="sig-name descname"><span class="pre">redIdx</span></span><a class="headerlink" href="#lightweaver.atomic_set.SpectrumConfiguration.redIdx" title="Permalink to this definition"></a></dt>
+<dd><p>The index at which each local grid has ended in the global wavelength
+array (exclusive,
+i.e. transWavelength = globalWavelength[blueIdx:redIdx]).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Dict[(<a class="reference internal" href="#lightweaver.atomic_table.Element" title="lightweaver.atomic_table.Element">Element</a>, i, j), int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="lightweaver.atomic_set.SpectrumConfiguration.activeTrans">
 <span class="sig-name descname"><span class="pre">activeTrans</span></span><a class="headerlink" href="#lightweaver.atomic_set.SpectrumConfiguration.activeTrans" title="Permalink to this definition"></a></dt>
 <dd><p>Whether this transition is ever active (contributing in either an
@@ -2622,11 +2651,35 @@ active or detailed static sense) over the range of wavelength.</p>
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.atomic_set.SpectrumConfiguration.Properties">
+<span class="sig-name descname"><span class="pre">Properties</span></span><a class="headerlink" href="#lightweaver.atomic_set.SpectrumConfiguration.Properties" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">----------</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.atomic_set.SpectrumConfiguration.NprdTrans">
+<span class="sig-name descname"><span class="pre">NprdTrans</span></span><a class="headerlink" href="#lightweaver.atomic_set.SpectrumConfiguration.NprdTrans" title="Permalink to this definition"></a></dt>
+<dd><p>The number of PRD transitions present on the active transitions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="lightweaver.atomic_set.SpectrumConfiguration.subset_configuration">
 <span class="sig-name descname"><span class="pre">subset_configuration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wavelengths</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#lightweaver.atomic_set.SpectrumConfiguration" title="lightweaver.atomic_set.SpectrumConfiguration"><span class="pre">lightweaver.atomic_set.SpectrumConfiguration</span></a></span></span><a class="reference internal" href="_modules/lightweaver/atomic_set.html#SpectrumConfiguration.subset_configuration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.atomic_set.SpectrumConfiguration.subset_configuration" title="Permalink to this definition"></a></dt>
 <dd><p>Computes a SpectrumConfiguration for a sub-region of the global wavelength array.</p>
-<p>This is typically used for computing a final formal solution on a single ray through the atmosphere. In this situation all lines are set to contribute throughout the entire grid, to avoid situations where small jumps in intensity occur from lines being cut off.</p>
+<p>This is typically used for computing a final formal solution on a single
+ray through the atmosphere. In this situation all lines are set to
+contribute throughout the entire grid, to avoid situations where small
+jumps in intensity occur from lines being cut off.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>wavelengths</strong> (<em>np.ndarray</em>) – The grid on which to produce the new SpectrumConfiguration.</p>
@@ -3052,7 +3105,8 @@ character names.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="lightweaver.barklem.Barklem.get_active_cross_section">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_active_cross_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.atomic_model.AtomicModel" title="lightweaver.atomic_model.AtomicModel"><span class="pre">AtomicModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">line</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLine" title="lightweaver.atomic_model.AtomicLine"><span class="pre">AtomicLine</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/lightweaver/barklem.html#Barklem.get_active_cross_section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.barklem.Barklem.get_active_cross_section" title="Permalink to this definition"></a></dt>
-<dd><p>Returns the cross section data for use in the Van der Waals collisional broadening routines.
+<dd><p>Returns the cross section data for use in the Van der Waals collisional
+broadening routines.
 See:</p>
 <blockquote>
 <div><ul class="simple">
@@ -3093,6 +3147,29 @@ question.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lightweaver.barklem.</span></span><span class="sig-name descname"><span class="pre">BarklemTable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neff0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/barklem.html#BarklemTable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.barklem.BarklemTable" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Storage for each table of Barklem data for Van der Waals approximation.</p>
+</dd></dl>
+
+</section>
+<section id="module-lightweaver.benchmark">
+<span id="lightweaver-benchmark-module"></span><h2>lightweaver.benchmark module<a class="headerlink" href="#module-lightweaver.benchmark" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="lightweaver.benchmark.benchmark">
+<span class="sig-prename descclassname"><span class="pre">lightweaver.benchmark.</span></span><span class="sig-name descname"><span class="pre">benchmark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Niter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Nrep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">writeConfig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warmUp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/benchmark.html#benchmark"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.benchmark.benchmark" title="Permalink to this definition"></a></dt>
+<dd><p>Benchmark the various SIMD implementations for Lightweaver’s formal solver
+and iteration functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Niter</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of iterations to use for each scheme. (Default: 50)</p></li>
+<li><p><strong>Nrep</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of repetitions to average for each scheme. (Default: 3)</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print information as the function runs. (Default: True)</p></li>
+<li><p><strong>writeConfig</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to writ the optimal method to the user’s config file. (Default:
+True)</p></li>
+<li><p><strong>warmUp</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to run a Context first (discarded) to ensure that all numba jit
+code is jitted and warm. (Default: True)</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -3437,8 +3514,419 @@ temperature grid.</p>
 </dd></dl>
 
 </section>
+<section id="module-lightweaver.config">
+<span id="lightweaver-config-module"></span><h2>lightweaver.config module<a class="headerlink" href="#module-lightweaver.config" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="lightweaver.config.get_config_path">
+<span class="sig-prename descclassname"><span class="pre">lightweaver.config.</span></span><span class="sig-name descname"><span class="pre">get_config_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/lightweaver/config.html#get_config_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.config.get_config_path" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the path to the <cite>lightweaverrc</cite> configuration file, or None if one
+cannot be found.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lightweaver.config.get_home_config_path">
+<span class="sig-prename descclassname"><span class="pre">lightweaver.config.</span></span><span class="sig-name descname"><span class="pre">get_home_config_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/lightweaver/config.html#get_home_config_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.config.get_home_config_path" title="Permalink to this definition"></a></dt>
+<dd><p>Return the location where the user’s configuration data <em>should</em> be stored,
+whether it is currently present or not.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lightweaver.config.set_most_advanced_simd_impl">
+<span class="sig-prename descclassname"><span class="pre">lightweaver.config.</span></span><span class="sig-name descname"><span class="pre">set_most_advanced_simd_impl</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/config.html#set_most_advanced_simd_impl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.config.set_most_advanced_simd_impl" title="Permalink to this definition"></a></dt>
+<dd><p>Picks the most advanced SIMD extensions (as detected by NumPy), that can be
+used on this system. This does not guarantee fastest (see the note in
+<cite>update_config_dict</cite>).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lightweaver.config.update_config_dict">
+<span class="sig-prename descclassname"><span class="pre">lightweaver.config.</span></span><span class="sig-name descname"><span class="pre">update_config_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configPath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/config.html#update_config_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.config.update_config_dict" title="Permalink to this definition"></a></dt>
+<dd><p>Updates the configuration dict (<cite>lightweaver.ConfigDict</cite>), from the config
+file. If there is no config file, the defaults are used, and the most
+advanced instruction set is chosen for the SimdImpl. If the SimdImpl in the
+config file is too advanced for the current CPU, the maximum available is
+chosen.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>configPath</strong> (<em>str</em><em>, </em><em>optional</em>) – The path to the config file, or None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lightweaver.config.update_config_file">
+<span class="sig-prename descclassname"><span class="pre">lightweaver.config.</span></span><span class="sig-name descname"><span class="pre">update_config_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configPath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/config.html#update_config_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.config.update_config_file" title="Permalink to this definition"></a></dt>
+<dd><p>Updates the config file to the current values of the config dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>configPath</strong> (<em>str</em>) – The path to the config file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 <section id="module-lightweaver.fal">
 <span id="lightweaver-fal-module"></span><h2>lightweaver.fal module<a class="headerlink" href="#module-lightweaver.fal" title="Permalink to this headline"></a></h2>
+</section>
+<section id="module-lightweaver.iterate_ctx">
+<span id="lightweaver-iterate-ctx-module"></span><h2>lightweaver.iterate_ctx module<a class="headerlink" href="#module-lightweaver.iterate_ctx" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="lightweaver.iterate_ctx.ConvergenceCriteria">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lightweaver.iterate_ctx.</span></span><span class="sig-name descname"><span class="pre">ConvergenceCriteria</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">JTol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">popsTol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhoTol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/iterate_ctx.html#ConvergenceCriteria"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.iterate_ctx.ConvergenceCriteria" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Abstract base class for determining convergence inside <cite>iterate_ctx_se</cite>. A
+derived variant of this class will be instantiated by <cite>iterate_ctx_se</cite>
+dependent upon its arguments. The default implementation is
+<cite>DefaultConvergenceCriteria</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ctx</strong> (<em>Context</em>) – The context being iterated.</p></li>
+<li><p><strong>JTol</strong> (<em>float</em>) – The value of JTol passed to <cite>iterate_ctx_se</cite>.</p></li>
+<li><p><strong>popsTol</strong> (<em>float</em>) – The value of popsTol passed to <cite>iterate_ctx_se</cite>.</p></li>
+<li><p><strong>rhoTol</strong> (<em>float</em><em> or </em><em>None</em>) – The value of rhoTol passed to <cite>iterate_ctx_se</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="lightweaver.iterate_ctx.ConvergenceCriteria.is_converged">
+<span class="sig-name descname"><span class="pre">is_converged</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">JUpdate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate" title="lightweaver.iteration_update.IterationUpdate"><span class="pre">lightweaver.iteration_update.IterationUpdate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">popsUpdate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate" title="lightweaver.iteration_update.IterationUpdate"><span class="pre">lightweaver.iteration_update.IterationUpdate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">prdUpdate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate" title="lightweaver.iteration_update.IterationUpdate"><span class="pre">lightweaver.iteration_update.IterationUpdate</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/lightweaver/iterate_ctx.html#ConvergenceCriteria.is_converged"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.iterate_ctx.ConvergenceCriteria.is_converged" title="Permalink to this definition"></a></dt>
+<dd><p>This function takes the IterationUpdate objects from
+<cite>ctx.formal_sol_gamma_matrices</cite> and <cite>ctx.stat_equil</cite> and optionally from
+<cite>ctx.prd_redistribute</cite> (or None).  Should return a bool indicated
+whether the Context is sufficiently converged.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="lightweaver.iterate_ctx.DefaultConvergenceCriteria">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lightweaver.iterate_ctx.</span></span><span class="sig-name descname"><span class="pre">DefaultConvergenceCriteria</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">JTol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">popsTol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhoTol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/iterate_ctx.html#DefaultConvergenceCriteria"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.iterate_ctx.DefaultConvergenceCriteria" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lightweaver.iterate_ctx.ConvergenceCriteria" title="lightweaver.iterate_ctx.ConvergenceCriteria"><code class="xref py py-class docutils literal notranslate"><span class="pre">lightweaver.iterate_ctx.ConvergenceCriteria</span></code></a></p>
+<p>Default ConvergenceCriteria implementation. Usually sufficient for
+statistical equilibrium problems, but you may occasionally need to override
+this.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ctx</strong> (<em>Context</em>) – The context being iterated.</p></li>
+<li><p><strong>JTol</strong> (<em>float</em>) – The value of JTol passed to <cite>iterate_ctx_se</cite>.</p></li>
+<li><p><strong>popsTol</strong> (<em>float</em>) – The value of popsTol passed to <cite>iterate_ctx_se</cite>.</p></li>
+<li><p><strong>rhoTol</strong> (<em>float</em><em> or </em><em>None</em>) – The value of rhoTol passed to <cite>iterate_ctx_se</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="lightweaver.iterate_ctx.DefaultConvergenceCriteria.is_converged">
+<span class="sig-name descname"><span class="pre">is_converged</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">JUpdate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate" title="lightweaver.iteration_update.IterationUpdate"><span class="pre">lightweaver.iteration_update.IterationUpdate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">popsUpdate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate" title="lightweaver.iteration_update.IterationUpdate"><span class="pre">lightweaver.iteration_update.IterationUpdate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">prdUpdate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate" title="lightweaver.iteration_update.IterationUpdate"><span class="pre">lightweaver.iteration_update.IterationUpdate</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/lightweaver/iterate_ctx.html#DefaultConvergenceCriteria.is_converged"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.iterate_ctx.DefaultConvergenceCriteria.is_converged" title="Permalink to this definition"></a></dt>
+<dd><p>Returns whether the context is converged.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lightweaver.iterate_ctx.iterate_ctx_se">
+<span class="sig-prename descclassname"><span class="pre">lightweaver.iterate_ctx.</span></span><span class="sig-name descname"><span class="pre">iterate_ctx_se</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Nscatter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NmaxIter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">JTol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.005</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">popsTol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhoTol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prdIterTol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxPrdSubIter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">printInterval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lightweaver.iterate_ctx.ConvergenceCriteria" title="lightweaver.iterate_ctx.ConvergenceCriteria"><span class="pre">lightweaver.iterate_ctx.ConvergenceCriteria</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/iterate_ctx.html#iterate_ctx_se"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.iterate_ctx.iterate_ctx_se" title="Permalink to this definition"></a></dt>
+<dd><p>Iterate a configured Context towards statistical equilibrium solution.
+:param ctx: The context to iterate.
+:type ctx: Context
+:param Nscatter: The number of lambda iterations to perform for an initial estimate of J</p>
+<blockquote>
+<div><p>(default: 3).</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>NmaxIter</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum number of iterations (including Nscatter) to take (default:
+2000).</p></li>
+<li><p><strong>prd</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to perform PRD subiterations to estimate rho for PRD lines
+(default: False).</p></li>
+<li><p><strong>JTol</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum relative change in J from one iteration to the next
+(default: 5e-3).</p></li>
+<li><p><strong>popsTol</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum relative change in an atomic population from one iteration
+to the next (default: 1e-3).</p></li>
+<li><p><strong>rhoTol</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum relative change in rho for a PRD line on the final
+subiteration from one iteration to the next. If None, the change in rho
+will not be considered in judging convergence (default: None).</p></li>
+<li><p><strong>prdIterTol</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum relative change in rho for a PRD line below which PRD
+subiterations will cease for this iteration (default: 1e-2).</p></li>
+<li><p><strong>maxPrdSubIter</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum number of PRD subiterations to make, whether or not rho has
+reached the tolerance of prdIterTol (which isn’t necessary every
+iteration). (Default: 3)</p></li>
+<li><p><strong>printInterval</strong> (<em>float</em><em>, </em><em>optional</em>) – The interval between printing the update size information in seconds. A
+value of 0.0 will print every iteration (default: 0.2).</p></li>
+<li><p><strong>quiet</strong> (<em>bool</em><em>, </em><em>optional</em>) – Overrides any other print arguments and iterates silently if True.
+(Default: False).</p></li>
+<li><p><strong>convergence</strong> (<em>derived ConvergenceCriteria class</em><em>, </em><em>optional</em>) – The ConvergenceCriteria version to be used in determining convergence.
+Will be instantiated by this function, and the <cite>is_converged</cite> method
+will then be used.  (Default: DefaultConvergenceCriteria).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-lightweaver.iteration_update">
+<span id="lightweaver-iteration-update-module"></span><h2>lightweaver.iteration_update module<a class="headerlink" href="#module-lightweaver.iteration_update" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lightweaver.iteration_update.</span></span><span class="sig-name descname"><span class="pre">IterationUpdate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx:</span> <span class="pre">Context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crsw:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">updatedJ:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dJMax:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dJMaxIdx:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">updatedPops:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dPops:</span> <span class="pre">typing.List[float]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dPopsMaxIdx:</span> <span class="pre">typing.List[int]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ngAccelerated:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">updatedNe:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dNeMax:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dNeMaxIdx:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">updatedRho:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NprdSubIter:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dRho:</span> <span class="pre">typing.List[float]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dRhoMaxIdx:</span> <span class="pre">typing.List[int]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">updatedJPrd:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dJPrdMax:</span> <span class="pre">typing.List[float]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dJPrdMaxIdx:</span> <span class="pre">typing.List[int]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/iteration_update.html#IterationUpdate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Stores the results of an iteration of one of the backend functions, and
+determines how to format this for printing. All changes refer to relative
+change.
+.. attribute:: ctx</p>
+<blockquote>
+<div><p>The context with which this update is associated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">type</dt>
+<dd class="field-odd"><p>Context</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.crsw">
+<span class="sig-name descname"><span class="pre">crsw</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.crsw" title="Permalink to this definition"></a></dt>
+<dd><p>The current value of the collisional radiative switching parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.updatedJ">
+<span class="sig-name descname"><span class="pre">updatedJ</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.updatedJ" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the iteration affected the global J grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.dJMax">
+<span class="sig-name descname"><span class="pre">dJMax</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.dJMax" title="Permalink to this definition"></a></dt>
+<dd><p>The maximum change in J.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.dJMaxIdx">
+<span class="sig-name descname"><span class="pre">dJMaxIdx</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.dJMaxIdx" title="Permalink to this definition"></a></dt>
+<dd><p>The index of the maximum change of J in a flattened array of J.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.updatedPops">
+<span class="sig-name descname"><span class="pre">updatedPops</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.updatedPops" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the active atomic populations were modified by the iteration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.dPops">
+<span class="sig-name descname"><span class="pre">dPops</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.dPops" title="Permalink to this definition"></a></dt>
+<dd><p>The maximum change in each active population.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>List[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.dPopsMaxIdx">
+<span class="sig-name descname"><span class="pre">dPopsMaxIdx</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.dPopsMaxIdx" title="Permalink to this definition"></a></dt>
+<dd><p>The location of the maximum change in each population in the flattened
+population array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>List[int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.ngAccelerated">
+<span class="sig-name descname"><span class="pre">ngAccelerated</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.ngAccelerated" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the atomic populations were modified by Ng Acceleration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.updatedNe">
+<span class="sig-name descname"><span class="pre">updatedNe</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.updatedNe" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the electron density in the atmosphere was affected by the iteration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.dNeMax">
+<span class="sig-name descname"><span class="pre">dNeMax</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.dNeMax" title="Permalink to this definition"></a></dt>
+<dd><p>The maximum change in the electron density.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.dNeMaxIdx">
+<span class="sig-name descname"><span class="pre">dNeMaxIdx</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.dNeMaxIdx" title="Permalink to this definition"></a></dt>
+<dd><p>The location of the maximum change in the electron density array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.updatedRho">
+<span class="sig-name descname"><span class="pre">updatedRho</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.updatedRho" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the iteration affected the value of rhoPrd on PRD lines.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.NprdSubIter">
+<span class="sig-name descname"><span class="pre">NprdSubIter</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.NprdSubIter" title="Permalink to this definition"></a></dt>
+<dd><p>The number of PRD sub-iterations taken (if multiple),</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.dRho">
+<span class="sig-name descname"><span class="pre">dRho</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.dRho" title="Permalink to this definition"></a></dt>
+<dd><p>The maximum change in rho for each spectral line treated with PRD, in
+the order of the lines on each activeAtom. These values are repeated for
+each sub-iteration &lt; NprdSubIter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>List[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.dRhoMaxIdx">
+<span class="sig-name descname"><span class="pre">dRhoMaxIdx</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.dRhoMaxIdx" title="Permalink to this definition"></a></dt>
+<dd><p>The location of the maximum change in rho for each PRD line.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>List[int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.updatedJPrd">
+<span class="sig-name descname"><span class="pre">updatedJPrd</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.updatedJPrd" title="Permalink to this definition"></a></dt>
+<dd><p>Whether the PRD iteration affected J.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.dJPrdMax">
+<span class="sig-name descname"><span class="pre">dJPrdMax</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.dJPrdMax" title="Permalink to this definition"></a></dt>
+<dd><p>The maximum change in J during each PRD sub-iteration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.dJPrdMaxIdx">
+<span class="sig-name descname"><span class="pre">dJPrdMaxIdx</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.dJPrdMaxIdx" title="Permalink to this definition"></a></dt>
+<dd><p>The location of the maximum change in J for each PRD sub-iteration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.Properties">
+<span class="sig-name descname"><span class="pre">Properties</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.Properties" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">----------</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.dPopsMax">
+<span class="sig-name descname"><span class="pre">dPopsMax</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.dPopsMax" title="Permalink to this definition"></a></dt>
+<dd><p>The maximum population change (including ne) over the iteration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.dRhoMax">
+<span class="sig-name descname"><span class="pre">dRhoMax</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.dRhoMax" title="Permalink to this definition"></a></dt>
+<dd><p>The maximum change in the PRD rho value for any line in the final
+subiteration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.compact_representation">
+<span class="sig-name descname"><span class="pre">compact_representation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/iteration_update.html#IterationUpdate.compact_representation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.compact_representation" title="Permalink to this definition"></a></dt>
+<dd><p>Produce a compact string representation of the object (similar to
+Lightweaver &lt; v0.8).</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-lightweaver.molecule">
 <span id="lightweaver-molecule-module"></span><h2>lightweaver.molecule module<a class="headerlink" href="#module-lightweaver.molecule" title="Permalink to this headline"></a></h2>
@@ -3487,7 +3975,8 @@ in a Lightweaver atmosphere.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>meta</strong> (<em>MultiMetadata</em>) – Additional metadata from the MULTI metadata that doesn’t appear in a Lightweaver atmosphere (name, gravitational acceleration used).</p></li>
+<li><p><strong>meta</strong> (<em>MultiMetadata</em>) – Additional metadata from the MULTI metadata that doesn’t appear in a
+Lightweaver atmosphere (name, gravitational acceleration used).</p></li>
 <li><p><strong>atmos</strong> (<em>Atmosphere</em>) – The atmosphere loaded into the standard Lightweaver format.</p></li>
 </ul>
 </p>
@@ -3505,14 +3994,16 @@ in a Lightweaver atmosphere.</p>
 <dt class="sig sig-object py" id="lightweaver.nr_update.nr_post_update">
 <span class="sig-prename descclassname"><span class="pre">lightweaver.nr_update.</span></span><span class="sig-name descname"><span class="pre">nr_post_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fdCollisionRates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hOnly</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeDependentData</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunkSize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ngUpdate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">printUpdate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/nr_update.html#nr_post_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.nr_update.nr_post_update" title="Permalink to this definition"></a></dt>
 <dd><p>Compute the Newton-Raphson terms for updating the electron density
-through charge conservation. Is attached to the Context object.</p>
+through charge conservation. Is attached to the Context object.
+:param fdCollisionRates: Whether to use a finite difference approximation to the collisional</p>
+<blockquote>
+<div><p>rates to find the population gradient WRT ne (default: True i.e. use
+finite-difference, if False, collisional rates are ignored for this
+process.)</p>
+</div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fdCollisionRates</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use a finite difference approximation to the collisional
-rates to find the population gradient WRT ne (default: True i.e. use
-finite-difference, if False, collisional rates are ignored for this
-process.)</p></li>
 <li><p><strong>hOnly</strong> (<em>bool</em><em>, </em><em>optional</em>) – Ignore atoms other than Hydrogen (the primary electron contributor)
 (default: False)</p></li>
 <li><p><strong>timeDependentData</strong> (<em>dict</em><em>, </em><em>optional</em>) – The presence of this argument indicates that the time-dependent
@@ -3543,6 +4034,23 @@ atmosphere.</p>
 </section>
 <section id="module-lightweaver.rh_atoms">
 <span id="lightweaver-rh-atoms-module"></span><h2>lightweaver.rh_atoms module<a class="headerlink" href="#module-lightweaver.rh_atoms" title="Permalink to this headline"></a></h2>
+</section>
+<section id="module-lightweaver.simd_management">
+<span id="lightweaver-simd-management-module"></span><h2>lightweaver.simd_management module<a class="headerlink" href="#module-lightweaver.simd_management" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="lightweaver.simd_management.filter_usable_simd_impls">
+<span class="sig-prename descclassname"><span class="pre">lightweaver.simd_management.</span></span><span class="sig-name descname"><span class="pre">filter_usable_simd_impls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">implLibs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/lightweaver/simd_management.html#filter_usable_simd_impls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.simd_management.filter_usable_simd_impls" title="Permalink to this definition"></a></dt>
+<dd><p>Filter a list of SimdImpl library names, returning those that are usable on
+the current machine.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lightweaver.simd_management.get_available_simd_suffixes">
+<span class="sig-prename descclassname"><span class="pre">lightweaver.simd_management.</span></span><span class="sig-name descname"><span class="pre">get_available_simd_suffixes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/lightweaver/simd_management.html#get_available_simd_suffixes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.simd_management.get_available_simd_suffixes" title="Permalink to this definition"></a></dt>
+<dd><p>Verifies the necessary flags against the features NumPy indicates are
+available, and returns a list of available LightweaverSimdImpls</p>
+</dd></dl>
+
 </section>
 <section id="module-lightweaver.utils">
 <span id="lightweaver-utils-module"></span><h2>lightweaver.utils module<a class="headerlink" href="#module-lightweaver.utils" title="Permalink to this headline"></a></h2>
@@ -3632,7 +4140,8 @@ parameter always 1).</p>
 <dd><p>Convert air wavelength to vacuum.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>wavelength</strong> (<em>float</em><em> or </em><em>array-like</em><em> or </em><em>astropy.Quantity</em>) – If no units then the wavelength is assumed to be in [nm], otherwise the provided units are used.</p>
+<dd class="field-odd"><p><strong>wavelength</strong> (<em>float</em><em> or </em><em>array-like</em><em> or </em><em>astropy.Quantity</em>) – If no units then the wavelength is assumed to be in [nm], otherwise the
+provided units are used.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>result</strong> – The converted wavelength in [nm].</p>
@@ -3769,6 +4278,14 @@ the default for Lightweaver.</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="lightweaver.utils.filter_fs_iter_libs">
+<span class="sig-prename descclassname"><span class="pre">lightweaver.utils.</span></span><span class="sig-name descname"><span class="pre">filter_fs_iter_libs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">libs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/lightweaver/utils.html#filter_fs_iter_libs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.utils.filter_fs_iter_libs" title="Permalink to this definition"></a></dt>
+<dd><p>Filter a list of libraries (e.g. SimdImpl_{SimdType}.{pep3149}.so) with a
+valid collection of extensions. (As .so is a valid extension, we can’t just
+check the end of the file name).</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="lightweaver.utils.gaunt_bf">
 <span class="sig-prename descclassname"><span class="pre">lightweaver.utils.</span></span><span class="sig-name descname"><span class="pre">gaunt_bf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wvl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nEff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/lightweaver/utils.html#gaunt_bf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.utils.gaunt_bf" title="Permalink to this definition"></a></dt>
 <dd><p>Gaunt factor for bound-free transitions, from Seaton (1960), Rep. Prog.
@@ -3791,6 +4308,12 @@ Phys. 23, 313, as used in RH.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="lightweaver.utils.get_code_location">
+<span class="sig-prename descclassname"><span class="pre">lightweaver.utils.</span></span><span class="sig-name descname"><span class="pre">get_code_location</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/utils.html#get_code_location"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.utils.get_code_location" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the directory containing the Lightweaver Python source.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="lightweaver.utils.get_data_path">
 <span class="sig-prename descclassname"><span class="pre">lightweaver.utils.</span></span><span class="sig-name descname"><span class="pre">get_data_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/utils.html#get_data_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.utils.get_data_path" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the location of the Lightweaver support data.</p>
@@ -3803,35 +4326,10 @@ Phys. 23, 313, as used in RH.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="lightweaver.utils.grotrian_diagram">
-<span class="sig-prename descclassname"><span class="pre">lightweaver.utils.</span></span><span class="sig-name descname"><span class="pre">grotrian_diagram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.atomic_model.AtomicModel" title="lightweaver.atomic_model.AtomicModel"><span class="pre">AtomicModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbitalLabels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vacuumWavelength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">highlightLines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adjustTextPositions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labelLevels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelengthLabels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">continuumEdgeLabels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontSize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suppressLineLabels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotateLabels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/utils.html#grotrian_diagram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.utils.grotrian_diagram" title="Permalink to this definition"></a></dt>
-<dd><p>Produce a Grotrian (term) diagram for a model atom.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>atom</strong> (<a class="reference internal" href="#lightweaver.atomic_model.AtomicModel" title="lightweaver.atomic_model.AtomicModel"><em>AtomicModel</em></a>) – The model atom for which to produce the diagram.</p></li>
-<li><p><strong>ax</strong> (<em>matplotlib.axis.Axes</em><em>, </em><em>optional</em>) – The axes on which to create the plot.</p></li>
-<li><p><strong>orbitalLabels</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – The labels for the oribtals on the x-axis.</p></li>
-<li><p><strong>vacuumWavelength</strong> (<em>bool</em>) – Whether to plot the wavelengths with their vacuum values, or convert
-to air. Default: True i.e. vacuum.</p></li>
-<li><p><strong>highlightLines</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>int</em><em>]</em><em>]</em>) – The indices of lines in atom.lines to highlight. These will be
-plotted in red, whereas the others will be plotted in green.</p></li>
-<li><p><strong>adjustTextPositions</strong> (<em>bool</em>) – Whether to move the wavelength labels around to avoid the level
-labels and each other. Default: False.</p></li>
-<li><p><strong>labelLevels</strong> (<em>bool</em><em> or </em><em>List</em><em>[</em><em>str</em><em>]</em>) – Whether to label the levels (parsing the names for these from
-atom.levels[i].label if True), or uses the provided strings (one per
-level) if a List[str], or not label at all (False). Default: True.</p></li>
-<li><p><strong>wavelengthLabels</strong> (<em>bool</em>) – Whether to label the wavelengths for each bound-bound transition.
-Default: True.</p></li>
-<li><p><strong>continuumEdgeLabels</strong> (<em>bool</em>) – Label the continuum edge wavelengths (only if wavelengthLabels also True).
-Default: False.</p></li>
-<li><p><strong>fontSize</strong> (<em>float</em>) – Font size to use for the annotations. Default: 9</p></li>
-<li><p><strong>suppressLineLabels</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>int</em><em>]</em><em>]</em>) – List of line indices to not print wavelength labels for. Default: None.</p></li>
-<li><p><strong>rotateLabels</strong> (<em>bool</em>) – Whether to rotate the wavelength labels to lie along the line
-transitions, does not work well with <cite>adjustTextPositions</cite>. Default: True</p></li>
-</ul>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="lightweaver.utils.get_fs_iter_libs">
+<span class="sig-prename descclassname"><span class="pre">lightweaver.utils.</span></span><span class="sig-name descname"><span class="pre">get_fs_iter_libs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/lightweaver/utils.html#get_fs_iter_libs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.utils.get_fs_iter_libs" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the paths of the default FsIterationScheme libraries usable on the
+current machine (due to available SIMD optimisations – these are detected by NumPy).</p>
 </dd></dl>
 
 <dl class="py function">
@@ -3896,7 +4394,8 @@ round-tripping AtomicModels.</p>
 <dd><p>Convert vacuum wavelength to air.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>wavelength</strong> (<em>float</em><em> or </em><em>array-like</em><em> or </em><em>astropy.Quantity</em>) – If no units then the wavelength is assumed to be in [nm], otherwise the provided units are used.</p>
+<dd class="field-odd"><p><strong>wavelength</strong> (<em>float</em><em> or </em><em>array-like</em><em> or </em><em>astropy.Quantity</em>) – If no units then the wavelength is assumed to be in [nm], otherwise the
+provided units are used.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>result</strong> – The converted wavelength in [nm].</p>
@@ -3929,41 +4428,8 @@ cannot be represented as a flat array without copy.</p>
 </dd></dl>
 
 </section>
-<section id="module-lightweaver.witt">
-<span id="lightweaver-witt-module"></span><h2>lightweaver.witt module<a class="headerlink" href="#module-lightweaver.witt" title="Permalink to this headline"></a></h2>
-<p>Simple EOS and background opacity package
-Coded in python by J. de la Cruz Rodriguez (ISP-SU 2017)</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="lightweaver.witt.witt">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lightweaver.witt.</span></span><span class="sig-name descname"><span class="pre">witt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">abund_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pf_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pf_Kurucz.input'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/witt.html#witt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.witt.witt" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>EOS described in Mihalas (1970) “Stellar atmospheres”
-It considers in detail H, H+, H- and H2, no other molecules.</p>
-<p>This particular implementation was taken from Wittmann’s routines.
-Partition functions from Kurucz.</p>
-<p>Coded in python by J. de la Cruz Rodriguez (ISP-SU 2017)
-Messed with by C. Osborne (University of Glasgow 2019-2020)</p>
-<p>Don’t blame Jaime for EOS bugs in Lightweaver!
-<strong>N.B. Everything in here is CGS.</strong></p>
-<p>Dependencies: pf_Kurucz.input containing the partition function data.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="lightweaver.witt.witt.partition_f">
-<span class="sig-name descname"><span class="pre">partition_f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/witt.html#witt.partition_f"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.witt.witt.partition_f" title="Permalink to this definition"></a></dt>
-<dd><p>Computes the partition function of element “n” for a given temperature</p>
-<dl class="simple">
-<dt>input:</dt><dd><p>n: Atomic number of the atom -1 (H is 0).
-t: Temperature in K.</p>
-</dd>
-<dt>Keywords:</dt><dd><dl class="simple">
-<dt>only: (=int) only return this number first levels of the atom.</dt><dd><p>The default is to return all the levels</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<section id="lightweaver-witt-module">
+<h2>lightweaver.witt module<a class="headerlink" href="#lightweaver-witt-module" title="Permalink to this headline"></a></h2>
 </section>
 <section id="module-lightweaver.zeeman">
 <span id="lightweaver-zeeman-module"></span><h2>lightweaver.zeeman module<a class="headerlink" href="#module-lightweaver.zeeman" title="Permalink to this headline"></a></h2>
@@ -4392,7 +4858,13 @@ escape probability initial solution.</p></li>
 False).</p></li>
 <li><p><strong>initSol</strong> (<a class="reference internal" href="#lightweaver.utils.InitialSolution" title="lightweaver.utils.InitialSolution"><em>InitialSolution</em></a><em>, </em><em>optional</em>) – The initial solution to use for the atomic populations (default: LTE).</p></li>
 <li><p><strong>ngOptions</strong> (<a class="reference internal" href="#lightweaver.utils.NgOptions" title="lightweaver.utils.NgOptions"><em>NgOptions</em></a><em>, </em><em>optional</em>) – The Ng acceleration options (default: None)</p></li>
-<li><p><strong>conserveCharge</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to conserve charge whilst setting populations from escape probability (ignored otherwise) (default: False).</p></li>
+<li><p><strong>conserveCharge</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to conserve charge whilst setting populations from escape
+probability (ignored otherwise) (default: False).</p></li>
+<li><p><strong>fsIterSchemeProperties</strong> (<em>dict</em><em>, </em><em>optional</em>) – The properties of the FsIterScheme used as a dict, can be obtained from
+the <cite>FsIterSchemeManager</cite>. Only necessary keys are boolean
+<cite>defaultWlaGijStorage</cite> and <cite>defaultPerAtomStorage</cite> to determine
+allocation of <cite>wla</cite>, <cite>gij</cite>, <cite>eta</cite>, <cite>U</cite>, and <cite>chi</cite> on the underlying
+object. If not supplied, both of these default to True.</p></li>
 </ul>
 </dd>
 </dl>
@@ -4518,7 +4990,7 @@ atmosphere.</p>
 <p>Storage and driver for the background computations in Lightweaver. The
 storage is allocated and managed by this class, before being passed to
 C++ when necessary. This class is also responsible for calling the
-BackgroundProvider instance used (by default BasicBackground).</p>
+BackgroundProvider instance used (by default FastBackground with one thread).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="lightweaver.LwCompiled.LwBackground.chi">
 <span class="sig-name descname"><span class="pre">chi</span></span><a class="headerlink" href="#lightweaver.LwCompiled.LwBackground.chi" title="Permalink to this definition"></a></dt>
@@ -4711,8 +5183,7 @@ Context for these rays. If a ray doesn’t intersect the boundary
 (i.e. x and y boundaries for muz == 1), then the boundary
 condition can be ignored.</p></li>
 <li><p><strong>upOnly</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to only compute upgoing rays. Mostly affects the handling of
-boundary conditions for 2D atmospheres. Only applies to scalar
-formal solvers.  (default: True).</p></li>
+boundary conditions for 2D atmospheres. (Default: True).</p></li>
 <li><p><strong>returnCtx</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to return the Context used to compute the formal solution
 for these rays. If true, it will be returned as the second value.
 Default: False.</p></li>
@@ -4813,19 +5284,19 @@ parameters (LwDepthData).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="lightweaver.LwCompiled.LwContext.formal_sol">
 <span class="sig-name descname"><span class="pre">formal_sol</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#lightweaver.LwCompiled.LwContext.formal_sol" title="Permalink to this definition"></a></dt>
-<dd><p>Compute the formal solution across all wavelengths (single threaded,
-rarely used due to the almost insignificant cost of the Gamma terms
-in <cite>formal_sol_gamma_matrices</cite>, but currently still used by
-<cite>compute_rays</cite>). Only computes upgoing rays by default, which has implication on boundary conditions in 2D.</p>
+<dd><p>Compute the formal solution across all wavelengths (used by
+<cite>compute_rays</cite>). Only computes upgoing rays by default, which has
+implication on boundary conditions in 2D.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>upOnly</strong> (<em>bool</em><em>, </em><em>optional</em>) – Only compute upgoing rays, (default: True)</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>dJ</strong> – The maximum relative change in J in the atmosphere.</p>
+<dd class="field-even"><p><strong>update</strong> – An object representing the updates to the model. See
+<cite>IterationUpdate</cite> for details.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>float</p>
+<dd class="field-odd"><p><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate" title="lightweaver.iteration_update.IterationUpdate">IterationUpdate</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -4846,17 +5317,23 @@ i.e. recompute them).</p></li>
 term to zero), may be useful in certain unstable situations
 (default: False).</p></li>
 <li><p><strong>printUpdate</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print the maximum relative change in J and any changes in
-CRSW (default: True).</p></li>
+CRSW (default: True). (Deprecated)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>dJ</strong> – The maximum relative change in J in the atmosphere.</p>
+<dd class="field-even"><p><strong>update</strong> – An object representing the updates to the model. See
+<cite>IterationUpdate</cite> for details.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>float</p>
+<dd class="field-odd"><p><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate" title="lightweaver.iteration_update.IterationUpdate">IterationUpdate</a></p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lightweaver.LwCompiled.LwContext.get_fs_iter_scheme_properties">
+<span class="sig-name descname"><span class="pre">get_fs_iter_scheme_properties</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#lightweaver.LwCompiled.LwContext.get_fs_iter_scheme_properties" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="lightweaver.LwCompiled.LwContext.hprd">
@@ -4882,8 +5359,15 @@ each formal solution for a standard problem.</p>
 <li><p><strong>tol</strong> (<em>float</em><em>, </em><em>optional</em>) – The default stopping tolerance for relative changes in rho. If the
 relative change in rho falls below this threshold then this function
 returns i.e. <cite>maxIter</cite> iterations do not need to be taken (Default: 1e-2).</p></li>
-<li><p><strong>printUpdate</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print information about the iteration process i.e. the size of the update to rho and the number of iterations taken (Default: True).</p></li>
+<li><p><strong>printUpdate</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print information about the iteration process i.e. the size of the update to rho and the number of iterations taken (Default: True). Deprecated.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>update</strong> – An object representing the updates to the model. See
+<cite>IterationUpdate</cite> for details.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate" title="lightweaver.iteration_update.IterationUpdate">IterationUpdate</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -4905,6 +5389,11 @@ returns i.e. <cite>maxIter</cite> iterations do not need to be taken (Default: 1
 <span class="sig-name descname"><span class="pre">set_formal_solver</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#lightweaver.LwCompiled.LwContext.set_formal_solver" title="Permalink to this definition"></a></dt>
 <dd><p>For internal use. Set the formal solver through the constructor.</p>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lightweaver.LwCompiled.LwContext.set_fs_iter_scheme">
+<span class="sig-name descname"><span class="pre">set_fs_iter_scheme</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#lightweaver.LwCompiled.LwContext.set_fs_iter_scheme" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="lightweaver.LwCompiled.LwContext.set_interp_fn">
@@ -4936,8 +5425,20 @@ it is usually only called once at the end of a simulation, however
 this could easily be changed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>recompute</strong> (<em>bool</em><em>, </em><em>optional</em>) – If previously called, and called again with <cite>recompute = True</cite>
-the line profiles will be recomputed.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>recompute</strong> (<em>bool</em><em>, </em><em>optional</em>) – If previously called, and called again with <cite>recompute = True</cite>
+the line profiles will be recomputed. (Default: False)</p></li>
+<li><p><strong>updateJ</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to update J on the Context during the calculation (Default: False)</p></li>
+<li><p><strong>upOnly</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to compute the formal solver only for upgoing rays (used in
+final synthesis).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>update</strong> – An object representing the updates to the model. See
+<cite>IterationUpdate</cite> for details.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate" title="lightweaver.iteration_update.IterationUpdate">IterationUpdate</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -4958,16 +5459,16 @@ equilibrium equations.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>printUpdate</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print information on the size of the update (default:
-True).</p></li>
+True). Deprecated.</p></li>
 <li><p><strong>chunkSize</strong> (<em>int</em><em>, </em><em>optional</em>) – Not currently used.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>dPops</strong> – The maximum relative change of any of the NLTE populations in the
-atmosphere.</p>
+<dd class="field-even"><p><strong>update</strong> – An object representing the updates to the model. See
+<cite>IterationUpdate</cite> for details.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>float</p>
+<dd class="field-odd"><p><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate" title="lightweaver.iteration_update.IterationUpdate">IterationUpdate</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -5014,14 +5515,14 @@ behaviour), will only accelerate if the counter on the Ng accelerator
 has seen enough steps since the previous acceleration (set in Context
 initialisation).</p></li>
 <li><p><strong>printUpdate</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print information on the size of the update (default:
-None, to apply automatic behaviour).</p></li>
+None, to apply automatic behaviour). Deprecated.</p></li>
 <li><p><strong>chunkSize</strong> (<em>int</em><em>, </em><em>optional</em>) – Not currently used.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>dPops</strong> (<em>float</em>) – The maximum relative change of any of the NLTE populations in the
-atmosphere.</p></li>
+<li><p><strong>update</strong> (<em>IterationUpdate</em>) – An object representing the updates to the model. See
+<cite>IterationUpdate</cite> for details.</p></li>
 <li><p><strong>prevTimePops</strong> (<em>list of np.ndarray</em>) – The input needed as <cite>prevTimePops</cite> if this function is to be called
 again for this timestep.</p></li>
 </ul>
@@ -5178,6 +5679,42 @@ a shared library at <cite>path</cite>.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id8">
 <span class="sig-name descname"><span class="pre">paths</span></span><a class="headerlink" href="#id8" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="lightweaver.LwCompiled.LwFsIterationManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lightweaver.LwCompiled.</span></span><span class="sig-name descname"><span class="pre">LwFsIterationManager</span></span><a class="headerlink" href="#lightweaver.LwCompiled.LwFsIterationManager" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="lightweaver.LwCompiled.LwFsIterationManager.default_scheme">
+<span class="sig-name descname"><span class="pre">default_scheme</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#lightweaver.LwCompiled.LwFsIterationManager.default_scheme" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lightweaver.LwCompiled.LwFsIterationManager.default_scheme_name">
+<span class="sig-name descname"><span class="pre">default_scheme_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#lightweaver.LwCompiled.LwFsIterationManager.default_scheme_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lightweaver.LwCompiled.LwFsIterationManager.load_fns_from_path">
+<span class="sig-name descname"><span class="pre">load_fns_from_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#lightweaver.LwCompiled.LwFsIterationManager.load_fns_from_path" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.LwCompiled.LwFsIterationManager.names">
+<span class="sig-name descname"><span class="pre">names</span></span><a class="headerlink" href="#lightweaver.LwCompiled.LwFsIterationManager.names" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.LwCompiled.LwFsIterationManager.paths">
+<span class="sig-name descname"><span class="pre">paths</span></span><a class="headerlink" href="#lightweaver.LwCompiled.LwFsIterationManager.paths" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lightweaver.LwCompiled.LwFsIterationManager.scheme_properties">
+<span class="sig-name descname"><span class="pre">scheme_properties</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#lightweaver.LwCompiled.LwFsIterationManager.scheme_properties" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -5597,7 +6134,7 @@ transiently.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020, C. Osborne.</p>
+    <p>&#169; Copyright 2022, C. Osborne.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

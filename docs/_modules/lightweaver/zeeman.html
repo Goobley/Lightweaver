@@ -69,10 +69,11 @@
            <div itemprop="articleBody">
              
   <h1>Source code for lightweaver.zeeman</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+<span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">fractions</span> <span class="kn">import</span> <span class="n">Fraction</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">cast</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.atomic_model</span> <span class="kn">import</span> <span class="n">AtomicLine</span>
@@ -108,7 +109,8 @@
     <span class="n">alpha</span>  <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">Ml</span> <span class="o">-</span> <span class="n">Mu</span><span class="p">)</span>
     <span class="n">dJ</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">Ju</span> <span class="o">-</span> <span class="n">Jl</span><span class="p">)</span>
 
-    <span class="c1"># These parameters are x2 those in del Toro Iniesta (p. 137), but we normalise after the fact, so it&#39;s fine</span>
+    <span class="c1"># These parameters are x2 those in del Toro Iniesta (p. 137), but we</span>
+    <span class="c1"># normalise after the fact, so it&#39;s fine</span>
 
     <span class="k">if</span> <span class="n">dJ</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># jMin = ju = jl</span>
         <span class="k">if</span> <span class="n">alpha</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># pi trainsitions</span>
@@ -155,7 +157,8 @@
     <span class="n">i</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">iLevel</span>
     <span class="n">j</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">jLevel</span>
     <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">J</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">S</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">J</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">S</span><span class="p">]):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot compute gLandeEff as gLandeEff not set and some of J, L and S None for line </span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="nb">repr</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">&#39;Cannot compute gLandeEff as gLandeEff not set and some of &#39;</span>
+                          <span class="s1">&#39;J, L and S None for line </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
     <span class="n">gL</span> <span class="o">=</span> <span class="n">lande_factor</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">J</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">S</span><span class="p">)</span> <span class="c1"># type: ignore</span>
     <span class="n">gU</span> <span class="o">=</span> <span class="n">lande_factor</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">J</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">S</span><span class="p">)</span> <span class="c1"># type: ignore</span>
 
@@ -232,7 +235,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020, C. Osborne.</p>
+    <p>&#169; Copyright 2022, C. Osborne.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -70,9 +70,10 @@
              
   <h1>Source code for lightweaver.nr_update</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
 <span class="kn">from</span> <span class="nn">.atomic_set</span> <span class="kn">import</span> <span class="n">lte_pops</span>
-<span class="kn">from</span> <span class="nn">scipy.linalg</span> <span class="kn">import</span> <span class="n">solve</span>
 <span class="kn">from</span> <span class="nn">.atomic_table</span> <span class="kn">import</span> <span class="n">PeriodicTable</span>
+
 
 <div class="viewcode-block" id="nr_post_update"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.nr_update.nr_post_update">[docs]</a><span class="k">def</span> <span class="nf">nr_post_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fdCollisionRates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hOnly</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                    <span class="n">timeDependentData</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chunkSize</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
@@ -80,7 +81,6 @@
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Compute the Newton-Raphson terms for updating the electron density</span>
 <span class="sd">    through charge conservation. Is attached to the Context object.</span>
-
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    fdCollisionRates : bool, optional</span>
@@ -108,7 +108,6 @@
 <span class="sd">    printUpdate : bool, optional</span>
 <span class="sd">        Whether to print information on the size of the update (default:</span>
 <span class="sd">        None, to apply automatic behaviour).</span>
-
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    dPops : float</span>
@@ -119,15 +118,11 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Calling nr_post_update without Hydrogen active.&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">ngUpdate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">conserveCharge</span><span class="p">:</span>
-            <span class="n">ngUpdate</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">ngUpdate</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">ngUpdate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conserveCharge</span>
 
     <span class="k">if</span> <span class="n">printUpdate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">printUpdate</span> <span class="o">=</span> <span class="n">ngUpdate</span>
 
-    <span class="n">timeDependent</span> <span class="o">=</span> <span class="p">(</span><span class="n">timeDependentData</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
     <span class="n">atoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activeAtoms</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">hOnly</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">activeAtoms</span>
     <span class="n">crswVal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crswCallback</span><span class="o">.</span><span class="n">val</span>
 
@@ -137,7 +132,7 @@
         <span class="n">backgroundAtoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;spect&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">radSet</span><span class="o">.</span><span class="n">passiveAtoms</span>
 
     <span class="n">backgroundNe</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">atomModel</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">backgroundAtoms</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">atomModel</span> <span class="ow">in</span> <span class="n">backgroundAtoms</span><span class="p">:</span>
         <span class="n">lteStages</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">stage</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">atomModel</span><span class="o">.</span><span class="n">levels</span><span class="p">])</span>
         <span class="n">atom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;eqPops&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">atomicPops</span><span class="p">[</span><span class="n">atomModel</span><span class="o">.</span><span class="n">element</span><span class="p">]</span>
         <span class="n">backgroundNe</span> <span class="o">+=</span> <span class="p">(</span><span class="n">lteStages</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">atom</span><span class="o">.</span><span class="n">n</span><span class="p">[:,</span> <span class="p">:])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -166,15 +161,17 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">eqPops</span><span class="o">.</span><span class="n">update_lte_atoms_Hmin_pops</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atmos</span><span class="o">.</span><span class="n">pyAtmos</span><span class="p">,</span> <span class="n">conserveCharge</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">ngUpdate</span><span class="p">:</span>
-        <span class="n">maxDelta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rel_diff_ng_accelerate</span><span class="p">(</span><span class="n">printUpdate</span><span class="o">=</span><span class="n">printUpdate</span><span class="p">)</span>
+        <span class="n">update</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rel_diff_ng_accelerate</span><span class="p">(</span><span class="n">printUpdate</span><span class="o">=</span><span class="n">printUpdate</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">maxDelta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rel_diff_pops</span><span class="p">(</span><span class="n">printUpdate</span><span class="o">=</span><span class="n">printUpdate</span><span class="p">)</span>
+        <span class="n">update</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rel_diff_pops</span><span class="p">(</span><span class="n">printUpdate</span><span class="o">=</span><span class="n">printUpdate</span><span class="p">)</span>
     <span class="n">neDiff</span> <span class="o">=</span> <span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">)</span> <span class="o">-</span> <span class="n">neStart</span><span class="p">)</span>
-                <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">))</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-    <span class="n">maxDelta</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">maxDelta</span><span class="p">,</span> <span class="n">neDiff</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">printUpdate</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    ne delta = </span><span class="si">%6.4e</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">neDiff</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">maxDelta</span></div>
+                <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">))</span>
+    <span class="n">neDiffMaxIdx</span> <span class="o">=</span> <span class="n">neDiff</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span>
+    <span class="n">neDiffMax</span> <span class="o">=</span> <span class="n">neDiff</span><span class="p">[</span><span class="n">neDiffMaxIdx</span><span class="p">]</span>
+    <span class="n">update</span><span class="o">.</span><span class="n">updatedNe</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">update</span><span class="o">.</span><span class="n">dNeMax</span> <span class="o">=</span> <span class="n">neDiffMax</span>
+    <span class="n">update</span><span class="o">.</span><span class="n">dNeMaxIdx</span> <span class="o">=</span> <span class="n">neDiffMaxIdx</span>
+    <span class="k">return</span> <span class="n">update</span></div>
 </pre></div>
 
            </div>
@@ -184,7 +181,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020, C. Osborne.</p>
+    <p>&#169; Copyright 2022, C. Osborne.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

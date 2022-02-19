@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>lightweaver.iteration_update &mdash; Lightweaver  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Lightweaver
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../auto_examples/index.html">Lightweaver Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../lightweaver-api.html">Lightweaver API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Lightweaver</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>lightweaver.iteration_update</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for lightweaver.iteration_update</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">List</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">Context</span>
+
+<div class="viewcode-block" id="IterationUpdate"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.iteration_update.IterationUpdate">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">IterationUpdate</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Stores the results of an iteration of one of the backend functions, and</span>
+<span class="sd">    determines how to format this for printing. All changes refer to relative</span>
+<span class="sd">    change.</span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ctx : Context</span>
+<span class="sd">        The context with which this update is associated.</span>
+<span class="sd">    crsw :  float</span>
+<span class="sd">        The current value of the collisional radiative switching parameter.</span>
+<span class="sd">    updatedJ : bool</span>
+<span class="sd">        Whether the iteration affected the global J grid.</span>
+<span class="sd">    dJMax : float</span>
+<span class="sd">        The maximum change in J.</span>
+<span class="sd">    dJMaxIdx : int</span>
+<span class="sd">        The index of the maximum change of J in a flattened array of J.</span>
+<span class="sd">    updatedPops : bool</span>
+<span class="sd">        Whether the active atomic populations were modified by the iteration.</span>
+<span class="sd">    dPops : List[float]</span>
+<span class="sd">        The maximum change in each active population.</span>
+<span class="sd">    dPopsMaxIdx : List[int]</span>
+<span class="sd">        The location of the maximum change in each population in the flattened</span>
+<span class="sd">        population array.</span>
+<span class="sd">    ngAccelerated : bool</span>
+<span class="sd">        Whether the atomic populations were modified by Ng Acceleration.</span>
+<span class="sd">    updatedNe : bool</span>
+<span class="sd">        Whether the electron density in the atmosphere was affected by the iteration.</span>
+<span class="sd">    dNeMax : float</span>
+<span class="sd">        The maximum change in the electron density.</span>
+<span class="sd">    dNeMaxIdx : int</span>
+<span class="sd">        The location of the maximum change in the electron density array.</span>
+<span class="sd">    updatedRho : bool</span>
+<span class="sd">        Whether the iteration affected the value of rhoPrd on PRD lines.</span>
+<span class="sd">    NprdSubIter : int</span>
+<span class="sd">        The number of PRD sub-iterations taken (if multiple),</span>
+<span class="sd">    dRho : List[float]</span>
+<span class="sd">        The maximum change in rho for each spectral line treated with PRD, in</span>
+<span class="sd">        the order of the lines on each activeAtom. These values are repeated for</span>
+<span class="sd">        each sub-iteration &lt; NprdSubIter.</span>
+<span class="sd">    dRhoMaxIdx : List[int]</span>
+<span class="sd">        The location of the maximum change in rho for each PRD line.</span>
+<span class="sd">    updatedJPrd : bool</span>
+<span class="sd">        Whether the PRD iteration affected J.</span>
+<span class="sd">    dJPrdMax : float</span>
+<span class="sd">        The maximum change in J during each PRD sub-iteration.</span>
+<span class="sd">    dJPrdMaxIdx : int</span>
+<span class="sd">        The location of the maximum change in J for each PRD sub-iteration.</span>
+
+<span class="sd">    Properties</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dPopsMax : float</span>
+<span class="sd">        The maximum population change (including ne) over the iteration.</span>
+<span class="sd">    dRhoMax : float</span>
+<span class="sd">        The maximum change in the PRD rho value for any line in the final</span>
+<span class="sd">        subiteration.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="s1">&#39;Context&#39;</span>
+    <span class="n">crsw</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">updatedJ</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">dJMax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">dJMaxIdx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">updatedPops</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">dPops</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">dPopsMaxIdx</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">ngAccelerated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">updatedNe</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">dNeMax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">dNeMaxIdx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">updatedRho</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">NprdSubIter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">dRho</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">dRhoMaxIdx</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">updatedJPrd</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">dJPrdMax</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">dJPrdMaxIdx</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dPopsMax</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dPops</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">updatedNe</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dNeMax</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mf">0.0</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dPops</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">updatedNe</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dNeMax</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dRhoMax</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">NprdSubIter</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+        <span class="n">finalSubIterStart</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NprdSubIter</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;spect&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">NprdTrans</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dRho</span><span class="p">[</span><span class="n">finalSubIterStart</span><span class="p">:])</span>
+
+<div class="viewcode-block" id="IterationUpdate.compact_representation"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.iteration_update.IterationUpdate.compact_representation">[docs]</a>    <span class="k">def</span> <span class="nf">compact_representation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Produce a compact string representation of the object (similar to</span>
+<span class="sd">        Lightweaver &lt; v0.8).</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">chunks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crsw</span> <span class="o">!=</span> <span class="mf">1.0</span><span class="p">:</span>
+            <span class="n">chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;CRSW: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">crsw</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">updatedJ</span><span class="p">:</span>
+            <span class="n">chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;dJ = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dJMax</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">updatedPops</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">delta</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dPops</span><span class="p">):</span>
+                <span class="n">atomName</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">activeAtoms</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">atomicModel</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">name</span>
+                <span class="n">accel</span> <span class="o">=</span> <span class="s1">&#39; (accelerated)&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ngAccelerated</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+                <span class="n">chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    </span><span class="si">{</span><span class="n">atomName</span><span class="si">}</span><span class="s1"> delta = </span><span class="si">{</span><span class="n">delta</span><span class="si">:</span><span class="s1">6.4e</span><span class="si">}{</span><span class="n">accel</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">updatedNe</span><span class="p">:</span>
+            <span class="n">delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dNeMax</span>
+            <span class="n">chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    ne delta = </span><span class="si">{</span><span class="n">delta</span><span class="si">:</span><span class="s1">6.4e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">updatedRho</span><span class="p">:</span>
+            <span class="n">iterCount</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">NprdSubIter</span>
+            <span class="n">dRhoMax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dRhoMax</span>
+            <span class="n">chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    PRD dRho = </span><span class="si">{</span><span class="n">dRhoMax</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">, (sub-iterations: </span><span class="si">{</span><span class="n">iterCount</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, C. Osborne.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

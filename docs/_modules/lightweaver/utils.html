@@ -69,21 +69,22 @@
            <div itemprop="articleBody">
              
   <h1>Source code for lightweaver.utils</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">lightweaver.constants</span> <span class="k">as</span> <span class="nn">C</span>
-<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span><span class="p">,</span> <span class="n">deepcopy</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span></span><span class="kn">import</span> <span class="nn">importlib</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span>
-<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
-<span class="kn">from</span> <span class="nn">specutils.utils.wcs_utils</span> <span class="kn">import</span> <span class="n">vac_to_air</span> <span class="k">as</span> <span class="n">spec_vac_to_air</span><span class="p">,</span> <span class="n">air_to_vac</span> <span class="k">as</span> <span class="n">spec_air_to_vac</span>
 <span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">njit</span>
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">special</span>
-<span class="kn">from</span> <span class="nn">weno4</span> <span class="kn">import</span> <span class="n">weno4</span>
 <span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">trapezoid</span>
+<span class="kn">from</span> <span class="nn">weno4</span> <span class="kn">import</span> <span class="n">weno4</span>
+
+<span class="kn">import</span> <span class="nn">lightweaver.constants</span> <span class="k">as</span> <span class="nn">C</span>
+<span class="kn">from</span> <span class="nn">.simd_management</span> <span class="kn">import</span> <span class="n">filter_usable_simd_impls</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.atomic_model</span> <span class="kn">import</span> <span class="n">AtomicLine</span><span class="p">,</span> <span class="n">AtomicModel</span>
@@ -191,24 +192,51 @@
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">pass</span></div>
 
-<span class="n">_LwCodeLocation</span> <span class="o">=</span> <span class="kc">None</span>
+<div class="viewcode-block" id="get_code_location"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.get_code_location">[docs]</a><span class="k">def</span> <span class="nf">get_code_location</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Returns the directory containing the Lightweaver Python source.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">directory</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">directory</span></div>
+
 <div class="viewcode-block" id="get_data_path"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.get_data_path">[docs]</a><span class="k">def</span> <span class="nf">get_data_path</span><span class="p">():</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Returns the location of the Lightweaver support data.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">global</span> <span class="n">_LwCodeLocation</span>
-    <span class="k">if</span> <span class="n">_LwCodeLocation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">_LwCodeLocation</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_LwCodeLocation</span><span class="p">,</span> <span class="s1">&#39;Data&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">path</span><span class="o">.</span><span class="n">sep</span></div>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">get_code_location</span><span class="p">(),</span> <span class="s1">&#39;Data&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">path</span><span class="o">.</span><span class="n">sep</span></div>
 
 <div class="viewcode-block" id="get_default_molecule_path"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.get_default_molecule_path">[docs]</a><span class="k">def</span> <span class="nf">get_default_molecule_path</span><span class="p">():</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Returns the location of the default molecules taken from RH.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">global</span> <span class="n">_LwCodeLocation</span>
-    <span class="k">if</span> <span class="n">_LwCodeLocation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">_LwCodeLocation</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_LwCodeLocation</span><span class="p">,</span> <span class="s1">&#39;Data&#39;</span><span class="p">,</span> <span class="s1">&#39;DefaultMolecules&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">path</span><span class="o">.</span><span class="n">sep</span></div>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">get_code_location</span><span class="p">(),</span> <span class="s1">&#39;Data&#39;</span><span class="p">,</span> <span class="s1">&#39;DefaultMolecules&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">path</span><span class="o">.</span><span class="n">sep</span></div>
+
+<div class="viewcode-block" id="filter_fs_iter_libs"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.filter_fs_iter_libs">[docs]</a><span class="k">def</span> <span class="nf">filter_fs_iter_libs</span><span class="p">(</span><span class="n">libs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">exts</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Filter a list of libraries (e.g. SimdImpl_{SimdType}.{pep3149}.so) with a</span>
+<span class="sd">    valid collection of extensions. (As .so is a valid extension, we can&#39;t just</span>
+<span class="sd">    check the end of the file name).</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">libName</span> <span class="ow">in</span> <span class="n">libs</span><span class="p">:</span>
+        <span class="n">libPrefix</span> <span class="o">=</span> <span class="n">libName</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">exts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">libPrefix</span> <span class="o">+</span> <span class="n">ext</span> <span class="o">==</span> <span class="n">libName</span><span class="p">:</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">libName</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="get_fs_iter_libs"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.get_fs_iter_libs">[docs]</a><span class="k">def</span> <span class="nf">get_fs_iter_libs</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Returns the paths of the default FsIterationScheme libraries usable on the</span>
+<span class="sd">    current machine (due to available SIMD optimisations -- these are detected by NumPy).</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">validExts</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">machinery</span><span class="o">.</span><span class="n">EXTENSION_SUFFIXES</span>
+    <span class="n">iterSchemesDir</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">get_code_location</span><span class="p">(),</span> <span class="s1">&#39;DefaultIterSchemes&#39;</span><span class="p">)</span>
+    <span class="n">schemes</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">iterSchemesDir</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span>
+                    <span class="n">filter_usable_simd_impls</span><span class="p">(</span>
+                        <span class="n">filter_fs_iter_libs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">iterSchemesDir</span><span class="p">),</span> <span class="n">validExts</span><span class="p">)</span>
+               <span class="p">)]</span>
+    <span class="k">return</span> <span class="n">schemes</span></div>
 
 <div class="viewcode-block" id="vac_to_air"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.vac_to_air">[docs]</a><span class="k">def</span> <span class="nf">vac_to_air</span><span class="p">(</span><span class="n">wavelength</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
     <span class="sd">&#39;&#39;&#39;</span>
@@ -217,13 +245,17 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    wavelength : float or array-like or astropy.Quantity</span>
-<span class="sd">        If no units then the wavelength is assumed to be in [nm], otherwise the provided units are used.</span>
+<span class="sd">        If no units then the wavelength is assumed to be in [nm], otherwise the</span>
+<span class="sd">        provided units are used.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    result : float or array-like or astropy.Quantity</span>
 <span class="sd">        The converted wavelength in [nm].</span>
 <span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># NOTE(cmo): Moved this import here as it&#39;s very slow</span>
+    <span class="c1">### HACK</span>
+    <span class="kn">from</span> <span class="nn">specutils.utils.wcs_utils</span> <span class="kn">import</span> <span class="n">vac_to_air</span> <span class="k">as</span> <span class="n">spec_vac_to_air</span>
     <span class="k">return</span> <span class="n">spec_vac_to_air</span><span class="p">(</span><span class="n">wavelength</span> <span class="o">&lt;&lt;</span> <span class="n">units</span><span class="o">.</span><span class="n">nm</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;edlen1966&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span></div>
 
 <div class="viewcode-block" id="air_to_vac"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.air_to_vac">[docs]</a><span class="k">def</span> <span class="nf">air_to_vac</span><span class="p">(</span><span class="n">wavelength</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -233,17 +265,23 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    wavelength : float or array-like or astropy.Quantity</span>
-<span class="sd">        If no units then the wavelength is assumed to be in [nm], otherwise the provided units are used.</span>
+<span class="sd">        If no units then the wavelength is assumed to be in [nm], otherwise the</span>
+<span class="sd">        provided units are used.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    result : float or array-like or astropy.Quantity</span>
 <span class="sd">        The converted wavelength in [nm].</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">return</span> <span class="n">spec_air_to_vac</span><span class="p">(</span><span class="n">wavelength</span> <span class="o">&lt;&lt;</span> <span class="n">units</span><span class="o">.</span><span class="n">nm</span><span class="p">,</span> <span class="n">scheme</span><span class="o">=</span><span class="s1">&#39;iteration&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;edlen1966&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span></div>
+    <span class="c1"># NOTE(cmo): Moved this import here as it&#39;s very slow</span>
+    <span class="c1">### HACK</span>
+    <span class="kn">from</span> <span class="nn">specutils.utils.wcs_utils</span> <span class="kn">import</span> <span class="n">air_to_vac</span> <span class="k">as</span> <span class="n">spec_air_to_vac</span>
+    <span class="k">return</span> <span class="n">spec_air_to_vac</span><span class="p">(</span><span class="n">wavelength</span> <span class="o">&lt;&lt;</span> <span class="n">units</span><span class="o">.</span><span class="n">nm</span><span class="p">,</span> <span class="n">scheme</span><span class="o">=</span><span class="s1">&#39;iteration&#39;</span><span class="p">,</span>
+                           <span class="n">method</span><span class="o">=</span><span class="s1">&#39;edlen1966&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span></div>
 
 <div class="viewcode-block" id="convert_specific_intensity"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.convert_specific_intensity">[docs]</a><span class="k">def</span> <span class="nf">convert_specific_intensity</span><span class="p">(</span><span class="n">wavelength</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-                               <span class="n">specInt</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">outUnits</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">units</span><span class="o">.</span><span class="n">quantity</span><span class="o">.</span><span class="n">Quantity</span><span class="p">:</span>
+                               <span class="n">specInt</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                               <span class="n">outUnits</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">units</span><span class="o">.</span><span class="n">quantity</span><span class="o">.</span><span class="n">Quantity</span><span class="p">:</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Convert a specific intensity between different units.</span>
 
@@ -337,10 +375,12 @@
         <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">shape</span><span class="p">,)</span>
 
     <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="n">ndim</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Array (</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">) does not have the expected number of dimensions: </span><span class="si">{</span><span class="n">ndim</span><span class="si">}</span><span class="s1"> (got: </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s1">).&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Array (</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">) does not have the expected number &#39;</span>
+                         <span class="sa">f</span><span class="s1">&#39;of dimensions: </span><span class="si">{</span><span class="n">ndim</span><span class="si">}</span><span class="s1"> (got: </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s1">).&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">shape</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Array (</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">) does not have the expected shape: </span><span class="si">{</span><span class="n">shape</span><span class="si">}</span><span class="s1"> (got: </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">).&#39;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Array (</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">) does not have the expected shape: &#39;</span>
+                         <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">shape</span><span class="si">}</span><span class="s1"> (got: </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">).&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="compute_radiative_losses"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.compute_radiative_losses">[docs]</a><span class="k">def</span> <span class="nf">compute_radiative_losses</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
     <span class="sd">&#39;&#39;&#39;</span>
@@ -361,7 +401,6 @@
 <span class="sd">        The radiative gains losses for each depth and wavelength in the</span>
 <span class="sd">        simulation.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">spect</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;spect&#39;</span><span class="p">]</span>
     <span class="n">atmos</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;atmos&#39;</span><span class="p">]</span>
 
     <span class="n">chiTot</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">depthData</span><span class="o">.</span><span class="n">chi</span>
@@ -407,7 +446,6 @@
         <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">lines</span><span class="p">]</span>
 
     <span class="n">spect</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;spect&#39;</span><span class="p">]</span>
-    <span class="n">atmos</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;atmos&#39;</span><span class="p">]</span>
 
     <span class="n">lineLosses</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
@@ -430,7 +468,9 @@
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
             <span class="n">lineLoss</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">weno4</span><span class="p">(</span><span class="n">wav</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">spect</span><span class="o">.</span><span class="n">wavelength</span><span class="p">,</span> <span class="n">loss</span><span class="p">[:,</span> <span class="n">k</span><span class="p">])</span>
         <span class="n">lineLosses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trapezoid</span><span class="p">(</span><span class="n">lineLoss</span><span class="p">,</span>
-                                    <span class="p">(</span><span class="n">wav</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">nm</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">Hz</span><span class="p">,</span> <span class="n">equivalencies</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">spectral</span><span class="p">())</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+                                    <span class="p">(</span><span class="n">wav</span> <span class="o">&lt;&lt;</span> <span class="n">units</span><span class="o">.</span><span class="n">nm</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">Hz</span><span class="p">,</span>
+                                                         <span class="n">equivalencies</span><span class="o">=</span><span class="n">units</span><span class="o">.</span><span class="n">spectral</span><span class="p">())</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+                          <span class="p">)</span>
     <span class="k">return</span> <span class="n">lineLosses</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lineLosses</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">lineLosses</span></div>
 
 
@@ -525,203 +565,6 @@
                                 <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">height</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="n">atmos</span><span class="o">.</span><span class="n">height</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span>
                                 <span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">height</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">height</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">atmos</span><span class="o">.</span><span class="n">height</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),)))</span>
     <span class="k">return</span> <span class="n">heightEdges</span></div>
-
-<div class="viewcode-block" id="grotrian_diagram"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.grotrian_diagram">[docs]</a><span class="k">def</span> <span class="nf">grotrian_diagram</span><span class="p">(</span><span class="n">atom</span> <span class="p">:</span> <span class="s1">&#39;AtomicModel&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">orbitalLabels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                     <span class="n">vacuumWavelength</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">highlightLines</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">adjustTextPositions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                     <span class="n">labelLevels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">wavelengthLabels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">continuumEdgeLabels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                     <span class="n">fontSize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">suppressLineLabels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rotateLabels</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Produce a Grotrian (term) diagram for a model atom.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    atom : AtomicModel</span>
-<span class="sd">        The model atom for which to produce the diagram.</span>
-<span class="sd">    ax : matplotlib.axis.Axes, optional</span>
-<span class="sd">        The axes on which to create the plot.</span>
-<span class="sd">    orbitalLabels : Optional[List[str]]</span>
-<span class="sd">        The labels for the oribtals on the x-axis.</span>
-<span class="sd">    vacuumWavelength : bool</span>
-<span class="sd">        Whether to plot the wavelengths with their vacuum values, or convert</span>
-<span class="sd">        to air. Default: True i.e. vacuum.</span>
-<span class="sd">    highlightLines : Optional[List[int]]</span>
-<span class="sd">        The indices of lines in atom.lines to highlight. These will be</span>
-<span class="sd">        plotted in red, whereas the others will be plotted in green.</span>
-<span class="sd">    adjustTextPositions: bool</span>
-<span class="sd">        Whether to move the wavelength labels around to avoid the level</span>
-<span class="sd">        labels and each other. Default: False.</span>
-<span class="sd">    labelLevels: bool or List[str]</span>
-<span class="sd">        Whether to label the levels (parsing the names for these from</span>
-<span class="sd">        atom.levels[i].label if True), or uses the provided strings (one per</span>
-<span class="sd">        level) if a List[str], or not label at all (False). Default: True.</span>
-<span class="sd">    wavelengthLabels : bool</span>
-<span class="sd">        Whether to label the wavelengths for each bound-bound transition.</span>
-<span class="sd">        Default: True.</span>
-<span class="sd">    continuumEdgeLabels : bool</span>
-<span class="sd">        Label the continuum edge wavelengths (only if wavelengthLabels also True).</span>
-<span class="sd">        Default: False.</span>
-<span class="sd">    fontSize: float</span>
-<span class="sd">        Font size to use for the annotations. Default: 9</span>
-<span class="sd">    suppressLineLabels : Optional[List[int]]</span>
-<span class="sd">        List of line indices to not print wavelength labels for. Default: None.</span>
-<span class="sd">    rotateLabels : bool</span>
-<span class="sd">        Whether to rotate the wavelength labels to lie along the line</span>
-<span class="sd">        transitions, does not work well with `adjustTextPositions`. Default: True</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-    <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
-    <span class="k">if</span> <span class="n">adjustTextPositions</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">adjustText</span> <span class="kn">import</span> <span class="n">adjust_text</span>
-
-    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
-
-    <span class="k">if</span> <span class="n">highlightLines</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">highlightLines</span> <span class="o">=</span> <span class="p">[]</span>
-
-    <span class="n">orbits</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;P&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="s1">&#39;G&#39;</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;I&#39;</span><span class="p">,</span> <span class="s1">&#39;K&#39;</span><span class="p">,</span> <span class="s1">&#39;L&#39;</span><span class="p">,</span> <span class="s1">&#39;M&#39;</span><span class="p">,</span> <span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="s1">&#39;Q&#39;</span><span class="p">,</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">,</span> <span class="s1">&#39;U&#39;</span><span class="p">,</span> <span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;W&#39;</span><span class="p">,</span> <span class="s1">&#39;X&#39;</span><span class="p">]</span>
-
-    <span class="n">levels</span> <span class="o">=</span> <span class="p">[</span><span class="n">copy</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">]</span>
-    <span class="n">levelTrueEEv</span> <span class="o">=</span> <span class="p">[</span><span class="n">level</span><span class="o">.</span><span class="n">E_eV</span> <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">]</span>
-    <span class="c1"># NOTE(cmo): Just assume that it is, even if it has a defined L (e.g. for</span>
-    <span class="c1"># polarisation reasons)</span>
-    <span class="c1"># if atom.levels[-1].L is not None:</span>
-    <span class="c1">#     raise ValueError(&#39;Last level should be ground term&#39;)</span>
-
-    <span class="n">ls</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">L</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]])))</span>
-
-    <span class="n">avoidLevelLabels</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="c1"># NOTE(cmo): Draw levels in</span>
-    <span class="n">MinLevelGap</span> <span class="o">=</span> <span class="mf">0.2</span>
-    <span class="k">for</span> <span class="n">currentL</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">:</span>
-        <span class="n">currentEnergies</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">levels</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-            <span class="k">if</span> <span class="n">level</span><span class="o">.</span><span class="n">L</span> <span class="o">==</span> <span class="n">currentL</span><span class="p">:</span>
-                <span class="n">e</span> <span class="o">=</span> <span class="n">level</span><span class="o">.</span><span class="n">E_eV</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">currentEnergies</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">energyDiff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">e</span> <span class="o">-</span> <span class="n">ee</span> <span class="k">for</span> <span class="n">ee</span> <span class="ow">in</span> <span class="n">currentEnergies</span><span class="p">])</span>
-                    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">energyDiff</span><span class="p">))</span>
-                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">energyDiff</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">MinLevelGap</span><span class="p">:</span>
-                        <span class="n">e</span> <span class="o">=</span> <span class="n">currentEnergies</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">energyDiff</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span> <span class="o">*</span> <span class="n">MinLevelGap</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">level</span><span class="o">.</span><span class="n">L</span><span class="o">-</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">level</span><span class="o">.</span><span class="n">L</span><span class="o">+</span><span class="mf">0.25</span><span class="p">],</span> <span class="p">[</span><span class="n">e</span><span class="p">,</span> <span class="n">e</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;C0&#39;</span><span class="p">)</span>
-                <span class="n">currentEnergies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-                <span class="n">level</span><span class="o">.</span><span class="n">E</span> <span class="o">=</span> <span class="n">e</span> <span class="o">*</span> <span class="n">C</span><span class="o">.</span><span class="n">EV</span> <span class="o">*</span> <span class="n">C</span><span class="o">.</span><span class="n">CM_TO_M</span> <span class="o">/</span> <span class="n">C</span><span class="o">.</span><span class="n">HC</span>
-
-
-
-    <span class="c1"># NOTE(cmo): Draw overlying cont</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="nb">min</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span><span class="o">-</span><span class="mf">0.25</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span><span class="o">+</span><span class="mf">0.25</span><span class="p">],</span> <span class="p">[</span><span class="n">levels</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">E_eV</span><span class="p">,</span> <span class="n">levels</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">E_eV</span><span class="p">],</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;C0&#39;</span><span class="p">)</span>
-
-    <span class="n">texts</span> <span class="o">=</span> <span class="p">[]</span>
-
-    <span class="c1"># NOTE(cmo): Draw b-f</span>
-    <span class="n">contPerCol</span> <span class="o">=</span> <span class="p">{</span><span class="n">L</span><span class="p">:</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">L</span> <span class="ow">in</span> <span class="n">ls</span><span class="p">}</span>
-    <span class="k">for</span> <span class="n">cont</span> <span class="ow">in</span> <span class="n">atom</span><span class="o">.</span><span class="n">continua</span><span class="p">:</span>
-        <span class="n">lu</span> <span class="o">=</span> <span class="n">levels</span><span class="p">[</span><span class="n">cont</span><span class="o">.</span><span class="n">j</span><span class="p">]</span>
-        <span class="n">ll</span> <span class="o">=</span> <span class="n">levels</span><span class="p">[</span><span class="n">cont</span><span class="o">.</span><span class="n">i</span><span class="p">]</span>
-        <span class="n">nc</span> <span class="o">=</span> <span class="n">contPerCol</span><span class="p">[</span><span class="n">ll</span><span class="o">.</span><span class="n">L</span><span class="p">]</span>
-        <span class="n">contPerCol</span><span class="p">[</span><span class="n">ll</span><span class="o">.</span><span class="n">L</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="n">xLoc</span> <span class="o">=</span> <span class="n">ll</span><span class="o">.</span><span class="n">L</span> <span class="o">+</span> <span class="mf">0.05</span> <span class="o">*</span> <span class="n">nc</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">xLoc</span><span class="p">,</span><span class="n">lu</span><span class="o">.</span><span class="n">E_eV</span><span class="p">),</span> <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="n">xLoc</span><span class="p">,</span> <span class="n">ll</span><span class="o">.</span><span class="n">E_eV</span><span class="p">),</span> <span class="n">arrowprops</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;arrowstyle&#39;</span><span class="p">:</span><span class="s1">&#39;-&gt;&#39;</span><span class="p">,</span><span class="s1">&#39;color&#39;</span><span class="p">:</span><span class="s1">&#39;y&#39;</span><span class="p">})</span>
-        <span class="k">if</span> <span class="n">wavelengthLabels</span> <span class="ow">and</span> <span class="n">continuumEdgeLabels</span><span class="p">:</span>
-            <span class="n">textX</span> <span class="o">=</span> <span class="n">ll</span><span class="o">.</span><span class="n">L</span>
-            <span class="c1"># textY = lu.E_eV - 0.05 * (ll.E_eV + lu.E_eV)</span>
-            <span class="n">textY</span> <span class="o">=</span> <span class="n">lu</span><span class="o">.</span><span class="n">E_eV</span> <span class="o">-</span> <span class="mf">0.5</span>
-            <span class="n">lambdaEdge</span> <span class="o">=</span> <span class="n">cont</span><span class="o">.</span><span class="n">lambdaEdge</span> <span class="k">if</span> <span class="n">vacuumWavelength</span> <span class="k">else</span> <span class="n">vac_to_air</span><span class="p">(</span><span class="n">cont</span><span class="o">.</span><span class="n">lambdaEdge</span><span class="p">)</span>
-            <span class="n">a</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">lambdaEdge</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">textX</span><span class="p">,</span> <span class="n">textY</span><span class="p">),</span>
-                            <span class="n">fontsize</span><span class="o">=</span><span class="n">fontSize</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
-            <span class="n">texts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-
-
-    <span class="n">ax</span><span class="o">.</span><span class="n">relim</span><span class="p">()</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">autoscale_view</span><span class="p">()</span>
-
-
-    <span class="c1"># NOTE(cmo): Draw b-b</span>
-    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">lines</span><span class="p">):</span>
-        <span class="n">lu</span> <span class="o">=</span> <span class="n">levels</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">j</span><span class="p">]</span>
-        <span class="n">ll</span> <span class="o">=</span> <span class="n">levels</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">i</span><span class="p">]</span>
-        <span class="n">lineColor</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span> <span class="k">if</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">highlightLines</span> <span class="k">else</span> <span class="s1">&#39;g&#39;</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">ll</span><span class="o">.</span><span class="n">L</span><span class="p">,</span><span class="n">ll</span><span class="o">.</span><span class="n">E_eV</span><span class="p">),</span> <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="n">lu</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="n">lu</span><span class="o">.</span><span class="n">E_eV</span><span class="p">),</span><span class="n">arrowprops</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;arrowstyle&#39;</span><span class="p">:</span><span class="s1">&#39;-&gt;&#39;</span><span class="p">,</span><span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="n">lineColor</span><span class="p">})</span>
-        <span class="k">if</span> <span class="n">wavelengthLabels</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">suppressLineLabels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">suppressLineLabels</span><span class="p">:</span>
-                <span class="k">continue</span>
-            <span class="n">textX</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">ll</span><span class="o">.</span><span class="n">L</span> <span class="o">+</span> <span class="n">lu</span><span class="o">.</span><span class="n">L</span><span class="p">)</span>
-            <span class="n">textY</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">ll</span><span class="o">.</span><span class="n">E_eV</span> <span class="o">+</span> <span class="n">lu</span><span class="o">.</span><span class="n">E_eV</span><span class="p">)</span>
-            <span class="n">lambda0</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">lambda0</span> <span class="k">if</span> <span class="n">vacuumWavelength</span> <span class="k">else</span> <span class="n">vac_to_air</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">lambda0</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">rotateLabels</span><span class="p">:</span>
-                <span class="n">angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">lu</span><span class="o">.</span><span class="n">E_eV</span> <span class="o">-</span> <span class="n">ll</span><span class="o">.</span><span class="n">E_eV</span><span class="p">,</span> <span class="n">lu</span><span class="o">.</span><span class="n">L</span> <span class="o">-</span> <span class="n">ll</span><span class="o">.</span><span class="n">L</span><span class="p">))</span>
-                <span class="k">if</span> <span class="n">angle</span> <span class="o">&gt;</span> <span class="mi">90</span><span class="p">:</span>
-                    <span class="n">angle</span> <span class="o">-=</span> <span class="mf">180.0</span>
-                <span class="n">a</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">textX</span> <span class="o">+</span> <span class="mf">0.1</span> <span class="p">,</span> <span class="n">textY</span> <span class="o">-</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">lambda0</span><span class="p">,</span><span class="c1"># xy=(textX, textY),</span>
-                                <span class="n">fontsize</span><span class="o">=</span><span class="n">fontSize</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">transform_rotates_text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">a</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">lambda0</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">textX</span><span class="p">,</span> <span class="n">textY</span><span class="p">),</span>
-                                <span class="n">fontsize</span><span class="o">=</span><span class="n">fontSize</span><span class="p">)</span>
-            <span class="n">texts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-
-    <span class="c1"># NOTE(cmo): Label levels on top</span>
-    <span class="k">if</span> <span class="n">labelLevels</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">labelLevels</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">):</span>
-            <span class="n">labelsUsed</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">levels</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-                <span class="n">endIdx</span> <span class="o">=</span> <span class="p">[</span><span class="n">level</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;E&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">]]</span>
-                <span class="n">maxIdx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">endIdx</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">maxIdx</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unable to determine parity of level </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">level</span><span class="p">)))</span>
-                <span class="n">label</span> <span class="o">=</span> <span class="n">level</span><span class="o">.</span><span class="n">label</span><span class="p">[:</span><span class="n">maxIdx</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
-                <span class="n">words</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">label</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-                <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">words</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-                <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">label</span> <span class="o">==</span> <span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">labelsUsed</span><span class="p">):</span>
-                    <span class="k">continue</span>
-                <span class="n">labelsUsed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
-                <span class="n">labelY</span> <span class="o">=</span> <span class="n">level</span><span class="o">.</span><span class="n">E_eV</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="k">if</span> <span class="n">level</span><span class="o">.</span><span class="n">E_eV</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">level</span><span class="o">.</span><span class="n">E_eV</span> <span class="o">+</span> <span class="mf">0.3</span>
-                <span class="n">labelX</span> <span class="o">=</span> <span class="n">level</span><span class="o">.</span><span class="n">L</span> <span class="o">-</span> <span class="mf">0.4</span> <span class="k">if</span> <span class="n">level</span><span class="o">.</span><span class="n">E_eV</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">level</span><span class="o">.</span><span class="n">L</span> <span class="o">-</span> <span class="mf">0.25</span>
-                <span class="n">a</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">labelX</span><span class="p">,</span> <span class="n">labelY</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontSize</span><span class="p">)</span>
-                <span class="n">avoidLevelLabels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-            <span class="n">a</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">levels</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">levels</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">E_eV</span> <span class="o">+</span> <span class="mf">0.04</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontSize</span><span class="p">)</span>
-            <span class="c1"># bbox={&#39;boxstyle&#39;: &#39;round,pad=0.3&#39;, &#39;fc&#39;: &#39;w&#39;, &#39;alpha&#39;: 0.2})</span>
-            <span class="n">avoidLevelLabels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">level</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">levels</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
-                <span class="n">labelY</span> <span class="o">=</span> <span class="n">level</span><span class="o">.</span><span class="n">E_eV</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="k">if</span> <span class="n">level</span><span class="o">.</span><span class="n">E_eV</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">level</span><span class="o">.</span><span class="n">E_eV</span> <span class="o">+</span> <span class="mf">0.3</span>
-                <span class="n">labelX</span> <span class="o">=</span> <span class="n">level</span><span class="o">.</span><span class="n">L</span> <span class="o">-</span> <span class="mf">0.4</span> <span class="k">if</span> <span class="n">level</span><span class="o">.</span><span class="n">E_eV</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">level</span><span class="o">.</span><span class="n">L</span> <span class="o">-</span> <span class="mf">0.25</span>
-                <span class="n">a</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">labelLevels</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">labelX</span><span class="p">,</span> <span class="n">labelY</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontSize</span><span class="p">)</span>
-                <span class="n">avoidLevelLabels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-            <span class="n">a</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">labelLevels</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">levels</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">E_eV</span> <span class="o">+</span> <span class="mf">0.04</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontSize</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;boxstyle&#39;</span><span class="p">:</span> <span class="s1">&#39;round,pad=0.3&#39;</span><span class="p">,</span> <span class="s1">&#39;fc&#39;</span><span class="p">:</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">})</span>
-            <span class="n">avoidLevelLabels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-
-
-    <span class="k">if</span> <span class="n">adjustTextPositions</span> <span class="ow">and</span> <span class="n">wavelengthLabels</span><span class="p">:</span>
-        <span class="n">adjust_text</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="n">autoalign</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">,</span> <span class="n">expand_text</span><span class="o">=</span><span class="p">(</span><span class="mf">1.05</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">),</span>
-                    <span class="n">force_text</span><span class="o">=</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span> <span class="n">arrowprops</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;arrowstyle&#39;</span><span class="p">:</span> <span class="s1">&#39;wedge&#39;</span><span class="p">},</span>
-                    <span class="c1"># bbox={&#39;boxstyle&#39;: &#39;round,pad=0.3&#39;, &#39;fc&#39;: &#39;g&#39;, &#39;alpha&#39;: 0.2},</span>
-                    <span class="c1"># avoid_self=False,</span>
-                    <span class="n">add_objects</span><span class="o">=</span><span class="n">avoidLevelLabels</span><span class="p">,</span> <span class="n">lim</span><span class="o">=</span><span class="mi">200</span> <span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">orbitalLabels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">orbitalLabels</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">labelled</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">levels</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-            <span class="k">if</span> <span class="n">level</span><span class="o">.</span><span class="n">L</span> <span class="ow">in</span> <span class="n">labelled</span><span class="p">:</span>
-                <span class="k">continue</span>
-            <span class="n">labelled</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">level</span><span class="o">.</span><span class="n">L</span><span class="p">)</span>
-            <span class="n">label</span> <span class="o">=</span> <span class="n">level</span><span class="o">.</span><span class="n">label</span>
-            <span class="n">split</span> <span class="o">=</span> <span class="n">label</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-            <span class="n">idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">split</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
-            <span class="k">while</span> <span class="n">idx</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">split</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="k">break</span>
-                <span class="n">idx</span> <span class="o">-=</span> <span class="mi">1</span>
-
-            <span class="n">orbitalLabels</span><span class="p">[</span><span class="n">level</span><span class="o">.</span><span class="n">L</span><span class="p">]</span> <span class="o">=</span> <span class="n">split</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
-        <span class="n">orbitalLabels</span> <span class="o">=</span> <span class="p">[</span><span class="n">orbitalLabels</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">orbitalLabels</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">orbitalLabels</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Length of orbital labels does not match provided number of different Ls in the model atom&#39;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">orbitalLabels</span><span class="p">)</span>
-
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Energy [eV]&#39;</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
@@ -731,7 +574,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020, C. Osborne.</p>
+    <p>&#169; Copyright 2022, C. Osborne.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

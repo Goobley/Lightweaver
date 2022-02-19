@@ -10,27 +10,11 @@ Herein we also conserve charge.
 Judge (2017): ApJ 851, 5
 '''
 from lightweaver.fal import Falc82
-from lightweaver.rh_atoms import H_6_atom, H_6_CRD_atom, H_4_atom, C_atom, O_atom, OI_ord_atom, Si_atom, Al_atom, CaII_atom, Fe_atom, FeI_atom, He_9_atom, He_atom, He_large_atom, MgII_atom, N_atom, Na_atom, S_atom
+from lightweaver.rh_atoms import  H_4_atom, C_atom, O_atom, Si_atom, Al_atom, CaII_atom, Fe_atom, He_atom, MgII_atom, N_atom, Na_atom, S_atom
 import matplotlib.pyplot as plt
-from copy import deepcopy
 import time
 import numpy as np
 import lightweaver as lw
-
-def iterate_ctx(ctx, Nscatter=3, NmaxIter=500):
-    '''
-    Iterate a context to statistical equilbrium convergence.
-    '''
-    for i in range(NmaxIter):
-        dJ = ctx.formal_sol_gamma_matrices()
-        if i < Nscatter:
-            continue
-        delta = ctx.stat_equil()
-
-        if dJ < 3e-3 and delta < 1e-3:
-            print(i)
-            print('----------')
-            return
 
 #%%
 # Set up the standard FAL C 82 point initial atmosphere.
@@ -42,11 +26,11 @@ aSet.set_active('H')
 spect = aSet.compute_wavelength_grid()
 
 eqPops = aSet.iterate_lte_ne_eq_pops(atmos)
-ctx = lw.Context(atmos, spect, eqPops, conserveCharge=True, Nthreads=8)
+ctx = lw.Context(atmos, spect, eqPops, conserveCharge=True, Nthreads=1)
 
 #%%
 # Find the initial statistical equilibrium solution,
-iterate_ctx(ctx)
+lw.iterate_ctx_se(ctx)
 
 print('Achieved initial Stat Eq\n\n')
 
@@ -76,16 +60,19 @@ for it in range(NtStep):
 
     prevState = None
     for sub in range(NsubStep):
-        dJ = ctx.formal_sol_gamma_matrices()
+        JUpdate = ctx.formal_sol_gamma_matrices()
         # If prevState is None, then the function assumes that this is the
         # subiteration for this step and constructs and returns prevState
-        delta, prevState = ctx.time_dep_update(dt, prevState)
+        popsUpdate, prevState = ctx.time_dep_update(dt, prevState)
         # Update electron density.
-        deltaNr = ctx.nr_post_update(timeDependentData={'dt': dt, 'nPrev': prevState})
-        delta = max(delta, deltaNr)
+        # If conserveCharge is set to True when the context is constructed, then
+        # the effects of `time_dep_update` are included in the IterationUpdate
+        # returned from `nr_post_update`, as the Context is expecting this to be
+        # called immediately after `time_dep_update`.
+        nrUpdate = ctx.nr_post_update(timeDependentData={'dt': dt, 'nPrev': prevState})
 
         # Check subiteration convergence
-        if delta < 1e-3 and dJ < 3e-3:
+        if nrUpdate.dPopsMax < 1e-3 and JUpdate.dJMax < 3e-3:
             subIters.append(sub)
             break
     else:
