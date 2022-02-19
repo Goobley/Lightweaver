@@ -151,8 +151,8 @@ posixCiArgs : Dict[str, List[str]] = {
     'aix': []
 }
 posixLinkerArgs = {
-    'linux': ['-Wl,-rpath,$ORIGIN', '-Wl,-zlazy'],
-    'darwin': ['-Wl,-rpath,@loader_path'],
+    'linux': ['-Wl,-rpath,$ORIGIN', '-Wl,-rpath,$ORIGIN/..', '-Wl,-zlazy'],
+    'darwin': ['-Wl,-rpath,@loader_path', '-Wl,-rpath,@loader_path/..'],
     'win32': [],
     'cygwin': [],
     'aix': []
