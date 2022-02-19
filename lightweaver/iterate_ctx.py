@@ -90,8 +90,9 @@ def iterate_ctx_se(ctx: 'Context', Nscatter: int=3, NmaxIter: int=2000,
                    convergence: Optional[Type[ConvergenceCriteria]]=None):
     '''
     Iterate a configured Context towards statistical equilibrium solution.
-    Arguments
-    ---------
+
+    Parameters
+    ----------
     ctx : Context
         The context to iterate.
     Nscatter : int, optional

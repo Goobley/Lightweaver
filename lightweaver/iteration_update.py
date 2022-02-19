@@ -10,6 +10,7 @@ class IterationUpdate:
     Stores the results of an iteration of one of the backend functions, and
     determines how to format this for printing. All changes refer to relative
     change.
+
     Attributes
     ----------
     ctx : Context
@@ -53,14 +54,12 @@ class IterationUpdate:
         The maximum change in J during each PRD sub-iteration.
     dJPrdMaxIdx : int
         The location of the maximum change in J for each PRD sub-iteration.
-
-    Properties
-    ----------
     dPopsMax : float
-        The maximum population change (including ne) over the iteration.
+        The maximum population change (including ne) over the iteration
+        (read-only property).
     dRhoMax : float
         The maximum change in the PRD rho value for any line in the final
-        subiteration.
+        subiteration (read-only property).
     '''
     ctx: 'Context'
     crsw: float = 1.0

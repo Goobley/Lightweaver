@@ -259,6 +259,9 @@ def extension_list(args):
                                 optional=True))
     return lwExts
 
+# NOTE(cmo): Delete pre-existing build directory if present, otherwise building
+# multiple wheels results in all of the libraries (for different python versions
+# being copied into them...)
 if CI_BUILD and path.exists(BuildDir) and path.isdir(BuildDir):
     shutil.rmtree(BuildDir)
 
