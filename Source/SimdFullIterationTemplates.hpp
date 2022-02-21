@@ -300,12 +300,16 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
                     }
                     else
                     {
-                        memcpy(&depth.chi(la, 0, 0, 0),
-                               chiTot.data,
-                               Nrays * 2 * Nspace * sizeof(f64));
-                        memcpy(&depth.eta(la, 0, 0, 0),
-                               etaTot.data,
-                               Nrays * 2 * Nspace * sizeof(f64));
+                        for (int mu = 0; mu < Nrays; ++mu)
+                        {
+                            for (int toObsI = 0; toObsI < toObsEnd; toObsI += 1)
+                            {
+                                memcpy(&depth.chi(la, mu, toObsI, 0),
+                                       chiTot.data, Nspace * sizeof(f64));
+                                memcpy(&depth.eta(la, mu, toObsI, 0),
+                                       etaTot.data, Nspace * sizeof(f64));
+                            }
+                        }
                     }
                 }
             }
@@ -403,8 +407,8 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
             if constexpr (StoreDepthData)
             {
                 auto& depth = *data.depthData;
-                for (int k = 0; k < Nspace; ++k)
-                    depth.I(la, mu, toObsI, k) = I(k);
+                memcpy(&depth.I(la, mu, toObsI, 0),
+                        I.data, Nspace * sizeof(f64));
             }
         }
     }
