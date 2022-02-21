@@ -970,16 +970,20 @@ class Atmosphere:
                 # Convert to cgs for eos
                 pgas = Pgas * (Const.CM_TO_M**2 / Const.G_TO_KG)
                 pe = np.zeros(Nspace)
+                rho = np.zeros(Nspace)
                 for k in range(Nspace):
                     pe[k] = eos.pe_from_pg(temperature[k], pgas[k])
+                    rho[k] = eos.rho_from_pg(temperature[k], pgas[k])
             elif Pe is not None and Pgas is None:
                 if verbose:
                     print('Setting ne, nHTot from provided electron pressure.')
                 # Convert to cgs for eos
                 pe = Pe * (Const.CM_TO_M**2 / Const.G_TO_KG)
                 pgas = np.zeros(Nspace)
+                rho = np.zeros(Nspace)
                 for k in range(Nspace):
                     pgas[k] = eos.pg_from_pe(temperature[k], pe[k])
+                    rho[k] = eos.rho_from_pe(temperature[k], pe[k])
             elif Pgas is None and Pe is None:
                 # Doing Hydrostatic Eq. based here on NICOLE implementation
                 gravAcc = 10**logG / Const.CM_TO_M
