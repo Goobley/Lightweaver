@@ -83,6 +83,8 @@ namespace LwInternal
         F64View Vji;
         F64View2D I;
         F64View2D S;
+        F64View2D J20;
+        F64Arr* J20Dag;
     };
 
     inline void w2(f64 dtau, f64* w)

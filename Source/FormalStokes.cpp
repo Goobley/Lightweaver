@@ -353,8 +353,6 @@ void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int la, int mu, bool toOb
     }
 
     JasUnpack((*fd), atmos, chi);
-    // This is 1.0 here, as we are normally effectively rolling in the averaging
-    // factor for dtau, whereas it's explicit in this solver
     f64 zmu = 1.0 / atmos->muz(mu);
     auto height = atmos->height;
 
@@ -423,16 +421,23 @@ namespace GammaFsCores
 f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ, bool upOnly)
 {
     JasUnpack(*data, atmos, spect, fd, background);
-    JasUnpack(*data, activeAtoms, detailedAtoms, JDag);
+    JasUnpack(*data, activeAtoms, detailedAtoms, JDag, J20Dag);
     JasUnpack(data, chiTot, etaTot, Uji, Vij, Vji, I, S);
+    JasUnpack(data, J20);
 
     const int Nspace = atmos.Nspace;
     const int Nrays = atmos.Nrays;
+    const f64 inv2root2 = 1.0 / (2.0 * sqrt(2.0));
     F64View J = spect.J(la);
     if (updateJ)
     {
         JDag = spect.J(la);
         J.fill(0.0);
+        if (J20)
+        {
+            J20Dag = J20(la);
+            J20(la).fill(0.0);
+        }
     }
 
     for (int a = 0; a < activeAtoms.size(); ++a)
@@ -464,6 +469,9 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ, bool upOnly)
             continuaOnly = continuaOnly && (t.type == CONTINUUM);
         }
     }
+    // NOTE(cmo): Need full integration if we're doing J20.
+    if (J20)
+        continuaOnly = false;
 
     int toObsStart = 0;
     int toObsEnd = 2;
@@ -473,11 +481,16 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ, bool upOnly)
     f64 dJMax = 0.0;
     for (int mu = 0; mu < Nrays; ++mu)
     {
+        // NOTE(cmo): Whilst these don't directly match LL04, they do nicely
+        // match Trujillo Bueno 2001
+        // See also Fluri & Stenflo 1999, Del Pino Aléman et al 2014.
+        const f64 mu2 = square(atmos.muz(mu));
+        const f64 wJ20_I = inv2root2 * (3.0 * mu2 - 1.0);
+        const f64 wJ20_Q = inv2root2 * 3.0 * (mu2 - 1.0); // -3/(2sqrt2) sin^2\theta
         for (int toObsI = toObsStart; toObsI < toObsEnd; toObsI += 1)
         {
             bool toObs = (bool)toObsI;
-            bool polarisedFrequency = false;
-            // const f64 sign = If toObs Then 1.0 Else -1.0 End;
+            bool polarisedFrequency = J20 || false;
             if (!continuaOnly || (continuaOnly && (mu == 0 && toObsI == toObsStart)))
             {
                 chiTot.fill(0.0);
@@ -562,10 +575,23 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ, bool upOnly)
                     }
                 }
 
+                if (J20)
+                {
+                    F64View sca = background.sca(la);
+                    for (int k = 0; k < Nspace; ++k)
+                    {
+                        etaTot(0, k) += wJ20_I * sca(k) * J20Dag(k);
+                        etaTot(1, k) += wJ20_Q * sca(k) * J20Dag(k);
+                    }
+                }
+
+                F64View chiBg = background.chi(la);
+                F64View etaBg = background.eta(la);
+                F64View sca = background.sca(la);
                 for (int k = 0; k < Nspace; ++k)
                 {
-                    chiTot(0, k) += background.chi(la, k);
-                    S(0, k) = (etaTot(0, k) + background.eta(la, k) + background.sca(la, k) * JDag(k)) / chiTot(0, k);
+                    chiTot(0, k) += chiBg(k);
+                    S(0, k) = (etaTot(0, k) + etaBg(k) + sca(k) * JDag(k)) / chiTot(0, k);
                 }
                 if (polarisedFrequency)
                 {
@@ -611,9 +637,17 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ, bool upOnly)
             // TODO(cmo): Rates?
             if (updateJ)
             {
+                const f64 wmu = atmos.wmu(mu);
                 for (int k = 0; k < Nspace; ++k)
                 {
-                    J(k) += 0.5 * atmos.wmu(mu) * I(0, k);
+                    J(k) += 0.5 * wmu * I(0, k);
+                }
+                if (J20)
+                {
+                    const f64 wmuJ20_I = wJ20_I * wmu;
+                    const f64 wmuJ20_Q = wJ20_Q * wmu;
+                    for (int k = 0; k < Nspace; ++k)
+                        J20(la, k) += wmuJ20_I * I(0, k) + wmuJ20_Q * I(1, k);
                 }
             }
         }
@@ -643,6 +677,14 @@ IterationResult formal_sol_full_stokes_impl(Context& ctx, bool updateJ, bool upO
     const int Nrays = atmos.Nrays;
     const int Nspect = spect.wavelength.shape(0);
 
+    F64View2D J20;
+    F64Arr J20Dag;
+    if (params.contains("J20"))
+    {
+        J20 = params.get_as<F64View2D>("J20");
+        J20Dag = F64Arr(Nspace);
+    }
+
     F64Arr2D chiTot = F64Arr2D(7, Nspace);
     F64Arr2D etaTot = F64Arr2D(4, Nspace);
     F64Arr2D S = F64Arr2D(4, Nspace);
@@ -663,8 +705,9 @@ IterationResult formal_sol_full_stokes_impl(Context& ctx, bool updateJ, bool upO
     fd.fdIntens.interp = ctx.interpFn.interp_2d;
     StokesCoreData core;
     JasPackPtr(core, atmos, spect, fd, background);
-    JasPackPtr(core, activeAtoms, detailedAtoms, JDag);
+    JasPackPtr(core, activeAtoms, detailedAtoms, JDag, J20Dag);
     JasPack(core, chiTot, etaTot, Uji, Vij, Vji, I, S);
+    JasPack(core, J20);
 
     f64 dJMax = 0.0;
     int maxIdx = 0;
