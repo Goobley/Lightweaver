@@ -81,6 +81,7 @@
 <span class="sd">    Stores the results of an iteration of one of the backend functions, and</span>
 <span class="sd">    determines how to format this for printing. All changes refer to relative</span>
 <span class="sd">    change.</span>
+
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ctx : Context</span>
@@ -124,14 +125,12 @@
 <span class="sd">        The maximum change in J during each PRD sub-iteration.</span>
 <span class="sd">    dJPrdMaxIdx : int</span>
 <span class="sd">        The location of the maximum change in J for each PRD sub-iteration.</span>
-
-<span class="sd">    Properties</span>
-<span class="sd">    ----------</span>
 <span class="sd">    dPopsMax : float</span>
-<span class="sd">        The maximum population change (including ne) over the iteration.</span>
+<span class="sd">        The maximum population change (including ne) over the iteration</span>
+<span class="sd">        (read-only property).</span>
 <span class="sd">    dRhoMax : float</span>
 <span class="sd">        The maximum change in the PRD rho value for any line in the final</span>
-<span class="sd">        subiteration.</span>
+<span class="sd">        subiteration (read-only property).</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="s1">&#39;Context&#39;</span>
     <span class="n">crsw</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>

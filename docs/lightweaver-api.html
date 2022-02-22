@@ -3627,16 +3627,13 @@ this.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="lightweaver.iterate_ctx.iterate_ctx_se">
 <span class="sig-prename descclassname"><span class="pre">lightweaver.iterate_ctx.</span></span><span class="sig-name descname"><span class="pre">iterate_ctx_se</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Nscatter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NmaxIter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">JTol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.005</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">popsTol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhoTol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prdIterTol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxPrdSubIter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">printInterval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#lightweaver.iterate_ctx.ConvergenceCriteria" title="lightweaver.iterate_ctx.ConvergenceCriteria"><span class="pre">lightweaver.iterate_ctx.ConvergenceCriteria</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/iterate_ctx.html#iterate_ctx_se"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.iterate_ctx.iterate_ctx_se" title="Permalink to this definition"></a></dt>
-<dd><p>Iterate a configured Context towards statistical equilibrium solution.
-:param ctx: The context to iterate.
-:type ctx: Context
-:param Nscatter: The number of lambda iterations to perform for an initial estimate of J</p>
-<blockquote>
-<div><p>(default: 3).</p>
-</div></blockquote>
+<dd><p>Iterate a configured Context towards statistical equilibrium solution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>ctx</strong> (<em>Context</em>) – The context to iterate.</p></li>
+<li><p><strong>Nscatter</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of lambda iterations to perform for an initial estimate of J
+(default: 3).</p></li>
 <li><p><strong>NmaxIter</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum number of iterations (including Nscatter) to take (default:
 2000).</p></li>
 <li><p><strong>prd</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to perform PRD subiterations to estimate rho for PRD lines
@@ -3674,16 +3671,18 @@ will then be used.  (Default: DefaultConvergenceCriteria).</p></li>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Stores the results of an iteration of one of the backend functions, and
 determines how to format this for printing. All changes refer to relative
-change.
-.. attribute:: ctx</p>
-<blockquote>
-<div><p>The context with which this update is associated.</p>
+change.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.ctx">
+<span class="sig-name descname"><span class="pre">ctx</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.ctx" title="Permalink to this definition"></a></dt>
+<dd><p>The context with which this update is associated.</p>
 <dl class="field-list simple">
-<dt class="field-odd">type</dt>
+<dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>Context</p>
 </dd>
 </dl>
-</div></blockquote>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.crsw">
 <span class="sig-name descname"><span class="pre">crsw</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.crsw" title="Permalink to this definition"></a></dt>
@@ -3886,19 +3885,10 @@ each sub-iteration &lt; NprdSubIter.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.Properties">
-<span class="sig-name descname"><span class="pre">Properties</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.Properties" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">----------</span></span></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.dPopsMax">
 <span class="sig-name descname"><span class="pre">dPopsMax</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.dPopsMax" title="Permalink to this definition"></a></dt>
-<dd><p>The maximum population change (including ne) over the iteration.</p>
+<dd><p>The maximum population change (including ne) over the iteration
+(read-only property).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>float</p>
@@ -3910,7 +3900,7 @@ each sub-iteration &lt; NprdSubIter.</p>
 <dt class="sig sig-object py" id="lightweaver.iteration_update.IterationUpdate.dRhoMax">
 <span class="sig-name descname"><span class="pre">dRhoMax</span></span><a class="headerlink" href="#lightweaver.iteration_update.IterationUpdate.dRhoMax" title="Permalink to this definition"></a></dt>
 <dd><p>The maximum change in the PRD rho value for any line in the final
-subiteration.</p>
+subiteration (read-only property).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>float</p>
@@ -5431,6 +5421,8 @@ the line profiles will be recomputed. (Default: False)</p></li>
 <li><p><strong>updateJ</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to update J on the Context during the calculation (Default: False)</p></li>
 <li><p><strong>upOnly</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to compute the formal solver only for upgoing rays (used in
 final synthesis).</p></li>
+<li><p><strong>extraParams</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dict of extra parameters to be converted through the
+<cite>dict2ExtraParams</cite> function and passed onto the C++ core.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
