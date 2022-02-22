@@ -4,6 +4,7 @@
 #include "Constants.hpp"
 #include "LwAtmosphere.hpp"
 #include "LwIterationResult.hpp"
+#include "LwExtraParams.hpp"
 
 struct Context;
 struct Atom;
@@ -84,7 +85,8 @@ struct InterpFnManager
 struct PrdIterData;
 typedef IterationResult(*FormalSolIterFn)(Context& ctx, bool lambdaIterate);
 typedef IterationResult(*SimpleFormalSol)(Context& ctx, bool upOnly);
-typedef IterationResult(*FullStokesFormalSol)(Context& ctx, bool updateJ, bool upOnly);
+typedef IterationResult(*FullStokesFormalSol)(Context& ctx, bool updateJ, bool upOnly,
+                                              ExtraParams params);
 typedef IterationResult(*RedistPrdLinesFn)(Context& ctx, int maxIter, f64 tol);
 typedef void(*StatEqFn)(Atom* atom, int spaceStart, int spaceEnd);
 typedef void(*TimeDepUpdateFn)(Atom* atomIn, F64View2D nOld, f64 dt,

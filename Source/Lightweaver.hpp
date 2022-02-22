@@ -7,6 +7,7 @@
 #include "LwAtom.hpp"
 #include "LwContext.hpp"
 #include "LwIterationResult.hpp"
+#include "LwExtraParams.hpp"
 
 struct NrTimeDependentData
 {
@@ -18,9 +19,12 @@ IterationResult formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate=false
 IterationResult formal_sol_iteration_matrices_scalar(Context& ctx, bool lambdaIterate=false);
 IterationResult formal_sol(Context& ctx, bool upOnly=true);
 IterationResult formal_sol_scalar(Context& ctx, bool upOnly=true);
-IterationResult formal_sol_full_stokes(Context& ctx, bool updateJ=false, bool upOnly=true);
+IterationResult formal_sol_full_stokes(Context& ctx, bool updateJ=false,
+                                       bool upOnly=true,
+                                       ExtraParams params=ExtraParams{});
 IterationResult formal_sol_full_stokes_impl(Context& ctx, bool updateJ=false,
-                                            bool upOnly=true);
+                                            bool upOnly=true,
+                                            ExtraParams params=ExtraParams{});
 IterationResult redistribute_prd_lines(Context& ctx, int maxIter, f64 tol);
 IterationResult redistribute_prd_lines_scalar(Context& ctx, int maxIter, f64 tol);
 void stat_eq(Context& ctx,  Atom* atom, int spaceStart=-1, int spaceEnd=-1);

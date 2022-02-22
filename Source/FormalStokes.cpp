@@ -630,7 +630,8 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ, bool upOnly)
 }
 }
 
-IterationResult formal_sol_full_stokes_impl(Context& ctx, bool updateJ, bool upOnly)
+IterationResult formal_sol_full_stokes_impl(Context& ctx, bool updateJ, bool upOnly,
+                                            ExtraParams params)
 {
     JasUnpack(*ctx, atmos, spect, background);
     JasUnpack(ctx, activeAtoms, detailedAtoms);
@@ -682,7 +683,8 @@ IterationResult formal_sol_full_stokes_impl(Context& ctx, bool updateJ, bool upO
     return result;
 }
 
-IterationResult formal_sol_full_stokes(Context& ctx, bool updateJ, bool upOnly)
+IterationResult formal_sol_full_stokes(Context& ctx, bool updateJ, bool upOnly,
+                                       ExtraParams params)
 {
-    return ctx.iterFns.full_stokes_fs(ctx, updateJ, upOnly);
+    return ctx.iterFns.full_stokes_fs(ctx, updateJ, upOnly, params);
 }

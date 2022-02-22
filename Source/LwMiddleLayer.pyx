@@ -3,6 +3,7 @@ cimport numpy as np
 from CmoArray cimport *
 from libcpp cimport bool as bool_t
 from libcpp.vector cimport vector
+from libcpp.string cimport string
 from libc.math cimport sqrt, exp, copysign
 from .atmosphere import BoundaryCondition, ZeroRadiation, ThermalisedRadiation, PeriodicRadiation, NoBc
 from .atomic_model import AtomicLine, LineType, LineProfileState
@@ -84,6 +85,18 @@ cdef extern from "LwIterationResult.hpp":
         bool_t updatedJPrd
         vector[f64] dJPrdMax
         vector[int] dJPrdMaxIdx
+
+cdef extern from "LwExtraParams.hpp":
+    cdef cppclass ExtraParams:
+        # NOTE(cmo): The const char* overloads are just to make Cython happy.
+        ExtraParams()
+        bool_t contains(const string& key)
+        bool_t contains(const char* key)
+        void insert[T](const string& key, T value) except +
+        void insert[T](const char* key, T value) except +
+        T& get_as[T](const string& key) except +
+        T& get_as[T](const char* key) except +
+
 
 cdef extern from "Lightweaver.hpp":
     cdef enum RadiationBc:
@@ -327,6 +340,8 @@ cdef extern from "Lightweaver.hpp":
     cdef IterationResult formal_sol_full_stokes(Context& ctx, bool_t updateJ) except +
     cdef IterationResult formal_sol_full_stokes(Context& ctx, bool_t updateJ,
                                                 bool_t upOnly) except +
+    cdef IterationResult formal_sol_full_stokes(Context& ctx, bool_t updateJ,
+                                                bool_t upOnly, ExtraParams params) except +
     cdef IterationResult redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
     cdef void stat_eq(Context& ctx, Atom* atom) except +
     cdef void stat_eq_impl(Atom* atom) except +
@@ -342,6 +357,117 @@ cdef extern from "Lightweaver.hpp":
 cdef extern from "Lightweaver.hpp" namespace "EscapeProbability":
     cdef void gamma_matrices_escape_prob(Atom* a, Background& background,
                                          const Atmosphere& atmos)
+
+cdef ExtraParams dict2ExtraParams(dict d):
+    """
+    Convert a dict to an ExtraParams object accepted by Lightweaver's cpp API.
+    Will raise Exceptions (mostly Type and ValueError) on incompatible input.
+    All keys are expected to be strings.
+
+    Acceptable value types:
+      - str
+      - bool
+      - int (up to the max supported by int64)
+      - float
+      - np.ndarray (up to 4 dimensions, dtype either <f8 or <i8 and C-contiguous).
+
+    N.B. Arrays may be modified by the underlying function.
+    """
+    # NOTE(cmo): I do not like this function at all
+    supportedTypes = (str, bool, int, float, np.ndarray)
+    cdef ExtraParams result = ExtraParams()
+
+    cdef char* kPtr
+    cdef char* vPtr
+    cdef bool_t  bVal
+    cdef np.int64_t iVal
+    cdef f64 fVal
+    cdef f64[::1] f64View1
+    cdef f64[:,::1] f64View2
+    cdef f64[:,:,::1] f64View3
+    cdef f64[:,:,:,::1] f64View4
+    cdef np.int64_t[::1] i64View1
+    cdef np.int64_t[:,::1] i64View2
+    cdef np.int64_t[:,:,::1] i64View3
+    cdef np.int64_t[:,:,:,::1] i64View4
+
+    for k, v in d.items():
+        if type(k) is not str:
+            raise TypeError(("Dictionary keys for ExtraParams must be str, "
+                            f"got '{type(k)}'' for key {k}"))
+
+        if type(v) not in supportedTypes:
+            raise TypeError((f"Value for key {k} is not of a supported type, "
+                             f"got {type(v)}, expected one of {supportedTypes}"))
+
+        # NOTE(cmo): Whilst this will be passed through const std::string&, it's
+        # hash is what is stored in the underlying data structure, which will be
+        # done by the end of the insert call. Also strings can no longer be COW
+        # in C++11+.
+        key = k.encode('UTF-8')
+        kPtr = key
+
+        if type(v) is str:
+            val = v.encode('UTF-8')
+            vPtr = val
+            result.insert(kPtr, vPtr)
+        elif type(v) is bool:
+            bVal = v
+            result.insert(kPtr, bVal)
+        elif type(v) is int:
+            iVal = v
+            result.insert(kPtr, iVal)
+        elif type(v) is float:
+            fVal = v
+            result.insert(kPtr, fVal)
+        elif type(v) is np.ndarray:
+            if v.ndim > 4:
+                raise ValueError(("Unsupported number of dimensions on value "
+                                f"associated with {k}, max supported is 4, "
+                                f"got {v.ndim}"))
+            if v.dtype == np.float64:
+                if v.ndim == 1:
+                    f64View1 = v
+                    result.insert(kPtr, f64_view(f64View1))
+                elif v.ndim == 2:
+                    f64View2 = v
+                    result.insert(kPtr, f64_view_2(f64View2))
+                elif v.ndim == 3:
+                    f64View3 = v
+                    result.insert(kPtr, f64_view_3(f64View3))
+                elif v.ndim == 4:
+                    f64View4 = v
+                    result.insert(kPtr, f64_view_4(f64View4))
+            elif v.dtype == np.int64:
+                if v.ndim == 1:
+                    i64View1 = v
+                    result.insert(kPtr,
+                                  Array1NonOwn[np.int64_t](&i64View1[0], i64View1.shape[0]))
+                elif v.ndim == 2:
+                    i64View2 = v
+                    result.insert(kPtr,
+                                  Array2NonOwn[np.int64_t](&i64View2[0,0],
+                                                           i64View2.shape[0],
+                                                           i64View2.shape[1]))
+                elif v.ndim == 3:
+                    i64View3 = v
+                    result.insert(kPtr,
+                                  Array3NonOwn[np.int64_t](&i64View3[0,0,0],
+                                                           i64View3.shape[0],
+                                                           i64View3.shape[1],
+                                                           i64View3.shape[2]))
+                elif v.ndim == 4:
+                    i64View4 = v
+                    result.insert(kPtr,
+                                  Array4NonOwn[np.int64_t](&i64View4[0,0,0,0],
+                                                           i64View4.shape[0],
+                                                           i64View4.shape[1],
+                                                           i64View4.shape[2],
+                                                           i64View4.shape[3]))
+            else:
+                raise TypeError((f"Got array with type {v.dtype} for key {k}, ",
+                                 "only contiguous float64 and int64 are supported."))
+    return result
 
 cdef class LwDepthData:
     '''
@@ -3417,7 +3543,8 @@ cdef class LwContext:
 
         self.spect.setup_stokes()
 
-    cpdef single_stokes_fs(self, recompute=False, updateJ=False, upOnly=True):
+    cpdef single_stokes_fs(self, recompute=False, updateJ=False, upOnly=True,
+                           extraParams=None):
         '''
         Compute a full Stokes formal solution across all wakelengths in the
         grid, setting up the Context first (it is rarely necessary to call
@@ -3437,6 +3564,9 @@ cdef class LwContext:
         upOnly : bool, optional
             Whether to compute the formal solver only for upgoing rays (used in
             final synthesis).
+        extraParams : dict, optional
+            Dict of extra parameters to be converted through the
+            `dict2ExtraParams` function and passed onto the C++ core.
 
         Returns
         -------
@@ -3445,9 +3575,13 @@ cdef class LwContext:
             `IterationUpdate` for details.
         '''
         self.setup_stokes(recompute=recompute)
+        if extraParams is None:
+            extraParams = {}
+        cdef ExtraParams params = dict2ExtraParams(extraParams)
 
         self.atmos.compute_bcs(self.spect)
-        cdef IterationResult maxChange = formal_sol_full_stokes(self.ctx, updateJ, upOnly)
+        cdef IterationResult maxChange = formal_sol_full_stokes(self.ctx, updateJ,
+                                                                upOnly, params)
         update = IterationUpdate_from_IterationResult(self, maxChange)
         return update
 
