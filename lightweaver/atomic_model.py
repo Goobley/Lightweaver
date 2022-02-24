@@ -235,6 +235,7 @@ class LinearCoreExpWings(LineQuadrature):
 
      - q[N-1] = qwing.
 
+    If qWing <= 2 * qCore, linear grid spacing will be used for this transition.
     """
     qCore: float
     qWing: float
@@ -252,8 +253,6 @@ class LinearCoreExpWings(LineQuadrature):
     def setup(self, line: 'AtomicLine'):
         if self.qWing <= 2.0 * self.qCore:
             # Use linear scale to qWing
-            print(('Ratio of qWing / (2*qCore) <= 1\n'
-                   '  Using linear spacing for transition %d->%d') % (line.j, line.i))
             self.beta = 1.0
         else:
             self.beta = self.qWing / (2.0 * self.qCore)
@@ -298,7 +297,11 @@ class AtomicTransition:
     iLevel: AtomicLevel = field(init=False)
 
     def setup(self, atom: AtomicModel):
-        raise NotImplementedError
+        if self.j < self.i:
+            self.i, self.j = self.j, self.i
+        self.atom = atom
+        self.jLevel: AtomicLevel = self.atom.levels[self.j]
+        self.iLevel: AtomicLevel = self.atom.levels[self.i]
 
     def __hash__(self):
         raise NotImplementedError
@@ -401,9 +404,7 @@ class AtomicLine(AtomicTransition):
     gLandeEff: Optional[float] = None
 
     def setup(self, atom: AtomicModel):
-        self.atom = atom
-        self.jLevel: AtomicLevel = self.atom.levels[self.j]
-        self.iLevel: AtomicLevel = self.atom.levels[self.i]
+        super().setup(atom)
         self.quadrature.setup(self)
         self.broadening.setup(self)
 
@@ -579,7 +580,7 @@ class AtomicContinuum(AtomicTransition):
     '''
 
     def setup(self, atom: AtomicModel):
-        pass
+        super().setup(atom)
 
     def __repr__(self):
         s = 'AtomicContinuum(j=%d, i=%d)' % (self.j, self.i)
@@ -662,16 +663,12 @@ class ExplicitContinuum(AtomicContinuum):
     alphaGrid: Sequence[float]
 
     def setup(self, atom: AtomicModel):
-        if self.j < self.i:
-            self.i, self.j = self.j, self.i
-        self.atom = atom
+        super().setup(atom)
         self.wavelengthGrid = np.asarray(self.wavelengthGrid) # type: ignore
         if not np.all(np.diff(self.wavelengthGrid) > 0.0):
             raise ValueError(('Wavelength array not monotonically'
                               ' increasing in continuum %s') % repr(self))
         self.alphaGrid = np.asarray(self.alphaGrid) # type: ignore
-        self.jLevel = atom.levels[self.j]
-        self.iLevel = atom.levels[self.i]
         if self.lambdaEdge > self.wavelengthGrid[-1]:
             wav = np.concatenate((self.wavelengthGrid, np.array([self.lambdaEdge])))
             self.wavelengthGrid = wav
@@ -752,11 +749,7 @@ class HydrogenicContinuum(AtomicContinuum):
         return s
 
     def setup(self, atom):
-        if self.j < self.i:
-            self.i, self.j = self.j, self.i
-        self.atom = atom
-        self.jLevel: AtomicLevel = atom.levels[self.j]
-        self.iLevel: AtomicLevel = atom.levels[self.i]
+        super().setup(atom)
         if self.minLambda >= self.lambda0:
             raise ValueError(('Minimum wavelength is larger than continuum edge '
                               'at %g [nm] in continuum %s') % (self.lambda0, repr(self)))
