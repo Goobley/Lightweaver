@@ -17,6 +17,8 @@ from colorama import Fore, Style
 def clean(s):
     # Replace '.' with '_'
     s = re.sub('[.]', '_', s)
+    # Replace '-' with '_'
+    s = re.sub('[-]', '_', s)
     # Remove invalid characters
     s = re.sub('[^0-9a-zA-Z_]', '', s)
     # Remove leading characters until we find a letter or underscore
