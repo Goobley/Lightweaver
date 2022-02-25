@@ -306,6 +306,7 @@
 
 <span class="sd">     - q[N-1] = qwing.</span>
 
+<span class="sd">    If qWing &lt;= 2 * qCore, linear grid spacing will be used for this transition.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">qCore</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">qWing</span><span class="p">:</span> <span class="nb">float</span>
@@ -323,8 +324,6 @@
     <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="s1">&#39;AtomicLine&#39;</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">qWing</span> <span class="o">&lt;=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">qCore</span><span class="p">:</span>
             <span class="c1"># Use linear scale to qWing</span>
-            <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;Ratio of qWing / (2*qCore) &lt;= 1</span><span class="se">\n</span><span class="s1">&#39;</span>
-                   <span class="s1">&#39;  Using linear spacing for transition </span><span class="si">%d</span><span class="s1">-&gt;</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">i</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="mf">1.0</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qWing</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">qCore</span><span class="p">)</span>
@@ -369,7 +368,11 @@
     <span class="n">iLevel</span><span class="p">:</span> <span class="n">AtomicLevel</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">:</span> <span class="n">AtomicModel</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atom</span> <span class="o">=</span> <span class="n">atom</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jLevel</span><span class="p">:</span> <span class="n">AtomicLevel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iLevel</span><span class="p">:</span> <span class="n">AtomicLevel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
@@ -472,9 +475,7 @@
     <span class="n">gLandeEff</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">:</span> <span class="n">AtomicModel</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">atom</span> <span class="o">=</span> <span class="n">atom</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">jLevel</span><span class="p">:</span> <span class="n">AtomicLevel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">iLevel</span><span class="p">:</span> <span class="n">AtomicLevel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">]</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">quadrature</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">broadening</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
@@ -650,7 +651,7 @@
 <span class="sd">    &#39;&#39;&#39;</span>
 
     <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">:</span> <span class="n">AtomicModel</span><span class="p">):</span>
-        <span class="k">pass</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;AtomicContinuum(j=</span><span class="si">%d</span><span class="s1">, i=</span><span class="si">%d</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">)</span>
@@ -733,16 +734,12 @@
     <span class="n">alphaGrid</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">:</span> <span class="n">AtomicModel</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">atom</span> <span class="o">=</span> <span class="n">atom</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">wavelengthGrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wavelengthGrid</span><span class="p">)</span> <span class="c1"># type: ignore</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wavelengthGrid</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">&#39;Wavelength array not monotonically&#39;</span>
                               <span class="s1">&#39; increasing in continuum </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alphaGrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alphaGrid</span><span class="p">)</span> <span class="c1"># type: ignore</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">jLevel</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">iLevel</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambdaEdge</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">wavelengthGrid</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
             <span class="n">wav</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">wavelengthGrid</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">lambdaEdge</span><span class="p">])))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">wavelengthGrid</span> <span class="o">=</span> <span class="n">wav</span>
@@ -823,11 +820,7 @@
         <span class="k">return</span> <span class="n">s</span>
 
     <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">atom</span> <span class="o">=</span> <span class="n">atom</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">jLevel</span><span class="p">:</span> <span class="n">AtomicLevel</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">iLevel</span><span class="p">:</span> <span class="n">AtomicLevel</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">]</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">minLambda</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">&#39;Minimum wavelength is larger than continuum edge &#39;</span>
                               <span class="s1">&#39;at </span><span class="si">%g</span><span class="s1"> [nm] in continuum </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lambda0</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)))</span>

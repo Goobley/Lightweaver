@@ -158,7 +158,8 @@
                    <span class="n">rhoTol</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prdIterTol</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span>
                    <span class="n">maxPrdSubIter</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">printInterval</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
                    <span class="n">quiet</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                   <span class="n">convergence</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">ConvergenceCriteria</span><span class="p">]]</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                   <span class="n">convergence</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">ConvergenceCriteria</span><span class="p">]]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                   <span class="n">returnFinalConvergence</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Iterate a configured Context towards statistical equilibrium solution.</span>
 
@@ -202,6 +203,17 @@
 <span class="sd">        The ConvergenceCriteria version to be used in determining convergence.</span>
 <span class="sd">        Will be instantiated by this function, and the `is_converged` method</span>
 <span class="sd">        will then be used.  (Default: DefaultConvergenceCriteria).</span>
+<span class="sd">    returnFinalConvergence : bool, optional</span>
+<span class="sd">        Whether to return the IterationUpdate objects used in the final</span>
+<span class="sd">        convergence decision, if True, these will be returned in a list as the</span>
+<span class="sd">        second return value. (Default: False).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    it : int</span>
+<span class="sd">        The number of iterations taken.</span>
+<span class="sd">    finalIterationUpdates : List[IterationUpdate], optional</span>
+<span class="sd">        The final IterationUpdates computed, if requested by `returnFinalConvergence`.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
     <span class="n">prevPrint</span> <span class="o">=</span> <span class="mf">0.0</span>
@@ -265,7 +277,13 @@
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Context converged to statistical equilibrium in </span><span class="si">{</span><span class="n">it</span><span class="si">}</span><span class="s1">&#39;</span>
                       <span class="sa">f</span><span class="s1">&#39; iterations after </span><span class="si">{</span><span class="n">duration</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> s.&#39;</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-            <span class="k">return</span>
+            <span class="k">if</span> <span class="n">returnFinalConvergence</span><span class="p">:</span>
+                <span class="n">finalConvergence</span> <span class="o">=</span> <span class="p">[</span><span class="n">JUpdate</span><span class="p">,</span> <span class="n">popsUpdate</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">prd</span> <span class="ow">and</span> <span class="n">dRhoUpdate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">finalConvergence</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dRhoUpdate</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">it</span><span class="p">,</span> <span class="n">finalConvergence</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">it</span>
 
         <span class="c1"># NOTE(cmo): reset print state</span>
         <span class="n">printNow</span> <span class="o">=</span> <span class="kc">False</span>
@@ -284,7 +302,14 @@
             <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Context FAILED to converge to statistical equilibrium after </span><span class="si">{</span><span class="n">it</span><span class="si">}</span><span class="s1">&#39;</span>
                   <span class="sa">f</span><span class="s1">&#39; iterations (took </span><span class="si">{</span><span class="n">duration</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> s).&#39;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
+            <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">returnFinalConvergence</span><span class="p">:</span>
+            <span class="n">finalConvergence</span> <span class="o">=</span> <span class="p">[</span><span class="n">JUpdate</span><span class="p">,</span> <span class="n">popsUpdate</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">prd</span> <span class="ow">and</span> <span class="n">dRhoUpdate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">finalConvergence</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dRhoUpdate</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">it</span><span class="p">,</span> <span class="n">finalConvergence</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">it</span></div>
 </pre></div>
 
            </div>
