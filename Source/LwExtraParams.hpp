@@ -3,6 +3,7 @@
 #include "CmoArray.hpp"
 #include "Constants.hpp"
 
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <variant>
