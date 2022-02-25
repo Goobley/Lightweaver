@@ -5,6 +5,7 @@ from libcpp cimport bool as bool_t
 from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libc.math cimport sqrt, exp, copysign
+from libc.stdint cimport int64_t
 from .atmosphere import BoundaryCondition, ZeroRadiation, ThermalisedRadiation, PeriodicRadiation, NoBc
 from .atomic_model import AtomicLine, LineType, LineProfileState
 from .utils import InitialSolution, ExplodingMatrixError, UnityCrswIterator, check_shape_exception, get_fs_iter_libs
@@ -26,7 +27,7 @@ include 'CmoArrayHelper.pyx'
 np.import_array()
 
 ctypedef np.int8_t i8
-# ctypedef np.int64_t i64
+ctypedef int64_t i64
 ctypedef Array1NonOwn[np.int32_t] I32View
 ctypedef Array1NonOwn[bool_t] BoolView
 ctypedef Array2NonOwn[np.int32_t] BcIdxs
@@ -212,7 +213,7 @@ cdef extern from "FastBackground.hpp":
 cdef extern from "Ng.hpp":
     cdef cppclass NgChange:
         f64 dMax
-        np.int64_t dMaxIdx
+        i64 dMaxIdx
 
     cdef cppclass Ng:
         int Norder
@@ -302,7 +303,7 @@ cdef extern from "Lightweaver.hpp":
         int Nlevel
         int Ntrans
         void setup_wavelength(int la)
-        void init_scratch(np.int64_t Nspace, bool_t detailed, bool_t wlaGijStorage, bool_t defaulPerAtomStorage)
+        void init_scratch(i64 Nspace, bool_t detailed, bool_t wlaGijStorage, bool_t defaulPerAtomStorage)
 
     cdef cppclass DepthData:
         bool_t fill
@@ -380,16 +381,16 @@ cdef ExtraParams dict2ExtraParams(dict d):
     cdef char* kPtr
     cdef char* vPtr
     cdef bool_t  bVal
-    cdef np.int64_t iVal
+    cdef i64 iVal
     cdef f64 fVal
     cdef f64[::1] f64View1
     cdef f64[:,::1] f64View2
     cdef f64[:,:,::1] f64View3
     cdef f64[:,:,:,::1] f64View4
-    cdef np.int64_t[::1] i64View1
-    cdef np.int64_t[:,::1] i64View2
-    cdef np.int64_t[:,:,::1] i64View3
-    cdef np.int64_t[:,:,:,::1] i64View4
+    cdef i64[::1] i64View1
+    cdef i64[:,::1] i64View2
+    cdef i64[:,:,::1] i64View3
+    cdef i64[:,:,:,::1] i64View4
 
     for k, v in d.items():
         if type(k) is not str:
@@ -442,28 +443,28 @@ cdef ExtraParams dict2ExtraParams(dict d):
                 if v.ndim == 1:
                     i64View1 = v
                     result.insert(kPtr,
-                                  Array1NonOwn[np.int64_t](&i64View1[0], i64View1.shape[0]))
+                                  Array1NonOwn[i64](&i64View1[0], i64View1.shape[0]))
                 elif v.ndim == 2:
                     i64View2 = v
                     result.insert(kPtr,
-                                  Array2NonOwn[np.int64_t](&i64View2[0,0],
-                                                           i64View2.shape[0],
-                                                           i64View2.shape[1]))
+                                  Array2NonOwn[i64](&i64View2[0,0],
+                                                    i64View2.shape[0],
+                                                    i64View2.shape[1]))
                 elif v.ndim == 3:
                     i64View3 = v
                     result.insert(kPtr,
-                                  Array3NonOwn[np.int64_t](&i64View3[0,0,0],
-                                                           i64View3.shape[0],
-                                                           i64View3.shape[1],
-                                                           i64View3.shape[2]))
+                                  Array3NonOwn[i64](&i64View3[0,0,0],
+                                                    i64View3.shape[0],
+                                                    i64View3.shape[1],
+                                                    i64View3.shape[2]))
                 elif v.ndim == 4:
                     i64View4 = v
                     result.insert(kPtr,
-                                  Array4NonOwn[np.int64_t](&i64View4[0,0,0,0],
-                                                           i64View4.shape[0],
-                                                           i64View4.shape[1],
-                                                           i64View4.shape[2],
-                                                           i64View4.shape[3]))
+                                  Array4NonOwn[i64](&i64View4[0,0,0,0],
+                                                    i64View4.shape[0],
+                                                    i64View4.shape[1],
+                                                    i64View4.shape[2],
+                                                    i64View4.shape[3]))
             else:
                 raise TypeError((f"Got array with type {v.dtype} for key {k}, ",
                                  "only contiguous float64 and int64 are supported."))
