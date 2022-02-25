@@ -61,13 +61,13 @@ struct InterpFn
     Interp2d interp_2d;
     int Ndim;
     const char* name;
-    InterpFn() : Ndim(),
-                 name(""),
-                 interp_2d(nullptr)
+    InterpFn() : interp_2d(nullptr),
+                 Ndim(),
+                 name("")
     {}
-    InterpFn(int _Ndim, const char* _name, Interp2d interp) : Ndim(_Ndim),
-                                                              name(_name),
-                                                              interp_2d(interp)
+    InterpFn(int _Ndim, const char* _name, Interp2d interp) : interp_2d(interp),
+                                                              Ndim(_Ndim),
+                                                              name(_name)
     {}
 };
 

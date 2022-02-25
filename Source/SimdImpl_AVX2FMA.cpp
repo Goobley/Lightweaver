@@ -279,7 +279,6 @@ inline void ForceInline
 chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
 {
     constexpr int Stride = SimdWidth[(size_t)simd];
-    JasUnpack(*(*data), activeAtoms, detailedAtoms);
     JasUnpack((*data), Uji, Vij, Vji, chiTot, etaTot);
     const int Nspace = data->atmos->Nspace;
     const int kRemainder = Nspace % Stride;

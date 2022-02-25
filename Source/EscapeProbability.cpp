@@ -158,11 +158,9 @@ void gamma_matrices_escape_prob(Atom* a, Background& background, const Atmospher
     {
         auto& t = *atom.trans[kr];
         int lt = 0;
-        bool line = false;
         if (t.type == TransitionType::LINE)
         {
             lt = t.wavelength.shape(0) / 2;
-            line = true;
             compute_phi_mu_1(t, atmos, lt, atom.vBroad, phi);
         }
         int la = lt + t.Nblue;

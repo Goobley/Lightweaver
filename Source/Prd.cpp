@@ -468,7 +468,7 @@ void cmo_scattering_int(void* userdata, scheduler* s,
 void scattering_int(ThreadData& data, int k)
 {
     namespace C = Constants;
-    JasUnpack(data, trans, atom, spect, atmos, PjQj);
+    JasUnpack(data, trans, atom, spect, PjQj);
     JasUnpack(data, Jk, JFine);
     const bool computeGii = data.computeGii;
     const int Nlambda = trans.wavelength.shape(0);

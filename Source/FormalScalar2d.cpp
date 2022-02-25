@@ -245,6 +245,12 @@ f64 interp_linear_2d(const IntersectionData& grid, const IntersectionResult& loc
             f64 result = (1.0 - frac) * param(zm, x) + frac * param(zp, x);
             return result;
         } break;
+
+        default:
+        {
+            // UNREACHABLE
+            return 0.0;
+        } break;
     }
 }
 
@@ -322,7 +328,6 @@ f64 interp_besser_2d(const IntersectionData& grid, const IntersectionResult& loc
                     f64 result = (1.0 - frac) * param(z, xm) + frac * param(z, xp);
                     return result;
                 }
-                f64 xM = grid.x(xm);
                 f64 hM = grid.x(xp) - grid.x(xm);
                 f64 hP = grid.x(xp-grid.xStep) - grid.x(xp);
                 f64 yM = param(z, xm);
@@ -346,7 +351,6 @@ f64 interp_besser_2d(const IntersectionData& grid, const IntersectionResult& loc
                     f64 result = (1.0 - frac) * param(z, xm) + frac * param(z, xp);
                     return result;
                 }
-                f64 xM = grid.x(xp);
                 f64 hM = grid.x(xm) - grid.x(xp);
                 f64 hP = grid.x(xm-grid.xStep) - grid.x(xm);
                 f64 yM = param(z, xp);
@@ -380,7 +384,6 @@ f64 interp_besser_2d(const IntersectionData& grid, const IntersectionResult& loc
                     f64 result = (1.0 - frac) * param(zm, x) + frac * param(zp, x);
                     return result;
                 }
-                f64 xM = grid.z(zm);
                 f64 hM = grid.z(zp) - grid.z(zm);
                 f64 hP = grid.z(zp-grid.zStep) - grid.z(zp);
                 f64 yM = param(zm, x);
@@ -404,7 +407,6 @@ f64 interp_besser_2d(const IntersectionData& grid, const IntersectionResult& loc
                     f64 result = (1.0 - frac) * param(zm, x) + frac * param(zp, x);
                     return result;
                 }
-                f64 xM = grid.z(zp);
                 f64 hM = grid.z(zm) - grid.z(zp);
                 f64 hP = grid.z(zm-grid.zStep) - grid.z(zm);
                 f64 yM = param(zp, x);
@@ -417,6 +419,13 @@ f64 interp_besser_2d(const IntersectionData& grid, const IntersectionResult& loc
                 f64 result = square(1.0 - u) * yM + 2.0 * u * (1.0 - u) * cM + square(u) * yO;
                 return result;
             }
+        } break;
+
+
+        default:
+        {
+            // UNREACHABLE
+            return 0.0;
         } break;
     }
 }
@@ -584,7 +593,6 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, const F64Vi
                 f64 dtauDw = 0.5 * abs(dwIntersection.distance) * (chi(k, j) + chiDw);
                 f64 temperatureDw = interp_param(gridData, dwIntersection, temperature);
                 f64 Bnu[2];
-                int Nz = atmos->Nz;
                 if (toObs)
                 {
                     f64 temp[2];
@@ -894,7 +902,6 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, const F64Vi
                 f64 dtauDw = 0.5 * abs(dwIntersection.distance) * (chi(k, j) + chiDw);
                 f64 temperatureDw = interp_param(gridData, dwIntersection, temperature);
                 f64 Bnu[2];
-                int Nz = atmos->Nz;
                 if (toObs)
                 {
                     f64 temp[2];

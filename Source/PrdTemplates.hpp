@@ -19,10 +19,8 @@ template <SimdType simd>
 IterationResult formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelengthIdxs)
 {
     using namespace LwInternal;
-    JasUnpack(*ctx, atmos, spect, background, depthData);
-    JasUnpack(ctx, activeAtoms, detailedAtoms);
-
-    const int Nspace = atmos.Nspace;
+    JasUnpack(*ctx, spect);
+    JasUnpack(ctx, activeAtoms);
 
     if (ctx.Nthreads <= 1)
     {
@@ -197,7 +195,6 @@ IterationResult redistribute_prd_lines_template(Context& ctx, int maxIter, f64 t
 
     int iter = 0;
     f64 dRhoMax = 0.0;
-    int maxIdx = 0;
     if (ctx.Nthreads <= 1)
     {
         F64Arr PjQj(atmos.Nspace);

@@ -19,7 +19,6 @@ void Transition::compute_polarised_profiles(
     constexpr f64 sign[] = { -1.0, 1.0 };
 
     const f64 larmor = C::QElectron / (4.0 * C::Pi * C::MElectron) * (lambda0 * C::NM_TO_M);
-    const f64 sqrtPi = sqrt(C::Pi);
 
     if (!(bool)atmos.B)
         throw std::runtime_error("Must provide magnetic field when computing polarised profiles");
@@ -358,12 +357,10 @@ void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int la, int mu, bool toOb
 
     int dk = -1;
     int kStart = atmos->Nspace - 1;
-    int kEnd = 0;
     if (!toObs)
     {
         dk = 1;
         kStart = 0;
-        kEnd = atmos->Nspace - 1;
     }
     f64 dtau_uw = 0.5 * zmu * (chi(0, kStart) + chi(0, kStart + dk)) * abs(height(kStart) - height(kStart + dk));
 
@@ -674,7 +671,6 @@ IterationResult formal_sol_full_stokes_impl(Context& ctx, bool updateJ, bool upO
         throw std::runtime_error("Magnetic field required");
 
     const int Nspace = atmos.Nspace;
-    const int Nrays = atmos.Nrays;
     const int Nspect = spect.wavelength.shape(0);
 
     F64View2D J20;

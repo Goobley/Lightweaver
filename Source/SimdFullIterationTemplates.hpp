@@ -62,7 +62,6 @@ template <SimdType simd, bool iClean, bool jClean,
 inline ForceInline void
 chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
 {
-    JasUnpack(*(*data), activeAtoms, detailedAtoms);
     JasUnpack((*data), Uji, Vij, Vji, chiTot, etaTot);
     const int Nspace = data->atmos->Nspace;
 
@@ -118,8 +117,7 @@ gather_opacity_emissivity_opt(IntensityCoreData* data,
                               int mu, bool toObs)
 {
     JasUnpack(*(*data), activeAtoms, detailedAtoms);
-    JasUnpack((*data), Uji, Vij, Vji, chiTot, etaTot);
-    const int Nspace = data->atmos->Nspace;
+    JasUnpack((*data), Uji, Vij, Vji);
     for (int a = 0; a < activeAtoms.size(); ++a)
     {
         auto& atom = *activeAtoms[a];
@@ -247,11 +245,9 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
     JasUnpack(data, I, S, Ieff, PsiStar, JRest);
     const int Nspace = atmos.Nspace;
     const int Nrays = atmos.Nrays;
-    const int Nspect = spect.wavelength.shape(0);
     const LwFsFn formal_solver = data.formal_solver;
 
     const bool updateJ = mode & FsMode::UpdateJ;
-    const bool lambdaIterate = mode & FsMode::PureLambdaIteration;
     const bool upOnly = mode & FsMode::UpOnly;
 
     JDag = spect.J(la);
@@ -362,7 +358,7 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
                     auto& atom = *activeAtoms[a];
                     if constexpr (ComputeOperator)
                     {
-                        if (lambdaIterate)
+                        if (mode & FsMode::PureLambdaIteration)
                             PsiStar.fill(0.0);
 
                         compute_full_Ieff<simd>(I, PsiStar, atom.eta, Ieff);
@@ -527,10 +523,9 @@ inline void zero_Gamma_rates_JRest(Context* ctx)
 template <SimdType simd>
 IterationResult formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsMode mode)
 {
-    JasUnpack(*ctx, atmos, spect, background, depthData);
+    JasUnpack(*ctx, spect);
     JasUnpack(ctx, activeAtoms, detailedAtoms);
 
-    const int Nspace = atmos.Nspace;
     const int Nspect = spect.wavelength.shape(0);
     const bool lambdaIterate = mode & LwInternal::FsMode::PureLambdaIteration;
 
@@ -658,10 +653,8 @@ IterationResult formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsM
 template <SimdType simd>
 IterationResult formal_sol_impl(Context& ctx, LwInternal::FsMode mode)
 {
-    JasUnpack(*ctx, atmos, spect, background, depthData);
-    JasUnpack(ctx, activeAtoms, detailedAtoms);
+    JasUnpack(*ctx, spect);
 
-    const int Nspace = atmos.Nspace;
     const int Nspect = spect.wavelength.shape(0);
 
     if (ctx.Nthreads <= 1)

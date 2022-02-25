@@ -2,6 +2,7 @@
 #include "TaskSetWrapper.hpp"
 #include <atomic>
 #include <list>
+#include <stdexcept>
 
 void stat_eq_impl(Atom* atomIn, int spaceStart, int spaceEnd)
 {
@@ -301,7 +302,6 @@ void nr_post_update_impl(Context& ctx, std::vector<Atom*>* atoms,
         spaceEnd = ctx.atmos->Nspace;
     }
 
-    f64 maxChange = 0.0;
     F64Arr2D dF(0.0, Neqn, Neqn);
     F64Arr Fnew(0.0, Neqn);
     F64Arr Fg(0.0, Neqn);

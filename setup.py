@@ -161,9 +161,9 @@ posixLinkerArgs = {
 }
 posixLocalArgs = ['-march=native', '-mtune=native']
 posixArgs : Dict[str, Union[str, List[str]]] = {
-   'baseCompileArgs': ['-std=c++17', '-Wno-sign-compare']
-                      + (posixCiArgs[sys.platform] if CI_BUILD
-                                                   else posixLocalArgs),
+   'baseCompileArgs': ['-std=c++17', '-Wno-sign-compare'],
+   'coreCompileArgs': (posixCiArgs[sys.platform] if CI_BUILD
+                                                 else posixLocalArgs),
    'SSE2Args': ['-msse2'],
    'AVX2FMAArgs': ['-mavx2', '-mfma'],
    'AVX512Args': ['-mavx512f', '-mavx512dq', '-mfma'],
@@ -176,7 +176,12 @@ posixArgs : Dict[str, Union[str, List[str]]] = {
    'fsIterExtensionExports': [],
 }
 msvcArgs : Dict[str, Union[str, List[str]]] = {
-   'baseCompileArgs': ['/std:c++17', '/Z7', '/DENKITS_DLL'],
+   # NOTE(cmo): The last three of these disable some of the narrowing/sign
+   # compare warnings.  Whilst these might very occasionally be useful, they
+   # make too much noise.
+   'baseCompileArgs': ['/std:c++17', '/Z7', '/DENKITS_DLL',
+                       '/wd4244', '/wd4267', '/wd4018'],
+   'coreCompileArgs': [],
    'SSE2Args': [],
    'AVX2FMAArgs': ['/arch:AVX2'],
    'AVX512Args': ['/arch:AVX512'],
@@ -237,7 +242,8 @@ def extension_list(args):
                   language='c++',
                   libraries=args['libs'],
                   library_dirs=args['libDirs'],
-                  extra_compile_args=args['baseCompileArgs'] + args['lwCoreDefine'],
+                  extra_compile_args=args['baseCompileArgs'] + args['coreCompileArgs']
+                                     + args['lwCoreDefine'],
                   extra_link_args=args['linkArgs']))
     lwExts = cythonize(lwExts, language_level=3)
     for simdImpl in SimdImpls:

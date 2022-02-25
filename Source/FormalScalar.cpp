@@ -35,10 +35,8 @@ void Transition::compute_phi_la(const Atmosphere& atmos, const F64View& aDamp,
     const f64 sqrtPi = sqrt(C::Pi);
 
     const f64 vBase = (wavelength(lt) - lambda0) * C::CLight / lambda0;
-    const f64 wla = wlambda(lt);
     for (int mu = 0; mu < phi.shape(1); ++mu)
     {
-        const f64 wlamu = wla * 0.5 * atmos.wmu(mu);
         for (int toObs = 0; toObs < 2; ++toObs)
         {
             const f64 s = sign[toObs];
@@ -473,18 +471,16 @@ namespace LwInternal
 void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs, const F64View1D& wave)
 {
     const f64 wav = wave(la);
-    JasUnpack((*fd), atmos, I, chi);
+    JasUnpack((*fd), atmos, chi);
     f64 zmu = 0.5 / atmos->muz(mu);
     auto height = atmos->height;
 
     int dk = -1;
     int kStart = atmos->Nspace - 1;
-    int kEnd = 0;
     if (!toObs)
     {
         dk = 1;
         kStart = 0;
-        kEnd = atmos->Nspace - 1;
     }
     f64 dtau_uw = zmu * (chi(kStart) + chi(kStart + dk)) * abs(height(kStart) - height(kStart + dk));
 
@@ -547,12 +543,10 @@ void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, const F64V
 
     int dk = -1;
     int kStart = atmos->Nspace - 1;
-    int kEnd = 0;
     if (!toObs)
     {
         dk = 1;
         kStart = 0;
-        kEnd = atmos->Nspace - 1;
     }
     f64 dtau_uw = 0.5 * zmu * (chi(kStart) + chi(kStart + dk)) * abs(height(kStart) - height(kStart + dk));
 
@@ -616,12 +610,10 @@ void piecewise_besser_1d(FormalData* fd, int la, int mu, bool toObs, const F64Vi
 
     int dk = -1;
     int kStart = atmos->Nspace - 1;
-    int kEnd = 0;
     if (!toObs)
     {
         dk = 1;
         kStart = 0;
-        kEnd = atmos->Nspace - 1;
     }
     f64 dtau_uw = 0.5 * zmu * (chi(kStart) + chi(kStart + dk)) * abs(height(kStart) - height(kStart + dk));
 

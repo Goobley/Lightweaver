@@ -18,10 +18,6 @@ void bf_opacities(BackgroundData* bd, const std::vector<BackgroundAtom>& atoms,
 
     namespace C = Constants;
 
-    const f64 sigma = 32.0 / (3.0 * sqrt(3.0)) * square(C::QElectron)
-                     / (4.0 * C::Pi * C::Epsilon0) / (C::MElectron * C::CLight)
-                     * C::HPlanck / (2.0 * C::ERydberg);
-
     constexpr f64 hc_k = C::HC / (C::KBoltzmann * C::NM_TO_M);
     constexpr f64 twohc = (2.0 * C::HC) / cube(C::NM_TO_M);
 
