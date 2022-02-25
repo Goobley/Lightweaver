@@ -87,7 +87,8 @@ def iterate_ctx_se(ctx: 'Context', Nscatter: int=3, NmaxIter: int=2000,
                    rhoTol: Optional[float]=None, prdIterTol: float=1e-2,
                    maxPrdSubIter: int=3, printInterval: float=0.2,
                    quiet: bool=False,
-                   convergence: Optional[Type[ConvergenceCriteria]]=None):
+                   convergence: Optional[Type[ConvergenceCriteria]]=None,
+                   returnFinalConvergence: bool=False):
     '''
     Iterate a configured Context towards statistical equilibrium solution.
 
@@ -131,6 +132,17 @@ def iterate_ctx_se(ctx: 'Context', Nscatter: int=3, NmaxIter: int=2000,
         The ConvergenceCriteria version to be used in determining convergence.
         Will be instantiated by this function, and the `is_converged` method
         will then be used.  (Default: DefaultConvergenceCriteria).
+    returnFinalConvergence : bool, optional
+        Whether to return the IterationUpdate objects used in the final
+        convergence decision, if True, these will be returned in a list as the
+        second return value. (Default: False).
+
+    Returns
+    -------
+    it : int
+        The number of iterations taken.
+    finalIterationUpdates : List[IterationUpdate], optional
+        The final IterationUpdates computed, if requested by `returnFinalConvergence`.
     '''
 
     prevPrint = 0.0
@@ -194,7 +206,13 @@ def iterate_ctx_se(ctx: 'Context', Nscatter: int=3, NmaxIter: int=2000,
                 print(f'Context converged to statistical equilibrium in {it}'
                       f' iterations after {duration:.2f} s.')
                 print(line)
-            return
+            if returnFinalConvergence:
+                finalConvergence = [JUpdate, popsUpdate]
+                if prd and dRhoUpdate is not None:
+                    finalConvergence.append(dRhoUpdate)
+                return it, finalConvergence
+            else:
+                return it
 
         # NOTE(cmo): reset print state
         printNow = False
@@ -214,3 +232,10 @@ def iterate_ctx_se(ctx: 'Context', Nscatter: int=3, NmaxIter: int=2000,
             print(f'Context FAILED to converge to statistical equilibrium after {it}'
                   f' iterations (took {duration:.2f} s).')
             print(line)
+        if returnFinalConvergence:
+            finalConvergence = [JUpdate, popsUpdate]
+            if prd and dRhoUpdate is not None:
+                finalConvergence.append(dRhoUpdate)
+            return it, finalConvergence
+        else:
+            return it
