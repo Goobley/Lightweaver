@@ -3207,7 +3207,8 @@ cdef class LwContext:
 
 
     cpdef update_deps(self, temperature=True, ne=True, vturb=True,
-                      vlos=True, B=True, background=True, hprd=True):
+                      vlos=True, B=True, background=True, hprd=True,
+                      quiet=True):
         '''
         Update various dependent parameters in the simulation after changes
         to different components. If a component has not been adjust then its
@@ -3231,6 +3232,9 @@ cdef class LwContext:
             Whether the background needs updating.
         hprd : bool, optional
             Whether the hybrid PRD terms need updating.
+        quiet : bool, optional
+            Whether to print any update information from these functions
+            (default: True).
         '''
         if vlos or B:
             self.atmos.update_projections()
@@ -3239,7 +3243,8 @@ cdef class LwContext:
             self.compute_profiles()
 
         if temperature or ne:
-            self.eqPops.update_lte_atoms_Hmin_pops(self.kwargs['atmos'], conserveCharge=self.conserveCharge, updateTotals=True)
+            self.eqPops.update_lte_atoms_Hmin_pops(self.kwargs['atmos'], conserveCharge=self.conserveCharge, 
+                                                   updateTotals=True, quiet=quiet)
 
         if background and any([temperature, ne, vturb, vlos]):
             self.background.update_background(self.atmos)

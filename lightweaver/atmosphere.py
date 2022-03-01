@@ -1140,6 +1140,7 @@ class Atmosphere:
 
         else:
             stratifications = None
+            height = depthScale
 
         layout = Layout.make_1d(z=height, vz=vlos,
                                 lowerBc=lowerBc, upperBc=upperBc,
