@@ -2845,8 +2845,11 @@ cdef class LwContext:
         (default: LTE).
     conserveCharge : bool, optional
         Whether to conserve charge in the simulation (default: False).
+    nrHOnly : bool, optional
+        Only include hydrogen in charge conservation calculations (default: False).
     hprd : bool, optional
-        Whether to use the Hybrid PRD method to account for velocity shifts in the atmosphere (if PRD is used otherwise, then it is angle-averaged).
+        Whether to use the Hybrid PRD method to account for velocity shifts in
+        the atmosphere (if PRD is used otherwise, then it is angle-averaged).
     crswCallback : CrswIterator, optional
         An instance of CrswIterator (or derived thereof) to control
         collisional radiative swtiching (default: None for UnityCrswIterator
@@ -2873,6 +2876,7 @@ cdef class LwContext:
     cdef list activeAtoms
     cdef list detailedAtoms
     cdef public bool_t conserveCharge
+    cdef public bool_t nrHOnly
     cdef bool_t hprd
     cdef public object crswCallback
     cdef public object crswDone
@@ -2880,7 +2884,9 @@ cdef class LwContext:
 
     def __init__(self, atmos, spect, eqPops,
                  ngOptions=None, initSol=None,
-                 conserveCharge=False, hprd=False,
+                 conserveCharge=False, 
+                 nrHOnly=False,
+                 hprd=False,
                  crswCallback=None, Nthreads=1,
                  backgroundProvider=None,
                  formalSolver=None,
@@ -2894,6 +2900,7 @@ cdef class LwContext:
             'ngOptions': ngOptions,
             'initSol': initSol,
             'conserveCharge': conserveCharge,
+            'nrHOnly': nrHOnly,
             'hprd': hprd,
             'Nthreads': Nthreads,
             'backgroundProvider': backgroundProvider,
@@ -2907,6 +2914,7 @@ cdef class LwContext:
         self.spect = LwSpectrum(spect.wavelength, atmos.Nrays,
                                 atmos.Nspace, atmos.Noutgoing)
         self.conserveCharge = conserveCharge
+        self.nrHOnly = nrHOnly
         self.hprd = hprd
 
         self.background = LwBackground(self.atmos, eqPops, spect.radSet,
@@ -2965,6 +2973,7 @@ cdef class LwContext:
         state['activeAtoms'] = self.activeAtoms
         state['detailedAtoms'] = self.detailedAtoms
         state['conserveCharge'] = self.conserveCharge
+        state['nrHOnly'] = self.nrHOnly
         state['hprd'] = self.hprd
         state['atmos'] = self.atmos
         state['spect'] = self.spect
@@ -2984,6 +2993,7 @@ cdef class LwContext:
         self.activeAtoms = state['activeAtoms']
         self.detailedAtoms = state['detailedAtoms']
         self.conserveCharge = state['conserveCharge']
+        self.nrHOnly = state['nrHOnly']
         self.hprd = state['hprd']
         self.spect = state['spect']
         self.background = state['background']
@@ -3466,7 +3476,7 @@ cdef class LwContext:
 
         if self.conserveCharge:
             neStart = np.copy(self.atmos.ne)
-            self.nr_post_update(ngUpdate=False)
+            self.nr_post_update(ngUpdate=False, hOnly=self.nrHOnly)
 
         update = self.rel_diff_ng_accelerate(printUpdate=printUpdate)
         if self.conserveCharge:
@@ -3697,8 +3707,8 @@ cdef class LwContext:
     @staticmethod
     def construct_from_state_dict_with(sd, atmos=None, spect=None, eqPops=None,
                                        ngOptions=None, initSol=None, conserveCharge=None,
-                                       hprd=None, preserveProfiles=False, fromScratch=False,
-                                       backgroundProvider=None):
+                                       nrHOnly=None, hprd=None, preserveProfiles=False, 
+                                       fromScratch=False, backgroundProvider=None):
         """
         Construct a new Context informed by a state dictionary with changes
         provided to this function. This function is primarily aimed at making
@@ -3727,6 +3737,8 @@ cdef class LwContext:
             Initial solution to use, only matters if `fromScratch` is True.
         conserveCharge : bool, optional
             Whether to conserve charge.
+        nrHOnly : bool, optional
+            Whether to only consider Hydrogen in charge conservation calculations.
         hprd : bool, optional
             Whether to use Hybrid-PRD.
         preserveProfiles : bool, optional
@@ -3755,6 +3767,8 @@ cdef class LwContext:
             args['initSol'] = initSol
         if conserveCharge is not None:
             args['conserveCharge'] = conserveCharge
+        if nrHOnly is not None:
+            args['nrHOnly'] = nrHOnly
         if hprd is not None:
             args['hprd'] = hprd
         if backgroundProvider is not None:

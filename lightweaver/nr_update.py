@@ -56,7 +56,7 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False,
     crswVal = self.crswCallback.val
 
     if hOnly:
-        backgroundAtoms = [model for ele, model in self.kwargs['spect'].radSet.items() if ele != PeriodicTable[1]]
+        backgroundAtoms = [model for model in self.kwargs['spect'].radSet if model.element != PeriodicTable[1]]
     else:
         backgroundAtoms = self.kwargs['spect'].radSet.passiveAtoms
 
