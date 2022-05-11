@@ -138,13 +138,16 @@ uv_opt<SimdType::SSE2>(Transition* t, int la, int mu, bool toObs,
     if (t->type == TransitionType::LINE)
     {
         constexpr f64 hc_4pi = 0.25 * C::HC / C::Pi;
+        // NOTE(cmo): See note on change in LwTransition.hpp
+        const f64 hnu_4pi = hc_4pi * (t->lambda0 / t->wavelength(lt));
         auto p = t->phi(lt, mu, (int)toObs);
         int k = 0;
         for (; k < kMax; k += Stride)
         {
             // Vij(k) = hc_4pi * t->Bij * p(k);
             __m128d phik = _mm_loadu_pd(&p(k));
-            __m128d Vijk = _mm_mul_pd(_mm_set1_pd(hc_4pi * t->Bij), phik);
+            // __m128d Vijk = _mm_mul_pd(_mm_set1_pd(hc_4pi * t->Bij), phik);
+            __m128d Vijk = _mm_mul_pd(_mm_set1_pd(hnu_4pi * t->Bij), phik);
             _mm_store_pd(&Vij(k), Vijk);
 
             // Vji(k) = t->gij(k) * Vij(k);

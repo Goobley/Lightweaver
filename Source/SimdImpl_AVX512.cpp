@@ -203,13 +203,16 @@ uv_opt<SimdType::AVX512>(Transition* t, int la, int mu, bool toObs,
     if (t->type == TransitionType::LINE)
     {
         constexpr f64 hc_4pi = 0.25 * C::HC / C::Pi;
+        // NOTE(cmo): See note on change in LwTransition.hpp
+        const f64 hnu_4pi = hc_4pi * (t->lambda0 / t->wavelength(lt));
         auto p = t->phi(lt, mu, (int)toObs);
         int k = 0;
         for (; k < kMax; k += Stride)
         {
             // Vij(k) = hc_4pi * t->Bij * p(k);
             __m512d phik = _mm512_loadu_pd(&p(k));
-            __m512d Vijk = _mm512_mul_pd(_mm512_set1_pd(hc_4pi * t->Bij), phik);
+            // __m512d Vijk = _mm512_mul_pd(_mm512_set1_pd(hc_4pi * t->Bij), phik);
+            __m512d Vijk = _mm512_mul_pd(_mm512_set1_pd(hnu_4pi * t->Bij), phik);
             _mm512_store_pd(&Vij(k), Vijk);
 
             // Vji(k) = t->gij(k) * Vij(k);

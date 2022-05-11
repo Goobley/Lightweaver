@@ -98,10 +98,19 @@ struct Transition
         if (type == TransitionType::LINE)
         {
             constexpr f64 hc_4pi = 0.25 * C::HC / C::Pi;
+            // NOTE(cmo): This term (hnu_4pi) added to improve treatment of emissivities
+            // opacities if they are calculated across very wide wavelength
+            // ranges, rather than just the standard range used to integrate the
+            // line rates. This happens, for example in ctx.compute_rays.
+            // The result of this is the complete hnu/4pi * phi expression is
+            // used, rather than the hc/4pi*phi_num expression from the paper.
+            const f64 hnu_4pi = hc_4pi * (lambda0 / wavelength(lt));
             auto p = phi(lt, mu, (int)toObs);
             for (int k = 0; k < Vij.shape(0); ++k)
             {
-                Vij(k) = hc_4pi * Bij * p(k);
+                // Vij(k) = hc_4pi * Bij * p(k);
+                // NOTE(cmo): Updated term
+                Vij(k) = hnu_4pi * Bij * p(k);
                 Vji(k) = gij(k) * Vij(k);
             }
             // NOTE(cmo): Do the HPRD linear interpolation on rho here
