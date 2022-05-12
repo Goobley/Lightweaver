@@ -110,38 +110,34 @@ Find the initial statistical equilibrium solution,
     dJ = 9.64e+00
         H delta = 1.0905e+00
         ne delta = 1.6015e-01
-    -- Iteration 20:
-    dJ = 1.27e-01
-        H delta = 7.8866e-02
-        ne delta = 1.1857e-16
-    -- Iteration 37:
-    dJ = 7.09e-02
-        H delta = 4.5229e-02
-        ne delta = 1.3546e-16
-    -- Iteration 54:
-    dJ = 5.37e-02
-        H delta = 3.2221e-02
-        ne delta = 5.1048e-16
-    -- Iteration 70:
-    dJ = 3.01e-02
-        H delta = 1.9425e-02
-        ne delta = 2.3713e-16
-    -- Iteration 86:
-    dJ = 1.17e-02
-        H delta = 7.7777e-03
-        ne delta = 0.0000e+00
-    -- Iteration 102:
-    dJ = 3.57e-03
-        H delta = 2.3828e-03
+    -- Iteration 24:
+    dJ = 1.00e-01
+        H delta = 6.2891e-02
+        ne delta = 1.7603e-16
+    -- Iteration 44:
+    dJ = 6.43e-02
+        H delta = 3.8342e-02
         ne delta = 8.2997e-16
+    -- Iteration 64:
+    dJ = 3.97e-02
+        H delta = 2.4899e-02
+        ne delta = 1.7603e-16
+    -- Iteration 84:
+    dJ = 1.34e-02
+        H delta = 8.8631e-03
+        ne delta = 4.7427e-16
+    -- Iteration 104:
+    dJ = 3.03e-03
+        H delta = 2.0272e-03
+        ne delta = 7.1140e-16
     --------------------------------------------------------------------------------
     Final Iteration: 113
     --------------------------------------------------------------------------------
     dJ = 1.45e-03
         H delta = 9.6901e-04
-        ne delta = 1.7016e-16
+        ne delta = 3.5570e-16
     --------------------------------------------------------------------------------
-    Context converged to statistical equilibrium in 113 iterations after 3.55 s.
+    Context converged to statistical equilibrium in 113 iterations after 2.90 s.
     --------------------------------------------------------------------------------
     Achieved initial Stat Eq
 
@@ -241,65 +237,35 @@ Solve the problem
 
  .. code-block:: none
 
-    LTE Iterations 4 (Si slowest convergence)
     Iteration 0 (0.100000 s) done after 51 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 1 (0.200000 s) done after 48 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 2 (0.300000 s) done after 46 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 3 (0.400000 s) done after 41 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 4 (0.500000 s) done after 36 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 5 (0.600000 s) done after 30 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 6 (0.700000 s) done after 30 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 7 (0.800000 s) done after 24 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 8 (0.900000 s) done after 22 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 9 (1.000000 s) done after 21 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 10 (1.100000 s) done after 19 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 11 (1.200000 s) done after 18 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 12 (1.300000 s) done after 17 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 13 (1.400000 s) done after 17 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 14 (1.500000 s) done after 16 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 15 (1.600000 s) done after 16 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 16 (1.700000 s) done after 20 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 17 (1.800000 s) done after 21 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 18 (1.900000 s) done after 14 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 19 (2.000000 s) done after 13 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 20 (2.100000 s) done after 13 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 21 (2.200000 s) done after 12 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 22 (2.300000 s) done after 11 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 23 (2.400000 s) done after 11 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 24 (2.500000 s) done after 10 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 25 (2.600000 s) done after 9 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 26 (2.700000 s) done after 9 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 27 (2.800000 s) done after 8 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 28 (2.900000 s) done after 7 sub iterations
-    LTE Iterations 1 (-- slowest convergence)
     Iteration 29 (3.000000 s) done after 7 sub iterations
 
 
@@ -356,7 +322,7 @@ Reproduce Judge plot.
 
  .. code-block:: none
 
-    Time taken: 9.15 s
+    Time taken: 7.46 s
 
 
 
@@ -364,7 +330,7 @@ Reproduce Judge plot.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  33.189 seconds)
+   **Total running time of the script:** ( 0 minutes  27.580 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_JudgeDynamicValidation.py:

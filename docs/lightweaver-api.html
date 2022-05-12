@@ -5101,7 +5101,9 @@ acceleration).</p></li>
 <li><p><strong>initSol</strong> (<a class="reference internal" href="#lightweaver.utils.InitialSolution" title="lightweaver.utils.InitialSolution"><em>InitialSolution</em></a><em>, </em><em>optional</em>) – The starting solution for the population of all active species
 (default: LTE).</p></li>
 <li><p><strong>conserveCharge</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to conserve charge in the simulation (default: False).</p></li>
-<li><p><strong>hprd</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use the Hybrid PRD method to account for velocity shifts in the atmosphere (if PRD is used otherwise, then it is angle-averaged).</p></li>
+<li><p><strong>nrHOnly</strong> (<em>bool</em><em>, </em><em>optional</em>) – Only include hydrogen in charge conservation calculations (default: False).</p></li>
+<li><p><strong>hprd</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use the Hybrid PRD method to account for velocity shifts in
+the atmosphere (if PRD is used otherwise, then it is angle-averaged).</p></li>
 <li><p><strong>crswCallback</strong> (<a class="reference internal" href="#lightweaver.utils.CrswIterator" title="lightweaver.utils.CrswIterator"><em>CrswIterator</em></a><em>, </em><em>optional</em>) – An instance of CrswIterator (or derived thereof) to control
 collisional radiative swtiching (default: None for UnityCrswIterator
 i.e. no CRSW).</p></li>
@@ -5236,6 +5238,7 @@ stateDict.</p></li>
 <li><p><strong>ngOptions</strong> (<a class="reference internal" href="#lightweaver.utils.NgOptions" title="lightweaver.utils.NgOptions"><em>NgOptions</em></a><em>, </em><em>optional</em>) – Ng acceleration options to use.</p></li>
 <li><p><strong>initSol</strong> (<a class="reference internal" href="#lightweaver.utils.InitialSolution" title="lightweaver.utils.InitialSolution"><em>InitialSolution</em></a><em>, </em><em>optional</em>) – Initial solution to use, only matters if <cite>fromScratch</cite> is True.</p></li>
 <li><p><strong>conserveCharge</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to conserve charge.</p></li>
+<li><p><strong>nrHOnly</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to only consider Hydrogen in charge conservation calculations.</p></li>
 <li><p><strong>hprd</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use Hybrid-PRD.</p></li>
 <li><p><strong>preserveProfiles</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to copy the current line profiles, or compute new ones
 (default: recompute).</p></li>
@@ -5345,6 +5348,11 @@ CRSW (default: True). (Deprecated)</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id6">
 <span class="sig-name descname"><span class="pre">kwargs</span></span><a class="headerlink" href="#id6" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="lightweaver.LwCompiled.LwContext.nrHOnly">
+<span class="sig-name descname"><span class="pre">nrHOnly</span></span><a class="headerlink" href="#lightweaver.LwCompiled.LwContext.nrHOnly" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -5552,6 +5560,8 @@ profiles, LTE populations, background terms).</p>
 <li><p><strong>B</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether the magnetic field has been modified.</p></li>
 <li><p><strong>background</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether the background needs updating.</p></li>
 <li><p><strong>hprd</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether the hybrid PRD terms need updating.</p></li>
+<li><p><strong>quiet</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print any update information from these functions
+(default: True).</p></li>
 </ul>
 </dd>
 </dl>
