@@ -566,7 +566,7 @@ compute_full_operator_rates(Atom* a, int kr, f64 wmu,
 
 using LwInternal::FsMode;
 
-IterationResult formal_sol_iteration_matrices_AVX2FMA(Context& ctx, bool lambdaIterate)
+IterationResult formal_sol_iteration_matrices_AVX2FMA(Context& ctx, bool lambdaIterate, ExtraParams params)
 {
     if constexpr (AVX2FMA_available())
     {
@@ -582,7 +582,7 @@ IterationResult formal_sol_iteration_matrices_AVX2FMA(Context& ctx, bool lambdaI
     }
 }
 
-IterationResult formal_sol_AVX2FMA(Context& ctx, bool upOnly)
+IterationResult formal_sol_AVX2FMA(Context& ctx, bool upOnly, ExtraParams params)
 {
     FsMode mode = FsMode::FsOnly;
     if (upOnly)
@@ -590,7 +590,7 @@ IterationResult formal_sol_AVX2FMA(Context& ctx, bool upOnly)
     return LwInternal::formal_sol_impl<SimdType::AVX2FMA>(ctx, mode);
 }
 
-IterationResult redistribute_prd_lines_AVX2FMA(Context& ctx, int maxIter, f64 tol)
+IterationResult redistribute_prd_lines_AVX2FMA(Context& ctx, int maxIter, f64 tol, ExtraParams params)
 {
     return redistribute_prd_lines_template<SimdType::AVX2FMA>(ctx, maxIter, tol);
 }

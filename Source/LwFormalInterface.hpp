@@ -83,19 +83,20 @@ struct InterpFnManager
 };
 
 struct PrdIterData;
-typedef IterationResult(*FormalSolIterFn)(Context& ctx, bool lambdaIterate);
-typedef IterationResult(*SimpleFormalSol)(Context& ctx, bool upOnly);
+typedef IterationResult(*FormalSolIterFn)(Context& ctx, bool lambdaIterate, ExtraParams params);
+typedef IterationResult(*SimpleFormalSol)(Context& ctx, bool upOnly, ExtraParams params);
 typedef IterationResult(*FullStokesFormalSol)(Context& ctx, bool updateJ, bool upOnly,
                                               ExtraParams params);
-typedef IterationResult(*RedistPrdLinesFn)(Context& ctx, int maxIter, f64 tol);
-typedef void(*StatEqFn)(Atom* atom, int spaceStart, int spaceEnd);
-typedef void(*TimeDepUpdateFn)(Atom* atomIn, F64View2D nOld, f64 dt,
+typedef IterationResult(*RedistPrdLinesFn)(Context& ctx, int maxIter, f64 tol, ExtraParams params);
+typedef void(*StatEqFn)(Atom* atom, ExtraParams params, int spaceStart, int spaceEnd);
+typedef void(*TimeDepUpdateFn)(Atom* atomIn, F64View2D nOld, f64 dt, ExtraParams params,
                                int spaceStart, int spaceEnd);
 typedef void(*NrPostUpdateFn)(Context& ctx, std::vector<Atom*>* atoms,
                               const std::vector<F64View3D>& dC,
                               F64View backgroundNe,
                               const NrTimeDependentData& timeDepData,
                               f64 crswVal,
+                              ExtraParams params,
                               int spaceStart, int spaceEnd);
 
 typedef void(*AllocPerAtomScratch)(Atom* atom, bool detailedStatic);

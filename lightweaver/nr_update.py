@@ -6,7 +6,7 @@ from .atomic_table import PeriodicTable
 
 def nr_post_update(self, fdCollisionRates=True, hOnly=False,
                    timeDependentData=None, chunkSize=5,
-                   ngUpdate=None, printUpdate=None):
+                   ngUpdate=None, printUpdate=None, extraParams=None):
     '''
     Compute the Newton-Raphson terms for updating the electron density
     through charge conservation. Is attached to the Context object.
@@ -37,6 +37,9 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False,
     printUpdate : bool, optional
         Whether to print information on the size of the update (default:
         None, to apply automatic behaviour).
+    extraParams : dict, optional
+        Dict of extra parameters to be converted through the
+        `dict2ExtraParams` function and passed onto the C++ core.
     Returns
     -------
     dPops : float
@@ -86,7 +89,7 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False,
             atom.C[:] = Cprev
 
     self._nr_post_update_impl(atoms, dC, backgroundNe,
-                              timeDependentData=timeDependentData, chunkSize=chunkSize)
+                              timeDependentData=timeDependentData, chunkSize=chunkSize, extraParams=extraParams)
     self.eqPops.update_lte_atoms_Hmin_pops(self.atmos.pyAtmos, conserveCharge=False, quiet=True)
 
     if ngUpdate:

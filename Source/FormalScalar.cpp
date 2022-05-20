@@ -666,7 +666,7 @@ void piecewise_besser_1d(FormalData* fd, int la, int mu, bool toObs, const F64Vi
 }
 }
 
-IterationResult formal_sol_iteration_matrices_scalar(Context& ctx, bool lambdaIterate)
+IterationResult formal_sol_iteration_matrices_scalar(Context& ctx, bool lambdaIterate, ExtraParams params)
 {
     FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates);
     if (lambdaIterate)
@@ -675,12 +675,12 @@ IterationResult formal_sol_iteration_matrices_scalar(Context& ctx, bool lambdaIt
     return LwInternal::formal_sol_iteration_matrices_impl<SimdType::Scalar>(ctx, mode);
 }
 
-IterationResult formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate)
+IterationResult formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate, ExtraParams params)
 {
-    return ctx.iterFns.fs_iter(ctx, lambdaIterate);
+    return ctx.iterFns.fs_iter(ctx, lambdaIterate, params);
 }
 
-IterationResult formal_sol_scalar(Context& ctx, bool upOnly)
+IterationResult formal_sol_scalar(Context& ctx, bool upOnly, ExtraParams params)
 {
     FsMode mode = FsMode::FsOnly;
     if (upOnly)
@@ -688,7 +688,7 @@ IterationResult formal_sol_scalar(Context& ctx, bool upOnly)
     return formal_sol_impl<SimdType::Scalar>(ctx, mode);
 }
 
-IterationResult formal_sol(Context& ctx, bool upOnly)
+IterationResult formal_sol(Context& ctx, bool upOnly, ExtraParams params)
 {
-    return ctx.iterFns.simple_fs(ctx, upOnly);
+    return ctx.iterFns.simple_fs(ctx, upOnly, params);
 }

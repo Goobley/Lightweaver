@@ -333,26 +333,21 @@ cdef extern from "Lightweaver.hpp":
         f64 dt
         vector[F64View2D] nPrev
 
-    cdef IterationResult formal_sol_gamma_matrices(Context& ctx)
-    cdef IterationResult formal_sol_gamma_matrices(Context& ctx, bool_t lambdaIterate)
-    cdef IterationResult formal_sol(Context& ctx)
-    cdef IterationResult formal_sol(Context& ctx, bool_t upOnly)
-    cdef IterationResult formal_sol_full_stokes(Context& ctx) except +
-    cdef IterationResult formal_sol_full_stokes(Context& ctx, bool_t updateJ) except +
-    cdef IterationResult formal_sol_full_stokes(Context& ctx, bool_t updateJ,
-                                                bool_t upOnly) except +
+    cdef IterationResult formal_sol_gamma_matrices(Context& ctx, bool_t lambdaIterate, ExtraParams params) except +
+    cdef IterationResult formal_sol(Context& ctx, bool_t upOnly, ExtraParams params) except + 
     cdef IterationResult formal_sol_full_stokes(Context& ctx, bool_t updateJ,
                                                 bool_t upOnly, ExtraParams params) except +
-    cdef IterationResult redistribute_prd_lines(Context& ctx, int maxIter, f64 tol)
-    cdef void stat_eq(Context& ctx, Atom* atom) except +
+    cdef IterationResult redistribute_prd_lines(Context& ctx, int maxIter, f64 tol, ExtraParams params) except +
+    cdef void stat_eq(Context& ctx, Atom* atom, ExtraParams params) except +
     cdef void stat_eq_impl(Atom* atom) except +
     cdef void time_dependent_update(Context& ctx,  Atom* atomIn,
-                                    F64View2D nOld, f64 dt) except +
+                                    F64View2D nOld, f64 dt, ExtraParams params) except +
     cdef void nr_post_update(Context& ctx, vector[Atom*]* atoms,
                              const vector[F64View3D]& dC,
                              F64View backgroundNe,
                              const NrTimeDependentData& timeDepData,
-                             f64 crswVal) except +
+                             f64 crswVal,
+                             ExtraParams params) except +
     cdef void configure_hprd_coeffs(Context& ctx)
 
 cdef extern from "Lightweaver.hpp" namespace "EscapeProbability":
@@ -3140,7 +3135,7 @@ cdef class LwContext:
             atom.compute_profiles(polarised=polarised)
 
     cpdef formal_sol_gamma_matrices(self, fixCollisionalRates=False, lambdaIterate=False,
-                                    printUpdate=None):
+                                    printUpdate=None, extraParams=None):
         '''
         Compute the formal solution across all wavelengths and fill in the
         Gamma matrix for each active atom, allowing the populations to then
@@ -3160,6 +3155,9 @@ cdef class LwContext:
         printUpdate : bool, optional
             Whether to print the maximum relative change in J and any changes in
             CRSW (default: True). (Deprecated)
+        extraParams : dict, optional
+            Dict of extra parameters to be converted through the
+            `dict2ExtraParams` function and passed onto the C++ core.
 
         Returns
         -------
@@ -3171,6 +3169,10 @@ cdef class LwContext:
             printUpdate = True
         else:
             warnings.warn('The use of `printUpdate` is now deprecated, as this function no longer prints.', DeprecationWarning)
+
+        if extraParams is None:
+            extraParams = {}
+        cdef ExtraParams params = dict2ExtraParams(extraParams)
 
         cdef LwAtom atom
         cdef np.ndarray[np.double_t, ndim=3] Gamma
@@ -3187,12 +3189,12 @@ cdef class LwContext:
 
         self.atmos.compute_bcs(self.spect)
 
-        cdef IterationResult maxChange = formal_sol_gamma_matrices(self.ctx, lambdaIterate)
+        cdef IterationResult maxChange = formal_sol_gamma_matrices(self.ctx, lambdaIterate, params)
         update = IterationUpdate_from_IterationResult(self, maxChange)
         update.crsw = crswVal
         return update
 
-    cpdef formal_sol(self, upOnly=True):
+    cpdef formal_sol(self, upOnly=True, extraParams=None):
         '''
         Compute the formal solution across all wavelengths (used by
         `compute_rays`). Only computes upgoing rays by default, which has
@@ -3202,6 +3204,9 @@ cdef class LwContext:
         ----------
         upOnly : bool, optional
             Only compute upgoing rays, (default: True)
+        extraParams : dict, optional
+            Dict of extra parameters to be converted through the
+            `dict2ExtraParams` function and passed onto the C++ core.
 
         Returns
         -------
@@ -3210,8 +3215,13 @@ cdef class LwContext:
             `IterationUpdate` for details.
         '''
 
+        if extraParams is None:
+            extraParams = {}
+        cdef ExtraParams params = dict2ExtraParams(extraParams)
+
         self.atmos.compute_bcs(self.spect)
-        cdef IterationResult maxChange = formal_sol(self.ctx, upOnly)
+
+        cdef IterationResult maxChange = formal_sol(self.ctx, upOnly, params)
         update = IterationUpdate_from_IterationResult(self, maxChange)
         return update
 
@@ -3321,7 +3331,7 @@ cdef class LwContext:
         return update
 
     cpdef time_dep_update(self, f64 dt, prevTimePops=None, ngUpdate=None,
-                          printUpdate=None, int chunkSize=20):
+                          printUpdate=None, int chunkSize=20, extraParams=None):
         '''
         Update the populations of active atoms using the current values of
         their Gamma matrices. This function solves the time-dependent kinetic
@@ -3349,6 +3359,9 @@ cdef class LwContext:
             None, to apply automatic behaviour). Deprecated.
         chunkSize : int, optional
             Not currently used.
+        extraParams : dict, optional
+            Dict of extra parameters to be converted through the
+            `dict2ExtraParams` function and passed onto the C++ core.
 
         Returns
         -------
@@ -3370,6 +3383,10 @@ cdef class LwContext:
         if printUpdate is not None:
             warnings.warn('The use of `printUpdate` is now deprecated, as this function no longer prints.', DeprecationWarning)
 
+        if extraParams is None:
+            extraParams = {}
+        cdef ExtraParams params = dict2ExtraParams(extraParams)
+
         cdef LwAtom atom
         cdef Atom* a
         cdef f64 delta
@@ -3388,7 +3405,7 @@ cdef class LwContext:
         try:
             for i, atom in enumerate(atoms):
                 a = &atom.atom
-                time_dependent_update(self.ctx, a, f64_view_2(prevTimePops[i]), dt)
+                time_dependent_update(self.ctx, a, f64_view_2(prevTimePops[i]), dt, params)
         except:
             raise ExplodingMatrixError('Singular Matrix')
 
@@ -3426,7 +3443,7 @@ cdef class LwContext:
         for atom in self.activeAtoms:
             atom.atom.ng.clear()
 
-    cpdef stat_equil(self, printUpdate=None, int chunkSize=20):
+    cpdef stat_equil(self, printUpdate=None, int chunkSize=20, extraParams=None):
         '''
         Update the populations of active atoms using the current values of
         their Gamma matrices. This function solves the time-independent statistical
@@ -3439,6 +3456,9 @@ cdef class LwContext:
             True). Deprecated.
         chunkSize : int, optional
             Not currently used.
+        extraParams : dict, optional
+            Dict of extra parameters to be converted through the
+            `dict2ExtraParams` function and passed onto the C++ core.
 
         Returns
         -------
@@ -3462,6 +3482,10 @@ cdef class LwContext:
         else:
             warnings.warn('The use of `printUpdate` is now deprecated, as this function no longer prints.', DeprecationWarning)
 
+        if extraParams is None:
+            extraParams = {}
+        cdef ExtraParams params = dict2ExtraParams(extraParams)
+
         for atom in atoms:
             a = &atom.atom
             if not a.ng.init:
@@ -3470,7 +3494,7 @@ cdef class LwContext:
         try:
             for atom in atoms:
                 a = &atom.atom
-                stat_eq(self.ctx, a)
+                stat_eq(self.ctx, a, params)
         except:
             raise ExplodingMatrixError('Singular Matrix')
 
@@ -3492,7 +3516,7 @@ cdef class LwContext:
         return update
 
     def _nr_post_update_impl(self, atoms, dC, f64[::1] backgroundNe,
-                             timeDependentData=None, int chunkSize=5):
+                             timeDependentData=None, int chunkSize=5, extraParams=None):
         crswVal = self.crswCallback.val
         cdef f64 crsw = crswVal
         cdef vector[Atom*] atomVec
@@ -3501,6 +3525,10 @@ cdef class LwContext:
         cdef LwAtom atom
         cdef NrTimeDependentData td
         cdef int i
+
+        if extraParams is None:
+            extraParams = {}
+        cdef ExtraParams params = dict2ExtraParams(extraParams)
 
         if timeDependentData is not None:
             td.dt = timeDependentData['dt']
@@ -3516,7 +3544,7 @@ cdef class LwContext:
             dCVec.push_back(f64_view_3(c))
 
         try:
-            nr_post_update(self.ctx, &atomVec, dCVec, f64_view(backgroundNe), td, crsw);
+            nr_post_update(self.ctx, &atomVec, dCVec, f64_view(backgroundNe), td, crsw, params);
         except:
             raise ExplodingMatrixError('Singular Matrix')
 
@@ -3601,7 +3629,8 @@ cdef class LwContext:
         update = IterationUpdate_from_IterationResult(self, maxChange)
         return update
 
-    cpdef prd_redistribute(self, int maxIter=3, f64 tol=1e-2, printUpdate=None):
+    cpdef prd_redistribute(self, int maxIter=3, f64 tol=1e-2, printUpdate=None,
+                           extraParams=None):
         '''
         Update emission profile ratio rho by computing the scattering integral
         for each prd line. Does not affect the populations, interleave before
@@ -3617,6 +3646,9 @@ cdef class LwContext:
             returns i.e. `maxIter` iterations do not need to be taken (Default: 1e-2).
         printUpdate : bool, optional
             Whether to print information about the iteration process i.e. the size of the update to rho and the number of iterations taken (Default: True). Deprecated.
+        extraParams : dict, optional
+            Dict of extra parameters to be converted through the
+            `dict2ExtraParams` function and passed onto the C++ core.
 
         Returns
         -------
@@ -3628,8 +3660,11 @@ cdef class LwContext:
             printUpdate = True
         else:
             warnings.warn('The use of `printUpdate` is now deprecated, as this function no longer prints.', DeprecationWarning)
+        if extraParams is None:
+            extraParams = {}
+        cdef ExtraParams params = dict2ExtraParams(extraParams)
 
-        cdef IterationResult prdIter = redistribute_prd_lines(self.ctx, maxIter, tol)
+        cdef IterationResult prdIter = redistribute_prd_lines(self.ctx, maxIter, tol, params)
         update = IterationUpdate_from_IterationResult(self, prdIter)
         return update
 

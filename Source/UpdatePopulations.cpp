@@ -4,7 +4,8 @@
 #include <list>
 #include <stdexcept>
 
-void stat_eq_impl(Atom* atomIn, int spaceStart, int spaceEnd)
+void stat_eq_impl(Atom* atomIn, ExtraParams params,
+                  int spaceStart, int spaceEnd)
 {
     auto& atom = *atomIn;
     const int Nlevel = atom.Nlevel;
@@ -45,12 +46,13 @@ void stat_eq_impl(Atom* atomIn, int spaceStart, int spaceEnd)
     }
 }
 
-void stat_eq(Context& ctx,  Atom* atom, int spaceStart, int spaceEnd)
+void stat_eq(Context& ctx,  Atom* atom, ExtraParams params,
+             int spaceStart, int spaceEnd) 
 {
-    return ctx.iterFns.stat_eq(atom, spaceStart, spaceEnd);
+    return ctx.iterFns.stat_eq(atom, params, spaceStart, spaceEnd);
 }
 
-void parallel_stat_eq(Context* ctx, int chunkSize)
+void parallel_stat_eq(Context* ctx, int chunkSize, ExtraParams params)
 {
     const int Natom = ctx->activeAtoms.size();
     // NOTE(cmo): Run single threaded if chunkSize is 0
@@ -58,7 +60,7 @@ void parallel_stat_eq(Context* ctx, int chunkSize)
     {
         for (Atom* atom : ctx->activeAtoms)
         {
-            stat_eq_impl(atom);
+            stat_eq_impl(atom, params);
         }
         return;
     }
@@ -66,6 +68,7 @@ void parallel_stat_eq(Context* ctx, int chunkSize)
     struct UpdateData
     {
         Atom* atom;
+        ExtraParams* params;
         std::atomic<bool> exceptionThrown;
     };
 
@@ -75,6 +78,7 @@ void parallel_stat_eq(Context* ctx, int chunkSize)
     {
         threadData[a].atom = ctx->activeAtoms[a];
         threadData[a].exceptionThrown = false;
+        threadData[a].params = &params;
     }
 
 
@@ -84,7 +88,7 @@ void parallel_stat_eq(Context* ctx, int chunkSize)
         UpdateData* d = (UpdateData*)data;
         try
         {
-            stat_eq_impl(d->atom, p.start, p.end);
+            stat_eq_impl(d->atom, *d->params, p.start, p.end);
         }
         catch (const std::runtime_error& e)
         {
@@ -114,7 +118,7 @@ void parallel_stat_eq(Context* ctx, int chunkSize)
 }
 
 void time_dependent_update_impl(Atom* atomIn, F64View2D nOld, f64 dt,
-                                int spaceStart, int spaceEnd)
+                                ExtraParams params, int spaceStart, int spaceEnd)
 {
     auto& atom  = *atomIn;
     const int Nlevel = atom.Nlevel;
@@ -147,13 +151,13 @@ void time_dependent_update_impl(Atom* atomIn, F64View2D nOld, f64 dt,
 }
 
 void time_dependent_update(Context& ctx, Atom* atomIn, F64View2D nOld, f64 dt,
-                           int spaceStart, int spaceEnd)
+                           ExtraParams params, int spaceStart, int spaceEnd)
 {
-    return ctx.iterFns.time_dep_update(atomIn, nOld, dt, spaceStart, spaceEnd);
+    return ctx.iterFns.time_dep_update(atomIn, nOld, dt, params, spaceStart, spaceEnd);
 }
 
 void parallel_time_dep_update(Context* ctx, const std::vector<F64View2D>& oldPops,
-                              f64 dt, int chunkSize)
+                              f64 dt, int chunkSize, ExtraParams params)
 {
     const int Natom = ctx->activeAtoms.size();
     // NOTE(cmo): Run single threaded if chunkSize is 0
@@ -161,7 +165,7 @@ void parallel_time_dep_update(Context* ctx, const std::vector<F64View2D>& oldPop
     {
         for (int a = 0; a < Natom; ++a)
         {
-            time_dependent_update_impl(ctx->activeAtoms[a], oldPops[a], dt);
+            time_dependent_update_impl(ctx->activeAtoms[a], oldPops[a], dt, params);
         }
         return;
     }
@@ -171,6 +175,7 @@ void parallel_time_dep_update(Context* ctx, const std::vector<F64View2D>& oldPop
         Atom* atom;
         F64View2D nOld;
         f64 dt;
+        ExtraParams* params;
         std::atomic<bool> exceptionThrown;
     };
 
@@ -181,6 +186,7 @@ void parallel_time_dep_update(Context* ctx, const std::vector<F64View2D>& oldPop
         threadData[a].atom = ctx->activeAtoms[a];
         threadData[a].nOld = oldPops[a];
         threadData[a].dt = dt;
+        threadData[a].params = &params;
         threadData[a].exceptionThrown = false;
     }
 
@@ -190,7 +196,7 @@ void parallel_time_dep_update(Context* ctx, const std::vector<F64View2D>& oldPop
         UpdateData* d = (UpdateData*)data;
         try
         {
-            time_dependent_update_impl(d->atom, d->nOld, d->dt, p.start, p.end);
+            time_dependent_update_impl(d->atom, d->nOld, d->dt, *d->params, p.start, p.end);
         }
         catch (const std::runtime_error& e)
         {
@@ -288,6 +294,7 @@ void nr_post_update_impl(Context& ctx, std::vector<Atom*>* atoms,
                          F64View backgroundNe,
                          const NrTimeDependentData& timeDepData,
                          f64 crswVal,
+                         ExtraParams params,
                          int spaceStart, int spaceEnd)
 {
     const bool fdCollisionRates = dC.size() > 0;
@@ -391,11 +398,11 @@ void parallel_nr_post_update(Context& ctx, std::vector<Atom*>* atoms,
                              F64View backgroundNe,
                              const NrTimeDependentData& timeDepData,
                              f64 crswVal,
-                             int chunkSize)
+                             int chunkSize, ExtraParams params)
 {
     if (chunkSize <= 0 || ctx.atmos->Nspace <= chunkSize)
     {
-        nr_post_update_impl(ctx, atoms, dC, backgroundNe, timeDepData, crswVal);
+        nr_post_update_impl(ctx, atoms, dC, backgroundNe, timeDepData, crswVal, params);
         return;
     }
 
@@ -408,6 +415,7 @@ void parallel_nr_post_update(Context& ctx, std::vector<Atom*>* atoms,
         F64View backgroundNe;
         const NrTimeDependentData* timeDepData;
         f64 crswVal;
+        ExtraParams* params;
         bool exceptionThrown;
     };
 
@@ -425,6 +433,7 @@ void parallel_nr_post_update(Context& ctx, std::vector<Atom*>* atoms,
         threadData[t].backgroundNe = backgroundNe;
         threadData[t].timeDepData = &timeDepData;
         threadData[t].crswVal = crswVal;
+        threadData[t].params = &params;
         threadData[t].exceptionThrown = false;
     }
 
@@ -435,7 +444,7 @@ void parallel_nr_post_update(Context& ctx, std::vector<Atom*>* atoms,
         try
         {
             nr_post_update_impl(*d->ctx, d->atoms, *d->dC, d->backgroundNe,
-                           *d->timeDepData, d->crswVal, p.start, p.end);
+                           *d->timeDepData, d->crswVal, *d->params, p.start, p.end);
         }
         catch (const std::runtime_error& e)
         {
@@ -466,8 +475,9 @@ void nr_post_update(Context& ctx, std::vector<Atom*>* atoms,
                     F64View backgroundNe,
                     const NrTimeDependentData& timeDepData,
                     f64 crswVal,
+                    ExtraParams params,
                     int spaceStart, int spaceEnd)
 {
     return ctx.iterFns.nr_post_update(ctx, atoms, dC, backgroundNe, timeDepData,
-                                      crswVal, spaceStart, spaceEnd);
+                                      crswVal, params, spaceStart, spaceEnd);
 }

@@ -503,7 +503,7 @@ compute_full_operator_rates(Atom* a, int kr, f64 wmu,
 
 using LwInternal::FsMode;
 
-IterationResult formal_sol_iteration_matrices_SSE2(Context& ctx, bool lambdaIterate)
+IterationResult formal_sol_iteration_matrices_SSE2(Context& ctx, bool lambdaIterate, ExtraParams params)
 {
     if constexpr (SSE2_available())
     {
@@ -519,7 +519,7 @@ IterationResult formal_sol_iteration_matrices_SSE2(Context& ctx, bool lambdaIter
     }
 }
 
-IterationResult formal_sol_SSE2(Context& ctx, bool upOnly)
+IterationResult formal_sol_SSE2(Context& ctx, bool upOnly, ExtraParams params)
 {
     FsMode mode = FsMode::FsOnly;
     if (upOnly)
@@ -527,7 +527,7 @@ IterationResult formal_sol_SSE2(Context& ctx, bool upOnly)
     return LwInternal::formal_sol_impl<SimdType::SSE2>(ctx, mode);
 }
 
-IterationResult redistribute_prd_lines_SSE2(Context& ctx, int maxIter, f64 tol)
+IterationResult redistribute_prd_lines_SSE2(Context& ctx, int maxIter, f64 tol, ExtraParams params)
 {
     return redistribute_prd_lines_template<SimdType::SSE2>(ctx, maxIter, tol);
 }
