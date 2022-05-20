@@ -114,22 +114,22 @@ Find the initial statistical equilibrium solution,
     dJ = 1.00e-01
         H delta = 6.2891e-02
         ne delta = 1.7603e-16
-    -- Iteration 44:
-    dJ = 6.43e-02
-        H delta = 3.8342e-02
-        ne delta = 8.2997e-16
-    -- Iteration 64:
-    dJ = 3.97e-02
-        H delta = 2.4899e-02
+    -- Iteration 45:
+    dJ = 6.34e-02
+        H delta = 3.7085e-02
         ne delta = 1.7603e-16
-    -- Iteration 84:
-    dJ = 1.34e-02
-        H delta = 8.8631e-03
-        ne delta = 4.7427e-16
-    -- Iteration 104:
-    dJ = 3.03e-03
-        H delta = 2.0272e-03
-        ne delta = 7.1140e-16
+    -- Iteration 66:
+    dJ = 3.64e-02
+        H delta = 2.3101e-02
+        ne delta = 1.7603e-16
+    -- Iteration 87:
+    dJ = 1.10e-02
+        H delta = 7.2743e-03
+        ne delta = 1.3546e-16
+    -- Iteration 107:
+    dJ = 2.37e-03
+        H delta = 1.5876e-03
+        ne delta = 5.1048e-16
     --------------------------------------------------------------------------------
     Final Iteration: 113
     --------------------------------------------------------------------------------
@@ -137,7 +137,7 @@ Find the initial statistical equilibrium solution,
         H delta = 9.6901e-04
         ne delta = 3.5570e-16
     --------------------------------------------------------------------------------
-    Context converged to statistical equilibrium in 113 iterations after 2.90 s.
+    Context converged to statistical equilibrium in 113 iterations after 2.94 s.
     --------------------------------------------------------------------------------
     Achieved initial Stat Eq
 
@@ -322,7 +322,7 @@ Reproduce Judge plot.
 
  .. code-block:: none
 
-    Time taken: 7.46 s
+    Time taken: 7.39 s
 
 
 
@@ -330,7 +330,7 @@ Reproduce Judge plot.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  27.580 seconds)
+   **Total running time of the script:** ( 0 minutes  27.848 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_JudgeDynamicValidation.py:

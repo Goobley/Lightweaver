@@ -3993,7 +3993,7 @@ Lightweaver atmosphere (name, gravitational acceleration used).</p></li>
 <span id="lightweaver-nr-update-module"></span><h2>lightweaver.nr_update module<a class="headerlink" href="#module-lightweaver.nr_update" title="Permalink to this headline"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="lightweaver.nr_update.nr_post_update">
-<span class="sig-prename descclassname"><span class="pre">lightweaver.nr_update.</span></span><span class="sig-name descname"><span class="pre">nr_post_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fdCollisionRates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hOnly</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeDependentData</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunkSize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ngUpdate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">printUpdate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/nr_update.html#nr_post_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.nr_update.nr_post_update" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">lightweaver.nr_update.</span></span><span class="sig-name descname"><span class="pre">nr_post_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fdCollisionRates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hOnly</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeDependentData</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunkSize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ngUpdate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">printUpdate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extraParams</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/nr_update.html#nr_post_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.nr_update.nr_post_update" title="Permalink to this definition"></a></dt>
 <dd><p>Compute the Newton-Raphson terms for updating the electron density
 through charge conservation. Is attached to the Context object.
 :param fdCollisionRates: Whether to use a finite difference approximation to the collisional</p>
@@ -4020,6 +4020,8 @@ has seen enough steps since the previous acceleration (set in Context
 initialisation).</p></li>
 <li><p><strong>printUpdate</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print information on the size of the update (default:
 None, to apply automatic behaviour).</p></li>
+<li><p><strong>extraParams</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dict of extra parameters to be converted through the
+<cite>dict2ExtraParams</cite> function and passed onto the C++ core.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -5293,7 +5295,11 @@ parameters (LwDepthData).</p>
 implication on boundary conditions in 2D.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>upOnly</strong> (<em>bool</em><em>, </em><em>optional</em>) – Only compute upgoing rays, (default: True)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>upOnly</strong> (<em>bool</em><em>, </em><em>optional</em>) – Only compute upgoing rays, (default: True)</p></li>
+<li><p><strong>extraParams</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dict of extra parameters to be converted through the
+<cite>dict2ExtraParams</cite> function and passed onto the C++ core.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>update</strong> – An object representing the updates to the model. See
@@ -5322,6 +5328,8 @@ term to zero), may be useful in certain unstable situations
 (default: False).</p></li>
 <li><p><strong>printUpdate</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print the maximum relative change in J and any changes in
 CRSW (default: True). (Deprecated)</p></li>
+<li><p><strong>extraParams</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dict of extra parameters to be converted through the
+<cite>dict2ExtraParams</cite> function and passed onto the C++ core.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -5369,6 +5377,8 @@ each formal solution for a standard problem.</p>
 relative change in rho falls below this threshold then this function
 returns i.e. <cite>maxIter</cite> iterations do not need to be taken (Default: 1e-2).</p></li>
 <li><p><strong>printUpdate</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print information about the iteration process i.e. the size of the update to rho and the number of iterations taken (Default: True). Deprecated.</p></li>
+<li><p><strong>extraParams</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dict of extra parameters to be converted through the
+<cite>dict2ExtraParams</cite> function and passed onto the C++ core.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -5472,6 +5482,8 @@ equilibrium equations.</p>
 <li><p><strong>printUpdate</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print information on the size of the update (default:
 True). Deprecated.</p></li>
 <li><p><strong>chunkSize</strong> (<em>int</em><em>, </em><em>optional</em>) – Not currently used.</p></li>
+<li><p><strong>extraParams</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dict of extra parameters to be converted through the
+<cite>dict2ExtraParams</cite> function and passed onto the C++ core.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -5528,6 +5540,8 @@ initialisation).</p></li>
 <li><p><strong>printUpdate</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to print information on the size of the update (default:
 None, to apply automatic behaviour). Deprecated.</p></li>
 <li><p><strong>chunkSize</strong> (<em>int</em><em>, </em><em>optional</em>) – Not currently used.</p></li>
+<li><p><strong>extraParams</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dict of extra parameters to be converted through the
+<cite>dict2ExtraParams</cite> function and passed onto the C++ core.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
