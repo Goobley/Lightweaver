@@ -110,26 +110,26 @@ Find the initial statistical equilibrium solution,
     dJ = 9.64e+00
         H delta = 1.0905e+00
         ne delta = 1.6015e-01
-    -- Iteration 24:
-    dJ = 1.00e-01
-        H delta = 6.2891e-02
-        ne delta = 1.7603e-16
-    -- Iteration 45:
-    dJ = 6.34e-02
-        H delta = 3.7085e-02
-        ne delta = 1.7603e-16
-    -- Iteration 66:
-    dJ = 3.64e-02
-        H delta = 2.3101e-02
-        ne delta = 1.7603e-16
-    -- Iteration 87:
-    dJ = 1.10e-02
-        H delta = 7.2743e-03
-        ne delta = 1.3546e-16
-    -- Iteration 107:
-    dJ = 2.37e-03
-        H delta = 1.5876e-03
+    -- Iteration 25:
+    dJ = 9.66e-02
+        H delta = 5.9910e-02
+        ne delta = 2.3713e-16
+    -- Iteration 46:
+    dJ = 6.24e-02
+        H delta = 3.6484e-02
+        ne delta = 5.9284e-16
+    -- Iteration 67:
+    dJ = 3.48e-02
+        H delta = 2.2178e-02
         ne delta = 5.1048e-16
+    -- Iteration 88:
+    dJ = 1.02e-02
+        H delta = 6.7855e-03
+        ne delta = 5.1048e-16
+    -- Iteration 109:
+    dJ = 2.01e-03
+        H delta = 1.3475e-03
+        ne delta = 1.7603e-16
     --------------------------------------------------------------------------------
     Final Iteration: 113
     --------------------------------------------------------------------------------
@@ -137,7 +137,7 @@ Find the initial statistical equilibrium solution,
         H delta = 9.6901e-04
         ne delta = 3.5570e-16
     --------------------------------------------------------------------------------
-    Context converged to statistical equilibrium in 113 iterations after 2.94 s.
+    Context converged to statistical equilibrium in 113 iterations after 2.91 s.
     --------------------------------------------------------------------------------
     Achieved initial Stat Eq
 
@@ -322,7 +322,7 @@ Reproduce Judge plot.
 
  .. code-block:: none
 
-    Time taken: 7.39 s
+    Time taken: 7.32 s
 
 
 
@@ -330,7 +330,7 @@ Reproduce Judge plot.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  27.848 seconds)
+   **Total running time of the script:** ( 0 minutes  27.456 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_JudgeDynamicValidation.py:
