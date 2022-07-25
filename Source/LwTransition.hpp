@@ -60,6 +60,7 @@ struct Transition
 
     void* methodScratch;
 
+    // NOTE(cmo): This pointer is used from Transitions created for other threads to refer back to the main "prdStorage", in single threaded cases, it just points at the one here.
     Prd::PrdStorage* prdData;
 
     Prd::RhoCoeffView hPrdCoeffs;

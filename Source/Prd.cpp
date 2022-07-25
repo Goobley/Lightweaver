@@ -521,8 +521,9 @@ void scattering_int(ThreadData& data, int k)
         // NOTE(cmo): Linearly interpolate mean intensity onto this grid.
         optimised_fine_linear_fixed_spacing(coeffs.qWave(k), Jk, q0, PrdDQ, Np, JFine);
 
-        if (computeGii)
+        if (false)
         {
+            // NOTE(cmo): Don't cache gII on the SaveMemory branch
             // NOTE(cmo): Compute gII if needed.
             // Integration weights for general trapezoidal rule obtained
             // from averaging extended Simpson's rule with modified
@@ -551,7 +552,7 @@ void scattering_int(ThreadData& data, int k)
             gIILine(Np - 1) = GII(aDamp, qEmit, qPrime) * 5.0 / 12.0 * PrdDQ;
         }
 
-        F64View gII = coeffs.gII(k, la);
+        // F64View gII = coeffs.gII(k, la);
 
         // NOTE(cmo): Compute and normalise scattering integral.
         f64 gNorm = 0.0;
@@ -563,9 +564,20 @@ void scattering_int(ThreadData& data, int k)
             // procedure may slightly distort the redistribution function,
             // it ensures that no photons are gained or lost in this
             // evaluation.
-            f64 gii = gII(laF);
-            gNorm += gii;
-            scatInt += JFine(laF) * gii;
+            // f64 gii = gII(laF);
+            f64 wq = PrdDQ;
+            if (laF == 0 || laF == Np - 1)
+            {
+                wq *= 5.0 / 12.0;
+            }
+            else if (laF == 1 || laF == Np - 2)
+            {
+                wq *= 13.0 / 12.0;
+            }
+
+            f64 gii = GII(trans.aDamp(k), coeffs.qWave(k, la), q0 + laF * PrdDQ);
+            gNorm += gii * wq;
+            scatInt += JFine(laF) * gii * wq;
         }
         trans.rhoPrd(la, k) += gammaPrefactor * (scatInt / gNorm - Jbar);
     }
@@ -596,9 +608,9 @@ void prd_scatter(Transition* t, F64View PjQj, const Atom& atom,
     {
         JasUnpack((*trans.prdData), gII, qWave);
         auto& c = *trans.prdData;
-        if (!gII)
+        if (!qWave)
         {
-            gII = decltype(c.gII)(atmos.Nspace, Nlambda);
+            // gII = decltype(c.gII)(atmos.Nspace, Nlambda);
             qWave = decltype(c.qWave)(atmos.Nspace, Nlambda);
 #if 0
             // NOTE(cmo): For cmo_scattering_int
