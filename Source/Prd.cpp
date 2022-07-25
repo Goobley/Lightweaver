@@ -778,7 +778,7 @@ void configure_hprd_coeffs(Context& ctx)
                     const f64 nextLambda = spect.wavelength(nextIndex) * fac;
 
                     int i = la;
-                    for (; spect.wavelength(i) > prevLambda && i >= 0; --i);
+                    for (; spect.wavelength(i) > prevLambda && i > 0; --i);
                     for (; i < spect.wavelength.shape(0); ++i)
                     {
                         const f64 lambdaI = spect.wavelength(i);
