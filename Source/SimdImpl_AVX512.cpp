@@ -574,7 +574,7 @@ IterationResult formal_sol_iteration_matrices_AVX512(Context& ctx, bool lambdaIt
         if (lambdaIterate)
             mode = mode | FsMode::PureLambdaIteration;
 
-        return LwInternal::formal_sol_iteration_matrices_impl<SimdType::AVX512>(ctx, mode);
+        return LwInternal::formal_sol_iteration_matrices_impl<SimdType::AVX512>(ctx, mode, params);
     }
     else
     {
@@ -587,12 +587,12 @@ IterationResult formal_sol_AVX512(Context& ctx, bool upOnly, ExtraParams params)
     FsMode mode = FsMode::FsOnly;
     if (upOnly)
         mode = mode | FsMode::UpOnly;
-    return LwInternal::formal_sol_impl<SimdType::AVX512>(ctx, mode);
+    return LwInternal::formal_sol_impl<SimdType::AVX512>(ctx, mode, params);
 }
 
 IterationResult redistribute_prd_lines_AVX512(Context& ctx, int maxIter, f64 tol, ExtraParams params)
 {
-    return redistribute_prd_lines_template<SimdType::AVX512>(ctx, maxIter, tol);
+    return redistribute_prd_lines_template<SimdType::AVX512>(ctx, maxIter, tol, params);
 }
 
 extern "C"

@@ -16,7 +16,7 @@ void prd_scatter(Transition* t, F64View PjQj, const Atom& atom,
 }
 
 template <SimdType simd>
-IterationResult formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelengthIdxs)
+IterationResult formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelengthIdxs, ExtraParams params)
 {
     using namespace LwInternal;
     JasUnpack(*ctx, spect);
@@ -45,7 +45,7 @@ IterationResult formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelen
         {
             const int la = wavelengthIdxs(i);
             FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates | FsMode::PrdOnly);
-            f64 dJ = intensity_core_opt<simd, true, true, false, false>(iCore, la, mode);
+            f64 dJ = intensity_core_opt<simd, true, true, false, false>(iCore, la, mode, params);
             dJMax = max_idx(dJ, dJMax, maxIdx, la);
         }
         IterationResult result{};
@@ -79,6 +79,7 @@ IterationResult formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelen
             f64 dJ;
             i64 dJIdx;
             ConstView<int> idxs;
+            ExtraParams* params;
         };
         std::vector<FsTaskData> taskData;
         taskData.reserve(ctx.Nthreads);
@@ -89,6 +90,7 @@ IterationResult formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelen
             td.dJ = 0.0;
             td.dJIdx = 0;
             td.idxs = wavelengthIdxs;
+            td.params = &params;
             taskData.emplace_back(td);
         }
 
@@ -102,7 +104,7 @@ IterationResult formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelen
             {
                 f64 dJ = intensity_core_opt<SimdType::Scalar,
                                             true, true, false, false>
-                                            (*td.core, td.idxs(la), mode);
+                                            (*td.core, td.idxs(la), mode, *td.params);
                 td.dJ = max_idx(td.dJ, dJ, td.dJIdx, la);
             }
         };
@@ -133,13 +135,13 @@ IterationResult formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelen
 }
 
 template <SimdType simd>
-IterationResult formal_sol_prd_update_rates(Context& ctx, const std::vector<int>& wavelengthIdxs)
+IterationResult formal_sol_prd_update_rates(Context& ctx, const std::vector<int>& wavelengthIdxs, ExtraParams params)
 {
-    return formal_sol_prd_update_rates<simd>(ctx, ConstView<int>(wavelengthIdxs.data(), wavelengthIdxs.size()));
+    return formal_sol_prd_update_rates<simd>(ctx, ConstView<int>(wavelengthIdxs.data(), wavelengthIdxs.size()), params);
 }
 
 template <SimdType simd>
-IterationResult redistribute_prd_lines_template(Context& ctx, int maxIter, f64 tol)
+IterationResult redistribute_prd_lines_template(Context& ctx, int maxIter, f64 tol, ExtraParams params)
 {
     struct PrdData
     {
@@ -214,7 +216,7 @@ IterationResult redistribute_prd_lines_template(Context& ctx, int maxIter, f64 t
                 dRhoMaxIdx.emplace_back(maxChange.dMaxIdx);
             }
 
-            auto maxChange = formal_sol_prd_update_rates<simd>(ctx, idxsForFs);
+            auto maxChange = formal_sol_prd_update_rates<simd>(ctx, idxsForFs, params);
             dJPrdMax.emplace_back(maxChange.dJMax);
             dJPrdMaxIdx.emplace_back(maxChange.dJMaxIdx);
 
@@ -273,7 +275,7 @@ IterationResult redistribute_prd_lines_template(Context& ctx, int maxIter, f64 t
                 sched->AddTaskSetToPipe(&prdScatter);
                 sched->WaitforTask(&prdScatter);
             }
-            auto maxChange = formal_sol_prd_update_rates<simd>(ctx, idxsForFs);
+            auto maxChange = formal_sol_prd_update_rates<simd>(ctx, idxsForFs, params);
             dJPrdMax.emplace_back(maxChange.dJMax);
             dJPrdMaxIdx.emplace_back(maxChange.dJMaxIdx);
 
