@@ -350,11 +350,11 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode, ExtraParams
 
                     if (zPlaneDecomposition)
                     {
-                        if (toObsI)
+                        if (toObsI && zPlaneUp1D)
                         {
                             zPlaneUp1D(la, mu) = I(1);
                         }
-                        else
+                        else if (zPlaneDown1D)
                         {
                             zPlaneDown1D(la, mu) = I(atmos.Nz - 2);
                         }
@@ -371,12 +371,12 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode, ExtraParams
 
                     if (zPlaneDecomposition)
                     {
-                        if (toObsI)
+                        if (toObsI && zPlaneUp2D)
                         {
                             for (int j = 0; j < atmos.Nx; ++j)
                                 zPlaneUp2D(la, mu, j) = I2(1, j);
                         }
-                        else
+                        else if (zPlaneDown2D)
                         {
                             for (int j = 0; j < atmos.Nx; ++j)
                                 zPlaneDown2D(la, mu, j) = I2(atmos.Nz - 2, j);
