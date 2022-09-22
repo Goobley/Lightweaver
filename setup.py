@@ -10,7 +10,7 @@ from typing import Dict, List, Union
 
 import numpy as np
 from Cython.Build import cythonize
-from setuptools import setup
+from setuptools import setup, find_namespace_packages
 from setuptools.command.build_ext import build_ext
 from setuptools.extension import Extension
 
@@ -43,6 +43,15 @@ class LwSharedLibraryNoExtension(Extension):
 # NOTE(cmo): Based on https://stackoverflow.com/a/60285245/3847013 , but
 # modified for current setuptools, and to catch only the necessary library
 class LwBuildExt(build_ext):
+
+    @property
+    def is_editable_build(self):
+        try:
+            inplace = self.editable_mode
+        except AttributeError:
+            inplace = self.inplace
+        return inplace
+
     def get_ext_filename(self, fullname):
         filename = super().get_ext_filename(fullname)
         so_ext = os.getenv('SETUPTOOLS_EXT_SUFFIX')
@@ -86,6 +95,8 @@ class LwBuildExt(build_ext):
 
     def finalize_options(self):
         super().finalize_options()
+        if self.is_editable_build:
+            self.build_lib = BuildDir
         if sys.platform != 'darwin':
             return
 
@@ -116,7 +127,7 @@ class LwBuildExt(build_ext):
         if sys.platform != 'win32':
             return
 
-        if not self.inplace:
+        if not self.is_editable_build:
             warnings.warn('This block was only anticipated to run on an inplace (development) build, results may be not as expected.')
 
         build_py = self.get_finalized_command('build_py')
@@ -274,7 +285,7 @@ if CI_BUILD and path.exists(BuildDir) and path.isdir(BuildDir):
 setup(name='lightweaver',
       setup_requires=['setuptools_scm'],
       use_scm_version=True,
-      packages=['lightweaver'],
+      packages=['lightweaver'] + ['lightweaver.'+ p for p in find_namespace_packages('lightweaver')],
       install_requires=['numpy>=1.19', 'scipy', 'matplotlib', 'numba>=0.56',
                         'parse', 'specutils', 'tqdm', 'weno4', 'pyyaml'],
       author='Chris Osborne',
@@ -291,5 +302,5 @@ setup(name='lightweaver',
       options={
           'build': {
               'build_lib': BuildDir
-          }
+          },
       })
