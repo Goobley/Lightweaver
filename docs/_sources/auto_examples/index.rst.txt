@@ -1,9 +1,5 @@
 :orphan:
 
-
-
-.. _sphx_glr_auto_examples:
-
 Lightweaver Examples Gallery
 ============================
 
@@ -12,14 +8,42 @@ See some simple examples for using Lightweaver.
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbnails">
+
+
+.. raw:: html
+
     <div class="sphx-glr-thumbcontainer" tooltip="Judge (2017): ApJ 851, 5">
 
 .. only:: html
 
- .. figure:: /auto_examples/images/thumb/sphx_glr_plot_JudgeDynamicValidation_thumb.png
-     :alt: Time-dependent Example
+  .. image:: /auto_examples/images/thumb/sphx_glr_plot_JudgeDynamicValidation_thumb.png
+    :alt: Time-dependent Example
 
-     :ref:`sphx_glr_auto_examples_plot_JudgeDynamicValidation.py`
+  :ref:`sphx_glr_auto_examples_plot_JudgeDynamicValidation.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Time-dependent Example</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Computing a simple NLTE 8542 line profile in a FAL C atmosphere">
+
+.. only:: html
+
+  .. image:: /auto_examples/images/thumb/sphx_glr_plot_SimpleLineTest_thumb.png
+    :alt: Computing a simple NLTE 8542 line profile in a FAL C atmosphere
+
+  :ref:`sphx_glr_auto_examples_plot_SimpleLineTest.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Computing a simple NLTE 8542 line profile in a FAL C atmosphere</div>
+    </div>
+
 
 .. raw:: html
 
@@ -30,48 +54,20 @@ See some simple examples for using Lightweaver.
    :hidden:
 
    /auto_examples/plot_JudgeDynamicValidation
+   /auto_examples/plot_SimpleLineTest
 
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Computing a simple NLTE 8542 line profile in a FAL C atmosphere">
 
 .. only:: html
 
- .. figure:: /auto_examples/images/thumb/sphx_glr_plot_SimpleLineTest_thumb.png
-     :alt: Computing a simple NLTE 8542 line profile in a FAL C atmosphere
+  .. container:: sphx-glr-footer sphx-glr-footer-gallery
 
-     :ref:`sphx_glr_auto_examples_plot_SimpleLineTest.py`
+    .. container:: sphx-glr-download sphx-glr-download-python
 
-.. raw:: html
+      :download:`Download all examples in Python source code: auto_examples_python.zip </auto_examples/auto_examples_python.zip>`
 
-    </div>
+    .. container:: sphx-glr-download sphx-glr-download-jupyter
 
-
-.. toctree::
-   :hidden:
-
-   /auto_examples/plot_SimpleLineTest
-.. raw:: html
-
-    <div class="sphx-glr-clear"></div>
-
-
-
-.. only :: html
-
- .. container:: sphx-glr-footer
-    :class: sphx-glr-footer-gallery
-
-
-  .. container:: sphx-glr-download sphx-glr-download-python
-
-    :download:`Download all examples in Python source code: auto_examples_python.zip </auto_examples/auto_examples_python.zip>`
-
-
-
-  .. container:: sphx-glr-download sphx-glr-download-jupyter
-
-    :download:`Download all examples in Jupyter notebooks: auto_examples_jupyter.zip </auto_examples/auto_examples_jupyter.zip>`
+      :download:`Download all examples in Jupyter notebooks: auto_examples_jupyter.zip </auto_examples/auto_examples_jupyter.zip>`
 
 
 .. only:: html
