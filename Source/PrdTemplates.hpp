@@ -213,7 +213,7 @@ IterationResult redistribute_prd_lines_template(Context& ctx, int maxIter, f64 t
                 dRhoMax = max(dRhoMax, maxChange.dMax);
 
                 dRho.emplace_back(maxChange.dMax);
-                dRhoMaxIdx.emplace_back(maxChange.dMaxIdx);
+                dRhoMaxIdx.emplace_back(maxChange.dMaxIdx % p.line->rhoPrd.shape(0));
             }
 
             auto maxChange = formal_sol_prd_update_rates<simd>(ctx, idxsForFs, params);
@@ -259,7 +259,7 @@ IterationResult redistribute_prd_lines_template(Context& ctx, int maxIter, f64 t
                 p.ng.accelerate(p.line->rhoPrd.flatten());
                 auto maxChange = p.ng.max_change();
                 td.dRho = maxChange.dMax;
-                td.dRhoMaxIdx = maxChange.dMaxIdx;
+                td.dRhoMaxIdx = maxChange.dMaxIdx % p.line->rhoPrd.shape(0);
             }
         };
 
