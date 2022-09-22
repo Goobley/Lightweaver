@@ -672,7 +672,7 @@ IterationResult formal_sol_iteration_matrices_scalar(Context& ctx, bool lambdaIt
     if (lambdaIterate)
         mode = mode | FsMode::PureLambdaIteration;
 
-    return LwInternal::formal_sol_iteration_matrices_impl<SimdType::Scalar>(ctx, mode);
+    return LwInternal::formal_sol_iteration_matrices_impl<SimdType::Scalar>(ctx, mode, params);
 }
 
 IterationResult formal_sol_gamma_matrices(Context& ctx, bool lambdaIterate, ExtraParams params)
@@ -685,7 +685,7 @@ IterationResult formal_sol_scalar(Context& ctx, bool upOnly, ExtraParams params)
     FsMode mode = FsMode::FsOnly;
     if (upOnly)
         mode = mode | FsMode::UpOnly;
-    return formal_sol_impl<SimdType::Scalar>(ctx, mode);
+    return formal_sol_impl<SimdType::Scalar>(ctx, mode, params);
 }
 
 IterationResult formal_sol(Context& ctx, bool upOnly, ExtraParams params)

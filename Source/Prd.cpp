@@ -648,13 +648,13 @@ void prd_scatter(Transition* t, F64View PjQj, const Atom& atom,
 IterationResult redistribute_prd_lines(Context& ctx, int maxIter, f64 tol, ExtraParams params)
 {
     if (!ctx.iterFns.redistribute_prd)
-        return redistribute_prd_lines_scalar(ctx, maxIter, tol);
+        return redistribute_prd_lines_scalar(ctx, maxIter, tol, params);
     return ctx.iterFns.redistribute_prd(ctx, maxIter, tol, params);
 }
 
 IterationResult redistribute_prd_lines_scalar(Context& ctx, int maxIter, f64 tol, ExtraParams params)
 {
-    return redistribute_prd_lines_template<SimdType::Scalar>(ctx, maxIter, tol);
+    return redistribute_prd_lines_template<SimdType::Scalar>(ctx, maxIter, tol, params);
 }
 
 #if 0

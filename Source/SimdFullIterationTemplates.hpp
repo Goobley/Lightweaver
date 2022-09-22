@@ -237,7 +237,7 @@ compute_full_operator_rates(Atom* a, int kr, f64 wmu,
 
 template <SimdType simd, bool UpdateRates, bool PrdRatesOnly,
           bool ComputeOperator, bool StoreDepthData>
-f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
+f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode, ExtraParams params)
 {
     JasUnpack(*data, atmos, spect, fd, background);
     JasUnpack(*data, activeAtoms, detailedAtoms, JDag);
@@ -249,6 +249,37 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
 
     const bool updateJ = mode & FsMode::UpdateJ;
     const bool upOnly = mode & FsMode::UpOnly;
+    
+    // NOTE(cmo): handle ZPlaneDecomposition
+    const bool zPlaneDecomposition = params.contains("ZPlaneDecomposition");
+    F64View2D zPlaneDown1D, zPlaneUp1D;
+    F64View3D zPlaneDown2D, zPlaneUp2D;
+    if (zPlaneDecomposition)
+    {
+        switch (atmos.Ndim)
+        {
+            case 1:
+            {
+                if (params.contains("ZPlaneDown"))
+                    zPlaneDown1D = params.get_as<F64View2D>("ZPlaneDown");
+                if (params.contains("ZPlaneUp"))
+                    zPlaneUp1D = params.get_as<F64View2D>("ZPlaneUp");
+            } break;
+
+            case 2:
+            {
+                if (params.contains("ZPlaneDown"))
+                    zPlaneDown2D = params.get_as<F64View3D>("ZPlaneDown");
+                if (params.contains("ZPlaneUp"))
+                    zPlaneUp2D = params.get_as<F64View3D>("ZPlaneUp");
+            } break;
+
+            default:
+                printf("Unexpected Ndim!\n");
+                assert(false);
+        }
+    }
+
 
     JDag = spect.J(la);
     F64View J = spect.J(la);
@@ -317,6 +348,18 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
                     formal_solver(&fd, la, mu, toObs, spect.wavelength);
                     spect.I(la, mu, 0) = I(0);
 
+                    if (zPlaneDecomposition)
+                    {
+                        if (toObsI && zPlaneUp1D)
+                        {
+                            zPlaneUp1D(la, mu) = I(1);
+                        }
+                        else if (!toObsI && zPlaneDown1D)
+                        {
+                            zPlaneDown1D(la, mu) = I(atmos.Nz - 2);
+                        }
+                    }
+
                 } break;
 
                 case 2:
@@ -325,6 +368,20 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode)
                     auto I2 = I.reshape(atmos.Nz, atmos.Nx);
                     for (int j = 0; j < atmos.Nx; ++j)
                         spect.I(la, mu, j) = I2(0, j);
+
+                    if (zPlaneDecomposition)
+                    {
+                        if (toObsI && zPlaneUp2D)
+                        {
+                            for (int j = 0; j < atmos.Nx; ++j)
+                                zPlaneUp2D(la, mu, j) = I2(1, j);
+                        }
+                        else if (!toObsI && zPlaneDown2D)
+                        {
+                            for (int j = 0; j < atmos.Nx; ++j)
+                                zPlaneDown2D(la, mu, j) = I2(atmos.Nz - 2, j);
+                        }
+                    }
 
                 } break;
 
@@ -521,7 +578,7 @@ inline void zero_Gamma_rates_JRest(Context* ctx)
 }
 
 template <SimdType simd>
-IterationResult formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsMode mode)
+IterationResult formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsMode mode, ExtraParams params)
 {
     JasUnpack(*ctx, spect);
     JasUnpack(ctx, activeAtoms, detailedAtoms);
@@ -557,7 +614,8 @@ IterationResult formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsM
         {
             f64 dJ = dispatch_intensity_core_opt_<simd>(true, false, true,
                                                         storeDepthData,
-                                                        iCore, la * ctx.formalSolver.width, mode);
+                                                        iCore, la * ctx.formalSolver.width, 
+                                                        mode, params);
             dJMax = max_idx(dJ, dJMax, maxIdx, la);
         }
         for (int a = 0; a < activeAtoms.size(); ++a)
@@ -588,6 +646,7 @@ IterationResult formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsM
             bool lambdaIterate;
             bool storeDepthData;
             int width;
+            ExtraParams* params;
         };
         const bool storeDepthData = (ctx.depthData && ctx.depthData->fill);
         std::vector<FsTaskData> taskData;
@@ -601,6 +660,7 @@ IterationResult formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsM
             td.lambdaIterate = lambdaIterate;
             td.width = ctx.formalSolver.width;
             td.storeDepthData = storeDepthData;
+            td.params = &params;
             taskData.emplace_back(td);
         }
 
@@ -616,7 +676,7 @@ IterationResult formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsM
             {
                 f64 dJ = dispatch_intensity_core_opt_
                             <simd>(true, false, true, td.storeDepthData,
-                            *td.core, la * td.width, mode);
+                            *td.core, la * td.width, mode, *td.params);
                 td.dJ = max_idx(td.dJ, dJ, td.dJIdx, la);
             }
         };
@@ -651,7 +711,7 @@ IterationResult formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsM
 }
 
 template <SimdType simd>
-IterationResult formal_sol_impl(Context& ctx, LwInternal::FsMode mode)
+IterationResult formal_sol_impl(Context& ctx, LwInternal::FsMode mode, ExtraParams params)
 {
     JasUnpack(*ctx, spect);
 
@@ -664,7 +724,7 @@ IterationResult formal_sol_impl(Context& ctx, LwInternal::FsMode mode)
 
         for (int la = 0; la < Nspect; ++la)
         {
-            intensity_core_opt<simd, false, false, false, false>(iCore, la, mode);
+            intensity_core_opt<simd, false, false, false, false>(iCore, la, mode, params);
         }
         return IterationResult{};
     }
@@ -676,6 +736,7 @@ IterationResult formal_sol_impl(Context& ctx, LwInternal::FsMode mode)
         {
             IntensityCoreData* core;
             FsMode mode;
+            ExtraParams* params;
         };
         std::vector<FsTaskData> taskData;
         taskData.reserve(ctx.Nthreads);
@@ -684,6 +745,7 @@ IterationResult formal_sol_impl(Context& ctx, LwInternal::FsMode mode)
             FsTaskData td;
             td.core = cores.cores[t];
             td.mode = mode;
+            td.params = &params;
             taskData.emplace_back(td);
         }
 
@@ -693,7 +755,7 @@ IterationResult formal_sol_impl(Context& ctx, LwInternal::FsMode mode)
             auto& td = ((FsTaskData*)data)[threadId];
             for (i64 la = p.start; la < p.end; ++la)
             {
-                intensity_core_opt<simd, false, false, false, false>(*td.core, la, td.mode);
+                intensity_core_opt<simd, false, false, false, false>(*td.core, la, td.mode, *td.params);
             }
         };
 
