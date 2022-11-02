@@ -20,6 +20,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -46,27 +47,720 @@
 <li class="toctree-l1"><a class="reference internal" href="auto_examples/index.html">Lightweaver Examples Gallery</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Lightweaver API Documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.atmosphere">lightweaver.atmosphere module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.atomic_model">lightweaver.atomic_model module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.atomic_set">lightweaver.atomic_set module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.atomic_table">lightweaver.atomic_table module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.barklem">lightweaver.barklem module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.benchmark">lightweaver.benchmark module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.broadening">lightweaver.broadening module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.collisional_rates">lightweaver.collisional_rates module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.config">lightweaver.config module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.atmosphere">lightweaver.atmosphere module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere"><code class="docutils literal notranslate"><span class="pre">Atmosphere</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.structure"><code class="docutils literal notranslate"><span class="pre">Atmosphere.structure</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.temperature"><code class="docutils literal notranslate"><span class="pre">Atmosphere.temperature</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.vturb"><code class="docutils literal notranslate"><span class="pre">Atmosphere.vturb</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.ne"><code class="docutils literal notranslate"><span class="pre">Atmosphere.ne</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.nHTot"><code class="docutils literal notranslate"><span class="pre">Atmosphere.nHTot</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.B"><code class="docutils literal notranslate"><span class="pre">Atmosphere.B</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.gammaB"><code class="docutils literal notranslate"><span class="pre">Atmosphere.gammaB</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.chiB"><code class="docutils literal notranslate"><span class="pre">Atmosphere.chiB</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.Ndim"><code class="docutils literal notranslate"><span class="pre">Atmosphere.Ndim</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.Noutgoing"><code class="docutils literal notranslate"><span class="pre">Atmosphere.Noutgoing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.Nrays"><code class="docutils literal notranslate"><span class="pre">Atmosphere.Nrays</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.Nspace"><code class="docutils literal notranslate"><span class="pre">Atmosphere.Nspace</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.Nx"><code class="docutils literal notranslate"><span class="pre">Atmosphere.Nx</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.Ny"><code class="docutils literal notranslate"><span class="pre">Atmosphere.Ny</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.Nz"><code class="docutils literal notranslate"><span class="pre">Atmosphere.Nz</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.cmass"><code class="docutils literal notranslate"><span class="pre">Atmosphere.cmass</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.configure_bcs"><code class="docutils literal notranslate"><span class="pre">Atmosphere.configure_bcs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.dimensioned_unit_view"><code class="docutils literal notranslate"><span class="pre">Atmosphere.dimensioned_unit_view()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.dimensioned_view"><code class="docutils literal notranslate"><span class="pre">Atmosphere.dimensioned_view()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.make_1d"><code class="docutils literal notranslate"><span class="pre">Atmosphere.make_1d()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.make_2d"><code class="docutils literal notranslate"><span class="pre">Atmosphere.make_2d()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.quadrature"><code class="docutils literal notranslate"><span class="pre">Atmosphere.quadrature()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.rays"><code class="docutils literal notranslate"><span class="pre">Atmosphere.rays()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.tauRef"><code class="docutils literal notranslate"><span class="pre">Atmosphere.tauRef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.unit_view"><code class="docutils literal notranslate"><span class="pre">Atmosphere.unit_view()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.vlos"><code class="docutils literal notranslate"><span class="pre">Atmosphere.vlos</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.vx"><code class="docutils literal notranslate"><span class="pre">Atmosphere.vx</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.vy"><code class="docutils literal notranslate"><span class="pre">Atmosphere.vy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.vz"><code class="docutils literal notranslate"><span class="pre">Atmosphere.vz</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.x"><code class="docutils literal notranslate"><span class="pre">Atmosphere.x</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.xLowerBc"><code class="docutils literal notranslate"><span class="pre">Atmosphere.xLowerBc</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.xUpperBc"><code class="docutils literal notranslate"><span class="pre">Atmosphere.xUpperBc</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.y"><code class="docutils literal notranslate"><span class="pre">Atmosphere.y</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.yLowerBc"><code class="docutils literal notranslate"><span class="pre">Atmosphere.yLowerBc</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.yUpperBc"><code class="docutils literal notranslate"><span class="pre">Atmosphere.yUpperBc</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.z"><code class="docutils literal notranslate"><span class="pre">Atmosphere.z</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.zLowerBc"><code class="docutils literal notranslate"><span class="pre">Atmosphere.zLowerBc</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere.zUpperBc"><code class="docutils literal notranslate"><span class="pre">Atmosphere.zUpperBc</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atmosphere.BoundaryCondition"><code class="docutils literal notranslate"><span class="pre">BoundaryCondition</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.BoundaryCondition.mux"><code class="docutils literal notranslate"><span class="pre">BoundaryCondition.mux</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.BoundaryCondition.muy"><code class="docutils literal notranslate"><span class="pre">BoundaryCondition.muy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.BoundaryCondition.muz"><code class="docutils literal notranslate"><span class="pre">BoundaryCondition.muz</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.BoundaryCondition.indexVector"><code class="docutils literal notranslate"><span class="pre">BoundaryCondition.indexVector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.BoundaryCondition.compute_bc"><code class="docutils literal notranslate"><span class="pre">BoundaryCondition.compute_bc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.BoundaryCondition.set_required_angles"><code class="docutils literal notranslate"><span class="pre">BoundaryCondition.set_required_angles()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atmosphere.Layout"><code class="docutils literal notranslate"><span class="pre">Layout</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.Ndim"><code class="docutils literal notranslate"><span class="pre">Layout.Ndim</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.x"><code class="docutils literal notranslate"><span class="pre">Layout.x</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.y"><code class="docutils literal notranslate"><span class="pre">Layout.y</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.z"><code class="docutils literal notranslate"><span class="pre">Layout.z</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.vx"><code class="docutils literal notranslate"><span class="pre">Layout.vx</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.vy"><code class="docutils literal notranslate"><span class="pre">Layout.vy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.vz"><code class="docutils literal notranslate"><span class="pre">Layout.vz</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.xLowerBc"><code class="docutils literal notranslate"><span class="pre">Layout.xLowerBc</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.xUpperBc"><code class="docutils literal notranslate"><span class="pre">Layout.xUpperBc</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.yLowerBc"><code class="docutils literal notranslate"><span class="pre">Layout.yLowerBc</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.yUpperBc"><code class="docutils literal notranslate"><span class="pre">Layout.yUpperBc</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.zLowerBc"><code class="docutils literal notranslate"><span class="pre">Layout.zLowerBc</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.zUpperBc"><code class="docutils literal notranslate"><span class="pre">Layout.zUpperBc</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.Noutgoing"><code class="docutils literal notranslate"><span class="pre">Layout.Noutgoing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.Nspace"><code class="docutils literal notranslate"><span class="pre">Layout.Nspace</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.Nx"><code class="docutils literal notranslate"><span class="pre">Layout.Nx</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.Ny"><code class="docutils literal notranslate"><span class="pre">Layout.Ny</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.Nz"><code class="docutils literal notranslate"><span class="pre">Layout.Nz</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.cmass"><code class="docutils literal notranslate"><span class="pre">Layout.cmass</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.dimensioned_shape"><code class="docutils literal notranslate"><span class="pre">Layout.dimensioned_shape</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.dimensioned_unit_view"><code class="docutils literal notranslate"><span class="pre">Layout.dimensioned_unit_view()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.dimensioned_view"><code class="docutils literal notranslate"><span class="pre">Layout.dimensioned_view()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.make_1d"><code class="docutils literal notranslate"><span class="pre">Layout.make_1d()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.make_2d"><code class="docutils literal notranslate"><span class="pre">Layout.make_2d()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.make_3d"><code class="docutils literal notranslate"><span class="pre">Layout.make_3d()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.tauRef"><code class="docutils literal notranslate"><span class="pre">Layout.tauRef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Layout.unit_view"><code class="docutils literal notranslate"><span class="pre">Layout.unit_view()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atmosphere.NoBc"><code class="docutils literal notranslate"><span class="pre">NoBc</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atmosphere.PeriodicRadiation"><code class="docutils literal notranslate"><span class="pre">PeriodicRadiation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atmosphere.ScaleType"><code class="docutils literal notranslate"><span class="pre">ScaleType</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atmosphere.Stratifications"><code class="docutils literal notranslate"><span class="pre">Stratifications</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Stratifications.cmass"><code class="docutils literal notranslate"><span class="pre">Stratifications.cmass</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Stratifications.tauRef"><code class="docutils literal notranslate"><span class="pre">Stratifications.tauRef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Stratifications.dimensioned_unit_view"><code class="docutils literal notranslate"><span class="pre">Stratifications.dimensioned_unit_view()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Stratifications.dimensioned_view"><code class="docutils literal notranslate"><span class="pre">Stratifications.dimensioned_view()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atmosphere.Stratifications.unit_view"><code class="docutils literal notranslate"><span class="pre">Stratifications.unit_view()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atmosphere.ThermalisedRadiation"><code class="docutils literal notranslate"><span class="pre">ThermalisedRadiation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atmosphere.ZeroRadiation"><code class="docutils literal notranslate"><span class="pre">ZeroRadiation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atmosphere.get_top_pressure"><code class="docutils literal notranslate"><span class="pre">get_top_pressure()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.atomic_model">lightweaver.atomic_model module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_model.AtomicContinuum"><code class="docutils literal notranslate"><span class="pre">AtomicContinuum</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicContinuum.alpha"><code class="docutils literal notranslate"><span class="pre">AtomicContinuum.alpha()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicContinuum.lambda0"><code class="docutils literal notranslate"><span class="pre">AtomicContinuum.lambda0</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicContinuum.lambda0_m"><code class="docutils literal notranslate"><span class="pre">AtomicContinuum.lambda0_m</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicContinuum.lambdaEdge"><code class="docutils literal notranslate"><span class="pre">AtomicContinuum.lambdaEdge</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicContinuum.minLambda"><code class="docutils literal notranslate"><span class="pre">AtomicContinuum.minLambda</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicContinuum.polarisable"><code class="docutils literal notranslate"><span class="pre">AtomicContinuum.polarisable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicContinuum.wavelength"><code class="docutils literal notranslate"><span class="pre">AtomicContinuum.wavelength()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLevel"><code class="docutils literal notranslate"><span class="pre">AtomicLevel</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLevel.E"><code class="docutils literal notranslate"><span class="pre">AtomicLevel.E</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLevel.g"><code class="docutils literal notranslate"><span class="pre">AtomicLevel.g</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLevel.label"><code class="docutils literal notranslate"><span class="pre">AtomicLevel.label</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLevel.stage"><code class="docutils literal notranslate"><span class="pre">AtomicLevel.stage</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLevel.atom"><code class="docutils literal notranslate"><span class="pre">AtomicLevel.atom</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLevel.J"><code class="docutils literal notranslate"><span class="pre">AtomicLevel.J</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLevel.L"><code class="docutils literal notranslate"><span class="pre">AtomicLevel.L</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLevel.S"><code class="docutils literal notranslate"><span class="pre">AtomicLevel.S</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLevel.E_SI"><code class="docutils literal notranslate"><span class="pre">AtomicLevel.E_SI</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLevel.E_eV"><code class="docutils literal notranslate"><span class="pre">AtomicLevel.E_eV</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLevel.lsCoupling"><code class="docutils literal notranslate"><span class="pre">AtomicLevel.lsCoupling</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLine"><code class="docutils literal notranslate"><span class="pre">AtomicLine</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLine.f"><code class="docutils literal notranslate"><span class="pre">AtomicLine.f</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLine.type"><code class="docutils literal notranslate"><span class="pre">AtomicLine.type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLine.quadrature"><code class="docutils literal notranslate"><span class="pre">AtomicLine.quadrature</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLine.broadening"><code class="docutils literal notranslate"><span class="pre">AtomicLine.broadening</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLine.gLandeEff"><code class="docutils literal notranslate"><span class="pre">AtomicLine.gLandeEff</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLine.Aji"><code class="docutils literal notranslate"><span class="pre">AtomicLine.Aji</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLine.Bij"><code class="docutils literal notranslate"><span class="pre">AtomicLine.Bij</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLine.Bji"><code class="docutils literal notranslate"><span class="pre">AtomicLine.Bji</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLine.compute_phi"><code class="docutils literal notranslate"><span class="pre">AtomicLine.compute_phi()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLine.lambda0"><code class="docutils literal notranslate"><span class="pre">AtomicLine.lambda0</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLine.lambda0_m"><code class="docutils literal notranslate"><span class="pre">AtomicLine.lambda0_m</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLine.overlyingContinuumLevel"><code class="docutils literal notranslate"><span class="pre">AtomicLine.overlyingContinuumLevel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLine.polarisable"><code class="docutils literal notranslate"><span class="pre">AtomicLine.polarisable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLine.wavelength"><code class="docutils literal notranslate"><span class="pre">AtomicLine.wavelength()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLine.zeeman_components"><code class="docutils literal notranslate"><span class="pre">AtomicLine.zeeman_components()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_model.AtomicModel"><code class="docutils literal notranslate"><span class="pre">AtomicModel</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicModel.element"><code class="docutils literal notranslate"><span class="pre">AtomicModel.element</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicModel.levels"><code class="docutils literal notranslate"><span class="pre">AtomicModel.levels</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicModel.lines"><code class="docutils literal notranslate"><span class="pre">AtomicModel.lines</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicModel.continua"><code class="docutils literal notranslate"><span class="pre">AtomicModel.continua</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicModel.collisions"><code class="docutils literal notranslate"><span class="pre">AtomicModel.collisions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicModel.transitions"><code class="docutils literal notranslate"><span class="pre">AtomicModel.transitions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicModel.vBroad"><code class="docutils literal notranslate"><span class="pre">AtomicModel.vBroad()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_model.AtomicTransition"><code class="docutils literal notranslate"><span class="pre">AtomicTransition</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.AtomicTransition.transId"><code class="docutils literal notranslate"><span class="pre">AtomicTransition.transId</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_model.ExplicitContinuum"><code class="docutils literal notranslate"><span class="pre">ExplicitContinuum</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.ExplicitContinuum.alphaGrid"><code class="docutils literal notranslate"><span class="pre">ExplicitContinuum.alphaGrid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.ExplicitContinuum.alpha"><code class="docutils literal notranslate"><span class="pre">ExplicitContinuum.alpha()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.ExplicitContinuum.minLambda"><code class="docutils literal notranslate"><span class="pre">ExplicitContinuum.minLambda</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.ExplicitContinuum.wavelength"><code class="docutils literal notranslate"><span class="pre">ExplicitContinuum.wavelength()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_model.HydrogenicContinuum"><code class="docutils literal notranslate"><span class="pre">HydrogenicContinuum</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.HydrogenicContinuum.NlambaGen"><code class="docutils literal notranslate"><span class="pre">HydrogenicContinuum.NlambaGen</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.HydrogenicContinuum.alpha0"><code class="docutils literal notranslate"><span class="pre">HydrogenicContinuum.alpha0</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.HydrogenicContinuum.minWavelength"><code class="docutils literal notranslate"><span class="pre">HydrogenicContinuum.minWavelength</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.HydrogenicContinuum.alpha"><code class="docutils literal notranslate"><span class="pre">HydrogenicContinuum.alpha()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.HydrogenicContinuum.minLambda"><code class="docutils literal notranslate"><span class="pre">HydrogenicContinuum.minLambda</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.HydrogenicContinuum.wavelength"><code class="docutils literal notranslate"><span class="pre">HydrogenicContinuum.wavelength()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_model.LineProfileResult"><code class="docutils literal notranslate"><span class="pre">LineProfileResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_model.LineProfileState"><code class="docutils literal notranslate"><span class="pre">LineProfileState</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.LineProfileState.wavelength"><code class="docutils literal notranslate"><span class="pre">LineProfileState.wavelength</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.LineProfileState.vlosMu"><code class="docutils literal notranslate"><span class="pre">LineProfileState.vlosMu</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.LineProfileState.atmos"><code class="docutils literal notranslate"><span class="pre">LineProfileState.atmos</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.LineProfileState.eqPops"><code class="docutils literal notranslate"><span class="pre">LineProfileState.eqPops</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.LineProfileState.default_voigt_callback"><code class="docutils literal notranslate"><span class="pre">LineProfileState.default_voigt_callback</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.LineProfileState.vBroad"><code class="docutils literal notranslate"><span class="pre">LineProfileState.vBroad</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_model.LineQuadrature"><code class="docutils literal notranslate"><span class="pre">LineQuadrature</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.LineQuadrature.doppler_units"><code class="docutils literal notranslate"><span class="pre">LineQuadrature.doppler_units()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.LineQuadrature.wavelength"><code class="docutils literal notranslate"><span class="pre">LineQuadrature.wavelength()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_model.LineType"><code class="docutils literal notranslate"><span class="pre">LineType</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_model.LinearCoreExpWings"><code class="docutils literal notranslate"><span class="pre">LinearCoreExpWings</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.LinearCoreExpWings.doppler_units"><code class="docutils literal notranslate"><span class="pre">LinearCoreExpWings.doppler_units()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.LinearCoreExpWings.wavelength"><code class="docutils literal notranslate"><span class="pre">LinearCoreExpWings.wavelength()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_model.VoigtLine"><code class="docutils literal notranslate"><span class="pre">VoigtLine</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.VoigtLine.compute_phi"><code class="docutils literal notranslate"><span class="pre">VoigtLine.compute_phi()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.VoigtLine.damping"><code class="docutils literal notranslate"><span class="pre">VoigtLine.damping()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_model.reconfigure_atom"><code class="docutils literal notranslate"><span class="pre">reconfigure_atom()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.atomic_set">lightweaver.atomic_set module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_set.AtomicState"><code class="docutils literal notranslate"><span class="pre">AtomicState</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.AtomicState.model"><code class="docutils literal notranslate"><span class="pre">AtomicState.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.AtomicState.abundance"><code class="docutils literal notranslate"><span class="pre">AtomicState.abundance</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.AtomicState.nStar"><code class="docutils literal notranslate"><span class="pre">AtomicState.nStar</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.AtomicState.nTotal"><code class="docutils literal notranslate"><span class="pre">AtomicState.nTotal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.AtomicState.detailed"><code class="docutils literal notranslate"><span class="pre">AtomicState.detailed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.AtomicState.pops"><code class="docutils literal notranslate"><span class="pre">AtomicState.pops</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.AtomicState.radiativeRates"><code class="docutils literal notranslate"><span class="pre">AtomicState.radiativeRates</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.AtomicState.dimensioned_unit_view"><code class="docutils literal notranslate"><span class="pre">AtomicState.dimensioned_unit_view()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.AtomicState.dimensioned_view"><code class="docutils literal notranslate"><span class="pre">AtomicState.dimensioned_view()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.AtomicState.element"><code class="docutils literal notranslate"><span class="pre">AtomicState.element</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.AtomicState.mass"><code class="docutils literal notranslate"><span class="pre">AtomicState.mass</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.AtomicState.n"><code class="docutils literal notranslate"><span class="pre">AtomicState.n</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.AtomicState.name"><code class="docutils literal notranslate"><span class="pre">AtomicState.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.AtomicState.set_n_to_lte"><code class="docutils literal notranslate"><span class="pre">AtomicState.set_n_to_lte()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.AtomicState.unit_view"><code class="docutils literal notranslate"><span class="pre">AtomicState.unit_view()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.AtomicState.update_nTotal"><code class="docutils literal notranslate"><span class="pre">AtomicState.update_nTotal()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_set.AtomicStateTable"><code class="docutils literal notranslate"><span class="pre">AtomicStateTable</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.AtomicStateTable.dimensioned_unit_view"><code class="docutils literal notranslate"><span class="pre">AtomicStateTable.dimensioned_unit_view()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.AtomicStateTable.dimensioned_view"><code class="docutils literal notranslate"><span class="pre">AtomicStateTable.dimensioned_view()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.AtomicStateTable.unit_view"><code class="docutils literal notranslate"><span class="pre">AtomicStateTable.unit_view()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_set.RadiativeSet"><code class="docutils literal notranslate"><span class="pre">RadiativeSet</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.RadiativeSet.abundance"><code class="docutils literal notranslate"><span class="pre">RadiativeSet.abundance</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.RadiativeSet.elements"><code class="docutils literal notranslate"><span class="pre">RadiativeSet.elements</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.RadiativeSet.atoms"><code class="docutils literal notranslate"><span class="pre">RadiativeSet.atoms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.RadiativeSet.passiveSet"><code class="docutils literal notranslate"><span class="pre">RadiativeSet.passiveSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.RadiativeSet.detailedStaticSet"><code class="docutils literal notranslate"><span class="pre">RadiativeSet.detailedStaticSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.RadiativeSet.activeSet"><code class="docutils literal notranslate"><span class="pre">RadiativeSet.activeSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.RadiativeSet.activeAtoms"><code class="docutils literal notranslate"><span class="pre">RadiativeSet.activeAtoms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.RadiativeSet.compute_eq_pops"><code class="docutils literal notranslate"><span class="pre">RadiativeSet.compute_eq_pops()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.RadiativeSet.compute_wavelength_grid"><code class="docutils literal notranslate"><span class="pre">RadiativeSet.compute_wavelength_grid()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.RadiativeSet.detailedAtoms"><code class="docutils literal notranslate"><span class="pre">RadiativeSet.detailedAtoms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.RadiativeSet.is_active"><code class="docutils literal notranslate"><span class="pre">RadiativeSet.is_active()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.RadiativeSet.is_detailed"><code class="docutils literal notranslate"><span class="pre">RadiativeSet.is_detailed()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.RadiativeSet.is_passive"><code class="docutils literal notranslate"><span class="pre">RadiativeSet.is_passive()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.RadiativeSet.iterate_lte_ne_eq_pops"><code class="docutils literal notranslate"><span class="pre">RadiativeSet.iterate_lte_ne_eq_pops()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.RadiativeSet.passiveAtoms"><code class="docutils literal notranslate"><span class="pre">RadiativeSet.passiveAtoms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.RadiativeSet.set_active"><code class="docutils literal notranslate"><span class="pre">RadiativeSet.set_active()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.RadiativeSet.set_detailed_static"><code class="docutils literal notranslate"><span class="pre">RadiativeSet.set_detailed_static()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.RadiativeSet.set_passive"><code class="docutils literal notranslate"><span class="pre">RadiativeSet.set_passive()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_set.SpeciesStateTable"><code class="docutils literal notranslate"><span class="pre">SpeciesStateTable</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.SpeciesStateTable.atmosphere"><code class="docutils literal notranslate"><span class="pre">SpeciesStateTable.atmosphere</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.SpeciesStateTable.abundance"><code class="docutils literal notranslate"><span class="pre">SpeciesStateTable.abundance</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.SpeciesStateTable.atomicPops"><code class="docutils literal notranslate"><span class="pre">SpeciesStateTable.atomicPops</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.SpeciesStateTable.molecularTable"><code class="docutils literal notranslate"><span class="pre">SpeciesStateTable.molecularTable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.SpeciesStateTable.molecularPops"><code class="docutils literal notranslate"><span class="pre">SpeciesStateTable.molecularPops</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.SpeciesStateTable.HminPops"><code class="docutils literal notranslate"><span class="pre">SpeciesStateTable.HminPops</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.SpeciesStateTable.dimensioned_unit_view"><code class="docutils literal notranslate"><span class="pre">SpeciesStateTable.dimensioned_unit_view()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.SpeciesStateTable.dimensioned_view"><code class="docutils literal notranslate"><span class="pre">SpeciesStateTable.dimensioned_view()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.SpeciesStateTable.unit_view"><code class="docutils literal notranslate"><span class="pre">SpeciesStateTable.unit_view()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.SpeciesStateTable.update_lte_atoms_Hmin_pops"><code class="docutils literal notranslate"><span class="pre">SpeciesStateTable.update_lte_atoms_Hmin_pops()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_set.SpectrumConfiguration"><code class="docutils literal notranslate"><span class="pre">SpectrumConfiguration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.SpectrumConfiguration.radSet"><code class="docutils literal notranslate"><span class="pre">SpectrumConfiguration.radSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.SpectrumConfiguration.wavelength"><code class="docutils literal notranslate"><span class="pre">SpectrumConfiguration.wavelength</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.SpectrumConfiguration.models"><code class="docutils literal notranslate"><span class="pre">SpectrumConfiguration.models</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.SpectrumConfiguration.transWavelengths"><code class="docutils literal notranslate"><span class="pre">SpectrumConfiguration.transWavelengths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.SpectrumConfiguration.blueIdx"><code class="docutils literal notranslate"><span class="pre">SpectrumConfiguration.blueIdx</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.SpectrumConfiguration.redIdx"><code class="docutils literal notranslate"><span class="pre">SpectrumConfiguration.redIdx</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.SpectrumConfiguration.activeTrans"><code class="docutils literal notranslate"><span class="pre">SpectrumConfiguration.activeTrans</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.SpectrumConfiguration.activeWavelengths"><code class="docutils literal notranslate"><span class="pre">SpectrumConfiguration.activeWavelengths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.SpectrumConfiguration.Properties"><code class="docutils literal notranslate"><span class="pre">SpectrumConfiguration.Properties</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.SpectrumConfiguration.NprdTrans"><code class="docutils literal notranslate"><span class="pre">SpectrumConfiguration.NprdTrans</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_set.SpectrumConfiguration.subset_configuration"><code class="docutils literal notranslate"><span class="pre">SpectrumConfiguration.subset_configuration()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_set.chemical_equilibrium_fixed_ne"><code class="docutils literal notranslate"><span class="pre">chemical_equilibrium_fixed_ne()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_set.hminus_pops"><code class="docutils literal notranslate"><span class="pre">hminus_pops()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_set.lte_pops"><code class="docutils literal notranslate"><span class="pre">lte_pops()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.atomic_table">lightweaver.atomic_table module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_table.AtomicAbundance"><code class="docutils literal notranslate"><span class="pre">AtomicAbundance</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.AtomicAbundance.apply_metallicity"><code class="docutils literal notranslate"><span class="pre">AtomicAbundance.apply_metallicity()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.AtomicAbundance.compute_stats"><code class="docutils literal notranslate"><span class="pre">AtomicAbundance.compute_stats()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.AtomicAbundance.convert_isotopes_to_abundances"><code class="docutils literal notranslate"><span class="pre">AtomicAbundance.convert_isotopes_to_abundances()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.AtomicAbundance.dex_to_decimal"><code class="docutils literal notranslate"><span class="pre">AtomicAbundance.dex_to_decimal()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.AtomicAbundance.get_primary_isotope"><code class="docutils literal notranslate"><span class="pre">AtomicAbundance.get_primary_isotope()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.AtomicAbundance.load_default_abundance_data"><code class="docutils literal notranslate"><span class="pre">AtomicAbundance.load_default_abundance_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_table.Element"><code class="docutils literal notranslate"><span class="pre">Element</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.Element.mass"><code class="docutils literal notranslate"><span class="pre">Element.mass</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.Element.name"><code class="docutils literal notranslate"><span class="pre">Element.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_table.Isotope"><code class="docutils literal notranslate"><span class="pre">Isotope</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.Isotope.element"><code class="docutils literal notranslate"><span class="pre">Isotope.element</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.Isotope.element_mass"><code class="docutils literal notranslate"><span class="pre">Isotope.element_mass</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.Isotope.element_name"><code class="docutils literal notranslate"><span class="pre">Isotope.element_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.Isotope.mass"><code class="docutils literal notranslate"><span class="pre">Isotope.mass</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.Isotope.name"><code class="docutils literal notranslate"><span class="pre">Isotope.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_table.KuruczPf"><code class="docutils literal notranslate"><span class="pre">KuruczPf</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.KuruczPf.element"><code class="docutils literal notranslate"><span class="pre">KuruczPf.element</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.KuruczPf.abundance"><code class="docutils literal notranslate"><span class="pre">KuruczPf.abundance</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.KuruczPf.Tpf"><code class="docutils literal notranslate"><span class="pre">KuruczPf.Tpf</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.KuruczPf.pf"><code class="docutils literal notranslate"><span class="pre">KuruczPf.pf</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.KuruczPf.ionPot"><code class="docutils literal notranslate"><span class="pre">KuruczPf.ionPot</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.KuruczPf.fj"><code class="docutils literal notranslate"><span class="pre">KuruczPf.fj()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.KuruczPf.fjk"><code class="docutils literal notranslate"><span class="pre">KuruczPf.fjk()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.KuruczPf.lte_ionisation"><code class="docutils literal notranslate"><span class="pre">KuruczPf.lte_ionisation()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_table.KuruczPfTable"><code class="docutils literal notranslate"><span class="pre">KuruczPfTable</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_table.PeriodicTableData"><code class="docutils literal notranslate"><span class="pre">PeriodicTableData</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.PeriodicTableData.elements"><code class="docutils literal notranslate"><span class="pre">PeriodicTableData.elements</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.PeriodicTableData.get_isotopes"><code class="docutils literal notranslate"><span class="pre">PeriodicTableData.get_isotopes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.PeriodicTableData.isotopes"><code class="docutils literal notranslate"><span class="pre">PeriodicTableData.isotopes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_table.PeriodicTableData.nuclides"><code class="docutils literal notranslate"><span class="pre">PeriodicTableData.nuclides</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_table.load_periodic_table_data"><code class="docutils literal notranslate"><span class="pre">load_periodic_table_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_table.normalise_atom_name"><code class="docutils literal notranslate"><span class="pre">normalise_atom_name()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.barklem">lightweaver.barklem module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.barklem.Barklem"><code class="docutils literal notranslate"><span class="pre">Barklem</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.barklem.Barklem.get_active_cross_section"><code class="docutils literal notranslate"><span class="pre">Barklem.get_active_cross_section()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.barklem.BarklemCrossSectionError"><code class="docutils literal notranslate"><span class="pre">BarklemCrossSectionError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.barklem.BarklemTable"><code class="docutils literal notranslate"><span class="pre">BarklemTable</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.benchmark">lightweaver.benchmark module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.benchmark.benchmark"><code class="docutils literal notranslate"><span class="pre">benchmark()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.broadening">lightweaver.broadening module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.broadening.HydrogenLinearStarkBroadening"><code class="docutils literal notranslate"><span class="pre">HydrogenLinearStarkBroadening</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.broadening.HydrogenLinearStarkBroadening.broaden"><code class="docutils literal notranslate"><span class="pre">HydrogenLinearStarkBroadening.broaden()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.broadening.LineBroadener"><code class="docutils literal notranslate"><span class="pre">LineBroadener</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.broadening.LineBroadening"><code class="docutils literal notranslate"><span class="pre">LineBroadening</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.broadening.LineBroadening.broaden"><code class="docutils literal notranslate"><span class="pre">LineBroadening.broaden()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.broadening.LineBroadening.compute_other_broadening"><code class="docutils literal notranslate"><span class="pre">LineBroadening.compute_other_broadening()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.broadening.LineBroadening.sum_broadening_list"><code class="docutils literal notranslate"><span class="pre">LineBroadening.sum_broadening_list()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.broadening.LineBroadeningResult"><code class="docutils literal notranslate"><span class="pre">LineBroadeningResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.broadening.MultiplicativeStarkBroadening"><code class="docutils literal notranslate"><span class="pre">MultiplicativeStarkBroadening</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.broadening.MultiplicativeStarkBroadening.broaden"><code class="docutils literal notranslate"><span class="pre">MultiplicativeStarkBroadening.broaden()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.broadening.QuadraticStarkBroadening"><code class="docutils literal notranslate"><span class="pre">QuadraticStarkBroadening</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.broadening.QuadraticStarkBroadening.broaden"><code class="docutils literal notranslate"><span class="pre">QuadraticStarkBroadening.broaden()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.broadening.RadiativeBroadening"><code class="docutils literal notranslate"><span class="pre">RadiativeBroadening</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.broadening.RadiativeBroadening.broaden"><code class="docutils literal notranslate"><span class="pre">RadiativeBroadening.broaden()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.broadening.StandardLineBroadener"><code class="docutils literal notranslate"><span class="pre">StandardLineBroadener</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.broadening.VdwApprox"><code class="docutils literal notranslate"><span class="pre">VdwApprox</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.broadening.VdwBarklem"><code class="docutils literal notranslate"><span class="pre">VdwBarklem</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.broadening.VdwBarklem.broaden"><code class="docutils literal notranslate"><span class="pre">VdwBarklem.broaden()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.broadening.VdwUnsold"><code class="docutils literal notranslate"><span class="pre">VdwUnsold</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.broadening.VdwUnsold.broaden"><code class="docutils literal notranslate"><span class="pre">VdwUnsold.broaden()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.collisional_rates">lightweaver.collisional_rates module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.collisional_rates.Ar85Cdi"><code class="docutils literal notranslate"><span class="pre">Ar85Cdi</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.collisional_rates.Burgess"><code class="docutils literal notranslate"><span class="pre">Burgess</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.collisional_rates.CE"><code class="docutils literal notranslate"><span class="pre">CE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.collisional_rates.CH"><code class="docutils literal notranslate"><span class="pre">CH</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.collisional_rates.CI"><code class="docutils literal notranslate"><span class="pre">CI</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.collisional_rates.CP"><code class="docutils literal notranslate"><span class="pre">CP</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.collisional_rates.ChargeExchangeNeutralH"><code class="docutils literal notranslate"><span class="pre">ChargeExchangeNeutralH</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.collisional_rates.ChargeExchangeProton"><code class="docutils literal notranslate"><span class="pre">ChargeExchangeProton</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.collisional_rates.CollisionalRates"><code class="docutils literal notranslate"><span class="pre">CollisionalRates</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.collisional_rates.Omega"><code class="docutils literal notranslate"><span class="pre">Omega</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.collisional_rates.TemperatureInterpolationRates"><code class="docutils literal notranslate"><span class="pre">TemperatureInterpolationRates</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.config">lightweaver.config module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.config.get_config_path"><code class="docutils literal notranslate"><span class="pre">get_config_path()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.config.get_home_config_path"><code class="docutils literal notranslate"><span class="pre">get_home_config_path()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.config.set_most_advanced_simd_impl"><code class="docutils literal notranslate"><span class="pre">set_most_advanced_simd_impl()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.config.update_config_dict"><code class="docutils literal notranslate"><span class="pre">update_config_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.config.update_config_file"><code class="docutils literal notranslate"><span class="pre">update_config_file()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.fal">lightweaver.fal module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.iterate_ctx">lightweaver.iterate_ctx module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.iteration_update">lightweaver.iteration_update module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.molecule">lightweaver.molecule module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.multi">lightweaver.multi module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.nr_update">lightweaver.nr_update module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.iterate_ctx">lightweaver.iterate_ctx module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.iterate_ctx.ConvergenceCriteria"><code class="docutils literal notranslate"><span class="pre">ConvergenceCriteria</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.iterate_ctx.ConvergenceCriteria.is_converged"><code class="docutils literal notranslate"><span class="pre">ConvergenceCriteria.is_converged()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.iterate_ctx.DefaultConvergenceCriteria"><code class="docutils literal notranslate"><span class="pre">DefaultConvergenceCriteria</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.iterate_ctx.DefaultConvergenceCriteria.is_converged"><code class="docutils literal notranslate"><span class="pre">DefaultConvergenceCriteria.is_converged()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.iterate_ctx.iterate_ctx_se"><code class="docutils literal notranslate"><span class="pre">iterate_ctx_se()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.iteration_update">lightweaver.iteration_update module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate"><code class="docutils literal notranslate"><span class="pre">IterationUpdate</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate.ctx"><code class="docutils literal notranslate"><span class="pre">IterationUpdate.ctx</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate.crsw"><code class="docutils literal notranslate"><span class="pre">IterationUpdate.crsw</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate.updatedJ"><code class="docutils literal notranslate"><span class="pre">IterationUpdate.updatedJ</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate.dJMax"><code class="docutils literal notranslate"><span class="pre">IterationUpdate.dJMax</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate.dJMaxIdx"><code class="docutils literal notranslate"><span class="pre">IterationUpdate.dJMaxIdx</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate.updatedPops"><code class="docutils literal notranslate"><span class="pre">IterationUpdate.updatedPops</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate.dPops"><code class="docutils literal notranslate"><span class="pre">IterationUpdate.dPops</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate.dPopsMaxIdx"><code class="docutils literal notranslate"><span class="pre">IterationUpdate.dPopsMaxIdx</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate.ngAccelerated"><code class="docutils literal notranslate"><span class="pre">IterationUpdate.ngAccelerated</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate.updatedNe"><code class="docutils literal notranslate"><span class="pre">IterationUpdate.updatedNe</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate.dNeMax"><code class="docutils literal notranslate"><span class="pre">IterationUpdate.dNeMax</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate.dNeMaxIdx"><code class="docutils literal notranslate"><span class="pre">IterationUpdate.dNeMaxIdx</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate.updatedRho"><code class="docutils literal notranslate"><span class="pre">IterationUpdate.updatedRho</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate.NprdSubIter"><code class="docutils literal notranslate"><span class="pre">IterationUpdate.NprdSubIter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate.dRho"><code class="docutils literal notranslate"><span class="pre">IterationUpdate.dRho</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate.dRhoMaxIdx"><code class="docutils literal notranslate"><span class="pre">IterationUpdate.dRhoMaxIdx</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate.updatedJPrd"><code class="docutils literal notranslate"><span class="pre">IterationUpdate.updatedJPrd</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate.dJPrdMax"><code class="docutils literal notranslate"><span class="pre">IterationUpdate.dJPrdMax</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate.dJPrdMaxIdx"><code class="docutils literal notranslate"><span class="pre">IterationUpdate.dJPrdMaxIdx</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate.dPopsMax"><code class="docutils literal notranslate"><span class="pre">IterationUpdate.dPopsMax</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate.dRhoMax"><code class="docutils literal notranslate"><span class="pre">IterationUpdate.dRhoMax</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.iteration_update.IterationUpdate.compact_representation"><code class="docutils literal notranslate"><span class="pre">IterationUpdate.compact_representation()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.molecule">lightweaver.molecule module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.molecule.MolecularTable"><code class="docutils literal notranslate"><span class="pre">MolecularTable</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.molecule.Molecule"><code class="docutils literal notranslate"><span class="pre">Molecule</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.multi">lightweaver.multi module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.multi.MultiMetadata"><code class="docutils literal notranslate"><span class="pre">MultiMetadata</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.multi.read_multi_atmos"><code class="docutils literal notranslate"><span class="pre">read_multi_atmos()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.nr_update">lightweaver.nr_update module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.nr_update.nr_post_update"><code class="docutils literal notranslate"><span class="pre">nr_post_update()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.rh_atoms">lightweaver.rh_atoms module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.simd_management">lightweaver.simd_management module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.utils">lightweaver.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.simd_management">lightweaver.simd_management module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.simd_management.filter_usable_simd_impls"><code class="docutils literal notranslate"><span class="pre">filter_usable_simd_impls()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.simd_management.get_available_simd_suffixes"><code class="docutils literal notranslate"><span class="pre">get_available_simd_suffixes()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.utils">lightweaver.utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.ConvergenceError"><code class="docutils literal notranslate"><span class="pre">ConvergenceError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.CrswIterator"><code class="docutils literal notranslate"><span class="pre">CrswIterator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.ExplodingMatrixError"><code class="docutils literal notranslate"><span class="pre">ExplodingMatrixError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.InitialSolution"><code class="docutils literal notranslate"><span class="pre">InitialSolution</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.NgOptions"><code class="docutils literal notranslate"><span class="pre">NgOptions</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.utils.NgOptions.Nperiod"><code class="docutils literal notranslate"><span class="pre">NgOptions.Nperiod</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.utils.NgOptions.Ndelay"><code class="docutils literal notranslate"><span class="pre">NgOptions.Ndelay</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.UnityCrswIterator"><code class="docutils literal notranslate"><span class="pre">UnityCrswIterator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.air_to_vac"><code class="docutils literal notranslate"><span class="pre">air_to_vac()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.check_shape_exception"><code class="docutils literal notranslate"><span class="pre">check_shape_exception()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.compute_contribution_fn"><code class="docutils literal notranslate"><span class="pre">compute_contribution_fn()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.compute_height_edges"><code class="docutils literal notranslate"><span class="pre">compute_height_edges()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.compute_radiative_losses"><code class="docutils literal notranslate"><span class="pre">compute_radiative_losses()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.compute_wavelength_edges"><code class="docutils literal notranslate"><span class="pre">compute_wavelength_edges()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.convert_specific_intensity"><code class="docutils literal notranslate"><span class="pre">convert_specific_intensity()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.filter_fs_iter_libs"><code class="docutils literal notranslate"><span class="pre">filter_fs_iter_libs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.gaunt_bf"><code class="docutils literal notranslate"><span class="pre">gaunt_bf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.get_code_location"><code class="docutils literal notranslate"><span class="pre">get_code_location()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.get_data_path"><code class="docutils literal notranslate"><span class="pre">get_data_path()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.get_default_molecule_path"><code class="docutils literal notranslate"><span class="pre">get_default_molecule_path()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.get_fs_iter_libs"><code class="docutils literal notranslate"><span class="pre">get_fs_iter_libs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.integrate_line_losses"><code class="docutils literal notranslate"><span class="pre">integrate_line_losses()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.planck"><code class="docutils literal notranslate"><span class="pre">planck()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.sequence_repr"><code class="docutils literal notranslate"><span class="pre">sequence_repr()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.vac_to_air"><code class="docutils literal notranslate"><span class="pre">vac_to_air()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.view_flatten"><code class="docutils literal notranslate"><span class="pre">view_flatten()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.voigt_H"><code class="docutils literal notranslate"><span class="pre">voigt_H()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#lightweaver-witt-module">lightweaver.witt module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.zeeman">lightweaver.zeeman module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.LwCompiled">lightweaver.LwCompiled module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.zeeman">lightweaver.zeeman module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.zeeman.ZeemanComponents"><code class="docutils literal notranslate"><span class="pre">ZeemanComponents</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.zeeman.compute_zeeman_components"><code class="docutils literal notranslate"><span class="pre">compute_zeeman_components()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.zeeman.effective_lande"><code class="docutils literal notranslate"><span class="pre">effective_lande()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.zeeman.fraction_range"><code class="docutils literal notranslate"><span class="pre">fraction_range()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.zeeman.lande_factor"><code class="docutils literal notranslate"><span class="pre">lande_factor()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.zeeman.zeeman_strength"><code class="docutils literal notranslate"><span class="pre">zeeman_strength()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-lightweaver.LwCompiled">lightweaver.LwCompiled module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.LwCompiled.BC_to_enum"><code class="docutils literal notranslate"><span class="pre">BC_to_enum()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.LwCompiled.BackgroundProvider"><code class="docutils literal notranslate"><span class="pre">BackgroundProvider</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.BackgroundProvider.compute_background"><code class="docutils literal notranslate"><span class="pre">BackgroundProvider.compute_background()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.LwCompiled.BasicBackground"><code class="docutils literal notranslate"><span class="pre">BasicBackground</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.BasicBackground.bf_opacities"><code class="docutils literal notranslate"><span class="pre">BasicBackground.bf_opacities()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.BasicBackground.compute_background"><code class="docutils literal notranslate"><span class="pre">BasicBackground.compute_background()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.BasicBackground.rayleigh_scattering"><code class="docutils literal notranslate"><span class="pre">BasicBackground.rayleigh_scattering()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.LwCompiled.FastBackground"><code class="docutils literal notranslate"><span class="pre">FastBackground</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.FastBackground.compute_background"><code class="docutils literal notranslate"><span class="pre">FastBackground.compute_background()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.B"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.B</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.Ndim"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.Ndim</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.Nrays"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.Nrays</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.Nspace"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.Nspace</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.Nx"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.Nx</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.Ny"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.Ny</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.Nz"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.Nz</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.chiB"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.chiB</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.compute_bcs"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.compute_bcs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.configure_bcs"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.configure_bcs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.cos2chi"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.cos2chi</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.cosGamma"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.cosGamma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.gammaB"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.gammaB</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.height"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.height</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.mux"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.mux</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.muy"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.muy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.muz"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.muz</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.nHTot"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.nHTot</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.ne"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.ne</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.pyAtmos"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.pyAtmos</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.sin2chi"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.sin2chi</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.temperature"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.temperature</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.update_projections"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.update_projections()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.vlos"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.vlos</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.vlosMu"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.vlosMu</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.vturb"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.vturb</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.vx"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.vx</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.vy"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.vy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.vz"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.vz</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.wmu"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.wmu</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.x"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.x</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.y"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.y</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtmosphere.z"><code class="docutils literal notranslate"><span class="pre">LwAtmosphere.z</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtom"><code class="docutils literal notranslate"><span class="pre">LwAtom</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtom.atomicModel"><code class="docutils literal notranslate"><span class="pre">LwAtom.atomicModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtom.modelPops"><code class="docutils literal notranslate"><span class="pre">LwAtom.modelPops</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtom.C"><code class="docutils literal notranslate"><span class="pre">LwAtom.C</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtom.Gamma"><code class="docutils literal notranslate"><span class="pre">LwAtom.Gamma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtom.Nlevel"><code class="docutils literal notranslate"><span class="pre">LwAtom.Nlevel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtom.Ntrans"><code class="docutils literal notranslate"><span class="pre">LwAtom.Ntrans</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">LwAtom.atomicModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtom.compute_collisions"><code class="docutils literal notranslate"><span class="pre">LwAtom.compute_collisions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtom.compute_profiles"><code class="docutils literal notranslate"><span class="pre">LwAtom.compute_profiles()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtom.element"><code class="docutils literal notranslate"><span class="pre">LwAtom.element</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtom.load_pops_rates_prd_from_state"><code class="docutils literal notranslate"><span class="pre">LwAtom.load_pops_rates_prd_from_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id1"><code class="docutils literal notranslate"><span class="pre">LwAtom.modelPops</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtom.n"><code class="docutils literal notranslate"><span class="pre">LwAtom.n</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtom.nStar"><code class="docutils literal notranslate"><span class="pre">LwAtom.nStar</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtom.nTotal"><code class="docutils literal notranslate"><span class="pre">LwAtom.nTotal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtom.set_pops_escape_probability"><code class="docutils literal notranslate"><span class="pre">LwAtom.set_pops_escape_probability()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtom.setup_wavelength"><code class="docutils literal notranslate"><span class="pre">LwAtom.setup_wavelength()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtom.stages"><code class="docutils literal notranslate"><span class="pre">LwAtom.stages</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtom.trans"><code class="docutils literal notranslate"><span class="pre">LwAtom.trans</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwAtom.vBroad"><code class="docutils literal notranslate"><span class="pre">LwAtom.vBroad</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.LwCompiled.LwBackground"><code class="docutils literal notranslate"><span class="pre">LwBackground</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwBackground.chi"><code class="docutils literal notranslate"><span class="pre">LwBackground.chi</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwBackground.eta"><code class="docutils literal notranslate"><span class="pre">LwBackground.eta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwBackground.sca"><code class="docutils literal notranslate"><span class="pre">LwBackground.sca</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwBackground.update_background"><code class="docutils literal notranslate"><span class="pre">LwBackground.update_background()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext"><code class="docutils literal notranslate"><span class="pre">LwContext</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.kwargs"><code class="docutils literal notranslate"><span class="pre">LwContext.kwargs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.eqPops"><code class="docutils literal notranslate"><span class="pre">LwContext.eqPops</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.conserveCharge"><code class="docutils literal notranslate"><span class="pre">LwContext.conserveCharge</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.crswCallback"><code class="docutils literal notranslate"><span class="pre">LwContext.crswCallback</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.crswDone"><code class="docutils literal notranslate"><span class="pre">LwContext.crswDone</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.Nthreads"><code class="docutils literal notranslate"><span class="pre">LwContext.Nthreads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.activeAtoms"><code class="docutils literal notranslate"><span class="pre">LwContext.activeAtoms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.atmos"><code class="docutils literal notranslate"><span class="pre">LwContext.atmos</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.background"><code class="docutils literal notranslate"><span class="pre">LwContext.background</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.clear_ng"><code class="docutils literal notranslate"><span class="pre">LwContext.clear_ng()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.compute_profiles"><code class="docutils literal notranslate"><span class="pre">LwContext.compute_profiles()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.compute_rays"><code class="docutils literal notranslate"><span class="pre">LwContext.compute_rays()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2"><code class="docutils literal notranslate"><span class="pre">LwContext.conserveCharge</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.construct_from_state_dict_with"><code class="docutils literal notranslate"><span class="pre">LwContext.construct_from_state_dict_with()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id3"><code class="docutils literal notranslate"><span class="pre">LwContext.crswCallback</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id4"><code class="docutils literal notranslate"><span class="pre">LwContext.crswDone</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.depthData"><code class="docutils literal notranslate"><span class="pre">LwContext.depthData</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.detailedAtoms"><code class="docutils literal notranslate"><span class="pre">LwContext.detailedAtoms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id5"><code class="docutils literal notranslate"><span class="pre">LwContext.eqPops</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.formal_sol"><code class="docutils literal notranslate"><span class="pre">LwContext.formal_sol()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.formal_sol_gamma_matrices"><code class="docutils literal notranslate"><span class="pre">LwContext.formal_sol_gamma_matrices()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.get_fs_iter_scheme_properties"><code class="docutils literal notranslate"><span class="pre">LwContext.get_fs_iter_scheme_properties()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.hprd"><code class="docutils literal notranslate"><span class="pre">LwContext.hprd</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6"><code class="docutils literal notranslate"><span class="pre">LwContext.kwargs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.nrHOnly"><code class="docutils literal notranslate"><span class="pre">LwContext.nrHOnly</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.prd_redistribute"><code class="docutils literal notranslate"><span class="pre">LwContext.prd_redistribute()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.rel_diff_ng_accelerate"><code class="docutils literal notranslate"><span class="pre">LwContext.rel_diff_ng_accelerate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.rel_diff_pops"><code class="docutils literal notranslate"><span class="pre">LwContext.rel_diff_pops()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.set_formal_solver"><code class="docutils literal notranslate"><span class="pre">LwContext.set_formal_solver()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.set_fs_iter_scheme"><code class="docutils literal notranslate"><span class="pre">LwContext.set_fs_iter_scheme()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.set_interp_fn"><code class="docutils literal notranslate"><span class="pre">LwContext.set_interp_fn()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.setup_stokes"><code class="docutils literal notranslate"><span class="pre">LwContext.setup_stokes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.single_stokes_fs"><code class="docutils literal notranslate"><span class="pre">LwContext.single_stokes_fs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.spect"><code class="docutils literal notranslate"><span class="pre">LwContext.spect</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.stat_equil"><code class="docutils literal notranslate"><span class="pre">LwContext.stat_equil()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.state_dict"><code class="docutils literal notranslate"><span class="pre">LwContext.state_dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.time_dep_restore_prev_pops"><code class="docutils literal notranslate"><span class="pre">LwContext.time_dep_restore_prev_pops()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.time_dep_update"><code class="docutils literal notranslate"><span class="pre">LwContext.time_dep_update()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.update_deps"><code class="docutils literal notranslate"><span class="pre">LwContext.update_deps()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.update_hprd_coeffs"><code class="docutils literal notranslate"><span class="pre">LwContext.update_hprd_coeffs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.update_projections"><code class="docutils literal notranslate"><span class="pre">LwContext.update_projections()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwContext.update_threads"><code class="docutils literal notranslate"><span class="pre">LwContext.update_threads()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.LwCompiled.LwDepthData"><code class="docutils literal notranslate"><span class="pre">LwDepthData</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwDepthData.I"><code class="docutils literal notranslate"><span class="pre">LwDepthData.I</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwDepthData.chi"><code class="docutils literal notranslate"><span class="pre">LwDepthData.chi</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwDepthData.eta"><code class="docutils literal notranslate"><span class="pre">LwDepthData.eta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwDepthData.fill"><code class="docutils literal notranslate"><span class="pre">LwDepthData.fill</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.LwCompiled.LwFormalSolverManager"><code class="docutils literal notranslate"><span class="pre">LwFormalSolverManager</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwFormalSolverManager.paths"><code class="docutils literal notranslate"><span class="pre">LwFormalSolverManager.paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwFormalSolverManager.names"><code class="docutils literal notranslate"><span class="pre">LwFormalSolverManager.names</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwFormalSolverManager.default_formal_solver"><code class="docutils literal notranslate"><span class="pre">LwFormalSolverManager.default_formal_solver()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwFormalSolverManager.load_fs_from_path"><code class="docutils literal notranslate"><span class="pre">LwFormalSolverManager.load_fs_from_path()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id7"><code class="docutils literal notranslate"><span class="pre">LwFormalSolverManager.names</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id8"><code class="docutils literal notranslate"><span class="pre">LwFormalSolverManager.paths</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.LwCompiled.LwFsIterationManager"><code class="docutils literal notranslate"><span class="pre">LwFsIterationManager</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwFsIterationManager.default_scheme"><code class="docutils literal notranslate"><span class="pre">LwFsIterationManager.default_scheme()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwFsIterationManager.default_scheme_name"><code class="docutils literal notranslate"><span class="pre">LwFsIterationManager.default_scheme_name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwFsIterationManager.load_fns_from_path"><code class="docutils literal notranslate"><span class="pre">LwFsIterationManager.load_fns_from_path()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwFsIterationManager.names"><code class="docutils literal notranslate"><span class="pre">LwFsIterationManager.names</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwFsIterationManager.paths"><code class="docutils literal notranslate"><span class="pre">LwFsIterationManager.paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwFsIterationManager.scheme_properties"><code class="docutils literal notranslate"><span class="pre">LwFsIterationManager.scheme_properties()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.LwCompiled.LwInterpFnManager"><code class="docutils literal notranslate"><span class="pre">LwInterpFnManager</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwInterpFnManager.paths"><code class="docutils literal notranslate"><span class="pre">LwInterpFnManager.paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwInterpFnManager.names"><code class="docutils literal notranslate"><span class="pre">LwInterpFnManager.names</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwInterpFnManager.default_interp"><code class="docutils literal notranslate"><span class="pre">LwInterpFnManager.default_interp()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwInterpFnManager.load_interp_fn_from_path"><code class="docutils literal notranslate"><span class="pre">LwInterpFnManager.load_interp_fn_from_path()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id9"><code class="docutils literal notranslate"><span class="pre">LwInterpFnManager.names</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id10"><code class="docutils literal notranslate"><span class="pre">LwInterpFnManager.paths</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.LwCompiled.LwSpectrum"><code class="docutils literal notranslate"><span class="pre">LwSpectrum</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwSpectrum.I"><code class="docutils literal notranslate"><span class="pre">LwSpectrum.I</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwSpectrum.J"><code class="docutils literal notranslate"><span class="pre">LwSpectrum.J</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwSpectrum.Quv"><code class="docutils literal notranslate"><span class="pre">LwSpectrum.Quv</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwSpectrum.interp_J_from_state"><code class="docutils literal notranslate"><span class="pre">LwSpectrum.interp_J_from_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwSpectrum.setup_stokes"><code class="docutils literal notranslate"><span class="pre">LwSpectrum.setup_stokes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwSpectrum.wavelength"><code class="docutils literal notranslate"><span class="pre">LwSpectrum.wavelength</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition"><code class="docutils literal notranslate"><span class="pre">LwTransition</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.transModel"><code class="docutils literal notranslate"><span class="pre">LwTransition.transModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.Aji"><code class="docutils literal notranslate"><span class="pre">LwTransition.Aji</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.Bij"><code class="docutils literal notranslate"><span class="pre">LwTransition.Bij</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.Bji"><code class="docutils literal notranslate"><span class="pre">LwTransition.Bji</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.Nblue"><code class="docutils literal notranslate"><span class="pre">LwTransition.Nblue</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.Qelast"><code class="docutils literal notranslate"><span class="pre">LwTransition.Qelast</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.Rij"><code class="docutils literal notranslate"><span class="pre">LwTransition.Rij</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.Rji"><code class="docutils literal notranslate"><span class="pre">LwTransition.Rji</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.aDamp"><code class="docutils literal notranslate"><span class="pre">LwTransition.aDamp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.active"><code class="docutils literal notranslate"><span class="pre">LwTransition.active</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.alpha"><code class="docutils literal notranslate"><span class="pre">LwTransition.alpha</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.atom"><code class="docutils literal notranslate"><span class="pre">LwTransition.atom</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.compute_phi"><code class="docutils literal notranslate"><span class="pre">LwTransition.compute_phi()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.compute_polarised_profiles"><code class="docutils literal notranslate"><span class="pre">LwTransition.compute_polarised_profiles()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.i"><code class="docutils literal notranslate"><span class="pre">LwTransition.i</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.iLevel"><code class="docutils literal notranslate"><span class="pre">LwTransition.iLevel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.j"><code class="docutils literal notranslate"><span class="pre">LwTransition.j</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.jLevel"><code class="docutils literal notranslate"><span class="pre">LwTransition.jLevel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.lambda0"><code class="docutils literal notranslate"><span class="pre">LwTransition.lambda0</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.load_rates_prd_from_state"><code class="docutils literal notranslate"><span class="pre">LwTransition.load_rates_prd_from_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.phi"><code class="docutils literal notranslate"><span class="pre">LwTransition.phi</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.phiQ"><code class="docutils literal notranslate"><span class="pre">LwTransition.phiQ</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.phiU"><code class="docutils literal notranslate"><span class="pre">LwTransition.phiU</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.phiV"><code class="docutils literal notranslate"><span class="pre">LwTransition.phiV</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.polarisable"><code class="docutils literal notranslate"><span class="pre">LwTransition.polarisable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.psiQ"><code class="docutils literal notranslate"><span class="pre">LwTransition.psiQ</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.psiU"><code class="docutils literal notranslate"><span class="pre">LwTransition.psiU</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.psiV"><code class="docutils literal notranslate"><span class="pre">LwTransition.psiV</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.recompute_gII"><code class="docutils literal notranslate"><span class="pre">LwTransition.recompute_gII()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.rhoPrd"><code class="docutils literal notranslate"><span class="pre">LwTransition.rhoPrd</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id11"><code class="docutils literal notranslate"><span class="pre">LwTransition.transModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.type"><code class="docutils literal notranslate"><span class="pre">LwTransition.type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.uv"><code class="docutils literal notranslate"><span class="pre">LwTransition.uv()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.wavelength"><code class="docutils literal notranslate"><span class="pre">LwTransition.wavelength</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.LwTransition.wphi"><code class="docutils literal notranslate"><span class="pre">LwTransition.wphi</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.LwCompiled.LwZeemanComponents"><code class="docutils literal notranslate"><span class="pre">LwZeemanComponents</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.LwCompiled.RayleighScatterer"><code class="docutils literal notranslate"><span class="pre">RayleighScatterer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.LwCompiled.RayleighScatterer.scatter"><code class="docutils literal notranslate"><span class="pre">RayleighScatterer.scatter()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -84,8 +778,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Lightweaver API Documentation</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Lightweaver API Documentation</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/lightweaver-api.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -527,9 +1221,9 @@ raised.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>Nrays</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of rays to use in the quadrature. See notes above.</p></li>
-<li><p><strong>mu</strong> (<em>sequence of float</em><em>, </em><em>optional</em>) – The cosine of the angle made between the between each of the set
+<li><p><strong>mu</strong> (<em>sequence</em><em> of </em><em>float</em><em>, </em><em>optional</em>) – The cosine of the angle made between the between each of the set
 of rays and the z axis, only used in 1D.</p></li>
-<li><p><strong>wmu</strong> (<em>sequence of float</em><em>, </em><em>optional</em>) – The integration weights for each mu, must be provided if mu is provided.</p></li>
+<li><p><strong>wmu</strong> (<em>sequence</em><em> of </em><em>float</em><em>, </em><em>optional</em>) – The integration weights for each mu, must be provided if mu is provided.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
@@ -552,10 +1246,10 @@ solver.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>muz</strong> (<em>float</em><em> or </em><em>sequence of float</em><em>, </em><em>optional</em>) – The angular projections along the z axis.</p></li>
-<li><p><strong>mux</strong> (<em>float</em><em> or </em><em>sequence of float</em><em>, </em><em>optional</em>) – The angular projections along the x axis.</p></li>
-<li><p><strong>muy</strong> (<em>float</em><em> or </em><em>sequence of float</em><em>, </em><em>optional</em>) – The angular projections along the y axis.</p></li>
-<li><p><strong>wmu</strong> (<em>float</em><em> or </em><em>sequence of float</em><em>, </em><em>optional</em>) – The integration weights for the given ray if J is to be
+<li><p><strong>muz</strong> (<em>float</em><em> or </em><em>sequence</em><em> of </em><em>float</em><em>, </em><em>optional</em>) – The angular projections along the z axis.</p></li>
+<li><p><strong>mux</strong> (<em>float</em><em> or </em><em>sequence</em><em> of </em><em>float</em><em>, </em><em>optional</em>) – The angular projections along the x axis.</p></li>
+<li><p><strong>muy</strong> (<em>float</em><em> or </em><em>sequence</em><em> of </em><em>float</em><em>, </em><em>optional</em>) – The angular projections along the y axis.</p></li>
+<li><p><strong>wmu</strong> (<em>float</em><em> or </em><em>sequence</em><em> of </em><em>float</em><em>, </em><em>optional</em>) – The integration weights for the given ray if J is to be
 integrated for angle set.</p></li>
 <li><p><strong>upOnly</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to only configure boundary conditions for up-only rays.
 (default: False)</p></li>
@@ -1571,7 +2265,7 @@ the line quadrature (default 3e3 m/s).</p>
 <dd><p>The levels in use in this model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>list of AtomicLevel</p>
+<dd class="field-odd"><p>list of <a class="reference internal" href="#lightweaver.atomic_model.AtomicLevel" title="lightweaver.atomic_model.AtomicLevel">AtomicLevel</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1582,7 +2276,7 @@ the line quadrature (default 3e3 m/s).</p>
 <dd><p>The atomic lines present in this model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>list of AtomicLine</p>
+<dd class="field-odd"><p>list of <a class="reference internal" href="#lightweaver.atomic_model.AtomicLine" title="lightweaver.atomic_model.AtomicLine">AtomicLine</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1593,7 +2287,7 @@ the line quadrature (default 3e3 m/s).</p>
 <dd><p>The atomic continua present in this model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>list of AtomicContinuum</p>
+<dd class="field-odd"><p>list of <a class="reference internal" href="#lightweaver.atomic_model.AtomicContinuum" title="lightweaver.atomic_model.AtomicContinuum">AtomicContinuum</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1604,7 +2298,7 @@ the line quadrature (default 3e3 m/s).</p>
 <dd><p>The collisional rates present in this model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>list of CollisionalRates</p>
+<dd class="field-odd"><p>list of <a class="reference internal" href="#lightweaver.collisional_rates.CollisionalRates" title="lightweaver.collisional_rates.CollisionalRates">CollisionalRates</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -2218,7 +2912,7 @@ All atoms start passive.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>atoms</strong> (<em>list of AtomicModel</em>) – The atomic models to be used in the simulation (active, detailed, and
+<li><p><strong>atoms</strong> (<em>list</em><em> of </em><a class="reference internal" href="#lightweaver.atomic_model.AtomicModel" title="lightweaver.atomic_model.AtomicModel"><em>AtomicModel</em></a>) – The atomic models to be used in the simulation (active, detailed, and
 background).</p></li>
 <li><p><strong>abundance</strong> (<a class="reference internal" href="#lightweaver.atomic_table.AtomicAbundance" title="lightweaver.atomic_table.AtomicAbundance"><em>AtomicAbundance</em></a><em>, </em><em>optional</em>) – The abundance to be used for each species.</p></li>
 </ul>
@@ -2588,7 +3282,7 @@ active at each wavelength.</p>
 simulation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>list of AtomicModel</p>
+<dd class="field-odd"><p>list of <a class="reference internal" href="#lightweaver.atomic_model.AtomicModel" title="lightweaver.atomic_model.AtomicModel">AtomicModel</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -3226,9 +3920,9 @@ modifications.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>natural</strong> (<em>list of StandardLineBroadener</em>) – List of broadening terms that are not elastic collisions (separated for PRD).</p></li>
-<li><p><strong>elastic</strong> (<em>list of StandardLineBroadener</em>) – List of elastic broadening terms.</p></li>
-<li><p><strong>other</strong> (<em>list of LineBroadener</em><em>, </em><em>optional</em>) – List of other broadening terms, not used by the VoigtLine by default,
+<li><p><strong>natural</strong> (<em>list</em><em> of </em><a class="reference internal" href="#lightweaver.broadening.StandardLineBroadener" title="lightweaver.broadening.StandardLineBroadener"><em>StandardLineBroadener</em></a>) – List of broadening terms that are not elastic collisions (separated for PRD).</p></li>
+<li><p><strong>elastic</strong> (<em>list</em><em> of </em><a class="reference internal" href="#lightweaver.broadening.StandardLineBroadener" title="lightweaver.broadening.StandardLineBroadener"><em>StandardLineBroadener</em></a>) – List of elastic broadening terms.</p></li>
+<li><p><strong>other</strong> (<em>list</em><em> of </em><a class="reference internal" href="#lightweaver.broadening.LineBroadener" title="lightweaver.broadening.LineBroadener"><em>LineBroadener</em></a><em>, </em><em>optional</em>) – List of other broadening terms, not used by the VoigtLine by default,
 but existing to provide _options_ (default: None)</p></li>
 </ul>
 </dd>
@@ -4350,7 +5044,7 @@ negative =&gt; radiative loss.</p>
 = True set before the most recent formal solution).</p></li>
 <li><p><strong>loss</strong> (<em>np.ndarray</em>) – The radiative gains/losses for each wavelength and depth computed by
 <cite>compute_radiative_losses</cite>.</p></li>
-<li><p><strong>lines</strong> (<a class="reference internal" href="#lightweaver.atomic_model.AtomicLine" title="lightweaver.atomic_model.AtomicLine"><em>AtomicLine</em></a><em> or </em><em>list of AtomicLine</em>) – The lines for which to compute losses.</p></li>
+<li><p><strong>lines</strong> (<a class="reference internal" href="#lightweaver.atomic_model.AtomicLine" title="lightweaver.atomic_model.AtomicLine"><em>AtomicLine</em></a><em> or </em><em>list</em><em> of </em><a class="reference internal" href="#lightweaver.atomic_model.AtomicLine" title="lightweaver.atomic_model.AtomicLine"><em>AtomicLine</em></a>) – The lines for which to compute losses.</p></li>
 <li><p><strong>extendGridNm</strong> (<em>float</em><em>, </em><em>optional</em>) – Set this to a positive value to add an additional point at each end
 of the integration range to include a wider continuum/far-wing
 contribution. Units: nm, default: 0.0.</p></li>
@@ -5177,7 +5871,7 @@ to focus on particular lines.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>wavelengths</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – The wavelengths at which to compute the solution (default: None,
 i.e. the original grid).</p></li>
-<li><p><strong>mus</strong> (<em>float</em><em> or </em><em>sequence of float</em><em> or </em><em>dict</em>) – The cosines of the angles between the rays and the z-axis to use,
+<li><p><strong>mus</strong> (<em>float</em><em> or </em><em>sequence</em><em> of </em><em>float</em><em> or </em><em>dict</em>) – The cosines of the angles between the rays and the z-axis to use,
 if a float or sequence of float then these are taken as muz. If a
 dict, then it is expected to be dictionary unpackable
 (double-splat) into atmos.rays, and can then be used for
@@ -5512,7 +6206,7 @@ updates for this timestep. Also resets I and J to 0. May be useful in
 cases where a problem was encountered.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>prevTimePops</strong> (<em>list of np.ndarray</em>) – <cite>prevTimePops</cite> returned by time_dep_update.</p>
+<dd class="field-odd"><p><strong>prevTimePops</strong> (<em>list</em><em> of </em><em>np.ndarray</em>) – <cite>prevTimePops</cite> returned by time_dep_update.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -5528,7 +6222,7 @@ fully implicit (theta = 0) integrator.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dt</strong> (<em>float</em>) – The timestep length [s].</p></li>
-<li><p><strong>prevTimePops</strong> (<em>list of np.ndarray</em><em> or </em><em>None</em>) – The NLTE populations for each active atom at the start of the
+<li><p><strong>prevTimePops</strong> (<em>list</em><em> of </em><em>np.ndarray</em><em> or </em><em>None</em>) – The NLTE populations for each active atom at the start of the
 timestep (order matching that of Context.activeAtoms). This does
 not need to be provided the first time time_dep_update is called
 for a timestep, as if this parameter is None then this list will
