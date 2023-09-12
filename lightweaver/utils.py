@@ -222,7 +222,7 @@ def convert_specific_intensity(wavelength: np.ndarray,
         If no units are provided then this is assumed to be in J/s/m2/sr/Hz,
         the default for Lightweaver.
     outUnits : str or astropy.Unit
-        The units to convert specInt to e.g. 'erg/s/cm2/sr/A'
+        The units to convert specInt to e.g. 'erg/s/cm2/sr/Angstrom'
 
     Returns
     -------
