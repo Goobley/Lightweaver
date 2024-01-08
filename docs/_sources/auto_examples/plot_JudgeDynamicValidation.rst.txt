@@ -10,7 +10,7 @@
     .. note::
         :class: sphx-glr-download-link-note
 
-        Click :ref:`here <sphx_glr_download_auto_examples_plot_JudgeDynamicValidation.py>`
+        :ref:`Go to the end <sphx_glr_download_auto_examples_plot_JudgeDynamicValidation.py>`
         to download the full example code
 
 .. rst-class:: sphx-glr-example-title
@@ -30,7 +30,7 @@ Judge (2017): ApJ 851, 5
 
 .. GENERATED FROM PYTHON SOURCE LINES 12-19
 
-.. code-block:: default
+.. code-block:: Python
 
     from lightweaver.fal import Falc82
     from lightweaver.rh_atoms import  H_4_atom, C_atom, O_atom, Si_atom, Al_atom, CaII_atom, Fe_atom, He_atom, MgII_atom, N_atom, Na_atom, S_atom
@@ -59,7 +59,7 @@ Set up the standard FAL C 82 point initial atmosphere.
 
 .. GENERATED FROM PYTHON SOURCE LINES 21-31
 
-.. code-block:: default
+.. code-block:: Python
 
     atmos = Falc82()
     atmos.quadrature(5)
@@ -84,7 +84,7 @@ Find the initial statistical equilibrium solution,
 
 .. GENERATED FROM PYTHON SOURCE LINES 33-38
 
-.. code-block:: default
+.. code-block:: Python
 
     lw.iterate_ctx_se(ctx)
 
@@ -106,38 +106,30 @@ Find the initial statistical equilibrium solution,
     dJ = 9.64e+00
         H delta = 1.0905e+00
         ne delta = 1.6015e-01
-    -- Iteration 22:
-    dJ = 1.12e-01
-        H delta = 7.0067e-02
+    -- Iteration 28:
+    dJ = 8.70e-02
+        H delta = 5.2471e-02
         ne delta = 8.2997e-16
-    -- Iteration 40:
-    dJ = 6.78e-02
-        H delta = 4.2365e-02
-        ne delta = 1.7603e-16
-    -- Iteration 58:
-    dJ = 4.83e-02
-        H delta = 2.9645e-02
-        ne delta = 1.7603e-16
+    -- Iteration 52:
+    dJ = 5.61e-02
+        H delta = 3.3457e-02
+        ne delta = 1.3546e-16
     -- Iteration 76:
     dJ = 2.21e-02
         H delta = 1.4337e-02
-        ne delta = 1.7603e-16
-    -- Iteration 94:
-    dJ = 6.65e-03
-        H delta = 4.4372e-03
-        ne delta = 1.7603e-16
-    -- Iteration 112:
-    dJ = 1.57e-03
-        H delta = 1.0525e-03
-        ne delta = 7.1140e-16
+        ne delta = 1.3546e-16
+    -- Iteration 100:
+    dJ = 4.19e-03
+        H delta = 2.7958e-03
+        ne delta = 1.3546e-16
     --------------------------------------------------------------------------------
     Final Iteration: 113
     --------------------------------------------------------------------------------
     dJ = 1.45e-03
         H delta = 9.6901e-04
-        ne delta = 1.7603e-16
+        ne delta = 7.0413e-16
     --------------------------------------------------------------------------------
-    Context converged to statistical equilibrium in 113 iterations after 3.17 s.
+    Context converged to statistical equilibrium in 113 iterations after 2.51 s.
     --------------------------------------------------------------------------------
     Achieved initial Stat Eq
 
@@ -153,7 +145,7 @@ times to attempt to solve the equations for convergence per step.
 
 .. GENERATED FROM PYTHON SOURCE LINES 41-46
 
-.. code-block:: default
+.. code-block:: Python
 
     start = time.time()
     dt = 0.1
@@ -173,7 +165,7 @@ Perturb the atmospheric temperature structure like in the paper.
 
 .. GENERATED FROM PYTHON SOURCE LINES 48-53
 
-.. code-block:: default
+.. code-block:: Python
 
     prevT = np.copy(atmos.temperature)
     for i in range(11, 31):
@@ -193,7 +185,7 @@ Solve the problem
 
 .. GENERATED FROM PYTHON SOURCE LINES 55-87
 
-.. code-block:: default
+.. code-block:: Python
 
     hPops = [np.copy(eqPops['H'])]
     subIters = []
@@ -275,7 +267,7 @@ Reproduce Judge plot.
 
 .. GENERATED FROM PYTHON SOURCE LINES 89-117
 
-.. code-block:: default
+.. code-block:: Python
 
 
     initialAtmos = Falc82()
@@ -318,7 +310,7 @@ Reproduce Judge plot.
 
  .. code-block:: none
 
-    Time taken: 8.34 s
+    Time taken: 6.26 s
 
 
 
@@ -326,7 +318,7 @@ Reproduce Judge plot.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  30.668 seconds)
+   **Total running time of the script:** (0 minutes 25.890 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_JudgeDynamicValidation.py:
@@ -335,14 +327,13 @@ Reproduce Judge plot.
 
   .. container:: sphx-glr-footer sphx-glr-footer-example
 
+    .. container:: sphx-glr-download sphx-glr-download-jupyter
+
+      :download:`Download Jupyter notebook: plot_JudgeDynamicValidation.ipynb <plot_JudgeDynamicValidation.ipynb>`
 
     .. container:: sphx-glr-download sphx-glr-download-python
 
       :download:`Download Python source code: plot_JudgeDynamicValidation.py <plot_JudgeDynamicValidation.py>`
-
-    .. container:: sphx-glr-download sphx-glr-download-jupyter
-
-      :download:`Download Jupyter notebook: plot_JudgeDynamicValidation.ipynb <plot_JudgeDynamicValidation.ipynb>`
 
 
 .. only:: html

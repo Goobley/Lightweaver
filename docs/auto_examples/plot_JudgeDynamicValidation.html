@@ -1,26 +1,27 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Time-dependent Example &mdash; Lightweaver  documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/sg_gallery.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/sg_gallery-binder.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/sg_gallery-dataframe.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/sg_gallery-rendered-html.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=61a4c737" />
+      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+
+  
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -33,11 +34,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> Lightweaver
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Lightweaver
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -66,7 +71,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="index.html">Lightweaver Examples Gallery</a></li>
       <li class="breadcrumb-item active">Time-dependent Example</li>
       <li class="wy-breadcrumbs-aside">
@@ -80,17 +85,17 @@
              
   <div class="sphx-glr-download-link-note admonition note">
 <p class="admonition-title">Note</p>
-<p>Click <a class="reference internal" href="#sphx-glr-download-auto-examples-plot-judgedynamicvalidation-py"><span class="std std-ref">here</span></a>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-plot-judgedynamicvalidation-py"><span class="std std-ref">Go to the end</span></a>
 to download the full example code</p>
 </div>
 <section class="sphx-glr-example-title" id="time-dependent-example">
-<span id="sphx-glr-auto-examples-plot-judgedynamicvalidation-py"></span><h1>Time-dependent Example<a class="headerlink" href="#time-dependent-example" title="Permalink to this heading"></a></h1>
+<span id="sphx-glr-auto-examples-plot-judgedynamicvalidation-py"></span><h1>Time-dependent Example<a class="headerlink" href="#time-dependent-example" title="Link to this heading"></a></h1>
 <p>Simple illustrative example of time-dependent method. Herein we reproduce the
 time-dependent population figure present in Judge 2017. Here the complete
 Rybicki-Hummer MALI method is used.
 Herein we also conserve charge.</p>
 <p>Judge (2017): ApJ 851, 5</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">lightweaver.fal</span> <span class="kn">import</span> <span class="n">Falc82</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">lightweaver.fal</span> <span class="kn">import</span> <span class="n">Falc82</span>
 <span class="kn">from</span> <span class="nn">lightweaver.rh_atoms</span> <span class="kn">import</span>  <span class="n">H_4_atom</span><span class="p">,</span> <span class="n">C_atom</span><span class="p">,</span> <span class="n">O_atom</span><span class="p">,</span> <span class="n">Si_atom</span><span class="p">,</span> <span class="n">Al_atom</span><span class="p">,</span> <span class="n">CaII_atom</span><span class="p">,</span> <span class="n">Fe_atom</span><span class="p">,</span> <span class="n">He_atom</span><span class="p">,</span> <span class="n">MgII_atom</span><span class="p">,</span> <span class="n">N_atom</span><span class="p">,</span> <span class="n">Na_atom</span><span class="p">,</span> <span class="n">S_atom</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">time</span>
@@ -103,7 +108,7 @@ Herein we also conserve charge.</p>
 </pre></div>
 </div>
 <p>Set up the standard FAL C 82 point initial atmosphere.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">atmos</span> <span class="o">=</span> <span class="n">Falc82</span><span class="p">()</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">atmos</span> <span class="o">=</span> <span class="n">Falc82</span><span class="p">()</span>
 <span class="n">atmos</span><span class="o">.</span><span class="n">quadrature</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 <span class="n">aSet</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">RadiativeSet</span><span class="p">([</span><span class="n">H_4_atom</span><span class="p">(),</span> <span class="n">C_atom</span><span class="p">(),</span> <span class="n">O_atom</span><span class="p">(),</span> <span class="n">Si_atom</span><span class="p">(),</span> <span class="n">Al_atom</span><span class="p">(),</span> <span class="n">CaII_atom</span><span class="p">(),</span>\
                         <span class="n">Fe_atom</span><span class="p">(),</span> <span class="n">He_atom</span><span class="p">(),</span> <span class="n">MgII_atom</span><span class="p">(),</span> <span class="n">N_atom</span><span class="p">(),</span> <span class="n">Na_atom</span><span class="p">(),</span> <span class="n">S_atom</span><span class="p">()])</span>
@@ -115,7 +120,7 @@ Herein we also conserve charge.</p>
 </pre></div>
 </div>
 <p>Find the initial statistical equilibrium solution,</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lw</span><span class="o">.</span><span class="n">iterate_ctx_se</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">lw</span><span class="o">.</span><span class="n">iterate_ctx_se</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Achieved initial Stat Eq</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
@@ -127,59 +132,51 @@ dJ = 1.00e+00
 dJ = 9.64e+00
     H delta = 1.0905e+00
     ne delta = 1.6015e-01
--- Iteration 22:
-dJ = 1.12e-01
-    H delta = 7.0067e-02
+-- Iteration 28:
+dJ = 8.70e-02
+    H delta = 5.2471e-02
     ne delta = 8.2997e-16
--- Iteration 40:
-dJ = 6.78e-02
-    H delta = 4.2365e-02
-    ne delta = 1.7603e-16
--- Iteration 58:
-dJ = 4.83e-02
-    H delta = 2.9645e-02
-    ne delta = 1.7603e-16
+-- Iteration 52:
+dJ = 5.61e-02
+    H delta = 3.3457e-02
+    ne delta = 1.3546e-16
 -- Iteration 76:
 dJ = 2.21e-02
     H delta = 1.4337e-02
-    ne delta = 1.7603e-16
--- Iteration 94:
-dJ = 6.65e-03
-    H delta = 4.4372e-03
-    ne delta = 1.7603e-16
--- Iteration 112:
-dJ = 1.57e-03
-    H delta = 1.0525e-03
-    ne delta = 7.1140e-16
+    ne delta = 1.3546e-16
+-- Iteration 100:
+dJ = 4.19e-03
+    H delta = 2.7958e-03
+    ne delta = 1.3546e-16
 --------------------------------------------------------------------------------
 Final Iteration: 113
 --------------------------------------------------------------------------------
 dJ = 1.45e-03
     H delta = 9.6901e-04
-    ne delta = 1.7603e-16
+    ne delta = 7.0413e-16
 --------------------------------------------------------------------------------
-Context converged to statistical equilibrium in 113 iterations after 3.17 s.
+Context converged to statistical equilibrium in 113 iterations after 2.51 s.
 --------------------------------------------------------------------------------
 Achieved initial Stat Eq
 </pre></div>
 </div>
 <p>Simulation parameters, timestep, number of steps to run for, and how many
 times to attempt to solve the equations for convergence per step.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 <span class="n">dt</span> <span class="o">=</span> <span class="mf">0.1</span>
 <span class="n">NtStep</span> <span class="o">=</span> <span class="mi">30</span>
 <span class="n">NsubStep</span> <span class="o">=</span> <span class="mi">100</span>
 </pre></div>
 </div>
 <p>Perturb the atmospheric temperature structure like in the paper.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">prevT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">prevT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">31</span><span class="p">):</span>
     <span class="n">di</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mf">20.0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3.0</span>
     <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">di</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Solve the problem</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hPops</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">eqPops</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">])]</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">hPops</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">eqPops</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">])]</span>
 <span class="n">subIters</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NtStep</span><span class="p">):</span>
     <span class="c1"># Recompute line profiles etc to account for changing electron density and temperature.</span>
@@ -245,7 +242,7 @@ Iteration 29 (3.000000 s) done after 7 sub iterations
 </pre></div>
 </div>
 <p>Reproduce Judge plot.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">initialAtmos</span> <span class="o">=</span> <span class="n">Falc82</span><span class="p">()</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">initialAtmos</span> <span class="o">=</span> <span class="n">Falc82</span><span class="p">()</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">ion</span><span class="p">()</span>
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -274,16 +271,16 @@ Iteration 29 (3.000000 s) done after 7 sub iterations
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time taken: </span><span class="si">%.2f</span><span class="s1"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">))</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_plot_JudgeDynamicValidation_001.png" srcset="../_images/sphx_glr_plot_JudgeDynamicValidation_001.png" alt="plot JudgeDynamicValidation" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Time taken: 8.34 s
+<img src="../_images/sphx_glr_plot_JudgeDynamicValidation_001.png" srcset="../_images/sphx_glr_plot_JudgeDynamicValidation_001.png" alt="plot JudgeDynamicValidation" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Time taken: 6.26 s
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  30.668 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 25.890 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-plot-judgedynamicvalidation-py">
-<div class="sphx-glr-download sphx-glr-download-python docutils container">
-<p><a class="reference download internal" download="" href="../_downloads/6e84ed00ad45ba63690cdf562cf55cb9/plot_JudgeDynamicValidation.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_JudgeDynamicValidation.py</span></code></a></p>
-</div>
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/80b6e3e2cfa645cda4e5a121a0b8a2e4/plot_JudgeDynamicValidation.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_JudgeDynamicValidation.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/6e84ed00ad45ba63690cdf562cf55cb9/plot_JudgeDynamicValidation.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_JudgeDynamicValidation.py</span></code></a></p>
 </div>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>

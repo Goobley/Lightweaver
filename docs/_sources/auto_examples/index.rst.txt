@@ -18,7 +18,7 @@ See some simple examples for using Lightweaver.
 .. only:: html
 
   .. image:: /auto_examples/images/thumb/sphx_glr_plot_JudgeDynamicValidation_thumb.png
-    :alt: Time-dependent Example
+    :alt:
 
   :ref:`sphx_glr_auto_examples_plot_JudgeDynamicValidation.py`
 
@@ -35,7 +35,7 @@ See some simple examples for using Lightweaver.
 .. only:: html
 
   .. image:: /auto_examples/images/thumb/sphx_glr_plot_SimpleLineTest_thumb.png
-    :alt: Computing a simple NLTE 8542 line profile in a FAL C atmosphere
+    :alt:
 
   :ref:`sphx_glr_auto_examples_plot_SimpleLineTest.py`
 

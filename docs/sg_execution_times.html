@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Search &mdash; Lightweaver  documentation</title>
+  <title>Computation times &mdash; Lightweaver  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=61a4c737" />
@@ -12,7 +13,6 @@
       <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
 
   
-    
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -23,10 +23,8 @@
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
-    <script src="_static/searchtools.js"></script>
-    <script src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="#" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -41,7 +39,7 @@
             Lightweaver
           </a>
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="#" method="get">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -68,8 +66,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Search</li>
+      <li class="breadcrumb-item active">Computation times</li>
       <li class="wy-breadcrumbs-aside">
+            <a href="_sources/sg_execution_times.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -77,18 +76,42 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <noscript>
-  <div id="fallback" class="admonition warning">
-    <p class="last">
-      Please activate JavaScript to enable the search functionality.
-    </p>
-  </div>
-  </noscript>
+  <section id="computation-times">
+<span id="sphx-glr-sg-execution-times"></span><h1>Computation times<a class="headerlink" href="#computation-times" title="Link to this heading"></a></h1>
+<p><strong>00:37.075</strong> total execution time for 2 files <strong>from all galleries</strong>:</p>
+<div class="docutils container">
+<style scoped>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+</style>
+<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script type="text/javascript" class="init">
+$(document).ready( function () {
+    $('table.sg-datatable').DataTable({order: [[1, 'desc']]});
+} );
+</script><table class="table table-striped sg-datatable docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Example</p></th>
+<th class="head"><p>Time</p></th>
+<th class="head"><p>Mem (MB)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="auto_examples/plot_JudgeDynamicValidation.html#sphx-glr-auto-examples-plot-judgedynamicvalidation-py"><span class="std std-ref">Time-dependent Example</span></a> (<code class="docutils literal notranslate"><span class="pre">../examples/plot_JudgeDynamicValidation.py</span></code>)</p></td>
+<td><p>00:25.890</p></td>
+<td><p>0.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="auto_examples/plot_SimpleLineTest.html#sphx-glr-auto-examples-plot-simplelinetest-py"><span class="std std-ref">Computing a simple NLTE 8542 line profile in a FAL C atmosphere</span></a> (<code class="docutils literal notranslate"><span class="pre">../examples/plot_SimpleLineTest.py</span></code>)</p></td>
+<td><p>00:11.185</p></td>
+<td><p>0.0</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 
-  
-  <div id="search-results">
-  
-  </div>
 
            </div>
           </div>
@@ -114,14 +137,7 @@
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-  <script>
-    jQuery(function() { Search.loadIndex("searchindex.js"); });
-  </script>
-  
-  <script id="searchindexloader"></script>
-   
-
+  </script> 
 
 </body>
 </html>

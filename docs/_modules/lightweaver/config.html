@@ -1,25 +1,26 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>lightweaver.config &mdash; Lightweaver  documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/sg_gallery.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/sg_gallery-binder.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/sg_gallery-dataframe.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/sg_gallery-rendered-html.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=61a4c737" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -30,11 +31,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> Lightweaver
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Lightweaver
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -59,7 +64,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
       <li class="breadcrumb-item active">lightweaver.config</li>
       <li class="wy-breadcrumbs-aside">
@@ -90,8 +95,10 @@
 
 <span class="n">params</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">Defaults</span><span class="p">)</span>
 
-<div class="viewcode-block" id="get_home_config_path"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.config.get_home_config_path">[docs]</a><span class="k">def</span> <span class="nf">get_home_config_path</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="get_home_config_path">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.config.get_home_config_path">[docs]</a>
+<span class="k">def</span> <span class="nf">get_home_config_path</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Return the location where the user&#39;s configuration data *should* be stored,</span>
 <span class="sd">    whether it is currently present or not.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -100,8 +107,11 @@
     <span class="k">return</span> <span class="n">homePath</span></div>
 
 
-<div class="viewcode-block" id="get_config_path"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.config.get_config_path">[docs]</a><span class="k">def</span> <span class="nf">get_config_path</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="get_config_path">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.config.get_config_path">[docs]</a>
+<span class="k">def</span> <span class="nf">get_config_path</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Returns the path to the `lightweaverrc` configuration file, or None if one</span>
 <span class="sd">    cannot be found.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -115,8 +125,11 @@
     <span class="k">return</span> <span class="kc">None</span></div>
 
 
-<div class="viewcode-block" id="set_most_advanced_simd_impl"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.config.set_most_advanced_simd_impl">[docs]</a><span class="k">def</span> <span class="nf">set_most_advanced_simd_impl</span><span class="p">():</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="set_most_advanced_simd_impl">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.config.set_most_advanced_simd_impl">[docs]</a>
+<span class="k">def</span> <span class="nf">set_most_advanced_simd_impl</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Picks the most advanced SIMD extensions (as detected by NumPy), that can be</span>
 <span class="sd">    used on this system. This does not guarantee fastest (see the note in</span>
 <span class="sd">    `update_config_dict`).</span>
@@ -131,8 +144,11 @@
         <span class="n">check_add_impl</span><span class="p">(</span><span class="n">impl</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="update_config_dict"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.config.update_config_dict">[docs]</a><span class="k">def</span> <span class="nf">update_config_dict</span><span class="p">(</span><span class="n">configPath</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="update_config_dict">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.config.update_config_dict">[docs]</a>
+<span class="k">def</span> <span class="nf">update_config_dict</span><span class="p">(</span><span class="n">configPath</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Updates the configuration dict (`lightweaver.ConfigDict`), from the config</span>
 <span class="sd">    file. If there is no config file, the defaults are used, and the most</span>
 <span class="sd">    advanced instruction set is chosen for the SimdImpl. If the SimdImpl in the</span>
@@ -163,8 +179,11 @@
                       <span class="s1">&#39;current CPU, setting to the maximum supported by your CPU.&#39;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="update_config_file"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.config.update_config_file">[docs]</a><span class="k">def</span> <span class="nf">update_config_file</span><span class="p">(</span><span class="n">configPath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="update_config_file">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.config.update_config_file">[docs]</a>
+<span class="k">def</span> <span class="nf">update_config_file</span><span class="p">(</span><span class="n">configPath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Updates the config file to the current values of the config dict.</span>
 
 <span class="sd">    Parameters</span>
@@ -174,6 +193,7 @@
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">configPath</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">yaml</span><span class="o">.</span><span class="n">safe_dump</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
+
 
 
 <span class="n">update_config_dict</span><span class="p">(</span><span class="n">get_config_path</span><span class="p">())</span>

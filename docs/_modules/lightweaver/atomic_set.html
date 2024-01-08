@@ -1,25 +1,26 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>lightweaver.atomic_set &mdash; Lightweaver  documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/sg_gallery.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/sg_gallery-binder.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/sg_gallery-dataframe.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/sg_gallery-rendered-html.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=61a4c737" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -30,11 +31,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> Lightweaver
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Lightweaver
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -59,7 +64,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
       <li class="breadcrumb-item active">lightweaver.atomic_set</li>
       <li class="wy-breadcrumbs-aside">
@@ -153,10 +158,12 @@
 
     <span class="k">return</span> <span class="n">nStar</span><span class="p">,</span> <span class="n">maxDiff</span>
 
-<div class="viewcode-block" id="lte_pops"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.lte_pops">[docs]</a><span class="k">def</span> <span class="nf">lte_pops</span><span class="p">(</span><span class="n">atomicModel</span><span class="p">:</span> <span class="n">AtomicModel</span><span class="p">,</span> <span class="n">temperature</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<div class="viewcode-block" id="lte_pops">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.lte_pops">[docs]</a>
+<span class="k">def</span> <span class="nf">lte_pops</span><span class="p">(</span><span class="n">atomicModel</span><span class="p">:</span> <span class="n">AtomicModel</span><span class="p">,</span> <span class="n">temperature</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
              <span class="n">ne</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">nTotal</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">nStar</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
              <span class="n">debye</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Compute the LTE populations for a given atomic model under given</span>
 <span class="sd">    thermodynamic conditions.</span>
 
@@ -185,6 +192,7 @@
     <span class="n">gs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">g</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">atomicModel</span><span class="o">.</span><span class="n">levels</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">lte_pops_impl</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">ne</span><span class="p">,</span> <span class="n">nTotal</span><span class="p">,</span> <span class="n">stages</span><span class="p">,</span>
                          <span class="n">energies</span><span class="p">,</span> <span class="n">gs</span><span class="p">,</span> <span class="n">nStar</span><span class="o">=</span><span class="n">nStar</span><span class="p">,</span> <span class="n">debye</span><span class="o">=</span><span class="n">debye</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
 
 <span class="k">def</span> <span class="nf">update_lte_pops_inplace</span><span class="p">(</span><span class="n">atomicModel</span><span class="p">:</span> <span class="n">AtomicModel</span><span class="p">,</span> <span class="n">temperature</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                             <span class="n">ne</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">nTotal</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">nStar</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -234,9 +242,11 @@
         <span class="k">return</span> <span class="n">diff</span>
 
 
-<div class="viewcode-block" id="SpectrumConfiguration"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.SpectrumConfiguration">[docs]</a><span class="nd">@dataclass</span>
+<div class="viewcode-block" id="SpectrumConfiguration">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.SpectrumConfiguration">[docs]</a>
+<span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">SpectrumConfiguration</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Container for the configuration of common wavelength grid and species</span>
 <span class="sd">    active at each wavelength.</span>
 
@@ -279,8 +289,10 @@
     <span class="n">activeTrans</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
     <span class="n">activeWavelengths</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
 
-<div class="viewcode-block" id="SpectrumConfiguration.subset_configuration"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.SpectrumConfiguration.subset_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">subset_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelengths</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;SpectrumConfiguration&#39;</span><span class="p">:</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="SpectrumConfiguration.subset_configuration">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.SpectrumConfiguration.subset_configuration">[docs]</a>
+    <span class="k">def</span> <span class="nf">subset_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelengths</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;SpectrumConfiguration&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Computes a SpectrumConfiguration for a sub-region of the global wavelength array.</span>
 
 <span class="sd">        This is typically used for computing a final formal solution on a single</span>
@@ -329,6 +341,7 @@
                                      <span class="n">activeTrans</span><span class="o">=</span><span class="n">activeTrans</span><span class="p">,</span>
                                      <span class="n">activeWavelengths</span><span class="o">=</span><span class="n">activeWavelengths</span><span class="p">)</span></div>
 
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">NprdTrans</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
@@ -344,9 +357,12 @@
             <span class="k">return</span> <span class="n">count</span></div>
 
 
-<div class="viewcode-block" id="AtomicState"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicState">[docs]</a><span class="nd">@dataclass</span>
+
+<div class="viewcode-block" id="AtomicState">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicState">[docs]</a>
+<span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">AtomicState</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Container for the state of an atomic model during a simulation.</span>
 
 <span class="sd">    This hold both the model, as well as the simulations properties such as</span>
@@ -394,8 +410,10 @@
         <span class="c1"># return hash(repr(self))</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-<div class="viewcode-block" id="AtomicState.dimensioned_view"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicState.dimensioned_view">[docs]</a>    <span class="k">def</span> <span class="nf">dimensioned_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="AtomicState.dimensioned_view">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicState.dimensioned_view">[docs]</a>
+    <span class="k">def</span> <span class="nf">dimensioned_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Returns a view over the contents of AtomicState reshaped so all data</span>
 <span class="sd">        has the correct (1/2/3D) dimensionality for the atmospheric model, as</span>
 <span class="sd">        these are all stored under a flat scheme.</span>
@@ -421,8 +439,11 @@
                                     <span class="bp">self</span><span class="o">.</span><span class="n">radiativeRates</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="k">return</span> <span class="n">state</span></div>
 
-<div class="viewcode-block" id="AtomicState.unit_view"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicState.unit_view">[docs]</a>    <span class="k">def</span> <span class="nf">unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="AtomicState.unit_view">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicState.unit_view">[docs]</a>
+    <span class="k">def</span> <span class="nf">unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Returns a view over the contents of the AtomicState with the correct</span>
 <span class="sd">        `astropy.units`.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -435,8 +456,11 @@
             <span class="n">state</span><span class="o">.</span><span class="n">radiativeRates</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="o">**-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">radiativeRates</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="k">return</span> <span class="n">state</span></div>
 
-<div class="viewcode-block" id="AtomicState.dimensioned_unit_view"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicState.dimensioned_unit_view">[docs]</a>    <span class="k">def</span> <span class="nf">dimensioned_unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="AtomicState.dimensioned_unit_view">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicState.dimensioned_unit_view">[docs]</a>
+    <span class="k">def</span> <span class="nf">dimensioned_unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Returns a view over the contents of AtomicState reshaped so all data</span>
 <span class="sd">        has the correct (1/2/3D) dimensionality for the atmospheric model,</span>
 <span class="sd">        and the correct `astropy.units`.</span>
@@ -456,29 +480,33 @@
         <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensioned_view</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">state</span><span class="o">.</span><span class="n">unit_view</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="AtomicState.update_nTotal"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicState.update_nTotal">[docs]</a>    <span class="k">def</span> <span class="nf">update_nTotal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="n">Atmosphere</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="AtomicState.update_nTotal">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicState.update_nTotal">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_nTotal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="n">Atmosphere</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Update nTotal assuming either the abundance or nHTot have changed.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nTotal</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">abundance</span> <span class="o">*</span> <span class="n">atmos</span><span class="o">.</span><span class="n">nHTot</span> <span class="c1"># type: ignore</span></div>
 
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">element</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Element</span><span class="p">:</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        The element associated with this model.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">element</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">mass</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        The mass of the element associated with this model.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">mass</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">n</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        The NLTE populations, if present, or the LTE populations.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pops</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -495,7 +523,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        The name of the element associated with this model.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">name</span>
@@ -530,16 +558,22 @@
 
         <span class="k">return</span> <span class="n">fj</span><span class="p">,</span> <span class="n">dfj</span>
 
-<div class="viewcode-block" id="AtomicState.set_n_to_lte"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicState.set_n_to_lte">[docs]</a>    <span class="k">def</span> <span class="nf">set_n_to_lte</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="AtomicState.set_n_to_lte">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicState.set_n_to_lte">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_n_to_lte</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Reset the NLTE populations to LTE.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pops</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pops</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nStar</span></div></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pops</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nStar</span></div>
+</div>
 
 
-<div class="viewcode-block" id="AtomicStateTable"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicStateTable">[docs]</a><span class="k">class</span> <span class="nc">AtomicStateTable</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="AtomicStateTable">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicStateTable">[docs]</a>
+<span class="k">class</span> <span class="nc">AtomicStateTable</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Container for AtomicStates.</span>
 
 <span class="sd">    The __getitem__ on this class is intended to be smart, and should work</span>
@@ -570,8 +604,10 @@
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="n">element_sort</span><span class="p">))</span>
 
-<div class="viewcode-block" id="AtomicStateTable.dimensioned_view"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicStateTable.dimensioned_view">[docs]</a>    <span class="k">def</span> <span class="nf">dimensioned_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="AtomicStateTable.dimensioned_view">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicStateTable.dimensioned_view">[docs]</a>
+    <span class="k">def</span> <span class="nf">dimensioned_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Returns a view over the contents of AtomicStateTable reshaped so all data</span>
 <span class="sd">        has the correct (1/2/3D) dimensionality for the atmospheric model, as</span>
 <span class="sd">        these are all stored under a flat scheme.</span>
@@ -592,8 +628,11 @@
         <span class="n">table</span><span class="o">.</span><span class="n">atoms</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">dimensioned_view</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="k">return</span> <span class="n">table</span></div>
 
-<div class="viewcode-block" id="AtomicStateTable.unit_view"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicStateTable.unit_view">[docs]</a>    <span class="k">def</span> <span class="nf">unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="AtomicStateTable.unit_view">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicStateTable.unit_view">[docs]</a>
+    <span class="k">def</span> <span class="nf">unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Returns a view over the contents of the AtomicStateTable with the correct</span>
 <span class="sd">        `astropy.units`.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -601,8 +640,11 @@
         <span class="n">table</span><span class="o">.</span><span class="n">atoms</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">unit_view</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="k">return</span> <span class="n">table</span></div>
 
-<div class="viewcode-block" id="AtomicStateTable.dimensioned_unit_view"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicStateTable.dimensioned_unit_view">[docs]</a>    <span class="k">def</span> <span class="nf">dimensioned_unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="AtomicStateTable.dimensioned_unit_view">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.AtomicStateTable.dimensioned_unit_view">[docs]</a>
+    <span class="k">def</span> <span class="nf">dimensioned_unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Returns a view over the contents of AtomicStateTable reshaped so all data</span>
 <span class="sd">        has the correct (1/2/3D) dimensionality for the atmospheric model,</span>
 <span class="sd">        and the correct `astropy.units`.</span>
@@ -620,12 +662,16 @@
 <span class="sd">            dimensionality.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensioned_view</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">table</span><span class="o">.</span><span class="n">unit_view</span><span class="p">()</span></div></div>
+        <span class="k">return</span> <span class="n">table</span><span class="o">.</span><span class="n">unit_view</span><span class="p">()</span></div>
+</div>
 
 
-<div class="viewcode-block" id="SpeciesStateTable"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.SpeciesStateTable">[docs]</a><span class="nd">@dataclass</span>
+
+<div class="viewcode-block" id="SpeciesStateTable">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.SpeciesStateTable">[docs]</a>
+<span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">SpeciesStateTable</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Container for the species populations in the simulation. Similar to</span>
 <span class="sd">    AtomicStateTable but also holding the molecular populations and the</span>
 <span class="sd">    atmosphere object.</span>
@@ -659,8 +705,10 @@
     <span class="n">molecularPops</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
     <span class="n">HminPops</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 
-<div class="viewcode-block" id="SpeciesStateTable.dimensioned_view"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.SpeciesStateTable.dimensioned_view">[docs]</a>    <span class="k">def</span> <span class="nf">dimensioned_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="SpeciesStateTable.dimensioned_view">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.SpeciesStateTable.dimensioned_view">[docs]</a>
+    <span class="k">def</span> <span class="nf">dimensioned_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Returns a view over the contents of SpeciesStateTable reshaped so all data</span>
 <span class="sd">        has the correct (1/2/3D) dimensionality for the atmospheric model, as</span>
 <span class="sd">        these are all stored under a flat scheme.</span>
@@ -673,8 +721,11 @@
         <span class="n">table</span><span class="o">.</span><span class="n">HminPops</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">HminPops</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">table</span></div>
 
-<div class="viewcode-block" id="SpeciesStateTable.unit_view"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.SpeciesStateTable.unit_view">[docs]</a>    <span class="k">def</span> <span class="nf">unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="SpeciesStateTable.unit_view">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.SpeciesStateTable.unit_view">[docs]</a>
+    <span class="k">def</span> <span class="nf">unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Returns a view over the contents of the SpeciesStateTable with the correct</span>
 <span class="sd">        `astropy.units`.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -685,14 +736,18 @@
         <span class="n">table</span><span class="o">.</span><span class="n">HminPops</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">HminPops</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">table</span></div>
 
-<div class="viewcode-block" id="SpeciesStateTable.dimensioned_unit_view"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.SpeciesStateTable.dimensioned_unit_view">[docs]</a>    <span class="k">def</span> <span class="nf">dimensioned_unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="SpeciesStateTable.dimensioned_unit_view">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.SpeciesStateTable.dimensioned_unit_view">[docs]</a>
+    <span class="k">def</span> <span class="nf">dimensioned_unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Returns a view over the contents of SpeciesStateTable reshaped so all data</span>
 <span class="sd">        has the correct (1/2/3D) dimensionality for the atmospheric model,</span>
 <span class="sd">        and the correct `astropy.units`.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensioned_view</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">table</span><span class="o">.</span><span class="n">unit_view</span><span class="p">()</span></div>
+
 
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Element</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span>  <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;H-&#39;</span><span class="p">:</span>
@@ -720,9 +775,11 @@
 
         <span class="k">return</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="SpeciesStateTable.update_lte_atoms_Hmin_pops"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.SpeciesStateTable.update_lte_atoms_Hmin_pops">[docs]</a>    <span class="k">def</span> <span class="nf">update_lte_atoms_Hmin_pops</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="n">Atmosphere</span><span class="p">,</span> <span class="n">conserveCharge</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<div class="viewcode-block" id="SpeciesStateTable.update_lte_atoms_Hmin_pops">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.SpeciesStateTable.update_lte_atoms_Hmin_pops">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_lte_atoms_Hmin_pops</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="n">Atmosphere</span><span class="p">,</span> <span class="n">conserveCharge</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                    <span class="n">updateTotals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">maxIter</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Under the assumption that the atmosphere has changed, update the LTE</span>
 <span class="sd">        atomic populations and the H- populations.</span>
 
@@ -780,11 +837,15 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No convergence in LTE update&#39;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">HminPops</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">hminus_pops</span><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomicPops</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">])</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">HminPops</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">hminus_pops</span><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomicPops</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">])</span></div>
+</div>
 
 
-<div class="viewcode-block" id="RadiativeSet"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet">[docs]</a><span class="k">class</span> <span class="nc">RadiativeSet</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="RadiativeSet">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet">[docs]</a>
+<span class="k">class</span> <span class="nc">RadiativeSet</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Used to configure the atomic models present in the simulation and then</span>
 <span class="sd">    set up the global wavelength grid and initial populations.</span>
 <span class="sd">    All atoms start passive.</span>
@@ -830,33 +891,42 @@
     <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Element</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">PeriodicTable</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span>
 
-<div class="viewcode-block" id="RadiativeSet.is_active"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.is_active">[docs]</a>    <span class="k">def</span> <span class="nf">is_active</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Element</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="RadiativeSet.is_active">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.is_active">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_active</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Element</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Check if an atom (designated by int, (int, int), str, or Element) is</span>
 <span class="sd">        active.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">PeriodicTable</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">activeSet</span></div>
 
-<div class="viewcode-block" id="RadiativeSet.is_passive"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.is_passive">[docs]</a>    <span class="k">def</span> <span class="nf">is_passive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Element</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="RadiativeSet.is_passive">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.is_passive">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_passive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Element</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Check if an atom (designated by int, (int, int), str, or Element) is</span>
 <span class="sd">        passive.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">PeriodicTable</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">passiveSet</span></div>
 
-<div class="viewcode-block" id="RadiativeSet.is_detailed"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.is_detailed">[docs]</a>    <span class="k">def</span> <span class="nf">is_detailed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Element</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="RadiativeSet.is_detailed">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.is_detailed">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_detailed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Element</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Check if an atom (designated by int, (int, int), str, or Element) is</span>
 <span class="sd">        passive.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">PeriodicTable</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">detailedStaticSet</span></div>
 
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">activeAtoms</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">AtomicModel</span><span class="p">]:</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        List of AtomicModels set to active.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">activeAtoms</span> <span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AtomicModel</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">activeSet</span><span class="p">]</span>
@@ -865,7 +935,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">detailedAtoms</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">AtomicModel</span><span class="p">]:</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        List of AtomicModels set to detailed static.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">detailedAtoms</span> <span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AtomicModel</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">detailedStaticSet</span><span class="p">]</span>
@@ -874,7 +944,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">passiveAtoms</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">AtomicModel</span><span class="p">]:</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        List of AtomicModels set to passive.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">passiveAtoms</span> <span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AtomicModel</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">passiveSet</span><span class="p">]</span>
@@ -888,8 +958,10 @@
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
-<div class="viewcode-block" id="RadiativeSet.set_active"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.set_active">[docs]</a>    <span class="k">def</span> <span class="nf">set_active</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="RadiativeSet.set_active">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.set_active">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_active</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Set one (or multiple) atoms active.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
@@ -899,8 +971,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">detailedStaticSet</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">passiveSet</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="RadiativeSet.set_detailed_static"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.set_detailed_static">[docs]</a>    <span class="k">def</span> <span class="nf">set_detailed_static</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="RadiativeSet.set_detailed_static">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.set_detailed_static">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_detailed_static</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Set one (or multiple) atoms to detailed static</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
@@ -910,8 +985,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">activeSet</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">passiveSet</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="RadiativeSet.set_passive"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.set_passive">[docs]</a>    <span class="k">def</span> <span class="nf">set_passive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="RadiativeSet.set_passive">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.set_passive">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_passive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Set one (or multiple) atoms passive.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
@@ -921,11 +999,14 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">activeSet</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">detailedStaticSet</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="RadiativeSet.iterate_lte_ne_eq_pops"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.iterate_lte_ne_eq_pops">[docs]</a>    <span class="k">def</span> <span class="nf">iterate_lte_ne_eq_pops</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="n">Atmosphere</span><span class="p">,</span>
+
+<div class="viewcode-block" id="RadiativeSet.iterate_lte_ne_eq_pops">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.iterate_lte_ne_eq_pops">[docs]</a>
+    <span class="k">def</span> <span class="nf">iterate_lte_ne_eq_pops</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="n">Atmosphere</span><span class="p">,</span>
                                <span class="n">mols</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MolecularTable</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                <span class="n">nlteStartingPops</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                <span class="n">direct</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpeciesStateTable</span><span class="p">:</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Compute the starting populations for the simulation with all NLTE</span>
 <span class="sd">        atoms in LTE or otherwise using the provided populations.</span>
 <span class="sd">        Additionally computes a self-consistent LTE electron density.</span>
@@ -1035,10 +1116,13 @@
         <span class="c1"># molecules (even then it should be pretty tiny)</span>
         <span class="k">return</span> <span class="n">eqPops</span></div>
 
-<div class="viewcode-block" id="RadiativeSet.compute_eq_pops"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.compute_eq_pops">[docs]</a>    <span class="k">def</span> <span class="nf">compute_eq_pops</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="n">Atmosphere</span><span class="p">,</span>
+
+<div class="viewcode-block" id="RadiativeSet.compute_eq_pops">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.compute_eq_pops">[docs]</a>
+    <span class="k">def</span> <span class="nf">compute_eq_pops</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="n">Atmosphere</span><span class="p">,</span>
                         <span class="n">mols</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MolecularTable</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                         <span class="n">nlteStartingPops</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Compute the starting populations for the simulation with all NLTE</span>
 <span class="sd">        atoms in LTE or otherwise using the provided populations.</span>
 
@@ -1097,9 +1181,12 @@
         <span class="c1"># molecules (even then it should be pretty tiny)</span>
         <span class="k">return</span> <span class="n">eqPops</span></div>
 
-<div class="viewcode-block" id="RadiativeSet.compute_wavelength_grid"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.compute_wavelength_grid">[docs]</a>    <span class="k">def</span> <span class="nf">compute_wavelength_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extraWavelengths</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+
+<div class="viewcode-block" id="RadiativeSet.compute_wavelength_grid">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.compute_wavelength_grid">[docs]</a>
+    <span class="k">def</span> <span class="nf">compute_wavelength_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extraWavelengths</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                 <span class="n">lambdaReference</span><span class="o">=</span><span class="mf">500.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpectrumConfiguration</span><span class="p">:</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Compute the global wavelength grid from the current configuration of</span>
 <span class="sd">        the RadiativeSet.</span>
 
@@ -1158,11 +1245,15 @@
                                      <span class="n">transWavelengths</span><span class="o">=</span><span class="n">transGrids</span><span class="p">,</span>
                                      <span class="n">blueIdx</span><span class="o">=</span><span class="n">blueIdx</span><span class="p">,</span> <span class="n">redIdx</span><span class="o">=</span><span class="n">redIdx</span><span class="p">,</span>
                                      <span class="n">activeTrans</span><span class="o">=</span><span class="n">activeTrans</span><span class="p">,</span>
-                                     <span class="n">activeWavelengths</span><span class="o">=</span><span class="n">activeWavelengths</span><span class="p">)</span></div></div>
+                                     <span class="n">activeWavelengths</span><span class="o">=</span><span class="n">activeWavelengths</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="hminus_pops"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.hminus_pops">[docs]</a><span class="k">def</span> <span class="nf">hminus_pops</span><span class="p">(</span><span class="n">atmos</span><span class="p">:</span> <span class="n">Atmosphere</span><span class="p">,</span> <span class="n">hPops</span><span class="p">:</span> <span class="n">AtomicState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="hminus_pops">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.hminus_pops">[docs]</a>
+<span class="k">def</span> <span class="nf">hminus_pops</span><span class="p">(</span><span class="n">atmos</span><span class="p">:</span> <span class="n">Atmosphere</span><span class="p">,</span> <span class="n">hPops</span><span class="p">:</span> <span class="n">AtomicState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Compute the H- ion populations for a given atmosphere</span>
 
 <span class="sd">    Parameters</span>
@@ -1187,10 +1278,13 @@
 
     <span class="k">return</span> <span class="n">HminPops</span></div>
 
-<div class="viewcode-block" id="chemical_equilibrium_fixed_ne"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.chemical_equilibrium_fixed_ne">[docs]</a><span class="k">def</span> <span class="nf">chemical_equilibrium_fixed_ne</span><span class="p">(</span><span class="n">atmos</span><span class="p">:</span> <span class="n">Atmosphere</span><span class="p">,</span> <span class="n">molecules</span><span class="p">:</span> <span class="n">MolecularTable</span><span class="p">,</span>
+
+<div class="viewcode-block" id="chemical_equilibrium_fixed_ne">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.chemical_equilibrium_fixed_ne">[docs]</a>
+<span class="k">def</span> <span class="nf">chemical_equilibrium_fixed_ne</span><span class="p">(</span><span class="n">atmos</span><span class="p">:</span> <span class="n">Atmosphere</span><span class="p">,</span> <span class="n">molecules</span><span class="p">:</span> <span class="n">MolecularTable</span><span class="p">,</span>
                                   <span class="n">atomicPops</span><span class="p">:</span> <span class="n">AtomicStateTable</span><span class="p">,</span>
                                   <span class="n">abundance</span><span class="p">:</span> <span class="n">AtomicAbundance</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpeciesStateTable</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Compute the molecular populations from the current atmospheric model and</span>
 <span class="sd">    atomic populations.</span>
 
@@ -1350,6 +1444,7 @@
     <span class="n">result</span> <span class="o">=</span> <span class="n">SpeciesStateTable</span><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="n">abundance</span><span class="p">,</span> <span class="n">atomicPops</span><span class="p">,</span> <span class="n">molecules</span><span class="p">,</span> <span class="n">molPops</span><span class="p">,</span> <span class="n">HminPops</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;chem_eq: maximum number of iterations taken: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">maxIter</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">result</span></div>
+
 </pre></div>
 
            </div>

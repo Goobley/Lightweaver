@@ -1,25 +1,26 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>lightweaver.collisional_rates &mdash; Lightweaver  documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/sg_gallery.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/sg_gallery-binder.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/sg_gallery-dataframe.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/sg_gallery-rendered-html.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=61a4c737" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -30,11 +31,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> Lightweaver
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Lightweaver
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -59,7 +64,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
       <li class="breadcrumb-item active">lightweaver.collisional_rates</li>
       <li class="wy-breadcrumbs-aside">
@@ -87,9 +92,11 @@
     <span class="kn">from</span> <span class="nn">.atomic_model</span> <span class="kn">import</span> <span class="n">AtomicModel</span>
     <span class="kn">from</span> <span class="nn">.atomic_set</span> <span class="kn">import</span> <span class="n">SpeciesStateTable</span>
 
-<div class="viewcode-block" id="CollisionalRates"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.CollisionalRates">[docs]</a><span class="nd">@dataclass</span>
+<div class="viewcode-block" id="CollisionalRates">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.CollisionalRates">[docs]</a>
+<span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">CollisionalRates</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Base class for all CollisionalRates.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">j</span><span class="p">:</span> <span class="nb">int</span>
@@ -114,9 +121,12 @@
         <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">repr</span><span class="p">(</span><span class="n">other</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="TemperatureInterpolationRates"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.TemperatureInterpolationRates">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TemperatureInterpolationRates">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.TemperatureInterpolationRates">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TemperatureInterpolationRates</span><span class="p">(</span><span class="n">CollisionalRates</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Base class for rates defined by interpolating a coefficient on a</span>
 <span class="sd">    temperature grid.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -139,9 +149,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rates</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Omega"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.Omega">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Omega">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.Omega">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">Omega</span><span class="p">(</span><span class="n">TemperatureInterpolationRates</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Collisional (de-)excitation of ions by electrons (dimensionless).</span>
 <span class="sd">    Omega as in Seaton&#39;s collision strength.</span>
 <span class="sd">    Rate scales as 1/(sqrt(T)) exp(DeltaE).</span>
@@ -160,9 +173,12 @@
         <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cdown</span>
         <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cdown</span> <span class="o">*</span> <span class="n">nstar</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">]</span> <span class="o">/</span> <span class="n">nstar</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="CI"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.CI">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CI">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.CI">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">CI</span><span class="p">(</span><span class="n">TemperatureInterpolationRates</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Collisional ionisation by electrons.</span>
 <span class="sd">    Units: s^-1 K^-1/2 m^3</span>
 <span class="sd">    Rate scales as sqrt(T) exp(DeltaE)</span>
@@ -182,9 +198,12 @@
         <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cup</span> <span class="o">*</span> <span class="n">nstar</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">nstar</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="CE"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.CE">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CE">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.CE">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">CE</span><span class="p">(</span><span class="n">TemperatureInterpolationRates</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Collisional (de-)excitation of neutrals by electrons.</span>
 <span class="sd">    Units: s^-1 K^-1/2 m^3</span>
 <span class="sd">    Rate scales as sqrt(T) exp(DeltaE)</span>
@@ -202,9 +221,12 @@
         <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cdown</span>
         <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cdown</span> <span class="o">*</span> <span class="n">nstar</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">]</span> <span class="o">/</span> <span class="n">nstar</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="CP"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.CP">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CP">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.CP">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">CP</span><span class="p">(</span><span class="n">TemperatureInterpolationRates</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Collisional (de-)excitation by protons.</span>
 <span class="sd">    Units: s^-1 m^3</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -218,9 +240,12 @@
         <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cdown</span>
         <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cdown</span> <span class="o">*</span> <span class="n">nstar</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">]</span> <span class="o">/</span> <span class="n">nstar</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="CH"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.CH">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CH">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.CH">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">CH</span><span class="p">(</span><span class="n">TemperatureInterpolationRates</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Collisions with neutral hydrogen.</span>
 <span class="sd">    Units: s^-1 m^3</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -234,9 +259,12 @@
         <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cup</span>
         <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cup</span> <span class="o">*</span> <span class="n">nstar</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">nstar</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="ChargeExchangeNeutralH"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.ChargeExchangeNeutralH">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ChargeExchangeNeutralH">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.ChargeExchangeNeutralH">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">ChargeExchangeNeutralH</span><span class="p">(</span><span class="n">TemperatureInterpolationRates</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Charge exchange with neutral hydrogen.</span>
 <span class="sd">    Units: s^-1 m^3</span>
 <span class="sd">    Note: downward rate only.</span>
@@ -250,9 +278,12 @@
         <span class="n">nstar</span> <span class="o">=</span> <span class="n">eqPops</span><span class="o">.</span><span class="n">atomicPops</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atom</span><span class="o">.</span><span class="n">element</span><span class="p">]</span><span class="o">.</span><span class="n">nStar</span>
         <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cdown</span></div>
 
-<div class="viewcode-block" id="ChargeExchangeProton"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.ChargeExchangeProton">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ChargeExchangeProton">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.ChargeExchangeProton">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">ChargeExchangeProton</span><span class="p">(</span><span class="n">TemperatureInterpolationRates</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Charge exchange with protons.</span>
 <span class="sd">    Units: s^-1 m^3</span>
 <span class="sd">    Note: upward rate only.</span>
@@ -264,6 +295,7 @@
         <span class="n">nProton</span> <span class="o">=</span> <span class="n">eqPops</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
         <span class="n">Cup</span> <span class="o">=</span> <span class="n">C</span> <span class="o">*</span> <span class="n">nProton</span>
         <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cup</span></div>
+
 
 <span class="k">def</span> <span class="nf">fone</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="c1"># return np.where(x &lt;= 50.0, np.exp(x) * exp1(x), 1.0/x)</span>
@@ -321,9 +353,11 @@
 
     <span class="k">return</span> <span class="n">y</span>
 
-<div class="viewcode-block" id="Ar85Cdi"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.Ar85Cdi">[docs]</a><span class="nd">@dataclass</span>
+<div class="viewcode-block" id="Ar85Cdi">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.Ar85Cdi">[docs]</a>
+<span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">Ar85Cdi</span><span class="p">(</span><span class="n">CollisionalRates</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Collisional ionisation rates based on Arnaud &amp; Rothenflug (1985, ApJS 60).</span>
 <span class="sd">    Units remain in CGS as per paper.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -365,9 +399,12 @@
         <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cup</span></div>
 
 
-<div class="viewcode-block" id="Burgess"><a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.Burgess">[docs]</a><span class="nd">@dataclass</span>
+
+<div class="viewcode-block" id="Burgess">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.collisional_rates.Burgess">[docs]</a>
+<span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">Burgess</span><span class="p">(</span><span class="n">CollisionalRates</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Collisional ionisation from excited states from Burgess &amp; Chidichimo</span>
 <span class="sd">    (1983, MNRAS 203, 1269).</span>
 <span class="sd">    Fudge parameter is dimensionless.</span>
@@ -407,6 +444,7 @@
 
         <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cup</span>
         <span class="n">Cmat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">Cdown</span></div>
+
 </pre></div>
 
            </div>
