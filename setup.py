@@ -151,11 +151,6 @@ class LwBuildExt(build_ext):
                         dry_run=self.dry_run
                     )
 
-
-def readme():
-    with open('README.md', 'r') as f:
-        return f.read()
-
 posixCiArgs : Dict[str, List[str]] = {
     'linux': ['-march=corei7-avx', '-mtune=corei7-avx'],
     'darwin': [],
@@ -285,20 +280,10 @@ if CI_BUILD and path.exists(BuildDir) and path.isdir(BuildDir):
 setup(name='lightweaver',
       setup_requires=['setuptools_scm'],
       use_scm_version=True,
-      packages=['lightweaver'] + ['lightweaver.'+ p for p in find_namespace_packages('lightweaver')],
-      install_requires=['numpy>=1.19', 'scipy', 'matplotlib', 'numba>=0.56',
-                        'parse', 'specutils', 'tqdm', 'weno4', 'pyyaml'],
-      author='Chris Osborne',
-      author_email='lw@contextuallight.com',
-      license='MIT',
-      url='http://github.com/Goobley/Lightweaver',
-      description='Non-LTE Radiative Transfer Framework in Python',
+      packages=['lightweaver'] + ['lightweaver.' + p for p in find_namespace_packages('lightweaver')],
       ext_modules=extension_list(buildArgs),
       cmdclass={'build_ext': LwBuildExt },
       include_package_data=True,
-      long_description=readme(),
-      long_description_content_type='text/markdown',
-      python_requires='>=3.8',
       options={
           'build': {
               'build_lib': BuildDir

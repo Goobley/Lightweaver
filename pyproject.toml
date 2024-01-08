@@ -1,6 +1,41 @@
 [build-system]
-requires = ['setuptools>=45,<60', 'wheel', 'setuptools_scm[toml]>=3.4', 'cython', 'numpy>=1.19']
+requires = [
+    "setuptools>=45",
+    "wheel",
+    "setuptools_scm[toml]>=3.4",
+    "cython",
+    "numpy==1.19; python_version == '3.8'",
+    "numpy>=1.25; python_version > '3.8'",
+]
 build-backend = 'setuptools.build_meta'
 
 [tool.setuptools_scm]
 write_to = 'lightweaver/version.py'
+
+[project]
+name = "lightweaver"
+dynamic = ["version"]
+requires-python = ">=3.8"
+authors = [
+    {name = "Chris Osborne", email = "lw@contextuallight.com"}
+]
+maintainers = [
+    {name = "Chris Osborne", email = "lw@contextuallight.com"}
+]
+description = "Non-LTE Radiative Transfer Framework in Python"
+readme = "README.md"
+license = { text = "MIT License" }
+dependencies = [
+    "numpy>=1.19; python_version == '3.8'",
+    "numpy; python_version >= '3.8'",
+    "numba~=0.56; python_version < '3.12'",
+    "numba==0.59.0rc1; python_version >= '3.12'",
+    "matplotlib",
+    "scipy",
+    "parse",
+    "specutils",
+    "tqdm",
+    "weno4",
+    "pyyaml",
+]
+
