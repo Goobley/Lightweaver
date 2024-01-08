@@ -1,3 +1,4 @@
+import numbers
 import pickle
 from copy import copy
 from dataclasses import dataclass
@@ -1407,8 +1408,8 @@ class Atmosphere:
                 if len(mu) != len(wmu):
                     raise ValueError('mu and wmu must be the same shape')
 
-                self.muz = np.array(mu)
-                self.wmu = np.array(wmu)
+                self.muz = np.array(mu, dtype=np.float64)
+                self.wmu = np.array(wmu, dtype=np.float64)
 
             self.muy = np.zeros_like(self.muz)
             self.mux = np.sqrt(1.0 - self.muz**2)
@@ -1487,32 +1488,32 @@ class Atmosphere:
             normalised.
         '''
 
-        if isinstance(muz, float):
-            muz = [muz]
-        if isinstance(mux, float):
-            mux = [mux]
-        if isinstance(muy, float):
-            muy = [muy]
+        if isinstance(muz, numbers.Real):
+            muz = [float(muz)]
+        if isinstance(mux, numbers.Real):
+            mux = [float(mux)]
+        if isinstance(muy, numbers.Real):
+            muy = [float(muy)]
 
         if mux is None and muy is None:
-            self.muz = np.array(muz)
+            self.muz = np.array(muz, dtype=np.float64)
             self.wmu = np.zeros_like(self.muz)
             self.muy = np.zeros_like(self.muz)
             self.mux = np.sqrt(1.0 - self.muz**2)
         elif muy is None:
-            self.muz = np.array(muz)
+            self.muz = np.array(muz, dtype=np.float64)
             self.wmu = np.zeros_like(self.muz)
-            self.mux = np.array(mux)
+            self.mux = np.array(mux, dtype=np.float64)
             self.muy = np.sqrt(1.0 - (self.muz**2 + self.mux**2))
         elif mux is None:
-            self.muz = np.array(muz)
+            self.muz = np.array(muz, dtype=np.float64)
             self.wmu = np.zeros_like(self.muz)
-            self.muy = np.array(muy)
+            self.muy = np.array(muy, dtype=np.float64)
             self.mux = np.sqrt(1.0 - (self.muz**2 + self.muy**2))
         else:
-            self.muz = np.array(muz)
-            self.mux = np.array(mux)
-            self.muy = np.array(muy)
+            self.muz = np.array(muz, dtype=np.float64)
+            self.mux = np.array(mux, dtype=np.float64)
+            self.muy = np.array(muy, dtype=np.float64)
             self.wmu = np.zeros_like(muz)
 
             if not np.allclose(self.muz**2 + self.mux**2 + self.muy**2, 1):
@@ -1522,7 +1523,7 @@ class Atmosphere:
             raise ValueError('muz must be > 0')
 
         if wmu is not None:
-            self.wmu = np.array(wmu)
+            self.wmu = np.array(wmu, dtype=np.float64)
 
             if not np.isclose(self.wmu.sum(), 1.0):
                 raise ValueError('sum of wmus is not 1.0')
