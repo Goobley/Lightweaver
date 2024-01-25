@@ -694,7 +694,7 @@ void setup_hprd(Context& ctx)
 #endif
 
 // TODO(cmo): This isn't super clear, rewrite it.
-void configure_hprd_coeffs(Context& ctx)
+void configure_hprd_coeffs(Context& ctx, bool includeDetailedAtoms)
 {
     namespace C = Constants;
     struct PrdData
@@ -707,7 +707,7 @@ void configure_hprd_coeffs(Context& ctx)
         {}
     };
     JasUnpack(*ctx, atmos, spect);
-    JasUnpack(ctx, activeAtoms);
+    JasUnpack(ctx, activeAtoms, detailedAtoms);
     std::vector<PrdData> prdLines;
     prdLines.reserve(16);
     for (auto& a : activeAtoms)
@@ -717,6 +717,19 @@ void configure_hprd_coeffs(Context& ctx)
             if (t->rhoPrd)
             {
                 prdLines.emplace_back(PrdData(t, *a));
+            }
+        }
+    }
+    if (includeDetailedAtoms)
+    {
+        for (auto& a : detailedAtoms)
+        {
+            for (auto& t : a->trans)
+            {
+                if (t->rhoPrd)
+                {
+                    prdLines.emplace_back(PrdData(t, *a));
+                }
             }
         }
     }
@@ -734,7 +747,7 @@ void configure_hprd_coeffs(Context& ctx)
     {
         bool prdLinePresent = false;
         for (auto& p : prdLines)
-            prdLinePresent = (p.line->active(la) || prdLinePresent);
+            prdLinePresent = (prdLinePresent || p.line->active(la));
         if (prdLinePresent)
         {
             prdLambdas.emplace_back(la);

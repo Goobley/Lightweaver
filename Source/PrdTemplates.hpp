@@ -20,7 +20,13 @@ IterationResult formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelen
 {
     using namespace LwInternal;
     JasUnpack(*ctx, spect);
-    JasUnpack(ctx, activeAtoms);
+    JasUnpack(ctx, activeAtoms, detailedAtoms);
+
+    bool includeDetailedAtoms = false;
+    if (params.contains("include_detailed_atoms"))
+    {
+        includeDetailedAtoms = params.get_as<bool>("include_detailed_atoms");
+    }
 
     if (ctx.Nthreads <= 1)
     {
@@ -32,6 +38,19 @@ IterationResult formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelen
                 if (t->rhoPrd)
                 {
                     t->zero_rates();
+                }
+            }
+        }
+        if (includeDetailedAtoms)
+        {
+            for (auto& a : detailedAtoms)
+            {
+                for (auto& t : a->trans)
+                {
+                    if (t->rhoPrd)
+                    {
+                        t->zero_rates();
+                    }
                 }
             }
         }
@@ -69,6 +88,19 @@ IterationResult formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelen
                     }
                 }
             }
+            if (includeDetailedAtoms)
+            {
+                for (auto& a : *core->detailedAtoms)
+                {
+                    for (auto& t : a->trans)
+                    {
+                        if (t->rhoPrd)
+                        {
+                            t->zero_rates();
+                        }
+                    }
+                }
+            }
             if (core->JRest)
                 core->JRest.fill(0.0);
         }
@@ -102,7 +134,7 @@ IterationResult formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelen
                            | FsMode::PrdOnly);
             for (i64 la = p.start; la < p.end; ++la)
             {
-                f64 dJ = intensity_core_opt<SimdType::Scalar,
+                f64 dJ = intensity_core_opt<simd,
                                             true, true, false, false>
                                             (*td.core, td.idxs(la), mode, *td.params);
                 td.dJ = max_idx(td.dJ, dJ, td.dJIdx, la);
@@ -125,7 +157,7 @@ IterationResult formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelen
             dJMax = max_idx(dJMax, taskData[t].dJ, maxIdx, taskData[t].dJIdx);
 
 
-        ctx.threading.intensityCores.accumulate_prd_rates();
+        ctx.threading.intensityCores.accumulate_prd_rates(includeDetailedAtoms);
         IterationResult result{};
         result.updatedJ = true;
         result.dJMax = dJMax;
@@ -154,7 +186,14 @@ IterationResult redistribute_prd_lines_template(Context& ctx, int maxIter, f64 t
         {}
     };
     JasUnpack(*ctx, atmos, spect);
-    JasUnpack(ctx, activeAtoms);
+    JasUnpack(ctx, activeAtoms, detailedAtoms);
+
+    bool includeDetailedAtoms = false;
+    if (params.contains("include_detailed_atoms"))
+    {
+        includeDetailedAtoms = params.get_as<bool>("include_detailed_atoms");
+    }
+
     std::vector<PrdData> prdLines;
     prdLines.reserve(10);
     for (auto& a : activeAtoms)
@@ -164,6 +203,19 @@ IterationResult redistribute_prd_lines_template(Context& ctx, int maxIter, f64 t
             if (t->rhoPrd)
             {
                 prdLines.emplace_back(PrdData(t, *a, Ng(0, 0, 0, t->rhoPrd.flatten())));
+            }
+        }
+    }
+    if (includeDetailedAtoms)
+    {
+        for (auto& a : detailedAtoms)
+        {
+            for (auto& t : a->trans)
+            {
+                if (t->rhoPrd)
+                {
+                    prdLines.emplace_back(PrdData(t, *a, Ng(0, 0, 0, t->rhoPrd.flatten())));
+                }
             }
         }
     }

@@ -51,7 +51,7 @@ void nr_post_update_impl(Context& ctx, std::vector<Atom*>* atoms,
                          f64 crswVal,
                          ExtraParams params=ExtraParams{},
                          int spaceStart=-1, int spaceEnd=-1);
-void configure_hprd_coeffs(Context& ctx);
+void configure_hprd_coeffs(Context& ctx, bool includeDetailedAtoms=false);
 
 namespace EscapeProbability
 {

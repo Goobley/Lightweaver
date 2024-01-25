@@ -395,10 +395,15 @@ void IntensityCoreFactory::accumulate_Gamma_rates_parallel(Context& ctx)
     }
 }
 
-void IntensityCoreFactory::accumulate_prd_rates()
+void IntensityCoreFactory::accumulate_prd_rates(bool includeDetailedAtoms)
 {
     for (auto& a : activeAtoms)
         a.accumulate_prd_rates();
+    if (includeDetailedAtoms)
+    {
+        for (auto& a : detailedAtoms)
+            a.accumulate_prd_rates();
+    }
     accumulate_JRest();
 }
 
@@ -460,9 +465,9 @@ void IterationCores::accumulate_Gamma_rates_parallel(Context& ctx)
     }
 }
 
-void IterationCores::accumulate_prd_rates()
+void IterationCores::accumulate_prd_rates(bool includeDetailedAtoms)
 {
-    factory->accumulate_prd_rates();
+    factory->accumulate_prd_rates(includeDetailedAtoms);
 }
 
 void IterationCores::clear()

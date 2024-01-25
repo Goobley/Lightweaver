@@ -334,7 +334,7 @@ cdef extern from "Lightweaver.hpp":
         vector[F64View2D] nPrev
 
     cdef IterationResult formal_sol_gamma_matrices(Context& ctx, bool_t lambdaIterate, ExtraParams params) except +
-    cdef IterationResult formal_sol(Context& ctx, bool_t upOnly, ExtraParams params) except + 
+    cdef IterationResult formal_sol(Context& ctx, bool_t upOnly, ExtraParams params) except +
     cdef IterationResult formal_sol_full_stokes(Context& ctx, bool_t updateJ,
                                                 bool_t upOnly, ExtraParams params) except +
     cdef IterationResult redistribute_prd_lines(Context& ctx, int maxIter, f64 tol, ExtraParams params) except +
@@ -349,6 +349,7 @@ cdef extern from "Lightweaver.hpp":
                              f64 crswVal,
                              ExtraParams params) except +
     cdef void configure_hprd_coeffs(Context& ctx)
+    cdef void configure_hprd_coeffs(Context& ctx, bool_t includeDetailedAtoms)
 
 cdef extern from "Lightweaver.hpp" namespace "EscapeProbability":
     cdef void gamma_matrices_escape_prob(Atom* a, Background& background,
@@ -2817,6 +2818,11 @@ cdef class LwContext:
         The populations of each species in the simulation.
     conserveCharge : bool
         Whether charge is being conserved in the calculations.
+    nrHOnly : bool
+        Whether H is the only element included in charge conservation
+    detailedAtomPrd : bool
+        Whether PRD emission rho is computed for PRD lines with detailed static
+        populations.
     crswCallback : CrswIterator
         The object controlling the value of the Collisional Radiative
         Switching term.
@@ -2845,6 +2851,9 @@ cdef class LwContext:
     hprd : bool, optional
         Whether to use the Hybrid PRD method to account for velocity shifts in
         the atmosphere (if PRD is used otherwise, then it is angle-averaged).
+    detailedAtomPrd: bool, optional
+        Whether to compute the PRD emission coefficient rho for PRD lines on
+        atoms with detailed static populations (default, True).
     crswCallback : CrswIterator, optional
         An instance of CrswIterator (or derived thereof) to control
         collisional radiative swtiching (default: None for UnityCrswIterator
@@ -2872,6 +2881,7 @@ cdef class LwContext:
     cdef list detailedAtoms
     cdef public bool_t conserveCharge
     cdef public bool_t nrHOnly
+    cdef public bool_t detailedAtomPrd
     cdef bool_t hprd
     cdef public object crswCallback
     cdef public object crswDone
@@ -2879,8 +2889,9 @@ cdef class LwContext:
 
     def __init__(self, atmos, spect, eqPops,
                  ngOptions=None, initSol=None,
-                 conserveCharge=False, 
+                 conserveCharge=False,
                  nrHOnly=False,
+                 detailedAtomPrd=True,
                  hprd=False,
                  crswCallback=None, Nthreads=1,
                  backgroundProvider=None,
@@ -2896,6 +2907,7 @@ cdef class LwContext:
             'initSol': initSol,
             'conserveCharge': conserveCharge,
             'nrHOnly': nrHOnly,
+            'detailedAtomPrd': detailedAtomPrd,
             'hprd': hprd,
             'Nthreads': Nthreads,
             'backgroundProvider': backgroundProvider,
@@ -2911,6 +2923,7 @@ cdef class LwContext:
         self.conserveCharge = conserveCharge
         self.nrHOnly = nrHOnly
         self.hprd = hprd
+        self.detailedAtomPrd = detailedAtomPrd
 
         self.background = LwBackground(self.atmos, eqPops, spect.radSet,
                                        spect.wavelength, provider=backgroundProvider)
@@ -2969,6 +2982,7 @@ cdef class LwContext:
         state['detailedAtoms'] = self.detailedAtoms
         state['conserveCharge'] = self.conserveCharge
         state['nrHOnly'] = self.nrHOnly
+        state['detailedAtomPrd'] = self.detailedAtomPrd
         state['hprd'] = self.hprd
         state['atmos'] = self.atmos
         state['spect'] = self.spect
@@ -2989,6 +3003,7 @@ cdef class LwContext:
         self.detailedAtoms = state['detailedAtoms']
         self.conserveCharge = state['conserveCharge']
         self.nrHOnly = state['nrHOnly']
+        self.detailedAtomPrd = state['detailedAtomPrd']
         self.hprd = state['hprd']
         self.spect = state['spect']
         self.background = state['background']
@@ -3263,7 +3278,7 @@ cdef class LwContext:
             self.compute_profiles()
 
         if temperature or ne:
-            self.eqPops.update_lte_atoms_Hmin_pops(self.kwargs['atmos'], conserveCharge=self.conserveCharge, 
+            self.eqPops.update_lte_atoms_Hmin_pops(self.kwargs['atmos'], conserveCharge=self.conserveCharge,
                                                    updateTotals=True, quiet=quiet)
 
         if background and any([temperature, ne, vturb, vlos]):
@@ -3661,7 +3676,7 @@ cdef class LwContext:
         else:
             warnings.warn('The use of `printUpdate` is now deprecated, as this function no longer prints.', DeprecationWarning)
         if extraParams is None:
-            extraParams = {}
+            extraParams = {"include_detailed_atoms": self.detailedAtomPrd}
         cdef ExtraParams params = dict2ExtraParams(extraParams)
 
         cdef IterationResult prdIter = redistribute_prd_lines(self.ctx, maxIter, tol, params)
@@ -3672,7 +3687,7 @@ cdef class LwContext:
         '''
         Internal.
         '''
-        configure_hprd_coeffs(self.ctx)
+        configure_hprd_coeffs(self.ctx, self.detailedAtomPrd)
 
     cpdef update_hprd_coeffs(self):
         '''
@@ -3740,10 +3755,21 @@ cdef class LwContext:
         return self.__getstate__()
 
     @staticmethod
-    def construct_from_state_dict_with(sd, atmos=None, spect=None, eqPops=None,
-                                       ngOptions=None, initSol=None, conserveCharge=None,
-                                       nrHOnly=None, hprd=None, preserveProfiles=False, 
-                                       fromScratch=False, backgroundProvider=None):
+    def construct_from_state_dict_with(
+        sd,
+        atmos=None,
+        spect=None,
+        eqPops=None,
+        ngOptions=None,
+        initSol=None,
+        conserveCharge=None,
+        nrHOnly=None,
+        detailedAtomPrd=None,
+        hprd=None,
+        preserveProfiles=False,
+        fromScratch=False,
+        backgroundProvider=None
+    ):
         """
         Construct a new Context informed by a state dictionary with changes
         provided to this function. This function is primarily aimed at making
@@ -3774,6 +3800,9 @@ cdef class LwContext:
             Whether to conserve charge.
         nrHOnly : bool, optional
             Whether to only consider Hydrogen in charge conservation calculations.
+        detailedAtomPrd : bool, optional
+            Whether to compute the PRD emission coefficient rho for PRD lines on
+            detailed atoms.
         hprd : bool, optional
             Whether to use Hybrid-PRD.
         preserveProfiles : bool, optional
@@ -3804,6 +3833,8 @@ cdef class LwContext:
             args['conserveCharge'] = conserveCharge
         if nrHOnly is not None:
             args['nrHOnly'] = nrHOnly
+        if detailedAtomPrd is not None:
+            args['detailedAtomPrd'] = detailedAtomPrd
         if hprd is not None:
             args['hprd'] = hprd
         if backgroundProvider is not None:
@@ -3858,7 +3889,7 @@ cdef class LwContext:
 
         for a in ctx.detailedAtoms:
             for s in sd['detailedAtoms']:
-                if a.atomicModel == s.atomicModel:
+                if a.atomicModel.element == s.atomicModel.element:
                     a.load_pops_rates_prd_from_state(s.__getstate__())
                     break
 

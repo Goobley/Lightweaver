@@ -175,7 +175,7 @@ struct IntensityCoreFactory
     IntensityCoreData* single_thread_intensity_core();
     void accumulate_JRest();
     void accumulate_Gamma_rates();
-    void accumulate_prd_rates();
+    void accumulate_prd_rates(bool includeDetailedAtoms);
     void accumulate_Gamma_rates_parallel(Context& ctx);
     void clear();
 };
@@ -192,7 +192,7 @@ struct IterationCores
 
     void initialise(IntensityCoreFactory* fac, int Nthreads);
     void accumulate_Gamma_rates();
-    void accumulate_prd_rates();
+    void accumulate_prd_rates(bool includeDetailedAtoms);
     void accumulate_Gamma_rates_parallel(Context& ctx);
     void clear();
 };

@@ -61,7 +61,7 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False,
     if hOnly:
         backgroundAtoms = [model for model in self.kwargs['spect'].radSet if model.element != PeriodicTable[1]]
     else:
-        backgroundAtoms = self.kwargs['spect'].radSet.passiveAtoms
+        backgroundAtoms = self.kwargs['spect'].radSet.detailedAtoms + self.kwargs['spect'].radSet.passiveAtoms
 
     backgroundNe = np.zeros_like(self.atmos.ne)
     for atomModel in backgroundAtoms:

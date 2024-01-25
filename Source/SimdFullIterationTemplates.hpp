@@ -249,7 +249,7 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode, ExtraParams
 
     const bool updateJ = mode & FsMode::UpdateJ;
     const bool upOnly = mode & FsMode::UpOnly;
-    
+
     // NOTE(cmo): handle ZPlaneDecomposition
     const bool zPlaneDecomposition = params.contains("ZPlaneDecomposition");
     F64View2D zPlaneDown1D, zPlaneUp1D;
@@ -437,7 +437,7 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode, ExtraParams
                     }
                 }
             }
-            if constexpr (UpdateRates && !PrdRatesOnly)
+            if constexpr (UpdateRates)
             {
                 for (int a = 0; a < detailedAtoms.size(); ++a)
                 {
@@ -452,8 +452,16 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode, ExtraParams
                         const f64 wmu = 0.5 * atmos.wmu(mu);
                         uv_opt<simd>(&t, la, mu, toObs, Uji, Vij, Vji);
 
-                        compute_full_operator_rates<simd, false, true>(&atom, kr,
-                                                                       wmu, &data);
+                        const bool computeRates = (UpdateRates && !PrdRatesOnly) ||
+                                            (UpdateRates && PrdRatesOnly && t.rhoPrd);
+                        dispatch_compute_full_operator_rates_<simd>(
+                            false,
+                            computeRates,
+                            &atom,
+                            kr,
+                            wmu,
+                            &data
+                        );
                     }
                 }
             }
@@ -614,7 +622,7 @@ IterationResult formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsM
         {
             f64 dJ = dispatch_intensity_core_opt_<simd>(true, false, true,
                                                         storeDepthData,
-                                                        iCore, la * ctx.formalSolver.width, 
+                                                        iCore, la * ctx.formalSolver.width,
                                                         mode, params);
             dJMax = max_idx(dJ, dJMax, maxIdx, la);
         }
