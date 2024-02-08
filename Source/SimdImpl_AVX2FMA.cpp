@@ -72,7 +72,7 @@ inline __m256i bitwise_not(__m256i x)
     // This is equivalent to an xor with fff...
     // MSVC doesn't seem great at optimising this to the cmp_eq form that
     // gcc/clang use (cmp_eq x, x == fff...). So just write that explicitly.
-    return _mm256_xor_si256(x, __mm256_cmpeq_epi32(x, x));
+    return _mm256_xor_si256(x, _mm256_cmpeq_epi32(x, x));
 }
 
 inline __m256i finite_mask_avx(__m256d x)
