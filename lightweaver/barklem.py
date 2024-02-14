@@ -76,7 +76,7 @@ class Barklem:
         DOrbit = 2
         FOrbit = 3
 
-        result = [0.0, 0.0, 0.0]
+        result = [vals[0], vals[1], 0.0]
 
         # Follows original RH version. Interpolate tables if sigma < 20.0, otherwise
         # assume the provided values are the coefficients
@@ -137,10 +137,10 @@ class Barklem:
 
         reducedMass = Const.Amu / (1.0 / PeriodicTable[1].mass + 1.0 / atom.element.mass)
         meanVel = np.sqrt(8.0 * Const.KBoltzmann / (np.pi * reducedMass))
-        meanCross = Const.RBohr**2 * (meanVel / 1.0e4)**(-vals[1])
+        meanCross = Const.RBohr**2 * (meanVel / 1.0e4)**(-result[1])
 
-        result[0] = (vals[0] * 2.0 * (4.0 / np.pi)**(vals[1]/2.0)
-                     * gamma(4.0 - vals[1] / 2.0) * meanVel * meanCross)
+        result[0] = (result[0] * 2.0 * (4.0 / np.pi)**(result[1]/2.0)
+                     * gamma(4.0 - result[1] / 2.0) * meanVel * meanCross)
 
         # Use Unsold for Helium contribution
         result[2] = 1.0
