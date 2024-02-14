@@ -1025,7 +1025,7 @@ class Atmosphere:
                 pgas[0] = Ptop
                 pe[0] = PeTop
                 chi_c[0] = eos.cont_opacity(temperature[0], pgas[0], pe[0],
-                                            np.array([5000.0]))
+                                            np.array([5000.0])).item()
                 avg_mol_weight = lambda k: abundance.massPerH / (abundance.totalAbundance
                                                                   + pe[k] / pgas[k])
                 rho[0] = Ptop * avg_mol_weight(0) / Avog / cgs.BK / temperature[0]
@@ -1051,7 +1051,7 @@ class Atmosphere:
                         pe[k] = eos.pe_from_pg(temperature[k], pgas[k])
                         prevChi = chi_c[k]
                         chi_c[k] = eos.cont_opacity(temperature[k], pgas[k], pe[k],
-                                                    np.array([5000.0]))
+                                                    np.array([5000.0])).item()
                         rho[k] = (pgas[k] * avg_mol_weight(k) / Avog /
                                   cgs.BK / temperature[k])
                         chi_c[k] /= rho[k]
@@ -1079,7 +1079,7 @@ class Atmosphere:
         chi_c = np.zeros_like(depthScale)
         for k in range(depthScale.shape[0]):
             chi_c[k] = eos.cont_opacity(temperature[k], pgas[k], pe[k],
-                                        np.array([5000.0])) / Const.CM_TO_M
+                                        np.array([5000.0])).item() / Const.CM_TO_M
 
         # NOTE(cmo): We should now have a uniform minimum set of data (other
         # than the scale type), allowing us to simply convert between the
