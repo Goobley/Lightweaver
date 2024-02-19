@@ -643,6 +643,102 @@
         <span class="k">return</span> <span class="n">GStark</span></div>
 </div>
 
+
+<div class="viewcode-block" id="ScaledExponentBroadening">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.broadening.ScaledExponentBroadening">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ScaledExponentBroadening</span><span class="p">(</span><span class="n">StandardLineBroadener</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Broadening implementation following the CRTAF ScaledExponents recipe.</span>
+<span class="sd">        scaling * T**a * n_H(0)**b * n_e**c</span>
+
+<span class="sd">    scaling : float</span>
+<span class="sd">        Scalar multiplication term</span>
+<span class="sd">    temperatureExp : float</span>
+<span class="sd">        Temperature exponent</span>
+<span class="sd">    hydrogenExp : float</span>
+<span class="sd">        Neutral (ground-state) hydrogen density exponent</span>
+<span class="sd">    electronExp : float</span>
+<span class="sd">        Electron density exponent</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">scaling</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">temperatureExp</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">hydrogenExp</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">electronExp</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">line</span><span class="p">:</span> <span class="s1">&#39;AtomicLine&#39;</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="s1">&#39;AtomicLine&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">=</span> <span class="n">line</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(scaling=</span><span class="si">%g</span><span class="s1">, temperatureExp=</span><span class="si">%g</span><span class="s1">, hydrogenExp=</span><span class="si">%g</span><span class="s1">, electronExp=</span><span class="si">%g</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> 
+                <span class="bp">self</span><span class="o">.</span><span class="n">scaling</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperatureExp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hydrogenExp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">electronExp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scaling</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">scaling</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperatureExp</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">temperatureExp</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hydrogenExp</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">hydrogenExp</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">electronExp</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">electronExp</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">line</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="ScaledExponentBroadening.broaden">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.broadening.ScaledExponentBroadening.broaden">[docs]</a>
+    <span class="k">def</span> <span class="nf">broaden</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">:</span> <span class="s1">&#39;SpeciesStateTable&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        The function that is called by LineBroadening.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        atmos : Atmosphere</span>
+<span class="sd">            The atmosphere in which to compute the broadening.</span>
+<span class="sd">        eqPops : SpeciesStateTable</span>
+<span class="sd">            The populations to use for computing the broadening.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        broad : np.ndarray</span>
+<span class="sd">            An array detailing the broadening at each location in the</span>
+<span class="sd">            atmosphere [Nspace].</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperatureExp</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperatureExp</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">*=</span> <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">*=</span> <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">temperatureExp</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hydrogenExp</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">nHGround</span> <span class="o">=</span> <span class="n">eqPops</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hydrogenExp</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">*=</span> <span class="n">nHGround</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">*=</span> <span class="n">nHGround</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">hydrogenExp</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">electronExp</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">electronExp</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">*=</span> <span class="n">atmos</span><span class="o">.</span><span class="n">ne</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">*=</span> <span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">electronExp</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">scaling</span> <span class="o">*</span> <span class="n">result</span></div>
+</div>
+
 </pre></div>
 
            </div>

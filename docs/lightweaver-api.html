@@ -243,6 +243,16 @@
 <li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.LinearCoreExpWings.wavelength"><code class="docutils literal notranslate"><span class="pre">LinearCoreExpWings.wavelength()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_model.LinearQuadrature"><code class="docutils literal notranslate"><span class="pre">LinearQuadrature</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.LinearQuadrature.doppler_units"><code class="docutils literal notranslate"><span class="pre">LinearQuadrature.doppler_units()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.LinearQuadrature.wavelength"><code class="docutils literal notranslate"><span class="pre">LinearQuadrature.wavelength()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_model.TabulatedQuadrature"><code class="docutils literal notranslate"><span class="pre">TabulatedQuadrature</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.TabulatedQuadrature.doppler_units"><code class="docutils literal notranslate"><span class="pre">TabulatedQuadrature.doppler_units()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.TabulatedQuadrature.wavelength"><code class="docutils literal notranslate"><span class="pre">TabulatedQuadrature.wavelength()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#lightweaver.atomic_model.VoigtLine"><code class="docutils literal notranslate"><span class="pre">VoigtLine</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.VoigtLine.compute_phi"><code class="docutils literal notranslate"><span class="pre">VoigtLine.compute_phi()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#lightweaver.atomic_model.VoigtLine.damping"><code class="docutils literal notranslate"><span class="pre">VoigtLine.damping()</span></code></a></li>
@@ -412,6 +422,10 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#lightweaver.broadening.RadiativeBroadening"><code class="docutils literal notranslate"><span class="pre">RadiativeBroadening</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#lightweaver.broadening.RadiativeBroadening.broaden"><code class="docutils literal notranslate"><span class="pre">RadiativeBroadening.broaden()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.broadening.ScaledExponentBroadening"><code class="docutils literal notranslate"><span class="pre">ScaledExponentBroadening</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lightweaver.broadening.ScaledExponentBroadening.broaden"><code class="docutils literal notranslate"><span class="pre">ScaledExponentBroadening.broaden()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#lightweaver.broadening.StandardLineBroadener"><code class="docutils literal notranslate"><span class="pre">StandardLineBroadener</span></code></a></li>
@@ -2614,6 +2628,55 @@ with n in [0, N) satisfying the following conditions:</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="lightweaver.atomic_model.LinearQuadrature">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lightweaver.atomic_model.</span></span><span class="sig-name descname"><span class="pre">LinearQuadrature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Nlambda</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deltaLambda</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/atomic_model.html#LinearQuadrature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.atomic_model.LinearQuadrature" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lightweaver.atomic_model.LineQuadrature" title="lightweaver.atomic_model.LineQuadrature"><code class="xref py py-class docutils literal notranslate"><span class="pre">LineQuadrature</span></code></a></p>
+<p>Simple linearly spaced wavelength grid. Primarily provided for CRTAF
+interaction.</p>
+<dl class="simple">
+<dt>Nlambda<span class="classifier">int</span></dt><dd><p>The number of wavelength points in the wavelength grid (typically odd).</p>
+</dd>
+<dt>deltaLambda<span class="classifier">int</span></dt><dd><p>The half-width of the grid (i.e. from core to one edge) [nm].</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="lightweaver.atomic_model.LinearQuadrature.doppler_units">
+<span class="sig-name descname"><span class="pre">doppler_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLine" title="lightweaver.atomic_model.AtomicLine"><span class="pre">AtomicLine</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/lightweaver/atomic_model.html#LinearQuadrature.doppler_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.atomic_model.LinearQuadrature.doppler_units" title="Link to this definition"></a></dt>
+<dd><p>Return the quadrature in Doppler units.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lightweaver.atomic_model.LinearQuadrature.wavelength">
+<span class="sig-name descname"><span class="pre">wavelength</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLine" title="lightweaver.atomic_model.AtomicLine"><span class="pre">AtomicLine</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">vMicroChar</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3000.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/lightweaver/atomic_model.html#LinearQuadrature.wavelength"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.atomic_model.LinearQuadrature.wavelength" title="Link to this definition"></a></dt>
+<dd><p>Return the quadrature in nm.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="lightweaver.atomic_model.TabulatedQuadrature">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lightweaver.atomic_model.</span></span><span class="sig-name descname"><span class="pre">TabulatedQuadrature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wavelengthGrid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/atomic_model.html#TabulatedQuadrature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.atomic_model.TabulatedQuadrature" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lightweaver.atomic_model.LineQuadrature" title="lightweaver.atomic_model.LineQuadrature"><code class="xref py py-class docutils literal notranslate"><span class="pre">LineQuadrature</span></code></a></p>
+<p>Tabulated wavelength quadrature. Primarily provided for CRTAF interaction.</p>
+<dl class="simple">
+<dt>wavelengthGrid<span class="classifier">Sequence[float]</span></dt><dd><p>The wavelength sample points [nm].</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="lightweaver.atomic_model.TabulatedQuadrature.doppler_units">
+<span class="sig-name descname"><span class="pre">doppler_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLine" title="lightweaver.atomic_model.AtomicLine"><span class="pre">AtomicLine</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/lightweaver/atomic_model.html#TabulatedQuadrature.doppler_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.atomic_model.TabulatedQuadrature.doppler_units" title="Link to this definition"></a></dt>
+<dd><p>Return the quadrature in Doppler units.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="lightweaver.atomic_model.TabulatedQuadrature.wavelength">
+<span class="sig-name descname"><span class="pre">wavelength</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.atomic_model.AtomicLine" title="lightweaver.atomic_model.AtomicLine"><span class="pre">AtomicLine</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">vMicroChar</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3000.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/lightweaver/atomic_model.html#TabulatedQuadrature.wavelength"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.atomic_model.TabulatedQuadrature.wavelength" title="Link to this definition"></a></dt>
+<dd><p>Return the quadrature in nm.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="lightweaver.atomic_model.VoigtLine">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lightweaver.atomic_model.</span></span><span class="sig-name descname"><span class="pre">VoigtLine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.atomic_model.LineType" title="lightweaver.atomic_model.LineType"><span class="pre">LineType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">quadrature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.atomic_model.LineQuadrature" title="lightweaver.atomic_model.LineQuadrature"><span class="pre">LineQuadrature</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">broadening</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.broadening.LineBroadening" title="lightweaver.broadening.LineBroadening"><span class="pre">LineBroadening</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">gLandeEff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/atomic_model.html#VoigtLine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.atomic_model.VoigtLine" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#lightweaver.atomic_model.AtomicLine" title="lightweaver.atomic_model.AtomicLine"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtomicLine</span></code></a></p>
@@ -4025,6 +4088,45 @@ atmosphere [Nspace].</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="lightweaver.broadening.RadiativeBroadening.broaden">
 <span class="sig-name descname"><span class="pre">broaden</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atmos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere" title="lightweaver.atmosphere.Atmosphere"><span class="pre">Atmosphere</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">eqPops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.atomic_set.SpeciesStateTable" title="lightweaver.atomic_set.SpeciesStateTable"><span class="pre">SpeciesStateTable</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/lightweaver/broadening.html#RadiativeBroadening.broaden"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.broadening.RadiativeBroadening.broaden" title="Link to this definition"></a></dt>
+<dd><p>The function that is called by LineBroadening.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atmos</strong> (<a class="reference internal" href="#lightweaver.atmosphere.Atmosphere" title="lightweaver.atmosphere.Atmosphere"><em>Atmosphere</em></a>) – The atmosphere in which to compute the broadening.</p></li>
+<li><p><strong>eqPops</strong> (<a class="reference internal" href="#lightweaver.atomic_set.SpeciesStateTable" title="lightweaver.atomic_set.SpeciesStateTable"><em>SpeciesStateTable</em></a>) – The populations to use for computing the broadening.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>broad</strong> – An array detailing the broadening at each location in the
+atmosphere [Nspace].</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="lightweaver.broadening.ScaledExponentBroadening">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">lightweaver.broadening.</span></span><span class="sig-name descname"><span class="pre">ScaledExponentBroadening</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scaling</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperatureExp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hydrogenExp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electronExp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/broadening.html#ScaledExponentBroadening"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.broadening.ScaledExponentBroadening" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#lightweaver.broadening.StandardLineBroadener" title="lightweaver.broadening.StandardLineBroadener"><code class="xref py py-class docutils literal notranslate"><span class="pre">StandardLineBroadener</span></code></a></p>
+<dl class="simple">
+<dt>Broadening implementation following the CRTAF ScaledExponents recipe.</dt><dd><p>scaling * T**a * n_H(0)**b * n_e**c</p>
+</dd>
+<dt>scaling<span class="classifier">float</span></dt><dd><p>Scalar multiplication term</p>
+</dd>
+<dt>temperatureExp<span class="classifier">float</span></dt><dd><p>Temperature exponent</p>
+</dd>
+<dt>hydrogenExp<span class="classifier">float</span></dt><dd><p>Neutral (ground-state) hydrogen density exponent</p>
+</dd>
+<dt>electronExp<span class="classifier">float</span></dt><dd><p>Electron density exponent</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="lightweaver.broadening.ScaledExponentBroadening.broaden">
+<span class="sig-name descname"><span class="pre">broaden</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atmos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.atmosphere.Atmosphere" title="lightweaver.atmosphere.Atmosphere"><span class="pre">Atmosphere</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">eqPops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#lightweaver.atomic_set.SpeciesStateTable" title="lightweaver.atomic_set.SpeciesStateTable"><span class="pre">SpeciesStateTable</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/lightweaver/broadening.html#ScaledExponentBroadening.broaden"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.broadening.ScaledExponentBroadening.broaden" title="Link to this definition"></a></dt>
 <dd><p>The function that is called by LineBroadening.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

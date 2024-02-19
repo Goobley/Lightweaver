@@ -85,6 +85,7 @@
 <span class="kn">from</span> <span class="nn">weno4</span> <span class="kn">import</span> <span class="n">weno4</span>
 
 <span class="kn">import</span> <span class="nn">lightweaver.constants</span> <span class="k">as</span> <span class="nn">Const</span>
+<span class="kn">from</span> <span class="nn">lightweaver.constants</span> <span class="kn">import</span> <span class="n">VMICRO_CHAR</span>
 <span class="kn">from</span> <span class="nn">.atomic_table</span> <span class="kn">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">PeriodicTable</span>
 <span class="kn">from</span> <span class="nn">.broadening</span> <span class="kn">import</span> <span class="n">LineBroadening</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">gaunt_bf</span><span class="p">,</span> <span class="n">sequence_repr</span>
@@ -323,6 +324,78 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
+<div class="viewcode-block" id="LinearQuadrature">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.LinearQuadrature">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">LinearQuadrature</span><span class="p">(</span><span class="n">LineQuadrature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simple linearly spaced wavelength grid. Primarily provided for CRTAF</span>
+<span class="sd">    interaction.</span>
+
+<span class="sd">    Nlambda : int</span>
+<span class="sd">        The number of wavelength points in the wavelength grid (typically odd).</span>
+<span class="sd">    deltaLambda : int </span>
+<span class="sd">        The half-width of the grid (i.e. from core to one edge) [nm].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">Nlambda</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">deltaLambda</span><span class="p">:</span> <span class="nb">float</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(Nlambda=</span><span class="si">%d</span><span class="s1">, deltaLambda=</span><span class="si">%g</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+             <span class="bp">self</span><span class="o">.</span><span class="n">Nlambda</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">deltaLambda</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+<div class="viewcode-block" id="LinearQuadrature.wavelength">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.LinearQuadrature.wavelength">[docs]</a>
+    <span class="k">def</span> <span class="nf">wavelength</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="s2">&quot;AtomicLine&quot;</span><span class="p">,</span> <span class="n">vMicroChar</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Const</span><span class="o">.</span><span class="n">VMICRO_CHAR</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">lambda0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">deltaLambda</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">lambda0</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">deltaLambda</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nlambda</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LinearQuadrature.doppler_units">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.LinearQuadrature.doppler_units">[docs]</a>
+    <span class="k">def</span> <span class="nf">doppler_units</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="s2">&quot;AtomicLine&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">wavelength_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wavelength</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="n">vMicroChar</span> <span class="o">=</span> <span class="n">VMICRO_CHAR</span>
+        <span class="n">qToLambda</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">lambda0</span> <span class="o">*</span> <span class="p">(</span><span class="n">vMicroChar</span> <span class="o">/</span> <span class="n">Const</span><span class="o">.</span><span class="n">CLight</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">wavelength_grid</span> <span class="o">-</span> <span class="n">line</span><span class="o">.</span><span class="n">lambda0</span><span class="p">)</span> <span class="o">/</span> <span class="n">qToLambda</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TabulatedQuadrature">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.TabulatedQuadrature">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">TabulatedQuadrature</span><span class="p">(</span><span class="n">LineQuadrature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Tabulated wavelength quadrature. Primarily provided for CRTAF interaction.</span>
+
+<span class="sd">    wavelengthGrid : Sequence[float]</span>
+<span class="sd">        The wavelength sample points [nm].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">wavelengthGrid</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(wavelengthGrid=</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">sequence_repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wavelengthGrid</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+<div class="viewcode-block" id="TabulatedQuadrature.wavelength">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.TabulatedQuadrature.wavelength">[docs]</a>
+    <span class="k">def</span> <span class="nf">wavelength</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="s2">&quot;AtomicLine&quot;</span><span class="p">,</span> <span class="n">vMicroChar</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Const</span><span class="o">.</span><span class="n">VMICRO_CHAR</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wavelengthGrid</span><span class="p">)</span> <span class="o">+</span> <span class="n">line</span><span class="o">.</span><span class="n">lambda0</span></div>
+
+
+<div class="viewcode-block" id="TabulatedQuadrature.doppler_units">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.TabulatedQuadrature.doppler_units">[docs]</a>
+    <span class="k">def</span> <span class="nf">doppler_units</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="s2">&quot;AtomicLine&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">wavelength_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wavelength</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="n">vMicroChar</span> <span class="o">=</span> <span class="n">VMICRO_CHAR</span>
+        <span class="n">qToLambda</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">lambda0</span> <span class="o">*</span> <span class="p">(</span><span class="n">vMicroChar</span> <span class="o">/</span> <span class="n">Const</span><span class="o">.</span><span class="n">CLight</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">wavelength_grid</span> <span class="o">-</span> <span class="n">line</span><span class="o">.</span><span class="n">lambda0</span><span class="p">)</span> <span class="o">/</span> <span class="n">qToLambda</span></div>
+</div>
+
+
+
+
 <div class="viewcode-block" id="LinearCoreExpWings">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_model.LinearCoreExpWings">[docs]</a>
 <span class="nd">@dataclass</span>
@@ -331,7 +404,7 @@
 <span class="sd">    RH-Style line quadrature, with approximately linear core spacing and</span>
 <span class="sd">    exponential wing spacing, by using a function of the form</span>
 <span class="sd">    q(n) = a*(n + (exp(b*n)-1))</span>
-<span class="sd">    with n \in [0, N) satisfying the following conditions:</span>
+<span class="sd">    with n in [0, N) satisfying the following conditions:</span>
 
 <span class="sd">     - q[0] = 0</span>
 

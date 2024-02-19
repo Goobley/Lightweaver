@@ -106,22 +106,22 @@ Find the initial statistical equilibrium solution,
     dJ = 9.64e+00
         H delta = 1.0905e+00
         ne delta = 1.6015e-01
-    -- Iteration 28:
-    dJ = 8.70e-02
-        H delta = 5.2471e-02
-        ne delta = 8.2997e-16
-    -- Iteration 52:
-    dJ = 5.61e-02
-        H delta = 3.3457e-02
-        ne delta = 1.3546e-16
-    -- Iteration 76:
-    dJ = 2.21e-02
-        H delta = 1.4337e-02
-        ne delta = 1.3546e-16
-    -- Iteration 100:
-    dJ = 4.19e-03
-        H delta = 2.7958e-03
-        ne delta = 1.3546e-16
+    -- Iteration 29:
+    dJ = 8.46e-02
+        H delta = 5.1054e-02
+        ne delta = 7.0413e-16
+    -- Iteration 54:
+    dJ = 5.37e-02
+        H delta = 3.2221e-02
+        ne delta = 2.7092e-16
+    -- Iteration 79:
+    dJ = 1.85e-02
+        H delta = 1.2072e-02
+        ne delta = 1.7016e-16
+    -- Iteration 104:
+    dJ = 3.03e-03
+        H delta = 2.0272e-03
+        ne delta = 7.0413e-16
     --------------------------------------------------------------------------------
     Final Iteration: 113
     --------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ Find the initial statistical equilibrium solution,
         H delta = 9.6901e-04
         ne delta = 7.0413e-16
     --------------------------------------------------------------------------------
-    Context converged to statistical equilibrium in 113 iterations after 2.57 s.
+    Context converged to statistical equilibrium in 113 iterations after 2.51 s.
     --------------------------------------------------------------------------------
     Achieved initial Stat Eq
 
@@ -310,7 +310,7 @@ Reproduce Judge plot.
 
  .. code-block:: none
 
-    Time taken: 6.23 s
+    Time taken: 6.21 s
 
 
 
@@ -318,7 +318,7 @@ Reproduce Judge plot.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 26.226 seconds)
+   **Total running time of the script:** (0 minutes 26.169 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_JudgeDynamicValidation.py:
