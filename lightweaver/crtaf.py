@@ -33,13 +33,13 @@ def from_crtaf(model: crtaf.Atom) -> AtomicModel:
             S=S,
         )
         levels[label] = lw_level
-    
+
     crtaf_labels = sorted(crtaf_labels, key=lambda x: levels[x].E)
     levels = [levels[l] for l in crtaf_labels]
     level_conversion_dict = {label: idx for idx, label in enumerate(crtaf_labels)}
 
     lines = []
-    for line in model.radiative_bound_bound:
+    for line in model.lines:
         if not isinstance(line, crtaf.VoigtBoundBound):
             raise ValueError(f"Unexpected line type encountered {line!r}, can only handle Voigt/PRD-Voigt.")
 
@@ -103,10 +103,10 @@ def from_crtaf(model: crtaf.Atom) -> AtomicModel:
             broadening=broadening,
         )
         lines.append(lw_line)
-        
+
 
     continua = []
-    for cont in model.radiative_bound_free:
+    for cont in model.continua:
         if isinstance(cont, crtaf.HydrogenicBoundFree):
             lw_cont = HydrogenicContinuum(
                 j=level_conversion_dict[cont.transition[0]],
@@ -127,7 +127,7 @@ def from_crtaf(model: crtaf.Atom) -> AtomicModel:
         continua.append(lw_cont)
 
     collisions = []
-    for coll in model.collisional_rates:
+    for coll in model.collisions:
         j = level_conversion_dict[coll.transition[0]]
         i = level_conversion_dict[coll.transition[1]]
         for process in coll.data:
