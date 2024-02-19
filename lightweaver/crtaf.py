@@ -1,3 +1,5 @@
+import warnings
+
 import astropy.units as u
 import crtaf
 from fractions import Fraction
@@ -182,6 +184,8 @@ def from_crtaf(model: crtaf.Atom) -> AtomicModel:
                 raise ValueError(f"Unexpected collisional rate encountered ({coll}), expected one of [Omega, CI, CE, CH, CP, ChargeExcH, ChargeExcP].")
             collisions.append(lw_coll)
 
+    if model.element.N is not None:
+        warnings.warn("N provided. Whilst Lightweaver has the ability to handle isotopes, the CRTAF parser currently does not.")
     lw_model = AtomicModel(
         element=PeriodicTable[model.element.symbol],
         levels=levels,
