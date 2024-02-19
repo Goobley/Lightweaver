@@ -7,6 +7,7 @@ import numpy as np
 from weno4 import weno4
 
 import lightweaver.constants as Const
+from lightweaver.constants import VMICRO_CHAR
 from .atomic_table import Element, PeriodicTable
 from .broadening import LineBroadening
 from .utils import gaunt_bf, sequence_repr
@@ -222,12 +223,66 @@ class LineQuadrature:
         raise NotImplementedError
 
 @dataclass
+class LinearQuadrature(LineQuadrature):
+    """
+    Simple linearly spaced wavelength grid. Primarily provided for CRTAF
+    interaction.
+
+    Nlambda : int
+        The number of wavelength points in the wavelength grid (typically odd).
+    deltaLambda : int 
+        The half-width of the grid (i.e. from core to one edge) [nm].
+    """
+    Nlambda: int
+    deltaLambda: float
+
+    def __repr__(self):
+        s = '%s(Nlambda=%d, deltaLambda=%g)' % (type(self).__name__,
+             self.Nlambda, self.deltaLambda)
+        return s
+
+    def wavelength(self, line: "AtomicLine", vMicroChar: float = Const.VMICRO_CHAR) -> np.ndarray:
+        return np.linspace(line.lambda0 - self.deltaLambda, line.lambda0 + self.deltaLambda, self.Nlambda)
+
+    def doppler_units(self, line: "AtomicLine") -> np.ndarray:
+        wavelength_grid = self.wavelength(line)
+        vMicroChar = VMICRO_CHAR
+        qToLambda = line.lambda0 * (vMicroChar / Const.CLight)
+        return (wavelength_grid - line.lambda0) / qToLambda
+
+
+@dataclass
+class TabulatedQuadrature(LineQuadrature):
+    """
+    Tabulated wavelength quadrature. Primarily provided for CRTAF interaction.
+
+    wavelengthGrid : Sequence[float]
+        The wavelength sample points [nm].
+    """
+    wavelengthGrid: Sequence[float]
+
+    def __repr__(self):
+        s = '%s(wavelengthGrid=%s)' % (type(self).__name__, sequence_repr(self.wavelengthGrid))
+        return s
+
+    def wavelength(self, line: "AtomicLine", vMicroChar: float = Const.VMICRO_CHAR) -> np.ndarray:
+        return np.ascontiguousarray(self.wavelengthGrid) + line.lambda0
+
+    def doppler_units(self, line: "AtomicLine") -> np.ndarray:
+        wavelength_grid = self.wavelength(line)
+        vMicroChar = VMICRO_CHAR
+        qToLambda = line.lambda0 * (vMicroChar / Const.CLight)
+        return (wavelength_grid - line.lambda0) / qToLambda
+
+
+
+@dataclass
 class LinearCoreExpWings(LineQuadrature):
     """
     RH-Style line quadrature, with approximately linear core spacing and
     exponential wing spacing, by using a function of the form
     q(n) = a*(n + (exp(b*n)-1))
-    with n \in [0, N) satisfying the following conditions:
+    with n in [0, N) satisfying the following conditions:
 
      - q[0] = 0
 

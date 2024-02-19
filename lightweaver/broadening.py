@@ -505,3 +505,93 @@ class HydrogenLinearStarkBroadening(StandardLineBroadener):
         C = a1 * 0.6 * (nUpper**2 - nLower**2) * Const.CM_TO_M**2
         GStark = C * atmos.ne**(2.0/3.0)
         return GStark
+
+@dataclass(eq=False)
+class ScaledExponentBroadening(StandardLineBroadener):
+    '''
+    Broadening implementation following the CRTAF ScaledExponents recipe.
+        scaling * T**a * n_H(0)**b * n_e**c
+
+    scaling : float
+        Scalar multiplication term
+    temperatureExp : float
+        Temperature exponent
+    hydrogenExp : float
+        Neutral (ground-state) hydrogen density exponent
+    electronExp : float
+        Electron density exponent
+    '''
+    scaling: float
+    temperatureExp: float
+    hydrogenExp: float
+    electronExp: float
+    line: 'AtomicLine' = field(init=False)
+
+    def setup(self, line: 'AtomicLine'):
+        self.line = line
+
+    def __repr__(self):
+        s = '%s(scaling=%g, temperatureExp=%g, hydrogenExp=%g, electronExp=%g)' % (type(self).__name__, 
+                self.scaling, self.temperatureExp, self.hydrogenExp, self.electronExp)
+        return s
+
+    def __eq__(self, other):
+        if type(self) is not type(other):
+            return False
+
+        if self.scaling != other.scaling:
+            return False
+        if self.temperatureExp != other.temperatureExp:
+            return False
+        if self.hydrogenExp != other.hydrogenExp:
+            return False
+        if self.electronExp != other.electronExp:
+            return False
+
+        try:
+            if self.line != other.line:
+                return False
+        except AttributeError:
+            pass
+
+        return True
+
+    def broaden(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable') -> np.ndarray:
+        '''
+        The function that is called by LineBroadening.
+
+        Parameters
+        ----------
+        atmos : Atmosphere
+            The atmosphere in which to compute the broadening.
+        eqPops : SpeciesStateTable
+            The populations to use for computing the broadening.
+
+        Returns
+        -------
+        broad : np.ndarray
+            An array detailing the broadening at each location in the
+            atmosphere [Nspace].
+        '''
+        result = np.ones_like(atmos.temperature)
+
+        if self.temperatureExp > 0.0:
+            if self.temperatureExp == 1.0:
+                result *= atmos.temperature
+            else:
+                result *= atmos.temperature**self.temperatureExp
+
+        if self.hydrogenExp > 0.0:
+            nHGround = eqPops['H'][0, :]
+            if self.hydrogenExp == 1.0:
+                result *= nHGround
+            else:
+                result *= nHGround**self.hydrogenExp
+
+        if self.electronExp > 0.0:
+            if self.electronExp == 1.0:
+                result *= atmos.ne
+            else:
+                result *= atmos.ne**self.electronExp
+
+        return self.scaling * result
