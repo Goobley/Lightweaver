@@ -876,8 +876,12 @@ class Atmosphere:
         '''
         if scale == ScaleType.Geometric:
             depthScale = (depthScale << u.m).value
+            if np.any((depthScale[:-1] - depthScale[1:]) < 0.0):
+                raise ValueError("Geometric depth scale should be provided in decreasing height.")
         elif scale == ScaleType.ColumnMass:
             depthScale = (depthScale << u.kg / u.m**2).value
+            if np.any((depthScale[1:] - depthScale[:-1]) < 0.0):
+                raise ValueError("Column mass depth scale should be provided in increasing column mass.")
 
         check_shape = lambda x, xName: check_shape_exception(x,
                                             depthScale.shape[0], 1, xName)
@@ -1235,7 +1239,11 @@ class Atmosphere:
         '''
 
         x = (x << u.m).value
+        if np.any((x[1:] - x[:-1]) < 0.0):
+            raise ValueError("x should be increasing with index (left -> right).")
         height = (height << u.m).value
+        if np.any((height[:-1] - height[1:]) < 0.0):
+            raise ValueError("Height should be decreasing with index (top -> bottom).")
         temperature = (temperature << u.K).value
         vx = (vx << u.m / u.s).value
         vz = (vz << u.m / u.s).value
