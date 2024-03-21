@@ -724,7 +724,7 @@ class ExplicitContinuum(AtomicContinuum):
             raise ValueError(('Wavelength array not monotonically'
                               ' increasing in continuum %s') % repr(self))
         self.alphaGrid = np.asarray(self.alphaGrid) # type: ignore
-        if self.lambdaEdge > self.wavelengthGrid[-1]:
+        if self.lambdaEdge - self.wavelengthGrid[-1] > 0.01:
             wav = np.concatenate((self.wavelengthGrid, np.array([self.lambdaEdge])))
             self.wavelengthGrid = wav
             self.alphaGrid = np.concatenate((self.alphaGrid, np.array([self.alphaGrid[-1]])))
