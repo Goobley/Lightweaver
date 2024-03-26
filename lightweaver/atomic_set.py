@@ -25,10 +25,10 @@ def lte_pops_impl(temperature, ne, nTotal, stages, energies,
           * (Const.HPlanck / Const.KBoltzmann))
 
     c2 = 0.0
+    nDebye = np.zeros(Nlevel)
     if debye:
         c2 = (np.sqrt(8.0 * np.pi / Const.KBoltzmann)
               * (Const.QElectron**2 / (4.0 * np.pi * Const.Epsilon0))**1.5)
-        nDebye = np.zeros(Nlevel)
         for i in range(1, Nlevel):
             stage = stages[i]
             Z = stage
