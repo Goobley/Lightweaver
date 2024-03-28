@@ -137,10 +137,13 @@ class Barklem:
 
         reducedMass = Const.Amu / (1.0 / PeriodicTable[1].mass + 1.0 / atom.element.mass)
         meanVel = np.sqrt(8.0 * Const.KBoltzmann / (np.pi * reducedMass))
-        meanCross = Const.RBohr**2 * (meanVel / 1.0e4)**(-result[1])
+        sigma = result[0]
+        alpha = result[1]
+        crossSection = sigma * Const.RBohr**2 * (meanVel / 1.0e4)**(-alpha)
 
-        result[0] = (result[0] * 2.0 * (4.0 / np.pi)**(result[1]/2.0)
-                     * gamma(4.0 - result[1] / 2.0) * meanVel * meanCross)
+        # NOTE(cmo): This is w/N/T^(0.5*(1.0-alpha)) (eq 3 without temperature contrib, multiplied by 2 for half-width)
+        result[0] = 2.0 * ((4.0 / np.pi)**(alpha / 2.0)
+                     * gamma(2.0 - alpha / 2.0) * meanVel * crossSection)
 
         # Use Unsold for Helium contribution
         result[2] = 1.0
