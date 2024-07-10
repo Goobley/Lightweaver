@@ -29,7 +29,7 @@ dependencies = [
     "numpy>=1.19; python_version == '3.8'",
     "numpy; python_version >= '3.8'",
     "numba~=0.56; python_version < '3.12'",
-    "numba==0.59.0rc1; python_version >= '3.12'",
+    "numba>=0.59.0; python_version >= '3.12'",
     "matplotlib",
     "scipy",
     "parse",

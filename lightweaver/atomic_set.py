@@ -234,7 +234,7 @@ class SpectrumConfiguration:
                        for k, v in self.activeWavelengths.items()}
         transGrids = {k: np.copy(wavelengths) for k, active in activeTrans.items()
                       if active}
-        activeWavelengths = {k: np.ones_like(wavelengths, dtype=np.bool8)
+        activeWavelengths = {k: np.ones_like(wavelengths, dtype=bool)
                              for k in transGrids}
         blueIdx = {k: 0 for k in transGrids}
         redIdx = {k: Nwavelengths for k in transGrids}
