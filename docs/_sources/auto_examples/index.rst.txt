@@ -10,6 +10,7 @@ See some simple examples for using Lightweaver.
 
     <div class="sphx-glr-thumbnails">
 
+.. thumbnail-parent-div-open
 
 .. raw:: html
 
@@ -44,6 +45,8 @@ See some simple examples for using Lightweaver.
       <div class="sphx-glr-thumbnail-title">Computing a simple NLTE 8542 line profile in a FAL C atmosphere</div>
     </div>
 
+
+.. thumbnail-parent-div-close
 
 .. raw:: html
 
