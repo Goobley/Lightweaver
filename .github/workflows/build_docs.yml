@@ -32,7 +32,7 @@ jobs:
     - name: Pack docs
       run: tar -cvf docs.tar docs/_build/html
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: docs
         path: docs.tar
@@ -46,7 +46,7 @@ jobs:
       with:
         ref: gh-pages
 
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v4
       with:
         name: docs
         path: NewDocs
