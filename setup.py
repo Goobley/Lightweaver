@@ -89,7 +89,7 @@ class LwBuildExt(build_ext):
                     lib_name = path.split(filename)[1]
                     if any(arg == '-install_name' for arg in ext.extra_link_args):
                         continue
-                    install_name = ['-install_name', f'@rpath/{lib_name}']
+                    install_name = ['-dynamiclib', '-install_name', f'@rpath/{lib_name}']
                     ext.extra_link_args = ext.extra_link_args + install_name
         super().run()
 
