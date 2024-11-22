@@ -1,11 +1,11 @@
 [build-system]
 requires = [
-    "setuptools>=45",
+    "setuptools>=64",
     "wheel",
     "setuptools_scm[toml]>=3.4",
     "cython",
     "numpy==1.19; python_version == '3.8'",
-    "numpy>=1.25; python_version > '3.8'",
+    "numpy>=2.0,<2.1; python_version > '3.8'",
 ]
 build-backend = 'setuptools.build_meta'
 
@@ -27,9 +27,9 @@ readme = "README.md"
 license = { text = "MIT License" }
 dependencies = [
     "numpy>=1.19; python_version == '3.8'",
-    "numpy; python_version >= '3.8'",
-    "numba~=0.56; python_version < '3.12'",
-    "numba>=0.59.0; python_version >= '3.12'",
+    "numpy>=2.0,<2.1; python_version > '3.8'",
+    "numba~=0.56; python_version == '3.8'",
+    "numba~=0.60; python_version > '3.8'",
     "matplotlib",
     "scipy",
     "parse",

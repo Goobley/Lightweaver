@@ -13,30 +13,45 @@ struct NgChange
     i64 dMaxIdx;
 };
 
+struct NgArgs {
+    int nOrder;
+    int nPeriod;
+    int nDelay;
+    f64 threshold;
+    f64 lowerThreshold;
+};
+
 struct Ng
 {
     int len;
     int Norder;
     int Nperiod;
     int Ndelay;
+    f64 threshold;
+    f64 lowerThreshold;
     F64Arr2D previous;
+    F64Arr1D prevRelChange;
+    NgChange prevNgChange;
     int count;
     bool init;
 
     Ng() : len(0), Norder(0), Nperiod(0), Ndelay(0),
-           previous{}, count(0), init(false)
+           threshold(0.0), lowerThreshold(0.0),
+           previous{}, prevRelChange{}, prevNgChange{},
+           count(0), init(false)
     {}
 
-    Ng(int nOrder, int nPeriod, int nDelay, F64View sol)
-       : len(sol.shape(0)), Norder(nOrder), Nperiod(nPeriod),
-         Ndelay(max(nDelay, nPeriod+2)),
-         previous(0.0, Norder+2, len), count(0), init(true)
+    Ng(const NgArgs& args, F64View sol)
+       : len(sol.shape(0)), Norder(args.nOrder), Nperiod(args.nPeriod),
+         Ndelay(max(args.nDelay, args.nPeriod+2)),
+         threshold(args.threshold), lowerThreshold(args.lowerThreshold),
+         previous(0.0, Norder+2, len), prevRelChange(10.0, Norder+2),
+         prevNgChange{}, count(0), init(true)
     {
         auto storage = previous(count);
         for (int k = 0; k < len; ++k)
             storage(k) = sol(k);
         count += 1;
-        // printf("Ng: %d, %d, %d; %d\n", Norder, Nperiod, Ndelay, len);
     }
 
     Ng(const Ng& other) = default;
@@ -56,6 +71,7 @@ struct Ng
             // NOTE(cmo): If we got to here without being initialised then we're just being used for max_change
             len = sol.shape(0);
             previous = F64Arr2D(0.0, 2, len);
+            prevRelChange = F64Arr1D(1.0, 2);
             init = true;
         }
 
@@ -63,12 +79,24 @@ struct Ng
         for (int k = 0; k < len; ++k)
             previous(idx, k) = sol(k);
         count += 1;
+        compute_max_change();
+        prevRelChange(idx) = prevNgChange.dMax;
 
         if (!((Norder > 0)
               && (count >= Ndelay)
               && ((count - Ndelay) % Nperiod) == 0)
            )
             return false;
+
+        if (prevNgChange.dMax < lowerThreshold)
+            return false;
+
+        for (int i = 0; i < prevRelChange.shape(0); ++i)
+        {
+            if (prevRelChange(i) > threshold) {
+                return false;
+            }
+        }
 
         auto Delta = F64Arr2D(Norder + 1, len);
         auto weight = F64Arr(len);
@@ -135,7 +163,7 @@ struct Ng
         return { dMax, maxIdx };
     }
 
-    inline NgChange max_change()
+    inline NgChange compute_max_change()
     {
         if (!init || count < 2)
             return { 0.0, 0 };
@@ -152,7 +180,13 @@ struct Ng
                 dMax = max_idx(dMax, change, maxIdx, k);
             }
         }
+        prevNgChange = { dMax, maxIdx };
         return { dMax, maxIdx };
+    }
+
+    inline NgChange max_change()
+    {
+        return prevNgChange;
     }
 
     inline void clear()

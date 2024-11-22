@@ -196,13 +196,19 @@ IterationResult redistribute_prd_lines_template(Context& ctx, int maxIter, f64 t
 
     std::vector<PrdData> prdLines;
     prdLines.reserve(10);
+    NgArgs ngArgs;
+    ngArgs.nOrder = 0;
+    ngArgs.nPeriod = 0;
+    ngArgs.nDelay = 0;
+    ngArgs.threshold = 0.0;
+    ngArgs.lowerThreshold = 0.0;
     for (auto& a : activeAtoms)
     {
         for (auto& t : a->trans)
         {
             if (t->rhoPrd)
             {
-                prdLines.emplace_back(PrdData(t, *a, Ng(0, 0, 0, t->rhoPrd.flatten())));
+                prdLines.emplace_back(PrdData(t, *a, Ng(ngArgs, t->rhoPrd.flatten())));
             }
         }
     }
@@ -214,7 +220,7 @@ IterationResult redistribute_prd_lines_template(Context& ctx, int maxIter, f64 t
             {
                 if (t->rhoPrd)
                 {
-                    prdLines.emplace_back(PrdData(t, *a, Ng(0, 0, 0, t->rhoPrd.flatten())));
+                    prdLines.emplace_back(PrdData(t, *a, Ng(ngArgs, t->rhoPrd.flatten())));
                 }
             }
         }

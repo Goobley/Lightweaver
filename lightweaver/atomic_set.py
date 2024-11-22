@@ -851,7 +851,7 @@ class RadiativeSet:
     def iterate_lte_ne_eq_pops(self, atmos: Atmosphere,
                                mols: Optional[MolecularTable]=None,
                                nlteStartingPops: Optional[Dict[Element, np.ndarray]]=None,
-                               direct: bool=False) -> SpeciesStateTable:
+                               direct: bool=False, quiet: bool=False) -> SpeciesStateTable:
         '''
         Compute the starting populations for the simulation with all NLTE
         atoms in LTE or otherwise using the provided populations.
@@ -871,6 +871,8 @@ class RadiativeSet:
             Lambda iteration for the fixpoint), this may require many more
             iterations than the Newton-Krylov solver used otherwise, but may
             also be more robust.
+        quiet : bool, optional
+            Whether to print convergence info (default: True).
 
         Returns
         -------
@@ -918,13 +920,13 @@ class RadiativeSet:
                 atmos.ne[:] = ne
 
                 relDiff = np.nanmax(np.abs(1.0 - prevNe / ne))
-                print(relDiff)
                 maxRelDiff = np.nanmax(relDiff)
                 if maxRelDiff < 1e-3:
-                    print("Iterate LTE: %d iterations" % it)
+                    if not quiet:
+                        print("Iterate LTE: %d iterations" % it)
                     break
             else:
-                print("LTE ne failed to converge")
+                raise ValueError("LTE ne failed to converge")
         else:
             neRatio = np.copy(atmos.ne) / atmos.nHTot
             iterator = LteNeIterator(self.atoms.values(), atmos.temperature,
@@ -954,7 +956,7 @@ class RadiativeSet:
                                                       detailed=True, pops=nltePops))
 
         table = AtomicStateTable(detailedAtomicPops)
-        eqPops = chemical_equilibrium_fixed_ne(atmos, mols, table, self.abundance)
+        eqPops = chemical_equilibrium_fixed_ne(atmos, mols, table, self.abundance, quiet=quiet)
         # NOTE(cmo): This is technically not quite correct, because we adjust
         # nTotal and the atomic populations to account for the atoms bound up
         # in molecules, but not n_e, this is unlikely to make much difference
@@ -1116,7 +1118,8 @@ def hminus_pops(atmos: Atmosphere, hPops: AtomicState) -> np.ndarray:
 
 def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable,
                                   atomicPops: AtomicStateTable,
-                                  abundance: AtomicAbundance) -> SpeciesStateTable:
+                                  abundance: AtomicAbundance,
+                                  quiet: bool = False) -> SpeciesStateTable:
     '''
     Compute the molecular populations from the current atmospheric model and
     atomic populations.
@@ -1135,6 +1138,9 @@ def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable,
         The atomic populations.
     abundance : AtomicAbundance
         The abundance of each species in the simulation.
+    quiet : bool, optional
+        Whether to print convergence info (default: True).
+
 
     Returns
     -------
@@ -1275,5 +1281,6 @@ def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable,
             pop[k] = n[Nnuclei + i]
 
     result = SpeciesStateTable(atmos, abundance, atomicPops, molecules, molPops, HminPops)
-    print("chem_eq: maximum number of iterations taken: %d" % maxIter)
+    if not quiet:
+        print("chem_eq: maximum number of iterations taken: %d" % maxIter)
     return result

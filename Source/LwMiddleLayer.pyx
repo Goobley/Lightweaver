@@ -215,13 +215,22 @@ cdef extern from "Ng.hpp":
         f64 dMax
         i64 dMaxIdx
 
+    cdef cppclass NgArgs:
+        int nOrder
+        int nPeriod
+        int nDelay
+        f64 threshold
+        f64 lowerThreshold
+
     cdef cppclass Ng:
         int Norder
         int Nperiod
         int Ndelay
+        f64 threshold
+        f64 lowerThreshold
         bool_t init
         Ng()
-        Ng(int nOrder, int nPeriod, int nDelay, F64View sol)
+        Ng(const NgArgs& args, F64View sol)
         bool_t accelerate(F64View sol)
         NgChange max_change()
         NgChange relative_change_from_prev(F64View newSol)
@@ -2418,10 +2427,21 @@ cdef class LwAtom:
         if doInitSol and initSol == InitialSolution.EscapeProbability and Ntrans > 0:
             self.set_pops_escape_probability(self.atmos, background, conserveCharge=conserveCharge)
 
+        cdef NgArgs args
         if ngOptions is not None:
-            self.atom.ng = Ng(ngOptions.Norder, ngOptions.Nperiod, ngOptions.Ndelay, self.atom.n.flatten())
+            args.nOrder = ngOptions.Norder
+            args.nPeriod = ngOptions.Nperiod
+            args.nDelay = ngOptions.Ndelay
+            args.threshold = ngOptions.threshold
+            args.lowerThreshold = ngOptions.lowerThreshold
         else:
-            self.atom.ng = Ng(0,0,0, self.atom.n.flatten())
+            args.nOrder = 0
+            args.nPeriod = 0
+            args.nDelay = 0
+            args.threshold = 0.0
+            args.lowerThreshold = 0.0
+
+        self.atom.ng = Ng(args, self.atom.n.flatten())
 
     def __getstate__(self):
         state = {}
@@ -2436,7 +2456,7 @@ cdef class LwAtom:
         state['nStar'] = self.modelPops.nStar
         state['n'] = self.modelPops.n
         state['stages'] = np.asarray(self.stages)
-        state['Ng'] = (self.atom.ng.Norder, self.atom.ng.Nperiod, self.atom.ng.Ndelay)
+        state['Ng'] = (self.atom.ng.Norder, self.atom.ng.Nperiod, self.atom.ng.Ndelay, self.atom.ng.threshold, self.atom.ng.lowerThreshold)
         if self.detailed:
             state['Gamma'] = None
             state['C'] = None
@@ -2487,7 +2507,13 @@ cdef class LwAtom:
         self.atom.n = f64_view_2(self.n)
 
         ng = state['Ng']
-        self.atom.ng = Ng(ng[0], ng[1], ng[2], self.atom.n.flatten())
+        cdef NgArgs args
+        args.nOrder = ng[0]
+        args.nPeriod = ng[1]
+        args.nDelay = ng[2]
+        args.threshold = ng[3]
+        args.lowerThreshold = ng[4]
+        self.atom.ng = Ng(args, self.atom.n.flatten())
         self.fsIterSchemeProperties = state['fsIterSchemeProperties']
         cdef bool_t defaultPerAtomStorage = self.fsIterSchemeProperties['defaultPerAtomStorage']
         cdef bool_t defaultWlaGijStorage = self.fsIterSchemeProperties['defaultWlaGijStorage']
@@ -2495,10 +2521,16 @@ cdef class LwAtom:
                                defaultWlaGijStorage, defaultPerAtomStorage)
 
     def load_pops_rates_prd_from_state(self, prevState, popsOnly=False, preserveProfiles=False):
+        cdef NgArgs args
         if not self.detailed:
             np.asarray(self.n)[:] = prevState['n']
             ng = prevState['Ng']
-            self.atom.ng = Ng(ng[0], ng[1], ng[2], self.atom.n.flatten())
+            args.nOrder = ng[0]
+            args.nPeriod = ng[1]
+            args.nDelay = ng[2]
+            args.threshold = ng[3]
+            args.lowerThreshold = ng[4]
+            self.atom.ng = Ng(args, self.atom.n.flatten())
 
         if popsOnly:
             return
@@ -2549,7 +2581,13 @@ cdef class LwAtom:
         if conserveCharge:
             prevN = np.copy(self.n)
 
-        self.atom.ng = Ng(0,0,0, self.atom.n.flatten())
+        cdef NgArgs args
+        args.nOrder = 0
+        args.nPeriod = 0
+        args.nDelay = 0
+        args.threshold = 0.0
+        args.lowerThreshold = 0.0
+        self.atom.ng = Ng(args, self.atom.n.flatten())
         start = time.time()
         for it in range(Niter):
             Gamma.fill(0.0)

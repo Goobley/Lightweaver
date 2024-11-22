@@ -95,8 +95,6 @@ class LwBuildExt(build_ext):
 
     def finalize_options(self):
         super().finalize_options()
-        if self.is_editable_build:
-            self.build_lib = BuildDir
         if sys.platform != 'darwin':
             return
 

@@ -25,15 +25,23 @@ class NgOptions:
     Attributes
     ----------
     Norder : int, optional
-        The order of the extrapolation to use (default: 0, i.e. none).
+        The order of the acceleration scheme to use (default: 0, i.e. none).
     Nperiod : int, optional
-        The number of iterations to run between extrapolations.
+        The number of iterations to run between accelerations.
     Ndelay : int, optional
         The number of iterations to run before starting acceleration.
+    threshold : float, optional
+        The threshold which all historic iterations (Norder+2) must be below for
+        acceleration. Default, 5e-2
+    lowerThreshold : float, optional
+        The threshold below which to disable Ng acceleration. Default, 2e-4
     '''
     Norder: int = 0
     Nperiod: int = 0
     Ndelay: int = 0
+    threshold: float = 5e-2
+    lowerThreshold: float = 2e-4
+
 
 class InitialSolution(Enum):
     '''
