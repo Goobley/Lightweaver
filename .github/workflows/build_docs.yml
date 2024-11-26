@@ -19,9 +19,12 @@ jobs:
 
     - run: python -m pip install sphinx sphinx-rtd-theme sphinx-gallery
 
-    - run: python -m pip install .
+    - run: python -m pip install -vvv .
       env:
         LW_CI_BUILD: false
+        LW_NO_SSE2_LIB: true
+        LW_NO_AVX2FMA_LIB: true
+        LW_NO_AVX512_LIB: true
 
     - name: Build docs
       run: |
