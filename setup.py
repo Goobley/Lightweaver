@@ -236,7 +236,7 @@ else:
     buildArgs = posixArgs
 
 SimdImpls = ['SSE2', 'AVX2FMA', 'AVX512']
-for simd in SimdImpls:
+for simd in list(SimdImpls):
     if f'LW_NO_{simd}_LIB' in os.environ:
         SimdImpls.remove(simd)
 
