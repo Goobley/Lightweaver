@@ -37,6 +37,9 @@ from setuptools.extension import Extension
 BuildDir = 'LwBuild'
 CI_BUILD = 'LW_CI_BUILD' in os.environ
 
+# NOTE(cmo): Whilst we're building a library, if we inherit from Library,
+# setuptools detects the libenkiTS as a dependency and makes LwCompiled use
+# stubs (on macos), and then things fail to import.
 class LwSharedLibraryNoExtension(Extension):
     pass
 
@@ -89,7 +92,7 @@ class LwBuildExt(build_ext):
                     lib_name = path.split(filename)[1]
                     if any(arg == '-install_name' for arg in ext.extra_link_args):
                         continue
-                    install_name = ['-dynamiclib', '-install_name', f'@rpath/{lib_name}']
+                    install_name = ['-install_name', f'@rpath/{lib_name}']
                     ext.extra_link_args = ext.extra_link_args + install_name
         super().run()
 
@@ -101,7 +104,16 @@ class LwBuildExt(build_ext):
         lw_shlibs = [ext for ext in self.extensions
                      if isinstance(ext, LwSharedLibraryNoExtension)]
         if lw_shlibs:
+            # NOTE(cmo): All based on current setuptools build_ext and distutils' sysconfig
+            self._base_compiler = self.compiler
             self.setup_shlib_compiler()
+            cxx = os.environ.get('CXX', get_config_var('CXX'))
+            ldcxxshared = os.environ.get('LDCXXSHARED', ' '.join([cxx, '-dynamiclib', '-undefined', 'dynamic_lookup']))
+            for flagname in ['LD', 'CXX', 'CPP']:
+                flags = os.environ.get(f'{flagname}FLAGS')
+                if flags:
+                    ldcxxshared = f"{ldcxxshared} {flags}"
+            self.shlib_compiler.set_executables(linker_so_cxx=ldcxxshared)
 
     def build_extension(self, ext):
         if sys.platform != 'darwin':
