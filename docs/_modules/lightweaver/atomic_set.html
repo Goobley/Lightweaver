@@ -1003,7 +1003,7 @@
     <span class="k">def</span> <span class="nf">iterate_lte_ne_eq_pops</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="n">Atmosphere</span><span class="p">,</span>
                                <span class="n">mols</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MolecularTable</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                <span class="n">nlteStartingPops</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                               <span class="n">direct</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpeciesStateTable</span><span class="p">:</span>
+                               <span class="n">direct</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">quiet</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpeciesStateTable</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Compute the starting populations for the simulation with all NLTE</span>
 <span class="sd">        atoms in LTE or otherwise using the provided populations.</span>
@@ -1023,6 +1023,8 @@
 <span class="sd">            Lambda iteration for the fixpoint), this may require many more</span>
 <span class="sd">            iterations than the Newton-Krylov solver used otherwise, but may</span>
 <span class="sd">            also be more robust.</span>
+<span class="sd">        quiet : bool, optional</span>
+<span class="sd">            Whether to print convergence info (default: True).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1070,13 +1072,13 @@
                 <span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">ne</span>
 
                 <span class="n">relDiff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">prevNe</span> <span class="o">/</span> <span class="n">ne</span><span class="p">))</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">relDiff</span><span class="p">)</span>
                 <span class="n">maxRelDiff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">relDiff</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">maxRelDiff</span> <span class="o">&lt;</span> <span class="mf">1e-3</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Iterate LTE: </span><span class="si">%d</span><span class="s2"> iterations&quot;</span> <span class="o">%</span> <span class="n">it</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Iterate LTE: </span><span class="si">%d</span><span class="s2"> iterations&quot;</span> <span class="o">%</span> <span class="n">it</span><span class="p">)</span>
                     <span class="k">break</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;LTE ne failed to converge&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;LTE ne failed to converge&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">neRatio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">)</span> <span class="o">/</span> <span class="n">atmos</span><span class="o">.</span><span class="n">nHTot</span>
             <span class="n">iterator</span> <span class="o">=</span> <span class="n">LteNeIterator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span>
@@ -1106,7 +1108,7 @@
                                                       <span class="n">detailed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pops</span><span class="o">=</span><span class="n">nltePops</span><span class="p">))</span>
 
         <span class="n">table</span> <span class="o">=</span> <span class="n">AtomicStateTable</span><span class="p">(</span><span class="n">detailedAtomicPops</span><span class="p">)</span>
-        <span class="n">eqPops</span> <span class="o">=</span> <span class="n">chemical_equilibrium_fixed_ne</span><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="n">mols</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">abundance</span><span class="p">)</span>
+        <span class="n">eqPops</span> <span class="o">=</span> <span class="n">chemical_equilibrium_fixed_ne</span><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="n">mols</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">abundance</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">)</span>
         <span class="c1"># NOTE(cmo): This is technically not quite correct, because we adjust</span>
         <span class="c1"># nTotal and the atomic populations to account for the atoms bound up</span>
         <span class="c1"># in molecules, but not n_e, this is unlikely to make much difference</span>
@@ -1281,7 +1283,8 @@
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.chemical_equilibrium_fixed_ne">[docs]</a>
 <span class="k">def</span> <span class="nf">chemical_equilibrium_fixed_ne</span><span class="p">(</span><span class="n">atmos</span><span class="p">:</span> <span class="n">Atmosphere</span><span class="p">,</span> <span class="n">molecules</span><span class="p">:</span> <span class="n">MolecularTable</span><span class="p">,</span>
                                   <span class="n">atomicPops</span><span class="p">:</span> <span class="n">AtomicStateTable</span><span class="p">,</span>
-                                  <span class="n">abundance</span><span class="p">:</span> <span class="n">AtomicAbundance</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpeciesStateTable</span><span class="p">:</span>
+                                  <span class="n">abundance</span><span class="p">:</span> <span class="n">AtomicAbundance</span><span class="p">,</span>
+                                  <span class="n">quiet</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpeciesStateTable</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Compute the molecular populations from the current atmospheric model and</span>
 <span class="sd">    atomic populations.</span>
@@ -1300,6 +1303,9 @@
 <span class="sd">        The atomic populations.</span>
 <span class="sd">    abundance : AtomicAbundance</span>
 <span class="sd">        The abundance of each species in the simulation.</span>
+<span class="sd">    quiet : bool, optional</span>
+<span class="sd">        Whether to print convergence info (default: True).</span>
+
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1440,7 +1446,8 @@
             <span class="n">pop</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">n</span><span class="p">[</span><span class="n">Nnuclei</span> <span class="o">+</span> <span class="n">i</span><span class="p">]</span>
 
     <span class="n">result</span> <span class="o">=</span> <span class="n">SpeciesStateTable</span><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="n">abundance</span><span class="p">,</span> <span class="n">atomicPops</span><span class="p">,</span> <span class="n">molecules</span><span class="p">,</span> <span class="n">molPops</span><span class="p">,</span> <span class="n">HminPops</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;chem_eq: maximum number of iterations taken: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">maxIter</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;chem_eq: maximum number of iterations taken: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">maxIter</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">result</span></div>
 
 </pre></div>

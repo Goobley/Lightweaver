@@ -103,15 +103,23 @@
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    Norder : int, optional</span>
-<span class="sd">        The order of the extrapolation to use (default: 0, i.e. none).</span>
+<span class="sd">        The order of the acceleration scheme to use (default: 0, i.e. none).</span>
 <span class="sd">    Nperiod : int, optional</span>
-<span class="sd">        The number of iterations to run between extrapolations.</span>
+<span class="sd">        The number of iterations to run between accelerations.</span>
 <span class="sd">    Ndelay : int, optional</span>
 <span class="sd">        The number of iterations to run before starting acceleration.</span>
+<span class="sd">    threshold : float, optional</span>
+<span class="sd">        The threshold which all historic iterations (Norder+2) must be below for</span>
+<span class="sd">        acceleration. Default, 5e-2</span>
+<span class="sd">    lowerThreshold : float, optional</span>
+<span class="sd">        The threshold below which to disable Ng acceleration. Default, 2e-4</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">Norder</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">Nperiod</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">Ndelay</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span></div>
+    <span class="n">Ndelay</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5e-2</span>
+    <span class="n">lowerThreshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2e-4</span></div>
+
 
 
 <div class="viewcode-block" id="InitialSolution">
