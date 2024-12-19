@@ -12,8 +12,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      # NOTE(cmo): fetch-tags is broken when this is triggered by a tag...
+      # https://github.com/actions/checkout/issues/1467
       with:
-        fetch-tags: true
+        # fetch-tags: true
+        fetch-depth: 0
+
+    # NOTE(cmo): Manually fetch tags
+    - name: Fetch tags
+      run: git fetch --tags
 
     - uses: actions/setup-python@v5
       with:
