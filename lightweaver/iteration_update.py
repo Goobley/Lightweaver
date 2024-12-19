@@ -30,8 +30,8 @@ class IterationUpdate:
     dPopsMaxIdx : List[int]
         The location of the maximum change in each population in the flattened
         population array.
-    ngAccelerated : bool
-        Whether the atomic populations were modified by Ng Acceleration.
+    ngAccelerated : List[bool]
+        Whether the atomic populations were modified by Ng Acceleration (per species, due to thresholding).
     updatedNe : bool
         Whether the electron density in the atmosphere was affected by the iteration.
     dNeMax : float
@@ -70,7 +70,7 @@ class IterationUpdate:
     updatedPops: bool = False
     dPops: List[float] = field(default_factory=list)
     dPopsMaxIdx: List[int] = field(default_factory=list)
-    ngAccelerated: bool = False
+    ngAccelerated: List[bool] = field(default_factory=list)
 
     updatedNe: bool = False
     dNeMax: float = 0.0
@@ -119,7 +119,7 @@ class IterationUpdate:
         if self.updatedPops:
             for idx, delta in enumerate(self.dPops):
                 atomName = self.ctx.activeAtoms[idx].atomicModel.element.name
-                accel = ' (accelerated)' if self.ngAccelerated else ''
+                accel = ' (accelerated)' if self.ngAccelerated[idx] else ''
                 chunks.append(f'    {atomName} delta = {delta:6.4e}{accel}')
 
         if self.updatedNe:

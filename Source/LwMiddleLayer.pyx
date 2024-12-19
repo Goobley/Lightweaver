@@ -3379,7 +3379,7 @@ cdef class LwContext:
             maxDelta = max(maxDelta, delta)
             update.dPops.append(maxChange.dMax)
             update.dPopsMaxIdx.append(maxChange.dMaxIdx)
-            update.ngAccelerated = accelerated
+            update.ngAccelerated.append(accelerated)
 
         return update
 
