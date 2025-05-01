@@ -23,7 +23,7 @@ maintainers = [
 ]
 description = "Non-LTE Radiative Transfer Framework in Python"
 readme = "README.md"
-license = { text = "MIT License" }
+license = "MIT"
 dependencies = [
     "numpy>=2.0",
     "numba~=0.60",
