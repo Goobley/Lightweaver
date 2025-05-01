@@ -3,7 +3,10 @@ Simple EOS and background opacity package
 Coded in python by J. de la Cruz Rodriguez (ISP-SU 2017)
 """
 import numpy as np
-import xdrlib
+try:
+    import xdrlib
+except ImportError:
+    import mda_xdrlib.xdrlib as xdrlib
 from numba import njit
 from .utils import get_data_path
 from dataclasses import dataclass

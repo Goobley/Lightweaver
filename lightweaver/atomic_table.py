@@ -1,7 +1,10 @@
 import pickle
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, List, Tuple, Union
-from xdrlib import Unpacker
+try:
+    from xdrlib import Unpacker
+except ImportError:
+    from mda_xdrlib.xdrlib import Unpacker
 
 import numpy as np
 
