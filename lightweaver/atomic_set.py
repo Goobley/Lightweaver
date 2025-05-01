@@ -851,7 +851,7 @@ class RadiativeSet:
     def iterate_lte_ne_eq_pops(self, atmos: Atmosphere,
                                mols: Optional[MolecularTable]=None,
                                nlteStartingPops: Optional[Dict[Element, np.ndarray]]=None,
-                               direct: bool=False, quiet: bool=False) -> SpeciesStateTable:
+                               direct: bool=True, quiet: bool=True) -> SpeciesStateTable:
         '''
         Compute the starting populations for the simulation with all NLTE
         atoms in LTE or otherwise using the provided populations.
@@ -868,11 +868,11 @@ class RadiativeSet:
             species.
         direct : bool
             Whether to use the direct electron density solver (essentially,
-            Lambda iteration for the fixpoint), this may require many more
-            iterations than the Newton-Krylov solver used otherwise, but may
-            also be more robust.
+            damped Lambda iteration for the fixpoint). With the new damping this
+            appears to converge very quickly with little need for the
+            Newton-Krylov selected if this is set to False. Default: True
         quiet : bool, optional
-            Whether to print convergence info (default: True).
+            Whether to print convergence info (default: True, i.e. don't print).
 
         Returns
         -------
@@ -917,11 +917,11 @@ class RadiativeSet:
 
                     stages = np.array([l.stage for l in a.levels])
                     ne += np.sum(nStar * stages[:, None], axis=0)
-                atmos.ne[:] = ne
+                # NOTE(cmo): Damp correction: dramatically improves convergence.
+                atmos.ne[:] = 0.55 * ne + 0.45 * prevNe
 
-                relDiff = np.nanmax(np.abs(1.0 - prevNe / ne))
-                maxRelDiff = np.nanmax(relDiff)
-                if maxRelDiff < 1e-3:
+                max_err = np.nanmax(np.abs(1.0 - prevNe / atmos.ne))
+                if max_err < 1e-5:
                     if not quiet:
                         print("Iterate LTE: %d iterations" % it)
                     break
