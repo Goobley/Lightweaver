@@ -1502,6 +1502,8 @@ class Atmosphere:
             mux = [float(mux)]
         if isinstance(muy, numbers.Real):
             muy = [float(muy)]
+        if isinstance(wmu, numbers.Real):
+            wmu = [float(wmu)]
 
         if mux is None and muy is None:
             self.muz = np.array(muz, dtype=np.float64)
