@@ -230,7 +230,7 @@ class LinearQuadrature(LineQuadrature):
 
     Nlambda : int
         The number of wavelength points in the wavelength grid (typically odd).
-    deltaLambda : int 
+    deltaLambda : int
         The half-width of the grid (i.e. from core to one edge) [nm].
     """
     Nlambda: int
@@ -765,7 +765,7 @@ class ExplicitContinuum(AtomicContinuum):
         result = np.copy(grid[(grid >= self.minLambda) & (grid <= edge)])
         # NOTE(cmo): If the last value before the edge is more than 0.1 nm away
         # then put the edge in.
-        if edge - grid[-1] > 0.1:
+        if edge - result[-1] > 0.1:
             result = np.concatenate((result, (edge,)))
         return result
 
