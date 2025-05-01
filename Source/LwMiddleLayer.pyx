@@ -3988,7 +3988,12 @@ cdef class LwContext:
         if wavelengths is not None:
             spect = state['kwargs']['spect'].subset_configuration(wavelengths)
         else:
-            spect = None
+            # NOTE(cmo): Subsets handle overlaps differently (which prevents
+            # jumps at the edge of grids), so require that here even if the
+            # wavelength grid is the same
+            spect = state['kwargs']['spect'].subset_configuration(
+                state['kwargs']['spect'].wavelength
+            )
 
         cdef LwContext rhoCtx, rayCtx
         if refinePrd:
