@@ -3,6 +3,7 @@ from lightweaver.collisional_rates import *
 from lightweaver.broadening import *
 from lightweaver.atomic_table import PeriodicTable
 from lightweaver.barklem import BarklemCrossSectionError
+import lightweaver as lw
 from typing import List
 from parse import parse
 import os
@@ -346,7 +347,23 @@ def conv_atom(inFile):
 
     # for i, l in enumerate(atom.lines):
     #     l.Nlambda = lineNLambdas[i]
-    return repr(atom)
+    return atom
+
+def update_H_atom(h):
+    for l in h.lines:
+        # NOTE(cmo): Ensure the quadrature for the Balmer lines goes wide
+        # enough, especially accounting for the corrected Sutton Linear Stark
+        # Broadening
+        if l.i == 1:
+            l.quadrature.qCore = max(l.quadrature.qCore, 15.0)
+            l.quadrature.qWing = max(l.quadrature.qWing, 350.0)
+
+        # NOTE(cmo): Ensure all the more principal lines of the series have enough wavelength points
+        if l.j <= 3:
+            l.quadrature.Nlambda = max(l.quadrature.Nlambda, 71)
+    lw.reconfigure_atom(h)
+    return h
+
 
 colorama.init()
 fails = open('Fails.txt', 'w')
@@ -370,6 +387,10 @@ for i, f in enumerate(files):
         fails.write('->%s\n' % repr(e))
         fails.write('-'*40 + '\n')
 
+for i, a in enumerate(atoms):
+    if a.element.name == "H":
+        atoms[i] = update_H_atom(a)
+
 with open('rh_atoms.py', 'w') as fi:
     fi.write('from lightweaver.atomic_model import *\n')
     fi.write('from lightweaver.collisional_rates import *\n')
@@ -377,6 +398,6 @@ with open('rh_atoms.py', 'w') as fi:
     fi.write('from lightweaver.atomic_table import Element\n')
     for i, a in enumerate(atoms):
         s = clean(doneFiles[i]) + ' = lambda: \\\n'
-        s += a
+        s += repr(a)
         s += '\n'
         fi.write(s)

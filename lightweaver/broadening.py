@@ -456,11 +456,16 @@ class HydrogenLinearStarkBroadening(StandardLineBroadener):
     '''
     Linear Stark broadening for the case of Hydrogen from Sutton 1978 (like
     RH).
+
+    `reproduceOldRHBug` allows for reproducing an issue in older versions of RH
+    where the broadening effects was a factor os ~2pi too small as it had not
+    been converted to angular frequency.
     '''
     line: 'AtomicLine' = field(init=False)
+    reproduceOldRHBug: bool = False
 
     def __repr__(self):
-        s = '%s()' % type(self).__name__
+        s = f'{type(self).__name__}(reproduceOldRHBug={self.reproduceOldRHBug})'
         return s
 
     def __eq__(self, other):
@@ -503,6 +508,8 @@ class HydrogenLinearStarkBroadening(StandardLineBroadener):
 
         a1 = 0.642 if nUpper - nLower == 1 else 1.0
         C = a1 * 0.6 * (nUpper**2 - nLower**2) * Const.CM_TO_M**2
+        if not self.reproduceOldRHBug:
+            C *= 4.0 * np.pi * 0.425
         GStark = C * atmos.ne**(2.0/3.0)
         return GStark
 
@@ -531,7 +538,7 @@ class ScaledExponentBroadening(StandardLineBroadener):
         self.line = line
 
     def __repr__(self):
-        s = '%s(scaling=%g, temperatureExp=%g, hydrogenExp=%g, electronExp=%g)' % (type(self).__name__, 
+        s = '%s(scaling=%g, temperatureExp=%g, hydrogenExp=%g, electronExp=%g)' % (type(self).__name__,
                 self.scaling, self.temperatureExp, self.hydrogenExp, self.electronExp)
         return s
 
