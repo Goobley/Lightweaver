@@ -103,33 +103,37 @@ Find the initial statistical equilibrium solution,
     dJ = 1.00e+00
         (Lambda iterating background)
     -- Iteration 4:
-    dJ = 9.64e+00
-        H delta = 1.0905e+00
-        ne delta = 1.6015e-01
-    -- Iteration 29:
-    dJ = 8.46e-02
-        H delta = 5.1054e-02
-        ne delta = 7.0413e-16
-    -- Iteration 54:
-    dJ = 5.37e-02
-        H delta = 3.2221e-02
-        ne delta = 2.7092e-16
-    -- Iteration 79:
-    dJ = 1.85e-02
-        H delta = 1.2072e-02
-        ne delta = 1.7016e-16
-    -- Iteration 103:
-    dJ = 3.29e-03
-        H delta = 2.1979e-03
-        ne delta = 6.8064e-16
+    dJ = 9.99e+00
+        H delta = 1.0870e+00
+        ne delta = 1.5277e-01
+    -- Iteration 24:
+    dJ = 1.05e-01
+        H delta = 6.5792e-02
+        ne delta = 5.9299e-16
+    -- Iteration 44:
+    dJ = 6.68e-02
+        H delta = 3.9908e-02
+        ne delta = 5.2820e-16
+    -- Iteration 64:
+    dJ = 4.01e-02
+        H delta = 2.5666e-02
+        ne delta = 1.7607e-16
+    -- Iteration 84:
+    dJ = 1.29e-02
+        H delta = 8.6126e-03
+        ne delta = 0.0000e+00
+    -- Iteration 104:
+    dJ = 2.65e-03
+        H delta = 1.7865e-03
+        ne delta = 8.5109e-16
     --------------------------------------------------------------------------------
-    Final Iteration: 113
+    Final Iteration: 111
     --------------------------------------------------------------------------------
-    dJ = 1.45e-03
-        H delta = 9.6901e-04
-        ne delta = 7.0413e-16
+    dJ = 1.46e-03
+        H delta = 9.8682e-04
+        ne delta = 1.0837e-15
     --------------------------------------------------------------------------------
-    Context converged to statistical equilibrium in 113 iterations after 2.36 s.
+    Context converged to statistical equilibrium in 111 iterations after 2.27 s.
     --------------------------------------------------------------------------------
     Achieved initial Stat Eq
 
@@ -227,24 +231,24 @@ Solve the problem
 
  .. code-block:: none
 
-    Iteration 0 (0.100000 s) done after 51 sub iterations
+    Iteration 0 (0.100000 s) done after 50 sub iterations
     Iteration 1 (0.200000 s) done after 48 sub iterations
     Iteration 2 (0.300000 s) done after 46 sub iterations
     Iteration 3 (0.400000 s) done after 41 sub iterations
     Iteration 4 (0.500000 s) done after 36 sub iterations
-    Iteration 5 (0.600000 s) done after 30 sub iterations
+    Iteration 5 (0.600000 s) done after 29 sub iterations
     Iteration 6 (0.700000 s) done after 30 sub iterations
     Iteration 7 (0.800000 s) done after 24 sub iterations
     Iteration 8 (0.900000 s) done after 22 sub iterations
-    Iteration 9 (1.000000 s) done after 21 sub iterations
+    Iteration 9 (1.000000 s) done after 20 sub iterations
     Iteration 10 (1.100000 s) done after 19 sub iterations
     Iteration 11 (1.200000 s) done after 18 sub iterations
     Iteration 12 (1.300000 s) done after 17 sub iterations
     Iteration 13 (1.400000 s) done after 17 sub iterations
     Iteration 14 (1.500000 s) done after 16 sub iterations
     Iteration 15 (1.600000 s) done after 16 sub iterations
-    Iteration 16 (1.700000 s) done after 20 sub iterations
-    Iteration 17 (1.800000 s) done after 21 sub iterations
+    Iteration 16 (1.700000 s) done after 18 sub iterations
+    Iteration 17 (1.800000 s) done after 22 sub iterations
     Iteration 18 (1.900000 s) done after 14 sub iterations
     Iteration 19 (2.000000 s) done after 13 sub iterations
     Iteration 20 (2.100000 s) done after 13 sub iterations
@@ -255,7 +259,7 @@ Solve the problem
     Iteration 25 (2.600000 s) done after 9 sub iterations
     Iteration 26 (2.700000 s) done after 9 sub iterations
     Iteration 27 (2.800000 s) done after 8 sub iterations
-    Iteration 28 (2.900000 s) done after 7 sub iterations
+    Iteration 28 (2.900000 s) done after 8 sub iterations
     Iteration 29 (3.000000 s) done after 7 sub iterations
 
 
@@ -310,7 +314,7 @@ Reproduce Judge plot.
 
  .. code-block:: none
 
-    Time taken: 6.06 s
+    Time taken: 7.72 s
 
 
 
@@ -318,7 +322,7 @@ Reproduce Judge plot.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 25.074 seconds)
+   **Total running time of the script:** (0 minutes 25.673 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_JudgeDynamicValidation.py:

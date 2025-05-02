@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>lightweaver.config &mdash; Lightweaver  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -74,14 +74,14 @@
            <div itemprop="articleBody">
              
   <h1>Source code for lightweaver.config</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
-<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">copy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
-<span class="kn">import</span> <span class="nn">astropy.config</span> <span class="k">as</span> <span class="nn">conf</span>
-<span class="kn">import</span> <span class="nn">yaml</span>
-<span class="kn">from</span> <span class="nn">lightweaver.simd_management</span> <span class="kn">import</span> <span class="p">(</span><span class="n">LwSimdImplsAndFlags</span><span class="p">,</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">astropy.config</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">conf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">lightweaver.simd_management</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">LwSimdImplsAndFlags</span><span class="p">,</span>
                                          <span class="n">get_available_simd_suffixes</span><span class="p">)</span>
 
 <span class="n">Defaults</span> <span class="o">=</span> <span class="p">{</span>
@@ -95,7 +95,7 @@
 
 <div class="viewcode-block" id="get_home_config_path">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.config.get_home_config_path">[docs]</a>
-<span class="k">def</span> <span class="nf">get_home_config_path</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_home_config_path</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Return the location where the user&#39;s configuration data *should* be stored,</span>
 <span class="sd">    whether it is currently present or not.</span>
@@ -108,7 +108,7 @@
 
 <div class="viewcode-block" id="get_config_path">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.config.get_config_path">[docs]</a>
-<span class="k">def</span> <span class="nf">get_config_path</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_config_path</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Returns the path to the `lightweaverrc` configuration file, or None if one</span>
 <span class="sd">    cannot be found.</span>
@@ -126,7 +126,7 @@
 
 <div class="viewcode-block" id="set_most_advanced_simd_impl">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.config.set_most_advanced_simd_impl">[docs]</a>
-<span class="k">def</span> <span class="nf">set_most_advanced_simd_impl</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_most_advanced_simd_impl</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Picks the most advanced SIMD extensions (as detected by NumPy), that can be</span>
 <span class="sd">    used on this system. This does not guarantee fastest (see the note in</span>
@@ -134,7 +134,7 @@
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">availableImpls</span> <span class="o">=</span> <span class="n">get_available_simd_suffixes</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">check_add_impl</span><span class="p">(</span><span class="n">simdType</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_add_impl</span><span class="p">(</span><span class="n">simdType</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">simdType</span> <span class="ow">in</span> <span class="n">availableImpls</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="s1">&#39;SimdImpl&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">simdType</span>
 
@@ -145,7 +145,7 @@
 
 <div class="viewcode-block" id="update_config_dict">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.config.update_config_dict">[docs]</a>
-<span class="k">def</span> <span class="nf">update_config_dict</span><span class="p">(</span><span class="n">configPath</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_config_dict</span><span class="p">(</span><span class="n">configPath</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Updates the configuration dict (`lightweaver.ConfigDict`), from the config</span>
 <span class="sd">    file. If there is no config file, the defaults are used, and the most</span>
@@ -180,7 +180,7 @@
 
 <div class="viewcode-block" id="update_config_file">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.config.update_config_file">[docs]</a>
-<span class="k">def</span> <span class="nf">update_config_file</span><span class="p">(</span><span class="n">configPath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_config_file</span><span class="p">(</span><span class="n">configPath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Updates the config file to the current values of the config dict.</span>
 

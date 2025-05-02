@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>lightweaver.benchmark &mdash; Lightweaver  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -74,25 +74,25 @@
            <div itemprop="articleBody">
              
   <h1>Source code for lightweaver.benchmark</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">time</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
-<span class="kn">from</span> <span class="nn">weno4</span> <span class="kn">import</span> <span class="n">weno4</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">weno4</span><span class="w"> </span><span class="kn">import</span> <span class="n">weno4</span>
 
-<span class="kn">from</span> <span class="nn">lightweaver.config</span> <span class="kn">import</span> <span class="n">update_config_file</span>
-<span class="kn">from</span> <span class="nn">.atmosphere</span> <span class="kn">import</span> <span class="n">Atmosphere</span><span class="p">,</span> <span class="n">ScaleType</span>
-<span class="kn">from</span> <span class="nn">.atomic_set</span> <span class="kn">import</span> <span class="n">RadiativeSet</span>
-<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">params</span> <span class="k">as</span> <span class="n">rcParams</span>
-<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">get_home_config_path</span><span class="p">,</span> <span class="n">update_config_file</span>
-<span class="kn">from</span> <span class="nn">.fal</span> <span class="kn">import</span> <span class="n">Falc82</span>
-<span class="kn">from</span> <span class="nn">.rh_atoms</span> <span class="kn">import</span> <span class="n">CaII_atom</span><span class="p">,</span> <span class="n">H_6_atom</span>
-<span class="kn">from</span> <span class="nn">.simd_management</span> <span class="kn">import</span> <span class="n">get_available_simd_suffixes</span>
-<span class="kn">from</span> <span class="nn">.LwCompiled</span> <span class="kn">import</span> <span class="n">LwContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">lightweaver.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">update_config_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.atmosphere</span><span class="w"> </span><span class="kn">import</span> <span class="n">Atmosphere</span><span class="p">,</span> <span class="n">ScaleType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.atomic_set</span><span class="w"> </span><span class="kn">import</span> <span class="n">RadiativeSet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">params</span> <span class="k">as</span> <span class="n">rcParams</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_home_config_path</span><span class="p">,</span> <span class="n">update_config_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.fal</span><span class="w"> </span><span class="kn">import</span> <span class="n">Falc82</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.rh_atoms</span><span class="w"> </span><span class="kn">import</span> <span class="n">CaII_atom</span><span class="p">,</span> <span class="n">H_6_atom</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.simd_management</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_available_simd_suffixes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.LwCompiled</span><span class="w"> </span><span class="kn">import</span> <span class="n">LwContext</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;benchmark&#39;</span><span class="p">]</span>
 
-<span class="k">def</span> <span class="nf">configure_context</span><span class="p">(</span><span class="n">Nspace</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">fsIterScheme</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">configure_context</span><span class="p">(</span><span class="n">Nspace</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">fsIterScheme</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Configure a FALC context (with more or fewer depth points), 1 thread and a</span>
 <span class="sd">    particular iteration scheme. For use in benchmarking.</span>
@@ -122,7 +122,7 @@
 
 <div class="viewcode-block" id="benchmark">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.benchmark.benchmark">[docs]</a>
-<span class="k">def</span> <span class="nf">benchmark</span><span class="p">(</span><span class="n">Niter</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">Nrep</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">writeConfig</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">warmUp</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">benchmark</span><span class="p">(</span><span class="n">Niter</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">Nrep</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">writeConfig</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">warmUp</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Benchmark the various SIMD implementations for Lightweaver&#39;s formal solver</span>
 <span class="sd">    and iteration functions.</span>

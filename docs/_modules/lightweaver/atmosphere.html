@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>lightweaver.atmosphere &mdash; Lightweaver  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -74,30 +74,30 @@
            <div itemprop="articleBody">
              
   <h1>Source code for lightweaver.atmosphere</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numbers</span>
-<span class="kn">import</span> <span class="nn">pickle</span>
-<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numbers</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">copy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
 
-<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">numpy.polynomial.legendre</span> <span class="kn">import</span> <span class="n">leggauss</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">astropy.units</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">u</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.polynomial.legendre</span><span class="w"> </span><span class="kn">import</span> <span class="n">leggauss</span>
 
-<span class="kn">import</span> <span class="nn">lightweaver.constants</span> <span class="k">as</span> <span class="nn">Const</span>
-<span class="kn">from</span> <span class="nn">.atomic_table</span> <span class="kn">import</span> <span class="p">(</span><span class="n">AtomicAbundance</span><span class="p">,</span> <span class="n">DefaultAtomicAbundance</span><span class="p">,</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">lightweaver.constants</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">Const</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.atomic_table</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">AtomicAbundance</span><span class="p">,</span> <span class="n">DefaultAtomicAbundance</span><span class="p">,</span>
                            <span class="n">PeriodicTable</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span><span class="n">ConvergenceError</span><span class="p">,</span> <span class="n">check_shape_exception</span><span class="p">,</span> <span class="n">get_data_path</span><span class="p">,</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">ConvergenceError</span><span class="p">,</span> <span class="n">check_shape_exception</span><span class="p">,</span> <span class="n">get_data_path</span><span class="p">,</span>
                     <span class="n">view_flatten</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.wittmann</span> <span class="kn">import</span> <span class="n">Wittmann</span><span class="p">,</span> <span class="n">cgs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.wittmann</span><span class="w"> </span><span class="kn">import</span> <span class="n">Wittmann</span><span class="p">,</span> <span class="n">cgs</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">.LwCompiled</span> <span class="kn">import</span> <span class="n">LwSpectrum</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.LwCompiled</span><span class="w"> </span><span class="kn">import</span> <span class="n">LwSpectrum</span>
 
 <div class="viewcode-block" id="ScaleType">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.ScaleType">[docs]</a>
-<span class="k">class</span> <span class="nc">ScaleType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ScaleType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Atmospheric scales used in the definition of 1D atmospheres to allow the</span>
 <span class="sd">    correct conversion to a height based system.</span>
@@ -117,7 +117,7 @@
 
 <div class="viewcode-block" id="BoundaryCondition">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.BoundaryCondition">[docs]</a>
-<span class="k">class</span> <span class="nc">BoundaryCondition</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BoundaryCondition</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Base class for boundary conditions.</span>
 
@@ -142,7 +142,7 @@
 <span class="sd">    &#39;&#39;&#39;</span>
 <div class="viewcode-block" id="BoundaryCondition.compute_bc">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.BoundaryCondition.compute_bc">[docs]</a>
-    <span class="k">def</span> <span class="nf">compute_bc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">spect</span><span class="p">:</span> <span class="s1">&#39;LwSpectrum&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_bc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">spect</span><span class="p">:</span> <span class="s1">&#39;LwSpectrum&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Called when the radiation boundary condition is needed by the backend.</span>
 
@@ -171,7 +171,7 @@
 
 <div class="viewcode-block" id="BoundaryCondition.set_required_angles">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.BoundaryCondition.set_required_angles">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_required_angles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mux</span><span class="p">,</span> <span class="n">muy</span><span class="p">,</span> <span class="n">muz</span><span class="p">,</span> <span class="n">indexVector</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_required_angles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mux</span><span class="p">,</span> <span class="n">muy</span><span class="p">,</span> <span class="n">muz</span><span class="p">,</span> <span class="n">indexVector</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        The angles (and their ordering) to be used for this boundary</span>
 <span class="sd">        condition (in the case of a callable)</span>
@@ -185,7 +185,7 @@
 
 <div class="viewcode-block" id="NoBc">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.NoBc">[docs]</a>
-<span class="k">class</span> <span class="nc">NoBc</span><span class="p">(</span><span class="n">BoundaryCondition</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">NoBc</span><span class="p">(</span><span class="n">BoundaryCondition</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Indicates no boundary condition on the axis because it is invalid for the</span>
 <span class="sd">    current simulation.</span>
@@ -196,7 +196,7 @@
 
 <div class="viewcode-block" id="ZeroRadiation">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.ZeroRadiation">[docs]</a>
-<span class="k">class</span> <span class="nc">ZeroRadiation</span><span class="p">(</span><span class="n">BoundaryCondition</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ZeroRadiation</span><span class="p">(</span><span class="n">BoundaryCondition</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Zero radiation boundary condition.</span>
 <span class="sd">    Commonly used for coronal situations.</span>
@@ -206,7 +206,7 @@
 
 <div class="viewcode-block" id="ThermalisedRadiation">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.ThermalisedRadiation">[docs]</a>
-<span class="k">class</span> <span class="nc">ThermalisedRadiation</span><span class="p">(</span><span class="n">BoundaryCondition</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ThermalisedRadiation</span><span class="p">(</span><span class="n">BoundaryCondition</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Thermalised radiation (blackbody) boundary condition.</span>
 <span class="sd">    Commonly used for photospheric situations.</span>
@@ -216,7 +216,7 @@
 
 <div class="viewcode-block" id="PeriodicRadiation">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.PeriodicRadiation">[docs]</a>
-<span class="k">class</span> <span class="nc">PeriodicRadiation</span><span class="p">(</span><span class="n">BoundaryCondition</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PeriodicRadiation</span><span class="p">(</span><span class="n">BoundaryCondition</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Periodic boundary condition.</span>
 <span class="sd">    Commonly used on the x-axis in 2D simulations.</span>
@@ -226,7 +226,7 @@
 
 <div class="viewcode-block" id="get_top_pressure">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.get_top_pressure">[docs]</a>
-<span class="k">def</span> <span class="nf">get_top_pressure</span><span class="p">(</span><span class="n">eos</span><span class="p">:</span> <span class="n">Wittmann</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">ne</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rho</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_top_pressure</span><span class="p">(</span><span class="n">eos</span><span class="p">:</span> <span class="n">Wittmann</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">ne</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rho</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Return a pressure for the top of atmosphere.</span>
 <span class="sd">    For internal use.</span>
@@ -270,7 +270,7 @@
 <div class="viewcode-block" id="Stratifications">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Stratifications">[docs]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">Stratifications</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Stratifications</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Stores the optional derived z-stratifications of an atmospheric model.</span>
 
@@ -286,7 +286,7 @@
 
 <div class="viewcode-block" id="Stratifications.dimensioned_view">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Stratifications.dimensioned_view">[docs]</a>
-    <span class="k">def</span> <span class="nf">dimensioned_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Stratifications&#39;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dimensioned_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Stratifications&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Makes an instance of `Stratifications` reshaped to the provided</span>
 <span class="sd">        shape for multi-dimensional atmospheres.</span>
@@ -311,7 +311,7 @@
 
 <div class="viewcode-block" id="Stratifications.unit_view">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Stratifications.unit_view">[docs]</a>
-    <span class="k">def</span> <span class="nf">unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Stratifications&#39;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Stratifications&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Makes an instance of `Stratifications`  with the correct `astropy.units`</span>
 <span class="sd">        For internal use.</span>
@@ -329,7 +329,7 @@
 
 <div class="viewcode-block" id="Stratifications.dimensioned_unit_view">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Stratifications.dimensioned_unit_view">[docs]</a>
-    <span class="k">def</span> <span class="nf">dimensioned_unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Stratifications&#39;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dimensioned_unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Stratifications&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Makes an instance of `Stratifications` reshaped to the provided shape</span>
 <span class="sd">        with the correct `astropy.units` for multi-dimensional atmospheres.</span>
@@ -354,7 +354,7 @@
 <div class="viewcode-block" id="Layout">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Layout">[docs]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">Layout</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Layout</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Storage for basic atmospheric parameters whose presence is determined by</span>
 <span class="sd">    problem dimensionality, boundary conditions and optional stratifications.</span>
@@ -409,7 +409,7 @@
 <div class="viewcode-block" id="Layout.make_1d">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Layout.make_1d">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">make_1d</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">vz</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_1d</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">vz</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                 <span class="n">lowerBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span> <span class="n">upperBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span>
                 <span class="n">stratifications</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Stratifications</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Layout&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
@@ -427,7 +427,7 @@
 <div class="viewcode-block" id="Layout.make_2d">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Layout.make_2d">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">make_2d</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_2d</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                 <span class="n">vx</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">vz</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                 <span class="n">xLowerBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span> <span class="n">xUpperBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span>
                 <span class="n">zLowerBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span> <span class="n">zUpperBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span>
@@ -448,7 +448,7 @@
 <div class="viewcode-block" id="Layout.make_3d">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Layout.make_3d">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">make_3d</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_3d</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                 <span class="n">vx</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">vy</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">vz</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                 <span class="n">xLowerBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span> <span class="n">xUpperBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span>
                 <span class="n">yLowerBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span> <span class="n">yUpperBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span>
@@ -467,41 +467,41 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">Nx</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Nx</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Number of grid points along the x-axis.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">Ny</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Ny</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Number of grid points along the y-axis.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">Nz</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Nz</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Number of grid points along the z-axis.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">Noutgoing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Noutgoing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Number of grid points at which the outgoing radiation is computed.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ny</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">vlos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vlos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;vlos is ambiguous when Ndim &gt; 1, use vx, vy, or vz instead.&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">vz</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">Nspace</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Nspace</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Number of spatial points present in the grid.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -515,7 +515,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid Ndim: </span><span class="si">%d</span><span class="s1">, check geometry initialisation&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">tauRef</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tauRef</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Alias to `self.stratifications.tauRef`, if computed.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -525,7 +525,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;tauRef not computed for this Atmosphere&#39;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">cmass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cmass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Alias to `self.stratifications.cmass`, if computed.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -535,7 +535,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;tauRef not computed for this Atmosphere&#39;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">dimensioned_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dimensioned_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Tuple defining the shape to which the arrays of atmospheric paramters</span>
 <span class="sd">        can be reshaped to be indexed in a 1/2/3D fashion.</span>
@@ -552,7 +552,7 @@
 
 <div class="viewcode-block" id="Layout.dimensioned_view">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Layout.dimensioned_view">[docs]</a>
-    <span class="k">def</span> <span class="nf">dimensioned_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span>  <span class="s1">&#39;Layout&#39;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dimensioned_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span>  <span class="s1">&#39;Layout&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Returns a view over the contents of Layout reshaped so all data has</span>
 <span class="sd">        the correct (1/2/3D) dimensionality for the atmospheric model, as</span>
@@ -573,7 +573,7 @@
 
 <div class="viewcode-block" id="Layout.unit_view">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Layout.unit_view">[docs]</a>
-    <span class="k">def</span> <span class="nf">unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Layout&#39;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Layout&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Returns a view over the contents of the Layout with the correct</span>
 <span class="sd">        `astropy.units`.</span>
@@ -592,7 +592,7 @@
 
 <div class="viewcode-block" id="Layout.dimensioned_unit_view">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Layout.dimensioned_unit_view">[docs]</a>
-    <span class="k">def</span> <span class="nf">dimensioned_unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Layout&#39;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dimensioned_unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Layout&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Returns a view over the contents of Layout reshaped so all data has</span>
 <span class="sd">        the correct (1/2/3D) dimensionality for the atmospheric model, and</span>
@@ -606,7 +606,7 @@
 <div class="viewcode-block" id="Atmosphere">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Atmosphere">[docs]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">Atmosphere</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Atmosphere</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Storage for all atmospheric data. These arrays will be shared directly</span>
 <span class="sd">    with the backend, so a modification here also modifies the data seen by</span>
@@ -649,7 +649,7 @@
     <span class="n">chiB</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">Ndim</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Ndim</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Ndim : int</span>
 <span class="sd">            The dimensionality (1, 2, or 3) of the atmospheric model.</span>
@@ -657,7 +657,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">Ndim</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">Nx</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Nx</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Nx : int</span>
 <span class="sd">            The number of points in the x-direction discretisation.</span>
@@ -665,7 +665,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">Nx</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">Ny</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Ny</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Ny : int</span>
 <span class="sd">            The number of points in the y-direction discretisation.</span>
@@ -673,7 +673,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">Ny</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">Nz</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Nz</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Nz : int</span>
 <span class="sd">            The number of points in the y-direction discretisation.</span>
@@ -681,7 +681,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">Nz</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">Noutgoing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Noutgoing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Noutgoing : int</span>
 <span class="sd">            The number of cells at the top of the atmosphere (that each produce a</span>
@@ -690,7 +690,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">Noutgoing</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">vx</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vx</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        vx : np.ndarray</span>
 <span class="sd">            x component of plasma velocity (present for Ndim &gt;= 2) [m/s].</span>
@@ -698,7 +698,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">vx</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">vy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        vy : np.ndarray</span>
 <span class="sd">            y component of plasma velocity (present for Ndim == 3) [m/s].</span>
@@ -706,7 +706,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">vy</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">vz</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vz</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        vz : np.ndarray</span>
 <span class="sd">            z component of plasma velocity (present for all Ndim) [m/s]. Aliased</span>
@@ -715,7 +715,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">vz</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">vlos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vlos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        vz : np.ndarray</span>
 <span class="sd">            z component of plasma velocity (present for all Ndim) [m/s]. Only</span>
@@ -724,7 +724,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">vlos</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">cmass</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cmass</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        cmass : np.ndarray</span>
 <span class="sd">            Column mass [kg m-2].</span>
@@ -732,7 +732,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">cmass</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">tauRef</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tauRef</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        tauRef : np.ndarray</span>
 <span class="sd">            Reference optical depth at 500 nm.</span>
@@ -740,11 +740,11 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">tauRef</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">height</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">height</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">z</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        x : np.ndarray</span>
 <span class="sd">            Ordinates of grid points along the x-axis (present for Ndim &gt;= 2) [m].</span>
@@ -752,7 +752,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">x</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        y : np.ndarray</span>
 <span class="sd">            Ordinates of grid points along the y-axis (present for Ndim == 3) [m].</span>
@@ -760,7 +760,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">y</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">z</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">z</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        z : np.ndarray</span>
 <span class="sd">            Ordinates of grid points along the z-axis (present for all Ndim) [m].</span>
@@ -768,7 +768,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">z</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">zLowerBc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoundaryCondition</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">zLowerBc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoundaryCondition</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        zLowerBc : BoundaryCondition</span>
 <span class="sd">            Boundary condition for the plane of minimal z-coordinate.</span>
@@ -776,7 +776,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">zLowerBc</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">zUpperBc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoundaryCondition</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">zUpperBc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoundaryCondition</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        zUpperBc : BoundaryCondition</span>
 <span class="sd">            Boundary condition for the plane of maximal z-coordinate.</span>
@@ -784,7 +784,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">zUpperBc</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">yLowerBc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoundaryCondition</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">yLowerBc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoundaryCondition</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        yLowerBc : BoundaryCondition</span>
 <span class="sd">            Boundary condition for the plane of minimal y-coordinate.</span>
@@ -792,7 +792,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">yLowerBc</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">yUpperBc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoundaryCondition</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">yUpperBc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoundaryCondition</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        yUpperBc : BoundaryCondition</span>
 <span class="sd">            Boundary condition for the plane of maximal y-coordinate.</span>
@@ -800,7 +800,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">yUpperBc</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">xLowerBc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoundaryCondition</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">xLowerBc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoundaryCondition</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        xLowerBc : BoundaryCondition</span>
 <span class="sd">            Boundary condition for the plane of minimal x-coordinate.</span>
@@ -808,7 +808,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">xLowerBc</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">xUpperBc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoundaryCondition</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">xUpperBc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoundaryCondition</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        xUpperBc : BoundaryCondition</span>
 <span class="sd">            Boundary condition for the plane of maximal x-coordinate.</span>
@@ -816,7 +816,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">xUpperBc</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">Nspace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Nspace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Nspace : int</span>
 <span class="sd">            Total number of points in the atmospheric spatial discretistaion.</span>
@@ -824,7 +824,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">Nspace</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">Nrays</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Nrays</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Nrays : int</span>
 <span class="sd">            Number of rays in angular discretisation used.</span>
@@ -840,7 +840,7 @@
 
 <div class="viewcode-block" id="Atmosphere.dimensioned_view">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Atmosphere.dimensioned_view">[docs]</a>
-    <span class="k">def</span> <span class="nf">dimensioned_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dimensioned_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Returns a view over the contents of Layout reshaped so all data has</span>
 <span class="sd">        the correct (1/2/3D) dimensionality for the atmospheric model, as</span>
@@ -862,7 +862,7 @@
 
 <div class="viewcode-block" id="Atmosphere.unit_view">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Atmosphere.unit_view">[docs]</a>
-    <span class="k">def</span> <span class="nf">unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Returns a view over the contents of the Layout with the correct</span>
 <span class="sd">        `astropy.units`.</span>
@@ -882,7 +882,7 @@
 
 <div class="viewcode-block" id="Atmosphere.dimensioned_unit_view">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Atmosphere.dimensioned_unit_view">[docs]</a>
-    <span class="k">def</span> <span class="nf">dimensioned_unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dimensioned_unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Returns a view over the contents of Layout reshaped so all data has</span>
 <span class="sd">        the correct (1/2/3D) dimensionality for the atmospheric model, and</span>
@@ -895,7 +895,7 @@
 <div class="viewcode-block" id="Atmosphere.make_1d">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Atmosphere.make_1d">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">make_1d</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="n">ScaleType</span><span class="p">,</span> <span class="n">depthScale</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_1d</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="n">ScaleType</span><span class="p">,</span> <span class="n">depthScale</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                 <span class="n">temperature</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">vlos</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                 <span class="n">vturb</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ne</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                 <span class="n">hydrogenPops</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1310,7 +1310,7 @@
 <div class="viewcode-block" id="Atmosphere.make_2d">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Atmosphere.make_2d">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">make_2d</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_2d</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                 <span class="n">temperature</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">vx</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                 <span class="n">vz</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">vturb</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                 <span class="n">ne</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1492,7 +1492,7 @@
 
 <div class="viewcode-block" id="Atmosphere.quadrature">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Atmosphere.quadrature">[docs]</a>
-    <span class="k">def</span> <span class="nf">quadrature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Nrays</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">quadrature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Nrays</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                    <span class="n">mu</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                    <span class="n">wmu</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
@@ -1615,7 +1615,7 @@
 
 <div class="viewcode-block" id="Atmosphere.rays">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Atmosphere.rays">[docs]</a>
-    <span class="k">def</span> <span class="nf">rays</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">muz</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rays</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">muz</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
              <span class="n">mux</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
              <span class="n">muy</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
              <span class="n">wmu</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1660,6 +1660,8 @@
             <span class="n">mux</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">mux</span><span class="p">)]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">muy</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Real</span><span class="p">):</span>
             <span class="n">muy</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">muy</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wmu</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Real</span><span class="p">):</span>
+            <span class="n">wmu</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">wmu</span><span class="p">)]</span>
 
         <span class="k">if</span> <span class="n">mux</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">muy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">muz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">muz</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
@@ -1699,7 +1701,7 @@
 
 <div class="viewcode-block" id="Atmosphere.configure_bcs">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Atmosphere.configure_bcs">[docs]</a>
-    <span class="k">def</span> <span class="nf">configure_bcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">upOnly</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">configure_bcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">upOnly</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Configure the required angular information for all boundary</span>
 <span class="sd">        conditions on the model.</span>

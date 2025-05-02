@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>lightweaver.utils &mdash; Lightweaver  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -74,30 +74,30 @@
            <div itemprop="articleBody">
              
   <h1>Source code for lightweaver.utils</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">importlib</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
-<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span>
-<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">njit</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">special</span>
-<span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">trapezoid</span>
-<span class="kn">from</span> <span class="nn">weno4</span> <span class="kn">import</span> <span class="n">weno4</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numba</span><span class="w"> </span><span class="kn">import</span> <span class="n">njit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">special</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.integrate</span><span class="w"> </span><span class="kn">import</span> <span class="n">trapezoid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">weno4</span><span class="w"> </span><span class="kn">import</span> <span class="n">weno4</span>
 
-<span class="kn">import</span> <span class="nn">lightweaver.constants</span> <span class="k">as</span> <span class="nn">C</span>
-<span class="kn">from</span> <span class="nn">.simd_management</span> <span class="kn">import</span> <span class="n">filter_usable_simd_impls</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">lightweaver.constants</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">C</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.simd_management</span><span class="w"> </span><span class="kn">import</span> <span class="n">filter_usable_simd_impls</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">.atomic_model</span> <span class="kn">import</span> <span class="n">AtomicLine</span><span class="p">,</span> <span class="n">AtomicModel</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.atomic_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomicLine</span><span class="p">,</span> <span class="n">AtomicModel</span>
 
 <div class="viewcode-block" id="NgOptions">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.NgOptions">[docs]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">NgOptions</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">NgOptions</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Container for the options related to Ng acceleration.</span>
 <span class="sd">    Attributes</span>
@@ -124,7 +124,7 @@
 
 <div class="viewcode-block" id="InitialSolution">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.InitialSolution">[docs]</a>
-<span class="k">class</span> <span class="nc">InitialSolution</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">InitialSolution</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Initial solutions to use for atomic populations, either LTE, Zero</span>
 <span class="sd">    radiation (not yet supported), or second order escape probability.</span>
@@ -136,7 +136,7 @@
 
 <div class="viewcode-block" id="voigt_H">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.voigt_H">[docs]</a>
-<span class="k">def</span> <span class="nf">voigt_H</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">voigt_H</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Scalar Voigt profile.</span>
 
@@ -154,7 +154,7 @@
 <div class="viewcode-block" id="planck">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.planck">[docs]</a>
 <span class="nd">@njit</span>
-<span class="k">def</span> <span class="nf">planck</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="n">wav</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">planck</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="n">wav</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Planck black-body function B_nu(T) from wavelength.</span>
 
@@ -178,7 +178,7 @@
 
 <div class="viewcode-block" id="gaunt_bf">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.gaunt_bf">[docs]</a>
-<span class="k">def</span> <span class="nf">gaunt_bf</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span> <span class="n">nEff</span><span class="p">,</span> <span class="n">charge</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">gaunt_bf</span><span class="p">(</span><span class="n">wvl</span><span class="p">,</span> <span class="n">nEff</span><span class="p">,</span> <span class="n">charge</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Gaunt factor for bound-free transitions, from Seaton (1960), Rep. Prog.</span>
 <span class="sd">    Phys. 23, 313, as used in RH.</span>
@@ -209,7 +209,7 @@
 
 <div class="viewcode-block" id="ConvergenceError">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.ConvergenceError">[docs]</a>
-<span class="k">class</span> <span class="nc">ConvergenceError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConvergenceError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Raised by some iteration schemes, can also be used in user code.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -218,7 +218,7 @@
 
 <div class="viewcode-block" id="ExplodingMatrixError">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.ExplodingMatrixError">[docs]</a>
-<span class="k">class</span> <span class="nc">ExplodingMatrixError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExplodingMatrixError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Raised by the linear system matrix solver in the case of unsolvable</span>
 <span class="sd">    systems.</span>
@@ -228,7 +228,7 @@
 
 <div class="viewcode-block" id="get_code_location">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.get_code_location">[docs]</a>
-<span class="k">def</span> <span class="nf">get_code_location</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_code_location</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Returns the directory containing the Lightweaver Python source.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -238,7 +238,7 @@
 
 <div class="viewcode-block" id="get_data_path">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.get_data_path">[docs]</a>
-<span class="k">def</span> <span class="nf">get_data_path</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_data_path</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Returns the location of the Lightweaver support data.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -247,7 +247,7 @@
 
 <div class="viewcode-block" id="get_default_molecule_path">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.get_default_molecule_path">[docs]</a>
-<span class="k">def</span> <span class="nf">get_default_molecule_path</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_default_molecule_path</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Returns the location of the default molecules taken from RH.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -256,7 +256,7 @@
 
 <div class="viewcode-block" id="filter_fs_iter_libs">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.filter_fs_iter_libs">[docs]</a>
-<span class="k">def</span> <span class="nf">filter_fs_iter_libs</span><span class="p">(</span><span class="n">libs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">exts</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_fs_iter_libs</span><span class="p">(</span><span class="n">libs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">exts</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Filter a list of libraries (e.g. SimdImpl_{SimdType}.{pep3149}.so) with a</span>
 <span class="sd">    valid collection of extensions. (As .so is a valid extension, we can&#39;t just</span>
@@ -273,7 +273,7 @@
 
 <div class="viewcode-block" id="get_fs_iter_libs">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.get_fs_iter_libs">[docs]</a>
-<span class="k">def</span> <span class="nf">get_fs_iter_libs</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_fs_iter_libs</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Returns the paths of the default FsIterationScheme libraries usable on the</span>
 <span class="sd">    current machine (due to available SIMD optimisations -- these are detected by NumPy).</span>
@@ -289,7 +289,7 @@
 
 <div class="viewcode-block" id="vac_to_air">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.vac_to_air">[docs]</a>
-<span class="k">def</span> <span class="nf">vac_to_air</span><span class="p">(</span><span class="n">wavelength</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">vac_to_air</span><span class="p">(</span><span class="n">wavelength</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Convert vacuum wavelength to air.</span>
 
@@ -306,13 +306,13 @@
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="c1"># NOTE(cmo): Moved this import here as it&#39;s very slow</span>
     <span class="c1">### HACK</span>
-    <span class="kn">from</span> <span class="nn">specutils.utils.wcs_utils</span> <span class="kn">import</span> <span class="n">vac_to_air</span> <span class="k">as</span> <span class="n">spec_vac_to_air</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">specutils.utils.wcs_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">vac_to_air</span> <span class="k">as</span> <span class="n">spec_vac_to_air</span>
     <span class="k">return</span> <span class="n">spec_vac_to_air</span><span class="p">(</span><span class="n">wavelength</span> <span class="o">&lt;&lt;</span> <span class="n">units</span><span class="o">.</span><span class="n">nm</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;edlen1966&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span></div>
 
 
 <div class="viewcode-block" id="air_to_vac">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.air_to_vac">[docs]</a>
-<span class="k">def</span> <span class="nf">air_to_vac</span><span class="p">(</span><span class="n">wavelength</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">air_to_vac</span><span class="p">(</span><span class="n">wavelength</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Convert air wavelength to vacuum.</span>
 
@@ -329,14 +329,14 @@
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="c1"># NOTE(cmo): Moved this import here as it&#39;s very slow</span>
     <span class="c1">### HACK</span>
-    <span class="kn">from</span> <span class="nn">specutils.utils.wcs_utils</span> <span class="kn">import</span> <span class="n">air_to_vac</span> <span class="k">as</span> <span class="n">spec_air_to_vac</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">specutils.utils.wcs_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">air_to_vac</span> <span class="k">as</span> <span class="n">spec_air_to_vac</span>
     <span class="k">return</span> <span class="n">spec_air_to_vac</span><span class="p">(</span><span class="n">wavelength</span> <span class="o">&lt;&lt;</span> <span class="n">units</span><span class="o">.</span><span class="n">nm</span><span class="p">,</span> <span class="n">scheme</span><span class="o">=</span><span class="s1">&#39;iteration&#39;</span><span class="p">,</span>
                            <span class="n">method</span><span class="o">=</span><span class="s1">&#39;edlen1966&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span></div>
 
 
 <div class="viewcode-block" id="convert_specific_intensity">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.convert_specific_intensity">[docs]</a>
-<span class="k">def</span> <span class="nf">convert_specific_intensity</span><span class="p">(</span><span class="n">wavelength</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_specific_intensity</span><span class="p">(</span><span class="n">wavelength</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                                <span class="n">specInt</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                                <span class="n">outUnits</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">units</span><span class="o">.</span><span class="n">quantity</span><span class="o">.</span><span class="n">Quantity</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
@@ -368,7 +368,7 @@
 
 <div class="viewcode-block" id="CrswIterator">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.CrswIterator">[docs]</a>
-<span class="k">class</span> <span class="nc">CrswIterator</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CrswIterator</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Basic iterator to be used for controlling the scale of the collisional</span>
 <span class="sd">    radiative switching (of Hummer &amp; Voels) multiplicative paramter. Can be</span>
@@ -376,31 +376,31 @@
 <span class="sd">    of 1e3 and scales this factor by 0.1**(1.0/value) each iteration, as is</span>
 <span class="sd">    the default behaviour in RH.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initVal</span><span class="o">=</span><span class="mf">1e3</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initVal</span><span class="o">=</span><span class="mf">1e3</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">=</span> <span class="n">initVal</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">*</span> <span class="mf">0.1</span><span class="o">**</span><span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">val</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">val</span></div>
 
 
 <div class="viewcode-block" id="UnityCrswIterator">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.UnityCrswIterator">[docs]</a>
-<span class="k">class</span> <span class="nc">UnityCrswIterator</span><span class="p">(</span><span class="n">CrswIterator</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UnityCrswIterator</span><span class="p">(</span><span class="n">CrswIterator</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    A specific case representing no collisional radiative switching (i.e.</span>
 <span class="sd">    parameter always 1).</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">val</span></div>
 
 
 <div class="viewcode-block" id="sequence_repr">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.sequence_repr">[docs]</a>
-<span class="k">def</span> <span class="nf">sequence_repr</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">sequence_repr</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Uniform representation of arrays and lists as lists for use in</span>
 <span class="sd">    round-tripping AtomicModels.</span>
@@ -413,7 +413,7 @@
 
 <div class="viewcode-block" id="view_flatten">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.view_flatten">[docs]</a>
-<span class="k">def</span> <span class="nf">view_flatten</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">view_flatten</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Return a flattened view over an array, will raise an Exception if it</span>
 <span class="sd">    cannot be represented as a flat array without copy.</span>
@@ -425,7 +425,7 @@
 
 <div class="viewcode-block" id="check_shape_exception">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.check_shape_exception">[docs]</a>
-<span class="k">def</span> <span class="nf">check_shape_exception</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">shape</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_shape_exception</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">shape</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
                           <span class="n">ndim</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;array&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Ensure that an array matches the expected number of dimensions and shape.</span>
@@ -457,7 +457,7 @@
 
 <div class="viewcode-block" id="compute_radiative_losses">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.compute_radiative_losses">[docs]</a>
-<span class="k">def</span> <span class="nf">compute_radiative_losses</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_radiative_losses</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Compute the radiative gains and losses for each wavelength in the grid</span>
 <span class="sd">    used by the context. Units of J/s/m3/Hz. Includes</span>
@@ -489,7 +489,7 @@
 
 <div class="viewcode-block" id="integrate_line_losses">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.integrate_line_losses">[docs]</a>
-<span class="k">def</span> <span class="nf">integrate_line_losses</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">loss</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">integrate_line_losses</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">loss</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                           <span class="n">lines</span> <span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;AtomicLine&#39;</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="s1">&#39;AtomicLine&#39;</span><span class="p">]],</span>
                           <span class="n">extendGridNm</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
@@ -518,7 +518,7 @@
 <span class="sd">    linesLosses : array or list of array</span>
 <span class="sd">        The radiative gain/losses per line at each depth.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="kn">from</span> <span class="nn">.atomic_model</span> <span class="kn">import</span> <span class="n">AtomicLine</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.atomic_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomicLine</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">AtomicLine</span><span class="p">):</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">lines</span><span class="p">]</span>
@@ -555,7 +555,7 @@
 
 <div class="viewcode-block" id="compute_contribution_fn">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.compute_contribution_fn">[docs]</a>
-<span class="k">def</span> <span class="nf">compute_contribution_fn</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">mu</span> <span class="p">:</span> <span class="nb">int</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">outgoing</span> <span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_contribution_fn</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">mu</span> <span class="p">:</span> <span class="nb">int</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">outgoing</span> <span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Computes the contribution function for all wavelengths in the simulation,</span>
 <span class="sd">    for a chosen angular index.</span>
@@ -604,7 +604,7 @@
 
 <div class="viewcode-block" id="compute_wavelength_edges">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.compute_wavelength_edges">[docs]</a>
-<span class="k">def</span> <span class="nf">compute_wavelength_edges</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_wavelength_edges</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Compute the edges of the wavelength bins associated with the wavelength</span>
 <span class="sd">    array used in a simulation, typically used in conjunction with a plot</span>
@@ -631,7 +631,7 @@
 
 <div class="viewcode-block" id="compute_height_edges">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.compute_height_edges">[docs]</a>
-<span class="k">def</span> <span class="nf">compute_height_edges</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_height_edges</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Compute the edges of the height bins associated with the stratified</span>
 <span class="sd">    altitude array used in a simulation, typically used in conjunction with a</span>

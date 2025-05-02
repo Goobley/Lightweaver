@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>lightweaver.simd_management &mdash; Lightweaver  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -74,10 +74,10 @@
            <div itemprop="articleBody">
              
   <h1>Source code for lightweaver.simd_management</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
 
-<span class="kn">from</span> <span class="nn">numpy.core._multiarray_umath</span> <span class="kn">import</span> <span class="n">__cpu_features__</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.core._multiarray_umath</span><span class="w"> </span><span class="kn">import</span> <span class="n">__cpu_features__</span>
 
 <span class="c1"># NOTE(cmo): These are added in reverse order of preference (due to width), i.e.</span>
 <span class="c1"># try to use the key furthest down the list.</span>
@@ -89,7 +89,7 @@
 
 <div class="viewcode-block" id="get_available_simd_suffixes">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.simd_management.get_available_simd_suffixes">[docs]</a>
-<span class="k">def</span> <span class="nf">get_available_simd_suffixes</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_available_simd_suffixes</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Verifies the necessary flags against the features NumPy indicates are</span>
 <span class="sd">    available, and returns a list of available LightweaverSimdImpls</span>
@@ -103,7 +103,7 @@
 
 <div class="viewcode-block" id="filter_usable_simd_impls">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.simd_management.filter_usable_simd_impls">[docs]</a>
-<span class="k">def</span> <span class="nf">filter_usable_simd_impls</span><span class="p">(</span><span class="n">implLibs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_usable_simd_impls</span><span class="p">(</span><span class="n">implLibs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Filter a list of SimdImpl library names, returning those that are usable on</span>
 <span class="sd">    the current machine.</span>

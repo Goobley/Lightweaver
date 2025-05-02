@@ -60,13 +60,13 @@ Installation
 The most recent release of Lightweaver will always be available on PyPI and
 is pre-compiled for Linux, Windows, and macOS (intel).
 
-Lightweaver requires python 3.8+, and it is recommended to be run inside a virtual environment using ``conda``.
+Lightweaver requires python 3.10+, and it is recommended to be run inside a virtual environment using ``conda``.
 
 In this case a new virtual environment can be created with:
 
 .. code-block:: bash
 
-   conda create -n Lightweaver python=3.8
+   conda create -n Lightweaver python=3.12
 
 then, activate the environment:
 

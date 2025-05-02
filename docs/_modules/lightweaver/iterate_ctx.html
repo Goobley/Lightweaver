@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>lightweaver.iterate_ctx &mdash; Lightweaver  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -74,17 +74,17 @@
            <div itemprop="articleBody">
              
   <h1>Source code for lightweaver.iterate_ctx</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span>
 
-<span class="kn">from</span> <span class="nn">.iteration_update</span> <span class="kn">import</span> <span class="n">IterationUpdate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.iteration_update</span><span class="w"> </span><span class="kn">import</span> <span class="n">IterationUpdate</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">Context</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">Context</span>
 
 <div class="viewcode-block" id="ConvergenceCriteria">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.iterate_ctx.ConvergenceCriteria">[docs]</a>
-<span class="k">class</span> <span class="nc">ConvergenceCriteria</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConvergenceCriteria</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Abstract base class for determining convergence inside `iterate_ctx_se`. A</span>
 <span class="sd">    derived variant of this class will be instantiated by `iterate_ctx_se`</span>
@@ -102,12 +102,12 @@
 <span class="sd">    rhoTol : float or None</span>
 <span class="sd">        The value of rhoTol passed to `iterate_ctx_se`.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="s1">&#39;Context&#39;</span><span class="p">,</span> <span class="n">JTol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">popsTol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rhoTol</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="s1">&#39;Context&#39;</span><span class="p">,</span> <span class="n">JTol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">popsTol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rhoTol</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
 <div class="viewcode-block" id="ConvergenceCriteria.is_converged">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.iterate_ctx.ConvergenceCriteria.is_converged">[docs]</a>
-    <span class="k">def</span> <span class="nf">is_converged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">JUpdate</span><span class="p">:</span> <span class="n">IterationUpdate</span><span class="p">,</span> <span class="n">popsUpdate</span><span class="p">:</span> <span class="n">IterationUpdate</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_converged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">JUpdate</span><span class="p">:</span> <span class="n">IterationUpdate</span><span class="p">,</span> <span class="n">popsUpdate</span><span class="p">:</span> <span class="n">IterationUpdate</span><span class="p">,</span>
                      <span class="n">prdUpdate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">IterationUpdate</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        This function takes the IterationUpdate objects from</span>
@@ -122,7 +122,7 @@
 
 <div class="viewcode-block" id="DefaultConvergenceCriteria">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.iterate_ctx.DefaultConvergenceCriteria">[docs]</a>
-<span class="k">class</span> <span class="nc">DefaultConvergenceCriteria</span><span class="p">(</span><span class="n">ConvergenceCriteria</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DefaultConvergenceCriteria</span><span class="p">(</span><span class="n">ConvergenceCriteria</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Default ConvergenceCriteria implementation. Usually sufficient for</span>
 <span class="sd">    statistical equilibrium problems, but you may occasionally need to override</span>
@@ -140,7 +140,7 @@
 <span class="sd">        The value of rhoTol passed to `iterate_ctx_se`.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="s1">&#39;Context&#39;</span><span class="p">,</span> <span class="n">JTol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">popsTol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rhoTol</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="s1">&#39;Context&#39;</span><span class="p">,</span> <span class="n">JTol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">popsTol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rhoTol</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span> <span class="o">=</span> <span class="n">ctx</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">JTol</span> <span class="o">=</span> <span class="n">JTol</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">popsTol</span> <span class="o">=</span> <span class="n">popsTol</span>
@@ -148,7 +148,7 @@
 
 <div class="viewcode-block" id="DefaultConvergenceCriteria.is_converged">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.iterate_ctx.DefaultConvergenceCriteria.is_converged">[docs]</a>
-    <span class="k">def</span> <span class="nf">is_converged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">JUpdate</span><span class="p">:</span> <span class="n">IterationUpdate</span><span class="p">,</span> <span class="n">popsUpdate</span><span class="p">:</span> <span class="n">IterationUpdate</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_converged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">JUpdate</span><span class="p">:</span> <span class="n">IterationUpdate</span><span class="p">,</span> <span class="n">popsUpdate</span><span class="p">:</span> <span class="n">IterationUpdate</span><span class="p">,</span>
                      <span class="n">prdUpdate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">IterationUpdate</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Returns whether the context is converged.</span>
@@ -172,7 +172,7 @@
 
 <div class="viewcode-block" id="iterate_ctx_se">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.iterate_ctx.iterate_ctx_se">[docs]</a>
-<span class="k">def</span> <span class="nf">iterate_ctx_se</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="s1">&#39;Context&#39;</span><span class="p">,</span> <span class="n">Nscatter</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">NmaxIter</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">iterate_ctx_se</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="s1">&#39;Context&#39;</span><span class="p">,</span> <span class="n">Nscatter</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">NmaxIter</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
                    <span class="n">prd</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">JTol</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">5e-3</span><span class="p">,</span> <span class="n">popsTol</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
                    <span class="n">rhoTol</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prdIterTol</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span>
                    <span class="n">maxPrdSubIter</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">printInterval</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>

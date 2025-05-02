@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>lightweaver.nr_update &mdash; Lightweaver  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -74,15 +74,15 @@
            <div itemprop="articleBody">
              
   <h1>Source code for lightweaver.nr_update</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">.atomic_set</span> <span class="kn">import</span> <span class="n">lte_pops</span>
-<span class="kn">from</span> <span class="nn">.atomic_table</span> <span class="kn">import</span> <span class="n">PeriodicTable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.atomic_set</span><span class="w"> </span><span class="kn">import</span> <span class="n">lte_pops</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.atomic_table</span><span class="w"> </span><span class="kn">import</span> <span class="n">PeriodicTable</span>
 
 
 <div class="viewcode-block" id="nr_post_update">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.nr_update.nr_post_update">[docs]</a>
-<span class="k">def</span> <span class="nf">nr_post_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fdCollisionRates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hOnly</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">nr_post_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fdCollisionRates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hOnly</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                    <span class="n">timeDependentData</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chunkSize</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
                    <span class="n">ngUpdate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">printUpdate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extraParams</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>

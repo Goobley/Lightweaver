@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Time-dependent Example &mdash; Lightweaver  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -93,12 +93,12 @@ time-dependent population figure present in Judge 2017. Here the complete
 Rybicki-Hummer MALI method is used.
 Herein we also conserve charge.</p>
 <p>Judge (2017): ApJ 851, 5</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">lightweaver.fal</span> <span class="kn">import</span> <span class="n">Falc82</span>
-<span class="kn">from</span> <span class="nn">lightweaver.rh_atoms</span> <span class="kn">import</span>  <span class="n">H_4_atom</span><span class="p">,</span> <span class="n">C_atom</span><span class="p">,</span> <span class="n">O_atom</span><span class="p">,</span> <span class="n">Si_atom</span><span class="p">,</span> <span class="n">Al_atom</span><span class="p">,</span> <span class="n">CaII_atom</span><span class="p">,</span> <span class="n">Fe_atom</span><span class="p">,</span> <span class="n">He_atom</span><span class="p">,</span> <span class="n">MgII_atom</span><span class="p">,</span> <span class="n">N_atom</span><span class="p">,</span> <span class="n">Na_atom</span><span class="p">,</span> <span class="n">S_atom</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">lightweaver</span> <span class="k">as</span> <span class="nn">lw</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">lightweaver.fal</span><span class="w"> </span><span class="kn">import</span> <span class="n">Falc82</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">lightweaver.rh_atoms</span><span class="w"> </span><span class="kn">import</span>  <span class="n">H_4_atom</span><span class="p">,</span> <span class="n">C_atom</span><span class="p">,</span> <span class="n">O_atom</span><span class="p">,</span> <span class="n">Si_atom</span><span class="p">,</span> <span class="n">Al_atom</span><span class="p">,</span> <span class="n">CaII_atom</span><span class="p">,</span> <span class="n">Fe_atom</span><span class="p">,</span> <span class="n">He_atom</span><span class="p">,</span> <span class="n">MgII_atom</span><span class="p">,</span> <span class="n">N_atom</span><span class="p">,</span> <span class="n">Na_atom</span><span class="p">,</span> <span class="n">S_atom</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">lightweaver</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">lw</span>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/Lightweaver/Lightweaver/lw-docs-venv/lib/python3.12/site-packages/lightweaver/config.py:75: UserWarning: No config file found, using defaults. For optimised vectorised code, please run `lightweaver.benchmark()`, otherwise the most advanced instruction set supported by your machine will be picked, which may not be the fastest (due to e.g. aggressive AVX offsets).
@@ -127,33 +127,37 @@ Herein we also conserve charge.</p>
 dJ = 1.00e+00
     (Lambda iterating background)
 -- Iteration 4:
-dJ = 9.64e+00
-    H delta = 1.0905e+00
-    ne delta = 1.6015e-01
--- Iteration 29:
-dJ = 8.46e-02
-    H delta = 5.1054e-02
-    ne delta = 7.0413e-16
--- Iteration 54:
-dJ = 5.37e-02
-    H delta = 3.2221e-02
-    ne delta = 2.7092e-16
--- Iteration 79:
-dJ = 1.85e-02
-    H delta = 1.2072e-02
-    ne delta = 1.7016e-16
--- Iteration 103:
-dJ = 3.29e-03
-    H delta = 2.1979e-03
-    ne delta = 6.8064e-16
+dJ = 9.99e+00
+    H delta = 1.0870e+00
+    ne delta = 1.5277e-01
+-- Iteration 24:
+dJ = 1.05e-01
+    H delta = 6.5792e-02
+    ne delta = 5.9299e-16
+-- Iteration 44:
+dJ = 6.68e-02
+    H delta = 3.9908e-02
+    ne delta = 5.2820e-16
+-- Iteration 64:
+dJ = 4.01e-02
+    H delta = 2.5666e-02
+    ne delta = 1.7607e-16
+-- Iteration 84:
+dJ = 1.29e-02
+    H delta = 8.6126e-03
+    ne delta = 0.0000e+00
+-- Iteration 104:
+dJ = 2.65e-03
+    H delta = 1.7865e-03
+    ne delta = 8.5109e-16
 --------------------------------------------------------------------------------
-Final Iteration: 113
+Final Iteration: 111
 --------------------------------------------------------------------------------
-dJ = 1.45e-03
-    H delta = 9.6901e-04
-    ne delta = 7.0413e-16
+dJ = 1.46e-03
+    H delta = 9.8682e-04
+    ne delta = 1.0837e-15
 --------------------------------------------------------------------------------
-Context converged to statistical equilibrium in 113 iterations after 2.36 s.
+Context converged to statistical equilibrium in 111 iterations after 2.27 s.
 --------------------------------------------------------------------------------
 Achieved initial Stat Eq
 </pre></div>
@@ -207,24 +211,24 @@ times to attempt to solve the equations for convergence per step.</p>
 <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Iteration 0 (0.100000 s) done after 51 sub iterations
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Iteration 0 (0.100000 s) done after 50 sub iterations
 Iteration 1 (0.200000 s) done after 48 sub iterations
 Iteration 2 (0.300000 s) done after 46 sub iterations
 Iteration 3 (0.400000 s) done after 41 sub iterations
 Iteration 4 (0.500000 s) done after 36 sub iterations
-Iteration 5 (0.600000 s) done after 30 sub iterations
+Iteration 5 (0.600000 s) done after 29 sub iterations
 Iteration 6 (0.700000 s) done after 30 sub iterations
 Iteration 7 (0.800000 s) done after 24 sub iterations
 Iteration 8 (0.900000 s) done after 22 sub iterations
-Iteration 9 (1.000000 s) done after 21 sub iterations
+Iteration 9 (1.000000 s) done after 20 sub iterations
 Iteration 10 (1.100000 s) done after 19 sub iterations
 Iteration 11 (1.200000 s) done after 18 sub iterations
 Iteration 12 (1.300000 s) done after 17 sub iterations
 Iteration 13 (1.400000 s) done after 17 sub iterations
 Iteration 14 (1.500000 s) done after 16 sub iterations
 Iteration 15 (1.600000 s) done after 16 sub iterations
-Iteration 16 (1.700000 s) done after 20 sub iterations
-Iteration 17 (1.800000 s) done after 21 sub iterations
+Iteration 16 (1.700000 s) done after 18 sub iterations
+Iteration 17 (1.800000 s) done after 22 sub iterations
 Iteration 18 (1.900000 s) done after 14 sub iterations
 Iteration 19 (2.000000 s) done after 13 sub iterations
 Iteration 20 (2.100000 s) done after 13 sub iterations
@@ -235,7 +239,7 @@ Iteration 24 (2.500000 s) done after 10 sub iterations
 Iteration 25 (2.600000 s) done after 9 sub iterations
 Iteration 26 (2.700000 s) done after 9 sub iterations
 Iteration 27 (2.800000 s) done after 8 sub iterations
-Iteration 28 (2.900000 s) done after 7 sub iterations
+Iteration 28 (2.900000 s) done after 8 sub iterations
 Iteration 29 (3.000000 s) done after 7 sub iterations
 </pre></div>
 </div>
@@ -269,10 +273,10 @@ Iteration 29 (3.000000 s) done after 7 sub iterations
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time taken: </span><span class="si">%.2f</span><span class="s1"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">))</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_plot_JudgeDynamicValidation_001.png" srcset="../_images/sphx_glr_plot_JudgeDynamicValidation_001.png" alt="plot JudgeDynamicValidation" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Time taken: 6.06 s
+<img src="../_images/sphx_glr_plot_JudgeDynamicValidation_001.png" srcset="../_images/sphx_glr_plot_JudgeDynamicValidation_001.png" alt="plot JudgeDynamicValidation" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Time taken: 7.72 s
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 25.074 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 25.673 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-plot-judgedynamicvalidation-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/80b6e3e2cfa645cda4e5a121a0b8a2e4/plot_JudgeDynamicValidation.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_JudgeDynamicValidation.ipynb</span></code></a></p>
