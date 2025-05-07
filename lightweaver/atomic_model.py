@@ -751,7 +751,12 @@ class ExplicitContinuum(AtomicContinuum):
         alpha = weno4(wavelength, self.wavelengthGrid, self.alphaGrid, left=0.0, right=0.0)
         alpha[wavelength < self.minLambda] = 0.0
         alpha[wavelength > self.lambdaEdge] = 0.0
-        alpha[alpha < 0.0] = 0.0
+        if np.any(alpha < 0.0):
+            # NOTE(cmo): If weno4 has exploded to the extent that there are negatives, something has gone very wrong (e.g. overly sampled verticals in the cross-section resonances), so switch to linear interpolation.
+            alpha = np.interp(wavelength, self.wavelengthGrid, self.alphaGrid, left=0.0, right=0.0)
+            alpha[wavelength < self.minLambda] = 0.0
+            alpha[wavelength > self.lambdaEdge] = 0.0
+            alpha[alpha < 0.0] = 0.0
         return alpha
 
     def wavelength(self) -> np.ndarray:
