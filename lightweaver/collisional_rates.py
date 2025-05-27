@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Sequence, cast
 
+import astropy.units as u
 import numpy as np
 from numba import njit
 from scipy.special import exp1
@@ -283,7 +284,7 @@ class Ar85Cdi(CollisionalRates):
 
             fxj *= fac
             fac = 6.69e-7 / cdi[m, 0]**1.5
-            Cup += fac * fxj * Const.CM_TO_M**3
+            Cup += fac * (fxj << u.Unit('cm3')).to('m3').value
         Cup[Cup < 0] = 0.0
 
         Cup *= atmos.ne
@@ -327,7 +328,7 @@ class Burgess(CollisionalRates):
         wlog = np.log(1.0 + invdEkT)
         wb = wlog**(betaB / (1.0 + invdEkT))
         Cup = (2.1715e-8 * cbar * (13.6/dE)**1.5 * np.sqrt(dEkT)
-               * exp1(dEkT) * wb * atmos.ne * Const.CM_TO_M**3)
+               * exp1(dEkT) * wb * (atmos.ne << u.Unit('m-3')).to('cm-3').value)
 
         Cup *= self.fudge
         Cdown = Cup * nstar[self.i, :] / nstar[self.j, :]

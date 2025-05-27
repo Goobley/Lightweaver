@@ -164,7 +164,7 @@ class AtomicLevel:
         '''
         Returns E in Joule.
         '''
-        return self.E * Const.HC / Const.CM_TO_M
+        return self.E * Const.HC_CM
 
     @property
     def E_eV(self):

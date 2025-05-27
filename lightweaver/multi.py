@@ -2,6 +2,7 @@ import re
 from dataclasses import dataclass
 from typing import Tuple
 
+import astropy.units as u
 import numpy as np
 
 import lightweaver.constants as C
@@ -75,19 +76,19 @@ def read_multi_atmos(filename: str) -> Tuple[MultiMetadata, Atmosphere]:
     scaleMode = scaleStr[0].upper()
     if scaleMode == 'M':
         scaleType = ScaleType.ColumnMass
-        dscale = 10**dscale * (C.G_TO_KG / C.CM_TO_M**2)
+        dscale = ((10**dscale) << u.Unit('g cm-2')).to('kg m-2').value
     elif scaleMode == 'T':
         scaleType = ScaleType.Tau500
         dscale = 10**dscale
     elif scaleMode == 'H':
         scaleType = ScaleType.Geometric
-        dscale *= C.KM_TO_M
+        dscale = (dscale << u.Unit('km')).to('m').value
     else:
         raise ValueError('Unknown scale type: %s (expected M, T, or H)' % scaleStr)
 
-    vlos *= C.KM_TO_M
-    vturb *= C.KM_TO_M
-    ne /= C.CM_TO_M**3
+    vlos = (vlos << u.Unit('km s-1')).to('m s-1').value
+    vturb = (vturb << u.Unit('km s-1')).to('m s-1').value
+    ne = (ne << u.Unit('cm-3')).to('m-3').value
 
     if len(lines) <= Nspace:
         raise ValueError('Hydrogen populations not supplied!')
@@ -98,7 +99,7 @@ def read_multi_atmos(filename: str) -> Tuple[MultiMetadata, Atmosphere]:
         vals = [float(v) for v in vals]
         hPops[:, k] = vals
 
-    hPops /= C.CM_TO_M**3
+    hPops = (hPops << u.Unit('cm-3')).to('m-3').value
 
     meta = MultiMetadata(atmosName, logG)
     atmos = Atmosphere.make_1d(scale=scaleType,

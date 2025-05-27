@@ -113,8 +113,8 @@ class Barklem:
             while atom.levels[ic].stage < atom.levels[j].stage + 1:
                 ic += 1
 
-            deltaEi = (atom.levels[ic].E - atom.levels[i].E) * Const.HC / Const.CM_TO_M
-            deltaEj = (atom.levels[ic].E - atom.levels[j].E) * Const.HC / Const.CM_TO_M
+            deltaEi = (atom.levels[ic].E - atom.levels[i].E) * Const.HC_CM
+            deltaEj = (atom.levels[ic].E - atom.levels[j].E) * Const.HC_CM
             E_Rydberg = Const.ERydberg / (1.0 + Const.MElectron
                                            / (atom.element.mass * Const.Amu))
 

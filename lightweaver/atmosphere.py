@@ -130,8 +130,8 @@ def get_top_pressure(eos: Wittmann, temp, ne=None, rho=None):
     For internal use.
 
     In order this is deduced from:
-        - the electron density `ne`, if provided
-        - the mass density `rho`, if provided
+        - the electron density `ne` [m-3], if provided
+        - the mass density `rho` [kg m-3], if provided
         - the electron pressure present in FALC
 
     Returns
@@ -141,10 +141,10 @@ def get_top_pressure(eos: Wittmann, temp, ne=None, rho=None):
 
     '''
     if ne is not None:
-        pe = ne * Const.CM_TO_M**3 * cgs.BK * temp
+        pe = (ne << u.Unit('m-3')).to('cm-3').value  * cgs.BK * temp
         return eos.pg_from_pe(temp, pe)
     elif rho is not None:
-        return eos.pg_from_rho(temp, rho)
+        return eos.pg_from_rho(temp, (rho << u.Unit('kg m-3')).to('g cm-3').value)
 
     pgasCgs = np.array([0.70575286, 0.59018545, 0.51286639, 0.43719268, 0.37731009,
         0.33516886, 0.31342915, 0.30604891, 0.30059491, 0.29207645,
@@ -949,20 +949,20 @@ class Atmosphere:
         if nHTot is None and ne is not None:
             if verbose:
                 print('Setting nHTot from electron pressure.')
-            pe = ne * Const.CM_TO_M**3 * cgs.BK * temperature
+            pe = (ne << u.Unit('m-3')).to('cm-3').value * cgs.BK * temperature
             rho = np.zeros(Nspace)
             for k in range(Nspace):
                 rho[k] = eos.rho_from_pe(temperature[k], pe[k])
-            nHTot = np.copy(rho / (Const.CM_TO_M**3 / Const.G_TO_KG)
+            nHTot = np.copy((rho << u.Unit('g cm-3')).to('kg m-3').value
                             / (Const.Amu * abundance.massPerH))
         elif ne is None and nHTot is not None:
             if verbose:
                 print('Setting ne from mass density.')
-            rho = Const.Amu * abundance.massPerH * nHTot * Const.CM_TO_M**3 / Const.G_TO_KG
+            rho = ((Const.Amu * abundance.massPerH * nHTot) << u.Unit('kg m-3')).to('g cm-3').value
             pe = np.zeros(Nspace)
             for k in range(Nspace):
                 pe[k] = eos.pe_from_rho(temperature[k], rho[k])
-            ne = np.copy(pe / (cgs.BK * temperature) / Const.CM_TO_M**3)
+            ne = np.copy(((pe / (cgs.BK * temperature)) << u.Unit('cm-3')).to('m-3').value)
         elif ne is None and nHTot is None:
             if Pgas is not None and Pgas.shape[0] != Nspace:
                 raise ValueError('Dimensions of Pgas do not match atmospheric depth')
@@ -973,7 +973,7 @@ class Atmosphere:
                 if verbose:
                     print('Setting ne, nHTot from provided gas pressure.')
                 # Convert to cgs for eos
-                pgas = Pgas * (Const.CM_TO_M**2 / Const.G_TO_KG)
+                pgas = (Pgas << u.Unit('Pa')).to('dyn cm-2').value
                 pe = np.zeros(Nspace)
                 rho = np.zeros(Nspace)
                 for k in range(Nspace):
@@ -983,7 +983,7 @@ class Atmosphere:
                 if verbose:
                     print('Setting ne, nHTot from provided electron pressure.')
                 # Convert to cgs for eos
-                pe = Pe * (Const.CM_TO_M**2 / Const.G_TO_KG)
+                pe = (Pe << u.Unit('Pa')).to('dyn cm-2').value
                 pgas = np.zeros(Nspace)
                 rho = np.zeros(Nspace)
                 for k in range(Nspace):
@@ -991,19 +991,19 @@ class Atmosphere:
                     rho[k] = eos.rho_from_pe(temperature[k], pe[k])
             elif Pgas is None and Pe is None:
                 # Doing Hydrostatic Eq. based here on NICOLE implementation
-                gravAcc = 10**logG / Const.CM_TO_M
+                gravAcc = ((10**logG) << u.Unit('m s-2')).to('cm s-2').value
                 Avog = 6.022045e23 # Avogadro's Number
                 if Ptop is None and PeTop is not None:
                     if verbose:
                         print(('Setting ne, nHTot to hydrostatic equilibrium (logG=%f)'
                                ' from provided top electron pressure.') % logG)
-                    PeTop *= (Const.CM_TO_M**2 / Const.G_TO_KG)
+                    PeTop = (PeTop << u.Unit("Pa")).to('dyn cm-2').value
                     Ptop = eos.pg_from_pe(temperature[0], PeTop)
                 elif Ptop is not None and PeTop is None:
                     if verbose:
                         print(('Setting ne, nHTot to hydrostatic equilibrium (logG=%f)'
                               ' from provided top gas pressure.') % logG)
-                    Ptop *= (Const.CM_TO_M**2 / Const.G_TO_KG)
+                    Ptop = (Ptop << u.Unit("Pa")).to('dyn cm-2').value
                     PeTop = eos.pe_from_pg(temperature[0], Ptop)
                 elif Ptop is None and PeTop is None:
                     if verbose:
@@ -1017,9 +1017,9 @@ class Atmosphere:
                 if scale == ScaleType.Tau500:
                     tau = depthScale
                 elif scale == ScaleType.Geometric:
-                    height = depthScale / Const.CM_TO_M
+                    height = (depthScale << u.Unit('m')).to('cm').value
                 else:
-                    cmass = depthScale / Const.G_TO_KG * Const.CM_TO_M**2
+                    cmass = (depthScale << u.Unit('kg m-2')).to('g cm-2').value
 
                 # NOTE(cmo): Compute HSE following the NICOLE method.
                 rho = np.zeros(Nspace)
@@ -1066,14 +1066,14 @@ class Atmosphere:
                     else:
                         raise ConvergenceError(('No convergence in HSE at depth point %d, '
                                                 'last change %2.4e') % (k, change))
-            nHTot = np.copy(rho / (Const.CM_TO_M**3 / Const.G_TO_KG)
+            nHTot = np.copy((rho << u.Unit('g cm-3')).to('kg m-3').value
                             / (Const.Amu * abundance.massPerH))
-            ne = np.copy(pe / (cgs.BK * temperature) / Const.CM_TO_M**3)
+            ne = np.copy(((pe / (cgs.BK * temperature)) << u.Unit('cm-3')).to('m-3').value)
 
         # NOTE(cmo): Compute final pgas, pe from EOS that will be used for
         # background opacity.
         rhoSI = Const.Amu * abundance.massPerH * nHTot
-        rho = Const.Amu * abundance.massPerH * nHTot * Const.CM_TO_M**3 / Const.G_TO_KG
+        rho = (rhoSI << u.Unit('kg m-3')).to('g cm-3').value
         pgas = np.zeros_like(depthScale)
         pe = np.zeros_like(depthScale)
         for k in range(Nspace):
@@ -1083,7 +1083,8 @@ class Atmosphere:
         chi_c = np.zeros_like(depthScale)
         for k in range(depthScale.shape[0]):
             chi_c[k] = eos.cont_opacity(temperature[k], pgas[k], pe[k],
-                                        np.array([5000.0])).item() / Const.CM_TO_M
+                                        np.array([5000.0])).item()
+        chi_c = (chi_c << u.Unit('cm')).to('m').value
 
         # NOTE(cmo): We should now have a uniform minimum set of data (other
         # than the scale type), allowing us to simply convert between the
@@ -1299,22 +1300,23 @@ class Atmosphere:
             if verbose:
                 print('Setting nHTot from electron pressure.')
             flatNe = view_flatten(ne)
-            pe = flatNe * Const.CM_TO_M**3 * cgs.BK * flatTemperature
+            pe = (flatNe << u.Unit('m-3')).to('cm-3').value * cgs.BK * flatTemperature
             rho = np.zeros(Nspace)
             for k in range(Nspace):
                 rho[k] = eos.rho_from_pe(flatTemperature[k], pe[k])
-            nHTot = np.copy(rho / (Const.CM_TO_M**3 / Const.G_TO_KG)
-                            / (Const.Amu * abundance.massPerH))
+            nHTot = np.ascontiguousarray(
+                (rho << u.Unit('g cm-3')).to('kg m-3').value
+                / (Const.Amu * abundance.massPerH)
+            )
         elif ne is None and nHTot is not None:
             if verbose:
                 print('Setting ne from mass density.')
             flatNHTot = view_flatten(nHTot)
-            rho = (Const.Amu * abundance.massPerH * flatNHTot
-                   * Const.CM_TO_M**3 / Const.G_TO_KG)
+            rho = ((Const.Amu * abundance.massPerH * flatNHTot) << u.Unit('kg m-3')).to('g cm-3').value
             pe = np.zeros(Nspace)
             for k in range(Nspace):
                 pe[k] = eos.pe_from_rho(flatTemperature[k], rho[k])
-            ne = np.copy(pe / (cgs.BK * flatTemperature) / Const.CM_TO_M**3)
+            ne = np.ascontiguousarray(((pe / (cgs.BK * flatTemperature)) << u.Unit('cm-3')).to('m-3').value)
         elif ne is None and nHTot is None:
             raise ValueError('Cannot omit both ne and nHTot (currently).')
         flatX = view_flatten(x)

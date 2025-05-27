@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from typing import List, Optional, Tuple, Union
 
+import astropy.units as u
 import numpy as np
 from numba import njit
 from parse import parse
@@ -36,7 +37,7 @@ def equilibrium_constant_kurucz_70(tempRange, mk, Ediss, eqc):
     minTemp = tempRange[0]
     maxTemp = tempRange[1]
     kB = Const.KBoltzmann
-    CM_TO_M = Const.CM_TO_M
+    CM_TO_M = u.Unit('cm').to('m')
 
     @njit('float64(float64)')
     def kurucz_70(T):
@@ -56,7 +57,7 @@ def equilibrium_constant_kurucz_85(tempRange, mk, Ediss, eqc):
     minTemp = tempRange[0]
     maxTemp = tempRange[1]
     kB = Const.KBoltzmann
-    CM_TO_M = Const.CM_TO_M
+    CM_TO_M = u.Unit('cm').to('m')
 
     @njit('float64(float64)')
     def kurucz_85(T):
@@ -76,7 +77,6 @@ def equilibrium_constant_sauval_tatum(tempRange, Ediss, eqc):
     minTemp = tempRange[0]
     maxTemp = tempRange[1]
     kB = Const.KBoltzmann
-    CM_TO_M = Const.CM_TO_M
     THETA0 = Const.Theta0
     Ediss = Ediss / Const.EV
 

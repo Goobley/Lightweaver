@@ -635,7 +635,7 @@ class KuruczPfTable:
                                                                         self.Tpf.shape[0]))
             ionpot.append(np.array(u.unpack_farray(stages[-1], u.unpack_double)))
 
-        ionpot = [i * Const.HC / Const.CM_TO_M for i in ionpot]
+        ionpot = [i * Const.HC_CM for i in ionpot]
         pf = [np.log(p) for p in pf]
         self.pf = pf
         self.ionpot = ionpot
