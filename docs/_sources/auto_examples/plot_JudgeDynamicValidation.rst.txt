@@ -133,7 +133,7 @@ Find the initial statistical equilibrium solution,
         H delta = 9.8682e-04
         ne delta = 3.5213e-16
     --------------------------------------------------------------------------------
-    Context converged to statistical equilibrium in 111 iterations after 2.25 s.
+    Context converged to statistical equilibrium in 111 iterations after 2.24 s.
     --------------------------------------------------------------------------------
     Achieved initial Stat Eq
 
@@ -314,7 +314,7 @@ Reproduce Judge plot.
 
  .. code-block:: none
 
-    Time taken: 7.72 s
+    Time taken: 7.73 s
 
 
 
@@ -322,7 +322,7 @@ Reproduce Judge plot.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 25.059 seconds)
+   **Total running time of the script:** (0 minutes 24.814 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_JudgeDynamicValidation.py:
