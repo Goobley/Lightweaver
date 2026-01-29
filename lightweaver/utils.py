@@ -193,7 +193,9 @@ def vac_to_air(wavelength: np.ndarray) -> np.ndarray:
     # NOTE(cmo): Moved this import here as it's very slow
     ### HACK
     from specutils.utils.wcs_utils import vac_to_air as spec_vac_to_air
-    return spec_vac_to_air(wavelength << units.nm, method='edlen1966').value
+    if not isinstance(wavelength, units.quantity.Quantity):
+        return spec_vac_to_air(wavelength << units.nm, method='edlen1966').value
+    return spec_vac_to_air(wavelength, method='edlen1966')
 
 def air_to_vac(wavelength: np.ndarray) -> np.ndarray:
     '''
@@ -213,8 +215,11 @@ def air_to_vac(wavelength: np.ndarray) -> np.ndarray:
     # NOTE(cmo): Moved this import here as it's very slow
     ### HACK
     from specutils.utils.wcs_utils import air_to_vac as spec_air_to_vac
-    return spec_air_to_vac(wavelength << units.nm, scheme='iteration',
-                           method='edlen1966').value
+    if not isinstance(wavelength, units.quantity.Quanitity):
+         return spec_air_to_vac(wavelength << units.nm, scheme='iteration', 
+                                method='edlen1966').value
+    return spec_air_to_vac(wavelength, scheme='iteration',
+                           method='edlen1966')
 
 def convert_specific_intensity(wavelength: np.ndarray,
                                specInt: np.ndarray,
