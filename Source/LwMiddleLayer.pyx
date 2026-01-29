@@ -660,10 +660,10 @@ cdef class LwAtmosphere:
         self.vz = atmos.vz
         check_shape_exception(self.vz, Nspace, name='vz')
         self.vx = atmos.vx
-        self.vy = atmos.vy
-        if Ndim >= 2:
+        if atmos.vx.size > 0:
             check_shape_exception(self.vx, Nspace, name='vx')
-        if Ndim >= 3:
+        self.vy = atmos.vy
+        if atmos.vy.size > 0:
             check_shape_exception(self.vy, Nspace, name='vy')
 
         self.vturb = atmos.vturb
@@ -680,7 +680,7 @@ cdef class LwAtmosphere:
             self.wmu = atmos.wmu
             check_shape_exception(self.wmu, Nrays, name='wmu')
         except AttributeError as e:
-            raise ValueError(f'One of the quadrature values not found, was .quadrature called on the Atmosphere object? (Caught: {e}')
+            raise ValueError(f'One of the quadrature values not found, was .quadrature called on the Atmosphere object? (Caught: {e})')
         self.atmos.z = f64_view(self.z)
         self.atmos.height = f64_view(self.z)
         self.atmos.x = f64_view(self.x)

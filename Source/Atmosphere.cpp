@@ -4,7 +4,12 @@
 
 void Atmosphere::update_projections()
 {
-    switch (Ndim)
+    // NOTE(cmo): Handle 3d velocity fields in non 3d atmospheres
+    int n_dim_effective = Ndim;
+    if (vx.shape(0) > 0 && vy.shape(0) > 0) {
+        n_dim_effective = 3;
+    }
+    switch (n_dim_effective)
     {
         case 1:
         {

@@ -254,9 +254,9 @@ class Layout:
     z : np.ndarray
         Ordinates of grid points along the z-axis (present for all Ndim) [m].
     vx : np.ndarray
-        x component of plasma velocity (present for Ndim >= 2) [m/s].
+        x component of plasma velocity (optional for Ndim < 2) [m/s].
     vy : np.ndarray
-        y component of plasma velocity (present for Ndim == 3) [m/s].
+        y component of plasma velocity (optional for Ndim < 3) [m/s].
     vz : np.ndarray
         z component of plasma velocity (present for all Ndim) [m/s]. Aliased to
         `vlos` when `Ndim==1`
@@ -290,33 +290,55 @@ class Layout:
     stratifications: Optional[Stratifications] = None
 
     @classmethod
-    def make_1d(cls, z: np.ndarray, vz: np.ndarray,
-                lowerBc: BoundaryCondition, upperBc: BoundaryCondition,
-                stratifications: Optional[Stratifications]=None) -> 'Layout':
+    def make_1d(
+        cls,
+        z: np.ndarray,
+        vz: np.ndarray,
+        lowerBc: BoundaryCondition,
+        upperBc: BoundaryCondition,
+        stratifications: Optional[Stratifications]=None,
+        vx: Optional[np.ndarray]=None,
+        vy: Optional[np.ndarray]=None,
+    ) -> 'Layout':
         '''
         Construct 1D Layout.
         '''
 
+        if vx is None:
+            vx = np.array(())
+        if vy is None:
+            vy = np.array(())
+
         return cls(Ndim=1, x=np.array(()), y=np.array(()),
-                   z=z, vx=np.array(()), vy=np.array(()),
+                   z=z, vx=vx, vy=vy,
                    vz=vz, xLowerBc=NoBc(), xUpperBc=NoBc(),
                    yLowerBc=NoBc(), yUpperBc=NoBc(),
                    zLowerBc=lowerBc, zUpperBc=upperBc,
                    stratifications=stratifications)
 
     @classmethod
-    def make_2d(cls, x: np.ndarray, z: np.ndarray,
-                vx: np.ndarray, vz: np.ndarray,
-                xLowerBc: BoundaryCondition, xUpperBc: BoundaryCondition,
-                zLowerBc: BoundaryCondition, zUpperBc: BoundaryCondition,
-                stratifications: Optional[Stratifications]=None) -> 'Layout':
+    def make_2d(
+        cls,
+        x: np.ndarray,
+        z: np.ndarray,
+        vx: np.ndarray,
+        vz: np.ndarray,
+        xLowerBc: BoundaryCondition,
+        xUpperBc: BoundaryCondition,
+        zLowerBc: BoundaryCondition,
+        zUpperBc: BoundaryCondition,
+        stratifications: Optional[Stratifications]=None,
+        vy: Optional[np.ndarray]=None
+    ) -> 'Layout':
         '''
         Construct 2D Layout.
         '''
+        if vy is None:
+            vy = np.array(())
 
         Bc = BoundaryCondition
         return cls(Ndim=2, x=x, y=np.array(()), z=z,
-                   vx=vx, vy=np.array(()), vz=vz,
+                   vx=vx, vy=vy, vz=vz,
                    xLowerBc=xLowerBc, xUpperBc=xUpperBc,
                    yLowerBc=NoBc(), yUpperBc=NoBc(),
                    zLowerBc=zLowerBc, zUpperBc=zUpperBc,
@@ -746,24 +768,33 @@ class Atmosphere:
         return atmos.unit_view()
 
     @classmethod
-    def make_1d(cls, scale: ScaleType, depthScale: np.ndarray,
-                temperature: np.ndarray, vlos: np.ndarray,
-                vturb: np.ndarray, ne: Optional[np.ndarray]=None,
-                hydrogenPops: Optional[np.ndarray]=None,
-                nHTot: Optional[np.ndarray]=None,
-                B: Optional[np.ndarray]=None,
-                gammaB: Optional[np.ndarray]=None,
-                chiB: Optional[np.ndarray]=None,
-                lowerBc: Optional[BoundaryCondition]=None,
-                upperBc: Optional[BoundaryCondition]=None,
-                convertScales: bool=True,
-                abundance: Optional[AtomicAbundance]=None,
-                logG: float=2.44,
-                Pgas: Optional[np.ndarray]=None,
-                Pe: Optional[np.ndarray]=None,
-                Ptop: Optional[float]=None,
-                PeTop: Optional[float]=None,
-                verbose: bool=False):
+    def make_1d(
+        cls,
+        scale: ScaleType,
+        depthScale: np.ndarray,
+        temperature: np.ndarray,
+        vlos: Optional[np.ndarray]=None,
+        vturb: Optional[np.ndarray]=None,
+        ne: Optional[np.ndarray]=None,
+        hydrogenPops: Optional[np.ndarray]=None,
+        nHTot: Optional[np.ndarray]=None,
+        vx: Optional[np.ndarray]=None,
+        vy: Optional[np.ndarray]=None,
+        vz: Optional[np.ndarray]=None,
+        B: Optional[np.ndarray]=None,
+        gammaB: Optional[np.ndarray]=None,
+        chiB: Optional[np.ndarray]=None,
+        lowerBc: Optional[BoundaryCondition]=None,
+        upperBc: Optional[BoundaryCondition]=None,
+        convertScales: bool=True,
+        abundance: Optional[AtomicAbundance]=None,
+        logG: float=2.44,
+        Pgas: Optional[np.ndarray]=None,
+        Pe: Optional[np.ndarray]=None,
+        Ptop: Optional[float]=None,
+        PeTop: Optional[float]=None,
+        verbose: bool=False,
+    ):
         '''
         Constructor for 1D Atmosphere objects. Optionally will use an
         equation of state (EOS) to estimate missing parameters.
@@ -819,10 +850,11 @@ class Atmosphere:
             of sight.
         temperature : np.ndarray
             Temperature structure of the atmosphere [K].
-        vlos : np.ndarray
-            Velocity structure of the atmosphere along z [m/s].
+        vlos : np.ndarray, optional
+            Alias for vz
+            Velocity structure of the atmosphere along z [m/s]. Default: 0 m/s everywhere
         vturb : np.ndarray
-            Microturbulent velocity structure of the atmosphere [m/s].
+            Microturbulent velocity structure of the atmosphere [m/s]. Default: 0 m/s everywhere.
         ne : np.ndarray
             Electron density structure of the atmosphere [m-3].
         hydrogenPops : np.ndarray, optional
@@ -830,6 +862,14 @@ class Atmosphere:
             atmosphere [m-3], 2D array [Nlevel, Nspace].
         nHTot : np.ndarray, optional
             Total hydrogen number density structure of the atmosphere [m-3]
+        vx : np.ndarray, optional
+            x-component of atmospheric velocity [m/s]. If specifying vx/vy then a 3D
+            quadrature will be needed.
+        vy : np.ndarray, optional
+            y-component of atmospheric velocity [m/s]. If specifying vx/vy then a 3D
+            quadrature will be needed.
+        vz : np.ndarray, optional
+            alias for vlos. [m/s]
         B : np.ndarray, optional.
             Magnetic field strength [T].
         gammaB : np.ndarray, optional
@@ -887,8 +927,18 @@ class Atmosphere:
                                             depthScale.shape[0], 1, xName)
         temperature = (temperature << u.K).value
         check_shape(temperature, 'temperature')
+        if vlos is None:
+            if vz is None:
+                vlos = np.zeros_like(temperature)
+            else:
+                vlos = vz
+        elif vz is not None:
+            raise ValueError("Cannot set both vlos and vz (they are aliases).")
+        vz = vlos
         vlos = (vlos << u.m / u.s).value
         check_shape(vlos, 'vlos')
+        if vturb is None:
+            vturb = np.zeros_like(temperature)
         vturb = (vturb << u.m / u.s).value
         check_shape(vturb, 'vturb')
         if ne is not None:
@@ -904,6 +954,15 @@ class Atmosphere:
         if nHTot is not None:
             nHTot = (nHTot << u.m**(-3)).value
             check_shape(nHTot, 'nHTot')
+        if vx is not None:
+            if vy is None:
+                raise ValueError("vx is set, vy must be also.")
+            check_shape(vx, "vx")
+        if vy is not None:
+            if vx is None:
+                raise ValueError("vy is set, vx must be also.")
+            check_shape(vy, "vy")
+
         if B is not None:
             B = (B << u.T).value
             check_shape(B, 'B')
@@ -1148,9 +1207,15 @@ class Atmosphere:
             stratifications = None
             height = depthScale
 
-        layout = Layout.make_1d(z=height, vz=vlos,
-                                lowerBc=lowerBc, upperBc=upperBc,
-                                stratifications=stratifications)
+        layout = Layout.make_1d(
+            z=height,
+            vx=vx,
+            vy=vy,
+            vz=vz,
+            lowerBc=lowerBc,
+            upperBc=upperBc,
+            stratifications=stratifications
+        )
         ne = cast(np.ndarray, ne)
         nHTot = cast(np.ndarray, nHTot)
         atmos = cls(structure=layout, temperature=temperature, vturb=vturb,
@@ -1159,20 +1224,27 @@ class Atmosphere:
         return atmos
 
     @classmethod
-    def make_2d(cls, height: np.ndarray, x: np.ndarray,
-                temperature: np.ndarray, vx: np.ndarray,
-                vz: np.ndarray, vturb: np.ndarray,
-                ne: Optional[np.ndarray]=None,
-                nHTot: Optional[np.ndarray]=None,
-                B: Optional[np.ndarray]=None,
-                gammaB: Optional[np.ndarray]=None,
-                chiB: Optional[np.ndarray]=None,
-                xUpperBc: Optional[BoundaryCondition]=None,
-                xLowerBc: Optional[BoundaryCondition]=None,
-                zUpperBc: Optional[BoundaryCondition]=None,
-                zLowerBc: Optional[BoundaryCondition]=None,
-                abundance: Optional[AtomicAbundance]=None,
-                verbose=False):
+    def make_2d(
+        cls,
+        height: np.ndarray,
+        x: np.ndarray,
+        temperature: np.ndarray,
+        vx: Optional[np.ndarray]=None,
+        vy: Optional[np.ndarray]=None,
+        vz: Optional[np.ndarray]=None,
+        vturb: Optional[np.ndarray]=None,
+        ne: Optional[np.ndarray]=None,
+        nHTot: Optional[np.ndarray]=None,
+        B: Optional[np.ndarray]=None,
+        gammaB: Optional[np.ndarray]=None,
+        chiB: Optional[np.ndarray]=None,
+        xUpperBc: Optional[BoundaryCondition]=None,
+        xLowerBc: Optional[BoundaryCondition]=None,
+        zUpperBc: Optional[BoundaryCondition]=None,
+        zLowerBc: Optional[BoundaryCondition]=None,
+        abundance: Optional[AtomicAbundance]=None,
+        verbose=False
+    ):
         '''
         Constructor for 2D Atmosphere objects.
 
@@ -1192,10 +1264,13 @@ class Atmosphere:
             The (horizontal) x-coordinates of the atmospheric grid.
         temperature : np.ndarray
             Temperature structure of the atmosphere [K].
-        vx : np.ndarray
-            x-component of the atmospheric velocity [m/s].
-        vz : np.ndarray
-            z-component of the atmospheric velocity [m/s].
+        vx : np.ndarray, optional.
+            x-component of the atmospheric velocity [m/s]. Default: 0 m/s.
+        vy : np.ndarray, optional.
+            y-component of the atmospheric velocity [m/s]. Not used by default,
+            use a 3D quadrature if you need it.
+        vz : np.ndarray, optional
+            z-component of the atmospheric velocity [m/s]. Default: 0 m/s.
         vturb : np.ndarray
             Microturbulent velocity structure [m/s].
         ne : np.ndarray
@@ -1247,6 +1322,8 @@ class Atmosphere:
             raise ValueError("Height should be decreasing with index (top -> bottom).")
         temperature = (temperature << u.K).value
         vx = (vx << u.m / u.s).value
+        if vy is not None:
+            vy = (vy << u.m / u.s).value
         vz = (vz << u.m / u.s).value
         vturb = (vturb << u.m / u.s).value
         if ne is not None:
@@ -1325,13 +1402,22 @@ class Atmosphere:
         ne = cast(np.ndarray, ne)
         flatNe = view_flatten(ne)
         flatVx = view_flatten(vx)
+        flatVy = None if vy is None else view_flatten(vy)
         flatVz = view_flatten(vz)
         flatVturb = view_flatten(vturb)
 
-        layout = Layout.make_2d(x=flatX, z=flatHeight, vx=flatVx, vz=flatVz,
-                                xLowerBc=xLowerBc, xUpperBc=xUpperBc,
-                                zLowerBc=zLowerBc, zUpperBc=zUpperBc,
-                                stratifications=None)
+        layout = Layout.make_2d(
+            x=flatX,
+            z=flatHeight,
+            vx=flatVx,
+            vy=flatVy,
+            vz=flatVz,
+            xLowerBc=xLowerBc,
+            xUpperBc=xUpperBc,
+            zLowerBc=zLowerBc,
+            zUpperBc=zUpperBc,
+            stratifications=None,
+        )
 
         atmos = cls(structure=layout, temperature=flatTemperature,
                     vturb=flatVturb, ne=flatNe, nHTot=flatNHTot, B=flatB,
@@ -1339,9 +1425,13 @@ class Atmosphere:
         return atmos
 
 
-    def quadrature(self, Nrays: Optional[int]=None,
-                   mu: Optional[Sequence[float]]=None,
-                   wmu: Optional[Sequence[float]]=None):
+    def quadrature(
+        self,
+        Nrays: Optional[int]=None,
+        mu: Optional[Sequence[float]]=None,
+        wmu: Optional[Sequence[float]]=None,
+        force3d: bool=False,
+    ):
         '''
         Compute the angular quadrature for solving the RTE and Kinetic
         Equilibrium in a given atmosphere.
@@ -1385,12 +1475,15 @@ class Atmosphere:
         Parameters
         ----------
         Nrays : int, optional
-            The number of rays to use in the quadrature. See notes above.
+            The number of rays to use in the quadrature (per octant). See notes
+            above.
         mu : sequence of float, optional
             The cosine of the angle made between the between each of the set
             of rays and the z axis, only used in 1D.
         wmu : sequence of float, optional
             The integration weights for each mu, must be provided if mu is provided.
+        force3d : bool, optional
+            Force the use of a 3D quadrature. Default: False.
 
         Raises
         ------
@@ -1398,7 +1491,11 @@ class Atmosphere:
             on incorrect input.
         '''
 
-        if self.Ndim == 1:
+        n_dim_effective = self.Ndim if not force3d else 3
+        # NOTE(cmo): Catch the case where we need a 3d quadrature in a less than 3d atmosphere.
+        if self.structure.vx.size > 0  and self.structure.vy.size > 0:
+            n_dim_effective = 3
+        if n_dim_effective == 1:
             if Nrays is not None and mu is None:
                 if Nrays >= 1:
                     x, w = leggauss(Nrays)
@@ -1406,6 +1503,8 @@ class Atmosphere:
                     x = mid + halfWidth * x
                     w *= halfWidth
 
+                    # NOTE(cmo): muz is in [0, 1], i.e. the upward directed
+                    # rays. The downward rays are handled by up/down/
                     self.muz = x
                     self.wmu = w
                 else:
@@ -1433,7 +1532,7 @@ class Atmosphere:
 
             quad = quads[rays[Nrays]]
 
-            if self.Ndim == 2:
+            if n_dim_effective == 2:
                 Nrays *= 2
                 theta = np.deg2rad(quad[:, 1])
                 chi = np.deg2rad(quad[:, 2])
@@ -1441,6 +1540,8 @@ class Atmosphere:
                 # x = sin theta cos chi
                 # y = sin theta sin chi
                 # z = cos theta
+                # Fill first half then flip in x-z plane. This solves for 2 octants.
+                # As always, we keep muz always positive in the atmosphere definition.
                 self.mux = np.zeros(Nrays)
                 self.mux[:Nrays // 2] = np.sin(theta) * np.cos(chi)
                 self.mux[Nrays // 2:] = -np.sin(theta) * np.cos(chi)
@@ -1452,9 +1553,35 @@ class Atmosphere:
                 self.wmu[Nrays // 2:] = quad[:, 0]
                 self.wmu /= np.sum(self.wmu)
                 self.muy = np.sqrt(1.0 - (self.mux**2 + self.muz**2))
-
             else:
-                raise NotImplementedError()
+                # n_dim_effective == 3
+                Nrays *= 4
+                theta = np.deg2rad(quad[:, 1])
+                chi = np.deg2rad(quad[:, 2])
+                # polar coords:
+                # x = sin theta cos chi
+                # y = sin theta sin chi
+                # z = cos theta
+                # Fill first quarter then flip in x-z plane for second quarter.
+                # Then flip in y-z plane for second half. This solves for 4 octants.
+                # As always, we keep muz always positive in the atmosphere definition.
+                self.mux = np.zeros(Nrays)
+                self.mux[:Nrays // 4] = np.sin(theta) * np.cos(chi)
+                self.mux[Nrays // 4:Nrays // 2] = -np.sin(theta) * np.cos(chi)
+                self.mux[Nrays // 2:] = -self.mux[:Nrays // 2]
+                self.muy = np.zeros(Nrays)
+                self.muy[:Nrays // 4] = np.sin(theta) * np.sin(chi)
+                self.muy[Nrays // 4:Nrays // 2] = np.sin(theta) * np.sin(chi)
+                self.muy[Nrays // 2:] = -self.muy[:Nrays // 2]
+
+                self.wmu = np.zeros(Nrays)
+                self.wmu[:Nrays // 4] = quad[:, 0]
+                self.wmu[Nrays // 4:Nrays // 2] = quad[:, 0]
+                self.wmu[Nrays // 2:] = self.wmu[:Nrays // 2]
+
+                self.wmu /= np.sum(self.wmu)
+                self.muz = np.sqrt(1.0 - (self.mux**2 + self.muy**2))
+
 
         self.configure_bcs()
 
