@@ -215,7 +215,7 @@ def air_to_vac(wavelength: np.ndarray) -> np.ndarray:
     # NOTE(cmo): Moved this import here as it's very slow
     ### HACK
     from specutils.utils.wcs_utils import air_to_vac as spec_air_to_vac
-    if not isinstance(wavelength, units.quantity.Quanitity):
+    if not isinstance(wavelength, units.quantity.Quantity):
          return spec_air_to_vac(wavelength << units.nm, scheme='iteration', 
                                 method='edlen1966').value
     return spec_air_to_vac(wavelength, scheme='iteration',
