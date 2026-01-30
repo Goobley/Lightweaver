@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>lightweaver.atmosphere &mdash; Lightweaver  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
@@ -17,8 +17,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -371,9 +371,9 @@
 <span class="sd">    z : np.ndarray</span>
 <span class="sd">        Ordinates of grid points along the z-axis (present for all Ndim) [m].</span>
 <span class="sd">    vx : np.ndarray</span>
-<span class="sd">        x component of plasma velocity (present for Ndim &gt;= 2) [m/s].</span>
+<span class="sd">        x component of plasma velocity (optional for Ndim &lt; 2) [m/s].</span>
 <span class="sd">    vy : np.ndarray</span>
-<span class="sd">        y component of plasma velocity (present for Ndim == 3) [m/s].</span>
+<span class="sd">        y component of plasma velocity (optional for Ndim &lt; 3) [m/s].</span>
 <span class="sd">    vz : np.ndarray</span>
 <span class="sd">        z component of plasma velocity (present for all Ndim) [m/s]. Aliased to</span>
 <span class="sd">        `vlos` when `Ndim==1`</span>
@@ -409,15 +409,27 @@
 <div class="viewcode-block" id="Layout.make_1d">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Layout.make_1d">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">make_1d</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">vz</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-                <span class="n">lowerBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span> <span class="n">upperBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span>
-                <span class="n">stratifications</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Stratifications</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Layout&#39;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_1d</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">z</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">vz</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">lowerBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span>
+        <span class="n">upperBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span>
+        <span class="n">stratifications</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Stratifications</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">vx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">vy</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Layout&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Construct 1D Layout.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
+        <span class="k">if</span> <span class="n">vx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">vx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(())</span>
+        <span class="k">if</span> <span class="n">vy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">vy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(())</span>
+
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">Ndim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(()),</span> <span class="n">y</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(()),</span>
-                   <span class="n">z</span><span class="o">=</span><span class="n">z</span><span class="p">,</span> <span class="n">vx</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(()),</span> <span class="n">vy</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(()),</span>
+                   <span class="n">z</span><span class="o">=</span><span class="n">z</span><span class="p">,</span> <span class="n">vx</span><span class="o">=</span><span class="n">vx</span><span class="p">,</span> <span class="n">vy</span><span class="o">=</span><span class="n">vy</span><span class="p">,</span>
                    <span class="n">vz</span><span class="o">=</span><span class="n">vz</span><span class="p">,</span> <span class="n">xLowerBc</span><span class="o">=</span><span class="n">NoBc</span><span class="p">(),</span> <span class="n">xUpperBc</span><span class="o">=</span><span class="n">NoBc</span><span class="p">(),</span>
                    <span class="n">yLowerBc</span><span class="o">=</span><span class="n">NoBc</span><span class="p">(),</span> <span class="n">yUpperBc</span><span class="o">=</span><span class="n">NoBc</span><span class="p">(),</span>
                    <span class="n">zLowerBc</span><span class="o">=</span><span class="n">lowerBc</span><span class="p">,</span> <span class="n">zUpperBc</span><span class="o">=</span><span class="n">upperBc</span><span class="p">,</span>
@@ -427,18 +439,28 @@
 <div class="viewcode-block" id="Layout.make_2d">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Layout.make_2d">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">make_2d</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-                <span class="n">vx</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">vz</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-                <span class="n">xLowerBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span> <span class="n">xUpperBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span>
-                <span class="n">zLowerBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span> <span class="n">zUpperBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span>
-                <span class="n">stratifications</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Stratifications</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Layout&#39;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_2d</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">z</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">vx</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">vz</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">xLowerBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span>
+        <span class="n">xUpperBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span>
+        <span class="n">zLowerBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span>
+        <span class="n">zUpperBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span>
+        <span class="n">stratifications</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Stratifications</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">vy</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Layout&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Construct 2D Layout.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">vy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">vy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(())</span>
 
         <span class="n">Bc</span> <span class="o">=</span> <span class="n">BoundaryCondition</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">Ndim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(()),</span> <span class="n">z</span><span class="o">=</span><span class="n">z</span><span class="p">,</span>
-                   <span class="n">vx</span><span class="o">=</span><span class="n">vx</span><span class="p">,</span> <span class="n">vy</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(()),</span> <span class="n">vz</span><span class="o">=</span><span class="n">vz</span><span class="p">,</span>
+                   <span class="n">vx</span><span class="o">=</span><span class="n">vx</span><span class="p">,</span> <span class="n">vy</span><span class="o">=</span><span class="n">vy</span><span class="p">,</span> <span class="n">vz</span><span class="o">=</span><span class="n">vz</span><span class="p">,</span>
                    <span class="n">xLowerBc</span><span class="o">=</span><span class="n">xLowerBc</span><span class="p">,</span> <span class="n">xUpperBc</span><span class="o">=</span><span class="n">xUpperBc</span><span class="p">,</span>
                    <span class="n">yLowerBc</span><span class="o">=</span><span class="n">NoBc</span><span class="p">(),</span> <span class="n">yUpperBc</span><span class="o">=</span><span class="n">NoBc</span><span class="p">(),</span>
                    <span class="n">zLowerBc</span><span class="o">=</span><span class="n">zLowerBc</span><span class="p">,</span> <span class="n">zUpperBc</span><span class="o">=</span><span class="n">zUpperBc</span><span class="p">,</span>
@@ -895,24 +917,33 @@
 <div class="viewcode-block" id="Atmosphere.make_1d">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Atmosphere.make_1d">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">make_1d</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="n">ScaleType</span><span class="p">,</span> <span class="n">depthScale</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-                <span class="n">temperature</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">vlos</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-                <span class="n">vturb</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ne</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">hydrogenPops</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">nHTot</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">B</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">gammaB</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">chiB</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">lowerBc</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BoundaryCondition</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">upperBc</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BoundaryCondition</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">convertScales</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">abundance</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AtomicAbundance</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">logG</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">2.44</span><span class="p">,</span>
-                <span class="n">Pgas</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">Pe</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">Ptop</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">PeTop</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_1d</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">scale</span><span class="p">:</span> <span class="n">ScaleType</span><span class="p">,</span>
+        <span class="n">depthScale</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">temperature</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">vlos</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">vturb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ne</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">hydrogenPops</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">nHTot</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">vx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">vy</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">vz</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">B</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">gammaB</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">chiB</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">lowerBc</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BoundaryCondition</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">upperBc</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BoundaryCondition</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">convertScales</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">abundance</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AtomicAbundance</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">logG</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">2.44</span><span class="p">,</span>
+        <span class="n">Pgas</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">Pe</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">Ptop</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">PeTop</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Constructor for 1D Atmosphere objects. Optionally will use an</span>
 <span class="sd">        equation of state (EOS) to estimate missing parameters.</span>
@@ -968,10 +999,11 @@
 <span class="sd">            of sight.</span>
 <span class="sd">        temperature : np.ndarray</span>
 <span class="sd">            Temperature structure of the atmosphere [K].</span>
-<span class="sd">        vlos : np.ndarray</span>
-<span class="sd">            Velocity structure of the atmosphere along z [m/s].</span>
+<span class="sd">        vlos : np.ndarray, optional</span>
+<span class="sd">            Alias for vz</span>
+<span class="sd">            Velocity structure of the atmosphere along z [m/s]. Default: 0 m/s everywhere</span>
 <span class="sd">        vturb : np.ndarray</span>
-<span class="sd">            Microturbulent velocity structure of the atmosphere [m/s].</span>
+<span class="sd">            Microturbulent velocity structure of the atmosphere [m/s]. Default: 0 m/s everywhere.</span>
 <span class="sd">        ne : np.ndarray</span>
 <span class="sd">            Electron density structure of the atmosphere [m-3].</span>
 <span class="sd">        hydrogenPops : np.ndarray, optional</span>
@@ -979,6 +1011,14 @@
 <span class="sd">            atmosphere [m-3], 2D array [Nlevel, Nspace].</span>
 <span class="sd">        nHTot : np.ndarray, optional</span>
 <span class="sd">            Total hydrogen number density structure of the atmosphere [m-3]</span>
+<span class="sd">        vx : np.ndarray, optional</span>
+<span class="sd">            x-component of atmospheric velocity [m/s]. If specifying vx/vy then a 3D</span>
+<span class="sd">            quadrature will be needed.</span>
+<span class="sd">        vy : np.ndarray, optional</span>
+<span class="sd">            y-component of atmospheric velocity [m/s]. If specifying vx/vy then a 3D</span>
+<span class="sd">            quadrature will be needed.</span>
+<span class="sd">        vz : np.ndarray, optional</span>
+<span class="sd">            alias for vlos. [m/s]</span>
 <span class="sd">        B : np.ndarray, optional.</span>
 <span class="sd">            Magnetic field strength [T].</span>
 <span class="sd">        gammaB : np.ndarray, optional</span>
@@ -1036,8 +1076,18 @@
                                             <span class="n">depthScale</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="n">xName</span><span class="p">)</span>
         <span class="n">temperature</span> <span class="o">=</span> <span class="p">(</span><span class="n">temperature</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">K</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
         <span class="n">check_shape</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="s1">&#39;temperature&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vlos</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">vz</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">vlos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">vlos</span> <span class="o">=</span> <span class="n">vz</span>
+        <span class="k">elif</span> <span class="n">vz</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot set both vlos and vz (they are aliases).&quot;</span><span class="p">)</span>
+        <span class="n">vz</span> <span class="o">=</span> <span class="n">vlos</span>
         <span class="n">vlos</span> <span class="o">=</span> <span class="p">(</span><span class="n">vlos</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
         <span class="n">check_shape</span><span class="p">(</span><span class="n">vlos</span><span class="p">,</span> <span class="s1">&#39;vlos&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vturb</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">vturb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
         <span class="n">vturb</span> <span class="o">=</span> <span class="p">(</span><span class="n">vturb</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
         <span class="n">check_shape</span><span class="p">(</span><span class="n">vturb</span><span class="p">,</span> <span class="s1">&#39;vturb&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">ne</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1053,6 +1103,15 @@
         <span class="k">if</span> <span class="n">nHTot</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">nHTot</span> <span class="o">=</span> <span class="p">(</span><span class="n">nHTot</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">value</span>
             <span class="n">check_shape</span><span class="p">(</span><span class="n">nHTot</span><span class="p">,</span> <span class="s1">&#39;nHTot&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">vy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;vx is set, vy must be also.&quot;</span><span class="p">)</span>
+            <span class="n">check_shape</span><span class="p">(</span><span class="n">vx</span><span class="p">,</span> <span class="s2">&quot;vx&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">vx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;vy is set, vx must be also.&quot;</span><span class="p">)</span>
+            <span class="n">check_shape</span><span class="p">(</span><span class="n">vy</span><span class="p">,</span> <span class="s2">&quot;vy&quot;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">B</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">B</span> <span class="o">=</span> <span class="p">(</span><span class="n">B</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
             <span class="n">check_shape</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">)</span>
@@ -1297,9 +1356,15 @@
             <span class="n">stratifications</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">height</span> <span class="o">=</span> <span class="n">depthScale</span>
 
-        <span class="n">layout</span> <span class="o">=</span> <span class="n">Layout</span><span class="o">.</span><span class="n">make_1d</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">vz</span><span class="o">=</span><span class="n">vlos</span><span class="p">,</span>
-                                <span class="n">lowerBc</span><span class="o">=</span><span class="n">lowerBc</span><span class="p">,</span> <span class="n">upperBc</span><span class="o">=</span><span class="n">upperBc</span><span class="p">,</span>
-                                <span class="n">stratifications</span><span class="o">=</span><span class="n">stratifications</span><span class="p">)</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">Layout</span><span class="o">.</span><span class="n">make_1d</span><span class="p">(</span>
+            <span class="n">z</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
+            <span class="n">vx</span><span class="o">=</span><span class="n">vx</span><span class="p">,</span>
+            <span class="n">vy</span><span class="o">=</span><span class="n">vy</span><span class="p">,</span>
+            <span class="n">vz</span><span class="o">=</span><span class="n">vz</span><span class="p">,</span>
+            <span class="n">lowerBc</span><span class="o">=</span><span class="n">lowerBc</span><span class="p">,</span>
+            <span class="n">upperBc</span><span class="o">=</span><span class="n">upperBc</span><span class="p">,</span>
+            <span class="n">stratifications</span><span class="o">=</span><span class="n">stratifications</span>
+        <span class="p">)</span>
         <span class="n">ne</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ne</span><span class="p">)</span>
         <span class="n">nHTot</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">nHTot</span><span class="p">)</span>
         <span class="n">atmos</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">layout</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span> <span class="n">vturb</span><span class="o">=</span><span class="n">vturb</span><span class="p">,</span>
@@ -1311,20 +1376,27 @@
 <div class="viewcode-block" id="Atmosphere.make_2d">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Atmosphere.make_2d">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">make_2d</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-                <span class="n">temperature</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">vx</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-                <span class="n">vz</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">vturb</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-                <span class="n">ne</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">nHTot</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">B</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">gammaB</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">chiB</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">xUpperBc</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BoundaryCondition</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">xLowerBc</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BoundaryCondition</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">zUpperBc</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BoundaryCondition</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">zLowerBc</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BoundaryCondition</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">abundance</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AtomicAbundance</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_2d</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">height</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">temperature</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">vx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">vy</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">vz</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">vturb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ne</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">nHTot</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">B</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">gammaB</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">chiB</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">xUpperBc</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BoundaryCondition</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">xLowerBc</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BoundaryCondition</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">zUpperBc</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BoundaryCondition</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">zLowerBc</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BoundaryCondition</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">abundance</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AtomicAbundance</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Constructor for 2D Atmosphere objects.</span>
 
@@ -1344,10 +1416,13 @@
 <span class="sd">            The (horizontal) x-coordinates of the atmospheric grid.</span>
 <span class="sd">        temperature : np.ndarray</span>
 <span class="sd">            Temperature structure of the atmosphere [K].</span>
-<span class="sd">        vx : np.ndarray</span>
-<span class="sd">            x-component of the atmospheric velocity [m/s].</span>
-<span class="sd">        vz : np.ndarray</span>
-<span class="sd">            z-component of the atmospheric velocity [m/s].</span>
+<span class="sd">        vx : np.ndarray, optional.</span>
+<span class="sd">            x-component of the atmospheric velocity [m/s]. Default: 0 m/s.</span>
+<span class="sd">        vy : np.ndarray, optional.</span>
+<span class="sd">            y-component of the atmospheric velocity [m/s]. Not used by default,</span>
+<span class="sd">            use a 3D quadrature if you need it.</span>
+<span class="sd">        vz : np.ndarray, optional</span>
+<span class="sd">            z-component of the atmospheric velocity [m/s]. Default: 0 m/s.</span>
 <span class="sd">        vturb : np.ndarray</span>
 <span class="sd">            Microturbulent velocity structure [m/s].</span>
 <span class="sd">        ne : np.ndarray</span>
@@ -1399,6 +1474,8 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Height should be decreasing with index (top -&gt; bottom).&quot;</span><span class="p">)</span>
         <span class="n">temperature</span> <span class="o">=</span> <span class="p">(</span><span class="n">temperature</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">K</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
         <span class="n">vx</span> <span class="o">=</span> <span class="p">(</span><span class="n">vx</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">if</span> <span class="n">vy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">vy</span> <span class="o">=</span> <span class="p">(</span><span class="n">vy</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
         <span class="n">vz</span> <span class="o">=</span> <span class="p">(</span><span class="n">vz</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
         <span class="n">vturb</span> <span class="o">=</span> <span class="p">(</span><span class="n">vturb</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
         <span class="k">if</span> <span class="n">ne</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1477,13 +1554,22 @@
         <span class="n">ne</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ne</span><span class="p">)</span>
         <span class="n">flatNe</span> <span class="o">=</span> <span class="n">view_flatten</span><span class="p">(</span><span class="n">ne</span><span class="p">)</span>
         <span class="n">flatVx</span> <span class="o">=</span> <span class="n">view_flatten</span><span class="p">(</span><span class="n">vx</span><span class="p">)</span>
+        <span class="n">flatVy</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">vy</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">view_flatten</span><span class="p">(</span><span class="n">vy</span><span class="p">)</span>
         <span class="n">flatVz</span> <span class="o">=</span> <span class="n">view_flatten</span><span class="p">(</span><span class="n">vz</span><span class="p">)</span>
         <span class="n">flatVturb</span> <span class="o">=</span> <span class="n">view_flatten</span><span class="p">(</span><span class="n">vturb</span><span class="p">)</span>
 
-        <span class="n">layout</span> <span class="o">=</span> <span class="n">Layout</span><span class="o">.</span><span class="n">make_2d</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">flatX</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="n">flatHeight</span><span class="p">,</span> <span class="n">vx</span><span class="o">=</span><span class="n">flatVx</span><span class="p">,</span> <span class="n">vz</span><span class="o">=</span><span class="n">flatVz</span><span class="p">,</span>
-                                <span class="n">xLowerBc</span><span class="o">=</span><span class="n">xLowerBc</span><span class="p">,</span> <span class="n">xUpperBc</span><span class="o">=</span><span class="n">xUpperBc</span><span class="p">,</span>
-                                <span class="n">zLowerBc</span><span class="o">=</span><span class="n">zLowerBc</span><span class="p">,</span> <span class="n">zUpperBc</span><span class="o">=</span><span class="n">zUpperBc</span><span class="p">,</span>
-                                <span class="n">stratifications</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">Layout</span><span class="o">.</span><span class="n">make_2d</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">flatX</span><span class="p">,</span>
+            <span class="n">z</span><span class="o">=</span><span class="n">flatHeight</span><span class="p">,</span>
+            <span class="n">vx</span><span class="o">=</span><span class="n">flatVx</span><span class="p">,</span>
+            <span class="n">vy</span><span class="o">=</span><span class="n">flatVy</span><span class="p">,</span>
+            <span class="n">vz</span><span class="o">=</span><span class="n">flatVz</span><span class="p">,</span>
+            <span class="n">xLowerBc</span><span class="o">=</span><span class="n">xLowerBc</span><span class="p">,</span>
+            <span class="n">xUpperBc</span><span class="o">=</span><span class="n">xUpperBc</span><span class="p">,</span>
+            <span class="n">zLowerBc</span><span class="o">=</span><span class="n">zLowerBc</span><span class="p">,</span>
+            <span class="n">zUpperBc</span><span class="o">=</span><span class="n">zUpperBc</span><span class="p">,</span>
+            <span class="n">stratifications</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="n">atmos</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">structure</span><span class="o">=</span><span class="n">layout</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="n">flatTemperature</span><span class="p">,</span>
                     <span class="n">vturb</span><span class="o">=</span><span class="n">flatVturb</span><span class="p">,</span> <span class="n">ne</span><span class="o">=</span><span class="n">flatNe</span><span class="p">,</span> <span class="n">nHTot</span><span class="o">=</span><span class="n">flatNHTot</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="n">flatB</span><span class="p">,</span>
@@ -1494,9 +1580,13 @@
 
 <div class="viewcode-block" id="Atmosphere.quadrature">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Atmosphere.quadrature">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">quadrature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Nrays</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                   <span class="n">mu</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                   <span class="n">wmu</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">quadrature</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">Nrays</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">mu</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">wmu</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">force3d</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Compute the angular quadrature for solving the RTE and Kinetic</span>
 <span class="sd">        Equilibrium in a given atmosphere.</span>
@@ -1540,12 +1630,15 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        Nrays : int, optional</span>
-<span class="sd">            The number of rays to use in the quadrature. See notes above.</span>
+<span class="sd">            The number of rays to use in the quadrature (per octant). See notes</span>
+<span class="sd">            above.</span>
 <span class="sd">        mu : sequence of float, optional</span>
 <span class="sd">            The cosine of the angle made between the between each of the set</span>
 <span class="sd">            of rays and the z axis, only used in 1D.</span>
 <span class="sd">        wmu : sequence of float, optional</span>
 <span class="sd">            The integration weights for each mu, must be provided if mu is provided.</span>
+<span class="sd">        force3d : bool, optional</span>
+<span class="sd">            Force the use of a 3D quadrature. Default: False.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -1553,7 +1646,11 @@
 <span class="sd">            on incorrect input.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">n_dim_effective</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">force3d</span> <span class="k">else</span> <span class="mi">3</span>
+        <span class="c1"># NOTE(cmo): Catch the case where we need a 3d quadrature in a less than 3d atmosphere.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">vx</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span>  <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">vy</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">n_dim_effective</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="k">if</span> <span class="n">n_dim_effective</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">Nrays</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">mu</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">Nrays</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="n">x</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">leggauss</span><span class="p">(</span><span class="n">Nrays</span><span class="p">)</span>
@@ -1561,6 +1658,8 @@
                     <span class="n">x</span> <span class="o">=</span> <span class="n">mid</span> <span class="o">+</span> <span class="n">halfWidth</span> <span class="o">*</span> <span class="n">x</span>
                     <span class="n">w</span> <span class="o">*=</span> <span class="n">halfWidth</span>
 
+                    <span class="c1"># NOTE(cmo): muz is in [0, 1], i.e. the upward directed</span>
+                    <span class="c1"># rays. The downward rays are handled by up/down/</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">muz</span> <span class="o">=</span> <span class="n">x</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">wmu</span> <span class="o">=</span> <span class="n">w</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -1588,7 +1687,7 @@
 
             <span class="n">quad</span> <span class="o">=</span> <span class="n">quads</span><span class="p">[</span><span class="n">rays</span><span class="p">[</span><span class="n">Nrays</span><span class="p">]]</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">n_dim_effective</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="n">Nrays</span> <span class="o">*=</span> <span class="mi">2</span>
                 <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">quad</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
                 <span class="n">chi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">quad</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
@@ -1596,6 +1695,8 @@
                 <span class="c1"># x = sin theta cos chi</span>
                 <span class="c1"># y = sin theta sin chi</span>
                 <span class="c1"># z = cos theta</span>
+                <span class="c1"># Fill first half then flip in x-z plane. This solves for 2 octants.</span>
+                <span class="c1"># As always, we keep muz always positive in the atmosphere definition.</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">mux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nrays</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">mux</span><span class="p">[:</span><span class="n">Nrays</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">chi</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">mux</span><span class="p">[</span><span class="n">Nrays</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">chi</span><span class="p">)</span>
@@ -1607,9 +1708,35 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">wmu</span><span class="p">[</span><span class="n">Nrays</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">=</span> <span class="n">quad</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">wmu</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wmu</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">muy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mux</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">muz</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
-
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+                <span class="c1"># n_dim_effective == 3</span>
+                <span class="n">Nrays</span> <span class="o">*=</span> <span class="mi">4</span>
+                <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">quad</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="n">chi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">quad</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+                <span class="c1"># polar coords:</span>
+                <span class="c1"># x = sin theta cos chi</span>
+                <span class="c1"># y = sin theta sin chi</span>
+                <span class="c1"># z = cos theta</span>
+                <span class="c1"># Fill first quarter then flip in x-z plane for second quarter.</span>
+                <span class="c1"># Then flip in y-z plane for second half. This solves for 4 octants.</span>
+                <span class="c1"># As always, we keep muz always positive in the atmosphere definition.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nrays</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mux</span><span class="p">[:</span><span class="n">Nrays</span> <span class="o">//</span> <span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">chi</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mux</span><span class="p">[</span><span class="n">Nrays</span> <span class="o">//</span> <span class="mi">4</span><span class="p">:</span><span class="n">Nrays</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">chi</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mux</span><span class="p">[</span><span class="n">Nrays</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">mux</span><span class="p">[:</span><span class="n">Nrays</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">muy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nrays</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">muy</span><span class="p">[:</span><span class="n">Nrays</span> <span class="o">//</span> <span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">chi</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">muy</span><span class="p">[</span><span class="n">Nrays</span> <span class="o">//</span> <span class="mi">4</span><span class="p">:</span><span class="n">Nrays</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">chi</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">muy</span><span class="p">[</span><span class="n">Nrays</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">muy</span><span class="p">[:</span><span class="n">Nrays</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">wmu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nrays</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">wmu</span><span class="p">[:</span><span class="n">Nrays</span> <span class="o">//</span> <span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">quad</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">wmu</span><span class="p">[</span><span class="n">Nrays</span> <span class="o">//</span> <span class="mi">4</span><span class="p">:</span><span class="n">Nrays</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">quad</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">wmu</span><span class="p">[</span><span class="n">Nrays</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wmu</span><span class="p">[:</span><span class="n">Nrays</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">wmu</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wmu</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">muz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mux</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">muy</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+
 
         <span class="bp">self</span><span class="o">.</span><span class="n">configure_bcs</span><span class="p">()</span></div>
 
