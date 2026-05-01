@@ -54,7 +54,23 @@ struct ExtraParams
         throw std::runtime_error("Bad Variant type/index access.");
     }
 
-    Variant get(const std::string& key)
+    template <typename T>
+    T get_as(const std::string& key) const
+    {
+        // NOTE(cmo): This can throw from either step here.
+        auto& var = map.at(key);
+        // NOTE(cmo): We can't use std::get on a Variant on older macOS because
+        // it depends on implementation in libc++ (see
+        // https://stackoverflow.com/a/53887048/3847013).
+        // We'll use get_if instead, which is apparently fine.
+        // return std::get<T>(var);
+        if (auto* p = std::get_if<T>(&var))
+            return *p;
+
+        throw std::runtime_error("Bad Variant type/index access.");
+    }
+
+    Variant get(const std::string& key) const
     {
         auto iter = map.find(key);
         if (iter == map.end())

@@ -468,7 +468,7 @@ void piecewise_besser_1d_impl(FormalData* fd, f64 zmu, bool toObs, f64 Istart)
 
 namespace LwInternal
 {
-void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs, const F64View1D& wave)
+void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs, const F64View1D& wave, const ExtraParams* extra)
 {
     const f64 wav = wave(la);
     JasUnpack((*fd), atmos, chi);
@@ -532,7 +532,7 @@ void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs, const F64Vi
     piecewise_linear_1d_impl(fd, zmu, toObs, Iupw);
 }
 
-void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, const F64View1D& wave)
+void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, const F64View1D& wave, const ExtraParams* extra)
 {
     const f64 wav = wave(la);
     JasUnpack((*fd), atmos, chi);
@@ -599,7 +599,7 @@ void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs, const F64V
     piecewise_bezier3_1d_impl(fd, zmu, toObs, Iupw);
 }
 
-void piecewise_besser_1d(FormalData* fd, int la, int mu, bool toObs, const F64View1D& wave)
+void piecewise_besser_1d(FormalData* fd, int la, int mu, bool toObs, const F64View1D& wave, const ExtraParams* extra)
 {
     const f64 wav = wave(la);
     JasUnpack((*fd), atmos, chi);

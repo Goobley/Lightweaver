@@ -237,7 +237,7 @@ compute_full_operator_rates(Atom* a, int kr, f64 wmu,
 
 template <SimdType simd, bool UpdateRates, bool PrdRatesOnly,
           bool ComputeOperator, bool StoreDepthData>
-f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode, ExtraParams params)
+f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode, const ExtraParams* params)
 {
     JasUnpack(*data, atmos, spect, fd, background);
     JasUnpack(*data, activeAtoms, detailedAtoms, JDag);
@@ -251,7 +251,7 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode, ExtraParams
     const bool upOnly = mode & FsMode::UpOnly;
 
     // NOTE(cmo): handle ZPlaneDecomposition
-    const bool zPlaneDecomposition = params.contains("ZPlaneDecomposition");
+    const bool zPlaneDecomposition = params && params->contains("ZPlaneDecomposition");
     F64View2D zPlaneDown1D, zPlaneUp1D;
     F64View3D zPlaneDown2D, zPlaneUp2D;
     if (zPlaneDecomposition)
@@ -260,18 +260,18 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode, ExtraParams
         {
             case 1:
             {
-                if (params.contains("ZPlaneDown"))
-                    zPlaneDown1D = params.get_as<F64View2D>("ZPlaneDown");
-                if (params.contains("ZPlaneUp"))
-                    zPlaneUp1D = params.get_as<F64View2D>("ZPlaneUp");
+                if (params->contains("ZPlaneDown"))
+                    zPlaneDown1D = params->get_as<F64View2D>("ZPlaneDown");
+                if (params->contains("ZPlaneUp"))
+                    zPlaneUp1D = params->get_as<F64View2D>("ZPlaneUp");
             } break;
 
             case 2:
             {
-                if (params.contains("ZPlaneDown"))
-                    zPlaneDown2D = params.get_as<F64View3D>("ZPlaneDown");
-                if (params.contains("ZPlaneUp"))
-                    zPlaneUp2D = params.get_as<F64View3D>("ZPlaneUp");
+                if (params->contains("ZPlaneDown"))
+                    zPlaneDown2D = params->get_as<F64View3D>("ZPlaneDown");
+                if (params->contains("ZPlaneUp"))
+                    zPlaneUp2D = params->get_as<F64View3D>("ZPlaneUp");
             } break;
 
             default:
@@ -280,6 +280,11 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode, ExtraParams
         }
     }
 
+    // NOTE(cmo): Zero this row of Flux Divergence array if provided
+    if (params && params->contains("Fdiv")) {
+        F64View1D Fdiv = params->get_as<F64View2D>("Fdiv")(la);
+        Fdiv.fill(0.0);
+    }
 
     JDag = spect.J(la);
     F64View J = spect.J(la);
@@ -345,7 +350,7 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode, ExtraParams
             {
                 case 1:
                 {
-                    formal_solver(&fd, la, mu, toObs, spect.wavelength);
+                    formal_solver(&fd, la, mu, toObs, spect.wavelength, params);
                     spect.I(la, mu, 0) = I(0);
 
                     if (zPlaneDecomposition)
@@ -364,7 +369,7 @@ f64 intensity_core_opt(IntensityCoreData& data, int la, FsMode mode, ExtraParams
 
                 case 2:
                 {
-                    formal_solver(&fd, la, mu, toObs, spect.wavelength);
+                    formal_solver(&fd, la, mu, toObs, spect.wavelength, params);
                     auto I2 = I.reshape(atmos.Nz, atmos.Nx);
                     for (int j = 0; j < atmos.Nx; ++j)
                         spect.I(la, mu, j) = I2(0, j);
@@ -623,7 +628,7 @@ IterationResult formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsM
             f64 dJ = dispatch_intensity_core_opt_<simd>(true, false, true,
                                                         storeDepthData,
                                                         iCore, la * ctx.formalSolver.width,
-                                                        mode, params);
+                                                        mode, &params);
             dJMax = max_idx(dJ, dJMax, maxIdx, la);
         }
         for (int a = 0; a < activeAtoms.size(); ++a)
@@ -684,7 +689,7 @@ IterationResult formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsM
             {
                 f64 dJ = dispatch_intensity_core_opt_
                             <simd>(true, false, true, td.storeDepthData,
-                            *td.core, la * td.width, mode, *td.params);
+                            *td.core, la * td.width, mode, td.params);
                 td.dJ = max_idx(td.dJ, dJ, td.dJIdx, la);
             }
         };
@@ -732,7 +737,7 @@ IterationResult formal_sol_impl(Context& ctx, LwInternal::FsMode mode, ExtraPara
 
         for (int la = 0; la < Nspect; ++la)
         {
-            intensity_core_opt<simd, false, false, false, false>(iCore, la, mode, params);
+            intensity_core_opt<simd, false, false, false, false>(iCore, la, mode, &params);
         }
         return IterationResult{};
     }
@@ -763,7 +768,7 @@ IterationResult formal_sol_impl(Context& ctx, LwInternal::FsMode mode, ExtraPara
             auto& td = ((FsTaskData*)data)[threadId];
             for (i64 la = p.start; la < p.end; ++la)
             {
-                intensity_core_opt<simd, false, false, false, false>(*td.core, la, td.mode, *td.params);
+                intensity_core_opt<simd, false, false, false, false>(*td.core, la, td.mode, td.params);
             }
         };
 

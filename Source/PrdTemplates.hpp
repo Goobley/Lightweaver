@@ -64,7 +64,7 @@ IterationResult formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelen
         {
             const int la = wavelengthIdxs(i);
             FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates | FsMode::PrdOnly);
-            f64 dJ = intensity_core_opt<simd, true, true, false, false>(iCore, la, mode, params);
+            f64 dJ = intensity_core_opt<simd, true, true, false, false>(iCore, la, mode, &params);
             dJMax = max_idx(dJ, dJMax, maxIdx, la);
         }
         IterationResult result{};
@@ -136,7 +136,7 @@ IterationResult formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelen
             {
                 f64 dJ = intensity_core_opt<simd,
                                             true, true, false, false>
-                                            (*td.core, td.idxs(la), mode, *td.params);
+                                            (*td.core, td.idxs(la), mode, td.params);
                 td.dJ = max_idx(td.dJ, dJ, td.dJIdx, la);
             }
         };

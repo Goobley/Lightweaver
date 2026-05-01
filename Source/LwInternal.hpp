@@ -125,17 +125,16 @@ namespace LwInternal
     }
 
     void piecewise_linear_1d(FormalData* fd, int la, int mu, bool toObs,
-                             const F64View1D& wave);
+                             const F64View1D& wave, const ExtraParams* params);
     void piecewise_besser_1d(FormalData* fd, int la, int mu, bool toObs,
-                              const F64View1D& wave);
+                              const F64View1D& wave, const ExtraParams* params);
     void piecewise_bezier3_1d(FormalData* fd, int la, int mu, bool toObs,
-                              const F64View1D& wave);
+                              const F64View1D& wave, const ExtraParams* params);
     void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs,
-                             const F64View1D& wave);
+                             const F64View1D& wave, const ExtraParams* params);
     void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs,
-                             const F64View1D& wave);
-    void piecewise_parabolic_2d(FormalData* fd, int la, int mu, bool toObs, f64 wav);
-    void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int la, int mu, bool toObs, f64 wav, bool polarisedFrequency);
+                             const F64View1D& wave, const ExtraParams* params);
+    void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int la, int mu, bool toObs, f64 wav, bool polarisedFrequency, const ExtraParams* params);
     f64 interp_linear_2d(const IntersectionData&, const IntersectionResult&, const F64View2D&);
     f64 interp_besser_2d(const IntersectionData&, const IntersectionResult&, const F64View2D&);
 }

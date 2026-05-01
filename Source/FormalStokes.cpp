@@ -342,12 +342,12 @@ void piecewise_stokes_bezier3_1d_impl(FormalDataStokes* fd, f64 zmu, bool toObs,
 namespace LwInternal
 {
 void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int la, int mu, bool toObs,
-                                 const F64View1D& wave, bool polarisedFrequency)
+                                 const F64View1D& wave, bool polarisedFrequency, const ExtraParams* params)
 {
     const f64 wav = wave(la);
     if (!polarisedFrequency)
     {
-        piecewise_bezier3_1d(&fd->fdIntens, la, mu, toObs, wave);
+        piecewise_bezier3_1d(&fd->fdIntens, la, mu, toObs, wave, params);
         return;
     }
 
@@ -415,7 +415,7 @@ void piecewise_stokes_bezier3_1d(FormalDataStokes* fd, int la, int mu, bool toOb
 
 namespace GammaFsCores
 {
-f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ, bool upOnly)
+f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ, bool upOnly, const ExtraParams* params)
 {
     JasUnpack(*data, atmos, spect, fd, background);
     JasUnpack(*data, activeAtoms, detailedAtoms, JDag, J20Dag);
@@ -607,9 +607,15 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ, bool upOnly)
             {
                 case 1:
                 {
-                    piecewise_stokes_bezier3_1d(&fd, la, mu, toObs,
-                                                spect.wavelength,
-                                                polarisedFrequency);
+                    piecewise_stokes_bezier3_1d(
+                        &fd,
+                        la,
+                        mu,
+                        toObs,
+                        spect.wavelength,
+                        polarisedFrequency,
+                        params
+                    );
                     spect.I(la, mu, 0) = I(0, 0);
                     spect.Quv(0, la, mu, 0) = I(1, 0);
                     spect.Quv(1, la, mu, 0) = I(2, 0);
@@ -709,7 +715,7 @@ IterationResult formal_sol_full_stokes_impl(Context& ctx, bool updateJ, bool upO
     int maxIdx = 0;
     for (int la = 0; la < Nspect; ++la)
     {
-        f64 dJ = GammaFsCores::stokes_fs_core(core, la, updateJ, upOnly);
+        f64 dJ = GammaFsCores::stokes_fs_core(core, la, updateJ, upOnly, &params);
         dJMax = max_idx(dJ, dJMax, maxIdx, la);
     }
     IterationResult result{};

@@ -33,7 +33,7 @@ struct Context;
 struct NrTimeDependentData;
 
 typedef void(*LwFsFn)(LwInternal::FormalData* fd, int la, int mu,
-                      bool toObs, const F64View1D& wav);
+                      bool toObs, const F64View1D& wav, const ExtraParams* params);
 struct FormalSolver
 {
     LwFsFn solver;
