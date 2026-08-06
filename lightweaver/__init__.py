@@ -22,7 +22,7 @@ from .utils import (ConvergenceError, CrswIterator, ExplodingMatrixError,
                     compute_radiative_losses, compute_wavelength_edges,
                     convert_specific_intensity, gaunt_bf, get_data_path,
                     get_default_molecule_path, integrate_line_losses, planck,
-                    vac_to_air, voigt_H)
+                    vac_to_air, voigt_H, compute_tau, tau_isosurface)
 from .version import version as __version__
 
 
