@@ -216,7 +216,7 @@ def air_to_vac(wavelength: np.ndarray) -> np.ndarray:
     ### HACK
     from specutils.utils.wcs_utils import air_to_vac as spec_air_to_vac
     if not isinstance(wavelength, units.quantity.Quantity):
-         return spec_air_to_vac(wavelength << units.nm, scheme='iteration', 
+         return spec_air_to_vac(wavelength << units.nm, scheme='iteration',
                                 method='edlen1966').value
     return spec_air_to_vac(wavelength, scheme='iteration',
                            method='edlen1966')
@@ -348,9 +348,9 @@ def compute_radiative_losses(ctx) -> np.ndarray:
     chiTot = ctx.depthData.chi
     S = (ctx.depthData.eta + (ctx.background.sca * ctx.spect.J)[:, None, None, :]) / chiTot
     Idepth = ctx.depthData.I
-    loss = ((chiTot * (S - Idepth)) * 0.5).sum(axis=2).transpose(0, 2, 1) @ atmos.wmu
+    loss = ((chiTot * (S - Idepth))).sum(axis=2).transpose(0, 2, 1) @ (atmos.wmu * 0.5 * 4.0 * np.pi)
 
-    return loss
+    return -loss
 
 
 def integrate_line_losses(ctx, loss : np.ndarray,
@@ -409,12 +409,49 @@ def integrate_line_losses(ctx, loss : np.ndarray,
         lineLoss = np.zeros((loss.shape[1], wav.shape[0]))
         for k in range(loss.shape[1]):
             lineLoss[k, :] = weno4(wav, ctx.spect.wavelength, loss[:, k])
-        lineLosses.append(trapezoid(lineLoss,
+        # NOTE(cmo): Due to the conversion from wavelength (ordered increasing)
+        # to frequency, the bin size comes out negative in the trapezoid, so we
+        # invert the result to effectively integrate with abs bins.
+        lineLosses.append(-trapezoid(lineLoss,
                                     (wav << units.nm).to(units.Hz,
                                                          equivalencies=units.spectral()).value)
                           )
     return lineLosses[0] if len(lineLosses) == 1 else lineLosses
 
+def compute_tau(ctx, mu : int=-1, outgoing : bool=True) -> np.ndarray:
+    '''
+    Computes the optical depth at each layer for all wavelengths in the simulation,
+    for a chosen angular index.
+
+    Parameters
+    ----------
+    ctx : Context
+        A context with the full depth-dependent data (i.e. ctx.depthData.fill
+        = True set before the most recent formal solution).
+    mu : Optional[int]
+        The angular index to use (corresponding to the order of the angular
+        quadratures in atmosphere), default: -1.
+    outgoing : Optional[bool]
+        Whether to compute the tau for outgoing or incoming
+        radiation (wrt to the atmosphere). Default: outgoing==True, i.e. to
+        observer.
+
+    Returns
+    -------
+    tau : np.ndarray
+        The optical depth in terms of depth and wavelength.
+    '''
+    upDown = 1 if outgoing else 0
+    tau = np.zeros_like(ctx.depthData.chi[:, mu, upDown, :])
+    chi = ctx.depthData.chi
+    atmos = ctx.kwargs['atmos']
+
+    # NOTE(cmo): Compute tau for all wavelengths
+    tau[:, 0] = 1e-20
+    for k in range(1, tau.shape[1]):
+        tau[:, k] = tau[:, k-1] + 0.5 * (chi[:, mu, upDown, k] + chi[:, mu, upDown, k-1]) \
+                                      * (atmos.height[k-1] - atmos.height[k])
+    return tau
 
 def compute_contribution_fn(ctx, mu : int=-1, outgoing : bool=True) -> np.ndarray:
     '''
@@ -444,11 +481,7 @@ def compute_contribution_fn(ctx, mu : int=-1, outgoing : bool=True) -> np.ndarra
     chi = ctx.depthData.chi
     atmos = ctx.kwargs['atmos']
 
-    # NOTE(cmo): Compute tau for all wavelengths
-    tau[:, 0] = 1e-20
-    for k in range(1, tau.shape[1]):
-        tau[:, k] = tau[:, k-1] + 0.5 * (chi[:, mu, upDown, k] + chi[:, mu, upDown, k-1]) \
-                                      * (atmos.height[k-1] - atmos.height[k])
+    tau = compute_tau(ctx, mu, outgoing)
 
     # NOTE(cmo): Source function.
     Sfn = ((ctx.depthData.eta
@@ -460,6 +493,27 @@ def compute_contribution_fn(ctx, mu : int=-1, outgoing : bool=True) -> np.ndarra
            * np.exp(-tau / atmos.muz[mu]) * Sfn[:, mu, upDown, :]
 
     return cfn
+
+def tau_isosurface(tau, z, val=1.0):
+    '''
+    Compute the geometric depth of an isosurface in tau over wavelength using
+    interpolation.
+
+    Parameters
+    ----------
+    tau : np.ndarray
+        The tau array from `compute_tau` [Nwave, Ndepth]
+    z : np.ndarray
+        The atmospheric stratification
+    val : float, optional
+        The isosurface value to find. Default: 1.
+    '''
+    tau1 = np.zeros(tau.shape[0])
+
+    for la in range(tau.shape[0]):
+        tau1[la] = weno4(val, tau[la], z)
+
+    return tau1
 
 
 def compute_wavelength_edges(ctx) -> np.ndarray:
