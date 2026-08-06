@@ -9,7 +9,7 @@
   <title>Lightweaver API Documentation &mdash; Lightweaver  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=d2d258e8" />
+      <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=fd6457a4" />
       <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
       <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -20,6 +20,7 @@
       <script src="_static/documentation_options.js?v=5929fcd5"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -539,6 +540,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.compute_contribution_fn"><code class="docutils literal notranslate"><span class="pre">compute_contribution_fn()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.compute_height_edges"><code class="docutils literal notranslate"><span class="pre">compute_height_edges()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.compute_radiative_losses"><code class="docutils literal notranslate"><span class="pre">compute_radiative_losses()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.compute_tau"><code class="docutils literal notranslate"><span class="pre">compute_tau()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.compute_wavelength_edges"><code class="docutils literal notranslate"><span class="pre">compute_wavelength_edges()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.convert_specific_intensity"><code class="docutils literal notranslate"><span class="pre">convert_specific_intensity()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.filter_fs_iter_libs"><code class="docutils literal notranslate"><span class="pre">filter_fs_iter_libs()</span></code></a></li>
@@ -550,6 +552,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.integrate_line_losses"><code class="docutils literal notranslate"><span class="pre">integrate_line_losses()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.planck"><code class="docutils literal notranslate"><span class="pre">planck()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.sequence_repr"><code class="docutils literal notranslate"><span class="pre">sequence_repr()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.tau_isosurface"><code class="docutils literal notranslate"><span class="pre">tau_isosurface()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.vac_to_air"><code class="docutils literal notranslate"><span class="pre">vac_to_air()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.view_flatten"><code class="docutils literal notranslate"><span class="pre">view_flatten()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#lightweaver.utils.voigt_H"><code class="docutils literal notranslate"><span class="pre">voigt_H()</span></code></a></li>
@@ -5079,6 +5082,32 @@ simulation.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="lightweaver.utils.compute_tau">
+<span class="sig-prename descclassname"><span class="pre">lightweaver.utils.</span></span><span class="sig-name descname"><span class="pre">compute_tau</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outgoing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/lightweaver/utils.html#compute_tau"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.utils.compute_tau" title="Link to this definition"></a></dt>
+<dd><p>Computes the optical depth at each layer for all wavelengths in the simulation,
+for a chosen angular index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ctx</strong> (<em>Context</em>) – A context with the full depth-dependent data (i.e. ctx.depthData.fill
+= True set before the most recent formal solution).</p></li>
+<li><p><strong>mu</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – The angular index to use (corresponding to the order of the angular
+quadratures in atmosphere), default: -1.</p></li>
+<li><p><strong>outgoing</strong> (<em>Optional</em><em>[</em><em>bool</em><em>]</em>) – Whether to compute the tau for outgoing or incoming
+radiation (wrt to the atmosphere). Default: outgoing==True, i.e. to
+observer.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>tau</strong> – The optical depth in terms of depth and wavelength.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="lightweaver.utils.compute_wavelength_edges">
 <span class="sig-prename descclassname"><span class="pre">lightweaver.utils.</span></span><span class="sig-name descname"><span class="pre">compute_wavelength_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/lightweaver/utils.html#compute_wavelength_edges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.utils.compute_wavelength_edges" title="Link to this definition"></a></dt>
 <dd><p>Compute the edges of the wavelength bins associated with the wavelength
@@ -5228,6 +5257,22 @@ contribution. Units: nm, default: 0.0.</p></li>
 <span class="sig-prename descclassname"><span class="pre">lightweaver.utils.</span></span><span class="sig-name descname"><span class="pre">sequence_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/lightweaver/utils.html#sequence_repr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.utils.sequence_repr" title="Link to this definition"></a></dt>
 <dd><p>Uniform representation of arrays and lists as lists for use in
 round-tripping AtomicModels.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lightweaver.utils.tau_isosurface">
+<span class="sig-prename descclassname"><span class="pre">lightweaver.utils.</span></span><span class="sig-name descname"><span class="pre">tau_isosurface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tau</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lightweaver/utils.html#tau_isosurface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#lightweaver.utils.tau_isosurface" title="Link to this definition"></a></dt>
+<dd><p>Compute the geometric depth of an isosurface in tau over wavelength using
+interpolation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tau</strong> (<em>np.ndarray</em>) – The tau array from <cite>compute_tau</cite> [Nwave, Ndepth]</p></li>
+<li><p><strong>z</strong> (<em>np.ndarray</em>) – The atmospheric stratification</p></li>
+<li><p><strong>val</strong> (<em>float</em><em>, </em><em>optional</em>) – The isosurface value to find. Default: 1.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">

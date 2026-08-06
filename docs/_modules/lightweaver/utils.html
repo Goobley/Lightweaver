@@ -8,7 +8,7 @@
   <title>lightweaver.utils &mdash; Lightweaver  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -19,6 +19,7 @@
       <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -333,7 +334,7 @@
     <span class="c1">### HACK</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">specutils.utils.wcs_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">air_to_vac</span> <span class="k">as</span> <span class="n">spec_air_to_vac</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wavelength</span><span class="p">,</span> <span class="n">units</span><span class="o">.</span><span class="n">quantity</span><span class="o">.</span><span class="n">Quantity</span><span class="p">):</span>
-         <span class="k">return</span> <span class="n">spec_air_to_vac</span><span class="p">(</span><span class="n">wavelength</span> <span class="o">&lt;&lt;</span> <span class="n">units</span><span class="o">.</span><span class="n">nm</span><span class="p">,</span> <span class="n">scheme</span><span class="o">=</span><span class="s1">&#39;iteration&#39;</span><span class="p">,</span> 
+         <span class="k">return</span> <span class="n">spec_air_to_vac</span><span class="p">(</span><span class="n">wavelength</span> <span class="o">&lt;&lt;</span> <span class="n">units</span><span class="o">.</span><span class="n">nm</span><span class="p">,</span> <span class="n">scheme</span><span class="o">=</span><span class="s1">&#39;iteration&#39;</span><span class="p">,</span>
                                 <span class="n">method</span><span class="o">=</span><span class="s1">&#39;edlen1966&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
     <span class="k">return</span> <span class="n">spec_air_to_vac</span><span class="p">(</span><span class="n">wavelength</span><span class="p">,</span> <span class="n">scheme</span><span class="o">=</span><span class="s1">&#39;iteration&#39;</span><span class="p">,</span>
                            <span class="n">method</span><span class="o">=</span><span class="s1">&#39;edlen1966&#39;</span><span class="p">)</span></div>
@@ -486,9 +487,9 @@
     <span class="n">chiTot</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">depthData</span><span class="o">.</span><span class="n">chi</span>
     <span class="n">S</span> <span class="o">=</span> <span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">depthData</span><span class="o">.</span><span class="n">eta</span> <span class="o">+</span> <span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">background</span><span class="o">.</span><span class="n">sca</span> <span class="o">*</span> <span class="n">ctx</span><span class="o">.</span><span class="n">spect</span><span class="o">.</span><span class="n">J</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:])</span> <span class="o">/</span> <span class="n">chiTot</span>
     <span class="n">Idepth</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">depthData</span><span class="o">.</span><span class="n">I</span>
-    <span class="n">loss</span> <span class="o">=</span> <span class="p">((</span><span class="n">chiTot</span> <span class="o">*</span> <span class="p">(</span><span class="n">S</span> <span class="o">-</span> <span class="n">Idepth</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">@</span> <span class="n">atmos</span><span class="o">.</span><span class="n">wmu</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="p">((</span><span class="n">chiTot</span> <span class="o">*</span> <span class="p">(</span><span class="n">S</span> <span class="o">-</span> <span class="n">Idepth</span><span class="p">)))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">@</span> <span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">wmu</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">loss</span></div>
+    <span class="k">return</span> <span class="o">-</span><span class="n">loss</span></div>
 
 
 
@@ -550,12 +551,52 @@
         <span class="n">lineLoss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">loss</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">wav</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
             <span class="n">lineLoss</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">weno4</span><span class="p">(</span><span class="n">wav</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">spect</span><span class="o">.</span><span class="n">wavelength</span><span class="p">,</span> <span class="n">loss</span><span class="p">[:,</span> <span class="n">k</span><span class="p">])</span>
-        <span class="n">lineLosses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trapezoid</span><span class="p">(</span><span class="n">lineLoss</span><span class="p">,</span>
+        <span class="c1"># NOTE(cmo): Due to the conversion from wavelength (ordered increasing)</span>
+        <span class="c1"># to frequency, the bin size comes out negative in the trapezoid, so we</span>
+        <span class="c1"># invert the result to effectively integrate with abs bins.</span>
+        <span class="n">lineLosses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="n">trapezoid</span><span class="p">(</span><span class="n">lineLoss</span><span class="p">,</span>
                                     <span class="p">(</span><span class="n">wav</span> <span class="o">&lt;&lt;</span> <span class="n">units</span><span class="o">.</span><span class="n">nm</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">Hz</span><span class="p">,</span>
                                                          <span class="n">equivalencies</span><span class="o">=</span><span class="n">units</span><span class="o">.</span><span class="n">spectral</span><span class="p">())</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
                           <span class="p">)</span>
     <span class="k">return</span> <span class="n">lineLosses</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lineLosses</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">lineLosses</span></div>
 
+
+<div class="viewcode-block" id="compute_tau">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.compute_tau">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_tau</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">mu</span> <span class="p">:</span> <span class="nb">int</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">outgoing</span> <span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Computes the optical depth at each layer for all wavelengths in the simulation,</span>
+<span class="sd">    for a chosen angular index.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ctx : Context</span>
+<span class="sd">        A context with the full depth-dependent data (i.e. ctx.depthData.fill</span>
+<span class="sd">        = True set before the most recent formal solution).</span>
+<span class="sd">    mu : Optional[int]</span>
+<span class="sd">        The angular index to use (corresponding to the order of the angular</span>
+<span class="sd">        quadratures in atmosphere), default: -1.</span>
+<span class="sd">    outgoing : Optional[bool]</span>
+<span class="sd">        Whether to compute the tau for outgoing or incoming</span>
+<span class="sd">        radiation (wrt to the atmosphere). Default: outgoing==True, i.e. to</span>
+<span class="sd">        observer.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tau : np.ndarray</span>
+<span class="sd">        The optical depth in terms of depth and wavelength.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">upDown</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">outgoing</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="n">tau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">depthData</span><span class="o">.</span><span class="n">chi</span><span class="p">[:,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">upDown</span><span class="p">,</span> <span class="p">:])</span>
+    <span class="n">chi</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">depthData</span><span class="o">.</span><span class="n">chi</span>
+    <span class="n">atmos</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;atmos&#39;</span><span class="p">]</span>
+
+    <span class="c1"># NOTE(cmo): Compute tau for all wavelengths</span>
+    <span class="n">tau</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-20</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">tau</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">tau</span><span class="p">[:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">tau</span><span class="p">[:,</span> <span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">chi</span><span class="p">[:,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">upDown</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">+</span> <span class="n">chi</span><span class="p">[:,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">upDown</span><span class="p">,</span> <span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> \
+                                      <span class="o">*</span> <span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">height</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">atmos</span><span class="o">.</span><span class="n">height</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">tau</span></div>
 
 
 <div class="viewcode-block" id="compute_contribution_fn">
@@ -588,11 +629,7 @@
     <span class="n">chi</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">depthData</span><span class="o">.</span><span class="n">chi</span>
     <span class="n">atmos</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;atmos&#39;</span><span class="p">]</span>
 
-    <span class="c1"># NOTE(cmo): Compute tau for all wavelengths</span>
-    <span class="n">tau</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-20</span>
-    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">tau</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
-        <span class="n">tau</span><span class="p">[:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">tau</span><span class="p">[:,</span> <span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">chi</span><span class="p">[:,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">upDown</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">+</span> <span class="n">chi</span><span class="p">[:,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">upDown</span><span class="p">,</span> <span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> \
-                                      <span class="o">*</span> <span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">height</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">atmos</span><span class="o">.</span><span class="n">height</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+    <span class="n">tau</span> <span class="o">=</span> <span class="n">compute_tau</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">outgoing</span><span class="p">)</span>
 
     <span class="c1"># NOTE(cmo): Source function.</span>
     <span class="n">Sfn</span> <span class="o">=</span> <span class="p">((</span><span class="n">ctx</span><span class="o">.</span><span class="n">depthData</span><span class="o">.</span><span class="n">eta</span>
@@ -604,6 +641,30 @@
            <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">tau</span> <span class="o">/</span> <span class="n">atmos</span><span class="o">.</span><span class="n">muz</span><span class="p">[</span><span class="n">mu</span><span class="p">])</span> <span class="o">*</span> <span class="n">Sfn</span><span class="p">[:,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">upDown</span><span class="p">,</span> <span class="p">:]</span>
 
     <span class="k">return</span> <span class="n">cfn</span></div>
+
+
+<div class="viewcode-block" id="tau_isosurface">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.utils.tau_isosurface">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">tau_isosurface</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Compute the geometric depth of an isosurface in tau over wavelength using</span>
+<span class="sd">    interpolation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tau : np.ndarray</span>
+<span class="sd">        The tau array from `compute_tau` [Nwave, Ndepth]</span>
+<span class="sd">    z : np.ndarray</span>
+<span class="sd">        The atmospheric stratification</span>
+<span class="sd">    val : float, optional</span>
+<span class="sd">        The isosurface value to find. Default: 1.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">tau1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">tau</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">for</span> <span class="n">la</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">tau</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">tau1</span><span class="p">[</span><span class="n">la</span><span class="p">]</span> <span class="o">=</span> <span class="n">weno4</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">tau</span><span class="p">[</span><span class="n">la</span><span class="p">],</span> <span class="n">z</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">tau1</span></div>
 
 
 
