@@ -9,7 +9,7 @@
   <title>Time-dependent Example &mdash; Lightweaver  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=fd6457a4" />
+      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=c83e6b79" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -94,36 +94,33 @@ time-dependent population figure present in Judge 2017. Here the complete
 Rybicki-Hummer MALI method is used.
 Herein we also conserve charge.</p>
 <p>Judge (2017): ApJ 851, 5</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">lightweaver.fal</span><span class="w"> </span><span class="kn">import</span> <span class="n">Falc82</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">lightweaver.rh_atoms</span><span class="w"> </span><span class="kn">import</span>  <span class="n">H_4_atom</span><span class="p">,</span> <span class="n">C_atom</span><span class="p">,</span> <span class="n">O_atom</span><span class="p">,</span> <span class="n">Si_atom</span><span class="p">,</span> <span class="n">Al_atom</span><span class="p">,</span> <span class="n">CaII_atom</span><span class="p">,</span> <span class="n">Fe_atom</span><span class="p">,</span> <span class="n">He_atom</span><span class="p">,</span> <span class="n">MgII_atom</span><span class="p">,</span> <span class="n">N_atom</span><span class="p">,</span> <span class="n">Na_atom</span><span class="p">,</span> <span class="n">S_atom</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">lightweaver</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">lw</span>
-</pre></div>
-</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">from</span><span class="w"> </span><span class="nn">lightweaver</span><span class="nn">.</span><span class="nn">fal</span><span class="w"> </span><span class="kn">import</span> <span class="n">Falc82</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">lightweaver</span><span class="nn">.</span><span class="nn">rh_atoms</span><span class="w"> </span><span class="kn">import</span>  <span class="n">H_4_atom</span><span class="p">,</span> <span class="n">C_atom</span><span class="p">,</span> <span class="n">O_atom</span><span class="p">,</span> <span class="n">Si_atom</span><span class="p">,</span> <span class="n">Al_atom</span><span class="p">,</span> <span class="n">CaII_atom</span><span class="p">,</span> <span class="n">Fe_atom</span><span class="p">,</span> <span class="n">He_atom</span><span class="p">,</span> <span class="n">MgII_atom</span><span class="p">,</span> <span class="n">N_atom</span><span class="p">,</span> <span class="n">Na_atom</span><span class="p">,</span> <span class="n">S_atom</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="nn">.</span><span class="nn">pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">lightweaver</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">lw</span><span class="w">
+</span></pre></div></div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/Lightweaver/Lightweaver/lw-docs-venv/lib/python3.12/site-packages/lightweaver/config.py:75: UserWarning: No config file found, using defaults. For optimised vectorised code, please run `lightweaver.benchmark()`, otherwise the most advanced instruction set supported by your machine will be picked, which may not be the fastest (due to e.g. aggressive AVX offsets).
-  warnings.warn(&#39;No config file found, using defaults. For optimised vectorised code,&#39;
+  warnings.warn('No config file found, using defaults. For optimised vectorised code,'
 </pre></div>
 </div>
 <p>Set up the standard FAL C 82 point initial atmosphere.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">atmos</span> <span class="o">=</span> <span class="n">Falc82</span><span class="p">()</span>
-<span class="n">atmos</span><span class="o">.</span><span class="n">quadrature</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-<span class="n">aSet</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">RadiativeSet</span><span class="p">([</span><span class="n">H_4_atom</span><span class="p">(),</span> <span class="n">C_atom</span><span class="p">(),</span> <span class="n">O_atom</span><span class="p">(),</span> <span class="n">Si_atom</span><span class="p">(),</span> <span class="n">Al_atom</span><span class="p">(),</span> <span class="n">CaII_atom</span><span class="p">(),</span>\
-                        <span class="n">Fe_atom</span><span class="p">(),</span> <span class="n">He_atom</span><span class="p">(),</span> <span class="n">MgII_atom</span><span class="p">(),</span> <span class="n">N_atom</span><span class="p">(),</span> <span class="n">Na_atom</span><span class="p">(),</span> <span class="n">S_atom</span><span class="p">()])</span>
-<span class="n">aSet</span><span class="o">.</span><span class="n">set_active</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">)</span>
-<span class="n">spect</span> <span class="o">=</span> <span class="n">aSet</span><span class="o">.</span><span class="n">compute_wavelength_grid</span><span class="p">()</span>
-
-<span class="n">eqPops</span> <span class="o">=</span> <span class="n">aSet</span><span class="o">.</span><span class="n">iterate_lte_ne_eq_pops</span><span class="p">(</span><span class="n">atmos</span><span class="p">)</span>
-<span class="n">ctx</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">Context</span><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="n">spect</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">,</span> <span class="n">conserveCharge</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">Nthreads</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</pre></div>
-</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere" title="lightweaver.Atmosphere"><span class="n">atmos</span></a> <span class="o">=</span> <span class="n">Falc82</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-method reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere.quadrature" title="lightweaver.Atmosphere.quadrature"><span class="n">atmos</span><span class="o">.</span><span class="n">quadrature</span></a><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet" title="lightweaver.RadiativeSet"><span class="n">aSet</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class reference internal" href="../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet" title="lightweaver.RadiativeSet"><span class="n">lw</span><span class="o">.</span><span class="n">RadiativeSet</span></a><span class="p">(</span><span class="p">[</span><span class="n">H_4_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">C_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">O_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">Si_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">Al_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">CaII_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span>\
+                        <span class="n">Fe_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">He_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">MgII_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">N_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">Na_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">S_atom</span><span class="p">(</span><span class="p">)</span><span class="p">]</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-method reference internal" href="../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.set_active" title="lightweaver.RadiativeSet.set_active"><span class="n">aSet</span><span class="o">.</span><span class="n">set_active</span></a><span class="p">(</span><span class="s1">'</span><span class="s1">H</span><span class="s1">'</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atomic_set.SpectrumConfiguration" title="lightweaver.SpectrumConfiguration"><span class="n">spect</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-method reference internal" href="../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.compute_wavelength_grid" title="lightweaver.RadiativeSet.compute_wavelength_grid"><span class="n">aSet</span><span class="o">.</span><span class="n">compute_wavelength_grid</span></a><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><a class="sphx-glr-backref-module-lightweaver-atomic_set sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atomic_set.SpeciesStateTable" title="lightweaver.atomic_set.SpeciesStateTable"><span class="n">eqPops</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-method reference internal" href="../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet.iterate_lte_ne_eq_pops" title="lightweaver.RadiativeSet.iterate_lte_ne_eq_pops"><span class="n">aSet</span><span class="o">.</span><span class="n">iterate_lte_ne_eq_pops</span></a><span class="p">(</span><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere" title="lightweaver.Atmosphere"><span class="n">atmos</span></a><span class="p">)</span><span class="w">
+</span><span class="n">ctx</span> <span class="o">=</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class reference internal" href="../lightweaver-api.html#lightweaver.LwCompiled.LwContext" title="lightweaver.LwContext"><span class="n">lw</span><span class="o">.</span><span class="n">Context</span></a><span class="p">(</span><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere" title="lightweaver.Atmosphere"><span class="n">atmos</span></a><span class="p">,</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atomic_set.SpectrumConfiguration" title="lightweaver.SpectrumConfiguration"><span class="n">spect</span></a><span class="p">,</span> <a class="sphx-glr-backref-module-lightweaver-atomic_set sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atomic_set.SpeciesStateTable" title="lightweaver.atomic_set.SpeciesStateTable"><span class="n">eqPops</span></a><span class="p">,</span> <span class="n">conserveCharge</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">Nthreads</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
 <p>Find the initial statistical equilibrium solution,</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">lw</span><span class="o">.</span><span class="n">iterate_ctx_se</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Achieved initial Stat Eq</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">lw</span><span class="o">.</span><span class="n">iterate_ctx_se</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="s1">Achieved initial Stat Eq</span><span class="se">\n</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>-- Iteration 0:
 dJ = 1.00e+00
     (Lambda iterating background)
@@ -131,26 +128,26 @@ dJ = 1.00e+00
 dJ = 9.99e+00
     H delta = 1.0870e+00
     ne delta = 1.5277e-01
--- Iteration 23:
-dJ = 1.10e-01
-    H delta = 6.9327e-02
-    ne delta = 7.0427e-16
--- Iteration 44:
-dJ = 6.68e-02
-    H delta = 3.9908e-02
-    ne delta = 0.0000e+00
--- Iteration 65:
-dJ = 3.84e-02
-    H delta = 2.4687e-02
+-- Iteration 25:
+dJ = 1.00e-01
+    H delta = 6.2749e-02
     ne delta = 3.5213e-16
--- Iteration 86:
-dJ = 1.12e-02
-    H delta = 7.4960e-03
-    ne delta = 5.9299e-16
--- Iteration 107:
-dJ = 2.06e-03
-    H delta = 1.3870e-03
+-- Iteration 46:
+dJ = 6.48e-02
+    H delta = 3.8595e-02
+    ne delta = 3.5579e-16
+-- Iteration 67:
+dJ = 3.50e-02
+    H delta = 2.2705e-02
     ne delta = 6.8087e-16
+-- Iteration 88:
+dJ = 9.68e-03
+    H delta = 6.4873e-03
+    ne delta = 1.3046e-15
+-- Iteration 109:
+dJ = 1.73e-03
+    H delta = 1.1705e-03
+    ne delta = 6.2724e-16
 --------------------------------------------------------------------------------
 Final Iteration: 111
 --------------------------------------------------------------------------------
@@ -158,60 +155,57 @@ dJ = 1.46e-03
     H delta = 9.8682e-04
     ne delta = 3.5213e-16
 --------------------------------------------------------------------------------
-Context converged to statistical equilibrium in 111 iterations after 2.54 s.
+Context converged to statistical equilibrium in 111 iterations after 2.37 s.
 --------------------------------------------------------------------------------
 Achieved initial Stat Eq
 </pre></div>
 </div>
 <p>Simulation parameters, timestep, number of steps to run for, and how many
 times to attempt to solve the equations for convergence per step.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="n">dt</span> <span class="o">=</span> <span class="mf">0.1</span>
-<span class="n">NtStep</span> <span class="o">=</span> <span class="mi">30</span>
-<span class="n">NsubStep</span> <span class="o">=</span> <span class="mi">100</span>
-</pre></div>
-</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="n">dt</span> <span class="o">=</span> <span class="mf">0.1</span><span class="w">
+</span><span class="n">NtStep</span> <span class="o">=</span> <span class="mi">30</span><span class="w">
+</span><span class="n">NsubStep</span> <span class="o">=</span> <span class="mi">100</span><span class="w">
+</span></pre></div></div>
 <p>Perturb the atmospheric temperature structure like in the paper.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">prevT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">31</span><span class="p">):</span>
-    <span class="n">di</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mf">20.0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3.0</span>
-    <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">di</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-</pre></div>
-</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">prevT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere" title="lightweaver.Atmosphere"><span class="n">atmos</span></a><span class="o">.</span><span class="n">temperature</span><span class="p">)</span><span class="w">
+</span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">31</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">di</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mf">20.0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3.0</span><span class="w">
+</span>    <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere" title="lightweaver.Atmosphere"><span class="n">atmos</span></a><span class="o">.</span><span class="n">temperature</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span><span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">di</span><span class="o">*</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
 <p>Solve the problem</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">hPops</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">eqPops</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">])]</span>
-<span class="n">subIters</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NtStep</span><span class="p">):</span>
-    <span class="c1"># Recompute line profiles etc to account for changing electron density and temperature.</span>
-    <span class="n">ctx</span><span class="o">.</span><span class="n">update_deps</span><span class="p">()</span>
-
-    <span class="n">prevState</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NsubStep</span><span class="p">):</span>
-        <span class="n">JUpdate</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">formal_sol_gamma_matrices</span><span class="p">()</span>
-        <span class="c1"># If prevState is None, then the function assumes that this is the</span>
-        <span class="c1"># subiteration for this step and constructs and returns prevState</span>
-        <span class="n">popsUpdate</span><span class="p">,</span> <span class="n">prevState</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">time_dep_update</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">prevState</span><span class="p">)</span>
-        <span class="c1"># Update electron density.</span>
-        <span class="c1"># If conserveCharge is set to True when the context is constructed, then</span>
-        <span class="c1"># the effects of `time_dep_update` are included in the IterationUpdate</span>
-        <span class="c1"># returned from `nr_post_update`, as the Context is expecting this to be</span>
-        <span class="c1"># called immediately after `time_dep_update`.</span>
-        <span class="n">nrUpdate</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">nr_post_update</span><span class="p">(</span><span class="n">timeDependentData</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;dt&#39;</span><span class="p">:</span> <span class="n">dt</span><span class="p">,</span> <span class="s1">&#39;nPrev&#39;</span><span class="p">:</span> <span class="n">prevState</span><span class="p">})</span>
-
-        <span class="c1"># Check subiteration convergence</span>
-        <span class="k">if</span> <span class="n">nrUpdate</span><span class="o">.</span><span class="n">dPopsMax</span> <span class="o">&lt;</span> <span class="mf">1e-3</span> <span class="ow">and</span> <span class="n">JUpdate</span><span class="o">.</span><span class="n">dJMax</span> <span class="o">&lt;</span> <span class="mf">3e-3</span><span class="p">:</span>
-            <span class="n">subIters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span>
-            <span class="k">break</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No convergence within required Nsubstep&#39;</span><span class="p">)</span>
-
-    <span class="n">hPops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">eqPops</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">]))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Iteration </span><span class="si">%d</span><span class="s1"> (</span><span class="si">%f</span><span class="s1"> s) done after </span><span class="si">%d</span><span class="s1"> sub iterations&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="p">(</span><span class="n">it</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">dt</span><span class="p">,</span> <span class="n">sub</span><span class="p">))</span>
-
-    <span class="c1"># input()</span>
-<span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-</pre></div>
-</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">hPops</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><a class="sphx-glr-backref-module-lightweaver-atomic_set sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atomic_set.SpeciesStateTable" title="lightweaver.atomic_set.SpeciesStateTable"><span class="n">eqPops</span></a><span class="p">[</span><span class="s1">'</span><span class="s1">H</span><span class="s1">'</span><span class="p">]</span><span class="p">)</span><span class="p">]</span><span class="w">
+</span><span class="n">subIters</span> <span class="o">=</span> <span class="p">[</span><span class="p">]</span><span class="w">
+</span><span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NtStep</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="c1"># Recompute line profiles etc to account for changing electron density and temperature.</span><span class="w">
+</span>    <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-method reference internal" href="../lightweaver-api.html#lightweaver.LwCompiled.LwContext.update_deps" title="lightweaver.LwContext.update_deps"><span class="n">ctx</span><span class="o">.</span><span class="n">update_deps</span></a><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span>    <span class="n">prevState</span> <span class="o">=</span> <span class="kc">None</span><span class="w">
+</span>    <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NsubStep</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>        <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.iteration_update.IterationUpdate" title="lightweaver.IterationUpdate"><span class="n">JUpdate</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-method reference internal" href="../lightweaver-api.html#lightweaver.LwCompiled.LwContext.formal_sol_gamma_matrices" title="lightweaver.LwContext.formal_sol_gamma_matrices"><span class="n">ctx</span><span class="o">.</span><span class="n">formal_sol_gamma_matrices</span></a><span class="p">(</span><span class="p">)</span><span class="w">
+</span>        <span class="c1"># If prevState is None, then the function assumes that this is the</span><span class="w">
+</span>        <span class="c1"># subiteration for this step and constructs and returns prevState</span><span class="w">
+</span>        <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.iteration_update.IterationUpdate" title="lightweaver.IterationUpdate"><span class="n">popsUpdate</span></a><span class="p">,</span> <span class="n">prevState</span> <span class="o">=</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-method reference internal" href="../lightweaver-api.html#lightweaver.LwCompiled.LwContext.time_dep_update" title="lightweaver.LwContext.time_dep_update"><span class="n">ctx</span><span class="o">.</span><span class="n">time_dep_update</span></a><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">prevState</span><span class="p">)</span><span class="w">
+</span>        <span class="c1"># Update electron density.</span><span class="w">
+</span>        <span class="c1"># If conserveCharge is set to True when the context is constructed, then</span><span class="w">
+</span>        <span class="c1"># the effects of `time_dep_update` are included in the IterationUpdate</span><span class="w">
+</span>        <span class="c1"># returned from `nr_post_update`, as the Context is expecting this to be</span><span class="w">
+</span>        <span class="c1"># called immediately after `time_dep_update`.</span><span class="w">
+</span>        <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.iteration_update.IterationUpdate" title="lightweaver.IterationUpdate"><span class="n">nrUpdate</span></a> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">nr_post_update</span><span class="p">(</span><span class="n">timeDependentData</span><span class="o">=</span><span class="p">{</span><span class="s1">'</span><span class="s1">dt</span><span class="s1">'</span><span class="p">:</span> <span class="n">dt</span><span class="p">,</span> <span class="s1">'</span><span class="s1">nPrev</span><span class="s1">'</span><span class="p">:</span> <span class="n">prevState</span><span class="p">}</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span>        <span class="c1"># Check subiteration convergence</span><span class="w">
+</span>        <span class="k">if</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-attribute reference internal" href="../lightweaver-api.html#lightweaver.iteration_update.IterationUpdate.dPopsMax" title="lightweaver.IterationUpdate.dPopsMax"><span class="n">nrUpdate</span><span class="o">.</span><span class="n">dPopsMax</span></a> <span class="o">&lt;</span> <span class="mf">1e-3</span> <span class="ow">and</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.iteration_update.IterationUpdate" title="lightweaver.IterationUpdate"><span class="n">JUpdate</span></a><span class="o">.</span><span class="n">dJMax</span> <span class="o">&lt;</span> <span class="mf">3e-3</span><span class="p">:</span><span class="w">
+</span>            <span class="n">subIters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span><span class="w">
+</span>            <span class="k">break</span><span class="w">
+</span>    <span class="k">else</span><span class="p">:</span><span class="w">
+</span>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'</span><span class="s1">No convergence within required Nsubstep</span><span class="s1">'</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span>    <span class="n">hPops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><a class="sphx-glr-backref-module-lightweaver-atomic_set sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atomic_set.SpeciesStateTable" title="lightweaver.atomic_set.SpeciesStateTable"><span class="n">eqPops</span></a><span class="p">[</span><span class="s1">'</span><span class="s1">H</span><span class="s1">'</span><span class="p">]</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span>    <span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="s1">Iteration </span><span class="si">%d</span><span class="s1"> (</span><span class="si">%f</span><span class="s1"> s) done after </span><span class="si">%d</span><span class="s1"> sub iterations</span><span class="s1">'</span> <span class="o">%</span> <span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="p">(</span><span class="n">it</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">dt</span><span class="p">,</span> <span class="n">sub</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span>    <span class="c1"># input()</span><span class="w">
+</span><span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Iteration 0 (0.100000 s) done after 50 sub iterations
 Iteration 1 (0.200000 s) done after 48 sub iterations
 Iteration 2 (0.300000 s) done after 46 sub iterations
@@ -245,39 +239,38 @@ Iteration 29 (3.000000 s) done after 7 sub iterations
 </pre></div>
 </div>
 <p>Reproduce Judge plot.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">initialAtmos</span> <span class="o">=</span> <span class="n">Falc82</span><span class="p">()</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">ion</span><span class="p">()</span>
-<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-<span class="n">cmass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">cmass</span><span class="o">/</span><span class="mf">1e1</span><span class="p">)</span>
-
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">cmass</span><span class="p">,</span> <span class="n">initialAtmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="s1">&#39;k&#39;</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">cmass</span><span class="p">,</span> <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="s1">&#39;--&#39;</span><span class="p">)</span>
-
-<span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">hPops</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">cmass</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span><span class="o">/</span><span class="mf">1e6</span><span class="p">))</span>
-    <span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">cmass</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span><span class="o">/</span><span class="mf">1e6</span><span class="p">))</span>
-    <span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">cmass</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,:]</span><span class="o">/</span><span class="mf">1e6</span><span class="p">))</span>
-
-<span class="n">p</span> <span class="o">=</span> <span class="n">hPops</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">cmass</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span><span class="o">/</span><span class="mf">1e6</span><span class="p">),</span> <span class="s1">&#39;k&#39;</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">cmass</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span><span class="o">/</span><span class="mf">1e6</span><span class="p">),</span> <span class="s1">&#39;k&#39;</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">cmass</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,:]</span><span class="o">/</span><span class="mf">1e6</span><span class="p">),</span> <span class="s1">&#39;k&#39;</span><span class="p">)</span>
-
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">-</span><span class="mf">4.935</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.931</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">6e4</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time taken: </span><span class="si">%.2f</span><span class="s1"> s&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">))</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere" title="lightweaver.Atmosphere"><span class="n">initialAtmos</span></a> <span class="o">=</span> <span class="n">Falc82</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="n">plt</span><span class="o">.</span><span class="n">ion</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span><span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="n">cmass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-property reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere.cmass" title="lightweaver.Atmosphere.cmass"><span class="n">atmos</span><span class="o">.</span><span class="n">cmass</span></a><span class="o">/</span><span class="mf">1e1</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">cmass</span><span class="p">,</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere" title="lightweaver.Atmosphere"><span class="n">initialAtmos</span></a><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="s1">'</span><span class="s1">k</span><span class="s1">'</span><span class="p">)</span><span class="w">
+</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">cmass</span><span class="p">,</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere" title="lightweaver.Atmosphere"><span class="n">atmos</span></a><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="s1">'</span><span class="s1">--</span><span class="s1">'</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">hPops</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="p">]</span><span class="p">:</span><span class="w">
+</span>    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">cmass</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="p">:</span><span class="p">]</span><span class="o">/</span><span class="mf">1e6</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span>    <span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">cmass</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="p">:</span><span class="p">]</span><span class="o">/</span><span class="mf">1e6</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span>    <span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">cmass</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="p">:</span><span class="p">]</span><span class="o">/</span><span class="mf">1e6</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="n">p</span> <span class="o">=</span> <span class="n">hPops</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">
+</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">cmass</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="p">:</span><span class="p">]</span><span class="o">/</span><span class="mf">1e6</span><span class="p">)</span><span class="p">,</span> <span class="s1">'</span><span class="s1">k</span><span class="s1">'</span><span class="p">)</span><span class="w">
+</span><span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">cmass</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="p">:</span><span class="p">]</span><span class="o">/</span><span class="mf">1e6</span><span class="p">)</span><span class="p">,</span> <span class="s1">'</span><span class="s1">k</span><span class="s1">'</span><span class="p">)</span><span class="w">
+</span><span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">cmass</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="p">:</span><span class="p">]</span><span class="o">/</span><span class="mf">1e6</span><span class="p">)</span><span class="p">,</span> <span class="s1">'</span><span class="s1">k</span><span class="s1">'</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">-</span><span class="mf">4.935</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.931</span><span class="p">)</span><span class="w">
+</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">6e4</span><span class="p">)</span><span class="w">
+</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span><span class="w">
+</span><span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span><span class="w">
+</span><span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="s1">Time taken: </span><span class="si">%.2f</span><span class="s1"> s</span><span class="s1">'</span> <span class="o">%</span> <span class="p">(</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<img src="../_images/sphx_glr_plot_JudgeDynamicValidation_001.png" srcset="../_images/sphx_glr_plot_JudgeDynamicValidation_001.png" alt="plot JudgeDynamicValidation" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Time taken: 7.57 s
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_plot_JudgeDynamicValidation_001.png" srcset="../_images/sphx_glr_plot_JudgeDynamicValidation_001.png" alt="plot JudgeDynamicValidation" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Time taken: 7.43 s
-</pre></div>
-</div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 27.540 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 27.917 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-plot-judgedynamicvalidation-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/80b6e3e2cfa645cda4e5a121a0b8a2e4/plot_JudgeDynamicValidation.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_JudgeDynamicValidation.ipynb</span></code></a></p>

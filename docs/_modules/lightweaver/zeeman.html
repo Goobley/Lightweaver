@@ -8,7 +8,7 @@
   <title>lightweaver.zeeman &mdash; Lightweaver  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=c83e6b79" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -88,10 +88,10 @@
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.zeeman.fraction_range">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">fraction_range</span><span class="p">(</span><span class="n">start</span><span class="p">:</span> <span class="n">Fraction</span><span class="p">,</span> <span class="n">stop</span><span class="p">:</span> <span class="n">Fraction</span><span class="p">,</span>
                    <span class="n">step</span><span class="p">:</span> <span class="n">Fraction</span><span class="o">=</span><span class="n">Fraction</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Fraction</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Works like range, but with Fractions. Does no checking, so best to make</span>
-<span class="sd">    sure the range you&#39;re asking for is sane and divides down properly.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    sure the range you're asking for is sane and divides down properly.</span>
+<span class="sd">    '''</span>
     <span class="k">while</span> <span class="n">start</span> <span class="o">&lt;</span> <span class="n">stop</span><span class="p">:</span>
         <span class="k">yield</span> <span class="n">start</span>
         <span class="n">start</span> <span class="o">+=</span> <span class="n">step</span></div>
@@ -101,11 +101,11 @@
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.zeeman.ZeemanComponents">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ZeemanComponents</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Storage for communicating the Zeeman components between functions, also</span>
 <span class="sd">    shared with the backend, giving a slightly tighter contract than usual:</span>
 <span class="sd">    all arrays must be contiguous and alpha must be of dtype np.int32.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="n">alpha</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="n">strength</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="n">shift</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span></div>
@@ -114,17 +114,17 @@
 <div class="viewcode-block" id="zeeman_strength">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.zeeman.zeeman_strength">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">zeeman_strength</span><span class="p">(</span><span class="n">Ju</span><span class="p">:</span> <span class="n">Fraction</span><span class="p">,</span> <span class="n">Mu</span><span class="p">:</span> <span class="n">Fraction</span><span class="p">,</span> <span class="n">Jl</span><span class="p">:</span> <span class="n">Fraction</span><span class="p">,</span> <span class="n">Ml</span><span class="p">:</span> <span class="n">Fraction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Computes the strength of a Zeeman component, following del Toro Iniesta</span>
 <span class="sd">    (p. 137) albeit larger by a factor of 2 which is corrected by</span>
 <span class="sd">    normalisation.</span>
 <span class="sd">    Takes J upper and lower (u and l respectively), and M upper and lower.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="n">alpha</span>  <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">Ml</span> <span class="o">-</span> <span class="n">Mu</span><span class="p">)</span>
     <span class="n">dJ</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">Ju</span> <span class="o">-</span> <span class="n">Jl</span><span class="p">)</span>
 
     <span class="c1"># These parameters are x2 those in del Toro Iniesta (p. 137), but we</span>
-    <span class="c1"># normalise after the fact, so it&#39;s fine</span>
+    <span class="c1"># normalise after the fact, so it's fine</span>
 
     <span class="k">if</span> <span class="n">dJ</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># jMin = ju = jl</span>
         <span class="k">if</span> <span class="n">alpha</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># pi trainsitions</span>
@@ -148,7 +148,7 @@
         <span class="k">elif</span> <span class="n">alpha</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># sigma_r transitions</span>
             <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">Ju</span> <span class="o">+</span> <span class="n">Mu</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">Ju</span> <span class="o">+</span> <span class="n">Mu</span> <span class="o">+</span> <span class="mf">2.0</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid dJ: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">dJ</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Invalid dJ: </span><span class="si">%d</span><span class="s1">'</span> <span class="o">%</span> <span class="n">dJ</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
 
@@ -156,10 +156,10 @@
 <div class="viewcode-block" id="lande_factor">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.zeeman.lande_factor">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">lande_factor</span><span class="p">(</span><span class="n">J</span><span class="p">:</span> <span class="n">Fraction</span><span class="p">,</span> <span class="n">L</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">S</span><span class="p">:</span> <span class="n">Fraction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Computes the Lande g-factor for an atomic level from the J, L, and S</span>
 <span class="sd">    quantum numbers.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="k">if</span> <span class="n">J</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
         <span class="k">return</span> <span class="mf">0.0</span>
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="mf">1.5</span> <span class="o">+</span> <span class="p">(</span><span class="n">S</span> <span class="o">*</span> <span class="p">(</span><span class="n">S</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-</span> <span class="n">L</span> <span class="o">*</span> <span class="p">(</span><span class="n">L</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">J</span> <span class="o">*</span> <span class="p">(</span><span class="n">J</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">)))</span></div>
@@ -167,18 +167,18 @@
 
 <div class="viewcode-block" id="effective_lande">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.zeeman.effective_lande">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">effective_lande</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="s1">&#39;AtomicLine&#39;</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">effective_lande</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="s1">'AtomicLine'</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Computes the effective Lande g-factor for an atomic line.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">gLandeEff</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">line</span><span class="o">.</span><span class="n">gLandeEff</span>
 
     <span class="n">i</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">iLevel</span>
     <span class="n">j</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">jLevel</span>
     <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">J</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">S</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">J</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">S</span><span class="p">]):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">&#39;Cannot compute gLandeEff as gLandeEff not set and some of &#39;</span>
-                          <span class="s1">&#39;J, L and S None for line </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">'Cannot compute gLandeEff as gLandeEff not set and some of '</span>
+                          <span class="s1">'J, L and S None for line </span><span class="si">%s</span><span class="s1">'</span><span class="p">)</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
     <span class="n">gL</span> <span class="o">=</span> <span class="n">lande_factor</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">J</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">S</span><span class="p">)</span> <span class="c1"># type: ignore</span>
     <span class="n">gU</span> <span class="o">=</span> <span class="n">lande_factor</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">J</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">S</span><span class="p">)</span> <span class="c1"># type: ignore</span>
 
@@ -188,15 +188,15 @@
 
 <div class="viewcode-block" id="compute_zeeman_components">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.zeeman.compute_zeeman_components">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">compute_zeeman_components</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="s1">&#39;AtomicLine&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ZeemanComponents</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_zeeman_components</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="s1">'AtomicLine'</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ZeemanComponents</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Computes, if possible, the set of Zeeman components for an atomic line.</span>
 
 <span class="sd">    If gLandeEff is specified on the line, then basic three-component Zeeman</span>
 <span class="sd">    splitting will be computed directly.</span>
 <span class="sd">    Otherwise, if both the lower and upper levels of the line support</span>
 <span class="sd">    LS-coupling (i.e. J, L, and S all specified, and J &lt;= L + S), then the</span>
-<span class="sd">    LS-coupling formalism is applied to compute the components of &quot;anomalous&quot;</span>
+<span class="sd">    LS-coupling formalism is applied to compute the components of "anomalous"</span>
 <span class="sd">    Zeeman splitting.</span>
 <span class="sd">    If neither of these cases are fulfilled, then None is returned.</span>
 
@@ -209,7 +209,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    components : ZeemanComponents or None</span>
 <span class="sd">        The Zeeman splitting components, if possible.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="c1"># NOTE(cmo): Just do basic three-component Zeeman splitting if an effective</span>
     <span class="c1"># Lande g-factor is specified on the line.</span>
     <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">gLandeEff</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -218,9 +218,9 @@
         <span class="n">shift</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">line</span><span class="o">.</span><span class="n">gLandeEff</span>
         <span class="k">return</span> <span class="n">ZeemanComponents</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">strength</span><span class="p">,</span> <span class="n">shift</span><span class="p">)</span>
 
-    <span class="c1"># NOTE(cmo): Do LS coupling (&quot;anomalous&quot; Zeeman splitting)</span>
+    <span class="c1"># NOTE(cmo): Do LS coupling ("anomalous" Zeeman splitting)</span>
     <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">iLevel</span><span class="o">.</span><span class="n">lsCoupling</span> <span class="ow">and</span> <span class="n">line</span><span class="o">.</span><span class="n">jLevel</span><span class="o">.</span><span class="n">lsCoupling</span><span class="p">:</span>
-        <span class="c1"># Mypy... you&#39;re a pain sometimes... (even if you are technically correct)</span>
+        <span class="c1"># Mypy... you're a pain sometimes... (even if you are technically correct)</span>
         <span class="n">Jl</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Fraction</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">iLevel</span><span class="o">.</span><span class="n">J</span><span class="p">)</span>
         <span class="n">Ll</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">iLevel</span><span class="o">.</span><span class="n">L</span><span class="p">)</span>
         <span class="n">Sl</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Fraction</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">iLevel</span><span class="o">.</span><span class="n">S</span><span class="p">)</span>

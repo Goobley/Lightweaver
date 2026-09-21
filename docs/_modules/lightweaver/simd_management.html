@@ -8,7 +8,7 @@
   <title>lightweaver.simd_management &mdash; Lightweaver  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=c83e6b79" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -83,18 +83,18 @@
 <span class="c1"># NOTE(cmo): These are added in reverse order of preference (due to width), i.e.</span>
 <span class="c1"># try to use the key furthest down the list.</span>
 <span class="n">LwSimdImplsAndFlags</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;SSE2&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;SSE2&#39;</span><span class="p">],</span>
-    <span class="s1">&#39;AVX2FMA&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;AVX2&#39;</span><span class="p">,</span> <span class="s1">&#39;FMA3&#39;</span><span class="p">],</span>
-    <span class="s1">&#39;AVX512&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;AVX512F&#39;</span><span class="p">,</span> <span class="s1">&#39;AVX512DQ&#39;</span><span class="p">]</span>
+    <span class="s1">'SSE2'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'SSE2'</span><span class="p">],</span>
+    <span class="s1">'AVX2FMA'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'AVX2'</span><span class="p">,</span> <span class="s1">'FMA3'</span><span class="p">],</span>
+    <span class="s1">'AVX512'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'AVX512F'</span><span class="p">,</span> <span class="s1">'AVX512DQ'</span><span class="p">]</span>
 <span class="p">}</span>
 
 <div class="viewcode-block" id="get_available_simd_suffixes">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.simd_management.get_available_simd_suffixes">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_available_simd_suffixes</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Verifies the necessary flags against the features NumPy indicates are</span>
 <span class="sd">    available, and returns a list of available LightweaverSimdImpls</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="n">validExts</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">impl</span><span class="p">,</span> <span class="n">flags</span> <span class="ow">in</span> <span class="n">LwSimdImplsAndFlags</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">__cpu_features__</span><span class="p">[</span><span class="n">flag</span><span class="p">]</span> <span class="k">for</span> <span class="n">flag</span> <span class="ow">in</span> <span class="n">flags</span><span class="p">):</span>
@@ -105,10 +105,10 @@
 <div class="viewcode-block" id="filter_usable_simd_impls">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.simd_management.filter_usable_simd_impls">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">filter_usable_simd_impls</span><span class="p">(</span><span class="n">implLibs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Filter a list of SimdImpl library names, returning those that are usable on</span>
 <span class="sd">    the current machine.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="n">usableImpls</span> <span class="o">=</span> <span class="n">get_available_simd_suffixes</span><span class="p">()</span>
     <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">lib</span> <span class="ow">in</span> <span class="n">implLibs</span><span class="p">:</span>
@@ -116,7 +116,7 @@
         <span class="c1"># NOTE(cmo): A lib name is expected to be of the form</span>
         <span class="c1"># SimdImpl_{SimdType}.{pep3149}.so. So we split at the underscore and</span>
         <span class="c1"># check what the name starts with.</span>
-        <span class="n">nameEnd</span> <span class="o">=</span> <span class="n">libName</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">nameEnd</span> <span class="o">=</span> <span class="n">libName</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'_'</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">simdType</span> <span class="ow">in</span> <span class="n">usableImpls</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">nameEnd</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">simdType</span><span class="p">):</span>
                 <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lib</span><span class="p">)</span>

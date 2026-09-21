@@ -8,7 +8,7 @@
   <title>lightweaver.iterate_ctx &mdash; Lightweaver  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=c83e6b79" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -86,7 +86,7 @@
 <div class="viewcode-block" id="ConvergenceCriteria">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.iterate_ctx.ConvergenceCriteria">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ConvergenceCriteria</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Abstract base class for determining convergence inside `iterate_ctx_se`. A</span>
 <span class="sd">    derived variant of this class will be instantiated by `iterate_ctx_se`</span>
 <span class="sd">    dependent upon its arguments. The default implementation is</span>
@@ -102,20 +102,20 @@
 <span class="sd">        The value of popsTol passed to `iterate_ctx_se`.</span>
 <span class="sd">    rhoTol : float or None</span>
 <span class="sd">        The value of rhoTol passed to `iterate_ctx_se`.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="s1">&#39;Context&#39;</span><span class="p">,</span> <span class="n">JTol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">popsTol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rhoTol</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+<span class="sd">    '''</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="s1">'Context'</span><span class="p">,</span> <span class="n">JTol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">popsTol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rhoTol</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
 <div class="viewcode-block" id="ConvergenceCriteria.is_converged">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.iterate_ctx.ConvergenceCriteria.is_converged">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_converged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">JUpdate</span><span class="p">:</span> <span class="n">IterationUpdate</span><span class="p">,</span> <span class="n">popsUpdate</span><span class="p">:</span> <span class="n">IterationUpdate</span><span class="p">,</span>
                      <span class="n">prdUpdate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">IterationUpdate</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        This function takes the IterationUpdate objects from</span>
 <span class="sd">        `ctx.formal_sol_gamma_matrices` and `ctx.stat_equil` and optionally from</span>
 <span class="sd">        `ctx.prd_redistribute` (or None).  Should return a bool indicated</span>
 <span class="sd">        whether the Context is sufficiently converged.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 </div>
 
@@ -124,7 +124,7 @@
 <div class="viewcode-block" id="DefaultConvergenceCriteria">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.iterate_ctx.DefaultConvergenceCriteria">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DefaultConvergenceCriteria</span><span class="p">(</span><span class="n">ConvergenceCriteria</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Default ConvergenceCriteria implementation. Usually sufficient for</span>
 <span class="sd">    statistical equilibrium problems, but you may occasionally need to override</span>
 <span class="sd">    this.</span>
@@ -139,9 +139,9 @@
 <span class="sd">        The value of popsTol passed to `iterate_ctx_se`.</span>
 <span class="sd">    rhoTol : float or None</span>
 <span class="sd">        The value of rhoTol passed to `iterate_ctx_se`.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="s1">&#39;Context&#39;</span><span class="p">,</span> <span class="n">JTol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">popsTol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rhoTol</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="s1">'Context'</span><span class="p">,</span> <span class="n">JTol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">popsTol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rhoTol</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span> <span class="o">=</span> <span class="n">ctx</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">JTol</span> <span class="o">=</span> <span class="n">JTol</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">popsTol</span> <span class="o">=</span> <span class="n">popsTol</span>
@@ -151,9 +151,9 @@
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.iterate_ctx.DefaultConvergenceCriteria.is_converged">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_converged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">JUpdate</span><span class="p">:</span> <span class="n">IterationUpdate</span><span class="p">,</span> <span class="n">popsUpdate</span><span class="p">:</span> <span class="n">IterationUpdate</span><span class="p">,</span>
                      <span class="n">prdUpdate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">IterationUpdate</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Returns whether the context is converged.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="n">updates</span> <span class="o">=</span> <span class="p">[</span><span class="n">JUpdate</span><span class="p">,</span> <span class="n">popsUpdate</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">prdUpdate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">updates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prdUpdate</span><span class="p">)</span>
@@ -173,14 +173,14 @@
 
 <div class="viewcode-block" id="iterate_ctx_se">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.iterate_ctx.iterate_ctx_se">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">iterate_ctx_se</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="s1">&#39;Context&#39;</span><span class="p">,</span> <span class="n">Nscatter</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">NmaxIter</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">iterate_ctx_se</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="s1">'Context'</span><span class="p">,</span> <span class="n">Nscatter</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">NmaxIter</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
                    <span class="n">prd</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">JTol</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">5e-3</span><span class="p">,</span> <span class="n">popsTol</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
                    <span class="n">rhoTol</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prdIterTol</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span>
                    <span class="n">maxPrdSubIter</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">printInterval</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
                    <span class="n">quiet</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                    <span class="n">convergence</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">ConvergenceCriteria</span><span class="p">]]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                    <span class="n">returnFinalConvergence</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Iterate a configured Context towards statistical equilibrium solution.</span>
 
 <span class="sd">    Parameters</span>
@@ -211,7 +211,7 @@
 <span class="sd">        subiterations will cease for this iteration (default: 1e-2).</span>
 <span class="sd">    maxPrdSubIter : int, optional</span>
 <span class="sd">        The maximum number of PRD subiterations to make, whether or not rho has</span>
-<span class="sd">        reached the tolerance of prdIterTol (which isn&#39;t necessary every</span>
+<span class="sd">        reached the tolerance of prdIterTol (which isn't necessary every</span>
 <span class="sd">        iteration). (Default: 3)</span>
 <span class="sd">    printInterval : float, optional</span>
 <span class="sd">        The interval between printing the update size information in seconds. A</span>
@@ -234,7 +234,7 @@
 <span class="sd">        The number of iterations taken.</span>
 <span class="sd">    finalIterationUpdates : List[IterationUpdate], optional</span>
 <span class="sd">        The final IterationUpdates computed, if requested by `returnFinalConvergence`.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
 
     <span class="n">prevPrint</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="n">printNow</span> <span class="o">=</span> <span class="kc">True</span>
@@ -254,12 +254,12 @@
                 <span class="n">prevPrint</span> <span class="o">=</span> <span class="n">now</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span> <span class="ow">and</span> <span class="n">printNow</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;-- Iteration </span><span class="si">{</span><span class="n">it</span><span class="si">}</span><span class="s1">:&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'-- Iteration </span><span class="si">{</span><span class="n">it</span><span class="si">}</span><span class="s1">:'</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">JUpdate</span><span class="o">.</span><span class="n">compact_representation</span><span class="p">())</span>
 
         <span class="k">if</span> <span class="n">it</span> <span class="o">&lt;</span> <span class="n">Nscatter</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span> <span class="ow">and</span> <span class="n">printNow</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    (Lambda iterating background)&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">'    (Lambda iterating background)'</span><span class="p">)</span>
             <span class="c1"># NOTE(cmo): reset print state</span>
             <span class="n">printNow</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">continue</span>
@@ -282,20 +282,20 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
                 <span class="n">endTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
                 <span class="n">duration</span> <span class="o">=</span> <span class="n">endTime</span> <span class="o">-</span> <span class="n">startTime</span>
-                <span class="n">line</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">80</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="s1">'-'</span> <span class="o">*</span> <span class="mi">80</span>
                 <span class="k">if</span> <span class="n">printNow</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Final Iteration shown above.&#39;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">'Final Iteration shown above.'</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Final Iteration: </span><span class="si">{</span><span class="n">it</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Final Iteration: </span><span class="si">{</span><span class="n">it</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
                     <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
                     <span class="nb">print</span><span class="p">(</span><span class="n">JUpdate</span><span class="o">.</span><span class="n">compact_representation</span><span class="p">())</span>
                     <span class="nb">print</span><span class="p">(</span><span class="n">popsUpdate</span><span class="o">.</span><span class="n">compact_representation</span><span class="p">())</span>
                     <span class="k">if</span> <span class="n">prd</span> <span class="ow">and</span> <span class="n">dRhoUpdate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="nb">print</span><span class="p">(</span><span class="n">dRhoUpdate</span><span class="o">.</span><span class="n">compact_representation</span><span class="p">())</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Context converged to statistical equilibrium in </span><span class="si">{</span><span class="n">it</span><span class="si">}</span><span class="s1">&#39;</span>
-                      <span class="sa">f</span><span class="s1">&#39; iterations after </span><span class="si">{</span><span class="n">duration</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> s.&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Context converged to statistical equilibrium in </span><span class="si">{</span><span class="n">it</span><span class="si">}</span><span class="s1">'</span>
+                      <span class="sa">f</span><span class="s1">' iterations after </span><span class="si">{</span><span class="n">duration</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> s.'</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">returnFinalConvergence</span><span class="p">:</span>
                 <span class="n">finalConvergence</span> <span class="o">=</span> <span class="p">[</span><span class="n">JUpdate</span><span class="p">,</span> <span class="n">popsUpdate</span><span class="p">]</span>
@@ -309,19 +309,19 @@
         <span class="n">printNow</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
-            <span class="n">line</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">80</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="s1">'-'</span> <span class="o">*</span> <span class="mi">80</span>
             <span class="n">endTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             <span class="n">duration</span> <span class="o">=</span> <span class="n">endTime</span> <span class="o">-</span> <span class="n">startTime</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Final Iteration: </span><span class="si">{</span><span class="n">it</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Final Iteration: </span><span class="si">{</span><span class="n">it</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">JUpdate</span><span class="o">.</span><span class="n">compact_representation</span><span class="p">())</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">popsUpdate</span><span class="o">.</span><span class="n">compact_representation</span><span class="p">())</span>
             <span class="k">if</span> <span class="n">prd</span> <span class="ow">and</span> <span class="n">dRhoUpdate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">dRhoUpdate</span><span class="o">.</span><span class="n">compact_representation</span><span class="p">())</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Context FAILED to converge to statistical equilibrium after </span><span class="si">{</span><span class="n">it</span><span class="si">}</span><span class="s1">&#39;</span>
-                  <span class="sa">f</span><span class="s1">&#39; iterations (took </span><span class="si">{</span><span class="n">duration</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> s).&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Context FAILED to converge to statistical equilibrium after </span><span class="si">{</span><span class="n">it</span><span class="si">}</span><span class="s1">'</span>
+                  <span class="sa">f</span><span class="s1">' iterations (took </span><span class="si">{</span><span class="n">duration</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> s).'</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">returnFinalConvergence</span><span class="p">:</span>
             <span class="n">finalConvergence</span> <span class="o">=</span> <span class="p">[</span><span class="n">JUpdate</span><span class="p">,</span> <span class="n">popsUpdate</span><span class="p">]</span>

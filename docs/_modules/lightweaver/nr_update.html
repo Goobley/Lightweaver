@@ -8,7 +8,7 @@
   <title>lightweaver.nr_update &mdash; Lightweaver  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=c83e6b79" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -86,7 +86,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">nr_post_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fdCollisionRates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hOnly</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                    <span class="n">timeDependentData</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chunkSize</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
                    <span class="n">ngUpdate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">printUpdate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extraParams</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Compute the Newton-Raphson terms for updating the electron density</span>
 <span class="sd">    through charge conservation. Is attached to the Context object.</span>
 <span class="sd">    Parameters</span>
@@ -101,8 +101,8 @@
 <span class="sd">        (default: False)</span>
 <span class="sd">    timeDependentData : dict, optional</span>
 <span class="sd">        The presence of this argument indicates that the time-dependent</span>
-<span class="sd">        formalism should be used. Should contain the keys &#39;dt&#39; with a</span>
-<span class="sd">        floating point timestep, and &#39;nPrev&#39; with a list of population</span>
+<span class="sd">        formalism should be used. Should contain the keys 'dt' with a</span>
+<span class="sd">        floating point timestep, and 'nPrev' with a list of population</span>
 <span class="sd">        vectors from the start of the time integration step, in the order of</span>
 <span class="sd">        the active atoms. This latter term can be obtained from the previous</span>
 <span class="sd">        state provied by `Context.time_dep_update`.</span>
@@ -124,9 +124,9 @@
 <span class="sd">    dPops : float</span>
 <span class="sd">        The maximum relative change of any of the NLTE populations in the</span>
 <span class="sd">        atmosphere.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">activeAtoms</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">element</span> <span class="o">!=</span> <span class="n">PeriodicTable</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Calling nr_post_update without Hydrogen active.&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Calling nr_post_update without Hydrogen active.'</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">ngUpdate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">ngUpdate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conserveCharge</span>
@@ -138,14 +138,14 @@
     <span class="n">crswVal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crswCallback</span><span class="o">.</span><span class="n">val</span>
 
     <span class="k">if</span> <span class="n">hOnly</span><span class="p">:</span>
-        <span class="n">backgroundAtoms</span> <span class="o">=</span> <span class="p">[</span><span class="n">model</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;spect&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">radSet</span> <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">element</span> <span class="o">!=</span> <span class="n">PeriodicTable</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">backgroundAtoms</span> <span class="o">=</span> <span class="p">[</span><span class="n">model</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">'spect'</span><span class="p">]</span><span class="o">.</span><span class="n">radSet</span> <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">element</span> <span class="o">!=</span> <span class="n">PeriodicTable</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">backgroundAtoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;spect&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">radSet</span><span class="o">.</span><span class="n">detailedAtoms</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;spect&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">radSet</span><span class="o">.</span><span class="n">passiveAtoms</span>
+        <span class="n">backgroundAtoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">'spect'</span><span class="p">]</span><span class="o">.</span><span class="n">radSet</span><span class="o">.</span><span class="n">detailedAtoms</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">'spect'</span><span class="p">]</span><span class="o">.</span><span class="n">radSet</span><span class="o">.</span><span class="n">passiveAtoms</span>
 
     <span class="n">backgroundNe</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">atomModel</span> <span class="ow">in</span> <span class="n">backgroundAtoms</span><span class="p">:</span>
         <span class="n">lteStages</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">stage</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">atomModel</span><span class="o">.</span><span class="n">levels</span><span class="p">])</span>
-        <span class="n">atom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;eqPops&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">atomicPops</span><span class="p">[</span><span class="n">atomModel</span><span class="o">.</span><span class="n">element</span><span class="p">]</span>
+        <span class="n">atom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">'eqPops'</span><span class="p">]</span><span class="o">.</span><span class="n">atomicPops</span><span class="p">[</span><span class="n">atomModel</span><span class="o">.</span><span class="n">element</span><span class="p">]</span>
         <span class="n">backgroundNe</span> <span class="o">+=</span> <span class="p">(</span><span class="n">lteStages</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">atom</span><span class="o">.</span><span class="n">n</span><span class="p">[:,</span> <span class="p">:])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="n">neStart</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">)</span>

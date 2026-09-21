@@ -8,7 +8,7 @@
   <title>lightweaver.atmosphere &mdash; Lightweaver  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=c83e6b79" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -99,7 +99,7 @@
 <div class="viewcode-block" id="ScaleType">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.ScaleType">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ScaleType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Atmospheric scales used in the definition of 1D atmospheres to allow the</span>
 <span class="sd">    correct conversion to a height based system.</span>
 <span class="sd">    Options:</span>
@@ -110,7 +110,7 @@
 
 <span class="sd">        - `Tau500`</span>
 
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="n">Geometric</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">ColumnMass</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
     <span class="n">Tau500</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
@@ -119,7 +119,7 @@
 <div class="viewcode-block" id="BoundaryCondition">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.BoundaryCondition">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BoundaryCondition</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Base class for boundary conditions.</span>
 
 <span class="sd">    Defines the interface; do not use directly.</span>
@@ -140,11 +140,11 @@
 <span class="sd">        axis of a pair of (mu, toObs). Used to construct and destructure this</span>
 <span class="sd">        array.</span>
 
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
 <div class="viewcode-block" id="BoundaryCondition.compute_bc">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.BoundaryCondition.compute_bc">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">compute_bc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">spect</span><span class="p">:</span> <span class="s1">&#39;LwSpectrum&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_bc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">'Atmosphere'</span><span class="p">,</span> <span class="n">spect</span><span class="p">:</span> <span class="s1">'LwSpectrum'</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Called when the radiation boundary condition is needed by the backend.</span>
 
 <span class="sd">        Parameters</span>
@@ -166,17 +166,17 @@
 <span class="sd">            condition needs to be defined at ordered in a flattened [Nz, Ny,</span>
 <span class="sd">            Nx] fashion. (dtype: &lt;f8)</span>
 
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
 <div class="viewcode-block" id="BoundaryCondition.set_required_angles">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.BoundaryCondition.set_required_angles">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_required_angles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mux</span><span class="p">,</span> <span class="n">muy</span><span class="p">,</span> <span class="n">muz</span><span class="p">,</span> <span class="n">indexVector</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        The angles (and their ordering) to be used for this boundary</span>
 <span class="sd">        condition (in the case of a callable)</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mux</span> <span class="o">=</span> <span class="n">mux</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">muy</span> <span class="o">=</span> <span class="n">muy</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">muz</span> <span class="o">=</span> <span class="n">muz</span>
@@ -187,48 +187,48 @@
 <div class="viewcode-block" id="NoBc">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.NoBc">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">NoBc</span><span class="p">(</span><span class="n">BoundaryCondition</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Indicates no boundary condition on the axis because it is invalid for the</span>
 <span class="sd">    current simulation.</span>
 <span class="sd">    Used only by the backend.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="ZeroRadiation">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.ZeroRadiation">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ZeroRadiation</span><span class="p">(</span><span class="n">BoundaryCondition</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Zero radiation boundary condition.</span>
 <span class="sd">    Commonly used for coronal situations.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="ThermalisedRadiation">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.ThermalisedRadiation">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ThermalisedRadiation</span><span class="p">(</span><span class="n">BoundaryCondition</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Thermalised radiation (blackbody) boundary condition.</span>
 <span class="sd">    Commonly used for photospheric situations.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="PeriodicRadiation">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.PeriodicRadiation">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PeriodicRadiation</span><span class="p">(</span><span class="n">BoundaryCondition</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Periodic boundary condition.</span>
 <span class="sd">    Commonly used on the x-axis in 2D simulations.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="get_top_pressure">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.get_top_pressure">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_top_pressure</span><span class="p">(</span><span class="n">eos</span><span class="p">:</span> <span class="n">Wittmann</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">ne</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rho</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Return a pressure for the top of atmosphere.</span>
 <span class="sd">    For internal use.</span>
 
@@ -242,12 +242,12 @@
 <span class="sd">    pressure : float</span>
 <span class="sd">        pressure IN CGS [dyn cm-2]</span>
 
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="k">if</span> <span class="n">ne</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">pe</span> <span class="o">=</span> <span class="p">(</span><span class="n">ne</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">&#39;m-3&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;cm-3&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>  <span class="o">*</span> <span class="n">cgs</span><span class="o">.</span><span class="n">BK</span> <span class="o">*</span> <span class="n">temp</span>
+        <span class="n">pe</span> <span class="o">=</span> <span class="p">(</span><span class="n">ne</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">'m-3'</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'cm-3'</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>  <span class="o">*</span> <span class="n">cgs</span><span class="o">.</span><span class="n">BK</span> <span class="o">*</span> <span class="n">temp</span>
         <span class="k">return</span> <span class="n">eos</span><span class="o">.</span><span class="n">pg_from_pe</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="n">pe</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">rho</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">eos</span><span class="o">.</span><span class="n">pg_from_rho</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="p">(</span><span class="n">rho</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">&#39;kg m-3&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;g cm-3&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">eos</span><span class="o">.</span><span class="n">pg_from_rho</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="p">(</span><span class="n">rho</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">'kg m-3'</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'g cm-3'</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
     <span class="n">pgasCgs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.70575286</span><span class="p">,</span> <span class="mf">0.59018545</span><span class="p">,</span> <span class="mf">0.51286639</span><span class="p">,</span> <span class="mf">0.43719268</span><span class="p">,</span> <span class="mf">0.37731009</span><span class="p">,</span>
         <span class="mf">0.33516886</span><span class="p">,</span> <span class="mf">0.31342915</span><span class="p">,</span> <span class="mf">0.30604891</span><span class="p">,</span> <span class="mf">0.30059491</span><span class="p">,</span> <span class="mf">0.29207645</span><span class="p">,</span>
@@ -272,7 +272,7 @@
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Stratifications">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Stratifications</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Stores the optional derived z-stratifications of an atmospheric model.</span>
 
 <span class="sd">    Attributes</span>
@@ -281,14 +281,14 @@
 <span class="sd">        Column mass [kg m-2].</span>
 <span class="sd">    tauRef : np.ndarray</span>
 <span class="sd">        Reference optical depth at 500 nm.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="n">cmass</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="n">tauRef</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 
 <div class="viewcode-block" id="Stratifications.dimensioned_view">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Stratifications.dimensioned_view">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">dimensioned_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Stratifications&#39;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dimensioned_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">'Stratifications'</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Makes an instance of `Stratifications` reshaped to the provided</span>
 <span class="sd">        shape for multi-dimensional atmospheres.</span>
 <span class="sd">        For internal use.</span>
@@ -303,7 +303,7 @@
 <span class="sd">        -------</span>
 <span class="sd">        stratifications : Stratifications</span>
 <span class="sd">            Reshaped stratifications.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="n">strat</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">strat</span><span class="o">.</span><span class="n">cmass</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmass</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
         <span class="n">strat</span><span class="o">.</span><span class="n">tauRef</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tauRef</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
@@ -312,8 +312,8 @@
 
 <div class="viewcode-block" id="Stratifications.unit_view">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Stratifications.unit_view">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Stratifications&#39;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">'Stratifications'</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Makes an instance of `Stratifications`  with the correct `astropy.units`</span>
 <span class="sd">        For internal use.</span>
 
@@ -321,7 +321,7 @@
 <span class="sd">        -------</span>
 <span class="sd">        stratifications : Stratifications</span>
 <span class="sd">            The same data with units applied.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="n">strat</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">strat</span><span class="o">.</span><span class="n">cmass</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmass</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">kg</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="mi">2</span>
         <span class="n">strat</span><span class="o">.</span><span class="n">tauRef</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tauRef</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">dimensionless_unscaled</span>
@@ -330,8 +330,8 @@
 
 <div class="viewcode-block" id="Stratifications.dimensioned_unit_view">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Stratifications.dimensioned_unit_view">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">dimensioned_unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Stratifications&#39;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dimensioned_unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">'Stratifications'</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Makes an instance of `Stratifications` reshaped to the provided shape</span>
 <span class="sd">        with the correct `astropy.units` for multi-dimensional atmospheres.</span>
 <span class="sd">        For internal use.</span>
@@ -346,7 +346,7 @@
 <span class="sd">        -------</span>
 <span class="sd">        stratifications : Stratifications</span>
 <span class="sd">            Reshaped stratifications with units.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="n">strat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensioned_view</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">strat</span><span class="o">.</span><span class="n">unit_view</span><span class="p">()</span></div>
 </div>
@@ -356,7 +356,7 @@
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Layout">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Layout</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Storage for basic atmospheric parameters whose presence is determined by</span>
 <span class="sd">    problem dimensionality, boundary conditions and optional stratifications.</span>
 
@@ -390,7 +390,7 @@
 <span class="sd">        Boundary condition for the plane of minimal z-coordinate.</span>
 <span class="sd">    zUpperBc : BoundaryCondition</span>
 <span class="sd">        Boundary condition for the plane of maximal z-coordinate.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
 
     <span class="n">Ndim</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
@@ -419,10 +419,10 @@
         <span class="n">stratifications</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Stratifications</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">vx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">vy</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Layout&#39;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">'Layout'</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Construct 1D Layout.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
 
         <span class="k">if</span> <span class="n">vx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">vx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(())</span>
@@ -452,10 +452,10 @@
         <span class="n">zUpperBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span>
         <span class="n">stratifications</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Stratifications</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">vy</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Layout&#39;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">'Layout'</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Construct 2D Layout.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">if</span> <span class="n">vy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">vy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(())</span>
 
@@ -476,10 +476,10 @@
                 <span class="n">xLowerBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span> <span class="n">xUpperBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span>
                 <span class="n">yLowerBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span> <span class="n">yUpperBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span>
                 <span class="n">zLowerBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span> <span class="n">zUpperBc</span><span class="p">:</span> <span class="n">BoundaryCondition</span><span class="p">,</span>
-                <span class="n">stratifications</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Stratifications</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Layout&#39;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+                <span class="n">stratifications</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Stratifications</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">'Layout'</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Construct 3D Layout.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">Ndim</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="n">z</span><span class="p">,</span>
                    <span class="n">vx</span><span class="o">=</span><span class="n">vx</span><span class="p">,</span> <span class="n">vy</span><span class="o">=</span><span class="n">vy</span><span class="p">,</span> <span class="n">vz</span><span class="o">=</span><span class="n">vz</span><span class="p">,</span>
@@ -491,43 +491,43 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">Nx</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Number of grid points along the x-axis.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">Ny</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Number of grid points along the y-axis.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">Nz</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Number of grid points along the z-axis.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">Noutgoing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Number of grid points at which the outgoing radiation is computed.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ny</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">vlos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;vlos is ambiguous when Ndim &gt; 1, use vx, vy, or vz instead.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'vlos is ambiguous when Ndim &gt; 1, use vx, vy, or vz instead.'</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">vz</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">Nspace</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Number of spatial points present in the grid.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nz</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
@@ -535,34 +535,34 @@
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ny</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nz</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid Ndim: </span><span class="si">%d</span><span class="s1">, check geometry initialisation&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Invalid Ndim: </span><span class="si">%d</span><span class="s1">, check geometry initialisation'</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tauRef</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Alias to `self.stratifications.tauRef`, if computed.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stratifications</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stratifications</span><span class="o">.</span><span class="n">tauRef</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;tauRef not computed for this Atmosphere&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'tauRef not computed for this Atmosphere'</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">cmass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Alias to `self.stratifications.cmass`, if computed.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stratifications</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stratifications</span><span class="o">.</span><span class="n">cmass</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;tauRef not computed for this Atmosphere&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'tauRef not computed for this Atmosphere'</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">dimensioned_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Tuple defining the shape to which the arrays of atmospheric paramters</span>
 <span class="sd">        can be reshaped to be indexed in a 1/2/3D fashion.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nz</span><span class="p">,)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
@@ -570,17 +570,17 @@
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
             <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Nz</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ny</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nx</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unreasonable Ndim (</span><span class="si">%d</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Unreasonable Ndim (</span><span class="si">%d</span><span class="s1">)'</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">shape</span>
 
 <div class="viewcode-block" id="Layout.dimensioned_view">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Layout.dimensioned_view">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">dimensioned_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span>  <span class="s1">&#39;Layout&#39;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dimensioned_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span>  <span class="s1">'Layout'</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Returns a view over the contents of Layout reshaped so all data has</span>
 <span class="sd">        the correct (1/2/3D) dimensionality for the atmospheric model, as</span>
 <span class="sd">        these are all stored under a flat scheme.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="n">layout</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensioned_shape</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stratifications</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -596,11 +596,11 @@
 
 <div class="viewcode-block" id="Layout.unit_view">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Layout.unit_view">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Layout&#39;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">'Layout'</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Returns a view over the contents of the Layout with the correct</span>
 <span class="sd">        `astropy.units`.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="n">layout</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">layout</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span>
         <span class="n">layout</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span>
@@ -615,12 +615,12 @@
 
 <div class="viewcode-block" id="Layout.dimensioned_unit_view">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Layout.dimensioned_unit_view">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">dimensioned_unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Layout&#39;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dimensioned_unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">'Layout'</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Returns a view over the contents of Layout reshaped so all data has</span>
 <span class="sd">        the correct (1/2/3D) dimensionality for the atmospheric model, and</span>
 <span class="sd">        the correct `astropy.units`.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="n">layout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensioned_view</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">layout</span><span class="o">.</span><span class="n">unit_view</span><span class="p">()</span></div>
 </div>
@@ -630,7 +630,7 @@
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Atmosphere">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Atmosphere</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Storage for all atmospheric data. These arrays will be shared directly</span>
 <span class="sd">    with the backend, so a modification here also modifies the data seen by</span>
 <span class="sd">    the backend. Be careful to modify these arrays *in place*, as their data</span>
@@ -660,7 +660,7 @@
 <span class="sd">    chiB : np.ndarray, optional</span>
 <span class="sd">        Azimuth of magnetic field vector (radians) in the x-y plane, measured</span>
 <span class="sd">        from the x-axis.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
 
     <span class="n">structure</span><span class="p">:</span> <span class="n">Layout</span>
     <span class="n">temperature</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
@@ -673,93 +673,93 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">Ndim</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Ndim : int</span>
 <span class="sd">            The dimensionality (1, 2, or 3) of the atmospheric model.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">Ndim</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">Nx</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Nx : int</span>
 <span class="sd">            The number of points in the x-direction discretisation.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">Nx</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">Ny</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Ny : int</span>
 <span class="sd">            The number of points in the y-direction discretisation.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">Ny</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">Nz</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Nz : int</span>
 <span class="sd">            The number of points in the y-direction discretisation.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">Nz</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">Noutgoing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Noutgoing : int</span>
 <span class="sd">            The number of cells at the top of the atmosphere (that each produce a</span>
 <span class="sd">            spectrum).</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">Noutgoing</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">vx</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        vx : np.ndarray</span>
 <span class="sd">            x component of plasma velocity (present for Ndim &gt;= 2) [m/s].</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">vx</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">vy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        vy : np.ndarray</span>
 <span class="sd">            y component of plasma velocity (present for Ndim == 3) [m/s].</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">vy</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">vz</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        vz : np.ndarray</span>
 <span class="sd">            z component of plasma velocity (present for all Ndim) [m/s]. Aliased</span>
 <span class="sd">            to `vlos` when `Ndim==1`</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">vz</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">vlos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        vz : np.ndarray</span>
 <span class="sd">            z component of plasma velocity (present for all Ndim) [m/s]. Only</span>
 <span class="sd">            available when Ndim==1`.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">vlos</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">cmass</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        cmass : np.ndarray</span>
 <span class="sd">            Column mass [kg m-2].</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">cmass</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tauRef</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        tauRef : np.ndarray</span>
 <span class="sd">            Reference optical depth at 500 nm.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">tauRef</span>
 
     <span class="nd">@property</span>
@@ -768,95 +768,95 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        x : np.ndarray</span>
 <span class="sd">            Ordinates of grid points along the x-axis (present for Ndim &gt;= 2) [m].</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">x</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        y : np.ndarray</span>
 <span class="sd">            Ordinates of grid points along the y-axis (present for Ndim == 3) [m].</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">y</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">z</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        z : np.ndarray</span>
 <span class="sd">            Ordinates of grid points along the z-axis (present for all Ndim) [m].</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">z</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">zLowerBc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoundaryCondition</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        zLowerBc : BoundaryCondition</span>
 <span class="sd">            Boundary condition for the plane of minimal z-coordinate.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">zLowerBc</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">zUpperBc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoundaryCondition</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        zUpperBc : BoundaryCondition</span>
 <span class="sd">            Boundary condition for the plane of maximal z-coordinate.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">zUpperBc</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">yLowerBc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoundaryCondition</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        yLowerBc : BoundaryCondition</span>
 <span class="sd">            Boundary condition for the plane of minimal y-coordinate.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">yLowerBc</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">yUpperBc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoundaryCondition</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        yUpperBc : BoundaryCondition</span>
 <span class="sd">            Boundary condition for the plane of maximal y-coordinate.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">yUpperBc</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">xLowerBc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoundaryCondition</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        xLowerBc : BoundaryCondition</span>
 <span class="sd">            Boundary condition for the plane of minimal x-coordinate.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">xLowerBc</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">xUpperBc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoundaryCondition</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        xUpperBc : BoundaryCondition</span>
 <span class="sd">            Boundary condition for the plane of maximal x-coordinate.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">xUpperBc</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">Nspace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Nspace : int</span>
 <span class="sd">            Total number of points in the atmospheric spatial discretistaion.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">Nspace</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">Nrays</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Nrays : int</span>
 <span class="sd">            Number of rays in angular discretisation used.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">muz</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;Nrays not set, call atmos.rays or .quadrature first&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">'Nrays not set, call atmos.rays or .quadrature first'</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;Nrays not set, call atmos.rays or .quadrature first&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">'Nrays not set, call atmos.rays or .quadrature first'</span><span class="p">)</span>
 
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">muz</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -864,11 +864,11 @@
 <div class="viewcode-block" id="Atmosphere.dimensioned_view">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Atmosphere.dimensioned_view">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">dimensioned_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Returns a view over the contents of Layout reshaped so all data has</span>
 <span class="sd">        the correct (1/2/3D) dimensionality for the atmospheric model, as</span>
 <span class="sd">        these are all stored under a flat scheme.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="n">shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">dimensioned_shape</span>
         <span class="n">atmos</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">atmos</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">dimensioned_view</span><span class="p">()</span>
@@ -886,10 +886,10 @@
 <div class="viewcode-block" id="Atmosphere.unit_view">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Atmosphere.unit_view">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Returns a view over the contents of the Layout with the correct</span>
 <span class="sd">        `astropy.units`.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="n">atmos</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">atmos</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">unit_view</span><span class="p">()</span>
         <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">K</span>
@@ -906,11 +906,11 @@
 <div class="viewcode-block" id="Atmosphere.dimensioned_unit_view">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Atmosphere.dimensioned_unit_view">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">dimensioned_unit_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Returns a view over the contents of Layout reshaped so all data has</span>
 <span class="sd">        the correct (1/2/3D) dimensionality for the atmospheric model, and</span>
 <span class="sd">        the correct `astropy.units`.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="n">atmos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensioned_view</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">atmos</span><span class="o">.</span><span class="n">unit_view</span><span class="p">()</span></div>
 
@@ -945,7 +945,7 @@
         <span class="n">PeTop</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Constructor for 1D Atmosphere objects. Optionally will use an</span>
 <span class="sd">        equation of state (EOS) to estimate missing parameters.</span>
 
@@ -996,7 +996,7 @@
 <span class="sd">        depthScale : np.ndarray</span>
 <span class="sd">            The z-coordinates used along the chosen stratification. The</span>
 <span class="sd">            stratification is expected to start at the top of the atmosphere</span>
-<span class="sd">            (closest to the observer), and descend along the observer&#39;s line</span>
+<span class="sd">            (closest to the observer), and descend along the observer's line</span>
 <span class="sd">            of sight.</span>
 <span class="sd">        temperature : np.ndarray</span>
 <span class="sd">            Temperature structure of the atmosphere [K].</span>
@@ -1063,90 +1063,90 @@
 <span class="sd">        ValueError</span>
 <span class="sd">            if incorrect arguments or unable to construct estimate missing</span>
 <span class="sd">            parameters.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">if</span> <span class="n">scale</span> <span class="o">==</span> <span class="n">ScaleType</span><span class="o">.</span><span class="n">Geometric</span><span class="p">:</span>
             <span class="n">depthScale</span> <span class="o">=</span> <span class="p">(</span><span class="n">depthScale</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">((</span><span class="n">depthScale</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">depthScale</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Geometric depth scale should be provided in decreasing height.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Geometric depth scale should be provided in decreasing height."</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">scale</span> <span class="o">==</span> <span class="n">ScaleType</span><span class="o">.</span><span class="n">ColumnMass</span><span class="p">:</span>
             <span class="n">depthScale</span> <span class="o">=</span> <span class="p">(</span><span class="n">depthScale</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">kg</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">((</span><span class="n">depthScale</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">depthScale</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Column mass depth scale should be provided in increasing column mass.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Column mass depth scale should be provided in increasing column mass."</span><span class="p">)</span>
 
         <span class="n">check_shape</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">xName</span><span class="p">:</span> <span class="n">check_shape_exception</span><span class="p">(</span><span class="n">x</span><span class="p">,</span>
                                             <span class="n">depthScale</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="n">xName</span><span class="p">)</span>
         <span class="n">temperature</span> <span class="o">=</span> <span class="p">(</span><span class="n">temperature</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">K</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
-        <span class="n">check_shape</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="s1">&#39;temperature&#39;</span><span class="p">)</span>
+        <span class="n">check_shape</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="s1">'temperature'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">vlos</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">vz</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">vlos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">vlos</span> <span class="o">=</span> <span class="n">vz</span>
         <span class="k">elif</span> <span class="n">vz</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot set both vlos and vz (they are aliases).&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Cannot set both vlos and vz (they are aliases)."</span><span class="p">)</span>
         <span class="n">vz</span> <span class="o">=</span> <span class="n">vlos</span>
         <span class="n">vlos</span> <span class="o">=</span> <span class="p">(</span><span class="n">vlos</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
-        <span class="n">check_shape</span><span class="p">(</span><span class="n">vlos</span><span class="p">,</span> <span class="s1">&#39;vlos&#39;</span><span class="p">)</span>
+        <span class="n">check_shape</span><span class="p">(</span><span class="n">vlos</span><span class="p">,</span> <span class="s1">'vlos'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">vturb</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">vturb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
         <span class="n">vturb</span> <span class="o">=</span> <span class="p">(</span><span class="n">vturb</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
-        <span class="n">check_shape</span><span class="p">(</span><span class="n">vturb</span><span class="p">,</span> <span class="s1">&#39;vturb&#39;</span><span class="p">)</span>
+        <span class="n">check_shape</span><span class="p">(</span><span class="n">vturb</span><span class="p">,</span> <span class="s1">'vturb'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">ne</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ne</span> <span class="o">=</span> <span class="p">(</span><span class="n">ne</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">value</span>
-            <span class="n">check_shape</span><span class="p">(</span><span class="n">ne</span><span class="p">,</span> <span class="s1">&#39;ne&#39;</span><span class="p">)</span>
+            <span class="n">check_shape</span><span class="p">(</span><span class="n">ne</span><span class="p">,</span> <span class="s1">'ne'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">hydrogenPops</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">hydrogenPops</span> <span class="o">=</span> <span class="p">(</span><span class="n">hydrogenPops</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">value</span>
             <span class="n">hydrogenPops</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">hydrogenPops</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">hydrogenPops</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">depthScale</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Array hydrogenPops does not have the expected&#39;</span>
-                                 <span class="sa">f</span><span class="s1">&#39; second dimension: </span><span class="si">{</span><span class="n">depthScale</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
-                                 <span class="sa">f</span><span class="s1">&#39; (got: </span><span class="si">{</span><span class="n">hydrogenPops</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">).&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Array hydrogenPops does not have the expected'</span>
+                                 <span class="sa">f</span><span class="s1">' second dimension: </span><span class="si">{</span><span class="n">depthScale</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">'</span>
+                                 <span class="sa">f</span><span class="s1">' (got: </span><span class="si">{</span><span class="n">hydrogenPops</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">).'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">nHTot</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">nHTot</span> <span class="o">=</span> <span class="p">(</span><span class="n">nHTot</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">value</span>
-            <span class="n">check_shape</span><span class="p">(</span><span class="n">nHTot</span><span class="p">,</span> <span class="s1">&#39;nHTot&#39;</span><span class="p">)</span>
+            <span class="n">check_shape</span><span class="p">(</span><span class="n">nHTot</span><span class="p">,</span> <span class="s1">'nHTot'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">vx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">vy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;vx is set, vy must be also.&quot;</span><span class="p">)</span>
-            <span class="n">check_shape</span><span class="p">(</span><span class="n">vx</span><span class="p">,</span> <span class="s2">&quot;vx&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"vx is set, vy must be also."</span><span class="p">)</span>
+            <span class="n">check_shape</span><span class="p">(</span><span class="n">vx</span><span class="p">,</span> <span class="s2">"vx"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">vy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">vx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;vy is set, vx must be also.&quot;</span><span class="p">)</span>
-            <span class="n">check_shape</span><span class="p">(</span><span class="n">vy</span><span class="p">,</span> <span class="s2">&quot;vy&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"vy is set, vx must be also."</span><span class="p">)</span>
+            <span class="n">check_shape</span><span class="p">(</span><span class="n">vy</span><span class="p">,</span> <span class="s2">"vy"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">B</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">B</span> <span class="o">=</span> <span class="p">(</span><span class="n">B</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
-            <span class="n">check_shape</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">)</span>
+            <span class="n">check_shape</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="s1">'B'</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">gammaB</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">chiB</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;B is set, both gammaB and chiB must be also.&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'B is set, both gammaB and chiB must be also.'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">gammaB</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">gammaB</span> <span class="o">=</span> <span class="p">(</span><span class="n">gammaB</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
-            <span class="n">check_shape</span><span class="p">(</span><span class="n">gammaB</span><span class="p">,</span> <span class="s1">&#39;gammaB&#39;</span><span class="p">)</span>
+            <span class="n">check_shape</span><span class="p">(</span><span class="n">gammaB</span><span class="p">,</span> <span class="s1">'gammaB'</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">B</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">chiB</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;gammaB is set, both B and chiB must be also.&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'gammaB is set, both B and chiB must be also.'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">chiB</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">chiB</span> <span class="o">=</span> <span class="p">(</span><span class="n">chiB</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
-            <span class="n">check_shape</span><span class="p">(</span><span class="n">chiB</span><span class="p">,</span> <span class="s1">&#39;chiB&#39;</span><span class="p">)</span>
+            <span class="n">check_shape</span><span class="p">(</span><span class="n">chiB</span><span class="p">,</span> <span class="s1">'chiB'</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">gammaB</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">B</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;chiB is set, both B and gammaB must be also.&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'chiB is set, both B and gammaB must be also.'</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">lowerBc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">lowerBc</span> <span class="o">=</span> <span class="n">ThermalisedRadiation</span><span class="p">()</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lowerBc</span><span class="p">,</span> <span class="n">PeriodicRadiation</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot set periodic boundary conditions for 1D atmosphere&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Cannot set periodic boundary conditions for 1D atmosphere'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">upperBc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">upperBc</span> <span class="o">=</span> <span class="n">ZeroRadiation</span><span class="p">()</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">upperBc</span><span class="p">,</span> <span class="n">PeriodicRadiation</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot set periodic boundary conditions for 1D atmosphere&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Cannot set periodic boundary conditions for 1D atmosphere'</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">scale</span> <span class="o">!=</span> <span class="n">ScaleType</span><span class="o">.</span><span class="n">Geometric</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">convertScales</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Height scale must be provided if scale conversion is not applied&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Height scale must be provided if scale conversion is not applied'</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">nHTot</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">hydrogenPops</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">nHTot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">hydrogenPops</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">temperature</span> <span class="o">&lt;</span> <span class="mi">2000</span><span class="p">):</span>
             <span class="c1"># NOTE(cmo): Minimum value was decreased in NICOLE so should be safe</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Minimum temperature too low for EOS (&lt; 2000 K)&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Minimum temperature too low for EOS (&lt; 2000 K)'</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">abundance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">abundance</span> <span class="o">=</span> <span class="n">DefaultAtomicAbundance</span>
@@ -1157,32 +1157,32 @@
         <span class="n">Nspace</span> <span class="o">=</span> <span class="n">depthScale</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">nHTot</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ne</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Setting nHTot from electron pressure.&#39;</span><span class="p">)</span>
-            <span class="n">pe</span> <span class="o">=</span> <span class="p">(</span><span class="n">ne</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">&#39;m-3&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;cm-3&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="n">cgs</span><span class="o">.</span><span class="n">BK</span> <span class="o">*</span> <span class="n">temperature</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">'Setting nHTot from electron pressure.'</span><span class="p">)</span>
+            <span class="n">pe</span> <span class="o">=</span> <span class="p">(</span><span class="n">ne</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">'m-3'</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'cm-3'</span><span class="p">)</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="n">cgs</span><span class="o">.</span><span class="n">BK</span> <span class="o">*</span> <span class="n">temperature</span>
             <span class="n">rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nspace</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nspace</span><span class="p">):</span>
                 <span class="n">rho</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">eos</span><span class="o">.</span><span class="n">rho_from_pe</span><span class="p">(</span><span class="n">temperature</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">pe</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
-            <span class="n">nHTot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">((</span><span class="n">rho</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">&#39;g cm-3&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;kg m-3&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">nHTot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">((</span><span class="n">rho</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">'g cm-3'</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'kg m-3'</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
                             <span class="o">/</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">Amu</span> <span class="o">*</span> <span class="n">abundance</span><span class="o">.</span><span class="n">massPerH</span><span class="p">))</span>
         <span class="k">elif</span> <span class="n">ne</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">nHTot</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Setting ne from mass density.&#39;</span><span class="p">)</span>
-            <span class="n">rho</span> <span class="o">=</span> <span class="p">((</span><span class="n">Const</span><span class="o">.</span><span class="n">Amu</span> <span class="o">*</span> <span class="n">abundance</span><span class="o">.</span><span class="n">massPerH</span> <span class="o">*</span> <span class="n">nHTot</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">&#39;kg m-3&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;g cm-3&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">'Setting ne from mass density.'</span><span class="p">)</span>
+            <span class="n">rho</span> <span class="o">=</span> <span class="p">((</span><span class="n">Const</span><span class="o">.</span><span class="n">Amu</span> <span class="o">*</span> <span class="n">abundance</span><span class="o">.</span><span class="n">massPerH</span> <span class="o">*</span> <span class="n">nHTot</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">'kg m-3'</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'g cm-3'</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
             <span class="n">pe</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nspace</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nspace</span><span class="p">):</span>
                 <span class="n">pe</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">eos</span><span class="o">.</span><span class="n">pe_from_rho</span><span class="p">(</span><span class="n">temperature</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">rho</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
-            <span class="n">ne</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(((</span><span class="n">pe</span> <span class="o">/</span> <span class="p">(</span><span class="n">cgs</span><span class="o">.</span><span class="n">BK</span> <span class="o">*</span> <span class="n">temperature</span><span class="p">))</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">&#39;cm-3&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;m-3&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">ne</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(((</span><span class="n">pe</span> <span class="o">/</span> <span class="p">(</span><span class="n">cgs</span><span class="o">.</span><span class="n">BK</span> <span class="o">*</span> <span class="n">temperature</span><span class="p">))</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">'cm-3'</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'m-3'</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">ne</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">nHTot</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">Pgas</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">Pgas</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">Nspace</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Dimensions of Pgas do not match atmospheric depth&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Dimensions of Pgas do not match atmospheric depth'</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">Pe</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">Pe</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">Nspace</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Dimensions of Pe do not match atmospheric depth&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Dimensions of Pe do not match atmospheric depth'</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">Pgas</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">Pe</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Setting ne, nHTot from provided gas pressure.&#39;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">'Setting ne, nHTot from provided gas pressure.'</span><span class="p">)</span>
                 <span class="c1"># Convert to cgs for eos</span>
-                <span class="n">pgas</span> <span class="o">=</span> <span class="p">(</span><span class="n">Pgas</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">&#39;Pa&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;dyn cm-2&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+                <span class="n">pgas</span> <span class="o">=</span> <span class="p">(</span><span class="n">Pgas</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">'Pa'</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'dyn cm-2'</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">pe</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nspace</span><span class="p">)</span>
                 <span class="n">rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nspace</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nspace</span><span class="p">):</span>
@@ -1190,9 +1190,9 @@
                     <span class="n">rho</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">eos</span><span class="o">.</span><span class="n">rho_from_pg</span><span class="p">(</span><span class="n">temperature</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">pgas</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
             <span class="k">elif</span> <span class="n">Pe</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">Pgas</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Setting ne, nHTot from provided electron pressure.&#39;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">'Setting ne, nHTot from provided electron pressure.'</span><span class="p">)</span>
                 <span class="c1"># Convert to cgs for eos</span>
-                <span class="n">pe</span> <span class="o">=</span> <span class="p">(</span><span class="n">Pe</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">&#39;Pa&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;dyn cm-2&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+                <span class="n">pe</span> <span class="o">=</span> <span class="p">(</span><span class="n">Pe</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">'Pa'</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'dyn cm-2'</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">pgas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nspace</span><span class="p">)</span>
                 <span class="n">rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nspace</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nspace</span><span class="p">):</span>
@@ -1200,35 +1200,35 @@
                     <span class="n">rho</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">eos</span><span class="o">.</span><span class="n">rho_from_pe</span><span class="p">(</span><span class="n">temperature</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">pe</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
             <span class="k">elif</span> <span class="n">Pgas</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">Pe</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="c1"># Doing Hydrostatic Eq. based here on NICOLE implementation</span>
-                <span class="n">gravAcc</span> <span class="o">=</span> <span class="p">((</span><span class="mi">10</span><span class="o">**</span><span class="n">logG</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">&#39;m s-2&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;cm s-2&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">Avog</span> <span class="o">=</span> <span class="mf">6.022045e23</span> <span class="c1"># Avogadro&#39;s Number</span>
+                <span class="n">gravAcc</span> <span class="o">=</span> <span class="p">((</span><span class="mi">10</span><span class="o">**</span><span class="n">logG</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">'m s-2'</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'cm s-2'</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+                <span class="n">Avog</span> <span class="o">=</span> <span class="mf">6.022045e23</span> <span class="c1"># Avogadro's Number</span>
                 <span class="k">if</span> <span class="n">Ptop</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">PeTop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;Setting ne, nHTot to hydrostatic equilibrium (logG=</span><span class="si">%f</span><span class="s1">)&#39;</span>
-                               <span class="s1">&#39; from provided top electron pressure.&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="n">logG</span><span class="p">)</span>
-                    <span class="n">PeTop</span> <span class="o">=</span> <span class="p">(</span><span class="n">PeTop</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s2">&quot;Pa&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;dyn cm-2&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+                        <span class="nb">print</span><span class="p">((</span><span class="s1">'Setting ne, nHTot to hydrostatic equilibrium (logG=</span><span class="si">%f</span><span class="s1">)'</span>
+                               <span class="s1">' from provided top electron pressure.'</span><span class="p">)</span> <span class="o">%</span> <span class="n">logG</span><span class="p">)</span>
+                    <span class="n">PeTop</span> <span class="o">=</span> <span class="p">(</span><span class="n">PeTop</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s2">"Pa"</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'dyn cm-2'</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
                     <span class="n">Ptop</span> <span class="o">=</span> <span class="n">eos</span><span class="o">.</span><span class="n">pg_from_pe</span><span class="p">(</span><span class="n">temperature</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">PeTop</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">Ptop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">PeTop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;Setting ne, nHTot to hydrostatic equilibrium (logG=</span><span class="si">%f</span><span class="s1">)&#39;</span>
-                              <span class="s1">&#39; from provided top gas pressure.&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="n">logG</span><span class="p">)</span>
-                    <span class="n">Ptop</span> <span class="o">=</span> <span class="p">(</span><span class="n">Ptop</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s2">&quot;Pa&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;dyn cm-2&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+                        <span class="nb">print</span><span class="p">((</span><span class="s1">'Setting ne, nHTot to hydrostatic equilibrium (logG=</span><span class="si">%f</span><span class="s1">)'</span>
+                              <span class="s1">' from provided top gas pressure.'</span><span class="p">)</span> <span class="o">%</span> <span class="n">logG</span><span class="p">)</span>
+                    <span class="n">Ptop</span> <span class="o">=</span> <span class="p">(</span><span class="n">Ptop</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s2">"Pa"</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'dyn cm-2'</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
                     <span class="n">PeTop</span> <span class="o">=</span> <span class="n">eos</span><span class="o">.</span><span class="n">pe_from_pg</span><span class="p">(</span><span class="n">temperature</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Ptop</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">Ptop</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">PeTop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;Setting ne, nHTot to hydrostatic equilibrium (logG=</span><span class="si">%f</span><span class="s1">)&#39;</span>
-                               <span class="s1">&#39; from FALC gas pressure at upper boundary temperature.&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="n">logG</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">((</span><span class="s1">'Setting ne, nHTot to hydrostatic equilibrium (logG=</span><span class="si">%f</span><span class="s1">)'</span>
+                               <span class="s1">' from FALC gas pressure at upper boundary temperature.'</span><span class="p">)</span> <span class="o">%</span> <span class="n">logG</span><span class="p">)</span>
                     <span class="n">Ptop</span> <span class="o">=</span> <span class="n">get_top_pressure</span><span class="p">(</span><span class="n">eos</span><span class="p">,</span> <span class="n">temperature</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
                     <span class="n">PeTop</span> <span class="o">=</span> <span class="n">eos</span><span class="o">.</span><span class="n">pe_from_pg</span><span class="p">(</span><span class="n">temperature</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Ptop</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot set both Ptop and PeTop&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Cannot set both Ptop and PeTop"</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">scale</span> <span class="o">==</span> <span class="n">ScaleType</span><span class="o">.</span><span class="n">Tau500</span><span class="p">:</span>
                     <span class="n">tau</span> <span class="o">=</span> <span class="n">depthScale</span>
                 <span class="k">elif</span> <span class="n">scale</span> <span class="o">==</span> <span class="n">ScaleType</span><span class="o">.</span><span class="n">Geometric</span><span class="p">:</span>
-                    <span class="n">height</span> <span class="o">=</span> <span class="p">(</span><span class="n">depthScale</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">&#39;m&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;cm&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+                    <span class="n">height</span> <span class="o">=</span> <span class="p">(</span><span class="n">depthScale</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">'m'</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'cm'</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">cmass</span> <span class="o">=</span> <span class="p">(</span><span class="n">depthScale</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">&#39;kg m-2&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;g cm-2&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+                    <span class="n">cmass</span> <span class="o">=</span> <span class="p">(</span><span class="n">depthScale</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">'kg m-2'</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'g cm-2'</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
 
                 <span class="c1"># NOTE(cmo): Compute HSE following the NICOLE method.</span>
                 <span class="n">rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nspace</span><span class="p">)</span>
@@ -1273,16 +1273,16 @@
                         <span class="k">if</span> <span class="n">change</span> <span class="o">&lt;</span> <span class="mf">1e-5</span><span class="p">:</span>
                             <span class="k">break</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="n">ConvergenceError</span><span class="p">((</span><span class="s1">&#39;No convergence in HSE at depth point </span><span class="si">%d</span><span class="s1">, &#39;</span>
-                                                <span class="s1">&#39;last change </span><span class="si">%2.4e</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">change</span><span class="p">))</span>
-            <span class="n">nHTot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">((</span><span class="n">rho</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">&#39;g cm-3&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;kg m-3&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+                        <span class="k">raise</span> <span class="n">ConvergenceError</span><span class="p">((</span><span class="s1">'No convergence in HSE at depth point </span><span class="si">%d</span><span class="s1">, '</span>
+                                                <span class="s1">'last change </span><span class="si">%2.4e</span><span class="s1">'</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">change</span><span class="p">))</span>
+            <span class="n">nHTot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">((</span><span class="n">rho</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">'g cm-3'</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'kg m-3'</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
                             <span class="o">/</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">Amu</span> <span class="o">*</span> <span class="n">abundance</span><span class="o">.</span><span class="n">massPerH</span><span class="p">))</span>
-            <span class="n">ne</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(((</span><span class="n">pe</span> <span class="o">/</span> <span class="p">(</span><span class="n">cgs</span><span class="o">.</span><span class="n">BK</span> <span class="o">*</span> <span class="n">temperature</span><span class="p">))</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">&#39;cm-3&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;m-3&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">ne</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(((</span><span class="n">pe</span> <span class="o">/</span> <span class="p">(</span><span class="n">cgs</span><span class="o">.</span><span class="n">BK</span> <span class="o">*</span> <span class="n">temperature</span><span class="p">))</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">'cm-3'</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'m-3'</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
         <span class="c1"># NOTE(cmo): Compute final pgas, pe from EOS that will be used for</span>
         <span class="c1"># background opacity.</span>
         <span class="n">rhoSI</span> <span class="o">=</span> <span class="n">Const</span><span class="o">.</span><span class="n">Amu</span> <span class="o">*</span> <span class="n">abundance</span><span class="o">.</span><span class="n">massPerH</span> <span class="o">*</span> <span class="n">nHTot</span>
-        <span class="n">rho</span> <span class="o">=</span> <span class="p">(</span><span class="n">rhoSI</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">&#39;kg m-3&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;g cm-3&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="p">(</span><span class="n">rhoSI</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">'kg m-3'</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'g cm-3'</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
         <span class="n">pgas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">depthScale</span><span class="p">)</span>
         <span class="n">pe</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">depthScale</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nspace</span><span class="p">):</span>
@@ -1293,7 +1293,7 @@
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">depthScale</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
             <span class="n">chi_c</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">eos</span><span class="o">.</span><span class="n">cont_opacity</span><span class="p">(</span><span class="n">temperature</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">pgas</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">pe</span><span class="p">[</span><span class="n">k</span><span class="p">],</span>
                                         <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">5000.0</span><span class="p">]))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-        <span class="n">chi_c</span> <span class="o">=</span> <span class="p">(</span><span class="n">chi_c</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">&#39;cm&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;m&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">chi_c</span> <span class="o">=</span> <span class="p">(</span><span class="n">chi_c</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">'cm'</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'m'</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
 
         <span class="c1"># NOTE(cmo): We should now have a uniform minimum set of data (other</span>
         <span class="c1"># than the scale type), allowing us to simply convert between the</span>
@@ -1347,7 +1347,7 @@
                 <span class="n">hTau1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">tau_ref</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
                 <span class="n">height</span> <span class="o">-=</span> <span class="n">hTau1</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Other scales not handled yet&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Other scales not handled yet"</span><span class="p">)</span>
 
             <span class="n">stratifications</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Stratifications</span><span class="p">]</span> <span class="o">=</span> <span class="n">Stratifications</span><span class="p">(</span>
                                                             <span class="n">cmass</span><span class="o">=</span><span class="n">cmass</span><span class="p">,</span>
@@ -1398,7 +1398,7 @@
         <span class="n">abundance</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AtomicAbundance</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Constructor for 2D Atmosphere objects.</span>
 
 <span class="sd">        No provision for estimating parameters using hydrostatic equilibrium</span>
@@ -1412,7 +1412,7 @@
 <span class="sd">        height : np.ndarray</span>
 <span class="sd">            The z-coordinates of the atmospheric grid. The stratification is</span>
 <span class="sd">            expected to start at the top of the atmosphere (closest to the</span>
-<span class="sd">            observer), and descend along the observer&#39;s line of sight.</span>
+<span class="sd">            observer), and descend along the observer's line of sight.</span>
 <span class="sd">        x : np.ndarray</span>
 <span class="sd">            The (horizontal) x-coordinates of the atmospheric grid.</span>
 <span class="sd">        temperature : np.ndarray</span>
@@ -1465,14 +1465,14 @@
 <span class="sd">        ValueError</span>
 <span class="sd">            if incorrect arguments or unable to construct estimate missing</span>
 <span class="sd">            parameters.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
 
         <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">((</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;x should be increasing with index (left -&gt; right).&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"x should be increasing with index (left -&gt; right)."</span><span class="p">)</span>
         <span class="n">height</span> <span class="o">=</span> <span class="p">(</span><span class="n">height</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">((</span><span class="n">height</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">height</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Height should be decreasing with index (top -&gt; bottom).&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Height should be decreasing with index (top -&gt; bottom)."</span><span class="p">)</span>
         <span class="n">temperature</span> <span class="o">=</span> <span class="p">(</span><span class="n">temperature</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">K</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
         <span class="n">vx</span> <span class="o">=</span> <span class="p">(</span><span class="n">vx</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
         <span class="k">if</span> <span class="n">vy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1507,11 +1507,11 @@
         <span class="k">if</span> <span class="n">zLowerBc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">zLowerBc</span> <span class="o">=</span> <span class="n">ThermalisedRadiation</span><span class="p">()</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">zLowerBc</span><span class="p">,</span> <span class="n">PeriodicRadiation</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot set periodic boundary conditions for z-axis.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Cannot set periodic boundary conditions for z-axis.'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">zUpperBc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">zUpperBc</span> <span class="o">=</span> <span class="n">ZeroRadiation</span><span class="p">()</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">zUpperBc</span><span class="p">,</span> <span class="n">PeriodicRadiation</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot set periodic boundary conditions for z-axis.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Cannot set periodic boundary conditions for z-axis.'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">xUpperBc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">xUpperBc</span> <span class="o">=</span> <span class="n">PeriodicRadiation</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">xLowerBc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1528,27 +1528,27 @@
         <span class="n">Nspace</span> <span class="o">=</span> <span class="n">flatHeight</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">nHTot</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ne</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Setting nHTot from electron pressure.&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">'Setting nHTot from electron pressure.'</span><span class="p">)</span>
             <span class="n">flatNe</span> <span class="o">=</span> <span class="n">view_flatten</span><span class="p">(</span><span class="n">ne</span><span class="p">)</span>
-            <span class="n">pe</span> <span class="o">=</span> <span class="p">(</span><span class="n">flatNe</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">&#39;m-3&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;cm-3&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="n">cgs</span><span class="o">.</span><span class="n">BK</span> <span class="o">*</span> <span class="n">flatTemperature</span>
+            <span class="n">pe</span> <span class="o">=</span> <span class="p">(</span><span class="n">flatNe</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">'m-3'</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'cm-3'</span><span class="p">)</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="n">cgs</span><span class="o">.</span><span class="n">BK</span> <span class="o">*</span> <span class="n">flatTemperature</span>
             <span class="n">rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nspace</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nspace</span><span class="p">):</span>
                 <span class="n">rho</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">eos</span><span class="o">.</span><span class="n">rho_from_pe</span><span class="p">(</span><span class="n">flatTemperature</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">pe</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
             <span class="n">nHTot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span>
-                <span class="p">(</span><span class="n">rho</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">&#39;g cm-3&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;kg m-3&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+                <span class="p">(</span><span class="n">rho</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">'g cm-3'</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'kg m-3'</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
                 <span class="o">/</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">Amu</span> <span class="o">*</span> <span class="n">abundance</span><span class="o">.</span><span class="n">massPerH</span><span class="p">)</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">ne</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">nHTot</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Setting ne from mass density.&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">'Setting ne from mass density.'</span><span class="p">)</span>
             <span class="n">flatNHTot</span> <span class="o">=</span> <span class="n">view_flatten</span><span class="p">(</span><span class="n">nHTot</span><span class="p">)</span>
-            <span class="n">rho</span> <span class="o">=</span> <span class="p">((</span><span class="n">Const</span><span class="o">.</span><span class="n">Amu</span> <span class="o">*</span> <span class="n">abundance</span><span class="o">.</span><span class="n">massPerH</span> <span class="o">*</span> <span class="n">flatNHTot</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">&#39;kg m-3&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;g cm-3&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">rho</span> <span class="o">=</span> <span class="p">((</span><span class="n">Const</span><span class="o">.</span><span class="n">Amu</span> <span class="o">*</span> <span class="n">abundance</span><span class="o">.</span><span class="n">massPerH</span> <span class="o">*</span> <span class="n">flatNHTot</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">'kg m-3'</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'g cm-3'</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
             <span class="n">pe</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nspace</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nspace</span><span class="p">):</span>
                 <span class="n">pe</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">eos</span><span class="o">.</span><span class="n">pe_from_rho</span><span class="p">(</span><span class="n">flatTemperature</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">rho</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
-            <span class="n">ne</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(((</span><span class="n">pe</span> <span class="o">/</span> <span class="p">(</span><span class="n">cgs</span><span class="o">.</span><span class="n">BK</span> <span class="o">*</span> <span class="n">flatTemperature</span><span class="p">))</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">&#39;cm-3&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;m-3&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">ne</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(((</span><span class="n">pe</span> <span class="o">/</span> <span class="p">(</span><span class="n">cgs</span><span class="o">.</span><span class="n">BK</span> <span class="o">*</span> <span class="n">flatTemperature</span><span class="p">))</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">'cm-3'</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'m-3'</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">ne</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">nHTot</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot omit both ne and nHTot (currently).&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Cannot omit both ne and nHTot (currently).'</span><span class="p">)</span>
         <span class="n">flatX</span> <span class="o">=</span> <span class="n">view_flatten</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">nHTot</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">nHTot</span><span class="p">)</span>
         <span class="n">flatNHTot</span> <span class="o">=</span> <span class="n">view_flatten</span><span class="p">(</span><span class="n">nHTot</span><span class="p">)</span>
@@ -1588,7 +1588,7 @@
         <span class="n">wmu</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">force3d</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Compute the angular quadrature for solving the RTE and Kinetic</span>
 <span class="sd">        Equilibrium in a given atmosphere.</span>
 
@@ -1645,7 +1645,7 @@
 <span class="sd">        ------</span>
 <span class="sd">        ValueError</span>
 <span class="sd">            on incorrect input.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
 
         <span class="n">n_dim_effective</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">force3d</span> <span class="k">else</span> <span class="mi">3</span>
         <span class="c1"># NOTE(cmo): Catch the case where we need a 3d quadrature in a less than 3d atmosphere.</span>
@@ -1664,14 +1664,14 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">muz</span> <span class="o">=</span> <span class="n">x</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">wmu</span> <span class="o">=</span> <span class="n">w</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unsupported Nrays=</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">Nrays</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Unsupported Nrays=</span><span class="si">%d</span><span class="s1">'</span> <span class="o">%</span> <span class="n">Nrays</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">Nrays</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">mu</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">wmu</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Must provide wmu when providing mu&#39;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Must provide wmu when providing mu'</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">Nrays</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mu</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;mu must be Nrays long if Nrays is provided&#39;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'mu must be Nrays long if Nrays is provided'</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">wmu</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;mu and wmu must be the same shape&#39;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'mu and wmu must be the same shape'</span><span class="p">)</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">muz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">wmu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">wmu</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
@@ -1679,12 +1679,12 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">muy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">muz</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">muz</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">get_data_path</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;Quadratures.pickle&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pkl</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">get_data_path</span><span class="p">()</span> <span class="o">+</span> <span class="s1">'Quadratures.pickle'</span><span class="p">,</span> <span class="s1">'rb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">pkl</span><span class="p">:</span>
                 <span class="n">quads</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">pkl</span><span class="p">)</span>
 
-            <span class="n">rays</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]):</span> <span class="n">q</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">quads</span><span class="p">}</span>
+            <span class="n">rays</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'n'</span><span class="p">)[</span><span class="mi">1</span><span class="p">]):</span> <span class="n">q</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">quads</span><span class="p">}</span>
             <span class="k">if</span> <span class="n">Nrays</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">rays</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;For multidimensional cases Nrays must be in </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">rays</span><span class="p">))</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'For multidimensional cases Nrays must be in </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">rays</span><span class="p">))</span>
 
             <span class="n">quad</span> <span class="o">=</span> <span class="n">quads</span><span class="p">[</span><span class="n">rays</span><span class="p">[</span><span class="n">Nrays</span><span class="p">]]</span>
 
@@ -1750,7 +1750,7 @@
              <span class="n">muy</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
              <span class="n">wmu</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
              <span class="n">upOnly</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Set up the rays on the Atmosphere for computing the intensity in a</span>
 <span class="sd">        particular direction (or set of directions).</span>
 
@@ -1782,7 +1782,7 @@
 <span class="sd">        ValueError</span>
 <span class="sd">            if the angular projections or integration weights are incorrectly</span>
 <span class="sd">            normalised.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">muz</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Real</span><span class="p">):</span>
             <span class="n">muz</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">muz</span><span class="p">)]</span>
@@ -1815,16 +1815,16 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">wmu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">muz</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">muz</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">mux</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">muy</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;mux**2 + muy**2 + muz**2 != 1.0&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'mux**2 + muy**2 + muz**2 != 1.0'</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">muz</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;muz must be &gt; 0&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'muz must be &gt; 0'</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">wmu</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">wmu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">wmu</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wmu</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="mf">1.0</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;sum of wmus is not 1.0&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'sum of wmus is not 1.0'</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">configure_bcs</span><span class="p">(</span><span class="n">upOnly</span><span class="o">=</span><span class="n">upOnly</span><span class="p">)</span></div>
 
@@ -1832,7 +1832,7 @@
 <div class="viewcode-block" id="Atmosphere.configure_bcs">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atmosphere.Atmosphere.configure_bcs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">configure_bcs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">upOnly</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Configure the required angular information for all boundary</span>
 <span class="sd">        conditions on the model.</span>
 
@@ -1841,7 +1841,7 @@
 <span class="sd">        upOnly : bool, optional</span>
 <span class="sd">            Whether to only configure boundary conditions for up-going rays.</span>
 <span class="sd">            (default: False)</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
 
         <span class="c1"># NOTE(cmo): We always have z-bcs</span>
         <span class="c1"># For zLowerBc, muz is positive, and we have all mux, muz</span>
@@ -1926,7 +1926,7 @@
                                                   <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Only &lt;= 2D atmospheres supported currently.&#39;</span><span class="p">)</span></div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Only &lt;= 2D atmospheres supported currently.'</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

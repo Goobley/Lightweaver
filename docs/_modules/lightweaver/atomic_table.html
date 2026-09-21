@@ -8,7 +8,7 @@
   <title>lightweaver.atomic_table &mdash; Lightweaver  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=c83e6b79" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -94,11 +94,11 @@
 <div class="viewcode-block" id="Element">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_table.Element">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Element</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    A simple value comparable description of an element (just proton number</span>
 <span class="sd">    Z), that can be quickly and easily compared, whilst allowing access to</span>
 <span class="sd">    things from the periodic table.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Z</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Z</span> <span class="o">=</span> <span class="n">Z</span>
 
@@ -114,32 +114,32 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">Z</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s1">&#39;Element(Z=</span><span class="si">%d</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span>
+        <span class="k">return</span> <span class="s1">'Element(Z=</span><span class="si">%d</span><span class="s1">)'</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(Z=</span><span class="si">%d</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">'</span><span class="si">%s</span><span class="s1">(Z=</span><span class="si">%d</span><span class="s1">)'</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">mass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Returns the mass of the element in AMU.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="n">PeriodicTable</span><span class="o">.</span><span class="n">massData</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Returns the name of the element as a string.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="n">PeriodicTable</span><span class="o">.</span><span class="n">nameMapping</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="Isotope">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_table.Isotope">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Isotope</span><span class="p">(</span><span class="n">Element</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    A simple value comparable isotope description, inheriting from Element.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">Z</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="n">N</span>
@@ -160,72 +160,72 @@
         <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s1">&#39;Isotope(N=</span><span class="si">%d</span><span class="s1">, Z=</span><span class="si">%d</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">'Isotope(N=</span><span class="si">%d</span><span class="s1">, Z=</span><span class="si">%d</span><span class="s1">)'</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(N=</span><span class="si">%d</span><span class="s1">, Z=</span><span class="si">%d</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">element_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">'</span><span class="si">%s</span><span class="s1">(N=</span><span class="si">%d</span><span class="s1">, Z=</span><span class="si">%d</span><span class="s1">)'</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">element_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">mass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Returns the mass of the isotope in AMU.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="n">PeriodicTable</span><span class="o">.</span><span class="n">massData</span><span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">)]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Returns the name of the isotope as a string.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="c1"># NOTE(cmo): Handle H isotopes</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">PeriodicTable</span><span class="o">.</span><span class="n">nameMapping</span><span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">)]</span>
 
         <span class="n">baseName</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_name</span>
-        <span class="k">return</span> <span class="s1">&#39;^</span><span class="si">%d</span><span class="s1">_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="n">baseName</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">'^</span><span class="si">%d</span><span class="s1">_</span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="n">baseName</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">element</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Returns the underlying Element of which this isotope is a family</span>
 <span class="sd">        member.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="n">PeriodicTable</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">element_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Returns the average mass of the element.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">mass</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">element_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Returns the name of the Element as a string.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">name</span></div>
 
 
 <div class="viewcode-block" id="load_periodic_table_data">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_table.load_periodic_table_data">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_periodic_table_data</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Internal use function to load data from the AtomicMassesNames.pickle data</span>
 <span class="sd">    file.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">get_data_path</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;AtomicMassesNames.pickle&#39;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pkl</span><span class="p">:</span>
+<span class="sd">    '''</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">get_data_path</span><span class="p">()</span> <span class="o">+</span> <span class="s1">'AtomicMassesNames.pickle'</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">'rb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">pkl</span><span class="p">:</span>
         <span class="n">massData</span><span class="p">,</span> <span class="n">nameMapping</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">pkl</span><span class="p">)</span>
 
     <span class="c1"># NOTE(cmo): Manually change names to D and T for H isotopes</span>
-    <span class="n">nameMapping</span><span class="p">[(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;D&#39;</span>
-    <span class="n">nameMapping</span><span class="p">[</span><span class="s1">&#39;D&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">nameMapping</span><span class="p">[(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;T&#39;</span>
-    <span class="n">nameMapping</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">nameMapping</span><span class="p">[(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">'D'</span>
+    <span class="n">nameMapping</span><span class="p">[</span><span class="s1">'D'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">nameMapping</span><span class="p">[(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">'T'</span>
+    <span class="n">nameMapping</span><span class="p">[</span><span class="s1">'T'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
     <span class="c1"># NOTE(cmo): Compute list of isotopes for each eleemnt.</span>
-    <span class="c1"># This can definitely be done more efficiently, but it probably doesn&#39;t</span>
+    <span class="c1"># This can definitely be done more efficiently, but it probably doesn't</span>
     <span class="c1"># matter. (~5 ms, done once, on startup, from timeit)</span>
     <span class="n">isotopes</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">elements</span> <span class="o">=</span> <span class="p">{}</span>
@@ -251,7 +251,7 @@
 <div class="viewcode-block" id="normalise_atom_name">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_table.normalise_atom_name">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">normalise_atom_name</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Normalises Element names to be two characters long with an uppercase</span>
 <span class="sd">    first letter, and lower case second, or a space in the case of single</span>
 <span class="sd">    character names.</span>
@@ -265,10 +265,10 @@
 <span class="sd">    -------</span>
 <span class="sd">    result : str</span>
 <span class="sd">        The normalised name.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="n">strlen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">strlen</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">strlen</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> does not represent valid Element name&#39;</span> <span class="o">%</span> <span class="n">n</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'</span><span class="si">%s</span><span class="s1"> does not represent valid Element name'</span> <span class="o">%</span> <span class="n">n</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">strlen</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
@@ -278,15 +278,15 @@
 <div class="viewcode-block" id="PeriodicTableData">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_table.PeriodicTableData">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PeriodicTableData</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Container and accessor for the periodic table data. Not intended to be</span>
 <span class="sd">    instantiated by users, instead use the pre-instantiated PeriodicTable</span>
 <span class="sd">    instance.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="n">massData</span><span class="p">,</span> <span class="n">nameMapping</span><span class="p">,</span> <span class="n">isos</span><span class="p">,</span> <span class="n">elems</span> <span class="o">=</span> <span class="n">load_periodic_table_data</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">Element</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Element</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Allows access to the associated Element or Isotope via a variety of means.</span>
 <span class="sd">        If input is</span>
 <span class="sd">            - an Element or Isotope, then this function returns it.</span>
@@ -294,12 +294,12 @@
 <span class="sd">              proton number.</span>
 <span class="sd">            - a tuple of ints, then this function returns the element with</span>
 <span class="sd">              associated (Z, N)</span>
-<span class="sd">            - a str starting with &#39;^&#39; then the str is parsed as an isotope in</span>
-<span class="sd">              the form ^N_AtomName&#39; and the associated Isotope is returned.</span>
+<span class="sd">            - a str starting with '^' then the str is parsed as an isotope in</span>
+<span class="sd">              the form ^N_AtomName' and the associated Isotope is returned.</span>
 <span class="sd">            - any other str, then the str is parsed as a one or two character</span>
 <span class="sd">              atom identifier (e.g. H or Ca) and the associated Element is</span>
 <span class="sd">              returned.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Element</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">x</span>
 
@@ -307,47 +307,47 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;Unable to find Element with Z=</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">x</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">'Unable to find Element with Z=</span><span class="si">%d</span><span class="s1">'</span> <span class="o">%</span> <span class="n">x</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;Unable to find Isotope with (N=</span><span class="si">%d</span><span class="s1">, Z=</span><span class="si">%d</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="n">x</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">'Unable to find Isotope with (N=</span><span class="si">%d</span><span class="s1">, Z=</span><span class="si">%d</span><span class="s1">)'</span> <span class="o">%</span> <span class="n">x</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;^&#39;</span><span class="p">):</span>
-                <span class="n">terms</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'^'</span><span class="p">):</span>
+                <span class="n">terms</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'_'</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">terms</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;Unable to parse Isotope string </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">x</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">'Unable to parse Isotope string </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="n">x</span><span class="p">)</span>
                 <span class="n">N</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">terms</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
                 <span class="n">name</span> <span class="o">=</span> <span class="n">normalise_atom_name</span><span class="p">(</span><span class="n">terms</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">Z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nameMapping</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
                     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="p">[(</span><span class="n">N</span><span class="p">,</span> <span class="n">Z</span><span class="p">)]</span>
                 <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;Unable to find Isotope from string </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">x</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">'Unable to find Isotope from string </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="n">x</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">name</span> <span class="o">=</span> <span class="n">normalise_atom_name</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">Z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nameMapping</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
                     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="p">[</span><span class="n">Z</span><span class="p">]</span>
                 <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;Unable to find Element with name </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">'Unable to find Element with name </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
 
-        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;Cannot find element from </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">'Cannot find element from </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="PeriodicTableData.get_isotopes">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_table.PeriodicTableData.get_isotopes">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_isotopes</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span> <span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Isotope</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Get all isotopes associated with a certain Element.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Element</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Requires Element as first argument, got </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Requires Element as first argument, got </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Isotope</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">isos</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">element</span><span class="p">]</span>
@@ -357,23 +357,23 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">elements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Return a sorted list of Elements by proton number Z.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">e</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Element</span><span class="p">])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">isotopes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Return a sorted list of Isotopes by proton number Z.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">e</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Isotope</span><span class="p">])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">nuclides</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Return a list of all nuclides (Elements and Isotopes).</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">isotopes</span></div>
 
 
@@ -382,7 +382,7 @@
 <div class="viewcode-block" id="AtomicAbundance">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_table.AtomicAbundance">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AtomicAbundance</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Container and accessor for atomic abundance data. This can be</span>
 <span class="sd">    instantiated with a subset of atomic abundances, which will be used in</span>
 <span class="sd">    conjunction with the the default values for non-specified elements.</span>
@@ -399,7 +399,7 @@
 <span class="sd">    metallicity : float, optional</span>
 <span class="sd">        Enhance the metallic abundance by a factor of 10**metallicity,</span>
 <span class="sd">        (default: 0.0).</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abundanceData</span><span class="p">:</span> <span class="nb">dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">abundDex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">metallicity</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">abundance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_default_abundance_data</span><span class="p">()</span>
         <span class="c1"># NOTE(cmo): Default abundances always in dex</span>
@@ -423,9 +423,9 @@
 <div class="viewcode-block" id="AtomicAbundance.convert_isotopes_to_abundances">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_table.AtomicAbundance.convert_isotopes_to_abundances">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">convert_isotopes_to_abundances</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Converts the isotope fractions to relative Hydrogen abundance.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">PeriodicTable</span><span class="o">.</span><span class="n">elements</span><span class="p">:</span>
             <span class="n">totalProp</span> <span class="o">=</span> <span class="mf">0.0</span>
             <span class="n">isos</span> <span class="o">=</span> <span class="n">PeriodicTable</span><span class="o">.</span><span class="n">get_isotopes</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
@@ -440,10 +440,10 @@
 <div class="viewcode-block" id="AtomicAbundance.compute_stats">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_table.AtomicAbundance.compute_stats">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">compute_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Compute the total abundance (totalAbundance), mass per H atom</span>
 <span class="sd">        (massPerH), and average mass per Element (avgMass).</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="n">totalAbund</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="n">avgMass</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">PeriodicTable</span><span class="o">.</span><span class="n">elements</span><span class="p">:</span>
@@ -456,19 +456,19 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">Element</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Returns the abundance of the requested Element or Isotope. All forms</span>
 <span class="sd">        of describing these are accepted as the PeriodicTable is invoked.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">abundance</span><span class="p">[</span><span class="n">PeriodicTable</span><span class="p">[</span><span class="n">x</span><span class="p">]]</span>
 
 <div class="viewcode-block" id="AtomicAbundance.get_primary_isotope">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_table.AtomicAbundance.get_primary_isotope">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_primary_isotope</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Isotope</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Returns the Isotope with the highest abundance of a particular</span>
 <span class="sd">        Element.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="n">isos</span> <span class="o">=</span> <span class="n">PeriodicTable</span><span class="o">.</span><span class="n">get_isotopes</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">maxIso</span> <span class="o">=</span> <span class="n">isos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">maxAbund</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">maxIso</span><span class="p">]</span>
@@ -483,10 +483,10 @@
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_table.AtomicAbundance.dex_to_decimal">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">dex_to_decimal</span><span class="p">(</span><span class="n">abunds</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Used to convert from absolute abundance in dex to relative fractional</span>
 <span class="sd">        abundance.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">abunds</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Element</span><span class="p">:</span>
                 <span class="n">abunds</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">v</span> <span class="o">-</span> <span class="mf">12.0</span><span class="p">)</span></div>
@@ -496,10 +496,10 @@
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_table.AtomicAbundance.apply_metallicity">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">apply_metallicity</span><span class="p">(</span><span class="n">abunds</span><span class="p">,</span> <span class="n">metallicity</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Used to adjust the metallicity of the abundances, by a fraction</span>
 <span class="sd">        10**metallicity.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="n">m</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="n">metallicity</span>
         <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">abunds</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Element</span> <span class="ow">and</span> <span class="n">e</span><span class="o">.</span><span class="n">Z</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
@@ -510,23 +510,23 @@
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_table.AtomicAbundance.load_default_abundance_data">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_default_abundance_data</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Load the default abundances and convert to required format for</span>
 <span class="sd">        AtomicAbundance class (i.e. dict where dict[Element] = abundance, and</span>
 <span class="sd">        dict[Isotope] = isotope fraction).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">get_data_path</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;AbundancesAsplund09.pickle&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pkl</span><span class="p">:</span>
+<span class="sd">        """</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">get_data_path</span><span class="p">()</span> <span class="o">+</span> <span class="s1">'AbundancesAsplund09.pickle'</span><span class="p">,</span> <span class="s1">'rb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">pkl</span><span class="p">:</span>
             <span class="n">abundances</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">pkl</span><span class="p">)</span>
 
         <span class="n">lwAbundances</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">ele</span> <span class="ow">in</span> <span class="n">abundances</span><span class="p">:</span>
-            <span class="n">Z</span> <span class="o">=</span> <span class="n">ele</span><span class="p">[</span><span class="s1">&#39;elem&#39;</span><span class="p">][</span><span class="s1">&#39;elem&#39;</span><span class="p">][</span><span class="s1">&#39;Z&#39;</span><span class="p">]</span>
-            <span class="n">abund</span> <span class="o">=</span> <span class="n">ele</span><span class="p">[</span><span class="s1">&#39;elem&#39;</span><span class="p">][</span><span class="s1">&#39;abundance&#39;</span><span class="p">]</span>
+            <span class="n">Z</span> <span class="o">=</span> <span class="n">ele</span><span class="p">[</span><span class="s1">'elem'</span><span class="p">][</span><span class="s1">'elem'</span><span class="p">][</span><span class="s1">'Z'</span><span class="p">]</span>
+            <span class="n">abund</span> <span class="o">=</span> <span class="n">ele</span><span class="p">[</span><span class="s1">'elem'</span><span class="p">][</span><span class="s1">'abundance'</span><span class="p">]</span>
             <span class="n">lwAbundances</span><span class="p">[</span><span class="n">PeriodicTable</span><span class="p">[</span><span class="n">Z</span><span class="p">]]</span> <span class="o">=</span> <span class="n">abund</span>
 
-            <span class="k">for</span> <span class="n">iso</span> <span class="ow">in</span> <span class="n">ele</span><span class="p">[</span><span class="s1">&#39;isotopes&#39;</span><span class="p">]:</span>
-                <span class="n">N</span> <span class="o">=</span> <span class="n">iso</span><span class="p">[</span><span class="s1">&#39;N&#39;</span><span class="p">]</span>
-                <span class="n">prop</span> <span class="o">=</span> <span class="n">iso</span><span class="p">[</span><span class="s1">&#39;proportion&#39;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">iso</span> <span class="ow">in</span> <span class="n">ele</span><span class="p">[</span><span class="s1">'isotopes'</span><span class="p">]:</span>
+                <span class="n">N</span> <span class="o">=</span> <span class="n">iso</span><span class="p">[</span><span class="s1">'N'</span><span class="p">]</span>
+                <span class="n">prop</span> <span class="o">=</span> <span class="n">iso</span><span class="p">[</span><span class="s1">'proportion'</span><span class="p">]</span>
                 <span class="n">lwAbundances</span><span class="p">[</span><span class="n">PeriodicTable</span><span class="p">[(</span><span class="n">N</span><span class="p">,</span> <span class="n">Z</span><span class="p">)]]</span> <span class="o">=</span> <span class="n">prop</span>
 
         <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">PeriodicTable</span><span class="o">.</span><span class="n">nuclides</span><span class="p">:</span>
@@ -543,8 +543,8 @@
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_table.KuruczPf">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">KuruczPf</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Storage and functions relating to Bob Kurucz&#39;s partition functions.</span>
+<span class="w">    </span><span class="sd">'''</span>
+<span class="sd">    Storage and functions relating to Bob Kurucz's partition functions.</span>
 <span class="sd">    Based on the data used in RH.</span>
 
 <span class="sd">    Attributes</span>
@@ -559,7 +559,7 @@
 <span class="sd">        The partition function data.</span>
 <span class="sd">    ionPot : np.ndarray</span>
 <span class="sd">        The ionisation potential of each level.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="n">element</span><span class="p">:</span> <span class="n">Element</span>
     <span class="n">abundance</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">Tpf</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
@@ -568,8 +568,8 @@
 
 <div class="viewcode-block" id="KuruczPf.lte_ionisation">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_table.KuruczPf.lte_ionisation">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">lte_ionisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lte_ionisation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">'Atmosphere'</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Compute the population of the species in each ionisation</span>
 <span class="sd">        stage in a given atmosphere.</span>
 
@@ -582,7 +582,7 @@
 <span class="sd">        -------</span>
 <span class="sd">        pops : np.ndarray</span>
 <span class="sd">            The LTE ionisation populations [Nstage x Nspace].</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="n">Nstage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ionPot</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">Nspace</span> <span class="o">=</span> <span class="n">atmos</span><span class="o">.</span><span class="n">Nspace</span>
 
@@ -612,8 +612,8 @@
 
 <div class="viewcode-block" id="KuruczPf.fjk">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_table.KuruczPf.fjk">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">fjk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fjk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">'Atmosphere'</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Compute the fractional population of the species in each ionisation</span>
 <span class="sd">        stage and partial derivative wrt n_e at one point in a given</span>
 <span class="sd">        atmosphere.</span>
@@ -631,7 +631,7 @@
 <span class="sd">            The fractional populations [Nstage].</span>
 <span class="sd">        dfj : np.ndarray</span>
 <span class="sd">            The derivatives of the fractional populations [Nstage].</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="n">Nspace</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">atmos</span><span class="o">.</span><span class="n">Nspace</span>
         <span class="n">T</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
         <span class="n">ne</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
@@ -646,7 +646,7 @@
         <span class="n">dfjk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nstage</span><span class="p">)</span>
 
         <span class="c1"># fjk: fractional population of stage j, at atmospheric index k</span>
-        <span class="c1"># The first stage starts with a &quot;population&quot; of 1, then via Saha we</span>
+        <span class="c1"># The first stage starts with a "population" of 1, then via Saha we</span>
         <span class="c1"># compute the relative populations of the other stages, before dividing</span>
         <span class="c1"># by the sum across these</span>
 
@@ -670,8 +670,8 @@
 
 <div class="viewcode-block" id="KuruczPf.fj">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_table.KuruczPf.fj">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">fj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">&#39;Atmosphere&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atmos</span><span class="p">:</span> <span class="s1">'Atmosphere'</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Compute the fractional population of the species in each ionisation</span>
 <span class="sd">        stage and partial derivative wrt n_e for each location in a given</span>
 <span class="sd">        atmosphere.</span>
@@ -687,7 +687,7 @@
 <span class="sd">            The fractional populations [Nstage x Nspace].</span>
 <span class="sd">        dfj : np.ndarray</span>
 <span class="sd">            The derivatives of the fractional populations [Nstage x Nspace].</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="n">Nspace</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">atmos</span><span class="o">.</span><span class="n">Nspace</span>
         <span class="n">T</span> <span class="o">=</span> <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span>
         <span class="n">ne</span> <span class="o">=</span> <span class="n">atmos</span><span class="o">.</span><span class="n">ne</span>
@@ -702,7 +702,7 @@
         <span class="n">dfj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Nstage</span><span class="p">,</span> <span class="n">Nspace</span><span class="p">))</span>
 
         <span class="c1"># fjk: fractional population of stage j, at atmospheric index k</span>
-        <span class="c1"># The first stage starts with a &quot;population&quot; of 1, then via Saha we</span>
+        <span class="c1"># The first stage starts with a "population" of 1, then via Saha we</span>
         <span class="c1"># compute the relative populations of the other stages, before dividing</span>
         <span class="c1"># by the sum across these</span>
 
@@ -729,7 +729,7 @@
 <div class="viewcode-block" id="KuruczPfTable">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_table.KuruczPfTable">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">KuruczPfTable</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Container for all of the Kurucz partition function data, allowing</span>
 <span class="sd">    different paths and AtomicAbundances to be used. Serves to construct the</span>
 <span class="sd">    KuruczPf objects if used.</span>
@@ -739,16 +739,16 @@
 <span class="sd">    atomicAbundance : AtomicAbundance, optional</span>
 <span class="sd">        The abundance data to use, if non-standard.</span>
 <span class="sd">    kuruczPfPath : str</span>
-<span class="sd">        The path to the Kurucz parition function data in RH&#39;s XDR format, if</span>
+<span class="sd">        The path to the Kurucz parition function data in RH's XDR format, if</span>
 <span class="sd">        non-standard.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atomicAbundance</span><span class="p">:</span> <span class="n">AtomicAbundance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kuruczPfPath</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">atomicAbundance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">atomicAbundance</span> <span class="o">=</span> <span class="n">DefaultAtomicAbundance</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">atomicAbundance</span> <span class="o">=</span> <span class="n">atomicAbundance</span>
-        <span class="n">kuruczPfPath</span> <span class="o">=</span> <span class="n">get_data_path</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;pf_Kurucz.input&#39;</span> <span class="k">if</span> <span class="n">kuruczPfPath</span> <span class="ow">is</span> <span class="kc">None</span> \
+        <span class="n">kuruczPfPath</span> <span class="o">=</span> <span class="n">get_data_path</span><span class="p">()</span> <span class="o">+</span> <span class="s1">'pf_Kurucz.input'</span> <span class="k">if</span> <span class="n">kuruczPfPath</span> <span class="ow">is</span> <span class="kc">None</span> \
                                                            <span class="k">else</span> <span class="n">kuruczPfPath</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">kuruczPfPath</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">kuruczPfPath</span><span class="p">,</span> <span class="s1">'rb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">s</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
         <span class="n">u</span> <span class="o">=</span> <span class="n">Unpacker</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 
@@ -771,12 +771,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ionpot</span> <span class="o">=</span> <span class="n">ionpot</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">KuruczPf</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Used to construct the partition function object for the requested</span>
 <span class="sd">        element.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Isotope</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Isotopes not supported by KuruczPf&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Isotopes not supported by KuruczPf'</span><span class="p">)</span>
 
         <span class="n">zm</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">Z</span> <span class="o">-</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="n">KuruczPf</span><span class="p">(</span><span class="n">element</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">abundance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">atomicAbundance</span><span class="p">[</span><span class="n">x</span><span class="p">],</span>

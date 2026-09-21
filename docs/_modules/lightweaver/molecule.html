@@ -8,7 +8,7 @@
   <title>lightweaver.molecule &mdash; Lightweaver  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=c83e6b79" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -92,7 +92,7 @@
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">d</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'#'</span><span class="p">)</span> <span class="ow">or</span> <span class="n">d</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">''</span><span class="p">:</span>
             <span class="k">continue</span>
         <span class="k">break</span>
     <span class="n">d</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
@@ -103,7 +103,7 @@
     <span class="k">return</span> <span class="n">d</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">get_constituent</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-    <span class="n">res</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:d}{!s}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="s1">'</span><span class="si">{:d}{!s}</span><span class="s1">'</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">constituent</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -114,9 +114,9 @@
     <span class="n">minTemp</span> <span class="o">=</span> <span class="n">tempRange</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">maxTemp</span> <span class="o">=</span> <span class="n">tempRange</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">kB</span> <span class="o">=</span> <span class="n">Const</span><span class="o">.</span><span class="n">KBoltzmann</span>
-    <span class="n">CM_TO_M</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">&#39;cm&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;m&#39;</span><span class="p">)</span>
+    <span class="n">CM_TO_M</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">'cm'</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'m'</span><span class="p">)</span>
 
-    <span class="nd">@njit</span><span class="p">(</span><span class="s1">&#39;float64(float64)&#39;</span><span class="p">)</span>
+    <span class="nd">@njit</span><span class="p">(</span><span class="s1">'float64(float64)'</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">kurucz_70</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">T</span> <span class="o">&lt;</span> <span class="n">minTemp</span> <span class="ow">or</span> <span class="n">T</span> <span class="o">&gt;</span> <span class="n">maxTemp</span><span class="p">:</span>
             <span class="k">return</span> <span class="mf">0.0</span>
@@ -134,9 +134,9 @@
     <span class="n">minTemp</span> <span class="o">=</span> <span class="n">tempRange</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">maxTemp</span> <span class="o">=</span> <span class="n">tempRange</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">kB</span> <span class="o">=</span> <span class="n">Const</span><span class="o">.</span><span class="n">KBoltzmann</span>
-    <span class="n">CM_TO_M</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">&#39;cm&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;m&#39;</span><span class="p">)</span>
+    <span class="n">CM_TO_M</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">'cm'</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'m'</span><span class="p">)</span>
 
-    <span class="nd">@njit</span><span class="p">(</span><span class="s1">&#39;float64(float64)&#39;</span><span class="p">)</span>
+    <span class="nd">@njit</span><span class="p">(</span><span class="s1">'float64(float64)'</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">kurucz_85</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">T</span> <span class="o">&lt;</span> <span class="n">minTemp</span> <span class="ow">or</span> <span class="n">T</span> <span class="o">&gt;</span> <span class="n">maxTemp</span><span class="p">:</span>
             <span class="k">return</span> <span class="mf">0.0</span>
@@ -157,7 +157,7 @@
     <span class="n">THETA0</span> <span class="o">=</span> <span class="n">Const</span><span class="o">.</span><span class="n">Theta0</span>
     <span class="n">Ediss</span> <span class="o">=</span> <span class="n">Ediss</span> <span class="o">/</span> <span class="n">Const</span><span class="o">.</span><span class="n">EV</span>
 
-    <span class="nd">@njit</span><span class="p">(</span><span class="s1">&#39;float64(float64)&#39;</span><span class="p">)</span>
+    <span class="nd">@njit</span><span class="p">(</span><span class="s1">'float64(float64)'</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">sauval_tatum</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">T</span> <span class="o">&lt;</span> <span class="n">minTemp</span> <span class="ow">or</span> <span class="n">T</span> <span class="o">&gt;</span> <span class="n">maxTemp</span><span class="p">:</span>
             <span class="k">return</span> <span class="mf">0.0</span>
@@ -177,7 +177,7 @@
 <div class="viewcode-block" id="Molecule">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.molecule.Molecule">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Molecule</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Simple class for working with RH molecule definitions.</span>
 
 <span class="sd">    Parameters</span>
@@ -187,10 +187,10 @@
 <span class="sd">        `get_default_molecule_path` for the path to the default RH</span>
 <span class="sd">        distribution of molecule files (C2, CH, CN, CO, CaH, H2+, H2, H2O,</span>
 <span class="sd">        HF, LiH, MgH, N2, NH, NO, O2, OH, SiO, TiO) all of which have the</span>
-<span class="sd">        &#39;.molecule&#39; extension.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">        '.molecule' extension.</span>
+<span class="sd">    '''</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filePath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
 
         <span class="n">l</span> <span class="o">=</span> <span class="n">get_next_line</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
@@ -198,11 +198,11 @@
         <span class="n">l</span> <span class="o">=</span> <span class="n">get_next_line</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">&#39;Only neutral or singly charged positive molecules &#39;</span>
-                              <span class="s1">&#39;are allowed (</span><span class="si">%s</span><span class="s1">)&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">'Only neutral or singly charged positive molecules '</span>
+                              <span class="s1">'are allowed (</span><span class="si">%s</span><span class="s1">)'</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
         <span class="n">structure</span> <span class="o">=</span> <span class="n">get_next_line</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
-        <span class="n">constituents</span> <span class="o">=</span> <span class="p">[</span><span class="n">get_constituent</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span>
+        <span class="n">constituents</span> <span class="o">=</span> <span class="p">[</span><span class="n">get_constituent</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">','</span><span class="p">)]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">PeriodicTable</span><span class="p">[</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">constituents</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">elementCount</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">constituents</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Nnuclei</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elementCount</span><span class="p">)</span>
@@ -213,53 +213,53 @@
         <span class="n">fitStr</span> <span class="o">=</span> <span class="n">get_next_line</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">formationTempRange</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">get_next_line</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formationTempRange</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected two entries for formation temperature range (</span><span class="si">%s</span><span class="s2">)&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Expected two entries for formation temperature range (</span><span class="si">%s</span><span class="s2">)"</span>
                               <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
         <span class="n">pfCoeffs</span> <span class="o">=</span> <span class="n">get_next_line</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
         <span class="n">Npf</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pfCoeffs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pfCoeffs</span><span class="p">)</span> <span class="o">!=</span> <span class="n">Npf</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unexpected number of partition function fit parameters (</span><span class="si">%s</span><span class="s2">)&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Unexpected number of partition function fit parameters (</span><span class="si">%s</span><span class="s2">)"</span>
                              <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pfCoeffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">pfCoeffs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]][::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
         <span class="n">eqcCoeffs</span> <span class="o">=</span> <span class="n">get_next_line</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
         <span class="n">Neqc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">eqcCoeffs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">eqcCoeffs</span><span class="p">)</span> <span class="o">!=</span> <span class="n">Neqc</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s2">&quot;Unexpected number of equilibrium coefficient &quot;</span>
-                              <span class="s2">&quot;fit parameters (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s2">"Unexpected number of equilibrium coefficient "</span>
+                              <span class="s2">"fit parameters (</span><span class="si">%s</span><span class="s2">)"</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eqcCoeffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">eqcCoeffs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]][::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="k">for</span> <span class="n">count</span><span class="p">,</span> <span class="n">ele</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elementCount</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">+=</span> <span class="n">count</span> <span class="o">*</span> <span class="n">ele</span><span class="o">.</span><span class="n">mass</span>
 
-        <span class="k">if</span> <span class="n">fitStr</span> <span class="o">==</span> <span class="s1">&#39;KURUCZ_70&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">fitStr</span> <span class="o">==</span> <span class="s1">'KURUCZ_70'</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">equilibrium_constant</span> <span class="o">=</span> <span class="n">equilibrium_constant_kurucz_70</span><span class="p">(</span>
                                                 <span class="bp">self</span><span class="o">.</span><span class="n">formationTempRange</span><span class="p">,</span>
                                                 <span class="bp">self</span><span class="o">.</span><span class="n">Nnuclei</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span>
                                                 <span class="bp">self</span><span class="o">.</span><span class="n">Ediss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eqcCoeffs</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">fitStr</span> <span class="o">==</span> <span class="s1">&#39;KURUCZ_85&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">fitStr</span> <span class="o">==</span> <span class="s1">'KURUCZ_85'</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">equilibrium_constant</span> <span class="o">=</span> <span class="n">equilibrium_constant_kurucz_85</span><span class="p">(</span>
                                                 <span class="bp">self</span><span class="o">.</span><span class="n">formationTempRange</span><span class="p">,</span>
                                                 <span class="bp">self</span><span class="o">.</span><span class="n">Nnuclei</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span>
                                                 <span class="bp">self</span><span class="o">.</span><span class="n">Ediss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eqcCoeffs</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">fitStr</span> <span class="o">==</span> <span class="s1">&#39;SAUVAL_TATUM_84&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">fitStr</span> <span class="o">==</span> <span class="s1">'SAUVAL_TATUM_84'</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">equilibrium_constant</span> <span class="o">=</span> <span class="n">equilibrium_constant_sauval_tatum</span><span class="p">(</span>
                                                 <span class="bp">self</span><span class="o">.</span><span class="n">formationTempRange</span><span class="p">,</span>
                                                 <span class="bp">self</span><span class="o">.</span><span class="n">Ediss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eqcCoeffs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">&#39;Unknown molecular equilibrium constant fit &#39;</span>
-                              <span class="s1">&#39;method </span><span class="si">%s</span><span class="s1"> in molecule </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">fitStr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span></div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">'Unknown molecular equilibrium constant fit '</span>
+                              <span class="s1">'method </span><span class="si">%s</span><span class="s1"> in molecule </span><span class="si">%s</span><span class="s1">'</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">fitStr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="MolecularTable">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.molecule.MolecularTable">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MolecularTable</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Stores a set of molecular models, can be indexed by model name to return</span>
 <span class="sd">    the associated model (as a string).</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paths</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">molecules</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Molecule</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -287,7 +287,7 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">molecules</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;MolecularTableIterator&#39;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">'MolecularTableIterator'</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">MolecularTableIterator</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 

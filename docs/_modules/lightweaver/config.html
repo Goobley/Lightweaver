@@ -8,7 +8,7 @@
   <title>lightweaver.config &mdash; Lightweaver  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=c83e6b79" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -86,10 +86,10 @@
                                          <span class="n">get_available_simd_suffixes</span><span class="p">)</span>
 
 <span class="n">Defaults</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;FormalSolver1d&#39;</span><span class="p">:</span> <span class="s1">&#39;piecewise_bezier3_1d&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;FormalSolver2d&#39;</span><span class="p">:</span> <span class="s1">&#39;piecewise_besser_2d&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;IterationScheme&#39;</span><span class="p">:</span> <span class="s1">&#39;mali_full_precond&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;SimdImpl&#39;</span><span class="p">:</span> <span class="s1">&#39;scalar&#39;</span><span class="p">,</span>
+    <span class="s1">'FormalSolver1d'</span><span class="p">:</span> <span class="s1">'piecewise_bezier3_1d'</span><span class="p">,</span>
+    <span class="s1">'FormalSolver2d'</span><span class="p">:</span> <span class="s1">'piecewise_besser_2d'</span><span class="p">,</span>
+    <span class="s1">'IterationScheme'</span><span class="p">:</span> <span class="s1">'mali_full_precond'</span><span class="p">,</span>
+    <span class="s1">'SimdImpl'</span><span class="p">:</span> <span class="s1">'scalar'</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="n">params</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">Defaults</span><span class="p">)</span>
@@ -97,12 +97,12 @@
 <div class="viewcode-block" id="get_home_config_path">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.config.get_home_config_path">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_home_config_path</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Return the location where the user&#39;s configuration data *should* be stored,</span>
+<span class="w">    </span><span class="sd">'''</span>
+<span class="sd">    Return the location where the user's configuration data *should* be stored,</span>
 <span class="sd">    whether it is currently present or not.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">confDir</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">get_config_dir</span><span class="p">(</span><span class="s1">&#39;lightweaver&#39;</span><span class="p">)</span>
-    <span class="n">homePath</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">confDir</span><span class="p">,</span> <span class="s1">&#39;lightweaverrc&#39;</span><span class="p">)</span>
+<span class="sd">    '''</span>
+    <span class="n">confDir</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">get_config_dir</span><span class="p">(</span><span class="s1">'lightweaver'</span><span class="p">)</span>
+    <span class="n">homePath</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">confDir</span><span class="p">,</span> <span class="s1">'lightweaverrc'</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">homePath</span></div>
 
 
@@ -110,11 +110,11 @@
 <div class="viewcode-block" id="get_config_path">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.config.get_config_path">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_config_path</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Returns the path to the `lightweaverrc` configuration file, or None if one</span>
 <span class="sd">    cannot be found.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">localPath</span> <span class="o">=</span> <span class="s1">&#39;lightweaverrc&#39;</span>
+<span class="sd">    '''</span>
+    <span class="n">localPath</span> <span class="o">=</span> <span class="s1">'lightweaverrc'</span>
     <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">localPath</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">localPath</span>
     <span class="n">homePath</span> <span class="o">=</span> <span class="n">get_home_config_path</span><span class="p">()</span>
@@ -128,16 +128,16 @@
 <div class="viewcode-block" id="set_most_advanced_simd_impl">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.config.set_most_advanced_simd_impl">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">set_most_advanced_simd_impl</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Picks the most advanced SIMD extensions (as detected by NumPy), that can be</span>
 <span class="sd">    used on this system. This does not guarantee fastest (see the note in</span>
 <span class="sd">    `update_config_dict`).</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="n">availableImpls</span> <span class="o">=</span> <span class="n">get_available_simd_suffixes</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">check_add_impl</span><span class="p">(</span><span class="n">simdType</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">simdType</span> <span class="ow">in</span> <span class="n">availableImpls</span><span class="p">:</span>
-            <span class="n">params</span><span class="p">[</span><span class="s1">&#39;SimdImpl&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">simdType</span>
+            <span class="n">params</span><span class="p">[</span><span class="s1">'SimdImpl'</span><span class="p">]</span> <span class="o">=</span> <span class="n">simdType</span>
 
     <span class="k">for</span> <span class="n">impl</span> <span class="ow">in</span> <span class="n">LwSimdImplsAndFlags</span><span class="p">:</span>
         <span class="n">check_add_impl</span><span class="p">(</span><span class="n">impl</span><span class="p">)</span></div>
@@ -147,7 +147,7 @@
 <div class="viewcode-block" id="update_config_dict">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.config.update_config_dict">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">update_config_dict</span><span class="p">(</span><span class="n">configPath</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Updates the configuration dict (`lightweaver.ConfigDict`), from the config</span>
 <span class="sd">    file. If there is no config file, the defaults are used, and the most</span>
 <span class="sd">    advanced instruction set is chosen for the SimdImpl. If the SimdImpl in the</span>
@@ -158,39 +158,39 @@
 <span class="sd">    ----------</span>
 <span class="sd">    configPath :  str, optional</span>
 <span class="sd">        The path to the config file, or None.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="k">if</span> <span class="n">configPath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;No config file found, using defaults. For optimised vectorised code,&#39;</span>
-                      <span class="s1">&#39; please run `lightweaver.benchmark()`, otherwise the most advanced&#39;</span>
-                      <span class="s1">&#39; instruction set supported by your machine will be picked, which may&#39;</span>
-                      <span class="s1">&#39; not be the fastest (due to e.g. aggressive AVX offsets).&#39;</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">'No config file found, using defaults. For optimised vectorised code,'</span>
+                      <span class="s1">' please run `lightweaver.benchmark()`, otherwise the most advanced'</span>
+                      <span class="s1">' instruction set supported by your machine will be picked, which may'</span>
+                      <span class="s1">' not be the fastest (due to e.g. aggressive AVX offsets).'</span><span class="p">)</span>
         <span class="n">set_most_advanced_simd_impl</span><span class="p">()</span>
         <span class="k">return</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">configPath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">configPath</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">confDict</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
     <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">confDict</span><span class="p">)</span>
 
     <span class="n">availableSimd</span> <span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_available_simd_suffixes</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;SimdImpl&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;scalar&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">availableSimd</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">params</span><span class="p">[</span><span class="s1">'SimdImpl'</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'scalar'</span><span class="p">]</span> <span class="o">+</span> <span class="n">availableSimd</span><span class="p">:</span>
         <span class="n">set_most_advanced_simd_impl</span><span class="p">()</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;SimdImpl was set to an overly advanced instruction set for the &#39;</span>
-                      <span class="s1">&#39;current CPU, setting to the maximum supported by your CPU.&#39;</span><span class="p">)</span></div>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">'SimdImpl was set to an overly advanced instruction set for the '</span>
+                      <span class="s1">'current CPU, setting to the maximum supported by your CPU.'</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="update_config_file">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.config.update_config_file">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">update_config_file</span><span class="p">(</span><span class="n">configPath</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Updates the config file to the current values of the config dict.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    configPath : str</span>
 <span class="sd">        The path to the config file.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">configPath</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="sd">    '''</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">configPath</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">yaml</span><span class="o">.</span><span class="n">safe_dump</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
 
 

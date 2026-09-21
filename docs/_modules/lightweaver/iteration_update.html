@@ -8,7 +8,7 @@
   <title>lightweaver.iteration_update &mdash; Lightweaver  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=c83e6b79" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
       <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -85,7 +85,7 @@
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.iteration_update.IterationUpdate">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">IterationUpdate</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Stores the results of an iteration of one of the backend functions, and</span>
 <span class="sd">    determines how to format this for printing. All changes refer to relative</span>
 <span class="sd">    change.</span>
@@ -139,8 +139,8 @@
 <span class="sd">    dRhoMax : float</span>
 <span class="sd">        The maximum change in the PRD rho value for any line in the final</span>
 <span class="sd">        subiteration (read-only property).</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">ctx</span><span class="p">:</span> <span class="s1">&#39;Context&#39;</span>
+<span class="sd">    '''</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="s1">'Context'</span>
     <span class="n">crsw</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
     <span class="n">updatedJ</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">dJMax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
@@ -180,39 +180,39 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">dRhoMax</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">NprdSubIter</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="mf">0.0</span>
-        <span class="n">finalSubIterStart</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NprdSubIter</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;spect&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">NprdTrans</span>
+        <span class="n">finalSubIterStart</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NprdSubIter</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">'spect'</span><span class="p">]</span><span class="o">.</span><span class="n">NprdTrans</span>
         <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dRho</span><span class="p">[</span><span class="n">finalSubIterStart</span><span class="p">:])</span>
 
 <div class="viewcode-block" id="IterationUpdate.compact_representation">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.iteration_update.IterationUpdate.compact_representation">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">compact_representation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Produce a compact string representation of the object (similar to</span>
 <span class="sd">        Lightweaver &lt; v0.8).</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="n">chunks</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crsw</span> <span class="o">!=</span> <span class="mf">1.0</span><span class="p">:</span>
-            <span class="n">chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;CRSW: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">crsw</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'CRSW: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">crsw</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">updatedJ</span><span class="p">:</span>
-            <span class="n">chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;dJ = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dJMax</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'dJ = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dJMax</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">updatedPops</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">delta</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dPops</span><span class="p">):</span>
                 <span class="n">atomName</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">activeAtoms</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">atomicModel</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">name</span>
-                <span class="n">accel</span> <span class="o">=</span> <span class="s1">&#39; (accelerated)&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ngAccelerated</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
-                <span class="n">chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    </span><span class="si">{</span><span class="n">atomName</span><span class="si">}</span><span class="s1"> delta = </span><span class="si">{</span><span class="n">delta</span><span class="si">:</span><span class="s1">6.4e</span><span class="si">}{</span><span class="n">accel</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">accel</span> <span class="o">=</span> <span class="s1">' (accelerated)'</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ngAccelerated</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="k">else</span> <span class="s1">''</span>
+                <span class="n">chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'    </span><span class="si">{</span><span class="n">atomName</span><span class="si">}</span><span class="s1"> delta = </span><span class="si">{</span><span class="n">delta</span><span class="si">:</span><span class="s1">6.4e</span><span class="si">}{</span><span class="n">accel</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">updatedNe</span><span class="p">:</span>
             <span class="n">delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dNeMax</span>
-            <span class="n">chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    ne delta = </span><span class="si">{</span><span class="n">delta</span><span class="si">:</span><span class="s1">6.4e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'    ne delta = </span><span class="si">{</span><span class="n">delta</span><span class="si">:</span><span class="s1">6.4e</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">updatedRho</span><span class="p">:</span>
             <span class="n">iterCount</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">NprdSubIter</span>
             <span class="n">dRhoMax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dRhoMax</span>
-            <span class="n">chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    PRD dRho = </span><span class="si">{</span><span class="n">dRhoMax</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">, (sub-iterations: </span><span class="si">{</span><span class="n">iterCount</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+            <span class="n">chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'    PRD dRho = </span><span class="si">{</span><span class="n">dRhoMax</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">, (sub-iterations: </span><span class="si">{</span><span class="n">iterCount</span><span class="si">}</span><span class="s1">)'</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span></div>
 </div>
 
 </pre></div>
