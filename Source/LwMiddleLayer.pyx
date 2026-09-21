@@ -2936,7 +2936,6 @@ cdef class LwContext:
                  formalSolver=None,
                  interpFn=None,
                  fsIterScheme=None):
-        self.__dict__ = {}
         self.kwargs = {
             'atmos': atmos,
             'spect': spect,
