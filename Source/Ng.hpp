@@ -109,7 +109,10 @@ struct Ng
                 Delta(i, k) = previous(ip, k) - previous(ipp, k);
         }
         for (int k = 0; k < len; ++k)
-            weight(k) = 1.0 / abs(sol(k));
+        {
+            // NOTE(cmo): Zero entries don't contribute (as in compute_max_change)
+            weight(k) = (sol(k) != 0.0) ? 1.0 / abs(sol(k)) : 0.0;
+        }
 
         auto A = F64Arr2D(0.0, Norder, Norder);
         auto b = F64Arr1D(0.0, Norder);
@@ -192,6 +195,10 @@ struct Ng
     inline void clear()
     {
         previous.fill(0);
+        // NOTE(cmo): Reset the change history so acceleration can't trigger
+        // until the stored solutions have been refilled.
+        prevRelChange.fill(10.0);
+        prevNgChange = {};
         count = 0;
     }
 };

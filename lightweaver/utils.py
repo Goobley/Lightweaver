@@ -27,7 +27,8 @@ class NgOptions:
     Norder : int, optional
         The order of the acceleration scheme to use (default: 0, i.e. none).
     Nperiod : int, optional
-        The number of iterations to run between accelerations.
+        The number of iterations to run between accelerations. Must be at
+        least Norder + 1 if Norder > 0.
     Ndelay : int, optional
         The number of iterations to run before starting acceleration.
     threshold : float, optional
@@ -41,6 +42,12 @@ class NgOptions:
     Ndelay: int = 0
     threshold: float = 5e-2
     lowerThreshold: float = 2e-4
+
+    def __post_init__(self):
+        # NOTE(cmo): Each acceleration uses the last Norder+2 solutions, which
+        # must all follow the previous accelerated solution.
+        if self.Norder > 0 and self.Nperiod < self.Norder + 1:
+            raise ValueError('Nperiod must be >= Norder + 1 when Norder > 0')
 
 
 class InitialSolution(Enum):
