@@ -947,6 +947,7 @@ cdef class LwAtmosphere:
         self.atmos.Nz = Nz
 
         self.configure_bcs(self.pyAtmos)
+        build_intersection_list(&self.atmos)
 
     @property
     def Nspace(self):
@@ -1331,7 +1332,7 @@ cdef class BasicBackground(BackgroundProvider):
         state = {}
         state['eqPops'] = self.eqPops
         state['radSet'] = self.radSet
-        if 'CH' is self.eqPops:
+        if 'CH' in self.eqPops:
             state['chPops'] = self.eqPops['CH']
         else:
             state['chPops'] = None
@@ -1361,7 +1362,7 @@ cdef class BasicBackground(BackgroundProvider):
             self.bd.chPops = f64_view(self.chPops)
         if state['ohPops'] is not None:
             self.ohPops = state['ohPops']
-            self.bd.ohPops = f64_view(self.h2Pops)
+            self.bd.ohPops = f64_view(self.ohPops)
         if state['h2Pops'] is not None:
             self.h2Pops = state['h2Pops']
             self.bd.h2Pops = f64_view(self.h2Pops)
@@ -1503,7 +1504,7 @@ cdef class FastBackground(BackgroundProvider):
         state = {}
         state['eqPops'] = self.eqPops
         state['radSet'] = self.radSet
-        if 'CH' is self.eqPops:
+        if 'CH' in self.eqPops:
             state['chPops'] = self.eqPops['CH']
         else:
             state['chPops'] = None
@@ -1534,7 +1535,7 @@ cdef class FastBackground(BackgroundProvider):
             self.bd.chPops = f64_view(self.chPops)
         if state['ohPops'] is not None:
             self.ohPops = state['ohPops']
-            self.bd.ohPops = f64_view(self.h2Pops)
+            self.bd.ohPops = f64_view(self.ohPops)
         if state['h2Pops'] is not None:
             self.h2Pops = state['h2Pops']
             self.bd.h2Pops = f64_view(self.h2Pops)
@@ -2722,7 +2723,7 @@ cdef class LwAtom:
         '''
         return self.atomicModel.element
 
-cdef JRest_to_numpy(F64Arr2D JRest):
+cdef JRest_to_numpy(F64Arr2D& JRest):
     if JRest.data() is NULL:
         raise AttributeError
     cdef np.npy_intp shape[2]
@@ -2732,7 +2733,7 @@ cdef JRest_to_numpy(F64Arr2D JRest):
                                             np.NPY_FLOAT64, <void*>JRest.data())
     return ndarray
 
-cdef JRest_from_numpy(Spectrum spect, f64[:,::1] JRest):
+cdef JRest_from_numpy(Spectrum& spect, f64[:,::1] JRest):
     spect.JRest = F64Arr2D(f64_view_2(JRest))
 
 cdef class LwSpectrum:
