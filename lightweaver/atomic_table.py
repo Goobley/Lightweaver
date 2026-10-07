@@ -371,7 +371,7 @@ class AtomicAbundance:
             if (abund := self[iso]) > maxAbund:
                 maxAbund = abund
                 maxIso = iso
-        return iso
+        return maxIso
 
     @staticmethod
     def dex_to_decimal(abunds):
@@ -583,7 +583,7 @@ class KuruczPf:
         Uk = np.interp(T, self.Tpf, self.pf[0, :])
 
         for j in range(1, Nstage):
-            Ukp1 = np.interp(T, self.Tpf, self.pf[j, 0])
+            Ukp1 = np.interp(T, self.Tpf, self.pf[j, :])
 
             fj[j] = fj[j-1] * CtNe * np.exp(Ukp1 - Uk - self.ionPot[j-1]
                                             / (Const.KBoltzmann * T))
