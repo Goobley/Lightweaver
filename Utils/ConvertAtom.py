@@ -188,12 +188,18 @@ def conv_atom(inFile):
         #     Nlambda *= 2
 
         if vdw.upper() == 'PARAMTR':
-            vdwApprox: VdwApprox = VdwRidderRensbergen(vdwParams)
+            raise NotImplementedError('PARAMTR (Ridder & Rensbergen) van der Waals broadening is not supported')
         elif vdw.upper() == 'UNSOLD':
             vdwParams = [vdwParams[0], vdwParams[2]]
-            vdwApprox = VdwUnsold(vdwParams)
+            vdwApprox: VdwApprox = VdwUnsold(vdwParams)
         elif vdw.upper() == 'BARKLEM':
-            vdwParams = [vdwParams[0], vdwParams[2]]
+            # NOTE(cmo): sigma >= 20 provides explicit (sigma, alpha). Otherwise
+            # the cross-section comes from the tables, and the H/He scalings
+            # are kept for the Unsold fallback.
+            if vdwParams[0] >= 20.0:
+                vdwParams = [vdwParams[0], vdwParams[1]]
+            else:
+                vdwParams = [vdwParams[0], vdwParams[2]]
             if check_barklem_compatible(vdwParams, levels[i], levels[j]):
                 vdwApprox = VdwBarklem(vdwParams)
             else:
