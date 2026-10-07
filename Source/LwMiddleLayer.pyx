@@ -2635,11 +2635,14 @@ cdef class LwAtom:
         polarised : bool, optional
             If True, and the lines are polarised, then the full Stokes line
             profiles will be computed, otherwise the scalar case will be
-            computed (default: False).
+            computed (default: False). Lines that already have polarised
+            profiles set up always have these recomputed, to keep them
+            consistent with the scalar profile.
         '''
         np.asarray(self.vBroad)[:] = self.atomicModel.vBroad(self.atmos)
+        cdef LwTransition t
         for t in self.trans:
-            if polarised:
+            if polarised or t.trans.polarised:
                 t.compute_polarised_profiles()
             else:
                 t.compute_phi()
@@ -3294,17 +3297,21 @@ cdef class LwContext:
         temperature : bool, optional
             Whether the temperature has been modified.
         ne : bool, optional
-            Whether the electron density has been modified.
+            Whether the electron density has been modified (this affects the
+            line damping, and hence the profiles).
         vturb : bool, optional
             Whether the microturbulent velocity has been modified.
         vlos : bool, optional
             Whether the bulk velocity field has been modified.
         B : bool, optional
-            Whether the magnetic field has been modified.
+            Whether the magnetic field has been modified. Polarised profiles
+            are recomputed for lines on which they have been set up.
         background : bool, optional
             Whether the background needs updating.
         hprd : bool, optional
-            Whether the hybrid PRD terms need updating.
+            Whether the hybrid PRD terms need updating. These only depend on
+            the projected velocity, so are only recomputed if `vlos` is also
+            True.
         quiet : bool, optional
             Whether to print any update information from these functions
             (default: True).
@@ -3312,17 +3319,26 @@ cdef class LwContext:
         if vlos or B:
             self.atmos.update_projections()
 
-        if temperature or vturb:
-            self.compute_profiles()
-
         if temperature or ne:
             self.eqPops.update_lte_atoms_Hmin_pops(self.kwargs['atmos'], conserveCharge=self.conserveCharge,
                                                    updateTotals=True, quiet=quiet)
 
+        # NOTE(cmo): Profiles must follow the LTE update, as the damping
+        # depends on the perturber populations.
+        if any([temperature, ne, vturb, vlos, B]):
+            self.compute_profiles()
+            if temperature or ne or vturb:
+                # NOTE(cmo): The PRD gII depends on vBroad and aDamp, flag it
+                # for lazy recomputation.
+                for atom in self.activeAtoms + self.detailedAtoms:
+                    for t in atom.trans:
+                        t.recompute_gII()
+
         if background and any([temperature, ne, vturb, vlos]):
             self.background.update_background(self.atmos)
 
-        if self.hprd and hprd:
+        # NOTE(cmo): The H-PRD coefficients only depend on the projected velocity.
+        if self.hprd and hprd and vlos:
             self.update_hprd_coeffs()
 
     cpdef rel_diff_pops(self, printUpdate=None):
@@ -3623,19 +3639,11 @@ cdef class LwContext:
         except:
             raise ValueError('Please specify B-field')
 
-        atoms = self.activeAtoms + self.detailedAtoms
-        atomsHavePolarisedProfile = True
-        try:
-            atoms[0].phiQ
-        except AttributeError:
-            atomsHavePolarisedProfile = False
-
-        if recompute or not atomsHavePolarisedProfile:
-            for atom in self.activeAtoms:
-                for t in atom.trans:
-                    t.compute_polarised_profiles()
-            for atom in self.detailedAtoms:
-                for t in atom.trans:
+        cdef LwAtom atom
+        cdef LwTransition t
+        for atom in self.activeAtoms + self.detailedAtoms:
+            for t in atom.trans:
+                if recompute or not t.trans.polarised:
                     t.compute_polarised_profiles()
 
         self.spect.setup_stokes()
