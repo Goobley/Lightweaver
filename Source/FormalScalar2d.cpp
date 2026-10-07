@@ -317,52 +317,51 @@ f64 interp_besser_2d(const IntersectionData& grid, const IntersectionResult& loc
             frac = loc.fractionalX - xm;
             z = int(loc.fractionalZ);
 
-            if (grid.xStep < 0)
+            // NOTE(cmo): Upwind 3 point stencil: O is the upwind end of the
+            // interval, M the downwind end, and P one further upwind than O.
+            const int Nx = grid.x.shape(0);
+            const int o = (grid.xStep < 0) ? xp : xm;
+            const int m = o + grid.xStep;
+            int p = o - grid.xStep;
+            f64 xP;
+            if (p >= 0 && p < Nx)
             {
-                // NOTE(cmo): xStep is negative so our upwind 3 point stencil is xm+2, xm+1, xm
-                // M = xm
-                // O = xp
-                // P = xp - dx
-                if (xp == grid.xStart)
+                xP = grid.x(p);
+            }
+            else if (grid.periodic)
+            {
+                // NOTE(cmo): Periodic grids identify column 0 with column Nx-1
+                // (see uw_intersection_2d), so wrap past it and shift by the
+                // period.
+                const f64 period = grid.x(Nx - 1) - grid.x(0);
+                if (p < 0)
                 {
-                    f64 result = (1.0 - frac) * param(z, xm) + frac * param(z, xp);
-                    return result;
+                    p = Nx - 2;
+                    xP = grid.x(p) - period;
                 }
-                f64 hM = grid.x(xp) - grid.x(xm);
-                f64 hP = grid.x(xp-grid.xStep) - grid.x(xp);
-                f64 yM = param(z, xm);
-                f64 yO = param(z, xp);
-                f64 yP = param(z, xp-grid.xStep);
-
-                f64 cM = besser_control_point(hM, hP, yM, yO, yP);
-                f64 u = frac;
-
-                f64 result = square(1.0 - u) * yM + 2.0 * u * (1.0 - u) * cM + square(u) * yO;
-                return result;
+                else
+                {
+                    p = 1;
+                    xP = grid.x(p) + period;
+                }
             }
             else
             {
-                // NOTE(cmo): Stencil is xm-1, xm, xm+1
-                // M = xp
-                // O = xm
-                // P = xm - dx
-                if (xm == grid.xStart)
-                {
-                    f64 result = (1.0 - frac) * param(z, xm) + frac * param(z, xp);
-                    return result;
-                }
-                f64 hM = grid.x(xm) - grid.x(xp);
-                f64 hP = grid.x(xm-grid.xStep) - grid.x(xm);
-                f64 yM = param(z, xp);
-                f64 yO = param(z, xm);
-                f64 yP = param(z, xm-grid.xStep);
-
-                f64 cM = besser_control_point(hM, hP, yM, yO, yP);
-                f64 u = 1.0 - frac;
-
-                f64 result = square(1.0 - u) * yM + 2.0 * u * (1.0 - u) * cM + square(u) * yO;
+                f64 result = (1.0 - frac) * param(z, xm) + frac * param(z, xp);
                 return result;
             }
+
+            f64 hM = grid.x(o) - grid.x(m);
+            f64 hP = xP - grid.x(o);
+            f64 yM = param(z, m);
+            f64 yO = param(z, o);
+            f64 yP = param(z, p);
+
+            f64 cM = besser_control_point(hM, hP, yM, yO, yP);
+            f64 u = (grid.xStep < 0) ? frac : 1.0 - frac;
+
+            f64 result = square(1.0 - u) * yM + 2.0 * u * (1.0 - u) * cM + square(u) * yO;
+            return result;
 
         } break;
 
@@ -568,7 +567,7 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, const F64Vi
     // NOTE(cmo): Handle BC in starting plane
     for (int j = jStart; j != jEnd + dj; j += dj)
     {
-        I(j, k) = 0.0;
+        I(k, j) = 0.0;
 
         switch (bcType)
         {
@@ -669,7 +668,7 @@ void piecewise_linear_2d(FormalData* fd, int la, int mu, bool toObs, const F64Vi
                     const auto& step = substeps.steps[stepIdx];
                     f64 chiUw = interp_param(gridData, stepUw, chi);
                     f64 chiLocal = interp_param(gridData, step, chi);
-                    f64 dtau = 0.5 * (chiUw + chiLocal) * step.distance;
+                    f64 dtau = 0.5 * (chiUw + chiLocal) * stepUw.distance;
                     f64 Suw = interp_param(gridData, stepUw, S);
                     f64 SLocal = interp_param(gridData, step, S);
 
@@ -1009,7 +1008,7 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, const F64Vi
                     const auto& step = substeps.steps[stepIdx];
                     const auto& dwStep = substeps.steps[stepIdx+1];
                     f64 dsUw = uwStep.distance;
-                    f64 dsDw = dwStep.distance;
+                    f64 dsDw = step.distance;
 
                     f64 chiUw = interp_param(gridData, uwStep, chi);
                     f64 chiLocal = interp_param(gridData, step, chi);
@@ -1071,6 +1070,7 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, const F64Vi
                     chiUw = interp_param(gridData, uw, chi);
                     chiLocal = chi(k, j);
                     chiDw = interp_param(gridData, dw, chi);
+                    chiC = besser_control_point(dsUw, dsDw, chiUw, chiLocal, chiDw);
                     dtauUw = (1.0 / 3.0) * (chiUw + chiLocal + chiC) * dsUw;
                     dtauDw = (0.5) * (chiLocal + chiDw) * dsDw;
 
@@ -1120,7 +1120,7 @@ void piecewise_besser_2d(FormalData* fd, int la, int mu, bool toObs, const F64Vi
                 const auto& step = substeps.steps[stepIdx];
                 const auto& dwStep = substeps.steps[stepIdx+1];
                 f64 dsUw = uwStep.distance;
-                f64 dsDw = dwStep.distance;
+                f64 dsDw = step.distance;
 
                 f64 chiUw = interp_param(gridData, uwStep, chi);
                 f64 chiLocal = interp_param(gridData, step, chi);
