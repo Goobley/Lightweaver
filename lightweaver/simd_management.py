@@ -1,7 +1,7 @@
 from os import path
 from typing import List
 
-from numpy.core._multiarray_umath import __cpu_features__
+from numpy._core._multiarray_umath import __cpu_features__
 
 # NOTE(cmo): These are added in reverse order of preference (due to width), i.e.
 # try to use the key furthest down the list.
