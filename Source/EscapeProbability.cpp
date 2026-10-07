@@ -1,4 +1,5 @@
 #include "Lightweaver.hpp"
+#include "Utils.hpp"
 
 namespace EscapeProbability
 {
@@ -21,6 +22,20 @@ void compute_phi_mu_1(const Transition& t, const Atmosphere& atmos, int lt, F64V
         phi(k) = p;
         // wphi(k) += p * wla;
     }
+}
+
+int line_core_index(const Transition& t)
+{
+    // NOTE(cmo): t.wavelength is the transition's slice of the global grid, so
+    // its midpoint need not be the line core if the grids of lines overlap.
+    const int Nlambda = t.wavelength.shape(0);
+    int lt = max(hunt(t.wavelength, t.lambda0), 0);
+    if (lt + 1 < Nlambda
+        && abs(t.wavelength(lt + 1) - t.lambda0) < abs(t.wavelength(lt) - t.lambda0))
+    {
+        lt += 1;
+    }
+    return lt;
 }
 
 void uv_mu_1(const Atom& atom, const Transition& t, int lt, F64View phi, F64View Uji, F64View Vij, F64View Vji)
@@ -91,8 +106,8 @@ f64 escape_formal_sol(const Atmosphere& atmos, f64 lambda, F64View chi, F64View 
     for (int k = 1; k < atmos.Nspace-1; ++k)
     {
         f64 zz = abs(atmos.height(k - 1) - atmos.height(k + 1)) * 0.5;
-        tauB(k) += tauB(k - 1) + chiB(k) * zz;
-        tau(k) += tau(k - 1) + chi(k) * zz + tauB(k);
+        tauB(k) = tauB(k - 1) + chiB(k) * zz;
+        tau(k) = tau(k - 1) + chi(k) * zz;
     }
     tau(0) = 0.5 * tau(1);
     tauB(0) = 0.5 * tauB(1);
@@ -104,12 +119,12 @@ f64 escape_formal_sol(const Atmosphere& atmos, f64 lambda, F64View chi, F64View 
     Lambda(atmos.Nspace - 1) = 1.0;
 
     f64 sum = 0.0;
-    for (int k = atmos.Nspace - 2; k > 1; --k)
+    for (int k = atmos.Nspace - 2; k >= 1; --k)
     {
         f64 t = tau(k);
         f64 tb = tauB(k);
 
-        f64 alpha = C::HC / C::KBoltzmann / lambda / atmos.temperature(k);
+        f64 alpha = C::HC / (C::KBoltzmann * C::NM_TO_M * lambda * atmos.temperature(k));
         f64 dp;
         f64 ep = escape_probability(line, t, tb, alpha, &dp);
 
@@ -157,22 +172,17 @@ void gamma_matrices_escape_prob(Atom* a, Background& background, const Atmospher
     for (int kr = 0; kr < atom.Ntrans; ++kr)
     {
         auto& t = *atom.trans[kr];
-        int lt = 0;
         if (t.type == TransitionType::LINE)
         {
-            lt = t.wavelength.shape(0) / 2;
+            const int lt = line_core_index(t);
             compute_phi_mu_1(t, atmos, lt, atom.vBroad, phi);
-        }
-        int la = lt + t.Nblue;
+            const int la = lt + t.Nblue;
+            auto chiB = background.chi(la);
+            auto etaB = background.eta(la);
 
-        auto chiB = background.chi(la);
-        auto etaB = background.eta(la);
-
-        if (t.type == TransitionType::LINE)
-        {
+            uv_mu_1(atom, t, lt, phi, Uji, Vij, Vji);
             for (int k = 0; k < atmos.Nspace; ++k)
             {
-                uv_mu_1(atom, t, lt, phi, Uji, Vij, Vji);
                 f64 x = atom.n(t.i, k) * Vij(k) - atom.n(t.j, k) * Vji(k);
                 chi(k) = x;
                 f64 n = atom.n(t.j, k) * Uji(k);
@@ -203,9 +213,13 @@ void gamma_matrices_escape_prob(Atom* a, Background& background, const Atmospher
                     continue;
 
                 prevWl = t.wavelength(ltc);
+                const int la = ltc + t.Nblue;
+                auto chiB = background.chi(la);
+                auto etaB = background.eta(la);
+
+                uv_mu_1(atom, t, ltc, phi, Uji, Vij, Vji);
                 for (int k = 0; k < atmos.Nspace; ++k)
                 {
-                    uv_mu_1(atom, t, lt, phi, Uji, Vij, Vji);
                     f64 x = atom.n(t.i, k) * Vij(k) - atom.n(t.j, k) * Vji(k);
                     chi(k) = x;
                     f64 n = atom.n(t.j, k) * Uji(k);
@@ -222,7 +236,7 @@ void gamma_matrices_escape_prob(Atom* a, Background& background, const Atmospher
                     f64 integrand = (Uji(k) + Vji(k) * Ieff) - (Lambda(k) * Uji(k));
                     atom.Gamma(t.i, t.j, k) += integrand * wlaSum;
 
-                    integrand = (Vij(k) * Ieff) - (Lambda(k) * Uji(k));
+                    integrand = Vij(k) * Ieff;
                     atom.Gamma(t.j, t.i, k) += integrand * wlaSum;
                 }
                 wlaSum = 0.0;
