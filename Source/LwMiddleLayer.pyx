@@ -19,7 +19,6 @@ import time
 import os
 from enum import Enum, auto
 from copy import copy, deepcopy
-import warnings
 
 include 'CmoArrayHelper.pyx'
 
@@ -3196,7 +3195,7 @@ cdef class LwContext:
             atom.compute_profiles(polarised=polarised)
 
     cpdef formal_sol_gamma_matrices(self, fixCollisionalRates=False, lambdaIterate=False,
-                                    printUpdate=None, extraParams=None):
+                                    extraParams=None):
         '''
         Compute the formal solution across all wavelengths and fill in the
         Gamma matrix for each active atom, allowing the populations to then
@@ -3213,9 +3212,6 @@ cdef class LwContext:
             Whether to use Lambda iteration (setting the approximate Lambda
             term to zero), may be useful in certain unstable situations
             (default: False).
-        printUpdate : bool, optional
-            Whether to print the maximum relative change in J and any changes in
-            CRSW (default: True). (Deprecated)
         extraParams : dict, optional
             Dict of extra parameters to be converted through the
             `dict2ExtraParams` function and passed onto the C++ core.
@@ -3226,11 +3222,6 @@ cdef class LwContext:
             An object representing the updates to the model. See
             `IterationUpdate` for details.
         '''
-        if printUpdate is None:
-            printUpdate = True
-        else:
-            warnings.warn('The use of `printUpdate` is now deprecated, as this function no longer prints.', DeprecationWarning)
-
         if extraParams is None:
             extraParams = {}
         cdef ExtraParams params = dict2ExtraParams(extraParams)
@@ -3346,7 +3337,7 @@ cdef class LwContext:
         if self.hprd and hprd and vlos:
             self.update_hprd_coeffs()
 
-    cpdef rel_diff_pops(self, printUpdate=None):
+    cpdef rel_diff_pops(self):
         '''
         Internal.
         '''
@@ -3357,10 +3348,6 @@ cdef class LwContext:
         cdef f64 maxDelta = 0.0
         cdef int i
         atoms = self.activeAtoms
-        if printUpdate is None:
-            printUpdate = True
-        else:
-            warnings.warn('The use of `printUpdate` is now deprecated, as this function no longer prints.', DeprecationWarning)
 
         update = IterationUpdate(self, updatedPops=True)
 
@@ -3374,7 +3361,7 @@ cdef class LwContext:
 
         return update
 
-    cpdef rel_diff_ng_accelerate(self, printUpdate=None):
+    cpdef rel_diff_ng_accelerate(self):
         '''
         Internal.
         '''
@@ -3385,10 +3372,6 @@ cdef class LwContext:
         cdef f64 maxDelta = 0.0
         cdef int i
         atoms = self.activeAtoms
-        if printUpdate is None:
-            printUpdate = True
-        else:
-            warnings.warn('The use of `printUpdate` is now deprecated, as this function no longer prints.', DeprecationWarning)
 
         update = IterationUpdate(self, updatedPops=True)
 
@@ -3405,7 +3388,7 @@ cdef class LwContext:
         return update
 
     cpdef time_dep_update(self, f64 dt, prevTimePops=None, ngUpdate=None,
-                          printUpdate=None, int chunkSize=20, extraParams=None):
+                          int chunkSize=20, extraParams=None):
         '''
         Update the populations of active atoms using the current values of
         their Gamma matrices. This function solves the time-dependent kinetic
@@ -3428,9 +3411,6 @@ cdef class LwContext:
             behaviour), will only accelerate if the counter on the Ng accelerator
             has seen enough steps since the previous acceleration (set in Context
             initialisation).
-        printUpdate : bool, optional
-            Whether to print information on the size of the update (default:
-            None, to apply automatic behaviour). Deprecated.
         chunkSize : int, optional
             Not currently used.
         extraParams : dict, optional
@@ -3453,9 +3433,6 @@ cdef class LwContext:
                 ngUpdate = False
             else:
                 ngUpdate = True
-
-        if printUpdate is not None:
-            warnings.warn('The use of `printUpdate` is now deprecated, as this function no longer prints.', DeprecationWarning)
 
         if extraParams is None:
             extraParams = {}
@@ -3484,9 +3461,9 @@ cdef class LwContext:
             raise ExplodingMatrixError('Singular Matrix')
 
         if ngUpdate:
-            update = self.rel_diff_ng_accelerate(printUpdate=printUpdate)
+            update = self.rel_diff_ng_accelerate()
         else:
-            update = self.rel_diff_pops(printUpdate=printUpdate)
+            update = self.rel_diff_pops()
 
         return update, prevTimePops
 
@@ -3517,7 +3494,7 @@ cdef class LwContext:
         for atom in self.activeAtoms:
             atom.atom.ng.clear()
 
-    cpdef stat_equil(self, printUpdate=None, int chunkSize=20, extraParams=None):
+    cpdef stat_equil(self, int chunkSize=20, extraParams=None):
         '''
         Update the populations of active atoms using the current values of
         their Gamma matrices. This function solves the time-independent statistical
@@ -3525,9 +3502,6 @@ cdef class LwContext:
 
         Parameters
         ----------
-        printUpdate : bool, optional
-            Whether to print information on the size of the update (default:
-            True). Deprecated.
         chunkSize : int, optional
             Not currently used.
         extraParams : dict, optional
@@ -3551,11 +3525,6 @@ cdef class LwContext:
         cdef int k
         cdef np.ndarray[np.double_t, ndim=1] deltaNe
 
-        if printUpdate is None:
-            printUpdate = True
-        else:
-            warnings.warn('The use of `printUpdate` is now deprecated, as this function no longer prints.', DeprecationWarning)
-
         if extraParams is None:
             extraParams = {}
         cdef ExtraParams params = dict2ExtraParams(extraParams)
@@ -3576,7 +3545,7 @@ cdef class LwContext:
             neStart = np.copy(self.atmos.ne)
             self.nr_post_update(ngUpdate=False, hOnly=self.nrHOnly)
 
-        update = self.rel_diff_ng_accelerate(printUpdate=printUpdate)
+        update = self.rel_diff_ng_accelerate()
         if self.conserveCharge:
             neDiff = np.abs((np.asarray(self.atmos.ne) - neStart)
                             / np.asarray(self.atmos.ne))
@@ -3695,8 +3664,7 @@ cdef class LwContext:
         update = IterationUpdate_from_IterationResult(self, maxChange)
         return update
 
-    cpdef prd_redistribute(self, int maxIter=3, f64 tol=1e-2, printUpdate=None,
-                           extraParams=None):
+    cpdef prd_redistribute(self, int maxIter=3, f64 tol=1e-2, extraParams=None):
         '''
         Update emission profile ratio rho by computing the scattering integral
         for each prd line. Does not affect the populations, interleave before
@@ -3710,8 +3678,6 @@ cdef class LwContext:
             The default stopping tolerance for relative changes in rho. If the
             relative change in rho falls below this threshold then this function
             returns i.e. `maxIter` iterations do not need to be taken (Default: 1e-2).
-        printUpdate : bool, optional
-            Whether to print information about the iteration process i.e. the size of the update to rho and the number of iterations taken (Default: True). Deprecated.
         extraParams : dict, optional
             Dict of extra parameters to be converted through the
             `dict2ExtraParams` function and passed onto the C++ core.
@@ -3722,10 +3688,6 @@ cdef class LwContext:
             An object representing the updates to the model. See
             `IterationUpdate` for details.
         '''
-        if printUpdate is None:
-            printUpdate = True
-        else:
-            warnings.warn('The use of `printUpdate` is now deprecated, as this function no longer prints.', DeprecationWarning)
         if extraParams is None:
             extraParams = {"include_detailed_atoms": self.detailedAtomPrd}
         cdef ExtraParams params = dict2ExtraParams(extraParams)

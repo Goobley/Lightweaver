@@ -6,7 +6,7 @@ from .atomic_table import PeriodicTable
 
 def nr_post_update(self, fdCollisionRates=True, hOnly=False,
                    timeDependentData=None, chunkSize=5,
-                   ngUpdate=None, printUpdate=None, extraParams=None):
+                   ngUpdate=None, extraParams=None):
     '''
     Compute the Newton-Raphson terms for updating the electron density
     through charge conservation. Is attached to the Context object.
@@ -34,9 +34,6 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False,
         behaviour), will only accelerate if the counter on the Ng accelerator
         has seen enough steps since the previous acceleration (set in Context
         initialisation).
-    printUpdate : bool, optional
-        Whether to print information on the size of the update (default:
-        None, to apply automatic behaviour).
     extraParams : dict, optional
         Dict of extra parameters to be converted through the
         `dict2ExtraParams` function and passed onto the C++ core.
@@ -51,9 +48,6 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False,
 
     if ngUpdate is None:
         ngUpdate = self.conserveCharge
-
-    if printUpdate is None:
-        printUpdate = ngUpdate
 
     atoms = self.activeAtoms[:1] if hOnly else self.activeAtoms
     crswVal = self.crswCallback.val
@@ -93,9 +87,9 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False,
     self.eqPops.update_lte_atoms_Hmin_pops(self.atmos.pyAtmos, conserveCharge=False, quiet=True)
 
     if ngUpdate:
-        update = self.rel_diff_ng_accelerate(printUpdate=printUpdate)
+        update = self.rel_diff_ng_accelerate()
     else:
-        update = self.rel_diff_pops(printUpdate=printUpdate)
+        update = self.rel_diff_pops()
     neDiff = np.abs((np.asarray(self.atmos.ne) - neStart)
                     / np.asarray(self.atmos.ne))
     neDiffMaxIdx = neDiff.argmax()

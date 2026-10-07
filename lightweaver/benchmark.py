@@ -76,7 +76,7 @@ def benchmark(Niter=50, Nrep=3, verbose=True, writeConfig=True, warmUp=True):
     if warmUp:
         ctx = configure_context(fsIterScheme=methods[0])
         for _ in range(max(Niter // 5, 10)):
-            ctx.formal_sol_gamma_matrices(printUpdate=False)
+            ctx.formal_sol_gamma_matrices()
 
     timings = [0.0] * len(suffixes)
     it = tqdm(methods * Nrep) if verbose else methods * Nrep
@@ -84,7 +84,7 @@ def benchmark(Niter=50, Nrep=3, verbose=True, writeConfig=True, warmUp=True):
         ctx = configure_context(fsIterScheme=method)
         start = timer()
         for _ in range(Niter):
-            ctx.formal_sol_gamma_matrices(printUpdate=False)
+            ctx.formal_sol_gamma_matrices()
         end = timer()
         duration = (end - start)
         timings[idx % len(methods)] += duration
