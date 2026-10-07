@@ -131,9 +131,9 @@ class Barklem:
 
 
             result[0] = float(RectBivariateSpline(table.neff1, table.neff2,
-                                                  table.cross)(neff1, neff2))
+                                                  table.cross)(neff1, neff2)[0, 0])
             result[1] = float(RectBivariateSpline(table.neff1, table.neff2,
-                                                  table.alpha)(neff1, neff2))
+                                                  table.alpha)(neff1, neff2)[0, 0])
 
         reducedMass = Const.Amu / (1.0 / PeriodicTable[1].mass + 1.0 / atom.element.mass)
         meanVel = np.sqrt(8.0 * Const.KBoltzmann / (np.pi * reducedMass))
