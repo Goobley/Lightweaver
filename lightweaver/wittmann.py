@@ -324,6 +324,7 @@ def pe_from_rho_impl(t, xna, abunds, eion, pf, Tpf,
         dif = np.abs(xna-xna_guessed)/xna
 
         Pgas  *= xna/xna_guessed
+        it += 1
 
     return Pe#, Pgas
 
