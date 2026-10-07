@@ -627,7 +627,7 @@ class SpeciesStateTable:
 
         if name in self.molecularTable:
             name = cast(str, name)
-            key = self.molecularTable.indices[name]
+            key = self.molecularTable.indices[name.upper()]
             return self.molecularPops[key]
 
         if name in self.atomicPops:

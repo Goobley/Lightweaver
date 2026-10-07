@@ -176,7 +176,7 @@ class Molecule:
 class MolecularTable:
     '''
     Stores a set of molecular models, can be indexed by model name to return
-    the associated model (as a string).
+    the associated model (as a string). Lookups are case-insensitive.
     '''
     def __init__(self, paths: Optional[List[str]]=None):
 
@@ -188,7 +188,7 @@ class MolecularTable:
         for path in paths:
             self.molecules.append(Molecule(path))
 
-        self.indices = OrderedDict(zip([m.name for m in self.molecules],
+        self.indices = OrderedDict(zip([m.name.upper() for m in self.molecules],
                                    list(range(len(self.molecules)))))
 
     def __getitem__(self, name: str) -> Molecule:
