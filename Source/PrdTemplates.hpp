@@ -65,7 +65,7 @@ IterationResult formal_sol_prd_update_rates(Context& ctx, ConstView<int> wavelen
             const int la = wavelengthIdxs(i);
             FsMode mode = (FsMode::UpdateJ | FsMode::UpdateRates | FsMode::PrdOnly);
             f64 dJ = intensity_core_opt<simd, true, true, false, false>(iCore, la, mode, &params);
-            dJMax = max_idx(dJ, dJMax, maxIdx, la);
+            dJMax = max_idx(dJMax, dJ, maxIdx, la);
         }
         IterationResult result{};
         result.updatedJ = true;
@@ -271,7 +271,7 @@ IterationResult redistribute_prd_lines_template(Context& ctx, int maxIter, f64 t
                 dRhoMax = max(dRhoMax, maxChange.dMax);
 
                 dRho.emplace_back(maxChange.dMax);
-                dRhoMaxIdx.emplace_back(maxChange.dMaxIdx % p.line->rhoPrd.shape(0));
+                dRhoMaxIdx.emplace_back(maxChange.dMaxIdx);
             }
 
             auto maxChange = formal_sol_prd_update_rates<simd>(ctx, idxsForFs, params);
@@ -317,7 +317,7 @@ IterationResult redistribute_prd_lines_template(Context& ctx, int maxIter, f64 t
                 p.ng.accelerate(p.line->rhoPrd.flatten());
                 auto maxChange = p.ng.max_change();
                 td.dRho = maxChange.dMax;
-                td.dRhoMaxIdx = maxChange.dMaxIdx % p.line->rhoPrd.shape(0);
+                td.dRhoMaxIdx = maxChange.dMaxIdx;
             }
         };
 

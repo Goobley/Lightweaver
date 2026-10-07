@@ -722,7 +722,7 @@ IterationResult formal_sol_full_stokes_impl(Context& ctx, bool updateJ, bool upO
     for (int la = 0; la < Nspect; ++la)
     {
         f64 dJ = GammaFsCores::stokes_fs_core(core, la, updateJ, upOnly, &params);
-        dJMax = max_idx(dJ, dJMax, maxIdx, la);
+        dJMax = max_idx(dJMax, dJ, maxIdx, la);
     }
     IterationResult result{};
     result.updatedJ = updateJ;

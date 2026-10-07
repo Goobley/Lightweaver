@@ -47,7 +47,8 @@ class IterationUpdate:
         the order of the lines on each activeAtom. These values are repeated for
         each sub-iteration < NprdSubIter.
     dRhoMaxIdx : List[int]
-        The location of the maximum change in rho for each PRD line.
+        The location of the maximum change in rho for each PRD line, in the
+        flattened rhoPrd array (Nlambda, Nspace).
     updatedJPrd : bool
         Whether the PRD iteration affected J.
     dJPrdMax : float

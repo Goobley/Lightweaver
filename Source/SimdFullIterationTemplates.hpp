@@ -629,7 +629,7 @@ IterationResult formal_sol_iteration_matrices_impl(Context& ctx, LwInternal::FsM
                                                         storeDepthData,
                                                         iCore, la * ctx.formalSolver.width,
                                                         mode, &params);
-            dJMax = max_idx(dJ, dJMax, maxIdx, la);
+            dJMax = max_idx(dJMax, dJ, maxIdx, la);
         }
         for (int a = 0; a < activeAtoms.size(); ++a)
         {
