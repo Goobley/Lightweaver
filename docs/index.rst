@@ -29,15 +29,15 @@ with a specific formal solver. It is well tested against RH_ and SNAPI_.
 .. _RH: https://github.com/ITA-Solar/rh
 .. _SNAPI: https://github.com/ivanzmilic/snapi
 
-The framework is managed from python (3.8+) whilst calling into an optimised
+The framework is managed from Python (3.10+) whilst calling into an optimised
 C++ backend. Whilst following a similar methods, Lightweaver is often
 considerably faster than RH on non-trivial problems, whilst being slightly
 slower on trivial single-threaded problems due to the increased
-initialisation time the python layer brings with it.
+initialisation time the Python layer brings with it.
 The backend can parallelise directly over as many threads as desired on
 single address space systems. MPI parallelisation across nodes can be
 accomplished manually on top of the framework using the packages available in
-python.
+Python.
 
 Whilst the core numerics are implented in C++, as much of the non-performance
 critical code as possible is implemented in Python, and the code currently
@@ -51,16 +51,16 @@ experimentation, with most forms of experimentation (unless one wants to play
 with formal solvers or iteration schemes), being available directly from
 python. Formal solvers that comply with the interface defined in Lightweaver
 can be compiled into separate shared libraries and then loaded at runtime.
-The preceding concepts are inspired by the well-recieved machine learning
+The preceding concepts are inspired by the well-received machine learning
 frameworks such as PyTorch and Tensorflow.
 
 Installation
 ------------
 
 The most recent release of Lightweaver will always be available on PyPI and
-is pre-compiled for Linux, Windows, and macOS (intel).
+is pre-compiled for Linux, Windows, and macOS.
 
-Lightweaver requires python 3.10+, and it is recommended to be run inside a virtual environment using ``conda``.
+Lightweaver requires Python 3.10+, and it is recommended to be run inside a virtual environment using ``conda``.
 
 In this case a new virtual environment can be created with:
 
@@ -89,12 +89,9 @@ to install, you should be able to
 
    python -m pip install .
 
-from the Lightweaver directory created. You may also wish to do this to
-create a more optimised version for modern machines; the PyPI versions
-support Sandy Bridge CPUs, so newer machines may have wider instruction sets
-available.
+from the Lightweaver directory created. To compile extension modules you will need a version of the code locally (matching the installed version).
 For doing a "development" installation for working inplace on the project,
-you may with to use ``python -m pip install -e .``.
+you may wish to use ``python -m pip install -e . --config-settings editable_mode=strict`` (the ``editable_mode`` improves compatibility with most Python IDEs using jedi)
 
 Indices and tables
 ==================

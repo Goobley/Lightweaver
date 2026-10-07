@@ -81,8 +81,8 @@ for label, ctx in [('CRD', ctx_crd), ('PRD (angle-averaged)', ctx_prd),
 # Plot the profiles. PRD produces narrower emission peaks and much darker
 # inner wings than CRD. Angle-averaged PRD does not account for the Doppler
 # shifts of the flow in the redistribution, and underestimates the blue (k2v)
-# peak of Mg II k by ~40% relative to HPRD; Ca II K, which forms lower, is
-# much less affected by the flows here.
+# peak of Mg II k by ~40% relative to HPRD. Ca II K is less affected in this
+# example.
 fig, ax = plt.subplots(1, 2, figsize=(10, 4), constrained_layout=True)
 for (label, (I_mg, I_ca)), style in zip(profiles.items(), ['--', '-', '-']):
     ax[0].plot((wave_mg - mg_k) * 1e3, I_mg, style, label=label)

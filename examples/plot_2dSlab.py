@@ -33,7 +33,7 @@ def converged_ca(atmos):
 #%%
 # 2D atmospheres are defined on a geometric height grid, with every quantity
 # provided as a [z, x] array. Here each of the 8 columns is a copy of FAL C,
-# and the x boundaries are periodic.
+# and the x boundaries are periodic. This uses the 6 rays/octant quadrature of Štěpán et al 2020
 fal = Falc82()
 Nx = 8
 
@@ -69,9 +69,8 @@ ca_1d = np.asarray(eq_pops_1d['Ca'])
 
 #%%
 # Plot the relative difference between the 2D column and the 1D solution for
-# each Ca II level. They agree to within a few per cent, with the differences
-# (mostly from the different angular quadratures) largest in the chromosphere
-# and transition region, where the radiation field is most anisotropic.
+# each Ca II level. They agree fairly well, with differences mostly originating
+# from the angular quadrature (and different formal solver).
 z_mm = np.asarray(fal.z) / 1e6
 fig, ax = plt.subplots(figsize=(7, 4), constrained_layout=True)
 for i in range(ca_1d.shape[0]):

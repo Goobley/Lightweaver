@@ -15,17 +15,17 @@ Whilst the core numerics are implemented in C++, as much of the non-performance 
 Other languages with a C/C++ interface could interact directly with this core, hopefully allowing it to be reused as needed in different projects.
 
 The aim of Lightweaver is to provide an NLTE Framework, rather than a "code".
-That is to say, it should be more malleable, and provide easier access to experimentation, with most forms of experimentation (unless one wants to play with formal solvers or iteration schemes), being available directly from python.
+That is to say, it should be more malleable, and provide easier access to experimentation, with most forms of experimentation (unless one wants to play with formal solvers or iteration schemes), being available directly from Python.
 Formal solvers that comply with the interface defined in Lightweaver can be compiled into separate shared libraries and then loaded at runtime.
-The preceding concepts are inspired by the popular python machine learning frameworks such as PyTorch and Tensorflow.
+The preceding concepts are inspired by the popular Python machine learning frameworks such as PyTorch and TensorFlow.
 
 ## Installation
 
-For most users precompiled python wheels (supporting modern Linux, Mac, and Windows 10 systems) can be installed from `pip` and are the easiest way to get started with Lightweaver.
-Lightweaver requires python 3.8+, and it is recommended to be run inside a virtual environment using `conda`.
+For most users precompiled Python wheels (supporting modern Linux, Mac, and Windows 10 systems) can be installed from `pip` and are the easiest way to get started with Lightweaver.
+Lightweaver requires Python 3.10+, and it is recommended to be run inside a virtual environment, e.g. using `conda`, but other venv providers exist!
 In this case a new virtual environment can be created with:
 ```
-conda create -n Lightweaver python=3.8
+conda create -n Lightweaver python=3.12
 ```
 activate the environment:
 ```
@@ -40,19 +40,17 @@ python -m pip install lightweaver
 
 Whilst the above should work for most people, if you wish to work on the Lightweaver backend it is beneficial to have a source installation.
 This requires a compiler supporting C++17.
-The build is then run with `python3 -m pip install -vvv -e .`.
-The libraries currently produce a few warnings, but should not produce any errors.
+The build is then run with `python3 -m pip install -vvv -e . --config-settings editable_mode=strict` (the strict mode is optional, but advised).
+The libraries currently produce a few warnings, but should not produce any errors. This setup then enables the compilation of extension modules to shared libraries that can be loaded at runtime. This is advanced functionality -- ask me if you need help!
 
 ## Documentation
 
 - [Paper](https://arxiv.org/abs/2107.00475).
 - [API documentation](https://goobley.github.io/Lightweaver/).
-- I suggest looking through [the samples repository](https://github.com/Goobley/LightweaverSamples) (in particular the `Simple*.py`) after the code description in the paper to gain an understanding of the basic functionality and interfaces.
-These samples are unfortunately not always up to date, but are a work in progress.
-- The [MsLightweaver repository](https://github.com/Goobley/MsLightweaver) contains a more "production grade" tool built on Lightweaver for reprocessing the time-dependent radiative output from RADYN simulations.
-This tool is currently undocumented, but has a relatively simple structure.
+- [Examples Gallery](https://goobley.github.io/Lightweaver/auto_examples/index.html).
+- The `tests` directory can be a good place to check simple setup/runs on known-good cases.
 
-Please contact me through this repository if difficulties are encountered.
+Please contact me through this repository if difficulties are encountered. We also have a community Discord for discussions and knowledge-pooling.
 
 ## Acknowledgements
 
