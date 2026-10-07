@@ -96,8 +96,8 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False,
         update = self.rel_diff_ng_accelerate(printUpdate=printUpdate)
     else:
         update = self.rel_diff_pops(printUpdate=printUpdate)
-    neDiff = ((np.asarray(self.atmos.ne) - neStart)
-                / np.asarray(self.atmos.ne))
+    neDiff = np.abs((np.asarray(self.atmos.ne) - neStart)
+                    / np.asarray(self.atmos.ne))
     neDiffMaxIdx = neDiff.argmax()
     neDiffMax = neDiff[neDiffMaxIdx]
     update.updatedNe = True

@@ -3573,8 +3573,8 @@ cdef class LwContext:
 
         update = self.rel_diff_ng_accelerate(printUpdate=printUpdate)
         if self.conserveCharge:
-            neDiff = ((np.asarray(self.atmos.ne) - neStart)
-                      / np.asarray(self.atmos.ne))
+            neDiff = np.abs((np.asarray(self.atmos.ne) - neStart)
+                            / np.asarray(self.atmos.ne))
             neDiffMaxIdx = neDiff.argmax()
             neDiffMax = neDiff[neDiffMaxIdx]
             maxDelta = max(maxDelta, neDiffMax)

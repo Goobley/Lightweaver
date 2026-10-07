@@ -76,7 +76,7 @@ def lte_pops_impl(temperature, ne, nTotal, stages, energies,
 
         if computeDiff:
             for i in range(Nlevel):
-                maxDiff = max((nStar[i, k] - prev[i]) / nStar[i, k], maxDiff)
+                maxDiff = max(abs((nStar[i, k] - prev[i]) / nStar[i, k]), maxDiff)
 
     return nStar, maxDiff
 
