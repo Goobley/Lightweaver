@@ -258,11 +258,11 @@ uv_opt<SimdType::AVX2FMA>(Transition* t, int la, int mu, bool toObs,
             __m256d phik = _mm256_loadu_pd(&p(k));
             // __m256d Vijk = _mm256_mul_pd(_mm256_set1_pd(hc_4pi * t->Bij), phik);
             __m256d Vijk = _mm256_mul_pd(_mm256_set1_pd(hnu_4pi * t->Bij), phik);
-            _mm256_store_pd(&Vij(k), Vijk);
+            _mm256_storeu_pd(&Vij(k), Vijk);
 
             // Vji(k) = t->gij(k) * Vij(k);
             __m256d gijk = _mm256_loadu_pd(&t->gij(k));
-            _mm256_store_pd(&Vji(k), _mm256_mul_pd(gijk, Vijk));
+            _mm256_storeu_pd(&Vji(k), _mm256_mul_pd(gijk, Vijk));
         }
         for (; k < Nspace; ++k)
         {
@@ -286,8 +286,8 @@ uv_opt<SimdType::AVX2FMA>(Transition* t, int la, int mu, bool toObs,
         k = 0;
         for (; k < kMax; k += Stride)
         {
-            __m256d Vjik = _mm256_load_pd(&Vji(k));
-            _mm256_store_pd(&Uji(k), _mm256_mul_pd(ABRatio4x, Vjik));
+            __m256d Vjik = _mm256_loadu_pd(&Vji(k));
+            _mm256_storeu_pd(&Uji(k), _mm256_mul_pd(ABRatio4x, Vjik));
         }
         for (; k < Nspace; ++k)
         {
@@ -304,12 +304,12 @@ uv_opt<SimdType::AVX2FMA>(Transition* t, int la, int mu, bool toObs,
         {
             // Vij(k) = a;
             __m256d Vijk = _mm256_set1_pd(a);
-            _mm256_store_pd(&Vij(k), Vijk);
+            _mm256_storeu_pd(&Vij(k), Vijk);
             // Vji(k) = t->gij(k) * Vij(k);
             __m256d Vjik = _mm256_mul_pd(_mm256_loadu_pd(&t->gij(k)), Vijk);
-            _mm256_store_pd(&Vji(k), Vjik);
+            _mm256_storeu_pd(&Vji(k), Vjik);
             // Uji(k) = hcl * Vji(k);
-            _mm256_store_pd(&Uji(k), _mm256_mul_pd(_mm256_set1_pd(hcl), Vjik));
+            _mm256_storeu_pd(&Uji(k), _mm256_mul_pd(_mm256_set1_pd(hcl), Vjik));
         }
         for (; k < Nspace; ++k)
         {
@@ -339,9 +339,9 @@ chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
     {
         __m256d nik = _mm256_loadu_pd(&atom->n(t.i, k));
         __m256d njk = _mm256_loadu_pd(&atom->n(t.j, k));
-        __m256d Vijk = _mm256_load_pd(&Vij(k));
-        __m256d Vjik = _mm256_load_pd(&Vji(k));
-        __m256d Ujik = _mm256_load_pd(&Uji(k));
+        __m256d Vijk = _mm256_loadu_pd(&Vij(k));
+        __m256d Vjik = _mm256_loadu_pd(&Vji(k));
+        __m256d Ujik = _mm256_loadu_pd(&Uji(k));
         // f64 chi = atom->n(t.i, k) * Vij(k) - atom->n(t.j, k) * Vji(k);
         __m256d chik = _mm256_fmsub_pd(nik, Vijk, _mm256_mul_pd(njk, Vjik));
 
@@ -385,22 +385,22 @@ chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
             if constexpr (FirstTrans)
             {
                 // atom->eta(k) = eta;
-                _mm256_store_pd(&atom->eta(k), etak);
+                _mm256_storeu_pd(&atom->eta(k), etak);
             }
             else
             {
                 // atom->eta(k) += eta;
-                __m256d etakc = _mm256_load_pd(&atom->eta(k));
-                _mm256_store_pd(&atom->eta(k), _mm256_add_pd(etakc, etak));
+                __m256d etakc = _mm256_loadu_pd(&atom->eta(k));
+                _mm256_storeu_pd(&atom->eta(k), _mm256_add_pd(etakc, etak));
             }
         }
 
         // chiTot(k) += chi;
         // etaTot(k) += eta;
-        __m256d etaTotc = _mm256_load_pd(&etaTot(k));
-        __m256d chiTotc = _mm256_load_pd(&chiTot(k));
-        _mm256_store_pd(&etaTot(k), _mm256_add_pd(etaTotc, etak));
-        _mm256_store_pd(&chiTot(k), _mm256_add_pd(chiTotc, chik));
+        __m256d etaTotc = _mm256_loadu_pd(&etaTot(k));
+        __m256d chiTotc = _mm256_loadu_pd(&chiTot(k));
+        _mm256_storeu_pd(&etaTot(k), _mm256_add_pd(etaTotc, etak));
+        _mm256_storeu_pd(&chiTot(k), _mm256_add_pd(chiTotc, chik));
     }
     for (; k < Nspace; ++k)
     {
@@ -459,13 +459,13 @@ compute_source_fn<SimdType::AVX2FMA>(F64View& S, F64View& etaTot,
     int k = 0;
     for (; k < kMax; k += Stride)
     {
-        __m256d etak = _mm256_load_pd(&etaTot(k));
-        __m256d chik = _mm256_load_pd(&chiTot(k));
+        __m256d etak = _mm256_loadu_pd(&etaTot(k));
+        __m256d chik = _mm256_loadu_pd(&chiTot(k));
         __m256d scak = _mm256_loadu_pd(&sca(k));
         __m256d Jk = _mm256_loadu_pd(&JDag(k));
         __m256d num = _mm256_fmadd_pd(scak, Jk, etak);
         __m256d Sk = _mm256_div_pd(num, chik);
-        _mm256_store_pd(&S(k), Sk);
+        _mm256_storeu_pd(&S(k), Sk);
     }
     for (; k < Nspace; ++k)
     {
@@ -487,7 +487,7 @@ accumulate_J<SimdType::AVX2FMA>(f64 halfwmu, F64View& J, F64View& I)
     for (; k < kMax; k += Stride)
     {
         __m256d Jk = _mm256_loadu_pd(&J(k));
-        __m256d Ik = _mm256_load_pd(&I(k));
+        __m256d Ik = _mm256_loadu_pd(&I(k));
         _mm256_storeu_pd(&J(k), _mm256_fmadd_pd(halfwmuWide, Ik, Jk));
     }
     for (; k < Nspace; ++k)
@@ -511,10 +511,10 @@ compute_full_Ieff<SimdType::AVX2FMA>(F64View& I, F64View& PsiStar,
     int k = 0;
     for (; k < kMax; k += Stride)
     {
-        __m256d Ik = _mm256_load_pd(&I(k));
-        __m256d Psik = _mm256_load_pd(&PsiStar(k));
-        __m256d etak = _mm256_load_pd(&eta(k));
-        _mm256_store_pd(&Ieff(k), _mm256_fnmadd_pd(Psik, etak, Ik));
+        __m256d Ik = _mm256_loadu_pd(&I(k));
+        __m256d Psik = _mm256_loadu_pd(&PsiStar(k));
+        __m256d etak = _mm256_loadu_pd(&eta(k));
+        _mm256_storeu_pd(&Ieff(k), _mm256_fnmadd_pd(Psik, etak, Ik));
     }
     for (; k < Nspace; ++k)
     {
@@ -541,13 +541,13 @@ compute_full_operator_rates(Atom* a, int kr, f64 wmu,
         // const f64 wlamu = atom.wla(kr, k) * wmu;
         __m256d wlamuk = _mm256_mul_pd(_mm256_loadu_pd(&atom.wla(kr, k)),
                                        _mm256_set1_pd(wmu));
-        __m256d Ujik = _mm256_load_pd(&Uji(k));
-        __m256d Vjik = _mm256_load_pd(&Vji(k));
-        __m256d Vijk = _mm256_load_pd(&Vij(k));
+        __m256d Ujik = _mm256_loadu_pd(&Uji(k));
+        __m256d Vjik = _mm256_loadu_pd(&Vji(k));
+        __m256d Vijk = _mm256_loadu_pd(&Vij(k));
         if constexpr (ComputeOperator)
         {
-            __m256d Ieffk = _mm256_load_pd(&Ieff(k));
-            __m256d PsiStark = _mm256_load_pd(&PsiStar(k));
+            __m256d Ieffk = _mm256_loadu_pd(&Ieff(k));
+            __m256d PsiStark = _mm256_loadu_pd(&PsiStar(k));
             __m256d atomChiik = _mm256_loadu_pd(&atom.chi(t.i, k));
             __m256d atomChijk = _mm256_loadu_pd(&atom.chi(t.j, k));
             __m256d atomUik = _mm256_loadu_pd(&atom.U(t.i, k));
@@ -574,7 +574,7 @@ compute_full_operator_rates(Atom* a, int kr, f64 wmu,
 
         if constexpr (ComputeRates)
         {
-            __m256d Ik = _mm256_load_pd(&I(k));
+            __m256d Ik = _mm256_loadu_pd(&I(k));
             // t.Rij(k) += I(k) * Vij(k) * wlamu;
             __m256d Rijk = _mm256_loadu_pd(&t.Rij(k));
             __m256d integrand = _mm256_mul_pd(Ik, Vijk);

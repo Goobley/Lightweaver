@@ -170,7 +170,7 @@ void setup_wavelength_opt<SimdType::AVX512>(Atom* atom, int laIdx)
             for (; k < kMax; k += Stride)
             {
                 _mm512_storeu_pd(&g(k), bRatio);
-                __m512d wphik = _mm512_load_pd(&t.wphi(k));
+                __m512d wphik = _mm512_loadu_pd(&t.wphi(k));
                 _mm512_storeu_pd(&w(k), _mm512_mul_pd(wlaPi, wphik));
             }
             for (; k < Nspace; ++k)
@@ -192,7 +192,7 @@ void setup_wavelength_opt<SimdType::AVX512>(Atom* atom, int laIdx)
             {
                 __m512d nik = _mm512_loadu_pd(&nStar(t.i, k));
                 __m512d njk = _mm512_loadu_pd(&nStar(t.j, k));
-                __m512d temp = _mm512_load_pd(&atmos->temperature(k));
+                __m512d temp = _mm512_loadu_pd(&atmos->temperature(k));
                 __m512d gk = _mm512_mul_pd(_mm512_div_pd(nik, njk),
                                            exp_pd_avx512(_mm512_div_pd(mhc_kl4x, temp)));
                 _mm512_storeu_pd(&g(k), gk);
@@ -246,11 +246,11 @@ uv_opt<SimdType::AVX512>(Transition* t, int la, int mu, bool toObs,
             __m512d phik = _mm512_loadu_pd(&p(k));
             // __m512d Vijk = _mm512_mul_pd(_mm512_set1_pd(hc_4pi * t->Bij), phik);
             __m512d Vijk = _mm512_mul_pd(_mm512_set1_pd(hnu_4pi * t->Bij), phik);
-            _mm512_store_pd(&Vij(k), Vijk);
+            _mm512_storeu_pd(&Vij(k), Vijk);
 
             // Vji(k) = t->gij(k) * Vij(k);
             __m512d gijk = _mm512_loadu_pd(&t->gij(k));
-            _mm512_store_pd(&Vji(k), _mm512_mul_pd(gijk, Vijk));
+            _mm512_storeu_pd(&Vji(k), _mm512_mul_pd(gijk, Vijk));
         }
         for (; k < Nspace; ++k)
         {
@@ -274,8 +274,8 @@ uv_opt<SimdType::AVX512>(Transition* t, int la, int mu, bool toObs,
         k = 0;
         for (; k < kMax; k += Stride)
         {
-            __m512d Vjik = _mm512_load_pd(&Vji(k));
-            _mm512_store_pd(&Uji(k), _mm512_mul_pd(ABRatio4x, Vjik));
+            __m512d Vjik = _mm512_loadu_pd(&Vji(k));
+            _mm512_storeu_pd(&Uji(k), _mm512_mul_pd(ABRatio4x, Vjik));
         }
         for (; k < Nspace; ++k)
         {
@@ -292,12 +292,12 @@ uv_opt<SimdType::AVX512>(Transition* t, int la, int mu, bool toObs,
         {
             // Vij(k) = a;
             __m512d Vijk = _mm512_set1_pd(a);
-            _mm512_store_pd(&Vij(k), Vijk);
+            _mm512_storeu_pd(&Vij(k), Vijk);
             // Vji(k) = t->gij(k) * Vij(k);
             __m512d Vjik = _mm512_mul_pd(_mm512_loadu_pd(&t->gij(k)), Vijk);
-            _mm512_store_pd(&Vji(k), Vjik);
+            _mm512_storeu_pd(&Vji(k), Vjik);
             // Uji(k) = hcl * Vji(k);
-            _mm512_store_pd(&Uji(k), _mm512_mul_pd(_mm512_set1_pd(hcl), Vjik));
+            _mm512_storeu_pd(&Uji(k), _mm512_mul_pd(_mm512_set1_pd(hcl), Vjik));
         }
         for (; k < Nspace; ++k)
         {
@@ -327,9 +327,9 @@ chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
     {
         __m512d nik = _mm512_loadu_pd(&atom->n(t.i, k));
         __m512d njk = _mm512_loadu_pd(&atom->n(t.j, k));
-        __m512d Vijk = _mm512_load_pd(&Vij(k));
-        __m512d Vjik = _mm512_load_pd(&Vji(k));
-        __m512d Ujik = _mm512_load_pd(&Uji(k));
+        __m512d Vijk = _mm512_loadu_pd(&Vij(k));
+        __m512d Vjik = _mm512_loadu_pd(&Vji(k));
+        __m512d Ujik = _mm512_loadu_pd(&Uji(k));
         // f64 chi = atom->n(t.i, k) * Vij(k) - atom->n(t.j, k) * Vji(k);
         __m512d chik = _mm512_fmsub_pd(nik, Vijk, _mm512_mul_pd(njk, Vjik));
 
@@ -373,22 +373,22 @@ chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
             if constexpr (FirstTrans)
             {
                 // atom->eta(k) = eta;
-                _mm512_store_pd(&atom->eta(k), etak);
+                _mm512_storeu_pd(&atom->eta(k), etak);
             }
             else
             {
                 // atom->eta(k) += eta;
-                __m512d etakc = _mm512_load_pd(&atom->eta(k));
-                _mm512_store_pd(&atom->eta(k), _mm512_add_pd(etakc, etak));
+                __m512d etakc = _mm512_loadu_pd(&atom->eta(k));
+                _mm512_storeu_pd(&atom->eta(k), _mm512_add_pd(etakc, etak));
             }
         }
 
         // chiTot(k) += chi;
         // etaTot(k) += eta;
-        __m512d etaTotc = _mm512_load_pd(&etaTot(k));
-        __m512d chiTotc = _mm512_load_pd(&chiTot(k));
-        _mm512_store_pd(&etaTot(k), _mm512_add_pd(etaTotc, etak));
-        _mm512_store_pd(&chiTot(k), _mm512_add_pd(chiTotc, chik));
+        __m512d etaTotc = _mm512_loadu_pd(&etaTot(k));
+        __m512d chiTotc = _mm512_loadu_pd(&chiTot(k));
+        _mm512_storeu_pd(&etaTot(k), _mm512_add_pd(etaTotc, etak));
+        _mm512_storeu_pd(&chiTot(k), _mm512_add_pd(chiTotc, chik));
     }
     for (; k < Nspace; ++k)
     {
@@ -447,13 +447,13 @@ compute_source_fn<SimdType::AVX512>(F64View& S, F64View& etaTot,
     int k = 0;
     for (; k < kMax; k += Stride)
     {
-        __m512d etak = _mm512_load_pd(&etaTot(k));
-        __m512d chik = _mm512_load_pd(&chiTot(k));
+        __m512d etak = _mm512_loadu_pd(&etaTot(k));
+        __m512d chik = _mm512_loadu_pd(&chiTot(k));
         __m512d scak = _mm512_loadu_pd(&sca(k));
         __m512d Jk = _mm512_loadu_pd(&JDag(k));
         __m512d num = _mm512_fmadd_pd(scak, Jk, etak);
         __m512d Sk = _mm512_div_pd(num, chik);
-        _mm512_store_pd(&S(k), Sk);
+        _mm512_storeu_pd(&S(k), Sk);
     }
     for (; k < Nspace; ++k)
     {
@@ -475,7 +475,7 @@ accumulate_J<SimdType::AVX512>(f64 halfwmu, F64View& J, F64View& I)
     for (; k < kMax; k += Stride)
     {
         __m512d Jk = _mm512_loadu_pd(&J(k));
-        __m512d Ik = _mm512_load_pd(&I(k));
+        __m512d Ik = _mm512_loadu_pd(&I(k));
         _mm512_storeu_pd(&J(k), _mm512_fmadd_pd(halfwmuWide, Ik, Jk));
     }
     for (; k < Nspace; ++k)
@@ -499,10 +499,10 @@ compute_full_Ieff<SimdType::AVX512>(F64View& I, F64View& PsiStar,
     int k = 0;
     for (; k < kMax; k += Stride)
     {
-        __m512d Ik = _mm512_load_pd(&I(k));
-        __m512d Psik = _mm512_load_pd(&PsiStar(k));
-        __m512d etak = _mm512_load_pd(&eta(k));
-        _mm512_store_pd(&Ieff(k), _mm512_fnmadd_pd(Psik, etak, Ik));
+        __m512d Ik = _mm512_loadu_pd(&I(k));
+        __m512d Psik = _mm512_loadu_pd(&PsiStar(k));
+        __m512d etak = _mm512_loadu_pd(&eta(k));
+        _mm512_storeu_pd(&Ieff(k), _mm512_fnmadd_pd(Psik, etak, Ik));
     }
     for (; k < Nspace; ++k)
     {
@@ -529,13 +529,13 @@ compute_full_operator_rates(Atom* a, int kr, f64 wmu,
         // const f64 wlamu = atom.wla(kr, k) * wmu;
         __m512d wlamuk = _mm512_mul_pd(_mm512_loadu_pd(&atom.wla(kr, k)),
                                        _mm512_set1_pd(wmu));
-        __m512d Ujik = _mm512_load_pd(&Uji(k));
-        __m512d Vjik = _mm512_load_pd(&Vji(k));
-        __m512d Vijk = _mm512_load_pd(&Vij(k));
+        __m512d Ujik = _mm512_loadu_pd(&Uji(k));
+        __m512d Vjik = _mm512_loadu_pd(&Vji(k));
+        __m512d Vijk = _mm512_loadu_pd(&Vij(k));
         if constexpr (ComputeOperator)
         {
-            __m512d Ieffk = _mm512_load_pd(&Ieff(k));
-            __m512d PsiStark = _mm512_load_pd(&PsiStar(k));
+            __m512d Ieffk = _mm512_loadu_pd(&Ieff(k));
+            __m512d PsiStark = _mm512_loadu_pd(&PsiStar(k));
             __m512d atomChiik = _mm512_loadu_pd(&atom.chi(t.i, k));
             __m512d atomChijk = _mm512_loadu_pd(&atom.chi(t.j, k));
             __m512d atomUik = _mm512_loadu_pd(&atom.U(t.i, k));
@@ -562,7 +562,7 @@ compute_full_operator_rates(Atom* a, int kr, f64 wmu,
 
         if constexpr (ComputeRates)
         {
-            __m512d Ik = _mm512_load_pd(&I(k));
+            __m512d Ik = _mm512_loadu_pd(&I(k));
             // t.Rij(k) += I(k) * Vij(k) * wlamu;
             __m512d Rijk = _mm512_loadu_pd(&t.Rij(k));
             __m512d integrand = _mm512_mul_pd(Ik, Vijk);

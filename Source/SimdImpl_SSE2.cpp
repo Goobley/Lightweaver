@@ -30,10 +30,10 @@ inline __m128d exp_pd_sse2(__m128d xIn)
     // think SSE2 will be commonly used, and the lack of fma + round isn't great
     // for performance here anyway.
     alignas(16) f64 xs[2];
-    _mm_store_pd(xs, xIn);
+    _mm_storeu_pd(xs, xIn);
     for (int i = 0; i < 2; ++i)
         xs[i] = exp(xs[i]);
-    __m128d xOut = _mm_load_pd(xs);
+    __m128d xOut = _mm_loadu_pd(xs);
     return xOut;
 }
 
@@ -72,7 +72,7 @@ void setup_wavelength_opt<SimdType::SSE2>(Atom* atom, int laIdx)
             for (; k < kMax; k += Stride)
             {
                 _mm_storeu_pd(&g(k), bRatio);
-                __m128d wphik = _mm_load_pd(&t.wphi(k));
+                __m128d wphik = _mm_loadu_pd(&t.wphi(k));
                 _mm_storeu_pd(&w(k), _mm_mul_pd(wlaPi, wphik));
             }
             for (; k < Nspace; ++k)
@@ -94,7 +94,7 @@ void setup_wavelength_opt<SimdType::SSE2>(Atom* atom, int laIdx)
             {
                 __m128d nik = _mm_loadu_pd(&nStar(t.i, k));
                 __m128d njk = _mm_loadu_pd(&nStar(t.j, k));
-                __m128d temp = _mm_load_pd(&atmos->temperature(k));
+                __m128d temp = _mm_loadu_pd(&atmos->temperature(k));
                 __m128d gk = _mm_mul_pd(_mm_div_pd(nik, njk),
                                            exp_pd_sse2(_mm_div_pd(mhc_kl4x, temp)));
                 _mm_storeu_pd(&g(k), gk);
@@ -148,11 +148,11 @@ uv_opt<SimdType::SSE2>(Transition* t, int la, int mu, bool toObs,
             __m128d phik = _mm_loadu_pd(&p(k));
             // __m128d Vijk = _mm_mul_pd(_mm_set1_pd(hc_4pi * t->Bij), phik);
             __m128d Vijk = _mm_mul_pd(_mm_set1_pd(hnu_4pi * t->Bij), phik);
-            _mm_store_pd(&Vij(k), Vijk);
+            _mm_storeu_pd(&Vij(k), Vijk);
 
             // Vji(k) = t->gij(k) * Vij(k);
             __m128d gijk = _mm_loadu_pd(&t->gij(k));
-            _mm_store_pd(&Vji(k), _mm_mul_pd(gijk, Vijk));
+            _mm_storeu_pd(&Vji(k), _mm_mul_pd(gijk, Vijk));
         }
         for (; k < Nspace; ++k)
         {
@@ -176,8 +176,8 @@ uv_opt<SimdType::SSE2>(Transition* t, int la, int mu, bool toObs,
         k = 0;
         for (; k < kMax; k += Stride)
         {
-            __m128d Vjik = _mm_load_pd(&Vji(k));
-            _mm_store_pd(&Uji(k), _mm_mul_pd(ABRatio4x, Vjik));
+            __m128d Vjik = _mm_loadu_pd(&Vji(k));
+            _mm_storeu_pd(&Uji(k), _mm_mul_pd(ABRatio4x, Vjik));
         }
         for (; k < Nspace; ++k)
         {
@@ -194,12 +194,12 @@ uv_opt<SimdType::SSE2>(Transition* t, int la, int mu, bool toObs,
         {
             // Vij(k) = a;
             __m128d Vijk = _mm_set1_pd(a);
-            _mm_store_pd(&Vij(k), Vijk);
+            _mm_storeu_pd(&Vij(k), Vijk);
             // Vji(k) = t->gij(k) * Vij(k);
             __m128d Vjik = _mm_mul_pd(_mm_loadu_pd(&t->gij(k)), Vijk);
-            _mm_store_pd(&Vji(k), Vjik);
+            _mm_storeu_pd(&Vji(k), Vjik);
             // Uji(k) = hcl * Vji(k);
-            _mm_store_pd(&Uji(k), _mm_mul_pd(_mm_set1_pd(hcl), Vjik));
+            _mm_storeu_pd(&Uji(k), _mm_mul_pd(_mm_set1_pd(hcl), Vjik));
         }
         for (; k < Nspace; ++k)
         {
@@ -229,9 +229,9 @@ chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
     {
         __m128d nik = _mm_loadu_pd(&atom->n(t.i, k));
         __m128d njk = _mm_loadu_pd(&atom->n(t.j, k));
-        __m128d Vijk = _mm_load_pd(&Vij(k));
-        __m128d Vjik = _mm_load_pd(&Vji(k));
-        __m128d Ujik = _mm_load_pd(&Uji(k));
+        __m128d Vijk = _mm_loadu_pd(&Vij(k));
+        __m128d Vjik = _mm_loadu_pd(&Vji(k));
+        __m128d Ujik = _mm_loadu_pd(&Uji(k));
         // f64 chi = atom->n(t.i, k) * Vij(k) - atom->n(t.j, k) * Vji(k);
         __m128d chik = _mm_sub_pd(_mm_mul_pd(nik, Vijk), _mm_mul_pd(njk, Vjik));
 
@@ -275,22 +275,22 @@ chi_eta_aux_accum(IntensityCoreData* data, Atom* atom, const Transition& t)
             if constexpr (FirstTrans)
             {
                 // atom->eta(k) = eta;
-                _mm_store_pd(&atom->eta(k), etak);
+                _mm_storeu_pd(&atom->eta(k), etak);
             }
             else
             {
                 // atom->eta(k) += eta;
-                __m128d etakc = _mm_load_pd(&atom->eta(k));
-                _mm_store_pd(&atom->eta(k), _mm_add_pd(etakc, etak));
+                __m128d etakc = _mm_loadu_pd(&atom->eta(k));
+                _mm_storeu_pd(&atom->eta(k), _mm_add_pd(etakc, etak));
             }
         }
 
         // chiTot(k) += chi;
         // etaTot(k) += eta;
-        __m128d etaTotc = _mm_load_pd(&etaTot(k));
-        __m128d chiTotc = _mm_load_pd(&chiTot(k));
-        _mm_store_pd(&etaTot(k), _mm_add_pd(etaTotc, etak));
-        _mm_store_pd(&chiTot(k), _mm_add_pd(chiTotc, chik));
+        __m128d etaTotc = _mm_loadu_pd(&etaTot(k));
+        __m128d chiTotc = _mm_loadu_pd(&chiTot(k));
+        _mm_storeu_pd(&etaTot(k), _mm_add_pd(etaTotc, etak));
+        _mm_storeu_pd(&chiTot(k), _mm_add_pd(chiTotc, chik));
     }
     for (; k < Nspace; ++k)
     {
@@ -349,13 +349,13 @@ compute_source_fn<SimdType::SSE2>(F64View& S, F64View& etaTot,
     int k = 0;
     for (; k < kMax; k += Stride)
     {
-        __m128d etak = _mm_load_pd(&etaTot(k));
-        __m128d chik = _mm_load_pd(&chiTot(k));
+        __m128d etak = _mm_loadu_pd(&etaTot(k));
+        __m128d chik = _mm_loadu_pd(&chiTot(k));
         __m128d scak = _mm_loadu_pd(&sca(k));
         __m128d Jk = _mm_loadu_pd(&JDag(k));
         __m128d num = fmadd_pd(scak, Jk, etak);
         __m128d Sk = _mm_div_pd(num, chik);
-        _mm_store_pd(&S(k), Sk);
+        _mm_storeu_pd(&S(k), Sk);
     }
     for (; k < Nspace; ++k)
     {
@@ -377,7 +377,7 @@ accumulate_J<SimdType::SSE2>(f64 halfwmu, F64View& J, F64View& I)
     for (; k < kMax; k += Stride)
     {
         __m128d Jk = _mm_loadu_pd(&J(k));
-        __m128d Ik = _mm_load_pd(&I(k));
+        __m128d Ik = _mm_loadu_pd(&I(k));
         _mm_storeu_pd(&J(k), fmadd_pd(halfwmuWide, Ik, Jk));
     }
     for (; k < Nspace; ++k)
@@ -401,10 +401,10 @@ compute_full_Ieff<SimdType::SSE2>(F64View& I, F64View& PsiStar,
     int k = 0;
     for (; k < kMax; k += Stride)
     {
-        __m128d Ik = _mm_load_pd(&I(k));
-        __m128d Psik = _mm_load_pd(&PsiStar(k));
-        __m128d etak = _mm_load_pd(&eta(k));
-        _mm_store_pd(&Ieff(k), _mm_sub_pd(Ik, _mm_mul_pd(Psik, etak)));
+        __m128d Ik = _mm_loadu_pd(&I(k));
+        __m128d Psik = _mm_loadu_pd(&PsiStar(k));
+        __m128d etak = _mm_loadu_pd(&eta(k));
+        _mm_storeu_pd(&Ieff(k), _mm_sub_pd(Ik, _mm_mul_pd(Psik, etak)));
     }
     for (; k < Nspace; ++k)
     {
@@ -431,13 +431,13 @@ compute_full_operator_rates(Atom* a, int kr, f64 wmu,
         // const f64 wlamu = atom.wla(kr, k) * wmu;
         __m128d wlamuk = _mm_mul_pd(_mm_loadu_pd(&atom.wla(kr, k)),
                                        _mm_set1_pd(wmu));
-        __m128d Ujik = _mm_load_pd(&Uji(k));
-        __m128d Vjik = _mm_load_pd(&Vji(k));
-        __m128d Vijk = _mm_load_pd(&Vij(k));
+        __m128d Ujik = _mm_loadu_pd(&Uji(k));
+        __m128d Vjik = _mm_loadu_pd(&Vji(k));
+        __m128d Vijk = _mm_loadu_pd(&Vij(k));
         if constexpr (ComputeOperator)
         {
-            __m128d Ieffk = _mm_load_pd(&Ieff(k));
-            __m128d PsiStark = _mm_load_pd(&PsiStar(k));
+            __m128d Ieffk = _mm_loadu_pd(&Ieff(k));
+            __m128d PsiStark = _mm_loadu_pd(&PsiStar(k));
             __m128d atomChiik = _mm_loadu_pd(&atom.chi(t.i, k));
             __m128d atomChijk = _mm_loadu_pd(&atom.chi(t.j, k));
             __m128d atomUik = _mm_loadu_pd(&atom.U(t.i, k));
@@ -466,7 +466,7 @@ compute_full_operator_rates(Atom* a, int kr, f64 wmu,
 
         if constexpr (ComputeRates)
         {
-            __m128d Ik = _mm_load_pd(&I(k));
+            __m128d Ik = _mm_loadu_pd(&I(k));
             // t.Rij(k) += I(k) * Vij(k) * wlamu;
             __m128d Rijk = _mm_loadu_pd(&t.Rij(k));
             __m128d integrand = _mm_mul_pd(Ik, Vijk);
