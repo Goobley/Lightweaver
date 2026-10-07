@@ -35,7 +35,7 @@ void lu_decompose(F64View2D A, I32View index, f64* d)
             A(i,j) = sum;
         }
 
-        int iMax = 0;
+        int iMax = j;
         f64 big = 0.0;
         for (int i = j; i < N; ++i)
         {
