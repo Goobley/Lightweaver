@@ -868,7 +868,7 @@ void configure_hprd_coeffs(Context& ctx, bool includeDetailedAtoms)
 
                     int i  = idx;
                     // NOTE(cmo): If the shift is s.t. spect.wavelength(idx) > prevLambda, then we need to roll back
-                    for (; spect.wavelength(i) > prevLambda && i >= 0; --i);
+                    for (; i > 0 && spect.wavelength(i) > prevLambda; --i);
 
 
                     // NOTE(cmo): Upper bound goes all the way to the top, but we will break out early when possible.
