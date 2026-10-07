@@ -290,17 +290,25 @@ for elemStart in range(0, len(isotopeCells[0]), 3):
             isotopeReshape.append(row[elemRange])
 
 dist = []
+current = None
 for row in isotopeReshape:
     if row[0] != '':
         try:
             elem = [e for e in elements if e.name == row[0]][0]
         except:
             raise ValueError('Unable to find element for name %s' % row[0])
-        dist.append(ElementalDistribution(elem, []))
+        # NOTE(cmo): Elements split across columns of the table have their
+        # name repeated at the top of the next column; merge these.
+        existing = [d for d in dist if d.Z == elem.Z]
+        if len(existing) > 0:
+            current = existing[0]
+        else:
+            current = ElementalDistribution(elem, [])
+            dist.append(current)
     N = int(row[1])
     iso = IsotopeProportion(N=N, proportion=(float(row[2]) / 100),
                             mass=massData[(N, elem.Z)])
-    dist[-1].isotopes.append(iso)
+    current.isotopes.append(iso)
 
 # NOTE(cmo): Ensure normalisation to machine precision
 for ele in dist:
