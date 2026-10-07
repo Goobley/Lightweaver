@@ -751,8 +751,10 @@ class RadiativeSet:
         self.detailedStaticSet: Set[Element] = set()
         self.activeSet: Set[Element] = set()
 
-        if len(self.passiveSet) > len(self.elements):
-            raise ValueError('Multiple entries for an atom: %s' % self.atoms)
+        if len(self.passiveSet) < len(self.elements):
+            duplicates = sorted({e.name for e in self.elements
+                                 if self.elements.count(e) > 1})
+            raise ValueError('Multiple entries for an atom: %s' % duplicates)
 
     def __contains__(self, x: Union[int, Tuple[int, int], str, Element]) -> bool:
         return PeriodicTable[x] in self.elements
