@@ -3088,6 +3088,11 @@ cdef class LwContext:
         else:
             fsIdx = fsMan.default_formal_solver(self.ctx.atmos.Ndim)
         cdef FormalSolver fs = fsMan.manager.formalSolvers[fsIdx]
+        # NOTE(cmo): The iteration cores solve a single wavelength per call;
+        # wide formal solvers are not yet supported.
+        if fs.width != 1:
+            raise ValueError('Formal solver %s has width %d, but only width 1 is supported.'
+                             % (fsMan.names[fsIdx], fs.width))
         self.ctx.formalSolver = fs
 
         # NOTE(cmo): If the FS is wide we may need to reconfigure the wide backing stores.
