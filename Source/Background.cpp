@@ -955,7 +955,16 @@ bool OH_bf_opac(const Atmosphere& atmos, f64 lambda, F64View OH, F64View chi, F6
     // auto it = std::upper_bound(EOH, last, Eev) - 1;
     // index = it - EOH;
     index = hunt(NEOH, EOH, Eev);
-    e_index = (double)index + (Eev - EOH[index]) / (EOH[index + 1] - EOH[index]);
+    // NOTE(cmo): Eev can equal the final table entry, which hunt maps to the
+    // final index.
+    if (index == NEOH - 1)
+    {
+        e_index = (double)index;
+    }
+    else
+    {
+        e_index = (double)index + (Eev - EOH[index]) / (EOH[index + 1] - EOH[index]);
+    }
 
     hc_kla = C::HC / (C::KBoltzmann * C::NM_TO_M * lambda);
     twohnu3_c2 = (2.0 * C::HC) / cube(C::NM_TO_M * lambda);
@@ -971,8 +980,15 @@ bool OH_bf_opac(const Atmosphere& atmos, f64 lambda, F64View OH, F64View chi, F6
             // auto it = std::upper_bound(TOH, last, atmos.temperature(k)) - 1;
             // index2 = it - TOH;
             index2 = hunt(NTOH, TOH, atmos.temperature(k));
-            t_index = (double)index2 +
-                        (atmos.temperature(k) - TOH[index2]) / (TOH[index2 + 1] - TOH[index2]);
+            if (index2 == NTOH - 1)
+            {
+                t_index = (double)index2;
+            }
+            else
+            {
+                t_index = (double)index2 +
+                            (atmos.temperature(k) - TOH[index2]) / (TOH[index2 + 1] - TOH[index2]);
+            }
 
             kappa = exp(C::Log10 * bilinear(NTOH, NEOH, OH_cross[0], t_index, e_index)) *
                     square(C::CM_TO_M);
@@ -1233,7 +1249,16 @@ bool CH_bf_opac(const Atmosphere& atmos, f64 lambda, F64View CH, F64View chi, F6
     // auto it = std::upper_bound(ECH, last, Eev) - 1;
     // index = it - ECH;
     index = hunt(NECH, ECH, Eev);
-    e_index = (double)index + (Eev - ECH[index]) / (ECH[index + 1] - ECH[index]);
+    // NOTE(cmo): Eev can equal the final table entry, which hunt maps to the
+    // final index.
+    if (index == NECH - 1)
+    {
+        e_index = (double)index;
+    }
+    else
+    {
+        e_index = (double)index + (Eev - ECH[index]) / (ECH[index + 1] - ECH[index]);
+    }
 
     hc_kla = C::HC / (C::KBoltzmann * C::NM_TO_M * lambda);
     twohnu3_c2 = (2.0 * C::HC) / cube(C::NM_TO_M * lambda);
@@ -1248,8 +1273,15 @@ bool CH_bf_opac(const Atmosphere& atmos, f64 lambda, F64View CH, F64View chi, F6
             // auto it = std::upper_bound(TCH, last, atmos.temperature(k));
             // index2 = it - TCH;
             index2 = hunt(NTCH, TCH, atmos.temperature(k));
-            t_index = (double)index2 +
-                        (atmos.temperature(k) - TCH[index2]) / (TCH[index2 + 1] - TCH[index2]);
+            if (index2 == NTCH - 1)
+            {
+                t_index = (double)index2;
+            }
+            else
+            {
+                t_index = (double)index2 +
+                            (atmos.temperature(k) - TCH[index2]) / (TCH[index2 + 1] - TCH[index2]);
+            }
 
             kappa = exp(C::Log10 * bilinear(NTCH, NECH, CH_cross[0], t_index, e_index)) *
                     square(C::CM_TO_M);
