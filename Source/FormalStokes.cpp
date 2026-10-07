@@ -426,13 +426,16 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ, bool upOnly, cons
     const int Nrays = atmos.Nrays;
     const f64 inv2root2 = 1.0 / (2.0 * sqrt(2.0));
     F64View J = spect.J(la);
+    JDag = J;
+    if (J20)
+    {
+        J20Dag = J20(la);
+    }
     if (updateJ)
     {
-        JDag = spect.J(la);
         J.fill(0.0);
         if (J20)
         {
-            J20Dag = J20(la);
             J20(la).fill(0.0);
         }
     }
@@ -617,9 +620,12 @@ f64 stokes_fs_core(StokesCoreData& data, int la, bool updateJ, bool upOnly, cons
                         params
                     );
                     spect.I(la, mu, 0) = I(0, 0);
-                    spect.Quv(0, la, mu, 0) = I(1, 0);
-                    spect.Quv(1, la, mu, 0) = I(2, 0);
-                    spect.Quv(2, la, mu, 0) = I(3, 0);
+                    // NOTE(cmo): The unpolarised fallback only fills I(0), so
+                    // the other rows hold stale data from a previous solution.
+                    for (int n = 0; n < 3; ++n)
+                    {
+                        spect.Quv(n, la, mu, 0) = polarisedFrequency ? I(n + 1, 0) : 0.0;
+                    }
                 } break;
 
                 default:
