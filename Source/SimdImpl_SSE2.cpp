@@ -156,7 +156,7 @@ uv_opt<SimdType::SSE2>(Transition* t, int la, int mu, bool toObs,
         }
         for (; k < Nspace; ++k)
         {
-            Vij(k) = hc_4pi * t->Bij * p(k);
+            Vij(k) = hnu_4pi * t->Bij * p(k);
             Vji(k) = t->gij(k) * Vij(k);
         }
         // NOTE(cmo): Do the HPRD linear interpolation on rho here
