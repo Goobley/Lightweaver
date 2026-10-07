@@ -934,9 +934,9 @@ class Atmosphere:
                 vlos = vz
         elif vz is not None:
             raise ValueError("Cannot set both vlos and vz (they are aliases).")
-        vz = vlos
         vlos = (vlos << u.m / u.s).value
         check_shape(vlos, 'vlos')
+        vz = vlos
         if vturb is None:
             vturb = np.zeros_like(temperature)
         vturb = (vturb << u.m / u.s).value
@@ -957,10 +957,12 @@ class Atmosphere:
         if vx is not None:
             if vy is None:
                 raise ValueError("vx is set, vy must be also.")
+            vx = (vx << u.m / u.s).value
             check_shape(vx, "vx")
         if vy is not None:
             if vx is None:
                 raise ValueError("vy is set, vx must be also.")
+            vy = (vy << u.m / u.s).value
             check_shape(vy, "vy")
 
         if B is not None:
@@ -1143,7 +1145,7 @@ class Atmosphere:
         for k in range(depthScale.shape[0]):
             chi_c[k] = eos.cont_opacity(temperature[k], pgas[k], pe[k],
                                         np.array([5000.0])).item()
-        chi_c = (chi_c << u.Unit('cm')).to('m').value
+        chi_c = (chi_c << u.Unit('cm-1')).to('m-1').value
 
         # NOTE(cmo): We should now have a uniform minimum set of data (other
         # than the scale type), allowing us to simply convert between the
@@ -1171,7 +1173,7 @@ class Atmosphere:
                 nHTot = cast(np.ndarray, nHTot)
                 ne = cast(np.ndarray, ne)
 
-                cmass[0] = ((nHTot[0] * abundance.massPerH + ne[0])
+                cmass[0] = ((nHTot[0] * abundance.totalAbundance + ne[0])
                             * (Const.KBoltzmann * temperature[0] / 10**logG))
                 tau_ref[0] = 0.5 * chi_c[0] * (height[0] - height[1])
                 if tau_ref[0] > 1.0:
@@ -1191,7 +1193,7 @@ class Atmosphere:
                 for k in range(1, Nspace):
                     height[k] = height[k-1] - 2.0 * ((tau_ref[k] - tau_ref[k-1])
                                                     / (chi_c[k-1] + chi_c[k]))
-                    cmass[k] = cmass[k-1] + 0.5 * ((chi_c[k-1] + chi_c[k])
+                    cmass[k] = cmass[k-1] + 0.5 * ((rhoSI[k-1] + rhoSI[k])
                                                    * (height[k-1] - height[k]))
 
                 hTau1 = np.interp(1.0, tau_ref, height)
@@ -1321,10 +1323,16 @@ class Atmosphere:
         if np.any((height[:-1] - height[1:]) < 0.0):
             raise ValueError("Height should be decreasing with index (top -> bottom).")
         temperature = (temperature << u.K).value
+        if vx is None:
+            vx = np.zeros_like(temperature)
         vx = (vx << u.m / u.s).value
         if vy is not None:
             vy = (vy << u.m / u.s).value
+        if vz is None:
+            vz = np.zeros_like(temperature)
         vz = (vz << u.m / u.s).value
+        if vturb is None:
+            vturb = np.zeros_like(temperature)
         vturb = (vturb << u.m / u.s).value
         if ne is not None:
             ne = (ne << u.m**(-3)).value
@@ -1372,7 +1380,7 @@ class Atmosphere:
 
         flatHeight = view_flatten(height)
         flatTemperature = view_flatten(temperature)
-        Nspace = flatHeight.shape[0]
+        Nspace = flatTemperature.shape[0]
         if nHTot is None and ne is not None:
             if verbose:
                 print('Setting nHTot from electron pressure.')
@@ -1496,7 +1504,17 @@ class Atmosphere:
         if self.structure.vx.size > 0  and self.structure.vy.size > 0:
             n_dim_effective = 3
         if n_dim_effective == 1:
-            if Nrays is not None and mu is None:
+            if mu is not None:
+                if wmu is None:
+                    raise ValueError('Must provide wmu when providing mu')
+                if Nrays is not None and Nrays != len(mu):
+                    raise ValueError('mu must be Nrays long if Nrays is provided')
+                if len(mu) != len(wmu):
+                    raise ValueError('mu and wmu must be the same shape')
+
+                self.muz = np.array(mu, dtype=np.float64)
+                self.wmu = np.array(wmu, dtype=np.float64)
+            elif Nrays is not None:
                 if Nrays >= 1:
                     x, w = leggauss(Nrays)
                     mid, halfWidth = 0.5, 0.5
@@ -1509,16 +1527,8 @@ class Atmosphere:
                     self.wmu = w
                 else:
                     raise ValueError('Unsupported Nrays=%d' % Nrays)
-            elif Nrays is not None and mu is not None:
-                if wmu is None:
-                    raise ValueError('Must provide wmu when providing mu')
-                if Nrays != len(mu):
-                    raise ValueError('mu must be Nrays long if Nrays is provided')
-                if len(mu) != len(wmu):
-                    raise ValueError('mu and wmu must be the same shape')
-
-                self.muz = np.array(mu, dtype=np.float64)
-                self.wmu = np.array(wmu, dtype=np.float64)
+            else:
+                raise ValueError('Must provide either Nrays, or mu and wmu')
 
             self.muy = np.zeros_like(self.muz)
             self.mux = np.sqrt(1.0 - self.muz**2)
