@@ -583,20 +583,20 @@ class ScaledExponentBroadening(StandardLineBroadener):
         '''
         result = np.ones_like(atmos.temperature)
 
-        if self.temperatureExp > 0.0:
+        if self.temperatureExp != 0.0:
             if self.temperatureExp == 1.0:
                 result *= atmos.temperature
             else:
                 result *= atmos.temperature**self.temperatureExp
 
-        if self.hydrogenExp > 0.0:
+        if self.hydrogenExp != 0.0:
             nHGround = eqPops['H'][0, :]
             if self.hydrogenExp == 1.0:
                 result *= nHGround
             else:
                 result *= nHGround**self.hydrogenExp
 
-        if self.electronExp > 0.0:
+        if self.electronExp != 0.0:
             if self.electronExp == 1.0:
                 result *= atmos.ne
             else:
