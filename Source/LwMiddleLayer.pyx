@@ -757,7 +757,7 @@ cdef class LwAtmosphere:
                                                            self.Nwave, Nrays, Nbcy,
                                                            BcIdxs(&yUpperIdxs[0,0],
                                                                   yUpperIdxs.shape[0],
-                                                                  yLowerIdxs.shape[1]))
+                                                                  yUpperIdxs.shape[1]))
         cdef np.int32_t[:,::1] zLowerIdxs = self.pyAtmos.zLowerBc.indexVector
         self.atmos.zLowerBc = AtmosphericBoundaryCondition(BC_to_enum(s.zLowerBc),
                                                            self.Nwave, Nrays, Nbcz,
