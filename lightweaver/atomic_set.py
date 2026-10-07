@@ -1094,7 +1094,8 @@ class RadiativeSet:
 
 def hminus_pops(atmos: Atmosphere, hPops: AtomicState) -> np.ndarray:
     '''
-    Compute the H- ion populations for a given atmosphere
+    Compute the H- ion populations for a given atmosphere, in Saha
+    equilibrium with the neutral hydrogen population.
 
     Parameters
     ----------
@@ -1114,7 +1115,8 @@ def hminus_pops(atmos: Atmosphere, hPops: AtomicState) -> np.ndarray:
 
     PhiHmin = 0.25 * (CI / atmos.temperature)**1.5 \
                 * np.exp(Const.E_ION_HMIN / (Const.KBoltzmann * atmos.temperature))
-    HminPops = atmos.ne * np.sum(hPops.n, axis=0) * PhiHmin
+    neutral = np.array([l.stage == 0 for l in hPops.model.levels])
+    HminPops = atmos.ne * np.sum(hPops.n[neutral], axis=0) * PhiHmin
 
     return HminPops
 
@@ -1277,7 +1279,7 @@ def chemical_equilibrium_fixed_ne(atmos: Atmosphere, molecules: MolecularTable,
                 if atomPop.pops is not None:
                     atomPop.pops[:, k] *= fraction
 
-        HminPops[k] = atmos.ne[k] * n[0] * PhiHmin
+        HminPops[k] = fHmin * n[0]
 
         for i, pop in enumerate(molPops):
             pop[k] = n[Nnuclei + i]
