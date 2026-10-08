@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       # NOTE(cmo): fetch-tags is broken when this is triggered by a tag...
       # https://github.com/actions/checkout/issues/1467
       with:
@@ -22,7 +22,7 @@ jobs:
     - name: Fetch tags
       run: git fetch --tags
 
-    - uses: actions/setup-python@v5
+    - uses: actions/setup-python@v7
       with:
         python-version: '3.12'
 
@@ -45,7 +45,7 @@ jobs:
     - name: Pack docs
       run: tar -cvf docs.tar docs/_build/html
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       with:
         name: docs
         path: docs.tar
@@ -55,11 +55,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         ref: gh-pages
 
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v7
       with:
         name: docs
         path: NewDocs
