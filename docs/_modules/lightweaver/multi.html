@@ -47,6 +47,7 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../auto_examples/index.html">Lightweaver Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migrating-to-1.0.html">Migrating to Lightweaver 1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../lightweaver-api.html">Lightweaver API Documentation</a></li>
 </ul>
 
@@ -82,26 +83,29 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">astropy.units</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">u</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">lightweaver.constants</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">C</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.atmosphere</span><span class="w"> </span><span class="kn">import</span> <span class="n">Atmosphere</span><span class="p">,</span> <span class="n">ScaleType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.deprecation</span><span class="w"> </span><span class="kn">import</span> <span class="n">deprecated_names</span>
 
 
 <div class="viewcode-block" id="MultiMetadata">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.multi.MultiMetadata">[docs]</a>
+<span class="nd">@deprecated_names</span>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">MultiMetadata</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">'''</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Metadata that is stored in a MULTI atmosphere, but doesn't really belong</span>
 <span class="sd">    in a Lightweaver atmosphere.</span>
-<span class="sd">    '''</span>
+<span class="sd">    """</span>
+
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">logG</span><span class="p">:</span> <span class="nb">float</span></div>
+    <span class="n">log_g</span><span class="p">:</span> <span class="nb">float</span></div>
+
 
 
 <div class="viewcode-block" id="read_multi_atmos">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.multi.read_multi_atmos">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">read_multi_atmos</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">MultiMetadata</span><span class="p">,</span> <span class="n">Atmosphere</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">'''</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Load a MULTI atmosphere definition from a file for use in Lightweaver.</span>
 
 <span class="sd">    Parameters</span>
@@ -121,24 +125,24 @@
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
 <span class="sd">        if file isn't found, or cannot be parsed correctly.</span>
-<span class="sd">    '''</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
     <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Atmosphere file not found (</span><span class="si">%s</span><span class="s1">)'</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_line</span><span class="p">(</span><span class="n">commentPattern</span><span class="o">=</span><span class="sa">r</span><span class="s1">'^\s*\*'</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_line</span><span class="p">(</span><span class="n">comment_pattern</span><span class="o">=</span><span class="sa">r</span><span class="s1">'^\s*\*'</span><span class="p">):</span>
         <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">line</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">commentPattern</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">comment_pattern</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="n">atmosName</span> <span class="o">=</span> <span class="n">get_line</span><span class="p">()</span>
 
     <span class="n">scaleStr</span> <span class="o">=</span> <span class="n">get_line</span><span class="p">()</span>
-    <span class="n">logG</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">get_line</span><span class="p">())</span> <span class="o">-</span> <span class="mi">2</span> <span class="c1"># For conversion to log[m.s^-2]</span>
+    <span class="n">log_g</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">get_line</span><span class="p">())</span> <span class="o">-</span> <span class="mi">2</span>  <span class="c1"># For conversion to log[m.s^-2]</span>
     <span class="n">Nspace</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">get_line</span><span class="p">())</span>
 
     <span class="n">dscale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Nspace</span><span class="p">)</span>
@@ -175,22 +179,24 @@
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">Nspace</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Hydrogen populations not supplied!'</span><span class="p">)</span>
 
-    <span class="n">hPops</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">6</span><span class="p">,</span> <span class="n">Nspace</span><span class="p">))</span>
+    <span class="n">h_pops</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">6</span><span class="p">,</span> <span class="n">Nspace</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nspace</span><span class="p">):</span>
         <span class="n">vals</span> <span class="o">=</span> <span class="n">get_line</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
         <span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vals</span><span class="p">]</span>
-        <span class="n">hPops</span><span class="p">[:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span>
+        <span class="n">h_pops</span><span class="p">[:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span>
 
-    <span class="n">hPops</span> <span class="o">=</span> <span class="p">(</span><span class="n">hPops</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">'cm-3'</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'m-3'</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">h_pops</span> <span class="o">=</span> <span class="p">(</span><span class="n">h_pops</span> <span class="o">&lt;&lt;</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">'cm-3'</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'m-3'</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
 
-    <span class="n">meta</span> <span class="o">=</span> <span class="n">MultiMetadata</span><span class="p">(</span><span class="n">atmosName</span><span class="p">,</span> <span class="n">logG</span><span class="p">)</span>
-    <span class="n">atmos</span> <span class="o">=</span> <span class="n">Atmosphere</span><span class="o">.</span><span class="n">make_1d</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">scaleType</span><span class="p">,</span>
-                               <span class="n">depthScale</span><span class="o">=</span><span class="n">dscale</span><span class="p">,</span>
-                               <span class="n">temperature</span><span class="o">=</span><span class="n">temp</span><span class="p">,</span>
-                               <span class="n">vlos</span><span class="o">=</span><span class="n">vlos</span><span class="p">,</span>
-                               <span class="n">vturb</span><span class="o">=</span><span class="n">vturb</span><span class="p">,</span>
-                               <span class="n">ne</span><span class="o">=</span><span class="n">ne</span><span class="p">,</span>
-                               <span class="n">hydrogenPops</span><span class="o">=</span><span class="n">hPops</span><span class="p">)</span>
+    <span class="n">meta</span> <span class="o">=</span> <span class="n">MultiMetadata</span><span class="p">(</span><span class="n">atmosName</span><span class="p">,</span> <span class="n">log_g</span><span class="p">)</span>
+    <span class="n">atmos</span> <span class="o">=</span> <span class="n">Atmosphere</span><span class="o">.</span><span class="n">make_1d</span><span class="p">(</span>
+        <span class="n">scale</span><span class="o">=</span><span class="n">scaleType</span><span class="p">,</span>
+        <span class="n">depth_scale</span><span class="o">=</span><span class="n">dscale</span><span class="p">,</span>
+        <span class="n">temperature</span><span class="o">=</span><span class="n">temp</span><span class="p">,</span>
+        <span class="n">vlos</span><span class="o">=</span><span class="n">vlos</span><span class="p">,</span>
+        <span class="n">vturb</span><span class="o">=</span><span class="n">vturb</span><span class="p">,</span>
+        <span class="n">ne</span><span class="o">=</span><span class="n">ne</span><span class="p">,</span>
+        <span class="n">hydrogen_pops</span><span class="o">=</span><span class="n">h_pops</span><span class="p">,</span>
+    <span class="p">)</span>
 
     <span class="k">return</span> <span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">atmos</span><span class="p">)</span></div>
 

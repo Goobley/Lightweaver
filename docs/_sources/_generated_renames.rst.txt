@@ -1,0 +1,371 @@
+.. list-table::
+   :header-rows: 1
+
+   * - Old name
+     - New name
+   * - ``abundanceData``
+     - ``abundance_data``
+   * - ``abundDex``
+     - ``abund_dex``
+   * - ``activeAtoms``
+     - ``active_atoms``
+   * - ``activeSet``
+     - ``active_set``
+   * - ``activeTrans``
+     - ``active_trans``
+   * - ``activeWavelengths``
+     - ``active_wavelengths``
+   * - ``aDamp``
+     - ``a_damp``
+   * - ``alphaGrid``
+     - ``alpha_grid``
+   * - ``atomicAbundance``
+     - ``atomic_abundance``
+   * - ``atomicModel``
+     - ``atomic_model``
+   * - ``atomicPops``
+     - ``atomic_pops``
+   * - ``avgMass``
+     - ``avg_mass``
+   * - ``backgroundProvider``
+     - ``background_provider``
+   * - ``barklemVals``
+     - ``barklem_vals``
+   * - ``blueIdx``
+     - ``blue_idx``
+   * - ``chiB``
+     - ``chi_B``
+   * - ``chiIn``
+     - ``chi_in`` (no deprecated alias)
+   * - ``chunkSize``
+     - ``chunk_size``
+   * - ``computeDiff``
+     - ``compute_diff`` (no deprecated alias)
+   * - ``configPath``
+     - ``config_path``
+   * - ``conserveCharge``
+     - ``conserve_charge``
+   * - ``convertScales``
+     - ``convert_scales``
+   * - ``cosGamma``
+     - ``cos_gamma``
+   * - ``crswCallback``
+     - ``crsw_callback``
+   * - ``crswDone``
+     - ``crsw_done``
+   * - ``cStark23``
+     - ``c_stark_23``
+   * - ``deltaLambda``
+     - ``delta_lambda``
+   * - ``depthData``
+     - ``depth_data``
+   * - ``depthScale``
+     - ``depth_scale``
+   * - ``detailedAtomPrd``
+     - ``detailed_atom_prd``
+   * - ``detailedAtoms``
+     - ``detailed_atoms``
+   * - ``detailedStaticSet``
+     - ``detailed_static_set``
+   * - ``dJMax``
+     - ``dJ_max``
+   * - ``dJMaxIdx``
+     - ``dJ_max_idx``
+   * - ``dJPrdMax``
+     - ``dJ_prd_max``
+   * - ``dJPrdMaxIdx``
+     - ``dJ_prd_max_idx``
+   * - ``dNeMax``
+     - ``dne_max``
+   * - ``dNeMaxIdx``
+     - ``dne_max_idx``
+   * - ``dPops``
+     - ``dpops``
+   * - ``dPopsMax``
+     - ``dpops_max``
+   * - ``dPopsMaxIdx``
+     - ``dpops_max_idx``
+   * - ``dRho``
+     - ``drho``
+   * - ``dRhoMax``
+     - ``drho_max``
+   * - ``dRhoMaxIdx``
+     - ``drho_max_idx``
+   * - ``electronExp``
+     - ``electron_exp``
+   * - ``elementCount``
+     - ``element_count``
+   * - ``eqcCoeffs``
+     - ``eqc_coeffs``
+   * - ``eqPops``
+     - ``eq_pops``
+   * - ``etaIn``
+     - ``eta_in`` (no deprecated alias)
+   * - ``extendGridNm``
+     - ``extend_grid_nm``
+   * - ``extraParams``
+     - ``extra_params``
+   * - ``extraWavelengths``
+     - ``extra_wavelengths``
+   * - ``fdCollisionRates``
+     - ``fd_collision_rates``
+   * - ``filePath``
+     - ``file_path``
+   * - ``fillDiagonal``
+     - ``fill_diagonal``
+   * - ``fixCollisionalRates``
+     - ``fix_collisional_rates``
+   * - ``formalSolver``
+     - ``formal_solver``
+   * - ``formationTempRange``
+     - ``formation_temp_range``
+   * - ``fsIterScheme``
+     - ``fs_iter_scheme``
+   * - ``fsIterSchemeProperties``
+     - ``fs_iter_scheme_properties`` (no deprecated alias)
+   * - ``gammaB``
+     - ``gamma_B``
+   * - ``gLandeEff``
+     - ``g_lande_eff``
+   * - ``HminPops``
+     - ``hmin_pops``
+   * - ``hOnly``
+     - ``h_only``
+   * - ``hPops``
+     - ``h_pops``
+   * - ``hydrogenExp``
+     - ``hydrogen_exp``
+   * - ``hydrogenPops``
+     - ``hydrogen_pops``
+   * - ``iLevel``
+     - ``i_level``
+   * - ``implLibs``
+     - ``impl_libs``
+   * - ``inConstructor``
+     - ``in_constructor`` (no deprecated alias)
+   * - ``indexVector``
+     - ``index_vector``
+   * - ``initSol``
+     - ``init_sol``
+   * - ``initVal``
+     - ``init_val``
+   * - ``interpFn``
+     - ``interp_fn``
+   * - ``ionPot``
+     - ``ion_pot``
+   * - ``isotopeProportions``
+     - ``isotope_proportions``
+   * - ``jLevel``
+     - ``j_level``
+   * - ``JTol``
+     - ``J_tol``
+   * - ``JUpdate``
+     - ``J_update``
+   * - ``kuruczPfPath``
+     - ``kurucz_pf_path``
+   * - ``lambdaEdge``
+     - ``lambda_edge``
+   * - ``lambdaIterate``
+     - ``lambda_iterate``
+   * - ``lambdaReference``
+     - ``lambda_reference``
+   * - ``logG``
+     - ``log_g``
+   * - ``lowerBc``
+     - ``lower_bc``
+   * - ``lowerThreshold``
+     - ``lower_threshold``
+   * - ``lsCoupling``
+     - ``LS_coupling``
+   * - ``massData``
+     - ``mass_data``
+   * - ``massPerH``
+     - ``mass_per_h``
+   * - ``maxIter``
+     - ``max_iter``
+   * - ``maxPrdSubIter``
+     - ``max_prd_sub_iter``
+   * - ``minLambda``
+     - ``min_lambda``
+   * - ``minWavelength``
+     - ``min_wavelength``
+   * - ``modelPops``
+     - ``model_pops``
+   * - ``molecularPops``
+     - ``molecular_pops``
+   * - ``molecularTable``
+     - ``molecular_table``
+   * - ``nameMapping``
+     - ``name_mapping``
+   * - ``nEff``
+     - ``n_eff``
+   * - ``ngAccelerated``
+     - ``ng_accelerated``
+   * - ``ngOptions``
+     - ``ng_options``
+   * - ``ngUpdate``
+     - ``ng_update``
+   * - ``nHTot``
+     - ``nh_tot``
+   * - ``NlambdaGen``
+     - ``Nlambda_gen``
+   * - ``nlteStartingPops``
+     - ``nlte_starting_pops``
+   * - ``NmaxIter``
+     - ``max_iter``
+   * - ``NprdSubIter``
+     - ``Nprd_sub_iter``
+   * - ``NprdTrans``
+     - ``Nprd_trans``
+   * - ``nrHOnly``
+     - ``nr_h_only``
+   * - ``nStar``
+     - ``n_star``
+   * - ``nTotal``
+     - ``n_total``
+   * - ``outUnits``
+     - ``out_units``
+   * - ``overlyingContinuumLevel``
+     - ``overlying_continuum_level``
+   * - ``passiveAtoms``
+     - ``passive_atoms``
+   * - ``passiveSet``
+     - ``passive_set``
+   * - ``PeTop``
+     - ``Pe_top``
+   * - ``pfCoeffs``
+     - ``pf_coeffs``
+   * - ``phiQ``
+     - ``phi_Q``
+   * - ``phiU``
+     - ``phi_U``
+   * - ``phiV``
+     - ``phi_V``
+   * - ``popsOnly``
+     - ``pops_only``
+   * - ``popsTol``
+     - ``pops_tol``
+   * - ``popsUpdate``
+     - ``pops_update``
+   * - ``prdIterTol``
+     - ``prd_iter_tol``
+   * - ``prdUpdate``
+     - ``prd_update``
+   * - ``preserveProfiles``
+     - ``preserve_profiles``
+   * - ``prevNeRatio``
+     - ``prev_ne_ratio``
+   * - ``prevSpect``
+     - ``prev_spect``
+   * - ``prevState``
+     - ``prev_state``
+   * - ``prevTimePops``
+     - ``prev_time_pops``
+   * - ``printInterval``
+     - ``print_interval``
+   * - ``psiQ``
+     - ``psi_Q``
+   * - ``psiU``
+     - ``psi_U``
+   * - ``psiV``
+     - ``psi_V``
+   * - ``pyAtmos``
+     - ``py_atmos``
+   * - ``qCore``
+     - ``q_core``
+   * - ``qWing``
+     - ``q_wing``
+   * - ``radiativeRates``
+     - ``radiative_rates``
+   * - ``radSet``
+     - ``rad_set``
+   * - ``redIdx``
+     - ``red_idx``
+   * - ``refinePrd``
+     - ``refine_prd``
+   * - ``reproduceOldRHBug``
+     - ``reproduce_old_RH_bug``
+   * - ``returnCtx``
+     - ``return_ctx``
+   * - ``returnFinalConvergence``
+     - ``return_final_convergence``
+   * - ``rhoPrd``
+     - ``rho_prd``
+   * - ``rhoTol``
+     - ``rho_tol``
+   * - ``scaIn``
+     - ``sca_in`` (no deprecated alias)
+   * - ``sortedAtoms``
+     - ``sorted_atoms``
+   * - ``specInt``
+     - ``spec_int``
+   * - ``tauRef``
+     - ``tau_ref``
+   * - ``temperatureExp``
+     - ``temperature_exp``
+   * - ``tempRange``
+     - ``temp_range``
+   * - ``timeDependentData``
+     - ``time_dependent_data``
+   * - ``toObs``
+     - ``to_obs``
+   * - ``totalAbundance``
+     - ``total_abundance``
+   * - ``transId``
+     - ``trans_id``
+   * - ``transModel``
+     - ``trans_model``
+   * - ``transWavelengths``
+     - ``trans_wavelengths``
+   * - ``update_lte_atoms_Hmin_pops``
+     - ``update_lte_atoms_hmin_pops``
+   * - ``update_nTotal``
+     - ``update_n_total``
+   * - ``updateBcs``
+     - ``update_bcs``
+   * - ``updatedJ``
+     - ``updated_J``
+   * - ``updatedJPrd``
+     - ``updated_J_prd``
+   * - ``updatedNe``
+     - ``updated_ne``
+   * - ``updatedPops``
+     - ``updated_pops``
+   * - ``updatedRho``
+     - ``updated_rho``
+   * - ``updateJ``
+     - ``update_J``
+   * - ``updateTotals``
+     - ``update_totals``
+   * - ``upOnly``
+     - ``up_only``
+   * - ``upperBc``
+     - ``upper_bc``
+   * - ``vBroad``
+     - ``v_broad``
+   * - ``vlosMu``
+     - ``vlos_mu``
+   * - ``vMicroChar``
+     - ``v_micro_char``
+   * - ``vRel35H``
+     - ``v_rel_35_h``
+   * - ``vRel35He``
+     - ``v_rel_35_he``
+   * - ``warmUp``
+     - ``warm_up``
+   * - ``wavelengthGrid``
+     - ``wavelength_grid``
+   * - ``writeConfig``
+     - ``write_config``
+   * - ``xLowerBc``
+     - ``x_lower_bc``
+   * - ``xUpperBc``
+     - ``x_upper_bc``
+   * - ``yLowerBc``
+     - ``y_lower_bc``
+   * - ``yUpperBc``
+     - ``y_upper_bc``
+   * - ``zLowerBc``
+     - ``z_lower_bc``
+   * - ``zUpperBc``
+     - ``z_upper_bc``

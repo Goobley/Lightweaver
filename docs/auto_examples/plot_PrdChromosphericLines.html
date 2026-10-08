@@ -25,7 +25,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Time-dependent Example" href="plot_JudgeDynamicValidation.html" />
-    <link rel="prev" title="NLTE Ca II in a 2D slab with periodic boundaries" href="plot_2dSlab.html" /> 
+    <link rel="prev" title="Contribution function and formation height of 854.2" href="plot_ContributionFunction.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,13 +50,14 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Lightweaver Examples Gallery</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="plot_ContributionFunction.html">Contribution function and formation height of 854.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_2dSlab.html">NLTE Ca II in a 2D slab with periodic boundaries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_ContributionFunction.html">Contribution function and formation height of 854.2</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">PRD synthesis of Mg II k and Ca II K with a chromospheric flow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_JudgeDynamicValidation.html">Time-dependent Example</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_SimpleLineTest.html">Computing a simple NLTE 8542 line profile in a FAL C atmosphere</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../migrating-to-1.0.html">Migrating to Lightweaver 1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../lightweaver-api.html">Lightweaver API Documentation</a></li>
 </ul>
 
@@ -136,8 +137,7 @@ electron density alongside the populations of the active species.</p>
 </span>    <span class="n">rad_set</span><span class="o">.</span><span class="n">set_active</span><span class="p">(</span><span class="s1">'</span><span class="s1">H</span><span class="s1">'</span><span class="p">,</span> <span class="s1">'</span><span class="s1">Ca</span><span class="s1">'</span><span class="p">,</span> <span class="s1">'</span><span class="s1">Mg</span><span class="s1">'</span><span class="p">)</span><span class="w">
 </span>    <span class="n">spect</span> <span class="o">=</span> <span class="n">rad_set</span><span class="o">.</span><span class="n">compute_wavelength_grid</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span>    <span class="n">eq_pops</span> <span class="o">=</span> <span class="n">rad_set</span><span class="o">.</span><span class="n">compute_eq_pops</span><span class="p">(</span><span class="n">atmos</span><span class="p">)</span><span class="w">
-</span>    <span class="n">ctx</span> <span class="o">=</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class reference internal" href="../lightweaver-api.html#lightweaver.LwCompiled.LwContext" title="lightweaver.LwContext"><span class="n">lw</span><span class="o">.</span><span class="n">Context</span></a><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="n">spect</span><span class="p">,</span> <span class="n">eq_pops</span><span class="p">,</span> <span class="n">conserveCharge</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hprd</span><span class="o">=</span><span class="n">hprd</span><span class="p">,</span><span class="w">
-</span>                     <span class="n">Nthreads</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="w">
+</span>    <span class="n">ctx</span> <span class="o">=</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class reference internal" href="../lightweaver-api.html#lightweaver.LwCompiled.LwContext" title="lightweaver.LwContext"><span class="n">lw</span><span class="o">.</span><span class="n">Context</span></a><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="n">spect</span><span class="p">,</span> <span class="n">eq_pops</span><span class="p">,</span> <span class="n">conserve_charge</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hprd</span><span class="o">=</span><span class="n">hprd</span><span class="p">,</span> <span class="n">Nthreads</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="w">
 </span>    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span>    <span class="n">lw</span><span class="o">.</span><span class="n">iterate_ctx_se</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">prd</span><span class="o">=</span><span class="n">prd</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
 </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="s1">Converged in </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> s</span><span class="s1">'</span><span class="p">)</span><span class="w">
@@ -148,9 +148,9 @@ electron density alongside the populations of the active species.</p>
 </span><span class="n">ctx_prd</span> <span class="o">=</span> <span class="n">synthesise</span><span class="p">(</span><span class="n">prd</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
 </span><span class="n">ctx_hprd</span> <span class="o">=</span> <span class="n">synthesise</span><span class="p">(</span><span class="n">prd</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hprd</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Converged in 20.8 s
-Converged in 38.6 s
-Converged in 43.8 s
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Converged in 20.4 s
+Converged in 37.9 s
+Converged in 44.0 s
 </pre></div>
 </div>
 <p>Compute the emergent intensity at disk centre (mu = 1) on wavelength grids
@@ -161,10 +161,8 @@ around the lines (vacuum wavelengths, in nm).</p>
 </span><span class="n">wave_ca</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">ca_k</span> <span class="o">-</span> <span class="mf">0.06</span><span class="p">,</span> <span class="n">ca_k</span> <span class="o">+</span> <span class="mf">0.06</span><span class="p">,</span> <span class="mi">601</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span><span class="n">profiles</span> <span class="o">=</span> <span class="p">{</span><span class="p">}</span><span class="w">
-</span><span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">ctx</span> <span class="ow">in</span> <span class="p">[</span><span class="p">(</span><span class="s1">'</span><span class="s1">CRD</span><span class="s1">'</span><span class="p">,</span> <span class="n">ctx_crd</span><span class="p">)</span><span class="p">,</span> <span class="p">(</span><span class="s1">'</span><span class="s1">PRD (angle-averaged)</span><span class="s1">'</span><span class="p">,</span> <span class="n">ctx_prd</span><span class="p">)</span><span class="p">,</span><span class="w">
-</span>                   <span class="p">(</span><span class="s1">'</span><span class="s1">HPRD</span><span class="s1">'</span><span class="p">,</span> <span class="n">ctx_hprd</span><span class="p">)</span><span class="p">]</span><span class="p">:</span><span class="w">
-</span>    <span class="n">profiles</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-method reference internal" href="../lightweaver-api.html#lightweaver.LwCompiled.LwContext.compute_rays" title="lightweaver.LwContext.compute_rays"><span class="n">ctx</span><span class="o">.</span><span class="n">compute_rays</span></a><span class="p">(</span><span class="n">wave_mg</span><span class="p">,</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]</span><span class="p">)</span><span class="p">,</span><span class="w">
-</span>                       <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-method reference internal" href="../lightweaver-api.html#lightweaver.LwCompiled.LwContext.compute_rays" title="lightweaver.LwContext.compute_rays"><span class="n">ctx</span><span class="o">.</span><span class="n">compute_rays</span></a><span class="p">(</span><span class="n">wave_ca</span><span class="p">,</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">ctx</span> <span class="ow">in</span> <span class="p">[</span><span class="p">(</span><span class="s1">'</span><span class="s1">CRD</span><span class="s1">'</span><span class="p">,</span> <span class="n">ctx_crd</span><span class="p">)</span><span class="p">,</span> <span class="p">(</span><span class="s1">'</span><span class="s1">PRD (angle-averaged)</span><span class="s1">'</span><span class="p">,</span> <span class="n">ctx_prd</span><span class="p">)</span><span class="p">,</span> <span class="p">(</span><span class="s1">'</span><span class="s1">HPRD</span><span class="s1">'</span><span class="p">,</span> <span class="n">ctx_hprd</span><span class="p">)</span><span class="p">]</span><span class="p">:</span><span class="w">
+</span>    <span class="n">profiles</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-method reference internal" href="../lightweaver-api.html#lightweaver.LwCompiled.LwContext.compute_rays" title="lightweaver.LwContext.compute_rays"><span class="n">ctx</span><span class="o">.</span><span class="n">compute_rays</span></a><span class="p">(</span><span class="n">wave_mg</span><span class="p">,</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]</span><span class="p">)</span><span class="p">,</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-method reference internal" href="../lightweaver-api.html#lightweaver.LwCompiled.LwContext.compute_rays" title="lightweaver.LwContext.compute_rays"><span class="n">ctx</span><span class="o">.</span><span class="n">compute_rays</span></a><span class="p">(</span><span class="n">wave_ca</span><span class="p">,</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
 <p>Plot the profiles. PRD produces narrower emission peaks and much darker
 inner wings than CRD. Angle-averaged PRD does not account for the Doppler
@@ -183,7 +181,7 @@ example.</p>
 </span>    <span class="n">a</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<img src="../_images/sphx_glr_plot_PrdChromosphericLines_001.png" srcset="../_images/sphx_glr_plot_PrdChromosphericLines_001.png" alt="Mg II k, Ca II K" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 44.302 seconds)</p>
+<img src="../_images/sphx_glr_plot_PrdChromosphericLines_001.png" srcset="../_images/sphx_glr_plot_PrdChromosphericLines_001.png" alt="Mg II k, Ca II K" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 43.494 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-plot-prdchromosphericlines-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/8a7b88c18c2c2b01fcdf79622e668952/plot_PrdChromosphericLines.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_PrdChromosphericLines.ipynb</span></code></a></p>
@@ -202,7 +200,7 @@ example.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="plot_2dSlab.html" class="btn btn-neutral float-left" title="NLTE Ca II in a 2D slab with periodic boundaries" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="plot_ContributionFunction.html" class="btn btn-neutral float-left" title="Contribution function and formation height of 854.2" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="plot_JudgeDynamicValidation.html" class="btn btn-neutral float-right" title="Time-dependent Example" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

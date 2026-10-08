@@ -130,10 +130,24 @@ lightweaver.utils module
    :members:
    :show-inheritance:
 
-lightweaver.witt module
------------------------
+lightweaver.wittmann module
+---------------------------
 
-.. automodule:: lightweaver.witt
+.. automodule:: lightweaver.wittmann
+   :members:
+   :show-inheritance:
+
+lightweaver.deprecation module
+------------------------------
+
+.. automodule:: lightweaver.deprecation
+   :members:
+   :show-inheritance:
+
+lightweaver.migrate module
+--------------------------
+
+.. automodule:: lightweaver.migrate
    :members:
    :show-inheritance:
 

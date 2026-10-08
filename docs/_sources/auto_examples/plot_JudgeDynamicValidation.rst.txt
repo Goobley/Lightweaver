@@ -28,16 +28,32 @@ Herein we also conserve charge.
 
 Judge (2017): ApJ 851, 5
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-19
+.. GENERATED FROM PYTHON SOURCE LINES 12-35
 
 .. code-block:: Python
 
-    from lightweaver.fal import Falc82
-    from lightweaver.rh_atoms import  H_4_atom, C_atom, O_atom, Si_atom, Al_atom, CaII_atom, Fe_atom, He_atom, MgII_atom, N_atom, Na_atom, S_atom
-    import matplotlib.pyplot as plt
+
     import time
+
+    import matplotlib.pyplot as plt
     import numpy as np
+
     import lightweaver as lw
+    from lightweaver.fal import Falc82
+    from lightweaver.rh_atoms import (
+        Al_atom,
+        C_atom,
+        CaII_atom,
+        Fe_atom,
+        H_4_atom,
+        He_atom,
+        MgII_atom,
+        N_atom,
+        Na_atom,
+        O_atom,
+        S_atom,
+        Si_atom,
+    )
 
 
 
@@ -46,23 +62,37 @@ Judge (2017): ApJ 851, 5
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 20-21
+.. GENERATED FROM PYTHON SOURCE LINES 36-37
 
 Set up the standard FAL C 82 point initial atmosphere.
 
-.. GENERATED FROM PYTHON SOURCE LINES 21-31
+.. GENERATED FROM PYTHON SOURCE LINES 37-61
 
 .. code-block:: Python
 
     atmos = Falc82()
     atmos.quadrature(5)
-    aSet = lw.RadiativeSet([H_4_atom(), C_atom(), O_atom(), Si_atom(), Al_atom(), CaII_atom(),\
-                            Fe_atom(), He_atom(), MgII_atom(), N_atom(), Na_atom(), S_atom()])
-    aSet.set_active('H')
-    spect = aSet.compute_wavelength_grid()
+    rad_set = lw.RadiativeSet(
+        [
+            H_4_atom(),
+            C_atom(),
+            O_atom(),
+            Si_atom(),
+            Al_atom(),
+            CaII_atom(),
+            Fe_atom(),
+            He_atom(),
+            MgII_atom(),
+            N_atom(),
+            Na_atom(),
+            S_atom(),
+        ]
+    )
+    rad_set.set_active('H')
+    spect = rad_set.compute_wavelength_grid()
 
-    eqPops = aSet.iterate_lte_ne_eq_pops(atmos)
-    ctx = lw.Context(atmos, spect, eqPops, conserveCharge=True, Nthreads=1)
+    eq_pops = rad_set.iterate_lte_ne_eq_pops(atmos)
+    ctx = lw.Context(atmos, spect, eq_pops, conserve_charge=True, Nthreads=1)
 
 
 
@@ -71,11 +101,11 @@ Set up the standard FAL C 82 point initial atmosphere.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 32-33
+.. GENERATED FROM PYTHON SOURCE LINES 62-63
 
 Find the initial statistical equilibrium solution,
 
-.. GENERATED FROM PYTHON SOURCE LINES 33-38
+.. GENERATED FROM PYTHON SOURCE LINES 63-68
 
 .. code-block:: Python
 
@@ -95,26 +125,26 @@ Find the initial statistical equilibrium solution,
     -- Iteration 0:
     dJ = 1.00e+00
         (Lambda iterating background)
-    -- Iteration 21:
-    dJ = 1.24e-01
-        H delta = 7.7588e-02
-        ne delta = 1.4524e-02
-    -- Iteration 41:
-    dJ = 6.99e-02
-        H delta = 4.1925e-02
-        ne delta = 1.4192e-02
-    -- Iteration 61:
-    dJ = 4.54e-02
-        H delta = 2.8458e-02
-        ne delta = 1.0717e-02
-    -- Iteration 82:
-    dJ = 1.48e-02
-        H delta = 9.8328e-03
-        ne delta = 3.5766e-03
-    -- Iteration 103:
-    dJ = 2.88e-03
-        H delta = 1.9429e-03
-        ne delta = 6.9148e-04
+    -- Iteration 20:
+    dJ = 1.31e-01
+        H delta = 8.2190e-02
+        ne delta = 1.4624e-02
+    -- Iteration 40:
+    dJ = 7.09e-02
+        H delta = 4.2998e-02
+        ne delta = 1.4202e-02
+    -- Iteration 60:
+    dJ = 4.69e-02
+        H delta = 2.9309e-02
+        ne delta = 1.1031e-02
+    -- Iteration 80:
+    dJ = 1.69e-02
+        H delta = 1.1203e-02
+        ne delta = 4.0896e-03
+    -- Iteration 100:
+    dJ = 3.71e-03
+        H delta = 2.4946e-03
+        ne delta = 8.8968e-04
     --------------------------------------------------------------------------------
     Final Iteration: 111
     --------------------------------------------------------------------------------
@@ -122,7 +152,7 @@ Find the initial statistical equilibrium solution,
         H delta = 9.8678e-04
         ne delta = 3.4992e-04
     --------------------------------------------------------------------------------
-    Context converged to statistical equilibrium in 111 iterations after 1.11 s.
+    Context converged to statistical equilibrium in 111 iterations after 1.14 s.
     --------------------------------------------------------------------------------
     Achieved initial Stat Eq
 
@@ -131,19 +161,19 @@ Find the initial statistical equilibrium solution,
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 39-41
+.. GENERATED FROM PYTHON SOURCE LINES 69-71
 
 Simulation parameters, timestep, number of steps to run for, and how many
 times to attempt to solve the equations for convergence per step.
 
-.. GENERATED FROM PYTHON SOURCE LINES 41-46
+.. GENERATED FROM PYTHON SOURCE LINES 71-76
 
 .. code-block:: Python
 
     start = time.time()
     dt = 0.1
-    NtStep = 30
-    NsubStep = 100
+    Nt_step = 30
+    Nsub_step = 100
 
 
 
@@ -152,18 +182,18 @@ times to attempt to solve the equations for convergence per step.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 47-48
+.. GENERATED FROM PYTHON SOURCE LINES 77-78
 
 Perturb the atmospheric temperature structure like in the paper.
 
-.. GENERATED FROM PYTHON SOURCE LINES 48-53
+.. GENERATED FROM PYTHON SOURCE LINES 78-83
 
 .. code-block:: Python
 
-    prevT = np.copy(atmos.temperature)
+    prev_T = np.copy(atmos.temperature)
     for i in range(11, 31):
         di = (i - 20.0) / 3.0
-        atmos.temperature[i] *= 1.0 + 2.0 * np.exp(-di**2)
+        atmos.temperature[i] *= 1.0 + 2.0 * np.exp(-(di**2))
 
 
 
@@ -172,42 +202,42 @@ Perturb the atmospheric temperature structure like in the paper.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 54-55
+.. GENERATED FROM PYTHON SOURCE LINES 84-85
 
 Solve the problem
 
-.. GENERATED FROM PYTHON SOURCE LINES 55-87
+.. GENERATED FROM PYTHON SOURCE LINES 85-117
 
 .. code-block:: Python
 
-    hPops = [np.copy(eqPops['H'])]
-    subIters = []
-    for it in range(NtStep):
+    h_pops = [np.copy(eq_pops['H'])]
+    sub_iters = []
+    for it in range(Nt_step):
         # Recompute line profiles etc to account for changing electron density and temperature.
         ctx.update_deps()
 
-        prevState = None
-        for sub in range(NsubStep):
-            JUpdate = ctx.formal_sol_gamma_matrices()
-            # If prevState is None, then the function assumes that this is the
-            # subiteration for this step and constructs and returns prevState
-            popsUpdate, prevState = ctx.time_dep_update(dt, prevState)
+        prev_state = None
+        for sub in range(Nsub_step):
+            J_update = ctx.formal_sol_gamma_matrices()
+            # If prev_state is None, then the function assumes that this is the
+            # subiteration for this step and constructs and returns prev_state
+            pops_update, prev_state = ctx.time_dep_update(dt, prev_state)
             # Update electron density.
-            # If conserveCharge is set to True when the context is constructed, then
+            # If conserve_charge is set to True when the context is constructed, then
             # the effects of `time_dep_update` are included in the IterationUpdate
             # returned from `nr_post_update`, as the Context is expecting this to be
             # called immediately after `time_dep_update`.
-            nrUpdate = ctx.nr_post_update(timeDependentData={'dt': dt, 'nPrev': prevState})
+            nr_update = ctx.nr_post_update(time_dependent_data={'dt': dt, 'n_prev': prev_state})
 
             # Check subiteration convergence
-            if nrUpdate.dPopsMax < 1e-3 and JUpdate.dJMax < 3e-3:
-                subIters.append(sub)
+            if nr_update.dpops_max < 1e-3 and J_update.dJ_max < 3e-3:
+                sub_iters.append(sub)
                 break
         else:
             raise ValueError('No convergence within required Nsubstep')
 
-        hPops.append(np.copy(eqPops['H']))
-        print('Iteration %d (%f s) done after %d sub iterations' % (it, (it+1)*dt, sub))
+        h_pops.append(np.copy(eq_pops['H']))
+        print('Iteration %d (%f s) done after %d sub iterations' % (it, (it + 1) * dt, sub))
 
         # input()
     end = time.time()
@@ -254,34 +284,34 @@ Solve the problem
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 88-89
+.. GENERATED FROM PYTHON SOURCE LINES 118-119
 
 Reproduce Judge plot.
 
-.. GENERATED FROM PYTHON SOURCE LINES 89-117
+.. GENERATED FROM PYTHON SOURCE LINES 119-147
 
 .. code-block:: Python
 
 
-    initialAtmos = Falc82()
+    initial_atmos = Falc82()
 
     plt.ion()
-    fig, ax = plt.subplots(2,2, sharex=True)
+    fig, ax = plt.subplots(2, 2, sharex=True)
     ax = ax.flatten()
-    cmass = np.log10(atmos.cmass/1e1)
+    cmass = np.log10(atmos.cmass / 1e1)
 
-    ax[0].plot(cmass, initialAtmos.temperature, 'k')
+    ax[0].plot(cmass, initial_atmos.temperature, 'k')
     ax[0].plot(cmass, atmos.temperature, '--')
 
-    for p in hPops[1:]:
-        ax[1].plot(cmass, np.log10(p[0,:]/1e6))
-        ax[2].plot(cmass, np.log10(p[1,:]/1e6))
-        ax[3].plot(cmass, np.log10(p[-1,:]/1e6))
+    for p in h_pops[1:]:
+        ax[1].plot(cmass, np.log10(p[0, :] / 1e6))
+        ax[2].plot(cmass, np.log10(p[1, :] / 1e6))
+        ax[3].plot(cmass, np.log10(p[-1, :] / 1e6))
 
-    p = hPops[0]
-    ax[1].plot(cmass, np.log10(p[0,:]/1e6), 'k')
-    ax[2].plot(cmass, np.log10(p[1,:]/1e6), 'k')
-    ax[3].plot(cmass, np.log10(p[-1,:]/1e6), 'k')
+    p = h_pops[0]
+    ax[1].plot(cmass, np.log10(p[0, :] / 1e6), 'k')
+    ax[2].plot(cmass, np.log10(p[1, :] / 1e6), 'k')
+    ax[3].plot(cmass, np.log10(p[-1, :] / 1e6), 'k')
 
     ax[0].set_xlim(-4.935, -4.931)
     ax[0].set_ylim(0, 6e4)
@@ -289,7 +319,7 @@ Reproduce Judge plot.
     ax[2].set_ylim(1, 6)
     ax[3].set_ylim(10, 11)
 
-    print('Time taken: %.2f s' % (end-start))
+    print('Time taken: %.2f s' % (end - start))
 
 
 
@@ -303,7 +333,7 @@ Reproduce Judge plot.
 
  .. code-block:: none
 
-    Time taken: 7.52 s
+    Time taken: 7.66 s
 
 
 
@@ -311,7 +341,7 @@ Reproduce Judge plot.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 9.049 seconds)
+   **Total running time of the script:** (0 minutes 9.219 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_JudgeDynamicValidation.py:

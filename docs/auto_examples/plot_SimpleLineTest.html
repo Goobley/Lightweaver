@@ -24,7 +24,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Lightweaver API Documentation" href="../lightweaver-api.html" />
+    <link rel="next" title="Migrating to Lightweaver 1.0" href="../migrating-to-1.0.html" />
     <link rel="prev" title="Time-dependent Example" href="plot_JudgeDynamicValidation.html" /> 
 </head>
 
@@ -50,13 +50,14 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Lightweaver Examples Gallery</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="plot_ContributionFunction.html">Contribution function and formation height of 854.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_2dSlab.html">NLTE Ca II in a 2D slab with periodic boundaries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_ContributionFunction.html">Contribution function and formation height of 854.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_PrdChromosphericLines.html">PRD synthesis of Mg II k and Ca II K with a chromospheric flow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_JudgeDynamicValidation.html">Time-dependent Example</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Computing a simple NLTE 8542 line profile in a FAL C atmosphere</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../migrating-to-1.0.html">Migrating to Lightweaver 1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../lightweaver-api.html">Lightweaver API Documentation</a></li>
 </ul>
 
@@ -95,19 +96,31 @@ to download the full example code.</p>
 <p>First, we import everything we need. Lightweaver is typically imported as
 <cite>lw</cite>, but things like the library of model atoms and Fal atmospheres need to
 be imported separately.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">from</span><span class="w"> </span><span class="nn">lightweaver</span><span class="nn">.</span><span class="nn">fal</span><span class="w"> </span><span class="kn">import</span> <span class="n">Falc82</span><span class="w">
-</span><span class="kn">from</span><span class="w"> </span><span class="nn">lightweaver</span><span class="nn">.</span><span class="nn">rh_atoms</span><span class="w"> </span><span class="kn">import</span> <span class="n">H_6_atom</span><span class="p">,</span> <span class="n">C_atom</span><span class="p">,</span> <span class="n">O_atom</span><span class="p">,</span> <span class="n">Si_atom</span><span class="p">,</span> <span class="n">Al_atom</span><span class="p">,</span> \
-<span class="n">CaII_atom</span><span class="p">,</span> <span class="n">Fe_atom</span><span class="p">,</span> <span class="n">He_9_atom</span><span class="p">,</span> <span class="n">MgII_atom</span><span class="p">,</span> <span class="n">N_atom</span><span class="p">,</span> <span class="n">Na_atom</span><span class="p">,</span> <span class="n">S_atom</span><span class="w">
-</span><span class="kn">import</span><span class="w"> </span><span class="nn">lightweaver</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">lw</span><span class="w">
-</span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="nn">.</span><span class="nn">pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span><span class="w">
-</span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span><span class="w">
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="nn">.</span><span class="nn">pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span><span class="w">
 </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span><span class="w">
+</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">lightweaver</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">lw</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">lightweaver</span><span class="nn">.</span><span class="nn">fal</span><span class="w"> </span><span class="kn">import</span> <span class="n">Falc82</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">lightweaver</span><span class="nn">.</span><span class="nn">rh_atoms</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="w">
+</span>    <span class="n">Al_atom</span><span class="p">,</span><span class="w">
+</span>    <span class="n">C_atom</span><span class="p">,</span><span class="w">
+</span>    <span class="n">CaII_atom</span><span class="p">,</span><span class="w">
+</span>    <span class="n">Fe_atom</span><span class="p">,</span><span class="w">
+</span>    <span class="n">H_6_atom</span><span class="p">,</span><span class="w">
+</span>    <span class="n">He_9_atom</span><span class="p">,</span><span class="w">
+</span>    <span class="n">MgII_atom</span><span class="p">,</span><span class="w">
+</span>    <span class="n">N_atom</span><span class="p">,</span><span class="w">
+</span>    <span class="n">Na_atom</span><span class="p">,</span><span class="w">
+</span>    <span class="n">O_atom</span><span class="p">,</span><span class="w">
+</span>    <span class="n">S_atom</span><span class="p">,</span><span class="w">
+</span>    <span class="n">Si_atom</span><span class="p">,</span><span class="w">
+</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
 <p>Now, we define the functions that will be used in our spectral synthesise.
 First <cite>synth_8542</cite> which synthesises and returns the line given by an
 atmosphere.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="k">def</span><span class="w"> </span><span class="nf">synth_8542</span><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="n">conserve</span><span class="p">,</span> <span class="n">useNe</span><span class="p">,</span> <span class="n">wave</span><span class="p">)</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="sd">'''
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="k">def</span><span class="w"> </span><span class="nf">synth_8542</span><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="n">conserve</span><span class="p">,</span> <span class="n">use_ne</span><span class="p">,</span> <span class="n">wave</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;
     Synthesise a spectral line for given atmosphere with different
     conditions.
 
@@ -118,7 +131,7 @@ atmosphere.</p>
     conserve : bool
         Whether to start from LTE electron density and conserve charge, or
         simply use from the electron density present in the atomic model.
-    useNe : bool
+    use_ne : bool
         Whether to use the electron density present in the model as the
         starting solution, or compute the LTE electron density.
     wave : np.ndarray
@@ -130,43 +143,55 @@ atmosphere.</p>
     ctx : lw.Context
         The Context object that was used to compute the equilibrium
         populations.
-    Iwave : np.ndarray
+    I_wave : np.ndarray
         The intensity at muz=1 for each wavelength in `wave`.
-    '''</span><span class="w">
+    &quot;&quot;&quot;</span><span class="w">
 </span>    <span class="c1"># Configure the atmospheric angular quadrature</span><span class="w">
 </span>    <span class="n">atmos</span><span class="o">.</span><span class="n">quadrature</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w">
 </span>    <span class="c1"># Configure the set of atomic models to use.</span><span class="w">
-</span>    <span class="n">aSet</span> <span class="o">=</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class reference internal" href="../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet" title="lightweaver.RadiativeSet"><span class="n">lw</span><span class="o">.</span><span class="n">RadiativeSet</span></a><span class="p">(</span><span class="p">[</span><span class="n">H_6_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">C_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">O_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">Si_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w">
-</span>                            <span class="n">Al_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">CaII_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">Fe_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">He_9_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w">
-</span>                            <span class="n">MgII_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">N_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">Na_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">S_atom</span><span class="p">(</span><span class="p">)</span><span class="w">
-</span>                           <span class="p">]</span><span class="p">)</span><span class="w">
+</span>    <span class="n">rad_set</span> <span class="o">=</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class reference internal" href="../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet" title="lightweaver.RadiativeSet"><span class="n">lw</span><span class="o">.</span><span class="n">RadiativeSet</span></a><span class="p">(</span><span class="w">
+</span>        <span class="p">[</span><span class="w">
+</span>            <span class="n">H_6_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>            <span class="n">C_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>            <span class="n">O_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>            <span class="n">Si_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>            <span class="n">Al_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>            <span class="n">CaII_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>            <span class="n">Fe_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>            <span class="n">He_9_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>            <span class="n">MgII_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>            <span class="n">N_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>            <span class="n">Na_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>            <span class="n">S_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>        <span class="p">]</span><span class="w">
+</span>    <span class="p">)</span><span class="w">
 </span>    <span class="c1"># Set H and Ca to &quot;active&quot; i.e. NLTE, everything else participates as an</span><span class="w">
 </span>    <span class="c1"># LTE background.</span><span class="w">
-</span>    <span class="n">aSet</span><span class="o">.</span><span class="n">set_active</span><span class="p">(</span><span class="s1">'</span><span class="s1">H</span><span class="s1">'</span><span class="p">,</span> <span class="s1">'</span><span class="s1">Ca</span><span class="s1">'</span><span class="p">)</span><span class="w">
+</span>    <span class="n">rad_set</span><span class="o">.</span><span class="n">set_active</span><span class="p">(</span><span class="s1">'</span><span class="s1">H</span><span class="s1">'</span><span class="p">,</span> <span class="s1">'</span><span class="s1">Ca</span><span class="s1">'</span><span class="p">)</span><span class="w">
 </span>    <span class="c1"># Compute the necessary wavelength dependent information (SpectrumConfiguration).</span><span class="w">
-</span>    <span class="n">spect</span> <span class="o">=</span> <span class="n">aSet</span><span class="o">.</span><span class="n">compute_wavelength_grid</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span>    <span class="n">spect</span> <span class="o">=</span> <span class="n">rad_set</span><span class="o">.</span><span class="n">compute_wavelength_grid</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span>    <span class="c1"># Either compute the equilibrium populations at the fixed electron density</span><span class="w">
 </span>    <span class="c1"># provided in the model, or iterate an LTE electron density and compute the</span><span class="w">
 </span>    <span class="c1"># corresponding equilibrium populations (SpeciesStateTable).</span><span class="w">
-</span>    <span class="k">if</span> <span class="n">useNe</span><span class="p">:</span><span class="w">
-</span>        <span class="n">eqPops</span> <span class="o">=</span> <span class="n">aSet</span><span class="o">.</span><span class="n">compute_eq_pops</span><span class="p">(</span><span class="n">atmos</span><span class="p">)</span><span class="w">
+</span>    <span class="k">if</span> <span class="n">use_ne</span><span class="p">:</span><span class="w">
+</span>        <span class="n">eq_pops</span> <span class="o">=</span> <span class="n">rad_set</span><span class="o">.</span><span class="n">compute_eq_pops</span><span class="p">(</span><span class="n">atmos</span><span class="p">)</span><span class="w">
 </span>    <span class="k">else</span><span class="p">:</span><span class="w">
-</span>        <span class="n">eqPops</span> <span class="o">=</span> <span class="n">aSet</span><span class="o">.</span><span class="n">iterate_lte_ne_eq_pops</span><span class="p">(</span><span class="n">atmos</span><span class="p">)</span><span class="w">
+</span>        <span class="n">eq_pops</span> <span class="o">=</span> <span class="n">rad_set</span><span class="o">.</span><span class="n">iterate_lte_ne_eq_pops</span><span class="p">(</span><span class="n">atmos</span><span class="p">)</span><span class="w">
 </span><span class="w">
 </span>    <span class="c1"># Configure the Context which holds the state of the simulation for the</span><span class="w">
 </span>    <span class="c1"># backend, and provides the python interface to the backend.</span><span class="w">
 </span>    <span class="c1"># Feel free to increase Nthreads to increase the number of threads the</span><span class="w">
 </span>    <span class="c1"># program will use.</span><span class="w">
-</span>    <span class="n">ctx</span> <span class="o">=</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class reference internal" href="../lightweaver-api.html#lightweaver.LwCompiled.LwContext" title="lightweaver.LwContext"><span class="n">lw</span><span class="o">.</span><span class="n">Context</span></a><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="n">spect</span><span class="p">,</span> <span class="n">eqPops</span><span class="p">,</span> <span class="n">conserveCharge</span><span class="o">=</span><span class="n">conserve</span><span class="p">,</span> <span class="n">Nthreads</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="w">
+</span>    <span class="n">ctx</span> <span class="o">=</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class reference internal" href="../lightweaver-api.html#lightweaver.LwCompiled.LwContext" title="lightweaver.LwContext"><span class="n">lw</span><span class="o">.</span><span class="n">Context</span></a><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="n">spect</span><span class="p">,</span> <span class="n">eq_pops</span><span class="p">,</span> <span class="n">conserve_charge</span><span class="o">=</span><span class="n">conserve</span><span class="p">,</span> <span class="n">Nthreads</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="w">
 </span>    <span class="c1"># Iterate the Context to convergence (using the iteration function now</span><span class="w">
 </span>    <span class="c1"># provided by Lightweaver)</span><span class="w">
 </span>    <span class="n">lw</span><span class="o">.</span><span class="n">iterate_ctx_se</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span><span class="w">
 </span>    <span class="c1"># Update the background populations based on the converged solution and</span><span class="w">
 </span>    <span class="c1"># compute the final intensity for mu=1 on the provided wavelength grid.</span><span class="w">
-</span>    <span class="n">eqPops</span><span class="o">.</span><span class="n">update_lte_atoms_Hmin_pops</span><span class="p">(</span><span class="n">atmos</span><span class="p">)</span><span class="w">
-</span>    <span class="n">Iwave</span> <span class="o">=</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-method reference internal" href="../lightweaver-api.html#lightweaver.LwCompiled.LwContext.compute_rays" title="lightweaver.LwContext.compute_rays"><span class="n">ctx</span><span class="o">.</span><span class="n">compute_rays</span></a><span class="p">(</span><span class="n">wave</span><span class="p">,</span> <span class="p">[</span><span class="n">atmos</span><span class="o">.</span><span class="n">muz</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="p">]</span><span class="p">,</span> <span class="n">stokes</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="w">
-</span>    <span class="k">return</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">Iwave</span><span class="w">
+</span>    <span class="n">eq_pops</span><span class="o">.</span><span class="n">update_lte_atoms_hmin_pops</span><span class="p">(</span><span class="n">atmos</span><span class="p">)</span><span class="w">
+</span>    <span class="n">I_wave</span> <span class="o">=</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-method reference internal" href="../lightweaver-api.html#lightweaver.LwCompiled.LwContext.compute_rays" title="lightweaver.LwContext.compute_rays"><span class="n">ctx</span><span class="o">.</span><span class="n">compute_rays</span></a><span class="p">(</span><span class="n">wave</span><span class="p">,</span> <span class="p">[</span><span class="n">atmos</span><span class="o">.</span><span class="n">muz</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="p">]</span><span class="p">,</span> <span class="n">stokes</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="w">
+</span>    <span class="k">return</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">I_wave</span><span class="w">
 </span></pre></div></div>
 <p>The wavelength grid to output the final synthesised line on.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">wave</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">853.9444</span><span class="p">,</span> <span class="mf">854.9444</span><span class="p">,</span> <span class="mi">1001</span><span class="p">)</span><span class="w">
@@ -179,16 +204,16 @@ in depth, before synthesising the Ca II 8542 AA line profile using:</p>
 <li><p>The LTE electron density.</p></li>
 </ul>
 <p>These results are then plotted.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere" title="lightweaver.Atmosphere"><span class="n">atmosRef</span></a> <span class="o">=</span> <span class="n">Falc82</span><span class="p">(</span><span class="p">)</span><span class="w">
-</span><span class="n">ctxRef</span><span class="p">,</span> <span class="n">IwaveRef</span> <span class="o">=</span> <span class="n">synth_8542</span><span class="p">(</span><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere" title="lightweaver.Atmosphere"><span class="n">atmosRef</span></a><span class="p">,</span> <span class="n">conserve</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">useNe</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">wave</span><span class="o">=</span><span class="n">wave</span><span class="p">)</span><span class="w">
-</span><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere" title="lightweaver.Atmosphere"><span class="n">atmosCons</span></a> <span class="o">=</span> <span class="n">Falc82</span><span class="p">(</span><span class="p">)</span><span class="w">
-</span><span class="n">ctxCons</span><span class="p">,</span> <span class="n">IwaveCons</span> <span class="o">=</span> <span class="n">synth_8542</span><span class="p">(</span><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere" title="lightweaver.Atmosphere"><span class="n">atmosCons</span></a><span class="p">,</span> <span class="n">conserve</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">useNe</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">wave</span><span class="o">=</span><span class="n">wave</span><span class="p">)</span><span class="w">
-</span><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere" title="lightweaver.Atmosphere"><span class="n">atmosLte</span></a> <span class="o">=</span> <span class="n">Falc82</span><span class="p">(</span><span class="p">)</span><span class="w">
-</span><span class="n">ctx</span><span class="p">,</span> <span class="n">IwaveLte</span> <span class="o">=</span> <span class="n">synth_8542</span><span class="p">(</span><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere" title="lightweaver.Atmosphere"><span class="n">atmosLte</span></a><span class="p">,</span> <span class="n">conserve</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">useNe</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">wave</span><span class="o">=</span><span class="n">wave</span><span class="p">)</span><span class="w">
+<div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere" title="lightweaver.Atmosphere"><span class="n">atmos_ref</span></a> <span class="o">=</span> <span class="n">Falc82</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="n">ctx_ref</span><span class="p">,</span> <span class="n">I_wave_ref</span> <span class="o">=</span> <span class="n">synth_8542</span><span class="p">(</span><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere" title="lightweaver.Atmosphere"><span class="n">atmos_ref</span></a><span class="p">,</span> <span class="n">conserve</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_ne</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">wave</span><span class="o">=</span><span class="n">wave</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere" title="lightweaver.Atmosphere"><span class="n">atmos_cons</span></a> <span class="o">=</span> <span class="n">Falc82</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="n">ctx_cons</span><span class="p">,</span> <span class="n">I_wave_cons</span> <span class="o">=</span> <span class="n">synth_8542</span><span class="p">(</span><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere" title="lightweaver.Atmosphere"><span class="n">atmos_cons</span></a><span class="p">,</span> <span class="n">conserve</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_ne</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">wave</span><span class="o">=</span><span class="n">wave</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere" title="lightweaver.Atmosphere"><span class="n">atmos_lte</span></a> <span class="o">=</span> <span class="n">Falc82</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="n">ctx</span><span class="p">,</span> <span class="n">I_wave_lte</span> <span class="o">=</span> <span class="n">synth_8542</span><span class="p">(</span><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere" title="lightweaver.Atmosphere"><span class="n">atmos_lte</span></a><span class="p">,</span> <span class="n">conserve</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_ne</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">wave</span><span class="o">=</span><span class="n">wave</span><span class="p">)</span><span class="w">
 </span><span class="w">
-</span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span> <span class="n">IwaveRef</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'</span><span class="s1">Reference FAL</span><span class="s1">'</span><span class="p">)</span><span class="w">
-</span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span> <span class="n">IwaveCons</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'</span><span class="s1">Reference Cons</span><span class="s1">'</span><span class="p">)</span><span class="w">
-</span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span> <span class="n">IwaveLte</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'</span><span class="s1">Reference LTE n_e</span><span class="s1">'</span><span class="p">)</span><span class="w">
+</span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span> <span class="n">I_wave_ref</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'</span><span class="s1">Reference FAL</span><span class="s1">'</span><span class="p">)</span><span class="w">
+</span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span> <span class="n">I_wave_cons</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'</span><span class="s1">Reference Cons</span><span class="s1">'</span><span class="p">)</span><span class="w">
+</span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span> <span class="n">I_wave_lte</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'</span><span class="s1">Reference LTE n_e</span><span class="s1">'</span><span class="p">)</span><span class="w">
 </span><span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
@@ -266,122 +291,122 @@ dJ = 1.61e-03
     H delta = 9.3706e-04
     Ca delta = 1.9178e-04
 --------------------------------------------------------------------------------
-Context converged to statistical equilibrium in 98 iterations after 3.89 s.
+Context converged to statistical equilibrium in 98 iterations after 3.84 s.
 --------------------------------------------------------------------------------
 LTE Iterations 1 (-- slowest convergence)
 -- Iteration 0:
 dJ = 1.00e+00
     (Lambda iterating background)
--- Iteration 5:
-dJ = 4.11e+00
-    H delta = 8.9231e-01
-    Ca delta = 3.6324e-01
-    ne delta = 1.8000e-01
--- Iteration 10:
-dJ = 5.02e-01
-    H delta = 3.3673e-01
-    Ca delta = 1.7078e-01
-    ne delta = 1.0679e-01
--- Iteration 15:
-dJ = 2.08e-01
-    H delta = 1.6041e-01
-    Ca delta = 8.6197e-02
-    ne delta = 4.0029e-02
--- Iteration 20:
-dJ = 1.24e-01
-    H delta = 7.6386e-02
-    Ca delta = 5.3759e-02
-    ne delta = 1.6682e-02
--- Iteration 25:
-dJ = 9.49e-02
-    H delta = 5.8888e-02
-    Ca delta = 3.6819e-02
-    ne delta = 1.5968e-02
--- Iteration 30:
-dJ = 8.17e-02
-    H delta = 5.0039e-02
-    Ca delta = 2.6950e-02
-    ne delta = 1.5230e-02
--- Iteration 35:
-dJ = 7.39e-02
-    H delta = 4.6385e-02
-    Ca delta = 2.0502e-02
-    ne delta = 1.5208e-02
--- Iteration 40:
-dJ = 6.85e-02
-    H delta = 4.1500e-02
-    Ca delta = 1.5740e-02
-    ne delta = 1.5508e-02
--- Iteration 45:
-dJ = 6.39e-02
-    H delta = 3.8625e-02
-    Ca delta = 1.1758e-02
-    ne delta = 1.5072e-02
--- Iteration 50:
-dJ = 5.87e-02
-    H delta = 3.6133e-02
-    Ca delta = 8.3598e-03
-    ne delta = 1.4504e-02
--- Iteration 55:
-dJ = 5.26e-02
-    H delta = 3.2942e-02
-    Ca delta = 5.6796e-03
-    ne delta = 1.3404e-02
--- Iteration 60:
-dJ = 4.55e-02
-    H delta = 2.9086e-02
-    Ca delta = 3.6814e-03
-    ne delta = 1.1812e-02
--- Iteration 65:
-dJ = 3.73e-02
-    H delta = 2.4371e-02
-    Ca delta = 2.5705e-03
-    ne delta = 9.8756e-03
--- Iteration 70:
-dJ = 2.97e-02
-    H delta = 1.9655e-02
-    Ca delta = 2.2404e-03
-    ne delta = 7.9012e-03
--- Iteration 75:
-dJ = 2.27e-02
-    H delta = 1.5180e-02
-    Ca delta = 1.8649e-03
-    ne delta = 6.0529e-03
--- Iteration 80:
-dJ = 1.67e-02
-    H delta = 1.1227e-02
-    Ca delta = 1.4507e-03
-    ne delta = 4.4466e-03
--- Iteration 85:
-dJ = 1.19e-02
-    H delta = 8.0265e-03
-    Ca delta = 1.0664e-03
-    ne delta = 3.1611e-03
--- Iteration 90:
-dJ = 8.19e-03
-    H delta = 5.5476e-03
-    Ca delta = 7.5152e-04
-    ne delta = 2.1766e-03
--- Iteration 95:
-dJ = 5.54e-03
-    H delta = 3.7582e-03
-    Ca delta = 5.1824e-04
-    ne delta = 1.4699e-03
--- Iteration 100:
-dJ = 3.70e-03
-    H delta = 2.5138e-03
-    Ca delta = 3.5088e-04
-    ne delta = 9.8237e-04
--- Iteration 105:
-dJ = 2.45e-03
-    H delta = 1.6689e-03
-    Ca delta = 2.3444e-04
-    ne delta = 6.5070e-04
--- Iteration 110:
-dJ = 1.62e-03
-    H delta = 1.1013e-03
-    Ca delta = 1.5537e-04
-    ne delta = 4.2873e-04
+-- Iteration 6:
+dJ = 1.39e+00
+    H delta = 5.9356e-01
+    Ca delta = 2.1931e-01
+    ne delta = 1.6873e-01
+-- Iteration 11:
+dJ = 4.19e-01
+    H delta = 2.9789e-01
+    Ca delta = 1.5015e-01
+    ne delta = 8.9004e-02
+-- Iteration 16:
+dJ = 1.74e-01
+    H delta = 1.3578e-01
+    Ca delta = 7.8037e-02
+    ne delta = 3.2421e-02
+-- Iteration 21:
+dJ = 1.16e-01
+    H delta = 7.2238e-02
+    Ca delta = 4.9453e-02
+    ne delta = 1.6545e-02
+-- Iteration 26:
+dJ = 9.15e-02
+    H delta = 5.6309e-02
+    Ca delta = 3.4461e-02
+    ne delta = 1.5817e-02
+-- Iteration 31:
+dJ = 7.99e-02
+    H delta = 4.9401e-02
+    Ca delta = 2.5452e-02
+    ne delta = 1.5063e-02
+-- Iteration 36:
+dJ = 7.25e-02
+    H delta = 4.5506e-02
+    Ca delta = 1.9464e-02
+    ne delta = 1.5327e-02
+-- Iteration 41:
+dJ = 6.74e-02
+    H delta = 4.0645e-02
+    Ca delta = 1.4894e-02
+    ne delta = 1.5480e-02
+-- Iteration 46:
+dJ = 6.29e-02
+    H delta = 3.8007e-02
+    Ca delta = 1.1033e-02
+    ne delta = 1.5007e-02
+-- Iteration 51:
+dJ = 5.76e-02
+    H delta = 3.5557e-02
+    Ca delta = 7.7593e-03
+    ne delta = 1.4300e-02
+-- Iteration 56:
+dJ = 5.12e-02
+    H delta = 3.2230e-02
+    Ca delta = 5.2185e-03
+    ne delta = 1.3118e-02
+-- Iteration 61:
+dJ = 4.39e-02
+    H delta = 2.8157e-02
+    Ca delta = 3.3669e-03
+    ne delta = 1.1424e-02
+-- Iteration 66:
+dJ = 3.57e-02
+    H delta = 2.3419e-02
+    Ca delta = 2.5204e-03
+    ne delta = 9.4757e-03
+-- Iteration 71:
+dJ = 2.83e-02
+    H delta = 1.8773e-02
+    Ca delta = 2.1624e-03
+    ne delta = 7.5315e-03
+-- Iteration 76:
+dJ = 2.14e-02
+    H delta = 1.4333e-02
+    Ca delta = 1.7864e-03
+    ne delta = 5.7069e-03
+-- Iteration 81:
+dJ = 1.56e-02
+    H delta = 1.0532e-02
+    Ca delta = 1.3694e-03
+    ne delta = 4.1658e-03
+-- Iteration 86:
+dJ = 1.11e-02
+    H delta = 7.4704e-03
+    Ca delta = 9.9758e-04
+    ne delta = 2.9396e-03
+-- Iteration 91:
+dJ = 7.58e-03
+    H delta = 5.1390e-03
+    Ca delta = 6.9880e-04
+    ne delta = 2.0149e-03
+-- Iteration 96:
+dJ = 5.11e-03
+    H delta = 3.4705e-03
+    Ca delta = 4.7990e-04
+    ne delta = 1.3568e-03
+-- Iteration 101:
+dJ = 3.41e-03
+    H delta = 2.3174e-03
+    Ca delta = 3.2393e-04
+    ne delta = 9.0525e-04
+-- Iteration 106:
+dJ = 2.26e-03
+    H delta = 1.5364e-03
+    Ca delta = 2.1604e-04
+    ne delta = 5.9883e-04
+-- Iteration 111:
+dJ = 1.49e-03
+    H delta = 1.0130e-03
+    Ca delta = 1.4299e-04
+    ne delta = 3.9423e-04
 --------------------------------------------------------------------------------
 Final Iteration: 112
 --------------------------------------------------------------------------------
@@ -390,7 +415,7 @@ dJ = 1.37e-03
     Ca delta = 1.3158e-04
     ne delta = 3.6245e-04
 --------------------------------------------------------------------------------
-Context converged to statistical equilibrium in 112 iterations after 4.68 s.
+Context converged to statistical equilibrium in 112 iterations after 4.66 s.
 --------------------------------------------------------------------------------
 LTE Iterations 1 (-- slowest convergence)
 -- Iteration 0:
@@ -412,50 +437,50 @@ dJ = 1.32e-01
 dJ = 9.87e-02
     H delta = 5.6021e-02
     Ca delta = 3.1985e-02
--- Iteration 28:
-dJ = 8.15e-02
-    H delta = 5.1194e-02
-    Ca delta = 2.4655e-02
--- Iteration 34:
-dJ = 7.05e-02
-    H delta = 4.6096e-02
-    Ca delta = 1.8947e-02
--- Iteration 40:
-dJ = 6.30e-02
-    H delta = 3.9224e-02
-    Ca delta = 1.4404e-02
--- Iteration 46:
-dJ = 5.49e-02
-    H delta = 3.1188e-02
-    Ca delta = 1.0394e-02
--- Iteration 52:
-dJ = 4.45e-02
-    H delta = 2.2719e-02
-    Ca delta = 6.9989e-03
--- Iteration 58:
-dJ = 3.26e-02
-    H delta = 1.7292e-02
-    Ca delta = 4.3800e-03
--- Iteration 64:
-dJ = 2.17e-02
-    H delta = 1.1827e-02
-    Ca delta = 2.6228e-03
--- Iteration 70:
-dJ = 1.37e-02
-    H delta = 7.5190e-03
-    Ca delta = 1.5425e-03
--- Iteration 76:
-dJ = 7.95e-03
-    H delta = 4.4438e-03
-    Ca delta = 8.5381e-04
--- Iteration 82:
-dJ = 4.49e-03
-    H delta = 2.5248e-03
-    Ca delta = 4.7124e-04
--- Iteration 88:
-dJ = 2.49e-03
-    H delta = 1.4056e-03
-    Ca delta = 2.5795e-04
+-- Iteration 29:
+dJ = 7.89e-02
+    H delta = 5.0260e-02
+    Ca delta = 2.3553e-02
+-- Iteration 35:
+dJ = 6.92e-02
+    H delta = 4.5102e-02
+    Ca delta = 1.8145e-02
+-- Iteration 41:
+dJ = 6.19e-02
+    H delta = 3.7893e-02
+    Ca delta = 1.3696e-02
+-- Iteration 47:
+dJ = 5.34e-02
+    H delta = 2.9660e-02
+    Ca delta = 9.7776e-03
+-- Iteration 53:
+dJ = 4.29e-02
+    H delta = 2.1929e-02
+    Ca delta = 6.5358e-03
+-- Iteration 59:
+dJ = 3.06e-02
+    H delta = 1.6308e-02
+    Ca delta = 4.0328e-03
+-- Iteration 65:
+dJ = 2.01e-02
+    H delta = 1.1008e-02
+    Ca delta = 2.4000e-03
+-- Iteration 71:
+dJ = 1.25e-02
+    H delta = 6.9261e-03
+    Ca delta = 1.3989e-03
+-- Iteration 77:
+dJ = 7.23e-03
+    H delta = 4.0513e-03
+    Ca delta = 7.7384e-04
+-- Iteration 83:
+dJ = 4.07e-03
+    H delta = 2.2925e-03
+    Ca delta = 4.2644e-04
+-- Iteration 89:
+dJ = 2.26e-03
+    H delta = 1.2735e-03
+    Ca delta = 2.3312e-04
 --------------------------------------------------------------------------------
 Final Iteration: 92
 --------------------------------------------------------------------------------
@@ -463,12 +488,12 @@ dJ = 1.67e-03
     H delta = 9.4479e-04
     Ca delta = 1.7206e-04
 --------------------------------------------------------------------------------
-Context converged to statistical equilibrium in 92 iterations after 3.68 s.
+Context converged to statistical equilibrium in 92 iterations after 3.66 s.
 --------------------------------------------------------------------------------
 LTE Iterations 1 (He slowest convergence)
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 13.167 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 13.061 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-plot-simplelinetest-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/c22ee4da75da769ac92d5061f442295a/plot_SimpleLineTest.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_SimpleLineTest.ipynb</span></code></a></p>
@@ -488,7 +513,7 @@ LTE Iterations 1 (He slowest convergence)
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="plot_JudgeDynamicValidation.html" class="btn btn-neutral float-left" title="Time-dependent Example" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../lightweaver-api.html" class="btn btn-neutral float-right" title="Lightweaver API Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../migrating-to-1.0.html" class="btn btn-neutral float-right" title="Migrating to Lightweaver 1.0" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

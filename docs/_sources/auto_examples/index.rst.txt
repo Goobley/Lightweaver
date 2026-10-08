@@ -18,23 +18,6 @@ See some simple examples for using Lightweaver.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Contribution function and formation height of 854.2">
-
-.. only:: html
-
-  .. image:: /auto_examples/images/thumb/sphx_glr_plot_ContributionFunction_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/plot_ContributionFunction`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Contribution function and formation height of 854.2</div>
-    </div>
-
-
-.. raw:: html
-
     <div class="sphx-glr-thumbcontainer" tooltip="NLTE Ca II in a 2D slab with periodic boundaries">
 
 .. only:: html
@@ -47,6 +30,23 @@ See some simple examples for using Lightweaver.
 .. raw:: html
 
       <div class="sphx-glr-thumbnail-title">NLTE Ca II in a 2D slab with periodic boundaries</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Contribution function and formation height of 854.2">
+
+.. only:: html
+
+  .. image:: /auto_examples/images/thumb/sphx_glr_plot_ContributionFunction_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/plot_ContributionFunction`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Contribution function and formation height of 854.2</div>
     </div>
 
 
@@ -111,8 +111,8 @@ See some simple examples for using Lightweaver.
 .. toctree::
    :hidden:
 
-   /auto_examples/plot_ContributionFunction
    /auto_examples/plot_2dSlab
+   /auto_examples/plot_ContributionFunction
    /auto_examples/plot_PrdChromosphericLines
    /auto_examples/plot_JudgeDynamicValidation
    /auto_examples/plot_SimpleLineTest

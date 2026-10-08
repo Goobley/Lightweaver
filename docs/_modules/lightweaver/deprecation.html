@@ -1,0 +1,341 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>lightweaver.deprecation &mdash; Lightweaver  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=c83e6b79" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Lightweaver
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../auto_examples/index.html">Lightweaver Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migrating-to-1.0.html">Migrating to Lightweaver 1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../lightweaver-api.html">Lightweaver API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Lightweaver</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">lightweaver.deprecation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for lightweaver.deprecation</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">Deprecation shims for the names renamed to PEP 8 snake_case in Lightweaver 1.0.</span>
+
+<span class="sd">The old names (see `lightweaver._renames.RENAMES`) keep working, emitting a</span>
+<span class="sd">`LightweaverDeprecationWarning` that names the replacement, and will be removed</span>
+<span class="sd">in a future release. Scripts can be updated automatically with</span>
+<span class="sd">``python -m lightweaver.migrate &lt;files&gt;``, and the warnings can be silenced with</span>
+<span class="sd">`silence_deprecations`.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">TypeVar</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">._renames</span><span class="w"> </span><span class="kn">import</span> <span class="n">RENAMES</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">'LightweaverDeprecationWarning'</span><span class="p">,</span>
+    <span class="s1">'accepts_old_kwargs'</span><span class="p">,</span>
+    <span class="s1">'deprecated_alias'</span><span class="p">,</span>
+    <span class="s1">'deprecated_names'</span><span class="p">,</span>
+    <span class="s1">'remap_old_keys'</span><span class="p">,</span>
+    <span class="s1">'silence_deprecations'</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">F</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">'F'</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">Callable</span><span class="p">)</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">'T'</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="nb">type</span><span class="p">)</span>
+
+<span class="c1"># new name -&gt; old names (several old names can map to one new name, e.g. max_iter).</span>
+<span class="n">_OLD_NAMES</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">_old</span><span class="p">,</span> <span class="n">_new</span> <span class="ow">in</span> <span class="n">RENAMES</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">_OLD_NAMES</span><span class="p">[</span><span class="n">_new</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_old</span><span class="p">)</span>
+
+<span class="c1"># Callable short name (function, method, or class for its constructor) -&gt; old</span>
+<span class="c1"># keyword names it accepts. Used by `lightweaver.migrate`.</span>
+<span class="n">KWARG_REGISTRY</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="LightweaverDeprecationWarning">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.deprecation.LightweaverDeprecationWarning">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LightweaverDeprecationWarning</span><span class="p">(</span><span class="ne">FutureWarning</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Warning for deprecated Lightweaver names. A `FutureWarning` subclass, so it</span>
+<span class="sd">    is shown by default.</span>
+<span class="sd">    """</span>
+
+    <span class="k">pass</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_warn</span><span class="p">(</span><span class="n">old</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">new</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">stacklevel</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'`</span><span class="si">{</span><span class="n">old</span><span class="si">}</span><span class="s1">` is deprecated, use `</span><span class="si">{</span><span class="n">new</span><span class="si">}</span><span class="s1">` instead (it will be removed in a future '</span>
+        <span class="s1">'version of Lightweaver). Run `python -m lightweaver.migrate &lt;files&gt;` to update '</span>
+        <span class="s1">'scripts automatically.'</span><span class="p">,</span>
+        <span class="n">LightweaverDeprecationWarning</span><span class="p">,</span>
+        <span class="n">stacklevel</span><span class="o">=</span><span class="n">stacklevel</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="silence_deprecations">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.deprecation.silence_deprecations">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">silence_deprecations</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Silence the warnings for deprecated Lightweaver names.</span>
+<span class="sd">    """</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">'ignore'</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">LightweaverDeprecationWarning</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="remap_old_keys">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.deprecation.remap_old_keys">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">remap_old_keys</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">stacklevel</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">renames</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">RENAMES</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return a copy of a keyword dict (e.g. the `kwargs` of a `Context` state</span>
+<span class="sd">    dict) with deprecated keys renamed (with a warning). If both an old key and</span>
+<span class="sd">    its replacement are present, the old key's value wins: it can only have been</span>
+<span class="sd">    added by the caller to override the stored value (e.g.</span>
+<span class="sd">    ``dict(sd['kwargs'], formalSolver=...)``).</span>
+
+<span class="sd">    `renames` is the old -&gt; new table to apply (default: `RENAMES`).</span>
+<span class="sd">    """</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">old</span> <span class="ow">in</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">result</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">renames</span><span class="p">]:</span>
+        <span class="n">new</span> <span class="o">=</span> <span class="n">renames</span><span class="p">[</span><span class="n">old</span><span class="p">]</span>
+        <span class="n">_warn</span><span class="p">(</span><span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="n">stacklevel</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">new</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">old</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_param_names</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__code__</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">code</span><span class="o">.</span><span class="n">co_varnames</span><span class="p">[:</span> <span class="n">code</span><span class="o">.</span><span class="n">co_argcount</span> <span class="o">+</span> <span class="n">code</span><span class="o">.</span><span class="n">co_kwonlyargcount</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="accepts_old_kwargs">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.deprecation.accepts_old_kwargs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">accepts_old_kwargs</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">F</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">F</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Decorator remapping deprecated keyword arguments to their new names (with a</span>
+<span class="sd">    warning). Passing both the old and new name raises a `TypeError`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    func : callable</span>
+<span class="sd">        The function to wrap.</span>
+<span class="sd">    name : str, optional</span>
+<span class="sd">        The name to register for `lightweaver.migrate` (default: the</span>
+<span class="sd">        function's `__name__`, or the class name for `__init__`).</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">func</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">accepts_old_kwargs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="n">params</span> <span class="o">=</span> <span class="n">_param_names</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">old</span><span class="p">:</span> <span class="n">new</span>
+        <span class="k">for</span> <span class="n">new</span> <span class="ow">in</span> <span class="n">params</span>
+        <span class="k">if</span> <span class="n">new</span> <span class="ow">in</span> <span class="n">_OLD_NAMES</span>
+        <span class="k">for</span> <span class="n">old</span> <span class="ow">in</span> <span class="n">_OLD_NAMES</span><span class="p">[</span><span class="n">new</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">old</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">params</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">mapping</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">func</span>
+
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">'__init__'</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__qualname__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'.'</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">KWARG_REGISTRY</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
+
+    <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">old</span> <span class="ow">in</span> <span class="n">mapping</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">&amp;</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">new</span> <span class="o">=</span> <span class="n">mapping</span><span class="p">[</span><span class="n">old</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">new</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s1">() got both `</span><span class="si">{</span><span class="n">old</span><span class="si">}</span><span class="s1">` and its replacement `</span><span class="si">{</span><span class="n">new</span><span class="si">}</span><span class="s1">`'</span>
+                <span class="p">)</span>
+            <span class="n">_warn</span><span class="p">(</span><span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="n">new</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">old</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="n">wrapper</span><span class="o">.</span><span class="n">__lw_renamed_kwargs__</span> <span class="o">=</span> <span class="n">mapping</span>
+    <span class="k">return</span> <span class="n">wrapper</span></div>
+
+
+
+<div class="viewcode-block" id="deprecated_alias">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.deprecation.deprecated_alias">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">deprecated_alias</span><span class="p">:</span>  <span class="c1"># noqa: N801 (descriptor, lowercase like `property`)</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Descriptor forwarding a deprecated attribute name to its replacement (with a</span>
+<span class="sd">    warning) for reading, writing and deleting.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new</span> <span class="o">=</span> <span class="n">new</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">old</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">old</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">objtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="n">_warn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">old</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">new</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">new</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__set__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">_warn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">old</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">new</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">new</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__delete__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="n">_warn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">old</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">new</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="nb">delattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">new</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="deprecated_names">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.deprecation.deprecated_names">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">deprecated_names</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">T</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">attrs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">())</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Class decorator providing the deprecated names for a class: every method</span>
+<span class="sd">    (including `__init__`) with renamed parameters accepts the old keyword</span>
+<span class="sd">    names, and old-name aliases are added for renamed dataclass fields,</span>
+<span class="sd">    properties, methods, and the instance attributes listed in `attrs`.</span>
+
+<span class="sd">    For dataclasses, apply it above `@dataclass`. It must be applied to each</span>
+<span class="sd">    class in a hierarchy that defines (or, for dataclasses, generates) methods.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cls : type</span>
+<span class="sd">        The class to decorate.</span>
+<span class="sd">    attrs : iterable of str, optional</span>
+<span class="sd">        New names of plain instance attributes (set in `__init__`) to alias.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">deprecated_names</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">attrs</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">staticmethod</span><span class="p">,</span> <span class="nb">classmethod</span><span class="p">)):</span>
+            <span class="n">wrapped</span> <span class="o">=</span> <span class="n">accepts_old_kwargs</span><span class="p">(</span>
+                <span class="n">value</span><span class="o">.</span><span class="vm">__func__</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">'__init__'</span> <span class="k">else</span> <span class="n">key</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">wrapped</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="vm">__func__</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)(</span><span class="n">wrapped</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isfunction</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="n">wrapped</span> <span class="o">=</span> <span class="n">accepts_old_kwargs</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">'__init__'</span> <span class="k">else</span> <span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">wrapped</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">wrapped</span><span class="p">)</span>
+
+    <span class="n">names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">is_dataclass</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="n">names</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">fields</span><span class="p">(</span><span class="bp">cls</span><span class="p">))</span>
+    <span class="n">names</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">property</span><span class="p">)</span> <span class="ow">or</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isfunction</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">new</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">old</span> <span class="ow">in</span> <span class="n">_OLD_NAMES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">new</span><span class="p">,</span> <span class="p">()):</span>
+            <span class="k">if</span> <span class="n">old</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+                <span class="n">alias</span> <span class="o">=</span> <span class="n">deprecated_alias</span><span class="p">(</span><span class="n">new</span><span class="p">)</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">old</span><span class="p">,</span> <span class="n">alias</span><span class="p">)</span>
+                <span class="n">alias</span><span class="o">.</span><span class="n">__set_name__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">old</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">cls</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, C. Osborne.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

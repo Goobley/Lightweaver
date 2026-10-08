@@ -24,8 +24,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="NLTE Ca II in a 2D slab with periodic boundaries" href="plot_2dSlab.html" />
-    <link rel="prev" title="Lightweaver Examples Gallery" href="index.html" /> 
+    <link rel="next" title="PRD synthesis of Mg II k and Ca II K with a chromospheric flow" href="plot_PrdChromosphericLines.html" />
+    <link rel="prev" title="NLTE Ca II in a 2D slab with periodic boundaries" href="plot_2dSlab.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,13 +50,14 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Lightweaver Examples Gallery</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Contribution function and formation height of 854.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_2dSlab.html">NLTE Ca II in a 2D slab with periodic boundaries</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Contribution function and formation height of 854.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_PrdChromosphericLines.html">PRD synthesis of Mg II k and Ca II K with a chromospheric flow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_JudgeDynamicValidation.html">Time-dependent Example</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_SimpleLineTest.html">Computing a simple NLTE 8542 line profile in a FAL C atmosphere</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../migrating-to-1.0.html">Migrating to Lightweaver 1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../lightweaver-api.html">Lightweaver API Documentation</a></li>
 </ul>
 
@@ -104,10 +105,6 @@ forms in the FAL C atmosphere.</p>
 </span><span class="kn">from</span><span class="w"> </span><span class="nn">lightweaver</span><span class="nn">.</span><span class="nn">rh_atoms</span><span class="w"> </span><span class="kn">import</span> <span class="n">CaII_atom</span><span class="p">,</span> <span class="n">H_6_atom</span><span class="w">
 </span><span class="kn">from</span><span class="w"> </span><span class="nn">lightweaver</span><span class="nn">.</span><span class="nn">utils</span><span class="w"> </span><span class="kn">import</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-function reference internal" href="../lightweaver-api.html#lightweaver.utils.compute_contribution_fn" title="lightweaver.compute_contribution_fn"><span class="n">compute_contribution_fn</span></a><span class="p">,</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-function reference internal" href="../lightweaver-api.html#lightweaver.utils.compute_tau" title="lightweaver.compute_tau"><span class="n">compute_tau</span></a><span class="p">,</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-function reference internal" href="../lightweaver-api.html#lightweaver.utils.tau_isosurface" title="lightweaver.tau_isosurface"><span class="n">tau_isosurface</span></a><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/Lightweaver/Lightweaver/lw-docs-venv/lib/python3.12/site-packages/lightweaver/config.py:75: UserWarning: No config file found, using defaults. For optimised vectorised code, please run `lightweaver.benchmark()`, otherwise the most advanced instruction set supported by your machine will be picked, which may not be the fastest (due to e.g. aggressive AVX offsets).
-  warnings.warn('No config file found, using defaults. For optimised vectorised code,'
-</pre></div>
-</div>
 <p>Converge the NLTE problem with H and Ca II active.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere" title="lightweaver.Atmosphere"><span class="n">atmos</span></a> <span class="o">=</span> <span class="n">Falc82</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-method reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere.quadrature" title="lightweaver.Atmosphere.quadrature"><span class="n">atmos</span><span class="o">.</span><span class="n">quadrature</span></a><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w">
@@ -122,11 +119,11 @@ forms in the FAL C atmosphere.</p>
 </pre></div>
 </div>
 <p>Ask the formal solver to store the full depth-dependent opacity and
-emissivity (<cite>ctx.depthData</cite>), then perform one more formal solution.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">ctx</span><span class="o">.</span><span class="n">depthData</span><span class="o">.</span><span class="n">fill</span> <span class="o">=</span> <span class="kc">True</span><span class="w">
+emissivity (<cite>ctx.depth_data</cite>), then perform one more formal solution.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">ctx</span><span class="o">.</span><span class="n">depth_data</span><span class="o">.</span><span class="n">fill</span> <span class="o">=</span> <span class="kc">True</span><span class="w">
 </span><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-method reference internal" href="../lightweaver-api.html#lightweaver.LwCompiled.LwContext.formal_sol_gamma_matrices" title="lightweaver.LwContext.formal_sol_gamma_matrices"><span class="n">ctx</span><span class="o">.</span><span class="n">formal_sol_gamma_matrices</span></a><span class="p">(</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>IterationUpdate(ctx=&lt;lightweaver.Context object at 0x564c9450b700&gt;, crsw=1.0, updatedJ=True, dJMax=0.004928092666046213, dJMaxIdx=308, updatedPops=False, dPops=[], dPopsMaxIdx=[], ngAccelerated=False, updatedNe=False, dNeMax=0.0, dNeMaxIdx=0, updatedRho=False, NprdSubIter=0, dRho=[], dRhoMaxIdx=[], updatedJPrd=False, dJPrdMax=[], dJPrdMaxIdx=[])
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>IterationUpdate(ctx=&lt;lightweaver.Context object at 0x55f49caec1e0&gt;, crsw=1.0, updated_J=True, dJ_max=0.004928092666373285, dJ_max_idx=308, updated_pops=False, dpops=[], dpops_max_idx=[], ng_accelerated=False, updated_ne=False, dne_max=0.0, dne_max_idx=0, updated_rho=False, Nprd_sub_iter=0, drho=[], drho_max_idx=[], updated_J_prd=False, dJ_prd_max=[], dJ_prd_max_idx=[])
 </pre></div>
 </div>
 <p>Compute the contribution function and optical depth for the outgoing ray
@@ -148,8 +145,10 @@ the simulation’s grid, so we select the points around 854.2.</p>
 <p>Integrating the contribution function over height gives the emergent
 intensity (up to the accuracy of this simple quadrature).</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">integrated</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">trapezoid</span><span class="p">(</span><span class="n">cfn</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="w">
-</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="s1">Max relative difference between integrated cfn and I: </span><span class="s1">'</span><span class="w">
-</span>      <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">integrated</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">I</span><span class="p">)</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><span class="w">
+</span>    <span class="sa">f</span><span class="s1">'</span><span class="s1">Max relative difference between integrated cfn and I: </span><span class="s1">'</span><span class="w">
+</span>    <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">integrated</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">I</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">I</span><span class="p">)</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">'</span><span class="w">
+</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Max relative difference between integrated cfn and I: 5.48e-02
 </pre></div>
@@ -158,8 +157,9 @@ intensity (up to the accuracy of this simple quadrature).</p>
 tau = 1 height overlaid, and the emergent profile below. The line core forms
 in the chromosphere, around 1.2 Mm higher than the wings.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">z_mm</span> <span class="o">=</span> <span class="n">z</span> <span class="o">/</span> <span class="mf">1e6</span><span class="w">
-</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">height_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="p">,</span><span class="w">
-</span>                       <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="w">
+</span>    <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">height_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="p">,</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="w">
+</span><span class="p">)</span><span class="w">
 </span><span class="n">cfn_norm</span> <span class="o">=</span> <span class="n">cfn</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">/</span> <span class="n">cfn</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
 </span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span> <span class="n">z_mm</span><span class="p">,</span> <span class="n">cfn_norm</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">shading</span><span class="o">=</span><span class="s1">'</span><span class="s1">auto</span><span class="s1">'</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'</span><span class="s1">magma</span><span class="s1">'</span><span class="p">)</span><span class="w">
 </span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span> <span class="n">tau1</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1e6</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">'</span><span class="s1">C0</span><span class="s1">'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">'</span><span class="s1">$</span><span class="s1">\</span><span class="s1">tau = 1$</span><span class="s1">'</span><span class="p">)</span><span class="w">
@@ -171,7 +171,7 @@ in the chromosphere, around 1.2 Mm higher than the wings.</p>
 </span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">'</span><span class="s1">$I_</span><span class="s1">\</span><span class="s1">nu$ [J s$^</span><span class="s1">{</span><span class="s1">-1}$ m$^</span><span class="s1">{</span><span class="s1">-2}$ sr$^</span><span class="s1">{</span><span class="s1">-1}$ Hz$^</span><span class="s1">{</span><span class="s1">-1}$]</span><span class="s1">'</span><span class="p">)</span><span class="w">
 </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<img src="../_images/sphx_glr_plot_ContributionFunction_001.png" srcset="../_images/sphx_glr_plot_ContributionFunction_001.png" alt="plot ContributionFunction" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 25.496 seconds)</p>
+<img src="../_images/sphx_glr_plot_ContributionFunction_001.png" srcset="../_images/sphx_glr_plot_ContributionFunction_001.png" alt="plot ContributionFunction" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 6.584 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-plot-contributionfunction-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/e16ab06c41c0cd768cfcf5839cff5f60/plot_ContributionFunction.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_ContributionFunction.ipynb</span></code></a></p>
@@ -190,8 +190,8 @@ in the chromosphere, around 1.2 Mm higher than the wings.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Lightweaver Examples Gallery" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="plot_2dSlab.html" class="btn btn-neutral float-right" title="NLTE Ca II in a 2D slab with periodic boundaries" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="plot_2dSlab.html" class="btn btn-neutral float-left" title="NLTE Ca II in a 2D slab with periodic boundaries" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="plot_PrdChromosphericLines.html" class="btn btn-neutral float-right" title="PRD synthesis of Mg II k and Ca II K with a chromospheric flow" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

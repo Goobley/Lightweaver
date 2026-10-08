@@ -1,0 +1,666 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>&lt;no title&gt; &mdash; Lightweaver  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=c83e6b79" />
+      <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Lightweaver
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="auto_examples/index.html">Lightweaver Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migrating-to-1.0.html">Migrating to Lightweaver 1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lightweaver-api.html">Lightweaver API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Lightweaver</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">&lt;no title&gt;</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/_generated_renames.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Old name</p></th>
+<th class="head"><p>New name</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">abundanceData</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">abundance_data</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">abundDex</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">abund_dex</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">activeAtoms</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">active_atoms</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">activeSet</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">active_set</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">activeTrans</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">active_trans</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">activeWavelengths</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">active_wavelengths</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">aDamp</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">a_damp</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">alphaGrid</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">alpha_grid</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atomicAbundance</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">atomic_abundance</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atomicModel</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">atomic_model</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atomicPops</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">atomic_pops</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">avgMass</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">avg_mass</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">backgroundProvider</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">background_provider</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">barklemVals</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">barklem_vals</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">blueIdx</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">blue_idx</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">chiB</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">chi_B</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">chiIn</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">chi_in</span></code> (no deprecated alias)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">chunkSize</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">chunk_size</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">computeDiff</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">compute_diff</span></code> (no deprecated alias)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">configPath</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">config_path</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">conserveCharge</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">conserve_charge</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">convertScales</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">convert_scales</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cosGamma</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cos_gamma</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">crswCallback</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">crsw_callback</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">crswDone</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">crsw_done</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cStark23</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">c_stark_23</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">deltaLambda</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">delta_lambda</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">depthData</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">depth_data</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">depthScale</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">depth_scale</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">detailedAtomPrd</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">detailed_atom_prd</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">detailedAtoms</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">detailed_atoms</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">detailedStaticSet</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">detailed_static_set</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dJMax</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dJ_max</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dJMaxIdx</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dJ_max_idx</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dJPrdMax</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dJ_prd_max</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dJPrdMaxIdx</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dJ_prd_max_idx</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dNeMax</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dne_max</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dNeMaxIdx</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dne_max_idx</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dPops</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dpops</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dPopsMax</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dpops_max</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dPopsMaxIdx</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dpops_max_idx</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dRho</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">drho</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dRhoMax</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">drho_max</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dRhoMaxIdx</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">drho_max_idx</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">electronExp</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">electron_exp</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">elementCount</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">element_count</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eqcCoeffs</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">eqc_coeffs</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eqPops</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">eq_pops</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">etaIn</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">eta_in</span></code> (no deprecated alias)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">extendGridNm</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">extend_grid_nm</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">extraParams</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">extra_params</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">extraWavelengths</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">extra_wavelengths</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">fdCollisionRates</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">fd_collision_rates</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">filePath</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">file_path</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">fillDiagonal</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">fill_diagonal</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">fixCollisionalRates</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">fix_collisional_rates</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">formalSolver</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">formal_solver</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">formationTempRange</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">formation_temp_range</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">fsIterScheme</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">fs_iter_scheme</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">fsIterSchemeProperties</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">fs_iter_scheme_properties</span></code> (no deprecated alias)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gammaB</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">gamma_B</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">gLandeEff</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">g_lande_eff</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">HminPops</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">hmin_pops</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hOnly</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">h_only</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hPops</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">h_pops</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hydrogenExp</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">hydrogen_exp</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hydrogenPops</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">hydrogen_pops</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">iLevel</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">i_level</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">implLibs</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">impl_libs</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">inConstructor</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">in_constructor</span></code> (no deprecated alias)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">indexVector</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">index_vector</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">initSol</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">init_sol</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">initVal</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">init_val</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">interpFn</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">interp_fn</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ionPot</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ion_pot</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">isotopeProportions</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">isotope_proportions</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">jLevel</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">j_level</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">JTol</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">J_tol</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">JUpdate</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">J_update</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kuruczPfPath</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kurucz_pf_path</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lambdaEdge</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">lambda_edge</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lambdaIterate</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">lambda_iterate</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lambdaReference</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">lambda_reference</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">logG</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">log_g</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lowerBc</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">lower_bc</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lowerThreshold</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">lower_threshold</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lsCoupling</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LS_coupling</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">massData</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mass_data</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">massPerH</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mass_per_h</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">maxIter</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">max_iter</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">maxPrdSubIter</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">max_prd_sub_iter</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">minLambda</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">min_lambda</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">minWavelength</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">min_wavelength</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">modelPops</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">model_pops</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">molecularPops</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">molecular_pops</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">molecularTable</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">molecular_table</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nameMapping</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">name_mapping</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nEff</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">n_eff</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ngAccelerated</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ng_accelerated</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ngOptions</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ng_options</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ngUpdate</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ng_update</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nHTot</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nh_tot</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">NlambdaGen</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Nlambda_gen</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nlteStartingPops</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nlte_starting_pops</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">NmaxIter</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">max_iter</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">NprdSubIter</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Nprd_sub_iter</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">NprdTrans</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Nprd_trans</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nrHOnly</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nr_h_only</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nStar</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">n_star</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nTotal</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">n_total</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">outUnits</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">out_units</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">overlyingContinuumLevel</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">overlying_continuum_level</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">passiveAtoms</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">passive_atoms</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">passiveSet</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">passive_set</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">PeTop</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Pe_top</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pfCoeffs</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pf_coeffs</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">phiQ</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">phi_Q</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">phiU</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">phi_U</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">phiV</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">phi_V</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">popsOnly</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pops_only</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">popsTol</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pops_tol</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">popsUpdate</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pops_update</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">prdIterTol</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">prd_iter_tol</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">prdUpdate</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">prd_update</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">preserveProfiles</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">preserve_profiles</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">prevNeRatio</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">prev_ne_ratio</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">prevSpect</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">prev_spect</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">prevState</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">prev_state</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">prevTimePops</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">prev_time_pops</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">printInterval</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">print_interval</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">psiQ</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">psi_Q</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">psiU</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">psi_U</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">psiV</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">psi_V</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pyAtmos</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">py_atmos</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qCore</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q_core</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qWing</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">q_wing</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">radiativeRates</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">radiative_rates</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">radSet</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rad_set</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">redIdx</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">red_idx</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">refinePrd</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">refine_prd</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">reproduceOldRHBug</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reproduce_old_RH_bug</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">returnCtx</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">return_ctx</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">returnFinalConvergence</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">return_final_convergence</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rhoPrd</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rho_prd</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rhoTol</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rho_tol</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">scaIn</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sca_in</span></code> (no deprecated alias)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sortedAtoms</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sorted_atoms</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">specInt</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">spec_int</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tauRef</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tau_ref</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temperatureExp</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">temperature_exp</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tempRange</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">temp_range</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">timeDependentData</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">time_dependent_data</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">toObs</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">to_obs</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">totalAbundance</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">total_abundance</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">transId</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">trans_id</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">transModel</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">trans_model</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">transWavelengths</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">trans_wavelengths</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">update_lte_atoms_Hmin_pops</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">update_lte_atoms_hmin_pops</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">update_nTotal</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">update_n_total</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">updateBcs</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">update_bcs</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">updatedJ</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">updated_J</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">updatedJPrd</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">updated_J_prd</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">updatedNe</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">updated_ne</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">updatedPops</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">updated_pops</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">updatedRho</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">updated_rho</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">updateJ</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">update_J</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">updateTotals</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">update_totals</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">upOnly</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">up_only</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">upperBc</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">upper_bc</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">vBroad</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">v_broad</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">vlosMu</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">vlos_mu</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">vMicroChar</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">v_micro_char</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">vRel35H</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">v_rel_35_h</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">vRel35He</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">v_rel_35_he</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">warmUp</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">warm_up</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">wavelengthGrid</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">wavelength_grid</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">writeConfig</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">write_config</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">xLowerBc</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">x_lower_bc</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">xUpperBc</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">x_upper_bc</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">yLowerBc</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">y_lower_bc</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">yUpperBc</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">y_upper_bc</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">zLowerBc</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">z_lower_bc</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">zUpperBc</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">z_upper_bc</span></code></p></td>
+</tr>
+</tbody>
+</table>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, C. Osborne.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

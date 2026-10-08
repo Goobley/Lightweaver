@@ -22,7 +22,7 @@
 PRD synthesis of Mg II k and Ca II K with a chromospheric flow
 ==============================================================
 
-.. GENERATED FROM PYTHON SOURCE LINES 7-20
+.. GENERATED FROM PYTHON SOURCE LINES 8-21
 
 The resonance lines of Mg II and Ca II are strongly affected by partial
 frequency redistribution (PRD). Here we solve the NLTE problem for H, Ca II
@@ -38,7 +38,7 @@ chromosphere, comparing three treatments of the line scattering:
 In a static atmosphere, the angle-averaged and hybrid treatments agree, but
 angle-averaged PRD is not valid in the presence of flows.
 
-.. GENERATED FROM PYTHON SOURCE LINES 20-29
+.. GENERATED FROM PYTHON SOURCE LINES 21-31
 
 .. code-block:: Python
 
@@ -58,14 +58,15 @@ angle-averaged PRD is not valid in the presence of flows.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 30-34
+
+.. GENERATED FROM PYTHON SOURCE LINES 32-36
 
 Construct the atmosphere: FAL C, with a vertical velocity shear in the upper
 chromosphere, where the cores of Mg II k and Ca II K form. The velocity
 rises from 0 below ~1.2 Mm to a 10 km/s upflow (vz > 0, towards an observer
 at disk centre) above ~1.8 Mm.
 
-.. GENERATED FROM PYTHON SOURCE LINES 34-41
+.. GENERATED FROM PYTHON SOURCE LINES 36-43
 
 .. code-block:: Python
 
@@ -83,7 +84,7 @@ at disk centre) above ~1.8 Mm.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 42-48
+.. GENERATED FROM PYTHON SOURCE LINES 44-50
 
 Set up and iterate the simulation. The H & K lines of Ca II, the h & k lines
 of Mg II and Lyman alpha & beta are flagged as PRD lines in these model
@@ -92,7 +93,7 @@ profile (rho) is updated alongside the populations, and `hprd=True` on the
 Context enables the hybrid treatment. We also conserve charge, updating the
 electron density alongside the populations of the active species.
 
-.. GENERATED FROM PYTHON SOURCE LINES 48-66
+.. GENERATED FROM PYTHON SOURCE LINES 50-67
 
 .. code-block:: Python
 
@@ -102,8 +103,7 @@ electron density alongside the populations of the active species.
         rad_set.set_active('H', 'Ca', 'Mg')
         spect = rad_set.compute_wavelength_grid()
         eq_pops = rad_set.compute_eq_pops(atmos)
-        ctx = lw.Context(atmos, spect, eq_pops, conserveCharge=True, hprd=hprd,
-                         Nthreads=2)
+        ctx = lw.Context(atmos, spect, eq_pops, conserve_charge=True, hprd=hprd, Nthreads=2)
         start = time.time()
         lw.iterate_ctx_se(ctx, prd=prd, quiet=True)
         print(f'Converged in {time.time() - start:.1f} s')
@@ -122,19 +122,19 @@ electron density alongside the populations of the active species.
 
  .. code-block:: none
 
-    Converged in 20.8 s
-    Converged in 38.6 s
-    Converged in 43.8 s
+    Converged in 20.4 s
+    Converged in 37.9 s
+    Converged in 44.0 s
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 67-69
+.. GENERATED FROM PYTHON SOURCE LINES 68-70
 
 Compute the emergent intensity at disk centre (mu = 1) on wavelength grids
 around the lines (vacuum wavelengths, in nm).
 
-.. GENERATED FROM PYTHON SOURCE LINES 69-80
+.. GENERATED FROM PYTHON SOURCE LINES 70-79
 
 .. code-block:: Python
 
@@ -144,10 +144,8 @@ around the lines (vacuum wavelengths, in nm).
     wave_ca = np.linspace(ca_k - 0.06, ca_k + 0.06, 601)
 
     profiles = {}
-    for label, ctx in [('CRD', ctx_crd), ('PRD (angle-averaged)', ctx_prd),
-                       ('HPRD', ctx_hprd)]:
-        profiles[label] = (ctx.compute_rays(wave_mg, [1.0]),
-                           ctx.compute_rays(wave_ca, [1.0]))
+    for label, ctx in [('CRD', ctx_crd), ('PRD (angle-averaged)', ctx_prd), ('HPRD', ctx_hprd)]:
+        profiles[label] = (ctx.compute_rays(wave_mg, [1.0]), ctx.compute_rays(wave_ca, [1.0]))
 
 
 
@@ -156,7 +154,7 @@ around the lines (vacuum wavelengths, in nm).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 81-86
+.. GENERATED FROM PYTHON SOURCE LINES 80-85
 
 Plot the profiles. PRD produces narrower emission peaks and much darker
 inner wings than CRD. Angle-averaged PRD does not account for the Doppler
@@ -164,7 +162,7 @@ shifts of the flow in the redistribution, and underestimates the blue (k2v)
 peak of Mg II k by ~40% relative to HPRD. Ca II K is less affected in this
 example.
 
-.. GENERATED FROM PYTHON SOURCE LINES 86-97
+.. GENERATED FROM PYTHON SOURCE LINES 85-96
 
 .. code-block:: Python
 
@@ -194,7 +192,7 @@ example.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (1 minutes 44.302 seconds)
+   **Total running time of the script:** (1 minutes 43.494 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_PrdChromosphericLines.py:

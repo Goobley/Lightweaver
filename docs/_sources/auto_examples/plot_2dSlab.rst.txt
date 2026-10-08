@@ -22,7 +22,7 @@
 NLTE Ca II in a 2D slab with periodic boundaries
 ================================================
 
-.. GENERATED FROM PYTHON SOURCE LINES 7-12
+.. GENERATED FROM PYTHON SOURCE LINES 8-13
 
 Lightweaver can solve the NLTE problem in two dimensions. Here we construct
 a horizontally homogeneous 2D slab from the FAL C model, with periodic
@@ -30,7 +30,7 @@ horizontal boundaries, solve for the Ca II populations, and compare against
 the equivalent plane-parallel (1D) solution. Any differences come from the
 different angular quadratures and the numerics of the 2D formal solver.
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-20
+.. GENERATED FROM PYTHON SOURCE LINES 13-21
 
 .. code-block:: Python
 
@@ -49,12 +49,12 @@ different angular quadratures and the numerics of the 2D formal solver.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 21-23
+.. GENERATED FROM PYTHON SOURCE LINES 22-24
 
 Solve for Ca II in statistical equilibrium (H is treated in LTE as a
 background species).
 
-.. GENERATED FROM PYTHON SOURCE LINES 23-33
+.. GENERATED FROM PYTHON SOURCE LINES 24-34
 
 .. code-block:: Python
 
@@ -75,13 +75,13 @@ background species).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 34-37
+.. GENERATED FROM PYTHON SOURCE LINES 35-38
 
 2D atmospheres are defined on a geometric height grid, with every quantity
 provided as a [z, x] array. Here each of the 8 columns is a copy of FAL C,
 and the x boundaries are periodic. This uses the 6 rays/octant quadrature of Štěpán et al 2020
 
-.. GENERATED FROM PYTHON SOURCE LINES 37-56
+.. GENERATED FROM PYTHON SOURCE LINES 38-63
 
 .. code-block:: Python
 
@@ -95,12 +95,18 @@ and the x boundaries are periodic. This uses the 6 rays/octant quadrature of Št
 
     x = np.arange(Nx) * 50e3
     zero = np.zeros((fal.Nspace, Nx))
-    atmos_2d = lw.Atmosphere.make_2d(height=np.copy(fal.z), x=x,
-                                    temperature=tile(fal.temperature),
-                                    vx=zero, vz=zero, vturb=tile(fal.vturb),
-                                    ne=tile(fal.ne), nHTot=tile(fal.nHTot),
-                                    xLowerBc=lw.PeriodicRadiation(),
-                                    xUpperBc=lw.PeriodicRadiation())
+    atmos_2d = lw.Atmosphere.make_2d(
+        height=np.copy(fal.z),
+        x=x,
+        temperature=tile(fal.temperature),
+        vx=zero,
+        vz=zero,
+        vturb=tile(fal.vturb),
+        ne=tile(fal.ne),
+        nh_tot=tile(fal.nh_tot),
+        x_lower_bc=lw.PeriodicRadiation(),
+        x_upper_bc=lw.PeriodicRadiation(),
+    )
     atmos_2d.quadrature(6)
     eq_pops_2d, ctx_2d = converged_ca(atmos_2d)
 
@@ -111,11 +117,11 @@ and the x boundaries are periodic. This uses the 6 rays/octant quadrature of Št
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 57-58
+.. GENERATED FROM PYTHON SOURCE LINES 64-65
 
 The plane-parallel solution for comparison.
 
-.. GENERATED FROM PYTHON SOURCE LINES 58-62
+.. GENERATED FROM PYTHON SOURCE LINES 65-69
 
 .. code-block:: Python
 
@@ -130,12 +136,12 @@ The plane-parallel solution for comparison.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 63-65
+.. GENERATED FROM PYTHON SOURCE LINES 70-72
 
 The spatial axis of 2D results is flattened in [z, x] order, so reshape to
 [level, z, x] and take a central column.
 
-.. GENERATED FROM PYTHON SOURCE LINES 65-70
+.. GENERATED FROM PYTHON SOURCE LINES 72-77
 
 .. code-block:: Python
 
@@ -151,13 +157,13 @@ The spatial axis of 2D results is flattened in [z, x] order, so reshape to
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 71-74
+.. GENERATED FROM PYTHON SOURCE LINES 78-81
 
 Plot the relative difference between the 2D column and the 1D solution for
 each Ca II level. They agree fairly well, with differences mostly originating
 from the angular quadrature (and different formal solver).
 
-.. GENERATED FROM PYTHON SOURCE LINES 74-82
+.. GENERATED FROM PYTHON SOURCE LINES 81-89
 
 .. code-block:: Python
 
@@ -184,7 +190,7 @@ from the angular quadrature (and different formal solver).
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 38.916 seconds)
+   **Total running time of the script:** (0 minutes 56.590 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_2dSlab.py:

@@ -22,14 +22,14 @@
 Contribution function and formation height of 854.2
 ===================================================
 
-.. GENERATED FROM PYTHON SOURCE LINES 7-11
+.. GENERATED FROM PYTHON SOURCE LINES 8-12
 
 After converging a simulation, the depth-dependent opacity and emissivity
 can be stored during a formal solution, and used to compute optical depths
 and contribution functions. Here we look at where the Ca II 854.2 nm line
 forms in the FAL C atmosphere.
 
-.. GENERATED FROM PYTHON SOURCE LINES 11-19
+.. GENERATED FROM PYTHON SOURCE LINES 12-20
 
 .. code-block:: Python
 
@@ -45,21 +45,14 @@ forms in the FAL C atmosphere.
 
 
 
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    /home/runner/work/Lightweaver/Lightweaver/lw-docs-venv/lib/python3.12/site-packages/lightweaver/config.py:75: UserWarning: No config file found, using defaults. For optimised vectorised code, please run `lightweaver.benchmark()`, otherwise the most advanced instruction set supported by your machine will be picked, which may not be the fastest (due to e.g. aggressive AVX offsets).
-      warnings.warn('No config file found, using defaults. For optimised vectorised code,'
 
 
 
-
-.. GENERATED FROM PYTHON SOURCE LINES 20-21
+.. GENERATED FROM PYTHON SOURCE LINES 21-22
 
 Converge the NLTE problem with H and Ca II active.
 
-.. GENERATED FROM PYTHON SOURCE LINES 21-30
+.. GENERATED FROM PYTHON SOURCE LINES 22-31
 
 .. code-block:: Python
 
@@ -85,16 +78,16 @@ Converge the NLTE problem with H and Ca II active.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 31-33
+.. GENERATED FROM PYTHON SOURCE LINES 32-34
 
 Ask the formal solver to store the full depth-dependent opacity and
-emissivity (`ctx.depthData`), then perform one more formal solution.
+emissivity (`ctx.depth_data`), then perform one more formal solution.
 
-.. GENERATED FROM PYTHON SOURCE LINES 33-36
+.. GENERATED FROM PYTHON SOURCE LINES 34-37
 
 .. code-block:: Python
 
-    ctx.depthData.fill = True
+    ctx.depth_data.fill = True
     ctx.formal_sol_gamma_matrices()
 
 
@@ -106,18 +99,18 @@ emissivity (`ctx.depthData`), then perform one more formal solution.
  .. code-block:: none
 
 
-    IterationUpdate(ctx=<lightweaver.Context object at 0x564c9450b700>, crsw=1.0, updatedJ=True, dJMax=0.004928092666046213, dJMaxIdx=308, updatedPops=False, dPops=[], dPopsMaxIdx=[], ngAccelerated=False, updatedNe=False, dNeMax=0.0, dNeMaxIdx=0, updatedRho=False, NprdSubIter=0, dRho=[], dRhoMaxIdx=[], updatedJPrd=False, dJPrdMax=[], dJPrdMaxIdx=[])
+    IterationUpdate(ctx=<lightweaver.Context object at 0x55f49caec1e0>, crsw=1.0, updated_J=True, dJ_max=0.004928092666373285, dJ_max_idx=308, updated_pops=False, dpops=[], dpops_max_idx=[], ng_accelerated=False, updated_ne=False, dne_max=0.0, dne_max_idx=0, updated_rho=False, Nprd_sub_iter=0, drho=[], drho_max_idx=[], updated_J_prd=False, dJ_prd_max=[], dJ_prd_max_idx=[])
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 37-41
+.. GENERATED FROM PYTHON SOURCE LINES 38-42
 
 Compute the contribution function and optical depth for the outgoing ray
 with the largest mu (the last ray of the quadrature), and the height at
 which tau = 1 along this ray. These are computed for every wavelength of
 the simulation's grid, so we select the points around 854.2.
 
-.. GENERATED FROM PYTHON SOURCE LINES 41-53
+.. GENERATED FROM PYTHON SOURCE LINES 42-54
 
 .. code-block:: Python
 
@@ -140,18 +133,20 @@ the simulation's grid, so we select the points around 854.2.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 54-56
+.. GENERATED FROM PYTHON SOURCE LINES 55-57
 
 Integrating the contribution function over height gives the emergent
 intensity (up to the accuracy of this simple quadrature).
 
-.. GENERATED FROM PYTHON SOURCE LINES 56-60
+.. GENERATED FROM PYTHON SOURCE LINES 57-63
 
 .. code-block:: Python
 
     integrated = -np.trapezoid(cfn[mask], z, axis=1)
-    print(f'Max relative difference between integrated cfn and I: '
-          f'{np.max(np.abs(integrated - I) / I):.2e}')
+    print(
+        f'Max relative difference between integrated cfn and I: '
+        f'{np.max(np.abs(integrated - I) / I):.2e}'
+    )
 
 
 
@@ -166,19 +161,20 @@ intensity (up to the accuracy of this simple quadrature).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 61-64
+.. GENERATED FROM PYTHON SOURCE LINES 64-67
 
 Plot the contribution function (normalised at each wavelength) with the
 tau = 1 height overlaid, and the emergent profile below. The line core forms
 in the chromosphere, around 1.2 Mm higher than the wings.
 
-.. GENERATED FROM PYTHON SOURCE LINES 64-77
+.. GENERATED FROM PYTHON SOURCE LINES 67-81
 
 .. code-block:: Python
 
     z_mm = z / 1e6
-    fig, ax = plt.subplots(2, 1, figsize=(7, 7), sharex=True, height_ratios=[2, 1],
-                           constrained_layout=True)
+    fig, ax = plt.subplots(
+        2, 1, figsize=(7, 7), sharex=True, height_ratios=[2, 1], constrained_layout=True
+    )
     cfn_norm = cfn[mask] / cfn[mask].max(axis=1, keepdims=True)
     ax[0].pcolormesh(wave, z_mm, cfn_norm.T, shading='auto', cmap='magma')
     ax[0].plot(wave, tau1[mask] / 1e6, c='C0', label=r'$\tau = 1$')
@@ -204,7 +200,7 @@ in the chromosphere, around 1.2 Mm higher than the wings.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 25.496 seconds)
+   **Total running time of the script:** (0 minutes 6.584 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_ContributionFunction.py:

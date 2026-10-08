@@ -11,6 +11,7 @@ Welcome to Lightweaver's documentation!
    :caption: Contents:
 
    auto_examples/index
+   migrating-to-1.0
    lightweaver-api
 
 Introduction

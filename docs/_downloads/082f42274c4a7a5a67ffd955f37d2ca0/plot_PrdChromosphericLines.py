@@ -3,7 +3,8 @@
 PRD synthesis of Mg II k and Ca II K with a chromospheric flow
 ==============================================================
 """
-#%%
+
+# %%
 # The resonance lines of Mg II and Ca II are strongly affected by partial
 # frequency redistribution (PRD). Here we solve the NLTE problem for H, Ca II
 # and Mg II simultaneously in the FAL C model with an upflow in the upper
@@ -26,7 +27,8 @@ import lightweaver as lw
 from lightweaver.fal import Falc82
 from lightweaver.rh_atoms import CaII_atom, H_6_atom, MgII_atom
 
-#%%
+
+# %%
 # Construct the atmosphere: FAL C, with a vertical velocity shear in the upper
 # chromosphere, where the cores of Mg II k and Ca II K form. The velocity
 # rises from 0 below ~1.2 Mm to a 10 km/s upflow (vz > 0, towards an observer
@@ -38,7 +40,7 @@ def make_atmos():
     return atmos
 
 
-#%%
+# %%
 # Set up and iterate the simulation. The H & K lines of Ca II, the h & k lines
 # of Mg II and Lyman alpha & beta are flagged as PRD lines in these model
 # atoms. When `prd=True` is passed to `lw.iterate_ctx_se`, the PRD emission
@@ -51,8 +53,7 @@ def synthesise(prd, hprd=False):
     rad_set.set_active('H', 'Ca', 'Mg')
     spect = rad_set.compute_wavelength_grid()
     eq_pops = rad_set.compute_eq_pops(atmos)
-    ctx = lw.Context(atmos, spect, eq_pops, conserveCharge=True, hprd=hprd,
-                     Nthreads=2)
+    ctx = lw.Context(atmos, spect, eq_pops, conserve_charge=True, hprd=hprd, Nthreads=2)
     start = time.time()
     lw.iterate_ctx_se(ctx, prd=prd, quiet=True)
     print(f'Converged in {time.time() - start:.1f} s')
@@ -63,7 +64,7 @@ ctx_crd = synthesise(prd=False)
 ctx_prd = synthesise(prd=True)
 ctx_hprd = synthesise(prd=True, hprd=True)
 
-#%%
+# %%
 # Compute the emergent intensity at disk centre (mu = 1) on wavelength grids
 # around the lines (vacuum wavelengths, in nm).
 mg_k = 279.635
@@ -72,12 +73,10 @@ wave_mg = np.linspace(mg_k - 0.06, mg_k + 0.06, 601)
 wave_ca = np.linspace(ca_k - 0.06, ca_k + 0.06, 601)
 
 profiles = {}
-for label, ctx in [('CRD', ctx_crd), ('PRD (angle-averaged)', ctx_prd),
-                   ('HPRD', ctx_hprd)]:
-    profiles[label] = (ctx.compute_rays(wave_mg, [1.0]),
-                       ctx.compute_rays(wave_ca, [1.0]))
+for label, ctx in [('CRD', ctx_crd), ('PRD (angle-averaged)', ctx_prd), ('HPRD', ctx_hprd)]:
+    profiles[label] = (ctx.compute_rays(wave_mg, [1.0]), ctx.compute_rays(wave_ca, [1.0]))
 
-#%%
+# %%
 # Plot the profiles. PRD produces narrower emission peaks and much darker
 # inner wings than CRD. Angle-averaged PRD does not account for the Doppler
 # shifts of the flow in the redistribution, and underestimates the blue (k2v)

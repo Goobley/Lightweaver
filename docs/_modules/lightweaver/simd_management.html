@@ -47,6 +47,7 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../auto_examples/index.html">Lightweaver Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migrating-to-1.0.html">Migrating to Lightweaver 1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../lightweaver-api.html">Lightweaver API Documentation</a></li>
 </ul>
 
@@ -80,21 +81,24 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">numpy._core._multiarray_umath</span><span class="w"> </span><span class="kn">import</span> <span class="n">__cpu_features__</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">.deprecation</span><span class="w"> </span><span class="kn">import</span> <span class="n">accepts_old_kwargs</span>
+
 <span class="c1"># NOTE(cmo): These are added in reverse order of preference (due to width), i.e.</span>
 <span class="c1"># try to use the key furthest down the list.</span>
 <span class="n">LwSimdImplsAndFlags</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">'SSE2'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'SSE2'</span><span class="p">],</span>
     <span class="s1">'AVX2FMA'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'AVX2'</span><span class="p">,</span> <span class="s1">'FMA3'</span><span class="p">],</span>
-    <span class="s1">'AVX512'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'AVX512F'</span><span class="p">,</span> <span class="s1">'AVX512DQ'</span><span class="p">]</span>
+    <span class="s1">'AVX512'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'AVX512F'</span><span class="p">,</span> <span class="s1">'AVX512DQ'</span><span class="p">],</span>
 <span class="p">}</span>
+
 
 <div class="viewcode-block" id="get_available_simd_suffixes">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.simd_management.get_available_simd_suffixes">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_available_simd_suffixes</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">'''</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Verifies the necessary flags against the features NumPy indicates are</span>
 <span class="sd">    available, and returns a list of available LightweaverSimdImpls</span>
-<span class="sd">    '''</span>
+<span class="sd">    """</span>
     <span class="n">validExts</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">impl</span><span class="p">,</span> <span class="n">flags</span> <span class="ow">in</span> <span class="n">LwSimdImplsAndFlags</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">__cpu_features__</span><span class="p">[</span><span class="n">flag</span><span class="p">]</span> <span class="k">for</span> <span class="n">flag</span> <span class="ow">in</span> <span class="n">flags</span><span class="p">):</span>
@@ -102,16 +106,18 @@
     <span class="k">return</span> <span class="n">validExts</span></div>
 
 
+
 <div class="viewcode-block" id="filter_usable_simd_impls">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.simd_management.filter_usable_simd_impls">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">filter_usable_simd_impls</span><span class="p">(</span><span class="n">implLibs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">'''</span>
+<span class="nd">@accepts_old_kwargs</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_usable_simd_impls</span><span class="p">(</span><span class="n">impl_libs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Filter a list of SimdImpl library names, returning those that are usable on</span>
 <span class="sd">    the current machine.</span>
-<span class="sd">    '''</span>
+<span class="sd">    """</span>
     <span class="n">usableImpls</span> <span class="o">=</span> <span class="n">get_available_simd_suffixes</span><span class="p">()</span>
     <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">lib</span> <span class="ow">in</span> <span class="n">implLibs</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">lib</span> <span class="ow">in</span> <span class="n">impl_libs</span><span class="p">:</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">libName</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">lib</span><span class="p">)</span>
         <span class="c1"># NOTE(cmo): A lib name is expected to be of the form</span>
         <span class="c1"># SimdImpl_{SimdType}.{pep3149}.so. So we split at the underscore and</span>

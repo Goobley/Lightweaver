@@ -1,0 +1,336 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>lightweaver.migrate &mdash; Lightweaver  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=c83e6b79" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Lightweaver
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../auto_examples/index.html">Lightweaver Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migrating-to-1.0.html">Migrating to Lightweaver 1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../lightweaver-api.html">Lightweaver API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Lightweaver</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">lightweaver.migrate</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for lightweaver.migrate</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">Update scripts to the snake_case names introduced in Lightweaver 1.0.</span>
+
+<span class="sd">Usage::</span>
+
+<span class="sd">    python -m lightweaver.migrate [--inplace] PATH [PATH ...]</span>
+
+<span class="sd">PATHs can be files or directories (searched recursively for ``*.py``). By</span>
+<span class="sd">default a unified diff of the proposed changes is printed and nothing is</span>
+<span class="sd">modified; ``--inplace`` modifies the files in place.</span>
+
+<span class="sd">What is renamed:</span>
+
+<span class="sd">- keyword arguments in calls to Lightweaver functions, methods and classes</span>
+<span class="sd">  that accept the old names (e.g. ``lw.Context(..., conserveCharge=True)``);</span>
+<span class="sd">- attribute accesses using an old name (e.g. ``ctx.activeAtoms``,</span>
+<span class="sd">  ``atmos.nHTot``), in both reads and writes;</span>
+<span class="sd">- keys of a `Context` state dict's ``kwargs`` (``sd['kwargs']['eqPops']`` and</span>
+<span class="sd">  ``dict(sd['kwargs'], eqPops=...)``);</span>
+<span class="sd">- keys of a ``time_dependent_data`` dict literal passed to ``nr_post_update``</span>
+<span class="sd">  (``{'dt': dt, 'nPrev': prev_state}``).</span>
+
+<span class="sd">Bare names (local variables such as ``eqPops = ...``) and calls to your own</span>
+<span class="sd">functions are never touched. Attribute renames apply to any object, so if your</span>
+<span class="sd">own classes reuse a Lightweaver attribute name it will be renamed consistently;</span>
+<span class="sd">these are listed in the summary for review. Formatting and comments are</span>
+<span class="sd">preserved.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ast</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">difflib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pkgutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">._renames</span><span class="w"> </span><span class="kn">import</span> <span class="n">NR_DICT_KEY_RENAMES</span><span class="p">,</span> <span class="n">RENAMES</span>
+
+<span class="n">Edit</span> <span class="o">=</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>  <span class="c1"># (line index, byte column, old, new)</span>
+
+
+<div class="viewcode-block" id="build_kwarg_registry">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.migrate.build_kwarg_registry">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_kwarg_registry</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Import Lightweaver's modules so every shimmed callable registers the old</span>
+<span class="sd">    keyword names it accepts, and return the registry (callable short name -&gt;</span>
+<span class="sd">    old keyword names).</span>
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">lightweaver</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.deprecation</span><span class="w"> </span><span class="kn">import</span> <span class="n">KWARG_REGISTRY</span>
+
+    <span class="k">for</span> <span class="n">mod</span> <span class="ow">in</span> <span class="n">pkgutil</span><span class="o">.</span><span class="n">iter_modules</span><span class="p">(</span><span class="n">lightweaver</span><span class="o">.</span><span class="n">__path__</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">mod</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'migrate'</span><span class="p">,):</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="sa">f</span><span class="s1">'lightweaver.</span><span class="si">{</span><span class="n">mod</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="c1"># Optional dependencies (e.g. crtaf).</span>
+            <span class="k">pass</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">set</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">KWARG_REGISTRY</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_kwargs_subscript</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Whether `node` is `&lt;expr&gt;['kwargs']`, i.e. the kwargs of a Context state dict."""</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Subscript</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">slice</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Constant</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">slice</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s1">'kwargs'</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_callee_name</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">expr</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">func</span><span class="o">.</span><span class="n">id</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Attribute</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">func</span><span class="o">.</span><span class="n">attr</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="find_edits">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.migrate.find_edits">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_edits</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">registry</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Edit</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Edit</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the (keyword, attribute) edits for a source file.</span>
+<span class="sd">    """</span>
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+    <span class="n">kw_edits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Edit</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">attr_edits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Edit</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ast</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">tree</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">):</span>
+            <span class="n">accepted</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_callee_name</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">func</span><span class="p">),</span> <span class="p">())</span>
+            <span class="k">if</span> <span class="n">_callee_name</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">func</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'dict'</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span>
+                <span class="n">_is_kwargs_subscript</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">args</span>
+            <span class="p">):</span>
+                <span class="c1"># dict(sd['kwargs'], oldName=...) on a Context state dict.</span>
+                <span class="n">accepted</span> <span class="o">=</span> <span class="n">RENAMES</span>
+            <span class="k">for</span> <span class="n">kw</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">keywords</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">kw</span><span class="o">.</span><span class="n">arg</span> <span class="ow">in</span> <span class="n">accepted</span><span class="p">:</span>
+                    <span class="n">kw_edits</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">kw</span><span class="o">.</span><span class="n">lineno</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">kw</span><span class="o">.</span><span class="n">col_offset</span><span class="p">,</span> <span class="n">kw</span><span class="o">.</span><span class="n">arg</span><span class="p">,</span> <span class="n">RENAMES</span><span class="p">[</span><span class="n">kw</span><span class="o">.</span><span class="n">arg</span><span class="p">]))</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">_callee_name</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">func</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'nr_post_update'</span>
+                    <span class="ow">and</span> <span class="n">kw</span><span class="o">.</span><span class="n">arg</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'time_dependent_data'</span><span class="p">,</span> <span class="s1">'timeDependentData'</span><span class="p">)</span>
+                    <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kw</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Dict</span><span class="p">)</span>
+                <span class="p">):</span>
+                    <span class="c1"># ctx.nr_post_update(time_dependent_data={'nPrev': ...}): rename inside the quotes.</span>
+                    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kw</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">keys</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Constant</span><span class="p">)</span> <span class="ow">and</span> <span class="n">key</span><span class="o">.</span><span class="n">value</span> <span class="ow">in</span> <span class="n">NR_DICT_KEY_RENAMES</span><span class="p">:</span>
+                            <span class="n">new</span> <span class="o">=</span> <span class="n">NR_DICT_KEY_RENAMES</span><span class="p">[</span><span class="n">key</span><span class="o">.</span><span class="n">value</span><span class="p">]</span>
+                            <span class="n">kw_edits</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">key</span><span class="o">.</span><span class="n">lineno</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">col_offset</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">new</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Subscript</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">_is_kwargs_subscript</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">slice</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Constant</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">slice</span><span class="o">.</span><span class="n">value</span> <span class="ow">in</span> <span class="n">RENAMES</span>
+        <span class="p">):</span>
+            <span class="c1"># sd['kwargs']['oldName'] on a Context state dict: rename inside the quotes.</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">slice</span>
+            <span class="n">kw_edits</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">key</span><span class="o">.</span><span class="n">lineno</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">col_offset</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">RENAMES</span><span class="p">[</span><span class="n">key</span><span class="o">.</span><span class="n">value</span><span class="p">]))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Attribute</span><span class="p">)</span> <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">attr</span> <span class="ow">in</span> <span class="n">RENAMES</span><span class="p">:</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">end_col_offset</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">attr</span><span class="p">)</span>
+            <span class="n">attr_edits</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">node</span><span class="o">.</span><span class="n">end_lineno</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">attr</span><span class="p">,</span> <span class="n">RENAMES</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">attr</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">kw_edits</span><span class="p">,</span> <span class="n">attr_edits</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_edits</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">edits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Edit</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="c1"># ast offsets are UTF-8 byte offsets, so edit the encoded lines.</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">'utf-8'</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(</span><span class="n">keepends</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">line</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">old</span><span class="p">,</span> <span class="n">new</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">edits</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">line</span><span class="p">][</span><span class="n">col</span> <span class="p">:</span> <span class="n">col</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">old</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">current</span> <span class="o">!=</span> <span class="n">old</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">'utf-8'</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unexpected source at line </span><span class="si">{</span><span class="n">line</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">current</span><span class="si">!r}</span><span class="s1"> != </span><span class="si">{</span><span class="n">old</span><span class="si">!r}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">lines</span><span class="p">[</span><span class="n">line</span><span class="p">]</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">line</span><span class="p">][:</span><span class="n">col</span><span class="p">]</span> <span class="o">+</span> <span class="n">new</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">'utf-8'</span><span class="p">)</span> <span class="o">+</span> <span class="n">lines</span><span class="p">[</span><span class="n">line</span><span class="p">][</span><span class="n">col</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">old</span><span class="p">)</span> <span class="p">:]</span>
+    <span class="k">return</span> <span class="sa">b</span><span class="s1">''</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">'utf-8'</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="migrate_source">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.migrate.migrate_source">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">migrate_source</span><span class="p">(</span>
+    <span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">registry</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Edit</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Edit</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the migrated source and the (keyword, attribute) edits made.</span>
+<span class="sd">    """</span>
+    <span class="n">kw_edits</span><span class="p">,</span> <span class="n">attr_edits</span> <span class="o">=</span> <span class="n">find_edits</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">registry</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">apply_edits</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">kw_edits</span> <span class="o">+</span> <span class="n">attr_edits</span><span class="p">),</span> <span class="n">kw_edits</span><span class="p">,</span> <span class="n">attr_edits</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_python_files</span><span class="p">(</span><span class="n">paths</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="k">yield from</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s1">'*.py'</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">part</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'.'</span><span class="p">)</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">parts</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">path</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">prog</span><span class="o">=</span><span class="s1">'python -m lightweaver.migrate'</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s1">'Update scripts to the snake_case names introduced in Lightweaver 1.0.'</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'paths'</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">'+'</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">'Files or directories to migrate.'</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">'--inplace'</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">'Modify the files in place (default: print a diff).'</span>
+    <span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
+
+    <span class="n">registry</span> <span class="o">=</span> <span class="n">build_kwarg_registry</span><span class="p">()</span>
+    <span class="n">names</span><span class="p">:</span> <span class="n">Counter</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+    <span class="n">attr_names</span><span class="p">:</span> <span class="n">Counter</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+    <span class="n">changed</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">_python_files</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">paths</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">source</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">)</span>
+            <span class="n">new</span><span class="p">,</span> <span class="n">kw_edits</span><span class="p">,</span> <span class="n">attr_edits</span> <span class="o">=</span> <span class="n">migrate_source</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">registry</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">SyntaxError</span><span class="p">,</span> <span class="ne">UnicodeDecodeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">: skipped (</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">)'</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+            <span class="n">errors</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">new</span> <span class="o">==</span> <span class="n">source</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">changed</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">names</span><span class="o">.</span><span class="n">update</span><span class="p">((</span><span class="n">e</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">e</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">kw_edits</span><span class="p">)</span>
+        <span class="n">attr_names</span><span class="o">.</span><span class="n">update</span><span class="p">((</span><span class="n">e</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">e</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">attr_edits</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">inplace</span><span class="p">:</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">new</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">kw_edits</span><span class="p">)</span><span class="si">}</span><span class="s1"> keyword and </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">attr_edits</span><span class="p">)</span><span class="si">}</span><span class="s1"> attribute renames'</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span>
+                <span class="n">difflib</span><span class="o">.</span><span class="n">unified_diff</span><span class="p">(</span>
+                    <span class="n">source</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(</span><span class="n">keepends</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+                    <span class="n">new</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(</span><span class="n">keepends</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+                    <span class="n">fromfile</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span>
+                    <span class="n">tofile</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="se">\n</span><span class="si">{</span><span class="n">changed</span><span class="si">}</span><span class="s1"> file(s) </span><span class="si">{</span><span class="s2">"updated"</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">args</span><span class="o">.</span><span class="n">inplace</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">"would be updated"</span><span class="si">}</span><span class="s1">.'</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">names</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s1">'Keyword arguments and dict keys: '</span>
+            <span class="o">+</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">old</span><span class="si">}</span><span class="s1"> -&gt; </span><span class="si">{</span><span class="n">new</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1">)'</span> <span class="k">for</span> <span class="p">(</span><span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">),</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">names</span><span class="o">.</span><span class="n">most_common</span><span class="p">()),</span>
+            <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">attr_names</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s1">'Attributes (also applied to your own objects that use these names; please review): '</span>
+            <span class="o">+</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">old</span><span class="si">}</span><span class="s1"> -&gt; </span><span class="si">{</span><span class="n">new</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1">)'</span> <span class="k">for</span> <span class="p">(</span><span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">),</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">attr_names</span><span class="o">.</span><span class="n">most_common</span><span class="p">()),</span>
+            <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">errors</span> <span class="k">else</span> <span class="mi">0</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">'__main__'</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, C. Osborne.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
