@@ -53,7 +53,7 @@ def synthesise(prd, hprd=False):
     rad_set.set_active('H', 'Ca', 'Mg')
     spect = rad_set.compute_wavelength_grid()
     eq_pops = rad_set.compute_eq_pops(atmos)
-    ctx = lw.Context(atmos, spect, eq_pops, conserveCharge=True, hprd=hprd, Nthreads=2)
+    ctx = lw.Context(atmos, spect, eq_pops, conserve_charge=True, hprd=hprd, Nthreads=2)
     start = time.time()
     lw.iterate_ctx_se(ctx, prd=prd, quiet=True)
     print(f'Converged in {time.time() - start:.1f} s')

@@ -98,9 +98,9 @@ def from_crtaf(model: 'crtaf.Atom') -> AtomicModel:
             elif isinstance(b, crtaf.ScaledExponents):
                 lw_b = ScaledExponentBroadening(
                     scaling=b.scaling,
-                    temperatureExp=b.temperature_exponent,
-                    hydrogenExp=b.hydrogen_exponent,
-                    electronExp=b.electron_exponent,
+                    temperature_exp=b.temperature_exponent,
+                    hydrogen_exp=b.hydrogen_exponent,
+                    electron_exp=b.electron_exponent,
                 )
                 if b.elastic:
                     elastic_broadening.append(lw_b)
@@ -114,16 +114,16 @@ def from_crtaf(model: 'crtaf.Atom') -> AtomicModel:
         if isinstance(q, crtaf.LinearGrid):
             grid = LinearQuadrature(
                 Nlambda=q.n_lambda,
-                deltaLambda=q.delta_lambda.to(u.nm).value.item(),
+                delta_lambda=q.delta_lambda.to(u.nm).value.item(),
             )
         elif isinstance(q, crtaf.TabulatedGrid):
             grid = TabulatedQuadrature(
-                wavelengthGrid=q.wavelengths.to(u.nm).value.tolist(),
+                wavelength_grid=q.wavelengths.to(u.nm).value.tolist(),
             )
         elif isinstance(q, crtaf.LinearCoreExpWings):
             grid = LinearCoreExpWings(
-                qCore=q.q_core,
-                qWing=q.q_wing,
+                q_core=q.q_core,
+                q_wing=q.q_wing,
                 Nlambda=q.n_lambda,
             )
         else:
@@ -147,16 +147,16 @@ def from_crtaf(model: 'crtaf.Atom') -> AtomicModel:
             lw_cont = HydrogenicContinuum(
                 j=level_conversion_dict[cont.transition[0]],
                 i=level_conversion_dict[cont.transition[1]],
-                NlambdaGen=cont.n_lambda,
+                Nlambda_gen=cont.n_lambda,
                 alpha0=cont.sigma_peak.to('m2').value,
-                minWavelength=cont.lambda_min.to(u.nm).value,
+                min_wavelength=cont.lambda_min.to(u.nm).value,
             )
         elif isinstance(cont, crtaf.TabulatedBoundFree):
             lw_cont = ExplicitContinuum(
                 j=level_conversion_dict[cont.transition[0]],
                 i=level_conversion_dict[cont.transition[1]],
-                wavelengthGrid=cont.wavelengths.to(u.nm).value,
-                alphaGrid=cont.sigma.to('m2').value,
+                wavelength_grid=cont.wavelengths.to(u.nm).value,
+                alpha_grid=cont.sigma.to('m2').value,
             )
         else:
             raise ValueError(

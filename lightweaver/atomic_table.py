@@ -2,6 +2,8 @@ import pickle
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, List, Tuple, Union
 
+from .deprecation import deprecated_names
+
 try:
     from xdrlib import Unpacker
 except ImportError:
@@ -49,14 +51,14 @@ class Element:
         """
         Returns the mass of the element in AMU.
         """
-        return PeriodicTable.massData[self.Z]
+        return PeriodicTable.mass_data[self.Z]
 
     @property
     def name(self):
         """
         Returns the name of the element as a string.
         """
-        return PeriodicTable.nameMapping[self.Z]
+        return PeriodicTable.name_mapping[self.Z]
 
 
 class Isotope(Element):
@@ -94,7 +96,7 @@ class Isotope(Element):
         """
         Returns the mass of the isotope in AMU.
         """
-        return PeriodicTable.massData[(self.N, self.Z)]
+        return PeriodicTable.mass_data[(self.N, self.Z)]
 
     @property
     def name(self):
@@ -103,7 +105,7 @@ class Isotope(Element):
         """
         # NOTE(cmo): Handle H isotopes
         if self.Z == 1 and self.N != 1:
-            return PeriodicTable.nameMapping[(self.N, self.Z)]
+            return PeriodicTable.name_mapping[(self.N, self.Z)]
 
         baseName = self.element_name
         return '^%d_%s' % (self.N, baseName)
@@ -138,27 +140,27 @@ def load_periodic_table_data():
     """
     path = get_data_path() + 'AtomicMassesNames.pickle'
     with open(path, 'rb') as pkl:
-        massData, nameMapping = pickle.load(pkl)
+        mass_data, name_mapping = pickle.load(pkl)
 
     # NOTE(cmo): Manually change names to D and T for H isotopes
-    nameMapping[(2, 1)] = 'D'
-    nameMapping['D'] = (2, 1)
-    nameMapping[(3, 1)] = 'T'
-    nameMapping['T'] = (3, 1)
+    name_mapping[(2, 1)] = 'D'
+    name_mapping['D'] = (2, 1)
+    name_mapping[(3, 1)] = 'T'
+    name_mapping['T'] = (3, 1)
 
     # NOTE(cmo): Compute list of isotopes for each eleemnt.
     # This can definitely be done more efficiently, but it probably doesn't
     # matter. (~5 ms, done once, on startup, from timeit)
     isotopes = {}
     elements = {}
-    for target in massData:
+    for target in mass_data:
         if isinstance(target, tuple):
             continue
 
         element = Element(Z=target)
         elements[target] = element
         isotopes[element] = []
-        for key in massData:
+        for key in mass_data:
             if isinstance(key, int):
                 continue
 
@@ -167,7 +169,7 @@ def load_periodic_table_data():
                 iso = Isotope(N=N, Z=Z)
                 isotopes[element].append(iso)
                 elements[(N, Z)] = iso
-    return massData, nameMapping, isotopes, elements
+    return mass_data, name_mapping, isotopes, elements
 
 
 def normalise_atom_name(n: str) -> str:
@@ -195,6 +197,7 @@ def normalise_atom_name(n: str) -> str:
         return n[0].upper() + n[1].lower()
 
 
+@deprecated_names(attrs=('mass_data', 'name_mapping'))
 class PeriodicTableData:
     """
     Container and accessor for the periodic table data. Not intended to be
@@ -202,7 +205,7 @@ class PeriodicTableData:
     instance.
     """
 
-    massData, nameMapping, isos, elems = load_periodic_table_data()
+    mass_data, name_mapping, isos, elems = load_periodic_table_data()
 
     def __getitem__(self, x: Union[str, int, Tuple[int, int], Element]) -> Element:
         """
@@ -243,14 +246,14 @@ class PeriodicTableData:
                 N = int(terms[0])
                 name = normalise_atom_name(terms[1])
                 try:
-                    Z = self.nameMapping[name]
+                    Z = self.name_mapping[name]
                     return self.elems[(N, Z)]
                 except KeyError:
                     raise KeyError('Unable to find Isotope from string %s' % x)
             else:
                 name = normalise_atom_name(x)
                 try:
-                    Z = self.nameMapping[name]
+                    Z = self.name_mapping[name]
                     return self.elems[Z]
                 except KeyError:
                     raise KeyError('Unable to find Element with name %s' % name)
@@ -295,6 +298,7 @@ class PeriodicTableData:
 PeriodicTable = PeriodicTableData()
 
 
+@deprecated_names(attrs=('avg_mass', 'isotope_proportions', 'mass_per_h', 'total_abundance'))
 class AtomicAbundance:
     """
     Container and accessor for atomic abundance data. This can be
@@ -303,11 +307,11 @@ class AtomicAbundance:
 
     Parameters
     ----------
-    abundanceData : dict, optional
+    abundance_data : dict, optional
         Contains the abundance data to override. For elements this should be
         dict[Element] = abundance, and for isotopes dict[Isotope] = isotope
         fraction.
-    abundDex : bool, optional
+    abund_dex : bool, optional
         Whether the supplied abundance is in dex (with Hydrogen abundance of
         12.0) or in relative Hydrogen abundance (default: True i.e. in dex).
     metallicity : float, optional
@@ -315,21 +319,21 @@ class AtomicAbundance:
         (default: 0.0).
     """
 
-    def __init__(self, abundanceData: dict = None, abundDex=True, metallicity: float = 0.0):
+    def __init__(self, abundance_data: dict = None, abund_dex=True, metallicity: float = 0.0):
         self.abundance = self.load_default_abundance_data()
         # NOTE(cmo): Default abundances always in dex
         self.dex_to_decimal(self.abundance)
 
-        if abundanceData is not None:
-            if abundDex:
-                self.dex_to_decimal(abundanceData)
-            self.abundance.update(abundanceData)
+        if abundance_data is not None:
+            if abund_dex:
+                self.dex_to_decimal(abundance_data)
+            self.abundance.update(abundance_data)
 
         self.metallicity = metallicity
         if metallicity != 0.0:
             self.apply_metallicity(self.abundance, metallicity)
 
-        self.isotopeProportions = {
+        self.isotope_proportions = {
             iso: v for iso, v in self.abundance.items() if type(iso) is Isotope
         }
 
@@ -352,18 +356,18 @@ class AtomicAbundance:
 
     def compute_stats(self):
         """
-        Compute the total abundance (totalAbundance), mass per H atom
-        (massPerH), and average mass per Element (avgMass).
+        Compute the total abundance (total_abundance), mass per H atom
+        (mass_per_h), and average mass per Element (avg_mass).
         """
         totalAbund = 0.0
-        avgMass = 0.0
+        avg_mass = 0.0
         for e in PeriodicTable.elements:
             totalAbund += self.abundance[e]
-            avgMass += self.abundance[e] * e.mass
+            avg_mass += self.abundance[e] * e.mass
 
-        self.totalAbundance = totalAbund
-        self.massPerH = avgMass
-        self.avgMass = avgMass / totalAbund
+        self.total_abundance = totalAbund
+        self.mass_per_h = avg_mass
+        self.avg_mass = avg_mass / totalAbund
 
     def __getitem__(self, x: Union[str, int, Tuple[int, int], Element]) -> float:
         """
@@ -438,6 +442,7 @@ class AtomicAbundance:
 DefaultAtomicAbundance = AtomicAbundance()
 
 
+@deprecated_names
 @dataclass
 class KuruczPf:
     """
@@ -454,7 +459,7 @@ class KuruczPf:
         The temperature grid on which the partition function is defined.
     pf : np.ndarray
         The partition function data.
-    ionPot : np.ndarray
+    ion_pot : np.ndarray
         The ionisation potential of each level.
     """
 
@@ -462,7 +467,7 @@ class KuruczPf:
     abundance: float
     Tpf: np.ndarray
     pf: np.ndarray
-    ionPot: np.ndarray
+    ion_pot: np.ndarray
 
     def lte_ionisation(self, atmos: 'Atmosphere') -> np.ndarray:
         """
@@ -479,7 +484,7 @@ class KuruczPf:
         pops : np.ndarray
             The LTE ionisation populations [Nstage x Nspace].
         """
-        Nstage = self.ionPot.shape[0]
+        Nstage = self.ion_pot.shape[0]
         Nspace = atmos.Nspace
 
         C1 = (Const.HPlanck / (2.0 * np.pi * Const.MElectron)) * Const.HPlanck / Const.KBoltzmann
@@ -497,13 +502,13 @@ class KuruczPf:
             pops[i, :] = (
                 pops[i - 1, :]
                 * CtNe
-                * np.exp(Ukp1 - Uk - self.ionPot[i - 1] / (Const.KBoltzmann * atmos.temperature))
+                * np.exp(Ukp1 - Uk - self.ion_pot[i - 1] / (Const.KBoltzmann * atmos.temperature))
             )
             total += pops[i]
 
             Ukp1, Uk = Uk, Ukp1
 
-        pops[0, :] = self.abundance * atmos.nHTot / total
+        pops[0, :] = self.abundance * atmos.nh_tot / total
         pops[1:, :] *= pops[0, :]
 
         return pops
@@ -534,7 +539,7 @@ class KuruczPf:
         C1 = (Const.HPlanck / (2.0 * np.pi * Const.MElectron)) * Const.HPlanck / Const.KBoltzmann
 
         CtNe = 2.0 * (C1 / T) ** (-1.5) / ne
-        Nstage: int = self.ionPot.shape[0]
+        Nstage: int = self.ion_pot.shape[0]
         fjk = np.zeros(Nstage)
         fjk[0] = 1.0
         dfjk = np.zeros(Nstage)
@@ -550,7 +555,7 @@ class KuruczPf:
             Ukp1: float = np.interp(T, self.Tpf, self.pf[j, :])
 
             fjk[j] = (
-                fjk[j - 1] * CtNe * np.exp(Ukp1 - Uk - self.ionPot[j - 1] / (Const.KBoltzmann * T))
+                fjk[j - 1] * CtNe * np.exp(Ukp1 - Uk - self.ion_pot[j - 1] / (Const.KBoltzmann * T))
             )
             dfjk[j] = -j * fjk[j] / ne
 
@@ -587,7 +592,7 @@ class KuruczPf:
         C1 = (Const.HPlanck / (2.0 * np.pi * Const.MElectron)) * Const.HPlanck / Const.KBoltzmann
 
         CtNe = 2.0 * (C1 / T) ** (-1.5) / ne
-        Nstage: int = self.ionPot.shape[0]
+        Nstage: int = self.ion_pot.shape[0]
         fj = np.zeros((Nstage, Nspace))
         fj[0, :] = 1.0
         dfj = np.zeros((Nstage, Nspace))
@@ -603,7 +608,7 @@ class KuruczPf:
             Ukp1 = np.interp(T, self.Tpf, self.pf[j, :])
 
             fj[j] = (
-                fj[j - 1] * CtNe * np.exp(Ukp1 - Uk - self.ionPot[j - 1] / (Const.KBoltzmann * T))
+                fj[j - 1] * CtNe * np.exp(Ukp1 - Uk - self.ion_pot[j - 1] / (Const.KBoltzmann * T))
             )
             dfj[j] = -j * fj[j] / ne
 
@@ -616,6 +621,7 @@ class KuruczPf:
         return fj, dfj
 
 
+@deprecated_names(attrs=('atomic_abundance',))
 class KuruczPfTable:
     """
     Container for all of the Kurucz partition function data, allowing
@@ -624,19 +630,21 @@ class KuruczPfTable:
 
     Parameters
     ----------
-    atomicAbundance : AtomicAbundance, optional
+    atomic_abundance : AtomicAbundance, optional
         The abundance data to use, if non-standard.
-    kuruczPfPath : str
+    kurucz_pf_path : str
         The path to the Kurucz parition function data in RH's XDR format, if
         non-standard.
     """
 
-    def __init__(self, atomicAbundance: AtomicAbundance = None, kuruczPfPath: str = None):
-        if atomicAbundance is None:
-            atomicAbundance = DefaultAtomicAbundance
-        self.atomicAbundance = atomicAbundance
-        kuruczPfPath = get_data_path() + 'pf_Kurucz.input' if kuruczPfPath is None else kuruczPfPath
-        with open(kuruczPfPath, 'rb') as f:
+    def __init__(self, atomic_abundance: AtomicAbundance = None, kurucz_pf_path: str = None):
+        if atomic_abundance is None:
+            atomic_abundance = DefaultAtomicAbundance
+        self.atomic_abundance = atomic_abundance
+        kurucz_pf_path = (
+            get_data_path() + 'pf_Kurucz.input' if kurucz_pf_path is None else kurucz_pf_path
+        )
+        with open(kurucz_pf_path, 'rb') as f:
             s = f.read()
         u = Unpacker(s)
 
@@ -671,8 +679,8 @@ class KuruczPfTable:
         zm = x.Z - 1
         return KuruczPf(
             element=x,
-            abundance=self.atomicAbundance[x],
+            abundance=self.atomic_abundance[x],
             Tpf=self.Tpf,
             pf=self.pf[zm],
-            ionPot=self.ionpot[zm],
+            ion_pot=self.ionpot[zm],
         )

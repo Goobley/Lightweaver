@@ -30,8 +30,8 @@ lw.iterate_ctx_se(ctx, quiet=True)
 
 # %%
 # Ask the formal solver to store the full depth-dependent opacity and
-# emissivity (`ctx.depthData`), then perform one more formal solution.
-ctx.depthData.fill = True
+# emissivity (`ctx.depth_data`), then perform one more formal solution.
+ctx.depth_data.fill = True
 ctx.formal_sol_gamma_matrices()
 
 # %%

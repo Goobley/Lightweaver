@@ -87,15 +87,15 @@ def effective_lande(line: 'AtomicLine'):
     """
     Computes the effective Lande g-factor for an atomic line.
     """
-    if line.gLandeEff is not None:
-        return line.gLandeEff
+    if line.g_lande_eff is not None:
+        return line.g_lande_eff
 
-    i = line.iLevel
-    j = line.jLevel
+    i = line.i_level
+    j = line.j_level
     if any(x is None for x in [i.J, i.L, i.S, j.J, j.L, j.S]):
         raise ValueError(
             (
-                'Cannot compute gLandeEff as gLandeEff not set and some of '
+                'Cannot compute g_lande_eff as g_lande_eff not set and some of '
                 'J, L and S None for line %s'
             )
             % repr(line)
@@ -110,7 +110,7 @@ def compute_zeeman_components(line: 'AtomicLine') -> Optional[ZeemanComponents]:
     """
     Computes, if possible, the set of Zeeman components for an atomic line.
 
-    If gLandeEff is specified on the line, then basic three-component Zeeman
+    If g_lande_eff is specified on the line, then basic three-component Zeeman
     splitting will be computed directly.
     Otherwise, if both the lower and upper levels of the line support
     LS-coupling (i.e. J, L, and S all specified, and J <= L + S), then the
@@ -130,21 +130,21 @@ def compute_zeeman_components(line: 'AtomicLine') -> Optional[ZeemanComponents]:
     """
     # NOTE(cmo): Just do basic three-component Zeeman splitting if an effective
     # Lande g-factor is specified on the line.
-    if line.gLandeEff is not None:
+    if line.g_lande_eff is not None:
         alpha = np.array([-1, 0, 1], dtype=np.int32)
         strength = np.ones(3)
-        shift = alpha * line.gLandeEff
+        shift = alpha * line.g_lande_eff
         return ZeemanComponents(alpha, strength, shift)
 
     # NOTE(cmo): Do LS coupling ("anomalous" Zeeman splitting)
-    if line.iLevel.lsCoupling and line.jLevel.lsCoupling:
+    if line.i_level.LS_coupling and line.j_level.LS_coupling:
         # Mypy... you're a pain sometimes... (even if you are technically correct)
-        Jl = cast(Fraction, line.iLevel.J)
-        Ll = cast(int, line.iLevel.L)
-        Sl = cast(Fraction, line.iLevel.S)
-        Ju = cast(Fraction, line.jLevel.J)
-        Lu = cast(int, line.jLevel.L)
-        Su = cast(Fraction, line.jLevel.S)
+        Jl = cast(Fraction, line.i_level.J)
+        Ll = cast(int, line.i_level.L)
+        Sl = cast(Fraction, line.i_level.S)
+        Ju = cast(Fraction, line.j_level.J)
+        Lu = cast(int, line.j_level.L)
+        Su = cast(Fraction, line.j_level.S)
 
         gLl = lande_factor(Jl, Ll, Sl)
         gLu = lande_factor(Ju, Lu, Su)

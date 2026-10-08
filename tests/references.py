@@ -19,10 +19,10 @@ from pathlib import Path
 
 import numpy as np
 
-ReferencePath = Path(__file__).parent / 'data' / 'references.npz'
+REFERENCE_PATH = Path(__file__).parent / 'data' / 'references.npz'
 # Set from the spread of these quantities across the scalar, SSE2 and
 # AVX2FMA iteration schemes, with a safety margin.
-DefaultRtol = 1e-5
+DEFAULT_RTOL = 1e-5
 
 
 def env_flag(name: str) -> bool:
@@ -34,7 +34,7 @@ def regenerating() -> bool:
 
 
 class ReferenceStore:
-    def __init__(self, path: Path = ReferencePath):
+    def __init__(self, path: Path = REFERENCE_PATH):
         self.path = path
         self.regen = regenerating()
         self.report = env_flag('LW_REFERENCE_REPORT')
@@ -45,7 +45,7 @@ class ReferenceStore:
         else:
             self.stored = {}
 
-    def check(self, name: str, value, rtol: float = DefaultRtol, atol: float = 0.0):
+    def check(self, name: str, value, rtol: float = DEFAULT_RTOL, atol: float = 0.0):
         """
         Compare `value` against the stored reference `name` (or record it if
         regenerating).

@@ -24,7 +24,7 @@ if 'LW_TEST_SIMD' in os.environ:
     lw.ConfigDict['SimdImpl'] = os.environ['LW_TEST_SIMD']
 
 
-def converged_falc_ctx(conserveCharge=False, prd=False, includeMg=False):
+def converged_falc_ctx(conserve_charge=False, prd=False, include_mg=False):
     """
     Set up and converge a FAL-C simulation with H and Ca II (and optionally
     Mg II) active. This is the standard Lightweaver workflow:
@@ -37,16 +37,16 @@ def converged_falc_ctx(conserveCharge=False, prd=False, includeMg=False):
     atmos.quadrature(3)
     atoms = [H_6_atom(), CaII_atom()]
     active = ['H', 'Ca']
-    if includeMg:
+    if include_mg:
         atoms.append(MgII_atom())
         active.append('Mg')
-    aSet = lw.RadiativeSet(atoms)
-    aSet.set_active(*active)
-    spect = aSet.compute_wavelength_grid()
-    eqPops = aSet.compute_eq_pops(atmos)
-    ctx = lw.Context(atmos, spect, eqPops, Nthreads=Nthreads, conserveCharge=conserveCharge)
-    Niter = lw.iterate_ctx_se(ctx, prd=prd, popsTol=1e-3, quiet=True)
-    return atmos, eqPops, ctx, Niter
+    rad_set = lw.RadiativeSet(atoms)
+    rad_set.set_active(*active)
+    spect = rad_set.compute_wavelength_grid()
+    eq_pops = rad_set.compute_eq_pops(atmos)
+    ctx = lw.Context(atmos, spect, eq_pops, Nthreads=Nthreads, conserve_charge=conserve_charge)
+    Niter = lw.iterate_ctx_se(ctx, prd=prd, pops_tol=1e-3, quiet=True)
+    return atmos, eq_pops, ctx, Niter
 
 
 def copy_ctx(ctx, **kwargs):
@@ -55,12 +55,12 @@ def copy_ctx(ctx, **kwargs):
     populations), optionally replacing parts of it, see
     `Context.construct_from_state_dict_with`.
     """
-    newCtx = ctx.construct_from_state_dict_with(deepcopy(ctx.state_dict()), **kwargs)
+    new_ctx = ctx.construct_from_state_dict_with(deepcopy(ctx.state_dict()), **kwargs)
     # J is only carried over when the wavelength grid changes, so copy
     # it across to keep the radiation field consistent with the populations.
     if 'spect' not in kwargs:
-        np.asarray(newCtx.spect.J)[:] = np.asarray(ctx.spect.J)
-    return newCtx
+        np.asarray(new_ctx.spect.J)[:] = np.asarray(ctx.spect.J)
+    return new_ctx
 
 
 @pytest.fixture(scope='session')

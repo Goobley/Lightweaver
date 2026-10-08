@@ -446,10 +446,10 @@ nh = np.array(
 def Falc82() -> Atmosphere:
     return Atmosphere.make_1d(
         ScaleType.ColumnMass,
-        depthScale=(cmass << u.Unit('g cm-2')).to('kg m-2').value,
+        depth_scale=(cmass << u.Unit('g cm-2')).to('kg m-2').value,
         temperature=np.copy(temp),
         ne=(ne << u.Unit('cm-3')).to('m-3').value,
         vlos=(vel << u.Unit('km/s')).to('m/s').value,
         vturb=(vturb << u.Unit('km/s')).to('m/s').value,
-        hydrogenPops=(nh << u.Unit('cm-3')).to('m-3').value,
+        hydrogen_pops=(nh << u.Unit('cm-3')).to('m-3').value,
     )

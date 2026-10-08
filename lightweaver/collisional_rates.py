@@ -9,6 +9,7 @@ from weno4 import weno4
 
 import lightweaver.constants as Const
 
+from .deprecation import deprecated_names
 from .utils import sequence_repr
 
 if TYPE_CHECKING:
@@ -17,6 +18,7 @@ if TYPE_CHECKING:
     from .atomic_set import SpeciesStateTable
 
 
+@deprecated_names
 @dataclass
 class CollisionalRates:
     """
@@ -34,7 +36,7 @@ class CollisionalRates:
     def setup(self, atom):
         pass
 
-    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+    def compute_rates(self, atmos: 'Atmosphere', eq_pops: 'SpeciesStateTable', Cmat: np.ndarray):
         raise NotImplementedError
 
     def __eq__(self, other: object) -> bool:
@@ -44,6 +46,7 @@ class CollisionalRates:
         return repr(self) == repr(other)
 
 
+@deprecated_names(attrs=('i_level', 'j_level'))
 @dataclass(eq=False)
 class TemperatureInterpolationRates(CollisionalRates):
     """
@@ -69,12 +72,13 @@ class TemperatureInterpolationRates(CollisionalRates):
         self.i = min(i, j)
         self.j = max(i, j)
         self.atom = atom
-        self.jLevel = atom.levels[self.j]
-        self.iLevel = atom.levels[self.i]
+        self.j_level = atom.levels[self.j]
+        self.i_level = atom.levels[self.i]
         self.temperature = np.asarray(self.temperature)
         self.rates = np.asarray(self.rates)
 
 
+@deprecated_names
 @dataclass(eq=False, repr=False)
 class Omega(TemperatureInterpolationRates):
     """
@@ -93,15 +97,16 @@ class Omega(TemperatureInterpolationRates):
             * np.sqrt(8.0 / (np.pi * Const.KBoltzmann))
         )
 
-    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+    def compute_rates(self, atmos: 'Atmosphere', eq_pops: 'SpeciesStateTable', Cmat: np.ndarray):
         C = weno4(atmos.temperature, self.temperature, self.rates)
         C[C < 0.0] = 0.0
-        nstar = eqPops.atomicPops[self.atom.element].nStar
-        Cdown = self.C0 * atmos.ne * C / (self.jLevel.g * np.sqrt(atmos.temperature))
+        nstar = eq_pops.atomic_pops[self.atom.element].n_star
+        Cdown = self.C0 * atmos.ne * C / (self.j_level.g * np.sqrt(atmos.temperature))
         Cmat[self.i, self.j, :] += Cdown
         Cmat[self.j, self.i, :] += Cdown * nstar[self.j] / nstar[self.i]
 
 
+@deprecated_names
 @dataclass(eq=False, repr=False)
 class CI(TemperatureInterpolationRates):
     """
@@ -112,12 +117,12 @@ class CI(TemperatureInterpolationRates):
 
     def setup(self, atom):
         super().setup(atom)
-        self.dE = self.jLevel.E_SI - self.iLevel.E_SI
+        self.dE = self.j_level.E_SI - self.i_level.E_SI
 
-    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+    def compute_rates(self, atmos: 'Atmosphere', eq_pops: 'SpeciesStateTable', Cmat: np.ndarray):
         C = weno4(atmos.temperature, self.temperature, self.rates)
         C[C < 0.0] = 0.0
-        nstar = eqPops.atomicPops[self.atom.element].nStar
+        nstar = eq_pops.atomic_pops[self.atom.element].n_star
         Cup = (
             C
             * atmos.ne
@@ -128,6 +133,7 @@ class CI(TemperatureInterpolationRates):
         Cmat[self.i, self.j, :] += Cup * nstar[self.i] / nstar[self.j]
 
 
+@deprecated_names
 @dataclass(eq=False, repr=False)
 class CE(TemperatureInterpolationRates):
     """
@@ -138,17 +144,18 @@ class CE(TemperatureInterpolationRates):
 
     def setup(self, atom):
         super().setup(atom)
-        self.gij = self.iLevel.g / self.jLevel.g
+        self.gij = self.i_level.g / self.j_level.g
 
-    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+    def compute_rates(self, atmos: 'Atmosphere', eq_pops: 'SpeciesStateTable', Cmat: np.ndarray):
         C = weno4(atmos.temperature, self.temperature, self.rates)
         C[C < 0.0] = 0.0
-        nstar = eqPops.atomicPops[self.atom.element].nStar
+        nstar = eq_pops.atomic_pops[self.atom.element].n_star
         Cdown = C * atmos.ne * self.gij * np.sqrt(atmos.temperature)
         Cmat[self.i, self.j, :] += Cdown
         Cmat[self.j, self.i, :] += Cdown * nstar[self.j] / nstar[self.i]
 
 
+@deprecated_names
 @dataclass(eq=False, repr=False)
 class CP(TemperatureInterpolationRates):
     """
@@ -156,16 +163,17 @@ class CP(TemperatureInterpolationRates):
     Units: s^-1 m^3
     """
 
-    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+    def compute_rates(self, atmos: 'Atmosphere', eq_pops: 'SpeciesStateTable', Cmat: np.ndarray):
         C = weno4(atmos.temperature, self.temperature, self.rates)
         C[C < 0.0] = 0.0
-        nProton = eqPops['H'][-1, :]
+        nProton = eq_pops['H'][-1, :]
         Cdown = C * nProton
-        nstar = eqPops.atomicPops[self.atom.element].nStar
+        nstar = eq_pops.atomic_pops[self.atom.element].n_star
         Cmat[self.i, self.j, :] += Cdown
         Cmat[self.j, self.i, :] += Cdown * nstar[self.j] / nstar[self.i]
 
 
+@deprecated_names
 @dataclass(eq=False, repr=False)
 class CH(TemperatureInterpolationRates):
     """
@@ -173,16 +181,17 @@ class CH(TemperatureInterpolationRates):
     Units: s^-1 m^3
     """
 
-    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+    def compute_rates(self, atmos: 'Atmosphere', eq_pops: 'SpeciesStateTable', Cmat: np.ndarray):
         C = weno4(atmos.temperature, self.temperature, self.rates)
         C[C < 0.0] = 0.0
-        nh0 = eqPops['H'][0, :]
+        nh0 = eq_pops['H'][0, :]
         Cup = C * nh0
-        nstar = eqPops.atomicPops[self.atom.element].nStar
+        nstar = eq_pops.atomic_pops[self.atom.element].n_star
         Cmat[self.j, self.i, :] += Cup
         Cmat[self.i, self.j, :] += Cup * nstar[self.i] / nstar[self.j]
 
 
+@deprecated_names
 @dataclass(eq=False, repr=False)
 class ChargeExchangeNeutralH(TemperatureInterpolationRates):
     """
@@ -191,14 +200,15 @@ class ChargeExchangeNeutralH(TemperatureInterpolationRates):
     Note: downward rate only.
     """
 
-    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+    def compute_rates(self, atmos: 'Atmosphere', eq_pops: 'SpeciesStateTable', Cmat: np.ndarray):
         C = weno4(atmos.temperature, self.temperature, self.rates)
         C[C < 0.0] = 0.0
-        nh0 = eqPops['H'][0, :]
+        nh0 = eq_pops['H'][0, :]
         Cdown = C * nh0
         Cmat[self.i, self.j, :] += Cdown
 
 
+@deprecated_names
 @dataclass(eq=False, repr=False)
 class ChargeExchangeProton(TemperatureInterpolationRates):
     """
@@ -207,10 +217,10 @@ class ChargeExchangeProton(TemperatureInterpolationRates):
     Note: upward rate only.
     """
 
-    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
+    def compute_rates(self, atmos: 'Atmosphere', eq_pops: 'SpeciesStateTable', Cmat: np.ndarray):
         C = weno4(atmos.temperature, self.temperature, self.rates)
         C[C < 0.0] = 0.0
-        nProton = eqPops['H'][-1, :]
+        nProton = eq_pops['H'][-1, :]
         Cup = C * nProton
         Cmat[self.j, self.i, :] += Cup
 
@@ -305,6 +315,7 @@ def ftwo(x):
     return y
 
 
+@deprecated_names(attrs=('i_level', 'j_level'))
 @dataclass
 class Ar85Cdi(CollisionalRates):
     """
@@ -323,12 +334,12 @@ class Ar85Cdi(CollisionalRates):
         self.i = min(i, j)
         self.j = max(i, j)
         self.atom = atom
-        self.iLevel = atom.levels[self.i]
-        self.jLevel = atom.levels[self.j]
+        self.i_level = atom.levels[self.i]
+        self.j_level = atom.levels[self.j]
         self.cdi = np.array(self.cdi)
 
-    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
-        nstar = eqPops.atomicPops[self.atom.element].nStar
+    def compute_rates(self, atmos: 'Atmosphere', eq_pops: 'SpeciesStateTable', Cmat: np.ndarray):
+        nstar = eq_pops.atomic_pops[self.atom.element].n_star
         Cup = np.zeros(atmos.Nspace)
         cdi = cast(np.ndarray, self.cdi)
         for m in range(cdi.shape[0]):
@@ -352,6 +363,7 @@ class Ar85Cdi(CollisionalRates):
         Cmat[self.j, self.i, :] += Cup
 
 
+@deprecated_names(attrs=('i_level', 'j_level'))
 @dataclass
 class Burgess(CollisionalRates):
     """
@@ -371,13 +383,13 @@ class Burgess(CollisionalRates):
         self.i = min(i, j)
         self.j = max(i, j)
         self.atom = atom
-        self.iLevel = atom.levels[self.i]
-        self.jLevel = atom.levels[self.j]
+        self.i_level = atom.levels[self.i]
+        self.j_level = atom.levels[self.j]
 
-    def compute_rates(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable', Cmat: np.ndarray):
-        nstar = eqPops.atomicPops[self.atom.element].nStar
-        dE = (self.jLevel.E_SI - self.iLevel.E_SI) / Const.EV
-        zz = self.iLevel.stage
+    def compute_rates(self, atmos: 'Atmosphere', eq_pops: 'SpeciesStateTable', Cmat: np.ndarray):
+        nstar = eq_pops.atomic_pops[self.atom.element].n_star
+        dE = (self.j_level.E_SI - self.i_level.E_SI) / Const.EV
+        zz = self.i_level.stage
         betaB = 0.25 * (np.sqrt((100.0 * zz + 91.0) / (4.0 * zz + 3.0)) - 5.0)
         cbar = 2.3
 

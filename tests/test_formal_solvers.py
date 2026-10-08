@@ -8,43 +8,46 @@ new Context (`Context.construct_from_state_dict_with`), and
 `compute_rays(stokes=True)`.
 """
 
+import pickle
 from copy import deepcopy
 
 import numpy as np
+import pytest
 from conftest import copy_ctx
+from lightweaver.LwCompiled import BasicBackground, FastBackground
 from test_stat_eq import Ca8542, line_wavelengths
 
 import lightweaver as lw
 
-Solvers1d = ['piecewise_linear_1d', 'piecewise_besser_1d', 'piecewise_bezier3_1d']
+SOLVERS_1D = ['piecewise_linear_1d', 'piecewise_besser_1d', 'piecewise_bezier3_1d']
 
 
-def ctx_with_formal_solver(ctx, formalSolver):
+def ctx_with_formal_solver(ctx, formal_solver):
     """
     A copy of a converged Context (with its populations), using a different
     formal solver.
     """
     sd = deepcopy(ctx.state_dict())
-    sd['kwargs'] = dict(sd['kwargs'], formalSolver=formalSolver)
-    newCtx = ctx.construct_from_state_dict_with(sd)
-    np.asarray(newCtx.spect.J)[:] = np.asarray(ctx.spect.J)
-    return newCtx
+    sd['kwargs'] = dict(sd['kwargs'], formal_solver=formal_solver)
+    new_ctx = ctx.construct_from_state_dict_with(sd)
+    np.asarray(new_ctx.spect.J)[:] = np.asarray(ctx.spect.J)
+    return new_ctx
 
 
 def test_1d_formal_solvers(falc_se, reference):
-    atmos, eqPops, ctx, Niter = falc_se
+    atmos, eq_pops, ctx, Niter = falc_se
     wave = np.concatenate([[500.0, 800.0], line_wavelengths(Ca8542, 0.1)])
 
     profiles = {}
-    for solver in Solvers1d:
-        solverCtx = ctx_with_formal_solver(ctx, solver)
-        profiles[solver] = solverCtx.compute_rays(wave, [1.0])
+    for solver in SOLVERS_1D:
+        solver_ctx = ctx_with_formal_solver(ctx, solver)
+        profiles[solver] = solver_ctx.compute_rays(wave, [1.0])
         assert np.all(np.isfinite(profiles[solver]))
 
     # The solvers differ in their order of accuracy, but should
     # agree closely in the continuum and reasonably in the line core.
     ref = profiles['piecewise_besser_1d']
-    for solver in Solvers1d:
+    for solver in SOLVERS_1D:
         rel = np.abs(profiles[solver] - ref) / ref
         assert rel[:2].max() < 0.02, solver
         assert rel.max() < 0.1, solver
@@ -52,33 +55,33 @@ def test_1d_formal_solvers(falc_se, reference):
 
 
 def test_full_stokes(falc_se, reference):
-    atmos, eqPops, ctx, Niter = falc_se
+    atmos, eq_pops, ctx, Niter = falc_se
 
     # Construct a copy of the atmosphere with a uniform magnetic
-    # field (B [T], inclination gammaB and azimuth chiB [rad]), and reuse the
+    # field (B [T], inclination gamma_B and azimuth chi_B [rad]), and reuse the
     # converged populations with it.
     Nspace = atmos.Nspace
-    magAtmos = lw.Atmosphere.make_1d(
+    mag_atmos = lw.Atmosphere.make_1d(
         lw.ScaleType.Geometric,
-        depthScale=np.copy(atmos.z),
+        depth_scale=np.copy(atmos.z),
         temperature=np.copy(atmos.temperature),
         vlos=np.copy(atmos.vz),
         vturb=np.copy(atmos.vturb),
         ne=np.copy(atmos.ne),
-        nHTot=np.copy(atmos.nHTot),
+        nh_tot=np.copy(atmos.nh_tot),
         B=np.full(Nspace, 0.1),
-        gammaB=np.full(Nspace, 0.6),
-        chiB=np.full(Nspace, 0.3),
+        gamma_B=np.full(Nspace, 0.6),
+        chi_B=np.full(Nspace, 0.3),
     )
-    magAtmos.quadrature(3)
-    magCtx = copy_ctx(ctx, atmos=magAtmos)
+    mag_atmos.quadrature(3)
+    mag_ctx = copy_ctx(ctx, atmos=mag_atmos)
 
     # Continuum points away from any polarisable line, one on either
     # side of the line.
     continuum = np.array([500.0, 900.0])
     wave = np.concatenate([continuum, line_wavelengths(Ca8542, 0.1)])
-    iquv = magCtx.compute_rays(wave, [1.0], stokes=True)
-    unpolarised = magCtx.compute_rays(wave, [1.0])
+    iquv = mag_ctx.compute_rays(wave, [1.0], stokes=True)
+    unpolarised = mag_ctx.compute_rays(wave, [1.0])
     assert np.all(np.isfinite(iquv))
 
     # Stokes I is close to the unpolarised intensity.
@@ -95,3 +98,16 @@ def test_full_stokes(falc_se, reference):
     assert np.abs(V + V[::-1]).max() < 0.2 * np.abs(V).max()
 
     reference.check('formal_solvers/stokes_8542', iquv)
+
+
+@pytest.mark.parametrize('provider', [BasicBackground, FastBackground])
+def test_background_provider_pickle(falc_se, provider):
+    # The background providers' pickled state must round-trip.
+    atmos, eq_pops, ctx, _ = falc_se
+    bg_ctx = lw.Context(atmos, ctx.kwargs['spect'], eq_pops, background_provider=provider)
+    restored = pickle.loads(pickle.dumps(bg_ctx))
+    for name in ('chi', 'eta', 'sca'):
+        np.testing.assert_array_equal(
+            np.asarray(getattr(restored.background, name)),
+            np.asarray(getattr(bg_ctx.background, name)),
+        )

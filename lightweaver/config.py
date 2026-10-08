@@ -8,6 +8,8 @@ import yaml
 
 from lightweaver.simd_management import LwSimdImplsAndFlags, get_available_simd_suffixes
 
+from .deprecation import accepts_old_kwargs
+
 Defaults = {
     'FormalSolver1d': 'piecewise_bezier3_1d',
     'FormalSolver2d': 'piecewise_besser_2d',
@@ -51,15 +53,16 @@ def set_most_advanced_simd_impl():
     """
     availableImpls = get_available_simd_suffixes()
 
-    def check_add_impl(simdType):
-        if simdType in availableImpls:
-            params['SimdImpl'] = simdType
+    def check_add_impl(simd_type):
+        if simd_type in availableImpls:
+            params['SimdImpl'] = simd_type
 
     for impl in LwSimdImplsAndFlags:
         check_add_impl(impl)
 
 
-def update_config_dict(configPath: Optional[str]):
+@accepts_old_kwargs
+def update_config_dict(config_path: Optional[str]):
     """
     Updates the configuration dict (`lightweaver.ConfigDict`), from the config
     file. If there is no config file, the defaults are used, and the most
@@ -69,10 +72,10 @@ def update_config_dict(configPath: Optional[str]):
 
     Parameters
     ----------
-    configPath :  str, optional
+    config_path :  str, optional
         The path to the config file, or None.
     """
-    if configPath is None:
+    if config_path is None:
         warnings.warn(
             'No config file found, using defaults. For optimised vectorised code,'
             ' please run `lightweaver.benchmark()`, otherwise the most advanced'
@@ -82,7 +85,7 @@ def update_config_dict(configPath: Optional[str]):
         set_most_advanced_simd_impl()
         return
 
-    with open(configPath, 'r') as f:
+    with open(config_path, 'r') as f:
         confDict = yaml.safe_load(f)
     params.update(confDict)
 
@@ -95,16 +98,17 @@ def update_config_dict(configPath: Optional[str]):
         )
 
 
-def update_config_file(configPath: str):
+@accepts_old_kwargs
+def update_config_file(config_path: str):
     """
     Updates the config file to the current values of the config dict.
 
     Parameters
     ----------
-    configPath : str
+    config_path : str
         The path to the config file.
     """
-    with open(configPath, 'w') as f:
+    with open(config_path, 'w') as f:
         yaml.safe_dump(params, f)
 
 

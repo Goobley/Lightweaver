@@ -14,12 +14,14 @@ from weno4 import weno4
 
 import lightweaver.constants as C
 
+from .deprecation import accepts_old_kwargs, deprecated_names
 from .simd_management import filter_usable_simd_impls
 
 if TYPE_CHECKING:
     from .atomic_model import AtomicLine
 
 
+@deprecated_names
 @dataclass
 class NgOptions:
     """
@@ -36,7 +38,7 @@ class NgOptions:
     threshold : float, optional
         The threshold which all historic iterations (Norder+2) must be below for
         acceleration. Default, 5e-2
-    lowerThreshold : float, optional
+    lower_threshold : float, optional
         The threshold below which to disable Ng acceleration. Default, 2e-4
     """
 
@@ -44,7 +46,7 @@ class NgOptions:
     Nperiod: int = 0
     Ndelay: int = 0
     threshold: float = 5e-2
-    lowerThreshold: float = 2e-4
+    lower_threshold: float = 2e-4
 
     def __post_init__(self):
         # NOTE(cmo): Each acceleration uses the last Norder+2 solutions, which
@@ -102,7 +104,8 @@ def planck(temp, wav):
     return twohnu3_c2 / (np.exp(hc_Tkla) - 1.0)
 
 
-def gaunt_bf(wvl, nEff, charge) -> float:
+@accepts_old_kwargs
+def gaunt_bf(wvl, n_eff, charge) -> float:
     """
     Gaunt factor for bound-free transitions, from Seaton (1960), Rep. Prog.
     Phys. 23, 313, as used in RH.
@@ -111,7 +114,7 @@ def gaunt_bf(wvl, nEff, charge) -> float:
     ----------
     wvl : float or array-like
         The wavelength at which to compute the Gaunt factor [nm].
-    nEff : float
+    n_eff : float
         Principal quantum number.
     charge : float
         Charge of free state.
@@ -125,7 +128,7 @@ def gaunt_bf(wvl, nEff, charge) -> float:
     # Copied from RH, ensuring vectorisation support
     x = C.HC / (wvl * C.NM_TO_M) / (C.ERydberg * charge**2)
     x3 = x ** (1.0 / 3.0)
-    nsqx = 1.0 / (nEff**2 * x)
+    nsqx = 1.0 / (n_eff**2 * x)
 
     return (
         1.0
@@ -252,8 +255,9 @@ def air_to_vac(wavelength: np.ndarray) -> np.ndarray:
     return spec_air_to_vac(wavelength, scheme='iteration', method='edlen1966')
 
 
+@accepts_old_kwargs
 def convert_specific_intensity(
-    wavelength: np.ndarray, specInt: np.ndarray, outUnits
+    wavelength: np.ndarray, spec_int: np.ndarray, out_units
 ) -> units.quantity.Quantity:
     """
     Convert a specific intensity between different units.
@@ -262,26 +266,27 @@ def convert_specific_intensity(
     ----------
     wavelength : np.ndarray or astropy.Quantity
         If no units are provided then this is assumed to be in nm.
-    specInt : np.ndarray or astropy.Quantity
+    spec_int : np.ndarray or astropy.Quantity
         If no units are provided then this is assumed to be in J/s/m2/sr/Hz,
         the default for Lightweaver.
-    outUnits : str or astropy.Unit
-        The units to convert specInt to e.g. 'erg/s/cm2/sr/Angstrom'
+    out_units : str or astropy.Unit
+        The units to convert spec_int to e.g. 'erg/s/cm2/sr/Angstrom'
 
     Returns
     -------
     result : astropy.Quantity
-        specInt converted to the desired units.
+        spec_int converted to the desired units.
     """
     if not isinstance(wavelength, units.Quantity):
         wavelength = wavelength << units.nm
 
-    if not isinstance(specInt, units.Quantity):
-        specInt = specInt << units.J / units.s / units.m**2 / units.sr / units.Hz
+    if not isinstance(spec_int, units.Quantity):
+        spec_int = spec_int << units.J / units.s / units.m**2 / units.sr / units.Hz
 
-    return specInt.to(outUnits, equivalencies=units.spectral_density(wavelength))
+    return spec_int.to(out_units, equivalencies=units.spectral_density(wavelength))
 
 
+@deprecated_names
 class CrswIterator:
     """
     Basic iterator to be used for controlling the scale of the collisional
@@ -291,8 +296,8 @@ class CrswIterator:
     the default behaviour in RH.
     """
 
-    def __init__(self, initVal=1e3):
-        self.val = initVal
+    def __init__(self, init_val=1e3):
+        self.val = init_val
 
     def __call__(self):
         self.val = max(1.0, self.val * 0.1 ** (1.0 / self.val))
@@ -325,12 +330,10 @@ def sequence_repr(x: Sequence) -> str:
 
 def view_flatten(x: np.ndarray) -> np.ndarray:
     """
-    Return a flattened view over an array, will raise an Exception if it
+    Return a flattened view over an array, will raise a ValueError if it
     cannot be represented as a flat array without copy.
     """
-    y = x.view()
-    y.shape = (x.size,)
-    return y
+    return x.reshape(x.size, copy=False)
 
 
 def check_shape_exception(
@@ -380,7 +383,7 @@ def compute_radiative_losses(ctx) -> np.ndarray:
     Parameters
     ----------
     ctx : Context
-        A context with full depth-dependent data (i.e. ctx.depthData.fill =
+        A context with full depth-dependent data (i.e. ctx.depth_data.fill =
         True set before the most recent formal solution).
 
     Returns
@@ -391,19 +394,20 @@ def compute_radiative_losses(ctx) -> np.ndarray:
     """
     atmos = ctx.kwargs['atmos']
 
-    chiTot = ctx.depthData.chi
-    S = (ctx.depthData.eta + (ctx.background.sca * ctx.spect.J)[:, None, None, :]) / chiTot
-    Idepth = ctx.depthData.I
+    chiTot = ctx.depth_data.chi
+    S = (ctx.depth_data.eta + (ctx.background.sca * ctx.spect.J)[:, None, None, :]) / chiTot
+    Idepth = ctx.depth_data.I
     loss = (chiTot * (S - Idepth)).sum(axis=2).transpose(0, 2, 1) @ (atmos.wmu * 0.5 * 4.0 * np.pi)
 
     return -loss
 
 
+@accepts_old_kwargs
 def integrate_line_losses(
     ctx,
     loss: np.ndarray,
     lines: Union['AtomicLine', Sequence['AtomicLine']],
-    extendGridNm: float = 0.0,
+    extend_grid_nm: float = 0.0,
 ) -> Union[Sequence[np.ndarray], np.ndarray]:
     """
     Integrate the radiative gains and losses over the band associated with a
@@ -414,14 +418,14 @@ def integrate_line_losses(
     Parameters
     ----------
     ctx : Context
-        A context with the full depth-dependent data (i.e. ctx.depthData.fill
+        A context with the full depth-dependent data (i.e. ctx.depth_data.fill
         = True set before the most recent formal solution).
     loss : np.ndarray
         The radiative gains/losses for each wavelength and depth computed by
         `compute_radiative_losses`.
     lines : AtomicLine or list of AtomicLine
         The lines for which to compute losses.
-    extendGridNm : float, optional
+    extend_grid_nm : float, optional
         Set this to a positive value to add an additional point at each end
         of the integration range to include a wider continuum/far-wing
         contribution. Units: nm, default: 0.0.
@@ -440,23 +444,23 @@ def integrate_line_losses(
 
     lineLosses = []
     for line in lines:
-        transId = line.transId
-        grid = spect.transWavelengths[transId]
-        blueIdx = spect.blueIdx[transId]
-        blue = ctx.spect.wavelength[blueIdx]
-        redIdx = blueIdx + grid.shape[0]
-        red = ctx.spect.wavelength[redIdx - 1]
+        trans_id = line.trans_id
+        grid = spect.trans_wavelengths[trans_id]
+        blue_idx = spect.blue_idx[trans_id]
+        blue = ctx.spect.wavelength[blue_idx]
+        red_idx = blue_idx + grid.shape[0]
+        red = ctx.spect.wavelength[red_idx - 1]
 
-        if extendGridNm != 0.0:
+        if extend_grid_nm != 0.0:
             wav = np.concatenate(
                 (
-                    (blue - extendGridNm,),
-                    ctx.spect.wavelength[blueIdx:redIdx],
-                    (red + extendGridNm,),
+                    (blue - extend_grid_nm,),
+                    ctx.spect.wavelength[blue_idx:red_idx],
+                    (red + extend_grid_nm,),
                 )
             )
         else:
-            wav = ctx.spect.wavelength[blueIdx:redIdx]
+            wav = ctx.spect.wavelength[blue_idx:red_idx]
 
         # NOTE(cmo): There's a sneaky transpose going on here for the integration
         lineLoss = np.zeros((loss.shape[1], wav.shape[0]))
@@ -481,7 +485,7 @@ def compute_tau(ctx, mu: int = -1, outgoing: bool = True) -> np.ndarray:
     Parameters
     ----------
     ctx : Context
-        A context with the full depth-dependent data (i.e. ctx.depthData.fill
+        A context with the full depth-dependent data (i.e. ctx.depth_data.fill
         = True set before the most recent formal solution).
     mu : Optional[int]
         The angular index to use (corresponding to the order of the angular
@@ -497,8 +501,8 @@ def compute_tau(ctx, mu: int = -1, outgoing: bool = True) -> np.ndarray:
         The optical depth in terms of depth and wavelength.
     """
     upDown = 1 if outgoing else 0
-    tau = np.zeros_like(ctx.depthData.chi[:, mu, upDown, :])
-    chi = ctx.depthData.chi
+    tau = np.zeros_like(ctx.depth_data.chi[:, mu, upDown, :])
+    chi = ctx.depth_data.chi
     atmos = ctx.kwargs['atmos']
 
     # NOTE(cmo): Compute tau for all wavelengths
@@ -518,7 +522,7 @@ def compute_contribution_fn(ctx, mu: int = -1, outgoing: bool = True) -> np.ndar
     Parameters
     ----------
     ctx : Context
-        A context with the full depth-dependent data (i.e. ctx.depthData.fill
+        A context with the full depth-dependent data (i.e. ctx.depth_data.fill
         = True set before the most recent formal solution).
     mu : Optional[int]
         The angular index to use (corresponding to the order of the angular
@@ -534,18 +538,18 @@ def compute_contribution_fn(ctx, mu: int = -1, outgoing: bool = True) -> np.ndar
         The contribution function in terms of depth and wavelength.
     """
     upDown = 1 if outgoing else 0
-    tau = np.zeros_like(ctx.depthData.chi[:, mu, upDown, :])
-    chi = ctx.depthData.chi
+    tau = np.zeros_like(ctx.depth_data.chi[:, mu, upDown, :])
+    chi = ctx.depth_data.chi
     atmos = ctx.kwargs['atmos']
 
     tau = compute_tau(ctx, mu, outgoing)
 
     # NOTE(cmo): Source function.
-    Sfn = (ctx.depthData.eta + (ctx.background.sca * ctx.spect.J)[:, None, None, :]) / chi
+    Sfn = (ctx.depth_data.eta + (ctx.background.sca * ctx.spect.J)[:, None, None, :]) / chi
 
     # NOTE(cmo): Contribution function for all wavelengths.
     cfn = (
-        ctx.depthData.chi[:, mu, upDown, :]
+        ctx.depth_data.chi[:, mu, upDown, :]
         / atmos.muz[mu]
         * np.exp(-tau / atmos.muz[mu])
         * Sfn[:, mu, upDown, :]

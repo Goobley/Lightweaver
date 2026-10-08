@@ -8,6 +8,7 @@ import lightweaver.constants as Const
 
 from .atomic_table import PeriodicTable
 from .barklem import Barklem
+from .deprecation import deprecated_names
 
 if TYPE_CHECKING:
     from .atmosphere import Atmosphere
@@ -26,6 +27,7 @@ class LineBroadeningResult:
     other: Optional[List] = None
 
 
+@deprecated_names
 @dataclass
 class LineBroadener:
     """
@@ -39,10 +41,11 @@ class LineBroadener:
     def setup(self, line: 'AtomicLine'):
         pass
 
-    def broaden(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable') -> Any:
+    def broaden(self, atmos: 'Atmosphere', eq_pops: 'SpeciesStateTable') -> Any:
         raise NotImplementedError
 
 
+@deprecated_names
 @dataclass
 class StandardLineBroadener(LineBroadener):
     """
@@ -56,10 +59,11 @@ class StandardLineBroadener(LineBroadener):
     def setup(self, line: 'AtomicLine'):
         pass
 
-    def broaden(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable') -> np.ndarray:
+    def broaden(self, atmos: 'Atmosphere', eq_pops: 'SpeciesStateTable') -> np.ndarray:
         raise NotImplementedError
 
 
+@deprecated_names
 @dataclass
 class LineBroadening:
     """
@@ -112,7 +116,7 @@ class LineBroadening:
 
     @staticmethod
     def sum_broadening_list(
-        broadeners: List[StandardLineBroadener], atmos: 'Atmosphere', eqPops: 'SpeciesStateTable'
+        broadeners: List[StandardLineBroadener], atmos: 'Atmosphere', eq_pops: 'SpeciesStateTable'
     ) -> Optional[np.ndarray]:
         """
         Sums a list of StandardLineBroadeners.
@@ -120,14 +124,16 @@ class LineBroadening:
         if len(broadeners) == 0:
             return None
 
-        result = broadeners[0].broaden(atmos, eqPops)
+        # NOTE: Call user-overridable hooks positionally, so subclasses written with the
+        # pre-1.0 parameter names keep working.
+        result = broadeners[0].broaden(atmos, eq_pops)
         for b in broadeners[1:]:
-            result += b.broaden(atmos, eqPops)
+            result += b.broaden(atmos, eq_pops)
         return result
 
     @staticmethod
     def compute_other_broadening(
-        broadeners: Optional[List[LineBroadener]], atmos: 'Atmosphere', eqPops: 'SpeciesStateTable'
+        broadeners: Optional[List[LineBroadener]], atmos: 'Atmosphere', eq_pops: 'SpeciesStateTable'
     ) -> Optional[List]:
         """
         Returns a list of the computed broadening terms.
@@ -138,17 +144,17 @@ class LineBroadening:
         if len(broadeners) == 0:
             return None
 
-        result = [b.broaden(atmos, eqPops) for b in broadeners]
+        result = [b.broaden(atmos, eq_pops) for b in broadeners]
         return result
 
-    def broaden(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable') -> LineBroadeningResult:
+    def broaden(self, atmos: 'Atmosphere', eq_pops: 'SpeciesStateTable') -> LineBroadeningResult:
         """
         Computes the broadening, this function is called by the AtomicLine object.
         """
-        natural = self.sum_broadening_list(self.natural, atmos, eqPops)
-        Qelast = self.sum_broadening_list(self.elastic, atmos, eqPops)
+        natural = self.sum_broadening_list(self.natural, atmos, eq_pops)
+        Qelast = self.sum_broadening_list(self.elastic, atmos, eq_pops)
 
-        others = self.compute_other_broadening(self.other, atmos, eqPops)
+        others = self.compute_other_broadening(self.other, atmos, eq_pops)
 
         if natural is None:
             if Qelast is None:
@@ -193,6 +199,7 @@ class VdwApprox(StandardLineBroadener):
         return True
 
 
+@deprecated_names(attrs=('v_rel_35_h', 'v_rel_35_he'))
 @dataclass(eq=False, repr=False)
 class VdwUnsold(VdwApprox):
     """
@@ -204,11 +211,11 @@ class VdwUnsold(VdwApprox):
         if len(self.vals) != 2:
             raise ValueError('VdwUnsold expects 2 coefficients (%s)' % repr(line))
 
-        Z = line.jLevel.stage + 1
-        cont = line.overlyingContinuumLevel
+        Z = line.j_level.stage + 1
+        cont = line.overlying_continuum_level
 
-        deltaR = (Const.ERydberg / (cont.E_SI - line.jLevel.E_SI)) ** 2 - (
-            Const.ERydberg / (cont.E_SI - line.iLevel.E_SI)
+        deltaR = (Const.ERydberg / (cont.E_SI - line.j_level.E_SI)) ** 2 - (
+            Const.ERydberg / (cont.E_SI - line.i_level.E_SI)
         ) ** 2
         fourPiEps0 = 4.0 * np.pi * Const.Epsilon0
         self.C625 = (
@@ -226,20 +233,20 @@ class VdwUnsold(VdwApprox):
 
         element = line.atom.element
 
-        self.vRel35He = (
+        self.v_rel_35_he = (
             8.0
             * Const.KBoltzmann
             / (np.pi * Const.Amu * element.mass)
             * (1.0 + element.mass / PeriodicTable[2].mass)
         ) ** 0.3
-        self.vRel35H = (
+        self.v_rel_35_h = (
             8.0
             * Const.KBoltzmann
             / (np.pi * Const.Amu * element.mass)
             * (1.0 + element.mass / PeriodicTable[1].mass)
         ) ** 0.3
 
-    def broaden(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable') -> np.ndarray:
+    def broaden(self, atmos: 'Atmosphere', eq_pops: 'SpeciesStateTable') -> np.ndarray:
         """
         The function that is called by LineBroadening.
 
@@ -247,7 +254,7 @@ class VdwUnsold(VdwApprox):
         ----------
         atmos : Atmosphere
             The atmosphere in which to compute the broadening.
-        eqPops : SpeciesStateTable
+        eq_pops : SpeciesStateTable
             The populations to use for computing the broadening.
 
         Returns
@@ -256,17 +263,18 @@ class VdwUnsold(VdwApprox):
             An array detailing the broadening at each location in the
             atmosphere [Nspace].
         """
-        heAbund = eqPops.abundance[PeriodicTable[2]]
+        heAbund = eq_pops.abundance[PeriodicTable[2]]
         cross = (
             8.08
-            * (self.vals[0] * self.vRel35H + self.vals[1] * heAbund * self.vRel35He)
+            * (self.vals[0] * self.v_rel_35_h + self.vals[1] * heAbund * self.v_rel_35_he)
             * self.C625
         )
-        nHGround = eqPops['H'][0, :]
+        nHGround = eq_pops['H'][0, :]
         broad = cross * atmos.temperature**0.3 * nHGround
         return broad
 
 
+@deprecated_names(attrs=('barklem_vals', 'v_rel_35_he'))
 @dataclass(eq=False, repr=False)
 class VdwBarklem(VdwApprox):
     """
@@ -279,13 +287,13 @@ class VdwBarklem(VdwApprox):
             raise ValueError('VdwBarklem expects 2 coefficients (%s)' % (repr(line)))
         newVals = Barklem.get_active_cross_section(line.atom, line, self.vals)
 
-        self.barklemVals = newVals
+        self.barklem_vals = newVals
 
-        Z = line.jLevel.stage + 1
-        cont = line.overlyingContinuumLevel
+        Z = line.j_level.stage + 1
+        cont = line.overlying_continuum_level
 
-        deltaR = (Const.ERydberg / (cont.E_SI - line.jLevel.E_SI)) ** 2 - (
-            Const.ERydberg / (cont.E_SI - line.iLevel.E_SI)
+        deltaR = (Const.ERydberg / (cont.E_SI - line.j_level.E_SI)) ** 2 - (
+            Const.ERydberg / (cont.E_SI - line.i_level.E_SI)
         ) ** 2
         fourPiEps0 = 4.0 * np.pi * Const.Epsilon0
         self.C625 = (
@@ -303,14 +311,14 @@ class VdwBarklem(VdwApprox):
 
         element = line.atom.element
 
-        self.vRel35He = (
+        self.v_rel_35_he = (
             8.0
             * Const.KBoltzmann
             / (np.pi * Const.Amu * element.mass)
             * (1.0 + element.mass / PeriodicTable[2].mass)
         ) ** 0.3
 
-    def broaden(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable') -> np.ndarray:
+    def broaden(self, atmos: 'Atmosphere', eq_pops: 'SpeciesStateTable') -> np.ndarray:
         """
         The function that is called by LineBroadening.
 
@@ -318,7 +326,7 @@ class VdwBarklem(VdwApprox):
         ----------
         atmos : Atmosphere
             The atmosphere in which to compute the broadening.
-        eqPops : SpeciesStateTable
+        eq_pops : SpeciesStateTable
             The populations to use for computing the broadening.
 
         Returns
@@ -327,18 +335,19 @@ class VdwBarklem(VdwApprox):
             An array detailing the broadening at each location in the
             atmosphere [Nspace].
         """
-        heAbund = eqPops.abundance[PeriodicTable[2]]
-        nHGround = eqPops['H'][0, :]
-        cross = 8.08 * self.barklemVals[2] * heAbund * self.vRel35He * self.C625
+        heAbund = eq_pops.abundance[PeriodicTable[2]]
+        nHGround = eq_pops['H'][0, :]
+        cross = 8.08 * self.barklem_vals[2] * heAbund * self.v_rel_35_he * self.C625
 
         broad = (
-            self.barklemVals[0] * atmos.temperature ** (0.5 * (1.0 - self.barklemVals[1]))
+            self.barklem_vals[0] * atmos.temperature ** (0.5 * (1.0 - self.barklem_vals[1]))
             + cross * atmos.temperature**0.3
         )
         broad *= nHGround
         return broad
 
 
+@deprecated_names
 @dataclass(eq=False)
 class RadiativeBroadening(StandardLineBroadener):
     """
@@ -370,7 +379,7 @@ class RadiativeBroadening(StandardLineBroadener):
 
         return True
 
-    def broaden(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable') -> np.ndarray:
+    def broaden(self, atmos: 'Atmosphere', eq_pops: 'SpeciesStateTable') -> np.ndarray:
         """
         The function that is called by LineBroadening.
 
@@ -378,7 +387,7 @@ class RadiativeBroadening(StandardLineBroadener):
         ----------
         atmos : Atmosphere
             The atmosphere in which to compute the broadening.
-        eqPops : SpeciesStateTable
+        eq_pops : SpeciesStateTable
             The populations to use for computing the broadening.
 
         Returns
@@ -390,6 +399,7 @@ class RadiativeBroadening(StandardLineBroadener):
         return np.ones_like(atmos.temperature) * self.gamma
 
 
+@deprecated_names(attrs=('c_stark_23',))
 @dataclass
 class QuadraticStarkBroadening(StandardLineBroadener):
     """
@@ -430,12 +440,12 @@ class QuadraticStarkBroadening(StandardLineBroadener):
         self.C = C
         self.Cm = Cm
 
-        Z = line.iLevel.stage + 1
-        cont = line.overlyingContinuumLevel
+        Z = line.i_level.stage + 1
+        cont = line.overlying_continuum_level
 
         E_Ryd = Const.ERydberg / (1.0 + Const.MElectron / (weight * Const.Amu))
-        neff_l = Z * np.sqrt(E_Ryd / (cont.E_SI - line.iLevel.E_SI))
-        neff_u = Z * np.sqrt(E_Ryd / (cont.E_SI - line.jLevel.E_SI))
+        neff_l = Z * np.sqrt(E_Ryd / (cont.E_SI - line.i_level.E_SI))
+        neff_u = Z * np.sqrt(E_Ryd / (cont.E_SI - line.j_level.E_SI))
 
         C4 = (
             Const.QElectron**2
@@ -445,9 +455,9 @@ class QuadraticStarkBroadening(StandardLineBroadener):
             / (18.0 * Z**4)
             * ((neff_u * (5.0 * neff_u**2 + 1.0)) ** 2 - (neff_l * (5.0 * neff_l**2 + 1.0)) ** 2)
         )
-        self.cStark23 = 11.37 * (self.coeff * C4) ** (2.0 / 3.0)
+        self.c_stark_23 = 11.37 * (self.coeff * C4) ** (2.0 / 3.0)
 
-    def broaden(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable') -> np.ndarray:
+    def broaden(self, atmos: 'Atmosphere', eq_pops: 'SpeciesStateTable') -> np.ndarray:
         """
         The function that is called by LineBroadening.
 
@@ -455,7 +465,7 @@ class QuadraticStarkBroadening(StandardLineBroadener):
         ----------
         atmos : Atmosphere
             The atmosphere in which to compute the broadening.
-        eqPops : SpeciesStateTable
+        eq_pops : SpeciesStateTable
             The populations to use for computing the broadening.
 
         Returns
@@ -465,10 +475,11 @@ class QuadraticStarkBroadening(StandardLineBroadener):
             atmosphere [Nspace].
         """
         vRel = (self.C * atmos.temperature) ** (1.0 / 6.0) * self.Cm
-        stark = self.cStark23 * vRel * atmos.ne
+        stark = self.c_stark_23 * vRel * atmos.ne
         return stark
 
 
+@deprecated_names
 @dataclass
 class MultiplicativeStarkBroadening(StandardLineBroadener):
     """
@@ -491,7 +502,7 @@ class MultiplicativeStarkBroadening(StandardLineBroadener):
 
         return True
 
-    def broaden(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable') -> np.ndarray:
+    def broaden(self, atmos: 'Atmosphere', eq_pops: 'SpeciesStateTable') -> np.ndarray:
         """
         The function that is called by LineBroadening.
 
@@ -499,7 +510,7 @@ class MultiplicativeStarkBroadening(StandardLineBroadener):
         ----------
         atmos : Atmosphere
             The atmosphere in which to compute the broadening.
-        eqPops : SpeciesStateTable
+        eq_pops : SpeciesStateTable
             The populations to use for computing the broadening.
 
         Returns
@@ -511,22 +522,23 @@ class MultiplicativeStarkBroadening(StandardLineBroadener):
         return self.coeff * atmos.ne  # type: ignore
 
 
+@deprecated_names
 @dataclass
 class HydrogenLinearStarkBroadening(StandardLineBroadener):
     """
     Linear Stark broadening for the case of Hydrogen from Sutton 1978 (like
     RH).
 
-    `reproduceOldRHBug` allows for reproducing an issue in older versions of RH
+    `reproduce_old_RH_bug` allows for reproducing an issue in older versions of RH
     where the broadening effects was a factor os ~2pi too small as it had not
     been converted to angular frequency.
     """
 
     line: 'AtomicLine' = field(init=False)
-    reproduceOldRHBug: bool = False
+    reproduce_old_RH_bug: bool = False
 
     def __repr__(self):
-        s = f'{type(self).__name__}(reproduceOldRHBug={self.reproduceOldRHBug})'
+        s = f'{type(self).__name__}(reproduce_old_RH_bug={self.reproduce_old_RH_bug})'
         return s
 
     def __eq__(self, other):
@@ -547,7 +559,7 @@ class HydrogenLinearStarkBroadening(StandardLineBroadener):
         if line.atom.element.Z != 1:
             raise ValueError('HydrogenicLinearStarkBroadening applied to non-Hydrogen line')
 
-    def broaden(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable') -> np.ndarray:
+    def broaden(self, atmos: 'Atmosphere', eq_pops: 'SpeciesStateTable') -> np.ndarray:
         """
         The function that is called by LineBroadening.
 
@@ -555,7 +567,7 @@ class HydrogenLinearStarkBroadening(StandardLineBroadener):
         ----------
         atmos : Atmosphere
             The atmosphere in which to compute the broadening.
-        eqPops : SpeciesStateTable
+        eq_pops : SpeciesStateTable
             The populations to use for computing the broadening.
 
         Returns
@@ -564,17 +576,18 @@ class HydrogenLinearStarkBroadening(StandardLineBroadener):
             An array detailing the broadening at each location in the
             atmosphere [Nspace].
         """
-        nUpper = int(np.round(np.sqrt(0.5 * self.line.jLevel.g)))
-        nLower = int(np.round(np.sqrt(0.5 * self.line.iLevel.g)))
+        nUpper = int(np.round(np.sqrt(0.5 * self.line.j_level.g)))
+        nLower = int(np.round(np.sqrt(0.5 * self.line.i_level.g)))
 
         a1 = 0.642 if nUpper - nLower == 1 else 1.0
         C = a1 * 0.6 * (nUpper**2 - nLower**2)
-        if not self.reproduceOldRHBug:
+        if not self.reproduce_old_RH_bug:
             C *= 4.0 * np.pi * 0.425
         GStark = C * u.Unit('m-2').to('cm-2') * atmos.ne ** (2.0 / 3.0)
         return GStark
 
 
+@deprecated_names
 @dataclass(eq=False)
 class ScaledExponentBroadening(StandardLineBroadener):
     """
@@ -583,30 +596,30 @@ class ScaledExponentBroadening(StandardLineBroadener):
 
     scaling : float
         Scalar multiplication term
-    temperatureExp : float
+    temperature_exp : float
         Temperature exponent
-    hydrogenExp : float
+    hydrogen_exp : float
         Neutral (ground-state) hydrogen density exponent
-    electronExp : float
+    electron_exp : float
         Electron density exponent
     """
 
     scaling: float
-    temperatureExp: float
-    hydrogenExp: float
-    electronExp: float
+    temperature_exp: float
+    hydrogen_exp: float
+    electron_exp: float
     line: 'AtomicLine' = field(init=False)
 
     def setup(self, line: 'AtomicLine'):
         self.line = line
 
     def __repr__(self):
-        s = '%s(scaling=%g, temperatureExp=%g, hydrogenExp=%g, electronExp=%g)' % (
+        s = '%s(scaling=%g, temperature_exp=%g, hydrogen_exp=%g, electron_exp=%g)' % (
             type(self).__name__,
             self.scaling,
-            self.temperatureExp,
-            self.hydrogenExp,
-            self.electronExp,
+            self.temperature_exp,
+            self.hydrogen_exp,
+            self.electron_exp,
         )
         return s
 
@@ -616,11 +629,11 @@ class ScaledExponentBroadening(StandardLineBroadener):
 
         if self.scaling != other.scaling:
             return False
-        if self.temperatureExp != other.temperatureExp:
+        if self.temperature_exp != other.temperature_exp:
             return False
-        if self.hydrogenExp != other.hydrogenExp:
+        if self.hydrogen_exp != other.hydrogen_exp:
             return False
-        if self.electronExp != other.electronExp:
+        if self.electron_exp != other.electron_exp:
             return False
 
         try:
@@ -631,7 +644,7 @@ class ScaledExponentBroadening(StandardLineBroadener):
 
         return True
 
-    def broaden(self, atmos: 'Atmosphere', eqPops: 'SpeciesStateTable') -> np.ndarray:
+    def broaden(self, atmos: 'Atmosphere', eq_pops: 'SpeciesStateTable') -> np.ndarray:
         """
         The function that is called by LineBroadening.
 
@@ -639,7 +652,7 @@ class ScaledExponentBroadening(StandardLineBroadener):
         ----------
         atmos : Atmosphere
             The atmosphere in which to compute the broadening.
-        eqPops : SpeciesStateTable
+        eq_pops : SpeciesStateTable
             The populations to use for computing the broadening.
 
         Returns
@@ -650,23 +663,23 @@ class ScaledExponentBroadening(StandardLineBroadener):
         """
         result = np.ones_like(atmos.temperature)
 
-        if self.temperatureExp != 0.0:
-            if self.temperatureExp == 1.0:
+        if self.temperature_exp != 0.0:
+            if self.temperature_exp == 1.0:
                 result *= atmos.temperature
             else:
-                result *= atmos.temperature**self.temperatureExp
+                result *= atmos.temperature**self.temperature_exp
 
-        if self.hydrogenExp != 0.0:
-            nHGround = eqPops['H'][0, :]
-            if self.hydrogenExp == 1.0:
+        if self.hydrogen_exp != 0.0:
+            nHGround = eq_pops['H'][0, :]
+            if self.hydrogen_exp == 1.0:
                 result *= nHGround
             else:
-                result *= nHGround**self.hydrogenExp
+                result *= nHGround**self.hydrogen_exp
 
-        if self.electronExp != 0.0:
-            if self.electronExp == 1.0:
+        if self.electron_exp != 0.0:
+            if self.electron_exp == 1.0:
                 result *= atmos.ne
             else:
-                result *= atmos.ne**self.electronExp
+                result *= atmos.ne**self.electron_exp
 
         return self.scaling * result

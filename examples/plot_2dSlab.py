@@ -53,9 +53,9 @@ atmos_2d = lw.Atmosphere.make_2d(
     vz=zero,
     vturb=tile(fal.vturb),
     ne=tile(fal.ne),
-    nHTot=tile(fal.nHTot),
-    xLowerBc=lw.PeriodicRadiation(),
-    xUpperBc=lw.PeriodicRadiation(),
+    nh_tot=tile(fal.nh_tot),
+    x_lower_bc=lw.PeriodicRadiation(),
+    x_upper_bc=lw.PeriodicRadiation(),
 )
 atmos_2d.quadrature(6)
 eq_pops_2d, ctx_2d = converged_ca(atmos_2d)

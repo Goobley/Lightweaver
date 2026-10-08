@@ -21,27 +21,27 @@ from lightweaver.rh_atoms import CaII_atom, H_6_atom
 def converged_ca_ctx():
     atmos = Falc82()
     atmos.quadrature(3)
-    aSet = lw.RadiativeSet([H_6_atom(), CaII_atom()])
-    aSet.set_active('Ca')
-    spect = aSet.compute_wavelength_grid()
-    eqPops = aSet.compute_eq_pops(atmos)
-    ctx = lw.Context(atmos, spect, eqPops, Nthreads=Nthreads)
-    lw.iterate_ctx_se(ctx, popsTol=1e-4, quiet=True)
+    rad_set = lw.RadiativeSet([H_6_atom(), CaII_atom()])
+    rad_set.set_active('Ca')
+    spect = rad_set.compute_wavelength_grid()
+    eq_pops = rad_set.compute_eq_pops(atmos)
+    ctx = lw.Context(atmos, spect, eq_pops, Nthreads=Nthreads)
+    lw.iterate_ctx_se(ctx, pops_tol=1e-4, quiet=True)
     return ctx
 
 
-def time_step(ctx, dt, popsTol=1e-3, maxSubIter=500):
+def time_step(ctx, dt, pops_tol=1e-3, max_sub_iter=500):
     """
     Advance the populations of the active atoms by dt [s]. Within a timestep,
     the radiation field and the populations are iterated together until
-    consistent. The populations at the start of the step (`prevTimePops`) are
+    consistent. The populations at the start of the step (`prev_time_pops`) are
     returned by the first `time_dep_update` and passed back in subsequently.
     """
-    prevTimePops = None
-    for sub in range(maxSubIter):
+    prev_time_pops = None
+    for sub in range(max_sub_iter):
         ctx.formal_sol_gamma_matrices()
-        update, prevTimePops = ctx.time_dep_update(dt, prevTimePops)
-        if update.dPopsMax < popsTol:
+        update, prev_time_pops = ctx.time_dep_update(dt, prev_time_pops)
+        if update.dpops_max < pops_tol:
             return sub
     raise RuntimeError(f'Timestep (dt = {dt} s) did not converge')
 
@@ -60,7 +60,7 @@ def heated_copy(ctx):
 
 
 def ca_pops(ctx):
-    return np.array(ctx.activeAtoms[0].n)
+    return np.array(ctx.active_atoms[0].n)
 
 
 def max_rel_diff(a, b):
@@ -72,42 +72,42 @@ def test_time_dependent(reference):
 
     # The statistical equilibrium solution of the heated atmosphere, which
     # the time-dependent populations should relax towards.
-    seCtx = heated_copy(ctx)
-    lw.iterate_ctx_se(seCtx, popsTol=1e-4, quiet=True)
-    heatedSe = ca_pops(seCtx)
+    se_ctx = heated_copy(ctx)
+    lw.iterate_ctx_se(se_ctx, pops_tol=1e-4, quiet=True)
+    heated_se = ca_pops(se_ctx)
     start = ca_pops(heated_copy(ctx))
-    assert max_rel_diff(start, heatedSe) > 0.1
+    assert max_rel_diff(start, heated_se) > 0.1
 
     # Evolve with a solar-like timestep of 0.1 s: the populations move
     # steadily towards the new equilibrium, conserving the total Ca
     # population.
-    evolveCtx = heated_copy(ctx)
-    distance = [max_rel_diff(start, heatedSe)]
+    evolve_ctx = heated_copy(ctx)
+    distance = [max_rel_diff(start, heated_se)]
     for step in range(10):
-        time_step(evolveCtx, 0.1)
-        n = ca_pops(evolveCtx)
+        time_step(evolve_ctx, 0.1)
+        n = ca_pops(evolve_ctx)
         assert np.all(np.isfinite(n))
         np.testing.assert_allclose(
-            n.sum(axis=0), np.asarray(evolveCtx.activeAtoms[0].nTotal), rtol=1e-6
+            n.sum(axis=0), np.asarray(evolve_ctx.active_atoms[0].n_total), rtol=1e-6
         )
-        distance.append(max_rel_diff(n, heatedSe))
+        distance.append(max_rel_diff(n, heated_se))
         if step == 0:
-            firstStep = n
+            first_step = n
     # The fastest-responding populations can overshoot slightly in the
     # first step, after which the approach is monotonic.
     assert np.all(np.diff(distance[1:]) < 0.0)
     assert distance[-1] < distance[0]
-    reference.check('time_dependent/CaPops_1s', ca_pops(evolveCtx))
+    reference.check('time_dependent/CaPops_1s', ca_pops(evolve_ctx))
 
     # A shorter timestep changes the populations less.
-    shortCtx = heated_copy(ctx)
-    time_step(shortCtx, 1e-3)
-    assert max_rel_diff(ca_pops(shortCtx), start) < max_rel_diff(firstStep, start)
+    short_ctx = heated_copy(ctx)
+    time_step(short_ctx, 1e-3)
+    assert max_rel_diff(ca_pops(short_ctx), start) < max_rel_diff(first_step, start)
 
     # Repeated 10 s steps relax the populations to the new statistical
     # equilibrium.
     for step in range(10):
-        time_step(evolveCtx, 10.0)
-        if max_rel_diff(ca_pops(evolveCtx), heatedSe) < 0.01:
+        time_step(evolve_ctx, 10.0)
+        if max_rel_diff(ca_pops(evolve_ctx), heated_se) < 0.01:
             break
-    assert max_rel_diff(ca_pops(evolveCtx), heatedSe) < 0.01
+    assert max_rel_diff(ca_pops(evolve_ctx), heated_se) < 0.01

@@ -196,8 +196,8 @@ def conv_atom(inFile):
         f = float(line[2])
         typ = line[3]
         Nlambda = int(line[4])
-        qCore = float(line[6])
-        qWing = float(line[7])
+        q_core = float(line[6])
+        q_wing = float(line[7])
         vdw = line[8]
         vdwParams = [float(x) for x in line[9:13]]
         gRad = float(line[13])
@@ -251,7 +251,7 @@ def conv_atom(inFile):
         if element == PeriodicTable[1]:
             broadening.elastic.append(HydrogenLinearStarkBroadening())
 
-        quadrature = LinearCoreExpWings(qCore=qCore, qWing=qWing, Nlambda=Nlambda)
+        quadrature = LinearCoreExpWings(q_core=q_core, q_wing=q_wing, Nlambda=Nlambda)
         lines.append(
             VoigtLine(
                 j=j,
@@ -260,7 +260,7 @@ def conv_atom(inFile):
                 type=lineType,
                 quadrature=quadrature,
                 broadening=broadening,
-                gLandeEff=gLande,
+                g_lande_eff=gLande,
             )
         )
         lineNLambdas.append(Nlambda)
@@ -274,7 +274,7 @@ def conv_atom(inFile):
         alpha0 = float(line[2])
         Nlambda = int(line[3])
         wavelengthDep = line[4]
-        minLambda = float(line[5])
+        min_lambda = float(line[5])
 
         if wavelengthDep.upper() == 'EXPLICIT':
             wavelengths = []
@@ -284,15 +284,15 @@ def conv_atom(inFile):
                 l = l.split()
                 wavelengths.append(float(l[0]))
                 alphas.append(float(l[1]))
-            wavelengthGrid = wavelengths[::-1]
-            alphaGrid = alphas[::-1]
+            wavelength_grid = wavelengths[::-1]
+            alpha_grid = alphas[::-1]
             continua.append(
-                ExplicitContinuum(j=j, i=i, wavelengthGrid=wavelengthGrid, alphaGrid=alphaGrid)
+                ExplicitContinuum(j=j, i=i, wavelength_grid=wavelength_grid, alpha_grid=alpha_grid)
             )
         elif wavelengthDep.upper() == 'HYDROGENIC':
             continua.append(
                 HydrogenicContinuum(
-                    j=j, i=i, alpha0=alpha0, minWavelength=minLambda, NlambdaGen=Nlambda
+                    j=j, i=i, alpha0=alpha0, min_wavelength=min_lambda, Nlambda_gen=Nlambda
                 )
             )
         else:
@@ -421,8 +421,8 @@ def update_H_atom(h):
         # enough, especially accounting for the corrected Sutton Linear Stark
         # Broadening
         if l.i == 1:
-            l.quadrature.qCore = max(l.quadrature.qCore, 15.0)
-            l.quadrature.qWing = max(l.quadrature.qWing, 350.0)
+            l.quadrature.q_core = max(l.quadrature.q_core, 15.0)
+            l.quadrature.q_wing = max(l.quadrature.q_wing, 350.0)
 
         # NOTE(cmo): Ensure all the more principal lines of the series have enough wavelength points
         if l.j <= 3:
