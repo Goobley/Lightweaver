@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:40.983** total execution time for 2 files **from auto_examples**:
+**03:10.930** total execution time for 5 files **from auto_examples**:
 
 .. container::
 
@@ -32,9 +32,18 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_plot_JudgeDynamicValidation.py` (``plot_JudgeDynamicValidation.py``)
-     - 00:27.917
+   * - :ref:`sphx_glr_auto_examples_plot_PrdChromosphericLines.py` (``plot_PrdChromosphericLines.py``)
+     - 01:44.302
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_plot_2dSlab.py` (``plot_2dSlab.py``)
+     - 00:38.916
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_plot_ContributionFunction.py` (``plot_ContributionFunction.py``)
+     - 00:25.496
      - 0.0
    * - :ref:`sphx_glr_auto_examples_plot_SimpleLineTest.py` (``plot_SimpleLineTest.py``)
-     - 00:13.066
+     - 00:13.167
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_plot_JudgeDynamicValidation.py` (``plot_JudgeDynamicValidation.py``)
+     - 00:09.049
      - 0.0

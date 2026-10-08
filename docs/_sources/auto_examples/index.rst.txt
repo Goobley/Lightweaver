@@ -18,6 +18,57 @@ See some simple examples for using Lightweaver.
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbcontainer" tooltip="Contribution function and formation height of 854.2">
+
+.. only:: html
+
+  .. image:: /auto_examples/images/thumb/sphx_glr_plot_ContributionFunction_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/plot_ContributionFunction`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Contribution function and formation height of 854.2</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="NLTE Ca II in a 2D slab with periodic boundaries">
+
+.. only:: html
+
+  .. image:: /auto_examples/images/thumb/sphx_glr_plot_2dSlab_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/plot_2dSlab`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">NLTE Ca II in a 2D slab with periodic boundaries</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="PRD synthesis of Mg II k and Ca II K with a chromospheric flow">
+
+.. only:: html
+
+  .. image:: /auto_examples/images/thumb/sphx_glr_plot_PrdChromosphericLines_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/plot_PrdChromosphericLines`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">PRD synthesis of Mg II k and Ca II K with a chromospheric flow</div>
+    </div>
+
+
+.. raw:: html
+
     <div class="sphx-glr-thumbcontainer" tooltip="Judge (2017): ApJ 851, 5">
 
 .. only:: html
@@ -60,6 +111,9 @@ See some simple examples for using Lightweaver.
 .. toctree::
    :hidden:
 
+   /auto_examples/plot_ContributionFunction
+   /auto_examples/plot_2dSlab
+   /auto_examples/plot_PrdChromosphericLines
    /auto_examples/plot_JudgeDynamicValidation
    /auto_examples/plot_SimpleLineTest
 

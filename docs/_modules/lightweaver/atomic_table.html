@@ -476,7 +476,7 @@
             <span class="k">if</span> <span class="p">(</span><span class="n">abund</span> <span class="o">:=</span> <span class="bp">self</span><span class="p">[</span><span class="n">iso</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">maxAbund</span><span class="p">:</span>
                 <span class="n">maxAbund</span> <span class="o">=</span> <span class="n">abund</span>
                 <span class="n">maxIso</span> <span class="o">=</span> <span class="n">iso</span>
-        <span class="k">return</span> <span class="n">iso</span></div>
+        <span class="k">return</span> <span class="n">maxIso</span></div>
 
 
 <div class="viewcode-block" id="AtomicAbundance.dex_to_decimal">
@@ -709,7 +709,7 @@
         <span class="n">Uk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tpf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pf</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
 
         <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">Nstage</span><span class="p">):</span>
-            <span class="n">Ukp1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tpf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pf</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="n">Ukp1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tpf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pf</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="p">:])</span>
 
             <span class="n">fj</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">fj</span><span class="p">[</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">CtNe</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">Ukp1</span> <span class="o">-</span> <span class="n">Uk</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">ionPot</span><span class="p">[</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
                                             <span class="o">/</span> <span class="p">(</span><span class="n">Const</span><span class="o">.</span><span class="n">KBoltzmann</span> <span class="o">*</span> <span class="n">T</span><span class="p">))</span>

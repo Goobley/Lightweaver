@@ -126,7 +126,8 @@
 <span class="sd">        the order of the lines on each activeAtom. These values are repeated for</span>
 <span class="sd">        each sub-iteration &lt; NprdSubIter.</span>
 <span class="sd">    dRhoMaxIdx : List[int]</span>
-<span class="sd">        The location of the maximum change in rho for each PRD line.</span>
+<span class="sd">        The location of the maximum change in rho for each PRD line, in the</span>
+<span class="sd">        flattened rhoPrd array (Nlambda, Nspace).</span>
 <span class="sd">    updatedJPrd : bool</span>
 <span class="sd">        Whether the PRD iteration affected J.</span>
 <span class="sd">    dJPrdMax : float</span>

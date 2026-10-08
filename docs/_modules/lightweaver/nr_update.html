@@ -85,7 +85,7 @@
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.nr_update.nr_post_update">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">nr_post_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fdCollisionRates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hOnly</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                    <span class="n">timeDependentData</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chunkSize</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-                   <span class="n">ngUpdate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">printUpdate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extraParams</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                   <span class="n">ngUpdate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extraParams</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Compute the Newton-Raphson terms for updating the electron density</span>
 <span class="sd">    through charge conservation. Is attached to the Context object.</span>
@@ -113,9 +113,6 @@
 <span class="sd">        behaviour), will only accelerate if the counter on the Ng accelerator</span>
 <span class="sd">        has seen enough steps since the previous acceleration (set in Context</span>
 <span class="sd">        initialisation).</span>
-<span class="sd">    printUpdate : bool, optional</span>
-<span class="sd">        Whether to print information on the size of the update (default:</span>
-<span class="sd">        None, to apply automatic behaviour).</span>
 <span class="sd">    extraParams : dict, optional</span>
 <span class="sd">        Dict of extra parameters to be converted through the</span>
 <span class="sd">        `dict2ExtraParams` function and passed onto the C++ core.</span>
@@ -130,9 +127,6 @@
 
     <span class="k">if</span> <span class="n">ngUpdate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">ngUpdate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conserveCharge</span>
-
-    <span class="k">if</span> <span class="n">printUpdate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">printUpdate</span> <span class="o">=</span> <span class="n">ngUpdate</span>
 
     <span class="n">atoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activeAtoms</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">hOnly</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">activeAtoms</span>
     <span class="n">crswVal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crswCallback</span><span class="o">.</span><span class="n">val</span>
@@ -172,11 +166,11 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">eqPops</span><span class="o">.</span><span class="n">update_lte_atoms_Hmin_pops</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atmos</span><span class="o">.</span><span class="n">pyAtmos</span><span class="p">,</span> <span class="n">conserveCharge</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">ngUpdate</span><span class="p">:</span>
-        <span class="n">update</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rel_diff_ng_accelerate</span><span class="p">(</span><span class="n">printUpdate</span><span class="o">=</span><span class="n">printUpdate</span><span class="p">)</span>
+        <span class="n">update</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rel_diff_ng_accelerate</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">update</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rel_diff_pops</span><span class="p">(</span><span class="n">printUpdate</span><span class="o">=</span><span class="n">printUpdate</span><span class="p">)</span>
-    <span class="n">neDiff</span> <span class="o">=</span> <span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">)</span> <span class="o">-</span> <span class="n">neStart</span><span class="p">)</span>
-                <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">))</span>
+        <span class="n">update</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rel_diff_pops</span><span class="p">()</span>
+    <span class="n">neDiff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">)</span> <span class="o">-</span> <span class="n">neStart</span><span class="p">)</span>
+                    <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atmos</span><span class="o">.</span><span class="n">ne</span><span class="p">))</span>
     <span class="n">neDiffMaxIdx</span> <span class="o">=</span> <span class="n">neDiff</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span>
     <span class="n">neDiffMax</span> <span class="o">=</span> <span class="n">neDiff</span><span class="p">[</span><span class="n">neDiffMaxIdx</span><span class="p">]</span>
     <span class="n">update</span><span class="o">.</span><span class="n">updatedNe</span> <span class="o">=</span> <span class="kc">True</span>

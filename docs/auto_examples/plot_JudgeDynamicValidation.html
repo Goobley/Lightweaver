@@ -25,7 +25,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Computing a simple NLTE 8542 line profile in a FAL C atmosphere" href="plot_SimpleLineTest.html" />
-    <link rel="prev" title="Lightweaver Examples Gallery" href="index.html" /> 
+    <link rel="prev" title="PRD synthesis of Mg II k and Ca II K with a chromospheric flow" href="plot_PrdChromosphericLines.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,6 +50,9 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Lightweaver Examples Gallery</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="plot_ContributionFunction.html">Contribution function and formation height of 854.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_2dSlab.html">NLTE Ca II in a 2D slab with periodic boundaries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_PrdChromosphericLines.html">PRD synthesis of Mg II k and Ca II K with a chromospheric flow</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Time-dependent Example</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_SimpleLineTest.html">Computing a simple NLTE 8542 line profile in a FAL C atmosphere</a></li>
 </ul>
@@ -101,10 +104,6 @@ Herein we also conserve charge.</p>
 </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span><span class="w">
 </span><span class="kn">import</span><span class="w"> </span><span class="nn">lightweaver</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">lw</span><span class="w">
 </span></pre></div></div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/Lightweaver/Lightweaver/lw-docs-venv/lib/python3.12/site-packages/lightweaver/config.py:75: UserWarning: No config file found, using defaults. For optimised vectorised code, please run `lightweaver.benchmark()`, otherwise the most advanced instruction set supported by your machine will be picked, which may not be the fastest (due to e.g. aggressive AVX offsets).
-  warnings.warn('No config file found, using defaults. For optimised vectorised code,'
-</pre></div>
-</div>
 <p>Set up the standard FAL C 82 point initial atmosphere.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere" title="lightweaver.Atmosphere"><span class="n">atmos</span></a> <span class="o">=</span> <span class="n">Falc82</span><span class="p">(</span><span class="p">)</span><span class="w">
 </span><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-method reference internal" href="../lightweaver-api.html#lightweaver.atmosphere.Atmosphere.quadrature" title="lightweaver.Atmosphere.quadrature"><span class="n">atmos</span><span class="o">.</span><span class="n">quadrature</span></a><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w">
@@ -124,38 +123,34 @@ Herein we also conserve charge.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>-- Iteration 0:
 dJ = 1.00e+00
     (Lambda iterating background)
--- Iteration 4:
-dJ = 9.99e+00
-    H delta = 1.0870e+00
-    ne delta = 1.5277e-01
--- Iteration 25:
-dJ = 1.00e-01
-    H delta = 6.2749e-02
-    ne delta = 3.5213e-16
--- Iteration 46:
-dJ = 6.48e-02
-    H delta = 3.8595e-02
-    ne delta = 3.5579e-16
--- Iteration 67:
-dJ = 3.50e-02
-    H delta = 2.2705e-02
-    ne delta = 6.8087e-16
--- Iteration 88:
-dJ = 9.68e-03
-    H delta = 6.4873e-03
-    ne delta = 1.3046e-15
--- Iteration 109:
-dJ = 1.73e-03
-    H delta = 1.1705e-03
-    ne delta = 6.2724e-16
+-- Iteration 21:
+dJ = 1.24e-01
+    H delta = 7.7588e-02
+    ne delta = 1.4524e-02
+-- Iteration 41:
+dJ = 6.99e-02
+    H delta = 4.1925e-02
+    ne delta = 1.4192e-02
+-- Iteration 61:
+dJ = 4.54e-02
+    H delta = 2.8458e-02
+    ne delta = 1.0717e-02
+-- Iteration 82:
+dJ = 1.48e-02
+    H delta = 9.8328e-03
+    ne delta = 3.5766e-03
+-- Iteration 103:
+dJ = 2.88e-03
+    H delta = 1.9429e-03
+    ne delta = 6.9148e-04
 --------------------------------------------------------------------------------
 Final Iteration: 111
 --------------------------------------------------------------------------------
 dJ = 1.46e-03
-    H delta = 9.8682e-04
-    ne delta = 3.5213e-16
+    H delta = 9.8678e-04
+    ne delta = 3.4992e-04
 --------------------------------------------------------------------------------
-Context converged to statistical equilibrium in 111 iterations after 2.37 s.
+Context converged to statistical equilibrium in 111 iterations after 1.11 s.
 --------------------------------------------------------------------------------
 Achieved initial Stat Eq
 </pre></div>
@@ -267,10 +262,10 @@ Iteration 29 (3.000000 s) done after 7 sub iterations
 </span><span class="w">
 </span><span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="s1">Time taken: </span><span class="si">%.2f</span><span class="s1"> s</span><span class="s1">'</span> <span class="o">%</span> <span class="p">(</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">)</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<img src="../_images/sphx_glr_plot_JudgeDynamicValidation_001.png" srcset="../_images/sphx_glr_plot_JudgeDynamicValidation_001.png" alt="plot JudgeDynamicValidation" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Time taken: 7.57 s
+<img src="../_images/sphx_glr_plot_JudgeDynamicValidation_001.png" srcset="../_images/sphx_glr_plot_JudgeDynamicValidation_001.png" alt="plot JudgeDynamicValidation" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Time taken: 7.52 s
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 27.917 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 9.049 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-plot-judgedynamicvalidation-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/80b6e3e2cfa645cda4e5a121a0b8a2e4/plot_JudgeDynamicValidation.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_JudgeDynamicValidation.ipynb</span></code></a></p>
@@ -289,7 +284,7 @@ Iteration 29 (3.000000 s) done after 7 sub iterations
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Lightweaver Examples Gallery" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="plot_PrdChromosphericLines.html" class="btn btn-neutral float-left" title="PRD synthesis of Mg II k and Ca II K with a chromospheric flow" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="plot_SimpleLineTest.html" class="btn btn-neutral float-right" title="Computing a simple NLTE 8542 line profile in a FAL C atmosphere" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

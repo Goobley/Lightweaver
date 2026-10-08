@@ -119,15 +119,15 @@ involved frameworks (such as radiation hydrodynamics or inversion packages).
 Currently, one dimensional plane-parallel, and two-dimensional Cartesian
 atmospheres are supported, but three-dimensional setups could be added simply
 with a specific formal solver. It is well tested against <a class="reference external" href="https://github.com/ITA-Solar/rh">RH</a> and <a class="reference external" href="https://github.com/ivanzmilic/snapi">SNAPI</a>.</p>
-<p>The framework is managed from python (3.8+) whilst calling into an optimised
+<p>The framework is managed from Python (3.10+) whilst calling into an optimised
 C++ backend. Whilst following a similar methods, Lightweaver is often
 considerably faster than RH on non-trivial problems, whilst being slightly
 slower on trivial single-threaded problems due to the increased
-initialisation time the python layer brings with it.
+initialisation time the Python layer brings with it.
 The backend can parallelise directly over as many threads as desired on
 single address space systems. MPI parallelisation across nodes can be
 accomplished manually on top of the framework using the packages available in
-python.</p>
+Python.</p>
 <p>Whilst the core numerics are implented in C++, as much of the non-performance
 critical code as possible is implemented in Python, and the code currently
 only has a Python interface (provided through a Cython binding module). These
@@ -139,14 +139,14 @@ experimentation, with most forms of experimentation (unless one wants to play
 with formal solvers or iteration schemes), being available directly from
 python. Formal solvers that comply with the interface defined in Lightweaver
 can be compiled into separate shared libraries and then loaded at runtime.
-The preceding concepts are inspired by the well-recieved machine learning
+The preceding concepts are inspired by the well-received machine learning
 frameworks such as PyTorch and Tensorflow.</p>
 </section>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
 <p>The most recent release of Lightweaver will always be available on PyPI and
-is pre-compiled for Linux, Windows, and macOS (intel).</p>
-<p>Lightweaver requires python 3.10+, and it is recommended to be run inside a virtual environment using <code class="docutils literal notranslate"><span class="pre">conda</span></code>.</p>
+is pre-compiled for Linux, Windows, and macOS.</p>
+<p>Lightweaver requires Python 3.10+, and it is recommended to be run inside a virtual environment using <code class="docutils literal notranslate"><span class="pre">conda</span></code>.</p>
 <p>In this case a new virtual environment can be created with:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>Lightweaver<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.12
 </pre></div>
@@ -166,12 +166,9 @@ to install, you should be able to</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>.
 </pre></div>
 </div>
-<p>from the Lightweaver directory created. You may also wish to do this to
-create a more optimised version for modern machines; the PyPI versions
-support Sandy Bridge CPUs, so newer machines may have wider instruction sets
-available.
+<p>from the Lightweaver directory created. To compile extension modules you will need a version of the code locally (matching the installed version).
 For doing a “development” installation for working inplace on the project,
-you may with to use <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code>.</p>
+you may wish to use <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span> <span class="pre">--config-settings</span> <span class="pre">editable_mode=strict</span></code> (the <code class="docutils literal notranslate"><span class="pre">editable_mode</span></code> improves compatibility with most Python IDEs using jedi)</p>
 </section>
 </section>
 <section id="indices-and-tables">

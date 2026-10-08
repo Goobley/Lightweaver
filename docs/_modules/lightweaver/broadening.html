@@ -724,20 +724,20 @@
 <span class="sd">        '''</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperatureExp</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperatureExp</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperatureExp</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">*=</span> <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">*=</span> <span class="n">atmos</span><span class="o">.</span><span class="n">temperature</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">temperatureExp</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hydrogenExp</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hydrogenExp</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
             <span class="n">nHGround</span> <span class="o">=</span> <span class="n">eqPops</span><span class="p">[</span><span class="s1">'H'</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hydrogenExp</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">*=</span> <span class="n">nHGround</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">*=</span> <span class="n">nHGround</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">hydrogenExp</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">electronExp</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">electronExp</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">electronExp</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">*=</span> <span class="n">atmos</span><span class="o">.</span><span class="n">ne</span>
             <span class="k">else</span><span class="p">:</span>

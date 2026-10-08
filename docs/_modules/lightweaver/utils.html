@@ -106,7 +106,8 @@
 <span class="sd">    Norder : int, optional</span>
 <span class="sd">        The order of the acceleration scheme to use (default: 0, i.e. none).</span>
 <span class="sd">    Nperiod : int, optional</span>
-<span class="sd">        The number of iterations to run between accelerations.</span>
+<span class="sd">        The number of iterations to run between accelerations. Must be at</span>
+<span class="sd">        least Norder + 1 if Norder &gt; 0.</span>
 <span class="sd">    Ndelay : int, optional</span>
 <span class="sd">        The number of iterations to run before starting acceleration.</span>
 <span class="sd">    threshold : float, optional</span>
@@ -119,7 +120,13 @@
     <span class="n">Nperiod</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">Ndelay</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5e-2</span>
-    <span class="n">lowerThreshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2e-4</span></div>
+    <span class="n">lowerThreshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2e-4</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># NOTE(cmo): Each acceleration uses the last Norder+2 solutions, which</span>
+        <span class="c1"># must all follow the previous accelerated solution.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Norder</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nperiod</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Norder</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Nperiod must be &gt;= Norder + 1 when Norder &gt; 0'</span><span class="p">)</span></div>
 
 
 

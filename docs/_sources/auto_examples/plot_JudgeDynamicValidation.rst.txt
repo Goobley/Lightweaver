@@ -43,13 +43,6 @@ Judge (2017): ApJ 851, 5
 
 
 
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    /home/runner/work/Lightweaver/Lightweaver/lw-docs-venv/lib/python3.12/site-packages/lightweaver/config.py:75: UserWarning: No config file found, using defaults. For optimised vectorised code, please run `lightweaver.benchmark()`, otherwise the most advanced instruction set supported by your machine will be picked, which may not be the fastest (due to e.g. aggressive AVX offsets).
-      warnings.warn('No config file found, using defaults. For optimised vectorised code,'
-
 
 
 
@@ -102,38 +95,34 @@ Find the initial statistical equilibrium solution,
     -- Iteration 0:
     dJ = 1.00e+00
         (Lambda iterating background)
-    -- Iteration 4:
-    dJ = 9.99e+00
-        H delta = 1.0870e+00
-        ne delta = 1.5277e-01
-    -- Iteration 25:
-    dJ = 1.00e-01
-        H delta = 6.2749e-02
-        ne delta = 3.5213e-16
-    -- Iteration 46:
-    dJ = 6.48e-02
-        H delta = 3.8595e-02
-        ne delta = 3.5579e-16
-    -- Iteration 67:
-    dJ = 3.50e-02
-        H delta = 2.2705e-02
-        ne delta = 6.8087e-16
-    -- Iteration 88:
-    dJ = 9.68e-03
-        H delta = 6.4873e-03
-        ne delta = 1.3046e-15
-    -- Iteration 109:
-    dJ = 1.73e-03
-        H delta = 1.1705e-03
-        ne delta = 6.2724e-16
+    -- Iteration 21:
+    dJ = 1.24e-01
+        H delta = 7.7588e-02
+        ne delta = 1.4524e-02
+    -- Iteration 41:
+    dJ = 6.99e-02
+        H delta = 4.1925e-02
+        ne delta = 1.4192e-02
+    -- Iteration 61:
+    dJ = 4.54e-02
+        H delta = 2.8458e-02
+        ne delta = 1.0717e-02
+    -- Iteration 82:
+    dJ = 1.48e-02
+        H delta = 9.8328e-03
+        ne delta = 3.5766e-03
+    -- Iteration 103:
+    dJ = 2.88e-03
+        H delta = 1.9429e-03
+        ne delta = 6.9148e-04
     --------------------------------------------------------------------------------
     Final Iteration: 111
     --------------------------------------------------------------------------------
     dJ = 1.46e-03
-        H delta = 9.8682e-04
-        ne delta = 3.5213e-16
+        H delta = 9.8678e-04
+        ne delta = 3.4992e-04
     --------------------------------------------------------------------------------
-    Context converged to statistical equilibrium in 111 iterations after 2.37 s.
+    Context converged to statistical equilibrium in 111 iterations after 1.11 s.
     --------------------------------------------------------------------------------
     Achieved initial Stat Eq
 
@@ -314,7 +303,7 @@ Reproduce Judge plot.
 
  .. code-block:: none
 
-    Time taken: 7.57 s
+    Time taken: 7.52 s
 
 
 
@@ -322,7 +311,7 @@ Reproduce Judge plot.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 27.917 seconds)
+   **Total running time of the script:** (0 minutes 9.049 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_JudgeDynamicValidation.py:

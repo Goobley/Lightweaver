@@ -1,0 +1,232 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PRD synthesis of Mg II k and Ca II K with a chromospheric flow &mdash; Lightweaver  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=c83e6b79" />
+      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Time-dependent Example" href="plot_JudgeDynamicValidation.html" />
+    <link rel="prev" title="NLTE Ca II in a 2D slab with periodic boundaries" href="plot_2dSlab.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Lightweaver
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Lightweaver Examples Gallery</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="plot_ContributionFunction.html">Contribution function and formation height of 854.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_2dSlab.html">NLTE Ca II in a 2D slab with periodic boundaries</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">PRD synthesis of Mg II k and Ca II K with a chromospheric flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_JudgeDynamicValidation.html">Time-dependent Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_SimpleLineTest.html">Computing a simple NLTE 8542 line profile in a FAL C atmosphere</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../lightweaver-api.html">Lightweaver API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Lightweaver</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Lightweaver Examples Gallery</a></li>
+      <li class="breadcrumb-item active">PRD synthesis of Mg II k and Ca II K with a chromospheric flow</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/auto_examples/plot_PrdChromosphericLines.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-plot-prdchromosphericlines-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="prd-synthesis-of-mg-ii-k-and-ca-ii-k-with-a-chromospheric-flow">
+<span id="sphx-glr-auto-examples-plot-prdchromosphericlines-py"></span><h1>PRD synthesis of Mg II k and Ca II K with a chromospheric flow<a class="headerlink" href="#prd-synthesis-of-mg-ii-k-and-ca-ii-k-with-a-chromospheric-flow" title="Link to this heading"></a></h1>
+<p>The resonance lines of Mg II and Ca II are strongly affected by partial
+frequency redistribution (PRD). Here we solve the NLTE problem for H, Ca II
+and Mg II simultaneously in the FAL C model with an upflow in the upper
+chromosphere, comparing three treatments of the line scattering:</p>
+<ul class="simple">
+<li><p>complete redistribution (CRD),</p></li>
+<li><p>angle-averaged PRD,</p></li>
+<li><p>hybrid PRD (HPRD, Leenaarts et al. 2012), which accounts for the
+Doppler shifts of the atmospheric velocity field in the redistribution by
+evaluating the scattering integral in the plasma rest frame.</p></li>
+</ul>
+<p>In a static atmosphere, the angle-averaged and hybrid treatments agree, but
+angle-averaged PRD is not valid in the presence of flows.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">time</span><span class="w">
+</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="nn">.</span><span class="nn">pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span><span class="w">
+</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">lightweaver</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">lw</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">lightweaver</span><span class="nn">.</span><span class="nn">fal</span><span class="w"> </span><span class="kn">import</span> <span class="n">Falc82</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">lightweaver</span><span class="nn">.</span><span class="nn">rh_atoms</span><span class="w"> </span><span class="kn">import</span> <span class="n">CaII_atom</span><span class="p">,</span> <span class="n">H_6_atom</span><span class="p">,</span> <span class="n">MgII_atom</span><span class="w">
+</span></pre></div></div>
+<p>Construct the atmosphere: FAL C, with a vertical velocity shear in the upper
+chromosphere, where the cores of Mg II k and Ca II K form. The velocity
+rises from 0 below ~1.2 Mm to a 10 km/s upflow (vz &gt; 0, towards an observer
+at disk centre) above ~1.8 Mm.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="k">def</span><span class="w"> </span><span class="nf">make_atmos</span><span class="p">(</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">atmos</span> <span class="o">=</span> <span class="n">Falc82</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span>    <span class="n">atmos</span><span class="o">.</span><span class="n">vz</span><span class="p">[</span><span class="p">:</span><span class="p">]</span> <span class="o">=</span> <span class="mf">10e3</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="p">(</span><span class="n">atmos</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="mf">1.5e6</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.15e6</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span>    <span class="n">atmos</span><span class="o">.</span><span class="n">quadrature</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w">
+</span>    <span class="k">return</span> <span class="n">atmos</span><span class="w">
+</span></pre></div></div>
+<p>Set up and iterate the simulation. The H &amp; K lines of Ca II, the h &amp; k lines
+of Mg II and Lyman alpha &amp; beta are flagged as PRD lines in these model
+atoms. When <cite>prd=True</cite> is passed to <cite>lw.iterate_ctx_se</cite>, the PRD emission
+profile (rho) is updated alongside the populations, and <cite>hprd=True</cite> on the
+Context enables the hybrid treatment. We also conserve charge, updating the
+electron density alongside the populations of the active species.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="k">def</span><span class="w"> </span><span class="nf">synthesise</span><span class="p">(</span><span class="n">prd</span><span class="p">,</span> <span class="n">hprd</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">atmos</span> <span class="o">=</span> <span class="n">make_atmos</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span>    <span class="n">rad_set</span> <span class="o">=</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class reference internal" href="../lightweaver-api.html#lightweaver.atomic_set.RadiativeSet" title="lightweaver.RadiativeSet"><span class="n">lw</span><span class="o">.</span><span class="n">RadiativeSet</span></a><span class="p">(</span><span class="p">[</span><span class="n">H_6_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">CaII_atom</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="n">MgII_atom</span><span class="p">(</span><span class="p">)</span><span class="p">]</span><span class="p">)</span><span class="w">
+</span>    <span class="n">rad_set</span><span class="o">.</span><span class="n">set_active</span><span class="p">(</span><span class="s1">'</span><span class="s1">H</span><span class="s1">'</span><span class="p">,</span> <span class="s1">'</span><span class="s1">Ca</span><span class="s1">'</span><span class="p">,</span> <span class="s1">'</span><span class="s1">Mg</span><span class="s1">'</span><span class="p">)</span><span class="w">
+</span>    <span class="n">spect</span> <span class="o">=</span> <span class="n">rad_set</span><span class="o">.</span><span class="n">compute_wavelength_grid</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span>    <span class="n">eq_pops</span> <span class="o">=</span> <span class="n">rad_set</span><span class="o">.</span><span class="n">compute_eq_pops</span><span class="p">(</span><span class="n">atmos</span><span class="p">)</span><span class="w">
+</span>    <span class="n">ctx</span> <span class="o">=</span> <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-class reference internal" href="../lightweaver-api.html#lightweaver.LwCompiled.LwContext" title="lightweaver.LwContext"><span class="n">lw</span><span class="o">.</span><span class="n">Context</span></a><span class="p">(</span><span class="n">atmos</span><span class="p">,</span> <span class="n">spect</span><span class="p">,</span> <span class="n">eq_pops</span><span class="p">,</span> <span class="n">conserveCharge</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hprd</span><span class="o">=</span><span class="n">hprd</span><span class="p">,</span><span class="w">
+</span>                     <span class="n">Nthreads</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="w">
+</span>    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span>    <span class="n">lw</span><span class="o">.</span><span class="n">iterate_ctx_se</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">prd</span><span class="o">=</span><span class="n">prd</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="s1">Converged in </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1"> s</span><span class="s1">'</span><span class="p">)</span><span class="w">
+</span>    <span class="k">return</span> <span class="n">ctx</span><span class="w">
+</span><span class="w">
+</span><span class="w">
+</span><span class="n">ctx_crd</span> <span class="o">=</span> <span class="n">synthesise</span><span class="p">(</span><span class="n">prd</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="w">
+</span><span class="n">ctx_prd</span> <span class="o">=</span> <span class="n">synthesise</span><span class="p">(</span><span class="n">prd</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span><span class="n">ctx_hprd</span> <span class="o">=</span> <span class="n">synthesise</span><span class="p">(</span><span class="n">prd</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hprd</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Converged in 20.8 s
+Converged in 38.6 s
+Converged in 43.8 s
+</pre></div>
+</div>
+<p>Compute the emergent intensity at disk centre (mu = 1) on wavelength grids
+around the lines (vacuum wavelengths, in nm).</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">mg_k</span> <span class="o">=</span> <span class="mf">279.635</span><span class="w">
+</span><span class="n">ca_k</span> <span class="o">=</span> <span class="mf">393.478</span><span class="w">
+</span><span class="n">wave_mg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">mg_k</span> <span class="o">-</span> <span class="mf">0.06</span><span class="p">,</span> <span class="n">mg_k</span> <span class="o">+</span> <span class="mf">0.06</span><span class="p">,</span> <span class="mi">601</span><span class="p">)</span><span class="w">
+</span><span class="n">wave_ca</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">ca_k</span> <span class="o">-</span> <span class="mf">0.06</span><span class="p">,</span> <span class="n">ca_k</span> <span class="o">+</span> <span class="mf">0.06</span><span class="p">,</span> <span class="mi">601</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="n">profiles</span> <span class="o">=</span> <span class="p">{</span><span class="p">}</span><span class="w">
+</span><span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">ctx</span> <span class="ow">in</span> <span class="p">[</span><span class="p">(</span><span class="s1">'</span><span class="s1">CRD</span><span class="s1">'</span><span class="p">,</span> <span class="n">ctx_crd</span><span class="p">)</span><span class="p">,</span> <span class="p">(</span><span class="s1">'</span><span class="s1">PRD (angle-averaged)</span><span class="s1">'</span><span class="p">,</span> <span class="n">ctx_prd</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>                   <span class="p">(</span><span class="s1">'</span><span class="s1">HPRD</span><span class="s1">'</span><span class="p">,</span> <span class="n">ctx_hprd</span><span class="p">)</span><span class="p">]</span><span class="p">:</span><span class="w">
+</span>    <span class="n">profiles</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-method reference internal" href="../lightweaver-api.html#lightweaver.LwCompiled.LwContext.compute_rays" title="lightweaver.LwContext.compute_rays"><span class="n">ctx</span><span class="o">.</span><span class="n">compute_rays</span></a><span class="p">(</span><span class="n">wave_mg</span><span class="p">,</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>                       <a class="sphx-glr-backref-module-lightweaver sphx-glr-backref-type-py-method reference internal" href="../lightweaver-api.html#lightweaver.LwCompiled.LwContext.compute_rays" title="lightweaver.LwContext.compute_rays"><span class="n">ctx</span><span class="o">.</span><span class="n">compute_rays</span></a><span class="p">(</span><span class="n">wave_ca</span><span class="p">,</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<p>Plot the profiles. PRD produces narrower emission peaks and much darker
+inner wings than CRD. Angle-averaged PRD does not account for the Doppler
+shifts of the flow in the redistribution, and underestimates the blue (k2v)
+peak of Mg II k by ~40% relative to HPRD. Ca II K is less affected in this
+example.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span><span class="p">,</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span><span class="k">for</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="p">(</span><span class="n">I_mg</span><span class="p">,</span> <span class="n">I_ca</span><span class="p">)</span><span class="p">)</span><span class="p">,</span> <span class="n">style</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">profiles</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="p">)</span><span class="p">,</span> <span class="p">[</span><span class="s1">'</span><span class="s1">--</span><span class="s1">'</span><span class="p">,</span> <span class="s1">'</span><span class="s1">-</span><span class="s1">'</span><span class="p">,</span> <span class="s1">'</span><span class="s1">-</span><span class="s1">'</span><span class="p">]</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="p">(</span><span class="n">wave_mg</span> <span class="o">-</span> <span class="n">mg_k</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">,</span> <span class="n">I_mg</span><span class="p">,</span> <span class="n">style</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span><span class="w">
+</span>    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="p">(</span><span class="n">wave_ca</span> <span class="o">-</span> <span class="n">ca_k</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">,</span> <span class="n">I_ca</span><span class="p">,</span> <span class="n">style</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span><span class="w">
+</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'</span><span class="s1">Mg II k</span><span class="s1">'</span><span class="p">)</span><span class="w">
+</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'</span><span class="s1">Ca II K</span><span class="s1">'</span><span class="p">)</span><span class="w">
+</span><span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">ax</span><span class="p">:</span><span class="w">
+</span>    <span class="n">a</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">'</span><span class="s1">$</span><span class="s1">\</span><span class="s1">Delta</span><span class="s1">\</span><span class="s1">lambda$ [pm]</span><span class="s1">'</span><span class="p">)</span><span class="w">
+</span>    <span class="n">a</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">'</span><span class="s1">$I_</span><span class="s1">\</span><span class="s1">nu$ [J s$^</span><span class="s1">{</span><span class="s1">-1}$ m$^</span><span class="s1">{</span><span class="s1">-2}$ sr$^</span><span class="s1">{</span><span class="s1">-1}$ Hz$^</span><span class="s1">{</span><span class="s1">-1}$]</span><span class="s1">'</span><span class="p">)</span><span class="w">
+</span>    <span class="n">a</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<img src="../_images/sphx_glr_plot_PrdChromosphericLines_001.png" srcset="../_images/sphx_glr_plot_PrdChromosphericLines_001.png" alt="Mg II k, Ca II K" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 44.302 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-plot-prdchromosphericlines-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/8a7b88c18c2c2b01fcdf79622e668952/plot_PrdChromosphericLines.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_PrdChromosphericLines.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/082f42274c4a7a5a67ffd955f37d2ca0/plot_PrdChromosphericLines.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_PrdChromosphericLines.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/758a28ad477d92163016c3a2868a4b62/plot_PrdChromosphericLines.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">plot_PrdChromosphericLines.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="plot_2dSlab.html" class="btn btn-neutral float-left" title="NLTE Ca II in a 2D slab with periodic boundaries" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="plot_JudgeDynamicValidation.html" class="btn btn-neutral float-right" title="Time-dependent Example" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, C. Osborne.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
