@@ -53,7 +53,9 @@ def build_kwarg_registry() -> Dict[str, Set[str]]:
     from .deprecation import KWARG_REGISTRY
 
     for mod in pkgutil.iter_modules(lightweaver.__path__):
-        if mod.name in ('migrate',):
+        # libenkiTS is a plain shared library; on Windows it carries a stub
+        # PyInit that returns NULL, so importing it raises SystemError.
+        if mod.name in ('migrate', 'libenkiTS'):
             continue
         try:
             importlib.import_module(f'lightweaver.{mod.name}')

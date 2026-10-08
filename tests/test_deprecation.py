@@ -34,6 +34,9 @@ def this_file():
 
 def lightweaver_classes():
     for mod in pkgutil.iter_modules(lw.__path__):
+        # Plain shared library, not an extension module (see migrate.py).
+        if mod.name == 'libenkiTS':
+            continue
         try:
             module = importlib.import_module(f'lightweaver.{mod.name}')
         except ImportError:
