@@ -133,7 +133,9 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">.deprecation</span><span class="w"> </span><span class="kn">import</span> <span class="n">KWARG_REGISTRY</span>
 
     <span class="k">for</span> <span class="n">mod</span> <span class="ow">in</span> <span class="n">pkgutil</span><span class="o">.</span><span class="n">iter_modules</span><span class="p">(</span><span class="n">lightweaver</span><span class="o">.</span><span class="n">__path__</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">mod</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'migrate'</span><span class="p">,):</span>
+        <span class="c1"># libenkiTS is a plain shared library; on Windows it carries a stub</span>
+        <span class="c1"># PyInit that returns NULL, so importing it raises SystemError.</span>
+        <span class="k">if</span> <span class="n">mod</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'migrate'</span><span class="p">,</span> <span class="s1">'libenkiTS'</span><span class="p">):</span>
             <span class="k">continue</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="sa">f</span><span class="s1">'lightweaver.</span><span class="si">{</span><span class="n">mod</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>

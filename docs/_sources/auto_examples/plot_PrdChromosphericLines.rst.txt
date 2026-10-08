@@ -122,9 +122,9 @@ electron density alongside the populations of the active species.
 
  .. code-block:: none
 
-    Converged in 20.4 s
-    Converged in 37.9 s
-    Converged in 44.0 s
+    Converged in 21.3 s
+    Converged in 38.4 s
+    Converged in 44.2 s
 
 
 
@@ -192,7 +192,7 @@ example.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (1 minutes 43.494 seconds)
+   **Total running time of the script:** (1 minutes 45.147 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_PrdChromosphericLines.py:
