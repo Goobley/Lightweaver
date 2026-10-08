@@ -71,9 +71,12 @@ Paper = "https://arxiv.org/abs/2107.00475"
 # wheel is imported rather than the source tree.
 test-requires = ["pytest"]
 test-command = "python -m pytest {project}/tests -q"
-# numba/llvmlite stopped shipping macOS x86_64 wheels (numba 0.63), so the test
-# environment can't be installed there without building LLVM.
-test-skip = "*-macosx_x86_64"
+# Only test the oldest and newest supported Python on each platform, to save CI
+# time. numba/llvmlite stopped shipping macOS x86_64 wheels (numba 0.63), so the
+# test environment can't be installed there without building LLVM. On Apple
+# Silicon, cibuildwheel would otherwise test the x86_64 half of universal2 wheels
+# too.
+test-skip = "cp311-* cp312-* cp313-* *-macosx_x86_64 *-macosx_universal2:x86_64"
 
 [tool.ruff]
 line-length = 100
