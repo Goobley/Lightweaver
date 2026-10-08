@@ -1,7 +1,10 @@
 import warnings
 
 import astropy.units as u
-import crtaf
+try:
+    import crtaf
+except ImportError:
+    crtaf = None
 from fractions import Fraction
 
 from lightweaver.atomic_model import AtomicModel, AtomicLevel, LineType, LinearQuadrature, TabulatedQuadrature, LinearCoreExpWings, VoigtLine, HydrogenicContinuum, ExplicitContinuum
@@ -9,7 +12,9 @@ from lightweaver.broadening import LineBroadening, RadiativeBroadening, Hydrogen
 from lightweaver.collisional_rates import Omega, CE, CI, CH, CP, ChargeExchangeProton, ChargeExchangeNeutralH
 from lightweaver.atomic_table import PeriodicTable
 
-def from_crtaf(model: crtaf.Atom) -> AtomicModel:
+def from_crtaf(model: 'crtaf.Atom') -> AtomicModel:
+    if crtaf is None:
+        raise ImportError('The crtaf package is required to load CRTAF atomic models.')
     crtaf_labels = []
     levels = {}
     for label, level in model.levels.items():

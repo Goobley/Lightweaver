@@ -3,9 +3,8 @@ import shutil
 import sys
 import warnings
 from copy import copy
-from distutils.file_util import copy_file
-from distutils.sysconfig import get_config_var
 from os import path
+from sysconfig import get_config_var
 from typing import Dict, List, Union
 
 import numpy as np
@@ -156,10 +155,7 @@ class LwBuildExt(build_ext):
                                                 os.path.basename(extra_file_name))
                     src_filename = os.path.join(self.build_lib, extra_file_name)
 
-                    copy_file(
-                        src_filename, dest_filename, verbose=self.verbose,
-                        dry_run=self.dry_run
-                    )
+                    self.copy_file(src_filename, dest_filename)
 
 posixCiArgs : Dict[str, List[str]] = {
     'linux': ['-march=corei7-avx', '-mtune=corei7-avx'],

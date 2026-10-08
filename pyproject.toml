@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "setuptools>=64",
+    "setuptools>=77",
     "wheel",
     "setuptools_scm[toml]>=3.4",
     "cython",
@@ -24,8 +24,28 @@ maintainers = [
 description = "Non-LTE Radiative Transfer Framework in Python"
 readme = "README.md"
 license = "MIT"
+keywords = ["radiative transfer", "NLTE", "solar physics", "spectral lines"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: C++",
+    "Programming Language :: Cython",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "Topic :: Scientific/Engineering :: Physics",
+]
 dependencies = [
     "numpy>=2.0",
+    "astropy",
     "numba~=0.60",
     "matplotlib",
     "scipy",
@@ -36,4 +56,11 @@ dependencies = [
     "pyyaml",
     "mda-xdrlib; python_version > '3.12'",
 ]
+
+[project.urls]
+Homepage = "https://github.com/Goobley/Lightweaver"
+Documentation = "https://goobley.github.io/Lightweaver/"
+Source = "https://github.com/Goobley/Lightweaver"
+Issues = "https://github.com/Goobley/Lightweaver/issues"
+Paper = "https://arxiv.org/abs/2107.00475"
 
