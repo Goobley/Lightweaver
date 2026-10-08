@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**02:23.981** total execution time for 5 files **from all galleries**:
+**01:47.854** total execution time for 5 files **from all galleries**:
 
 .. container::
 
@@ -33,17 +33,17 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_plot_PrdChromosphericLines.py` (``../examples/plot_PrdChromosphericLines.py``)
-     - 01:18.257
+     - 00:57.183
      - 0.0
    * - :ref:`sphx_glr_auto_examples_plot_2dSlab.py` (``../examples/plot_2dSlab.py``)
-     - 00:44.043
+     - 00:35.298
      - 0.0
    * - :ref:`sphx_glr_auto_examples_plot_SimpleLineTest.py` (``../examples/plot_SimpleLineTest.py``)
-     - 00:09.628
+     - 00:06.769
      - 0.0
    * - :ref:`sphx_glr_auto_examples_plot_JudgeDynamicValidation.py` (``../examples/plot_JudgeDynamicValidation.py``)
-     - 00:07.147
+     - 00:05.122
      - 0.0
    * - :ref:`sphx_glr_auto_examples_plot_ContributionFunction.py` (``../examples/plot_ContributionFunction.py``)
-     - 00:04.906
+     - 00:03.482
      - 0.0
