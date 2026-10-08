@@ -78,3 +78,9 @@ quote-style = "single"
 select = ["E4", "E7", "E9", "F", "W", "I"]
 # Single-letter physics symbols (I, l, ...) are intentional.
 ignore = ["E741"]
+
+[tool.ruff.lint.per-file-ignores]
+# Public re-exports, including `from .constants import *`.
+"lightweaver/__init__.py" = ["F401", "F403"]
+# Standalone conversion script built on star imports of the atomic model classes.
+"Utils/ConvertAtom.py" = ["F403", "F405"]

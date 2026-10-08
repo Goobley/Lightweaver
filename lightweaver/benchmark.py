@@ -4,15 +4,14 @@ import numpy as np
 from tqdm import tqdm
 from weno4 import weno4
 
-from lightweaver.config import update_config_file
 from .atmosphere import Atmosphere, ScaleType
 from .atomic_set import RadiativeSet
-from .config import params as rcParams
 from .config import get_home_config_path, update_config_file
+from .config import params as rcParams
 from .fal import Falc82
+from .LwCompiled import LwContext
 from .rh_atoms import CaII_atom, H_6_atom
 from .simd_management import get_available_simd_suffixes
-from .LwCompiled import LwContext
 
 __all__ = ['benchmark']
 
@@ -31,7 +30,9 @@ def configure_context(Nspace=500, fsIterScheme=None):
         the user's config)
     """
     fal = Falc82()
-    interp = lambda x: weno4(np.linspace(0, 1, Nspace), np.linspace(0, 1, fal.Nspace), x)
+
+    def interp(x):
+        return weno4(np.linspace(0, 1, Nspace), np.linspace(0, 1, fal.Nspace), x)
 
     atmos = Atmosphere.make_1d(
         ScaleType.Geometric,

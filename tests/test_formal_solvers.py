@@ -11,11 +11,10 @@ new Context (`Context.construct_from_state_dict_with`), and
 from copy import deepcopy
 
 import numpy as np
-
-import lightweaver as lw
-
 from conftest import copy_ctx
 from test_stat_eq import Ca8542, line_wavelengths
+
+import lightweaver as lw
 
 Solvers1d = ['piecewise_linear_1d', 'piecewise_besser_1d', 'piecewise_bezier3_1d']
 

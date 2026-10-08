@@ -8,6 +8,7 @@ from scipy.special import exp1
 from weno4 import weno4
 
 import lightweaver.constants as Const
+
 from .utils import sequence_repr
 
 if TYPE_CHECKING:
@@ -195,7 +196,6 @@ class ChargeExchangeNeutralH(TemperatureInterpolationRates):
         C[C < 0.0] = 0.0
         nh0 = eqPops['H'][0, :]
         Cdown = C * nh0
-        nstar = eqPops.atomicPops[self.atom.element].nStar
         Cmat[self.i, self.j, :] += Cdown
 
 

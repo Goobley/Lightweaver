@@ -39,6 +39,7 @@ from .utils import (
     compute_contribution_fn,
     compute_height_edges,
     compute_radiative_losses,
+    compute_tau,
     compute_wavelength_edges,
     convert_specific_intensity,
     gaunt_bf,
@@ -46,10 +47,9 @@ from .utils import (
     get_default_molecule_path,
     integrate_line_losses,
     planck,
+    tau_isosurface,
     vac_to_air,
     voigt_H,
-    compute_tau,
-    tau_isosurface,
 )
 from .version import version as __version__
 

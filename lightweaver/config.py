@@ -5,6 +5,7 @@ from typing import List, Optional
 
 import astropy.config as conf
 import yaml
+
 from lightweaver.simd_management import LwSimdImplsAndFlags, get_available_simd_suffixes
 
 Defaults = {

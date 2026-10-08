@@ -8,13 +8,12 @@ reshaping the flattened spatial axis of 2D results to [z, x].
 """
 
 import numpy as np
+from conftest import Nthreads
+from test_stat_eq import Ca8542
 
 import lightweaver as lw
 from lightweaver.fal import Falc82
 from lightweaver.rh_atoms import CaII_atom, H_6_atom
-
-from conftest import Nthreads
-from test_stat_eq import Ca8542
 
 Nx = 8
 

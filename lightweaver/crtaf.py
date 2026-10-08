@@ -9,35 +9,35 @@ except ImportError:
 from fractions import Fraction
 
 from lightweaver.atomic_model import (
-    AtomicModel,
     AtomicLevel,
-    LineType,
-    LinearQuadrature,
-    TabulatedQuadrature,
-    LinearCoreExpWings,
-    VoigtLine,
-    HydrogenicContinuum,
+    AtomicModel,
     ExplicitContinuum,
-)
-from lightweaver.broadening import (
-    LineBroadening,
-    RadiativeBroadening,
-    HydrogenLinearStarkBroadening,
-    MultiplicativeStarkBroadening,
-    QuadraticStarkBroadening,
-    VdwUnsold,
-    ScaledExponentBroadening,
-)
-from lightweaver.collisional_rates import (
-    Omega,
-    CE,
-    CI,
-    CH,
-    CP,
-    ChargeExchangeProton,
-    ChargeExchangeNeutralH,
+    HydrogenicContinuum,
+    LinearCoreExpWings,
+    LinearQuadrature,
+    LineType,
+    TabulatedQuadrature,
+    VoigtLine,
 )
 from lightweaver.atomic_table import PeriodicTable
+from lightweaver.broadening import (
+    HydrogenLinearStarkBroadening,
+    LineBroadening,
+    MultiplicativeStarkBroadening,
+    QuadraticStarkBroadening,
+    RadiativeBroadening,
+    ScaledExponentBroadening,
+    VdwUnsold,
+)
+from lightweaver.collisional_rates import (
+    CE,
+    CH,
+    CI,
+    CP,
+    ChargeExchangeNeutralH,
+    ChargeExchangeProton,
+    Omega,
+)
 
 
 def from_crtaf(model: 'crtaf.Atom') -> AtomicModel:

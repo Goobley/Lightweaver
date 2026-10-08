@@ -10,25 +10,27 @@ Herein we also conserve charge.
 Judge (2017): ApJ 851, 5
 """
 
+import time
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+import lightweaver as lw
 from lightweaver.fal import Falc82
 from lightweaver.rh_atoms import (
-    H_4_atom,
-    C_atom,
-    O_atom,
-    Si_atom,
     Al_atom,
+    C_atom,
     CaII_atom,
     Fe_atom,
+    H_4_atom,
     He_atom,
     MgII_atom,
     N_atom,
     Na_atom,
+    O_atom,
     S_atom,
+    Si_atom,
 )
-import matplotlib.pyplot as plt
-import time
-import numpy as np
-import lightweaver as lw
 
 # %%
 # Set up the standard FAL C 82 point initial atmosphere.

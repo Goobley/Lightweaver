@@ -1,18 +1,18 @@
-from lightweaver.atomic_model import *
-from lightweaver.collisional_rates import *
-from lightweaver.broadening import *
-from lightweaver.atomic_table import PeriodicTable
-from lightweaver.barklem import BarklemCrossSectionError
-import lightweaver as lw
-from typing import List
-from parse import parse
 import os
-from dataclasses import dataclass
-
 import re
+from dataclasses import dataclass
 from fractions import Fraction
+from typing import List
+
 import colorama
 from colorama import Fore, Style
+from parse import parse
+
+import lightweaver as lw
+from lightweaver.atomic_model import *
+from lightweaver.atomic_table import PeriodicTable
+from lightweaver.broadening import *
+from lightweaver.collisional_rates import *
 
 
 # https://stackoverflow.com/a/3303361
@@ -74,7 +74,7 @@ def determinate(level: AtomicLevel) -> PrincipalQuantum:
     words: List[str] = label.split()
 
     # _, multiplicity, orbit = parse('{}{:d}{!s}', words[-1])
-    match = re.match('[\S-]*(\d)(\S)[EO]$', words[-1])
+    match = re.match(r'[\S-]*(\d)(\S)[EO]$', words[-1])
     if match is None:
         raise ValueError('Unable to parse level label: %s' % level.label)
     else:
@@ -131,7 +131,7 @@ def getNextLine(data):
 def maybe_int(s):
     try:
         v = int(s)
-    except:
+    except ValueError:
         v = None
     return v
 
@@ -196,7 +196,6 @@ def conv_atom(inFile):
         f = float(line[2])
         typ = line[3]
         Nlambda = int(line[4])
-        sym = line[5]
         qCore = float(line[6])
         qWing = float(line[7])
         vdw = line[8]

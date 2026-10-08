@@ -13,10 +13,11 @@ from scipy.integrate import trapezoid
 from weno4 import weno4
 
 import lightweaver.constants as C
+
 from .simd_management import filter_usable_simd_impls
 
 if TYPE_CHECKING:
-    from .atomic_model import AtomicLine, AtomicModel
+    from .atomic_model import AtomicLine
 
 
 @dataclass

@@ -9,7 +9,7 @@ from typing import Dict, List, Union
 
 import numpy as np
 from Cython.Build import cythonize
-from setuptools import setup, find_namespace_packages
+from setuptools import find_namespace_packages, setup
 from setuptools.command.build_ext import build_ext
 from setuptools.extension import Extension
 

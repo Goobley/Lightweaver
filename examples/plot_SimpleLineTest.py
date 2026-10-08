@@ -8,25 +8,25 @@ Computing a simple NLTE 8542 line profile in a FAL C atmosphere
 # First, we import everything we need. Lightweaver is typically imported as
 # `lw`, but things like the library of model atoms and Fal atmospheres need to
 # be imported separately.
+import matplotlib.pyplot as plt
+import numpy as np
+
+import lightweaver as lw
 from lightweaver.fal import Falc82
 from lightweaver.rh_atoms import (
-    H_6_atom,
-    C_atom,
-    O_atom,
-    Si_atom,
     Al_atom,
+    C_atom,
     CaII_atom,
     Fe_atom,
+    H_6_atom,
     He_9_atom,
     MgII_atom,
     N_atom,
     Na_atom,
+    O_atom,
     S_atom,
+    Si_atom,
 )
-import lightweaver as lw
-import matplotlib.pyplot as plt
-import time
-import numpy as np
 
 
 # %%

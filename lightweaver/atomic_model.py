@@ -8,6 +8,7 @@ from weno4 import weno4
 
 import lightweaver.constants as Const
 from lightweaver.constants import VMICRO_CHAR
+
 from .atomic_table import Element, PeriodicTable
 from .broadening import LineBroadening
 from .utils import gaunt_bf, sequence_repr
@@ -660,7 +661,6 @@ class VoigtLine(AtomicLine):
         """
         vBroad = self.atom.vBroad(state.atmos) if state.vBroad is None else state.vBroad
         aDamp, Qelast = self.damping(state.atmos, state.eqPops, vBroad=vBroad)
-        cb = state.default_voigt_callback
         # NOTE(cmo): This is affected by mypy #5485, so we ignore typing for now
         phi = state.default_voigt_callback(aDamp, vBroad)  # type: ignore
 

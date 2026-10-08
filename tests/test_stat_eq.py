@@ -7,7 +7,6 @@ Demonstrates `lw.iterate_ctx_se`, `Context.compute_rays`, PRD
 """
 
 import numpy as np
-
 from conftest import converged_falc_ctx
 
 NmaxIter = 2000

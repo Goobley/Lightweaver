@@ -10,6 +10,7 @@ except ImportError:
 import numpy as np
 
 import lightweaver.constants as Const
+
 from .utils import get_data_path
 
 if TYPE_CHECKING:
@@ -527,7 +528,6 @@ class KuruczPf:
         dfj : np.ndarray
             The derivatives of the fractional populations [Nstage].
         """
-        Nspace: int = atmos.Nspace
         T: float = atmos.temperature[k]
         ne: float = atmos.ne[k]
 
@@ -646,7 +646,7 @@ class KuruczPfTable:
         pf = []
         ionpot = []
         for i in range(99):
-            z = u.unpack_int()
+            u.unpack_int()  # Atomic number, implied by position.
             stages.append(u.unpack_int())
             pf.append(
                 np.array(u.unpack_farray(stages[-1] * self.Tpf.shape[0], u.unpack_double)).reshape(

@@ -5,6 +5,7 @@ import astropy.units as u
 import numpy as np
 
 import lightweaver.constants as Const
+
 from .atomic_table import PeriodicTable
 from .barklem import Barklem
 

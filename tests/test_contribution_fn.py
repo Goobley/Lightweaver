@@ -8,11 +8,10 @@ Demonstrates `ctx.depthData`, `lw.utils.compute_contribution_fn`,
 """
 
 import numpy as np
-
-from lightweaver.utils import compute_contribution_fn, compute_tau, tau_isosurface
-
 from conftest import copy_ctx
 from test_stat_eq import Ca8542
+
+from lightweaver.utils import compute_contribution_fn, compute_tau, tau_isosurface
 
 
 def test_contribution_fn(falc_se, reference):

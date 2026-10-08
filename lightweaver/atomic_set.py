@@ -9,6 +9,7 @@ from scipy.linalg import solve
 from scipy.optimize import newton_krylov
 
 import lightweaver.constants as Const
+
 from .atmosphere import Atmosphere
 from .atomic_model import AtomicModel, LineType, element_sort
 from .atomic_table import (
@@ -1204,8 +1205,6 @@ def hminus_pops(atmos: Atmosphere, hPops: AtomicState) -> np.ndarray:
         The H- populations.
     """
     CI = (Const.HPlanck / (2.0 * np.pi * Const.MElectron)) * (Const.HPlanck / Const.KBoltzmann)
-    Nspace = atmos.Nspace
-
     PhiHmin = (
         0.25
         * (CI / atmos.temperature) ** 1.5

@@ -5,7 +5,6 @@ from typing import Tuple
 import astropy.units as u
 import numpy as np
 
-import lightweaver.constants as C
 from .atmosphere import Atmosphere, ScaleType
 
 

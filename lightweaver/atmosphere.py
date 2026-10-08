@@ -10,6 +10,7 @@ import numpy as np
 from numpy.polynomial.legendre import leggauss
 
 import lightweaver.constants as Const
+
 from .atomic_table import AtomicAbundance, DefaultAtomicAbundance, PeriodicTable
 from .utils import ConvergenceError, check_shape_exception, get_data_path, view_flatten
 from .wittmann import Wittmann, cgs
@@ -428,7 +429,6 @@ class Layout:
         if vy is None:
             vy = np.array(())
 
-        Bc = BoundaryCondition
         return cls(
             Ndim=2,
             x=x,
@@ -1047,7 +1047,9 @@ class Atmosphere:
                     'Column mass depth scale should be provided in increasing column mass.'
                 )
 
-        check_shape = lambda x, xName: check_shape_exception(x, depthScale.shape[0], 1, xName)
+        def check_shape(x, xName):
+            return check_shape_exception(x, depthScale.shape[0], 1, xName)
+
         temperature = (temperature << u.K).value
         check_shape(temperature, 'temperature')
         if vlos is None:
@@ -1233,9 +1235,10 @@ class Atmosphere:
                 chi_c[0] = eos.cont_opacity(
                     temperature[0], pgas[0], pe[0], np.array([5000.0])
                 ).item()
-                avg_mol_weight = lambda k: (
-                    abundance.massPerH / (abundance.totalAbundance + pe[k] / pgas[k])
-                )
+
+                def avg_mol_weight(k):
+                    return abundance.massPerH / (abundance.totalAbundance + pe[k] / pgas[k])
+
                 rho[0] = Ptop * avg_mol_weight(0) / Avog / cgs.BK / temperature[0]
                 chi_c[0] /= rho[0]
 

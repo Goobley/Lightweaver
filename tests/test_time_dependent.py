@@ -11,12 +11,11 @@ hundreds to thousands of seconds, which is too slow for a quick test.
 """
 
 import numpy as np
+from conftest import Nthreads, copy_ctx
 
 import lightweaver as lw
 from lightweaver.fal import Falc82
 from lightweaver.rh_atoms import CaII_atom, H_6_atom
-
-from conftest import Nthreads, copy_ctx
 
 
 def converged_ca_ctx():

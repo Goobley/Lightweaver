@@ -11,12 +11,11 @@ from copy import deepcopy
 
 import numpy as np
 import pytest
+from references import ReferenceStore
 
 import lightweaver as lw
 from lightweaver.fal import Falc82
 from lightweaver.rh_atoms import CaII_atom, H_6_atom, MgII_atom
-
-from references import ReferenceStore
 
 Nthreads = 2
 

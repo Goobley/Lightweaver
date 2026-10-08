@@ -5,6 +5,7 @@ from scipy.interpolate import RectBivariateSpline
 from scipy.special import gamma
 
 import lightweaver.constants as Const
+
 from .atomic_table import PeriodicTable
 from .utils import get_data_path
 

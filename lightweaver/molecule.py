@@ -7,6 +7,7 @@ from numba import njit
 from parse import parse
 
 import lightweaver.constants as Const
+
 from .atomic_table import Element, PeriodicTable
 
 
