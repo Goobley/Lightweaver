@@ -99,7 +99,7 @@ emissivity (`ctx.depth_data`), then perform one more formal solution.
  .. code-block:: none
 
 
-    IterationUpdate(ctx=<lightweaver.Context object at 0x556887c8ad30>, crsw=1.0, updated_J=True, dJ_max=0.004928092666041772, dJ_max_idx=308, updated_pops=False, dpops=[], dpops_max_idx=[], ng_accelerated=False, updated_ne=False, dne_max=0.0, dne_max_idx=0, updated_rho=False, Nprd_sub_iter=0, drho=[], drho_max_idx=[], updated_J_prd=False, dJ_prd_max=[], dJ_prd_max_idx=[])
+    IterationUpdate(ctx=<lightweaver.Context object at 0x55d79c664240>, crsw=1.0, updated_J=True, dJ_max=0.004928092666125372, dJ_max_idx=308, updated_pops=False, dpops=[], dpops_max_idx=[], ng_accelerated=False, updated_ne=False, dne_max=0.0, dne_max_idx=0, updated_rho=False, Nprd_sub_iter=0, drho=[], drho_max_idx=[], updated_J_prd=False, dJ_prd_max=[], dJ_prd_max_idx=[])
 
 
 
@@ -200,7 +200,7 @@ in the chromosphere, around 1.2 Mm higher than the wings.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 6.609 seconds)
+   **Total running time of the script:** (0 minutes 4.906 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_ContributionFunction.py:
