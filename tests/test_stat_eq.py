@@ -1,10 +1,11 @@
-'''
+"""
 Statistical equilibrium: iterate a FAL-C model with H and Ca II active to
 convergence, then synthesise line profiles.
 
 Demonstrates `lw.iterate_ctx_se`, `Context.compute_rays`, PRD
 (`prd=True`) and charge conservation (`conserveCharge=True`).
-'''
+"""
+
 import numpy as np
 
 from conftest import converged_falc_ctx
@@ -13,9 +14,9 @@ NmaxIter = 2000
 
 
 def line_wavelengths(lambda0, halfWidth, N=101):
-    '''
+    """
     A uniform wavelength grid [nm] around a line core.
-    '''
+    """
     return np.linspace(lambda0 - halfWidth, lambda0 + halfWidth, N)
 
 
@@ -28,10 +29,10 @@ Halpha = 656.469
 
 
 def check_pops(eqPops, element):
-    '''
+    """
     Populations should be finite, positive and sum to the total population of
     the species.
-    '''
+    """
     atom = eqPops.atomicPops[element]
     assert np.all(np.isfinite(atom.n))
     assert np.all(atom.n > 0.0)
@@ -48,9 +49,11 @@ def test_crd_h_ca(falc_se, reference):
     # Synthesise the emergent profiles at disk centre (mu = 1) on a
     # wavelength grid of our choice.
     profiles = {}
-    for name, lambda0, halfWidth in [('CaK', CaK, 0.1),
-                                     ('Ca8542', Ca8542, 0.1),
-                                     ('Halpha', Halpha, 0.2)]:
+    for name, lambda0, halfWidth in [
+        ('CaK', CaK, 0.1),
+        ('Ca8542', Ca8542, 0.1),
+        ('Halpha', Halpha, 0.2),
+    ]:
         wave = line_wavelengths(lambda0, halfWidth)
         profiles[name] = ctx.compute_rays(wave, [1.0])
         assert np.all(np.isfinite(profiles[name]))
@@ -72,8 +75,7 @@ def test_prd_charge_conservation(reference):
     # models; `prd=True` iterates the PRD redistribution alongside the
     # populations, and `conserveCharge=True` updates the electron density
     # self-consistently.
-    atmos, eqPops, ctx, Niter = converged_falc_ctx(conserveCharge=True, prd=True,
-                                                   includeMg=True)
+    atmos, eqPops, ctx, Niter = converged_falc_ctx(conserveCharge=True, prd=True, includeMg=True)
     assert Niter < NmaxIter - 1
 
     check_pops(eqPops, 'H')

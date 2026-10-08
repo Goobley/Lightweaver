@@ -1,4 +1,4 @@
-'''
+"""
 Time-dependent populations: perturb the temperature of a converged model and
 evolve the populations in time with the implicit kinetic equation solver.
 
@@ -8,7 +8,8 @@ iterating `Context.time_dep_update` to convergence within each timestep.
 Only Ca II is active here (H is treated in LTE as a background species): with
 H active, the hydrogen ionisation balance of the chromosphere relaxes over
 hundreds to thousands of seconds, which is too slow for a quick test.
-'''
+"""
+
 import numpy as np
 
 import lightweaver as lw
@@ -31,12 +32,12 @@ def converged_ca_ctx():
 
 
 def time_step(ctx, dt, popsTol=1e-3, maxSubIter=500):
-    '''
+    """
     Advance the populations of the active atoms by dt [s]. Within a timestep,
     the radiation field and the populations are iterated together until
     consistent. The populations at the start of the step (`prevTimePops`) are
     returned by the first `time_dep_update` and passed back in subsequently.
-    '''
+    """
     prevTimePops = None
     for sub in range(maxSubIter):
         ctx.formal_sol_gamma_matrices()
@@ -47,11 +48,11 @@ def time_step(ctx, dt, popsTol=1e-3, maxSubIter=500):
 
 
 def heated_copy(ctx):
-    '''
+    """
     A copy of the converged context with a band of the chromosphere
     (~800-1500 km) heated by 10%, and the dependent quantities (LTE
     populations, line profiles, background opacities) updated accordingly.
-    '''
+    """
     ctx = copy_ctx(ctx)
     atmos = ctx.kwargs['atmos']
     atmos.temperature[40:50] *= 1.1
@@ -87,8 +88,9 @@ def test_time_dependent(reference):
         time_step(evolveCtx, 0.1)
         n = ca_pops(evolveCtx)
         assert np.all(np.isfinite(n))
-        np.testing.assert_allclose(n.sum(axis=0), np.asarray(evolveCtx.activeAtoms[0].nTotal),
-                                   rtol=1e-6)
+        np.testing.assert_allclose(
+            n.sum(axis=0), np.asarray(evolveCtx.activeAtoms[0].nTotal), rtol=1e-6
+        )
         distance.append(max_rel_diff(n, heatedSe))
         if step == 0:
             firstStep = n

@@ -6,8 +6,9 @@ from .iteration_update import IterationUpdate
 if TYPE_CHECKING:
     from . import Context
 
+
 class ConvergenceCriteria:
-    '''
+    """
     Abstract base class for determining convergence inside `iterate_ctx_se`. A
     derived variant of this class will be instantiated by `iterate_ctx_se`
     dependent upon its arguments. The default implementation is
@@ -23,23 +24,28 @@ class ConvergenceCriteria:
         The value of popsTol passed to `iterate_ctx_se`.
     rhoTol : float or None
         The value of rhoTol passed to `iterate_ctx_se`.
-    '''
+    """
+
     def __init__(self, ctx: 'Context', JTol: float, popsTol: float, rhoTol: Optional[float]):
         raise NotImplementedError
 
-    def is_converged(self, JUpdate: IterationUpdate, popsUpdate: IterationUpdate,
-                     prdUpdate: Optional[IterationUpdate]) -> bool:
-        '''
+    def is_converged(
+        self,
+        JUpdate: IterationUpdate,
+        popsUpdate: IterationUpdate,
+        prdUpdate: Optional[IterationUpdate],
+    ) -> bool:
+        """
         This function takes the IterationUpdate objects from
         `ctx.formal_sol_gamma_matrices` and `ctx.stat_equil` and optionally from
         `ctx.prd_redistribute` (or None).  Should return a bool indicated
         whether the Context is sufficiently converged.
-        '''
+        """
         raise NotImplementedError
 
 
 class DefaultConvergenceCriteria(ConvergenceCriteria):
-    '''
+    """
     Default ConvergenceCriteria implementation. Usually sufficient for
     statistical equilibrium problems, but you may occasionally need to override
     this.
@@ -54,7 +60,7 @@ class DefaultConvergenceCriteria(ConvergenceCriteria):
         The value of popsTol passed to `iterate_ctx_se`.
     rhoTol : float or None
         The value of rhoTol passed to `iterate_ctx_se`.
-    '''
+    """
 
     def __init__(self, ctx: 'Context', JTol: float, popsTol: float, rhoTol: Optional[float]):
         self.ctx = ctx
@@ -62,11 +68,15 @@ class DefaultConvergenceCriteria(ConvergenceCriteria):
         self.popsTol = popsTol
         self.rhoTol = rhoTol
 
-    def is_converged(self, JUpdate: IterationUpdate, popsUpdate: IterationUpdate,
-                     prdUpdate: Optional[IterationUpdate]) -> bool:
-        '''
+    def is_converged(
+        self,
+        JUpdate: IterationUpdate,
+        popsUpdate: IterationUpdate,
+        prdUpdate: Optional[IterationUpdate],
+    ) -> bool:
+        """
         Returns whether the context is converged.
-        '''
+        """
         updates = [JUpdate, popsUpdate]
         if prdUpdate is not None:
             updates.append(prdUpdate)
@@ -82,14 +92,22 @@ class DefaultConvergenceCriteria(ConvergenceCriteria):
         return terminate
 
 
-def iterate_ctx_se(ctx: 'Context', Nscatter: int=3, NmaxIter: int=2000,
-                   prd: bool=False, JTol: float=5e-3, popsTol: float=1e-3,
-                   rhoTol: Optional[float]=None, prdIterTol: float=1e-2,
-                   maxPrdSubIter: int=3, printInterval: float=0.2,
-                   quiet: bool=False,
-                   convergence: Optional[Type[ConvergenceCriteria]]=None,
-                   returnFinalConvergence: bool=False):
-    '''
+def iterate_ctx_se(
+    ctx: 'Context',
+    Nscatter: int = 3,
+    NmaxIter: int = 2000,
+    prd: bool = False,
+    JTol: float = 5e-3,
+    popsTol: float = 1e-3,
+    rhoTol: Optional[float] = None,
+    prdIterTol: float = 1e-2,
+    maxPrdSubIter: int = 3,
+    printInterval: float = 0.2,
+    quiet: bool = False,
+    convergence: Optional[Type[ConvergenceCriteria]] = None,
+    returnFinalConvergence: bool = False,
+):
+    """
     Iterate a configured Context towards statistical equilibrium solution.
 
     Parameters
@@ -143,11 +161,11 @@ def iterate_ctx_se(ctx: 'Context', Nscatter: int=3, NmaxIter: int=2000,
         The number of iterations taken.
     finalIterationUpdates : List[IterationUpdate], optional
         The final IterationUpdates computed, if requested by `returnFinalConvergence`.
-    '''
+    """
 
     prevPrint = 0.0
     printNow = True
-    alwaysPrint = (printInterval == 0.0)
+    alwaysPrint = printInterval == 0.0
     startTime = time.time()
 
     if convergence is None:
@@ -155,9 +173,8 @@ def iterate_ctx_se(ctx: 'Context', Nscatter: int=3, NmaxIter: int=2000,
     conv = convergence(ctx, JTol, popsTol, rhoTol)
 
     for it in range(NmaxIter):
-        JUpdate : IterationUpdate = ctx.formal_sol_gamma_matrices()
-        if (not quiet and
-            (alwaysPrint or ((now := time.time()) >= prevPrint + printInterval))):
+        JUpdate: IterationUpdate = ctx.formal_sol_gamma_matrices()
+        if not quiet and (alwaysPrint or ((now := time.time()) >= prevPrint + printInterval)):
             printNow = True
             if not alwaysPrint:
                 prevPrint = now
@@ -173,11 +190,11 @@ def iterate_ctx_se(ctx: 'Context', Nscatter: int=3, NmaxIter: int=2000,
             printNow = False
             continue
 
-        popsUpdate : IterationUpdate = ctx.stat_equil()
+        popsUpdate: IterationUpdate = ctx.stat_equil()
         if not quiet and printNow:
             print(popsUpdate.compact_representation())
 
-        dRhoUpdate : Optional[IterationUpdate]
+        dRhoUpdate: Optional[IterationUpdate]
         if prd:
             dRhoUpdate = ctx.prd_redistribute(maxIter=maxPrdSubIter, tol=prdIterTol)
             if not quiet and printNow and dRhoUpdate is not None:
@@ -203,8 +220,10 @@ def iterate_ctx_se(ctx: 'Context', Nscatter: int=3, NmaxIter: int=2000,
                     if prd and dRhoUpdate is not None:
                         print(dRhoUpdate.compact_representation())
                 print(line)
-                print(f'Context converged to statistical equilibrium in {it}'
-                      f' iterations after {duration:.2f} s.')
+                print(
+                    f'Context converged to statistical equilibrium in {it}'
+                    f' iterations after {duration:.2f} s.'
+                )
                 print(line)
             if returnFinalConvergence:
                 finalConvergence = [JUpdate, popsUpdate]
@@ -229,8 +248,10 @@ def iterate_ctx_se(ctx: 'Context', Nscatter: int=3, NmaxIter: int=2000,
             if prd and dRhoUpdate is not None:
                 print(dRhoUpdate.compact_representation())
             print(line)
-            print(f'Context FAILED to converge to statistical equilibrium after {it}'
-                  f' iterations (took {duration:.2f} s).')
+            print(
+                f'Context FAILED to converge to statistical equilibrium after {it}'
+                f' iterations (took {duration:.2f} s).'
+            )
             print(line)
         if returnFinalConvergence:
             finalConvergence = [JUpdate, popsUpdate]

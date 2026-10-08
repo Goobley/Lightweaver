@@ -64,3 +64,17 @@ Source = "https://github.com/Goobley/Lightweaver"
 Issues = "https://github.com/Goobley/Lightweaver/issues"
 Paper = "https://arxiv.org/abs/2107.00475"
 
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+# NOTE: rh_atoms.py is generated, and wittmann.py is vendored.
+extend-exclude = ["lightweaver/rh_atoms.py", "lightweaver/wittmann.py", "build", "LwBuild"]
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "W", "I"]
+# Single-letter physics symbols (I, l, ...) are intentional.
+ignore = ["E741"]

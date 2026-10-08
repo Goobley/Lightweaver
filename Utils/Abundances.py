@@ -5,7 +5,9 @@ from dataclasses import dataclass, asdict
 from typing import List, Iterable
 import pickle
 from itertools import chain
+
 flatten_list = chain.from_iterable
+
 
 def expected_mass_from_str(s: str):
     # NOTE(cmo): Handle [x,y] range by returning mean
@@ -23,6 +25,7 @@ def expected_mass_from_str(s: str):
 
     # NOTE(cmo): if it's none of these then try to convert to float
     return float(s)
+
 
 def parse_nist_mass_blocks(linesIn):
     lines = linesIn
@@ -56,6 +59,7 @@ def parse_nist_mass_blocks(linesIn):
         nameMapping[(N, Z)] = name
     return massData, nameMapping
 
+
 # NOTE(cmo): Parse all the masses from the NIST data
 # File isn't a great format.
 with open('NistMasses.txt', 'r') as f:
@@ -65,6 +69,7 @@ massData, nameMapping = parse_nist_mass_blocks(lines)
 with open('AtomicMassesNames.pickle', 'wb') as pkl:
     pickle.dump((massData, nameMapping), pkl)
 
+
 @dataclass
 class Element:
     Z: int
@@ -73,6 +78,7 @@ class Element:
 
     def __lt__(self, other):
         return self.Z < other.Z
+
 
 @dataclass
 class ElementalAbundance:
@@ -91,11 +97,13 @@ class ElementalAbundance:
     def __lt__(self, other):
         return self.Z < other.Z
 
+
 @dataclass
 class IsotopeProportion:
     N: int
     mass: float
     proportion: float
+
 
 @dataclass
 class ElementalDistribution:
@@ -112,6 +120,7 @@ class ElementalDistribution:
 
     def __lt__(self, other):
         return self.Z < other.Z
+
 
 abundanceStr = """\
 1  & H   & $12.00$            &  $8.22 \pm 0.04$        & 44 & Ru  &  $1.75 \pm 0.08$   &  $1.76 \pm 0.03$  \\
@@ -163,13 +172,13 @@ replaceChars = ['$', '[', ']', '\\']
 for char in replaceChars:
     abundanceStr = abundanceStr.replace(char, '')
 
-abundanceRows : List[str] = abundanceStr.split('\n')
+abundanceRows: List[str] = abundanceStr.split('\n')
 
 splitStrs = ['&']
 abundanceCells = []
 # NOTE(cmo): Also trim off last empty line here with choice of iterable for loop
 for r in abundanceRows[:-1]:
-    row : Iterable[str] = [r]
+    row: Iterable[str] = [r]
     for s in splitStrs:
         row = flatten_list([x.split(s) for x in row])
     row = [x.split('pm')[0].strip() if 'pm' in x else x.strip() for x in row]
@@ -180,8 +189,9 @@ elements = []
 for row in abundanceCells:
     abund, solar = (float(row[2]), True) if row[2] != '' else (float(row[3]), False)
     Z = int(row[0])
-    e = ElementalAbundance(elem=Element(Z=Z, name=row[1], mass=massData[Z]),
-                           abundance=abund, solarData=solar)
+    e = ElementalAbundance(
+        elem=Element(Z=Z, name=row[1], mass=massData[Z]), abundance=abund, solarData=solar
+    )
     elements.append(e)
 
     if len(row) < FullRow:
@@ -189,8 +199,9 @@ for row in abundanceCells:
 
     abund, solar = (float(row[-2]), True) if row[-2] != '' else (float(row[-1]), False)
     Z = int(row[4])
-    e = ElementalAbundance(elem=Element(Z=Z, name=row[5], mass=massData[Z]),
-                           abundance=abund, solarData=solar)
+    e = ElementalAbundance(
+        elem=Element(Z=Z, name=row[5], mass=massData[Z]), abundance=abund, solarData=solar
+    )
     elements.append(e)
 
 elements = sorted(elements)
@@ -283,7 +294,7 @@ isotopeCells = [[y.strip() for y in x.split('&')] for x in isotopeRows[:-1]]
 isotopeReshape = []
 
 for elemStart in range(0, len(isotopeCells[0]), 3):
-    elemRange = slice(elemStart, elemStart+3)
+    elemRange = slice(elemStart, elemStart + 3)
     for row in isotopeCells:
         selection = row[elemRange]
         if not all([s == '' for s in selection]):
@@ -306,8 +317,7 @@ for row in isotopeReshape:
             current = ElementalDistribution(elem, [])
             dist.append(current)
     N = int(row[1])
-    iso = IsotopeProportion(N=N, proportion=(float(row[2]) / 100),
-                            mass=massData[(N, elem.Z)])
+    iso = IsotopeProportion(N=N, proportion=(float(row[2]) / 100), mass=massData[(N, elem.Z)])
     current.isotopes.append(iso)
 
 # NOTE(cmo): Ensure normalisation to machine precision

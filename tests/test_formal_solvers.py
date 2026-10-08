@@ -1,4 +1,4 @@
-'''
+"""
 Formal solvers: compute the emergent radiation from a converged model with the
 different 1D formal solvers, and with the full Stokes solver in a magnetised
 atmosphere.
@@ -6,7 +6,8 @@ atmosphere.
 Demonstrates selecting a formal solver, reusing converged populations in a
 new Context (`Context.construct_from_state_dict_with`), and
 `compute_rays(stokes=True)`.
-'''
+"""
+
 from copy import deepcopy
 
 import numpy as np
@@ -20,10 +21,10 @@ Solvers1d = ['piecewise_linear_1d', 'piecewise_besser_1d', 'piecewise_bezier3_1d
 
 
 def ctx_with_formal_solver(ctx, formalSolver):
-    '''
+    """
     A copy of a converged Context (with its populations), using a different
     formal solver.
-    '''
+    """
     sd = deepcopy(ctx.state_dict())
     sd['kwargs'] = dict(sd['kwargs'], formalSolver=formalSolver)
     newCtx = ctx.construct_from_state_dict_with(sd)
@@ -58,16 +59,18 @@ def test_full_stokes(falc_se, reference):
     # field (B [T], inclination gammaB and azimuth chiB [rad]), and reuse the
     # converged populations with it.
     Nspace = atmos.Nspace
-    magAtmos = lw.Atmosphere.make_1d(lw.ScaleType.Geometric,
-                                     depthScale=np.copy(atmos.z),
-                                     temperature=np.copy(atmos.temperature),
-                                     vlos=np.copy(atmos.vz),
-                                     vturb=np.copy(atmos.vturb),
-                                     ne=np.copy(atmos.ne),
-                                     nHTot=np.copy(atmos.nHTot),
-                                     B=np.full(Nspace, 0.1),
-                                     gammaB=np.full(Nspace, 0.6),
-                                     chiB=np.full(Nspace, 0.3))
+    magAtmos = lw.Atmosphere.make_1d(
+        lw.ScaleType.Geometric,
+        depthScale=np.copy(atmos.z),
+        temperature=np.copy(atmos.temperature),
+        vlos=np.copy(atmos.vz),
+        vturb=np.copy(atmos.vturb),
+        ne=np.copy(atmos.ne),
+        nHTot=np.copy(atmos.nHTot),
+        B=np.full(Nspace, 0.1),
+        gammaB=np.full(Nspace, 0.6),
+        chiB=np.full(Nspace, 0.3),
+    )
     magAtmos.quadrature(3)
     magCtx = copy_ctx(ctx, atmos=magAtmos)
 

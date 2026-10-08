@@ -1,11 +1,12 @@
-'''
+"""
 2D: solve statistical equilibrium in a horizontally homogeneous 2D slab built
 from FAL-C, with periodic horizontal boundaries, and compare against the
 equivalent 1D solution.
 
 Demonstrates `lw.Atmosphere.make_2d`, horizontal boundary conditions, and
 reshaping the flattened spatial axis of 2D results to [z, x].
-'''
+"""
+
 import numpy as np
 
 import lightweaver as lw
@@ -19,10 +20,10 @@ Nx = 8
 
 
 def converged_ca(atmos):
-    '''
+    """
     Ca II active (H in LTE as a background species), iterated to statistical
     equilibrium.
-    '''
+    """
     aSet = lw.RadiativeSet([H_6_atom(), CaII_atom()])
     aSet.set_active('Ca')
     spect = aSet.compute_wavelength_grid()
@@ -42,13 +43,18 @@ def test_2d_homogeneous_slab(reference):
 
     x = np.arange(Nx) * 50e3
     zero = np.zeros((fal.Nspace, Nx))
-    atmos2d = lw.Atmosphere.make_2d(height=np.copy(fal.z), x=x,
-                                    temperature=tile(fal.temperature),
-                                    vx=zero, vz=zero,
-                                    vturb=tile(fal.vturb),
-                                    ne=tile(fal.ne), nHTot=tile(fal.nHTot),
-                                    xLowerBc=lw.PeriodicRadiation(),
-                                    xUpperBc=lw.PeriodicRadiation())
+    atmos2d = lw.Atmosphere.make_2d(
+        height=np.copy(fal.z),
+        x=x,
+        temperature=tile(fal.temperature),
+        vx=zero,
+        vz=zero,
+        vturb=tile(fal.vturb),
+        ne=tile(fal.ne),
+        nHTot=tile(fal.nHTot),
+        xLowerBc=lw.PeriodicRadiation(),
+        xUpperBc=lw.PeriodicRadiation(),
+    )
     atmos2d.quadrature(6)
     eqPops2d, ctx2d = converged_ca(atmos2d)
 
@@ -60,7 +66,7 @@ def test_2d_homogeneous_slab(reference):
     # The slab is horizontally homogeneous with periodic boundaries,
     # so every column should have the same solution, up to small (~0.3%)
     # differences from the treatment of rays crossing the periodic boundary.
-    colRef = ca2d[:, :, Nx // 2:Nx // 2 + 1]
+    colRef = ca2d[:, :, Nx // 2 : Nx // 2 + 1]
     np.testing.assert_allclose(ca2d, np.broadcast_to(colRef, ca2d.shape), rtol=5e-3)
 
     # ... which is close to the 1D plane-parallel solution. The angular

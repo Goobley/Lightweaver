@@ -3,25 +3,38 @@
 Computing a simple NLTE 8542 line profile in a FAL C atmosphere
 ===============================================================
 """
-#%%
+
+# %%
 # First, we import everything we need. Lightweaver is typically imported as
 # `lw`, but things like the library of model atoms and Fal atmospheres need to
 # be imported separately.
 from lightweaver.fal import Falc82
-from lightweaver.rh_atoms import H_6_atom, C_atom, O_atom, Si_atom, Al_atom, \
-CaII_atom, Fe_atom, He_9_atom, MgII_atom, N_atom, Na_atom, S_atom
+from lightweaver.rh_atoms import (
+    H_6_atom,
+    C_atom,
+    O_atom,
+    Si_atom,
+    Al_atom,
+    CaII_atom,
+    Fe_atom,
+    He_9_atom,
+    MgII_atom,
+    N_atom,
+    Na_atom,
+    S_atom,
+)
 import lightweaver as lw
 import matplotlib.pyplot as plt
 import time
 import numpy as np
 
 
-#%%
+# %%
 # Now, we define the functions that will be used in our spectral synthesise.
 # First `synth_8542` which synthesises and returns the line given by an
 # atmosphere.
 def synth_8542(atmos, conserve, useNe, wave):
-    '''
+    """
     Synthesise a spectral line for given atmosphere with different
     conditions.
 
@@ -46,14 +59,26 @@ def synth_8542(atmos, conserve, useNe, wave):
         populations.
     Iwave : np.ndarray
         The intensity at muz=1 for each wavelength in `wave`.
-    '''
+    """
     # Configure the atmospheric angular quadrature
     atmos.quadrature(5)
     # Configure the set of atomic models to use.
-    aSet = lw.RadiativeSet([H_6_atom(), C_atom(), O_atom(), Si_atom(),
-                            Al_atom(), CaII_atom(), Fe_atom(), He_9_atom(),
-                            MgII_atom(), N_atom(), Na_atom(), S_atom()
-                           ])
+    aSet = lw.RadiativeSet(
+        [
+            H_6_atom(),
+            C_atom(),
+            O_atom(),
+            Si_atom(),
+            Al_atom(),
+            CaII_atom(),
+            Fe_atom(),
+            He_9_atom(),
+            MgII_atom(),
+            N_atom(),
+            Na_atom(),
+            S_atom(),
+        ]
+    )
     # Set H and Ca to "active" i.e. NLTE, everything else participates as an
     # LTE background.
     aSet.set_active('H', 'Ca')
@@ -83,11 +108,11 @@ def synth_8542(atmos, conserve, useNe, wave):
     return ctx, Iwave
 
 
-#%%
+# %%
 # The wavelength grid to output the final synthesised line on.
 wave = np.linspace(853.9444, 854.9444, 1001)
 
-#%%
+# %%
 # Load an lw.Atmosphere object containing the FAL C atmosphere with 82 points
 # in depth, before synthesising the Ca II 8542 \AA line profile using:
 #

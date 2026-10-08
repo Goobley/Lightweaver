@@ -4,10 +4,16 @@ from .atomic_set import lte_pops
 from .atomic_table import PeriodicTable
 
 
-def nr_post_update(self, fdCollisionRates=True, hOnly=False,
-                   timeDependentData=None, chunkSize=5,
-                   ngUpdate=None, extraParams=None):
-    '''
+def nr_post_update(
+    self,
+    fdCollisionRates=True,
+    hOnly=False,
+    timeDependentData=None,
+    chunkSize=5,
+    ngUpdate=None,
+    extraParams=None,
+):
+    """
     Compute the Newton-Raphson terms for updating the electron density
     through charge conservation. Is attached to the Context object.
     Parameters
@@ -42,7 +48,7 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False,
     dPops : float
         The maximum relative change of any of the NLTE populations in the
         atmosphere.
-    '''
+    """
     if self.activeAtoms[0].element != PeriodicTable[1]:
         raise ValueError('Calling nr_post_update without Hydrogen active.')
 
@@ -53,9 +59,13 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False,
     crswVal = self.crswCallback.val
 
     if hOnly:
-        backgroundAtoms = [model for model in self.kwargs['spect'].radSet if model.element != PeriodicTable[1]]
+        backgroundAtoms = [
+            model for model in self.kwargs['spect'].radSet if model.element != PeriodicTable[1]
+        ]
     else:
-        backgroundAtoms = self.kwargs['spect'].radSet.detailedAtoms + self.kwargs['spect'].radSet.passiveAtoms
+        backgroundAtoms = (
+            self.kwargs['spect'].radSet.detailedAtoms + self.kwargs['spect'].radSet.passiveAtoms
+        )
 
     backgroundNe = np.zeros_like(self.atmos.ne)
     for atomModel in backgroundAtoms:
@@ -74,24 +84,30 @@ def nr_post_update(self, fdCollisionRates=True, hOnly=False,
             pert = neStart * pertSize
             self.atmos.ne[:] += pert
             nStarPrev = np.copy(atom.nStar)
-            atom.nStar[:] = lte_pops(atom.atomicModel, self.atmos.temperature,
-                                     self.atmos.ne, atom.nTotal)
+            atom.nStar[:] = lte_pops(
+                atom.atomicModel, self.atmos.temperature, self.atmos.ne, atom.nTotal
+            )
             atom.compute_collisions(fillDiagonal=True)
             self.atmos.ne[:] = neStart
             atom.nStar[:] = nStarPrev
             dC.append(crswVal * (atom.C - Cprev) / pert)
             atom.C[:] = Cprev
 
-    self._nr_post_update_impl(atoms, dC, backgroundNe,
-                              timeDependentData=timeDependentData, chunkSize=chunkSize, extraParams=extraParams)
+    self._nr_post_update_impl(
+        atoms,
+        dC,
+        backgroundNe,
+        timeDependentData=timeDependentData,
+        chunkSize=chunkSize,
+        extraParams=extraParams,
+    )
     self.eqPops.update_lte_atoms_Hmin_pops(self.atmos.pyAtmos, conserveCharge=False, quiet=True)
 
     if ngUpdate:
         update = self.rel_diff_ng_accelerate()
     else:
         update = self.rel_diff_pops()
-    neDiff = np.abs((np.asarray(self.atmos.ne) - neStart)
-                    / np.asarray(self.atmos.ne))
+    neDiff = np.abs((np.asarray(self.atmos.ne) - neStart) / np.asarray(self.atmos.ne))
     neDiffMaxIdx = neDiff.argmax()
     neDiffMax = neDiff[neDiffMaxIdx]
     update.updatedNe = True

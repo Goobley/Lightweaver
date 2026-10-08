@@ -4,9 +4,10 @@ from typing import TYPE_CHECKING, List
 if TYPE_CHECKING:
     from . import Context
 
+
 @dataclass
 class IterationUpdate:
-    '''
+    """
     Stores the results of an iteration of one of the backend functions, and
     determines how to format this for printing. All changes refer to relative
     change.
@@ -61,7 +62,8 @@ class IterationUpdate:
     dRhoMax : float
         The maximum change in the PRD rho value for any line in the final
         subiteration (read-only property).
-    '''
+    """
+
     ctx: 'Context'
     crsw: float = 1.0
     updatedJ: bool = False
@@ -106,10 +108,10 @@ class IterationUpdate:
         return max(self.dRho[finalSubIterStart:])
 
     def compact_representation(self):
-        '''
+        """
         Produce a compact string representation of the object (similar to
         Lightweaver < v0.8).
-        '''
+        """
         chunks = []
         if self.crsw != 1.0:
             chunks.append(f'CRSW: {self.crsw:.2e}')

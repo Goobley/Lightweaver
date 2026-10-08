@@ -1,10 +1,11 @@
-'''
+"""
 Shared fixtures for the Lightweaver smoke tests.
 
 The converged FAL-C H + Ca II statistical equilibrium solution is computed
 once per session and shared between the tests that only need to read from it.
 Tests that modify a simulation should take a copy first (see `copy_ctx`).
-'''
+"""
+
 import os
 from copy import deepcopy
 
@@ -25,14 +26,14 @@ if 'LW_TEST_SIMD' in os.environ:
 
 
 def converged_falc_ctx(conserveCharge=False, prd=False, includeMg=False):
-    '''
+    """
     Set up and converge a FAL-C simulation with H and Ca II (and optionally
     Mg II) active. This is the standard Lightweaver workflow:
       - construct an atmosphere and its angular quadrature,
       - construct a RadiativeSet of the model atoms, and choose which are active,
       - compute the wavelength grid and the LTE (starting) populations,
       - construct the Context and iterate it to statistical equilibrium.
-    '''
+    """
     atmos = Falc82()
     atmos.quadrature(3)
     atoms = [H_6_atom(), CaII_atom()]
@@ -44,18 +45,17 @@ def converged_falc_ctx(conserveCharge=False, prd=False, includeMg=False):
     aSet.set_active(*active)
     spect = aSet.compute_wavelength_grid()
     eqPops = aSet.compute_eq_pops(atmos)
-    ctx = lw.Context(atmos, spect, eqPops, Nthreads=Nthreads,
-                     conserveCharge=conserveCharge)
+    ctx = lw.Context(atmos, spect, eqPops, Nthreads=Nthreads, conserveCharge=conserveCharge)
     Niter = lw.iterate_ctx_se(ctx, prd=prd, popsTol=1e-3, quiet=True)
     return atmos, eqPops, ctx, Niter
 
 
 def copy_ctx(ctx, **kwargs):
-    '''
+    """
     Construct an independent copy of a Context (including its atmosphere and
     populations), optionally replacing parts of it, see
     `Context.construct_from_state_dict_with`.
-    '''
+    """
     newCtx = ctx.construct_from_state_dict_with(deepcopy(ctx.state_dict()), **kwargs)
     # J is only carried over when the wavelength grid changes, so copy
     # it across to keep the radiation field consistent with the populations.
@@ -66,9 +66,9 @@ def copy_ctx(ctx, **kwargs):
 
 @pytest.fixture(scope='session')
 def falc_se():
-    '''
+    """
     Converged CRD FAL-C solution with H_6 and Ca II active. Do not modify.
-    '''
+    """
     return converged_falc_ctx()
 
 

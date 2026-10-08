@@ -1,4 +1,4 @@
-'''
+"""
 Stored reference values for the smoke tests.
 
 The references in `data/references.npz` are produced by the current code and
@@ -12,7 +12,8 @@ and commit the updated `data/references.npz` alongside the change.
 
 To print the largest relative difference from each reference without
 failing (e.g. to compare iteration schemes), set LW_REFERENCE_REPORT=1.
-'''
+"""
+
 import os
 from pathlib import Path
 
@@ -45,10 +46,10 @@ class ReferenceStore:
             self.stored = {}
 
     def check(self, name: str, value, rtol: float = DefaultRtol, atol: float = 0.0):
-        '''
+        """
         Compare `value` against the stored reference `name` (or record it if
         regenerating).
-        '''
+        """
         value = np.asarray(value, dtype=np.float64)
         if self.regen:
             self.new[name] = value
@@ -61,8 +62,9 @@ class ReferenceStore:
             rel = np.max(np.abs(value - ref) / np.maximum(np.abs(ref), np.finfo(np.float64).tiny))
             print(f'\nREFERENCE {name}: max rel diff {rel:.3e}')
             return
-        np.testing.assert_allclose(value, self.stored[name], rtol=rtol, atol=atol,
-                                   err_msg=f'Reference "{name}" changed')
+        np.testing.assert_allclose(
+            value, self.stored[name], rtol=rtol, atol=atol, err_msg=f'Reference "{name}" changed'
+        )
 
     def save(self):
         if not self.regen or len(self.new) == 0:

@@ -16,8 +16,9 @@ from .LwCompiled import LwContext
 
 __all__ = ['benchmark']
 
+
 def configure_context(Nspace=500, fsIterScheme=None):
-    '''
+    """
     Configure a FALC context (with more or fewer depth points), 1 thread and a
     particular iteration scheme. For use in benchmarking.
 
@@ -28,14 +29,19 @@ def configure_context(Nspace=500, fsIterScheme=None):
     fsIterScheme : str, optional
         The fsIterScheme to use in the Context. (Default: None, i.e. read from
         the user's config)
-    '''
+    """
     fal = Falc82()
-    interp = lambda x: weno4(np.linspace(0,1,Nspace), np.linspace(0,1,fal.Nspace), x)
+    interp = lambda x: weno4(np.linspace(0, 1, Nspace), np.linspace(0, 1, fal.Nspace), x)
 
-    atmos = Atmosphere.make_1d(ScaleType.Geometric, interp(fal.height),
-                               temperature=interp(fal.temperature), vlos=interp(fal.vlos),\
-                               vturb=interp(fal.vturb), ne=interp(fal.ne),
-                               nHTot=interp(fal.nHTot))
+    atmos = Atmosphere.make_1d(
+        ScaleType.Geometric,
+        interp(fal.height),
+        temperature=interp(fal.temperature),
+        vlos=interp(fal.vlos),
+        vturb=interp(fal.vturb),
+        ne=interp(fal.ne),
+        nHTot=interp(fal.nHTot),
+    )
     atmos.quadrature(5)
     aSet = RadiativeSet([H_6_atom(), CaII_atom()])
     aSet.set_active('H', 'Ca')
@@ -44,8 +50,9 @@ def configure_context(Nspace=500, fsIterScheme=None):
     ctx = LwContext(atmos, spect, eqPops, fsIterScheme=fsIterScheme)
     return ctx
 
+
 def benchmark(Niter=50, Nrep=3, verbose=True, writeConfig=True, warmUp=True):
-    '''
+    """
     Benchmark the various SIMD implementations for Lightweaver's formal solver
     and iteration functions.
 
@@ -63,7 +70,7 @@ def benchmark(Niter=50, Nrep=3, verbose=True, writeConfig=True, warmUp=True):
     warmUp : bool, optional
         Whether to run a Context first (discarded) to ensure that all numba jit
         code is jitted and warm. (Default: True)
-    '''
+    """
     timer = time.perf_counter
 
     if verbose:
@@ -86,14 +93,16 @@ def benchmark(Niter=50, Nrep=3, verbose=True, writeConfig=True, warmUp=True):
         for _ in range(Niter):
             ctx.formal_sol_gamma_matrices()
         end = timer()
-        duration = (end - start)
+        duration = end - start
         timings[idx % len(methods)] += duration
 
     timings = [t / Nrep for t in timings]
     if verbose:
         for idx, method in enumerate(methods):
-            print(f'Timing for method "{method}": {timings[idx]:.3f} s '
-                  f'({Niter} iterations, {Nrep} repetitions)')
+            print(
+                f'Timing for method "{method}": {timings[idx]:.3f} s '
+                f'({Niter} iterations, {Nrep} repetitions)'
+            )
 
     if writeConfig:
         minTiming = min(timings)
@@ -106,7 +115,7 @@ def benchmark(Niter=50, Nrep=3, verbose=True, writeConfig=True, warmUp=True):
 
         path = get_home_config_path()
         if verbose:
-            print(f'Writing config to \'{path}\'...')
+            print(f"Writing config to '{path}'...")
         update_config_file(path)
 
     if verbose:

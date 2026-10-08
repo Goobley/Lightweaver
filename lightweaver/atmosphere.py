@@ -10,17 +10,16 @@ import numpy as np
 from numpy.polynomial.legendre import leggauss
 
 import lightweaver.constants as Const
-from .atomic_table import (AtomicAbundance, DefaultAtomicAbundance,
-                           PeriodicTable)
-from .utils import (ConvergenceError, check_shape_exception, get_data_path,
-                    view_flatten)
+from .atomic_table import AtomicAbundance, DefaultAtomicAbundance, PeriodicTable
+from .utils import ConvergenceError, check_shape_exception, get_data_path, view_flatten
 from .wittmann import Wittmann, cgs
 
 if TYPE_CHECKING:
     from .LwCompiled import LwSpectrum
 
+
 class ScaleType(Enum):
-    '''
+    """
     Atmospheric scales used in the definition of 1D atmospheres to allow the
     correct conversion to a height based system.
     Options:
@@ -31,13 +30,15 @@ class ScaleType(Enum):
 
         - `Tau500`
 
-    '''
+    """
+
     Geometric = 0
     ColumnMass = auto()
     Tau500 = auto()
 
+
 class BoundaryCondition:
-    '''
+    """
     Base class for boundary conditions.
 
     Defines the interface; do not use directly.
@@ -58,9 +59,10 @@ class BoundaryCondition:
         axis of a pair of (mu, toObs). Used to construct and destructure this
         array.
 
-    '''
+    """
+
     def compute_bc(self, atmos: 'Atmosphere', spect: 'LwSpectrum') -> np.ndarray:
-        '''
+        """
         Called when the radiation boundary condition is needed by the backend.
 
         Parameters
@@ -82,50 +84,59 @@ class BoundaryCondition:
             condition needs to be defined at ordered in a flattened [Nz, Ny,
             Nx] fashion. (dtype: <f8)
 
-        '''
+        """
         raise NotImplementedError
 
     def set_required_angles(self, mux, muy, muz, indexVector):
-        '''
+        """
         The angles (and their ordering) to be used for this boundary
         condition (in the case of a callable)
-        '''
+        """
         self.mux = mux
         self.muy = muy
         self.muz = muz
         self.indexVector = indexVector
 
+
 class NoBc(BoundaryCondition):
-    '''
+    """
     Indicates no boundary condition on the axis because it is invalid for the
     current simulation.
     Used only by the backend.
-    '''
+    """
+
     pass
+
 
 class ZeroRadiation(BoundaryCondition):
-    '''
+    """
     Zero radiation boundary condition.
     Commonly used for coronal situations.
-    '''
+    """
+
     pass
+
 
 class ThermalisedRadiation(BoundaryCondition):
-    '''
+    """
     Thermalised radiation (blackbody) boundary condition.
     Commonly used for photospheric situations.
-    '''
+    """
+
     pass
+
 
 class PeriodicRadiation(BoundaryCondition):
-    '''
+    """
     Periodic boundary condition.
     Commonly used on the x-axis in 2D simulations.
-    '''
+    """
+
     pass
 
+
 def get_top_pressure(eos: Wittmann, temp, ne=None, rho=None):
-    '''
+    """
     Return a pressure for the top of atmosphere.
     For internal use.
 
@@ -139,34 +150,103 @@ def get_top_pressure(eos: Wittmann, temp, ne=None, rho=None):
     pressure : float
         pressure IN CGS [dyn cm-2]
 
-    '''
+    """
     if ne is not None:
-        pe = (ne << u.Unit('m-3')).to('cm-3').value  * cgs.BK * temp
+        pe = (ne << u.Unit('m-3')).to('cm-3').value * cgs.BK * temp
         return eos.pg_from_pe(temp, pe)
     elif rho is not None:
         return eos.pg_from_rho(temp, (rho << u.Unit('kg m-3')).to('g cm-3').value)
 
-    pgasCgs = np.array([0.70575286, 0.59018545, 0.51286639, 0.43719268, 0.37731009,
-        0.33516886, 0.31342915, 0.30604891, 0.30059491, 0.29207645,
-        0.2859011 , 0.28119224, 0.27893046, 0.27949676, 0.28299726,
-        0.28644693, 0.28825946, 0.29061192, 0.29340255, 0.29563072,
-        0.29864548, 0.30776456, 0.31825915, 0.32137574, 0.3239401 ,
-        0.32622212, 0.32792196, 0.3292243 , 0.33025437, 0.33146736,
-        0.3319676 , 0.33217821, 0.3322355 , 0.33217166, 0.33210297,
-        0.33203833, 0.33198508])
-    tempCoord = np.array([  7600.,   7780.,   7970.,   8273.,   8635.,   8988.,   9228.,
-        9358.,   9458.,   9587.,   9735.,   9983.,  10340.,  10850.,
-        11440.,  12190.,  13080.,  14520.,  16280.,  17930.,  20420.,
-        24060.,  27970.,  32150.,  36590.,  41180.,  45420.,  49390.,
-        53280.,  60170.,  66150.,  71340.,  75930.,  83890.,  90820.,
-        95600., 100000.])
+    pgasCgs = np.array(
+        [
+            0.70575286,
+            0.59018545,
+            0.51286639,
+            0.43719268,
+            0.37731009,
+            0.33516886,
+            0.31342915,
+            0.30604891,
+            0.30059491,
+            0.29207645,
+            0.2859011,
+            0.28119224,
+            0.27893046,
+            0.27949676,
+            0.28299726,
+            0.28644693,
+            0.28825946,
+            0.29061192,
+            0.29340255,
+            0.29563072,
+            0.29864548,
+            0.30776456,
+            0.31825915,
+            0.32137574,
+            0.3239401,
+            0.32622212,
+            0.32792196,
+            0.3292243,
+            0.33025437,
+            0.33146736,
+            0.3319676,
+            0.33217821,
+            0.3322355,
+            0.33217166,
+            0.33210297,
+            0.33203833,
+            0.33198508,
+        ]
+    )
+    tempCoord = np.array(
+        [
+            7600.0,
+            7780.0,
+            7970.0,
+            8273.0,
+            8635.0,
+            8988.0,
+            9228.0,
+            9358.0,
+            9458.0,
+            9587.0,
+            9735.0,
+            9983.0,
+            10340.0,
+            10850.0,
+            11440.0,
+            12190.0,
+            13080.0,
+            14520.0,
+            16280.0,
+            17930.0,
+            20420.0,
+            24060.0,
+            27970.0,
+            32150.0,
+            36590.0,
+            41180.0,
+            45420.0,
+            49390.0,
+            53280.0,
+            60170.0,
+            66150.0,
+            71340.0,
+            75930.0,
+            83890.0,
+            90820.0,
+            95600.0,
+            100000.0,
+        ]
+    )
 
     ptop = np.interp(temp, tempCoord, pgasCgs)
     return ptop
 
+
 @dataclass
 class Stratifications:
-    '''
+    """
     Stores the optional derived z-stratifications of an atmospheric model.
 
     Attributes
@@ -175,12 +255,13 @@ class Stratifications:
         Column mass [kg m-2].
     tauRef : np.ndarray
         Reference optical depth at 500 nm.
-    '''
+    """
+
     cmass: np.ndarray
     tauRef: np.ndarray
 
     def dimensioned_view(self, shape) -> 'Stratifications':
-        '''
+        """
         Makes an instance of `Stratifications` reshaped to the provided
         shape for multi-dimensional atmospheres.
         For internal use.
@@ -195,14 +276,14 @@ class Stratifications:
         -------
         stratifications : Stratifications
             Reshaped stratifications.
-        '''
+        """
         strat = copy(self)
         strat.cmass = self.cmass.reshape(shape)
         strat.tauRef = self.tauRef.reshape(shape)
         return strat
 
     def unit_view(self) -> 'Stratifications':
-        '''
+        """
         Makes an instance of `Stratifications`  with the correct `astropy.units`
         For internal use.
 
@@ -210,14 +291,14 @@ class Stratifications:
         -------
         stratifications : Stratifications
             The same data with units applied.
-        '''
+        """
         strat = copy(self)
         strat.cmass = self.cmass << u.kg / u.m**2
         strat.tauRef = self.tauRef << u.dimensionless_unscaled
         return strat
 
     def dimensioned_unit_view(self, shape) -> 'Stratifications':
-        '''
+        """
         Makes an instance of `Stratifications` reshaped to the provided shape
         with the correct `astropy.units` for multi-dimensional atmospheres.
         For internal use.
@@ -232,13 +313,14 @@ class Stratifications:
         -------
         stratifications : Stratifications
             Reshaped stratifications with units.
-        '''
+        """
         strat = self.dimensioned_view(shape)
         return strat.unit_view()
 
+
 @dataclass
 class Layout:
-    '''
+    """
     Storage for basic atmospheric parameters whose presence is determined by
     problem dimensionality, boundary conditions and optional stratifications.
 
@@ -272,7 +354,7 @@ class Layout:
         Boundary condition for the plane of minimal z-coordinate.
     zUpperBc : BoundaryCondition
         Boundary condition for the plane of maximal z-coordinate.
-    '''
+    """
 
     Ndim: int
     x: np.ndarray
@@ -296,25 +378,35 @@ class Layout:
         vz: np.ndarray,
         lowerBc: BoundaryCondition,
         upperBc: BoundaryCondition,
-        stratifications: Optional[Stratifications]=None,
-        vx: Optional[np.ndarray]=None,
-        vy: Optional[np.ndarray]=None,
+        stratifications: Optional[Stratifications] = None,
+        vx: Optional[np.ndarray] = None,
+        vy: Optional[np.ndarray] = None,
     ) -> 'Layout':
-        '''
+        """
         Construct 1D Layout.
-        '''
+        """
 
         if vx is None:
             vx = np.array(())
         if vy is None:
             vy = np.array(())
 
-        return cls(Ndim=1, x=np.array(()), y=np.array(()),
-                   z=z, vx=vx, vy=vy,
-                   vz=vz, xLowerBc=NoBc(), xUpperBc=NoBc(),
-                   yLowerBc=NoBc(), yUpperBc=NoBc(),
-                   zLowerBc=lowerBc, zUpperBc=upperBc,
-                   stratifications=stratifications)
+        return cls(
+            Ndim=1,
+            x=np.array(()),
+            y=np.array(()),
+            z=z,
+            vx=vx,
+            vy=vy,
+            vz=vz,
+            xLowerBc=NoBc(),
+            xUpperBc=NoBc(),
+            yLowerBc=NoBc(),
+            yUpperBc=NoBc(),
+            zLowerBc=lowerBc,
+            zUpperBc=upperBc,
+            stratifications=stratifications,
+        )
 
     @classmethod
     def make_2d(
@@ -327,67 +419,97 @@ class Layout:
         xUpperBc: BoundaryCondition,
         zLowerBc: BoundaryCondition,
         zUpperBc: BoundaryCondition,
-        stratifications: Optional[Stratifications]=None,
-        vy: Optional[np.ndarray]=None
+        stratifications: Optional[Stratifications] = None,
+        vy: Optional[np.ndarray] = None,
     ) -> 'Layout':
-        '''
+        """
         Construct 2D Layout.
-        '''
+        """
         if vy is None:
             vy = np.array(())
 
         Bc = BoundaryCondition
-        return cls(Ndim=2, x=x, y=np.array(()), z=z,
-                   vx=vx, vy=vy, vz=vz,
-                   xLowerBc=xLowerBc, xUpperBc=xUpperBc,
-                   yLowerBc=NoBc(), yUpperBc=NoBc(),
-                   zLowerBc=zLowerBc, zUpperBc=zUpperBc,
-                   stratifications=stratifications)
+        return cls(
+            Ndim=2,
+            x=x,
+            y=np.array(()),
+            z=z,
+            vx=vx,
+            vy=vy,
+            vz=vz,
+            xLowerBc=xLowerBc,
+            xUpperBc=xUpperBc,
+            yLowerBc=NoBc(),
+            yUpperBc=NoBc(),
+            zLowerBc=zLowerBc,
+            zUpperBc=zUpperBc,
+            stratifications=stratifications,
+        )
 
     @classmethod
-    def make_3d(cls, x: np.ndarray, y: np.ndarray, z: np.ndarray,
-                vx: np.ndarray, vy: np.ndarray, vz: np.ndarray,
-                xLowerBc: BoundaryCondition, xUpperBc: BoundaryCondition,
-                yLowerBc: BoundaryCondition, yUpperBc: BoundaryCondition,
-                zLowerBc: BoundaryCondition, zUpperBc: BoundaryCondition,
-                stratifications: Optional[Stratifications]=None) -> 'Layout':
-        '''
+    def make_3d(
+        cls,
+        x: np.ndarray,
+        y: np.ndarray,
+        z: np.ndarray,
+        vx: np.ndarray,
+        vy: np.ndarray,
+        vz: np.ndarray,
+        xLowerBc: BoundaryCondition,
+        xUpperBc: BoundaryCondition,
+        yLowerBc: BoundaryCondition,
+        yUpperBc: BoundaryCondition,
+        zLowerBc: BoundaryCondition,
+        zUpperBc: BoundaryCondition,
+        stratifications: Optional[Stratifications] = None,
+    ) -> 'Layout':
+        """
         Construct 3D Layout.
-        '''
+        """
 
-        return cls(Ndim=3, x=x, y=y, z=z,
-                   vx=vx, vy=vy, vz=vz,
-                   xLowerBc=xLowerBc, xUpperBc=xUpperBc,
-                   yLowerBc=yLowerBc, yUpperBc=yUpperBc,
-                   zLowerBc=zLowerBc, zUpperBc=zUpperBc,
-                   stratifications=stratifications)
+        return cls(
+            Ndim=3,
+            x=x,
+            y=y,
+            z=z,
+            vx=vx,
+            vy=vy,
+            vz=vz,
+            xLowerBc=xLowerBc,
+            xUpperBc=xUpperBc,
+            yLowerBc=yLowerBc,
+            yUpperBc=yUpperBc,
+            zLowerBc=zLowerBc,
+            zUpperBc=zUpperBc,
+            stratifications=stratifications,
+        )
 
     @property
     def Nx(self) -> int:
-        '''
+        """
         Number of grid points along the x-axis.
-        '''
+        """
         return self.x.shape[0]
 
     @property
     def Ny(self) -> int:
-        '''
+        """
         Number of grid points along the y-axis.
-        '''
+        """
         return self.y.shape[0]
 
     @property
     def Nz(self) -> int:
-        '''
+        """
         Number of grid points along the z-axis.
-        '''
+        """
         return self.z.shape[0]
 
     @property
     def Noutgoing(self) -> int:
-        '''
+        """
         Number of grid points at which the outgoing radiation is computed.
-        '''
+        """
         return max(1, self.Nx, self.Nx * self.Ny)
 
     @property
@@ -398,9 +520,9 @@ class Layout:
 
     @property
     def Nspace(self) -> int:
-        '''
+        """
         Number of spatial points present in the grid.
-        '''
+        """
         if self.Ndim == 1:
             return self.Nz
         elif self.Ndim == 2:
@@ -412,9 +534,9 @@ class Layout:
 
     @property
     def tauRef(self):
-        '''
+        """
         Alias to `self.stratifications.tauRef`, if computed.
-        '''
+        """
         if self.stratifications is not None:
             return self.stratifications.tauRef
         else:
@@ -422,9 +544,9 @@ class Layout:
 
     @property
     def cmass(self):
-        '''
+        """
         Alias to `self.stratifications.cmass`, if computed.
-        '''
+        """
         if self.stratifications is not None:
             return self.stratifications.cmass
         else:
@@ -432,10 +554,10 @@ class Layout:
 
     @property
     def dimensioned_shape(self):
-        '''
+        """
         Tuple defining the shape to which the arrays of atmospheric paramters
         can be reshaped to be indexed in a 1/2/3D fashion.
-        '''
+        """
         if self.Ndim == 1:
             shape = (self.Nz,)
         elif self.Ndim == 2:
@@ -446,12 +568,12 @@ class Layout:
             raise ValueError('Unreasonable Ndim (%d)' % self.Ndim)
         return shape
 
-    def dimensioned_view(self) ->  'Layout':
-        '''
+    def dimensioned_view(self) -> 'Layout':
+        """
         Returns a view over the contents of Layout reshaped so all data has
         the correct (1/2/3D) dimensionality for the atmospheric model, as
         these are all stored under a flat scheme.
-        '''
+        """
         layout = copy(self)
         shape = self.dimensioned_shape
         if self.stratifications is not None:
@@ -465,10 +587,10 @@ class Layout:
         return layout
 
     def unit_view(self) -> 'Layout':
-        '''
+        """
         Returns a view over the contents of the Layout with the correct
         `astropy.units`.
-        '''
+        """
         layout = copy(self)
         layout.x = self.x << u.m
         layout.y = self.y << u.m
@@ -481,17 +603,18 @@ class Layout:
         return layout
 
     def dimensioned_unit_view(self) -> 'Layout':
-        '''
+        """
         Returns a view over the contents of Layout reshaped so all data has
         the correct (1/2/3D) dimensionality for the atmospheric model, and
         the correct `astropy.units`.
-        '''
+        """
         layout = self.dimensioned_view()
         return layout.unit_view()
 
+
 @dataclass
 class Atmosphere:
-    '''
+    """
     Storage for all atmospheric data. These arrays will be shared directly
     with the backend, so a modification here also modifies the data seen by
     the backend. Be careful to modify these arrays *in place*, as their data
@@ -521,7 +644,7 @@ class Atmosphere:
     chiB : np.ndarray, optional
         Azimuth of magnetic field vector (radians) in the x-y plane, measured
         from the x-axis.
-    '''
+    """
 
     structure: Layout
     temperature: np.ndarray
@@ -534,93 +657,93 @@ class Atmosphere:
 
     @property
     def Ndim(self) -> int:
-        '''
+        """
         Ndim : int
             The dimensionality (1, 2, or 3) of the atmospheric model.
-        '''
+        """
         return self.structure.Ndim
 
     @property
     def Nx(self) -> int:
-        '''
+        """
         Nx : int
             The number of points in the x-direction discretisation.
-        '''
+        """
         return self.structure.Nx
 
     @property
     def Ny(self) -> int:
-        '''
+        """
         Ny : int
             The number of points in the y-direction discretisation.
-        '''
+        """
         return self.structure.Ny
 
     @property
     def Nz(self) -> int:
-        '''
+        """
         Nz : int
             The number of points in the y-direction discretisation.
-        '''
+        """
         return self.structure.Nz
 
     @property
     def Noutgoing(self) -> int:
-        '''
+        """
         Noutgoing : int
             The number of cells at the top of the atmosphere (that each produce a
             spectrum).
-        '''
+        """
         return self.structure.Noutgoing
 
     @property
     def vx(self) -> np.ndarray:
-        '''
+        """
         vx : np.ndarray
             x component of plasma velocity (present for Ndim >= 2) [m/s].
-        '''
+        """
         return self.structure.vx
 
     @property
     def vy(self) -> np.ndarray:
-        '''
+        """
         vy : np.ndarray
             y component of plasma velocity (present for Ndim == 3) [m/s].
-        '''
+        """
         return self.structure.vy
 
     @property
     def vz(self) -> np.ndarray:
-        '''
+        """
         vz : np.ndarray
             z component of plasma velocity (present for all Ndim) [m/s]. Aliased
             to `vlos` when `Ndim==1`
-        '''
+        """
         return self.structure.vz
 
     @property
     def vlos(self) -> np.ndarray:
-        '''
+        """
         vz : np.ndarray
             z component of plasma velocity (present for all Ndim) [m/s]. Only
             available when Ndim==1`.
-        '''
+        """
         return self.structure.vlos
 
     @property
     def cmass(self) -> np.ndarray:
-        '''
+        """
         cmass : np.ndarray
             Column mass [kg m-2].
-        '''
+        """
         return self.structure.cmass
 
     @property
     def tauRef(self) -> np.ndarray:
-        '''
+        """
         tauRef : np.ndarray
             Reference optical depth at 500 nm.
-        '''
+        """
         return self.structure.tauRef
 
     @property
@@ -629,105 +752,104 @@ class Atmosphere:
 
     @property
     def x(self) -> np.ndarray:
-        '''
+        """
         x : np.ndarray
             Ordinates of grid points along the x-axis (present for Ndim >= 2) [m].
-        '''
+        """
         return self.structure.x
 
     @property
     def y(self) -> np.ndarray:
-        '''
+        """
         y : np.ndarray
             Ordinates of grid points along the y-axis (present for Ndim == 3) [m].
-        '''
+        """
         return self.structure.y
 
     @property
     def z(self) -> np.ndarray:
-        '''
+        """
         z : np.ndarray
             Ordinates of grid points along the z-axis (present for all Ndim) [m].
-        '''
+        """
         return self.structure.z
 
     @property
     def zLowerBc(self) -> BoundaryCondition:
-        '''
+        """
         zLowerBc : BoundaryCondition
             Boundary condition for the plane of minimal z-coordinate.
-        '''
+        """
         return self.structure.zLowerBc
 
     @property
     def zUpperBc(self) -> BoundaryCondition:
-        '''
+        """
         zUpperBc : BoundaryCondition
             Boundary condition for the plane of maximal z-coordinate.
-        '''
+        """
         return self.structure.zUpperBc
 
     @property
     def yLowerBc(self) -> BoundaryCondition:
-        '''
+        """
         yLowerBc : BoundaryCondition
             Boundary condition for the plane of minimal y-coordinate.
-        '''
+        """
         return self.structure.yLowerBc
 
     @property
     def yUpperBc(self) -> BoundaryCondition:
-        '''
+        """
         yUpperBc : BoundaryCondition
             Boundary condition for the plane of maximal y-coordinate.
-        '''
+        """
         return self.structure.yUpperBc
 
     @property
     def xLowerBc(self) -> BoundaryCondition:
-        '''
+        """
         xLowerBc : BoundaryCondition
             Boundary condition for the plane of minimal x-coordinate.
-        '''
+        """
         return self.structure.xLowerBc
 
     @property
     def xUpperBc(self) -> BoundaryCondition:
-        '''
+        """
         xUpperBc : BoundaryCondition
             Boundary condition for the plane of maximal x-coordinate.
-        '''
+        """
         return self.structure.xUpperBc
 
     @property
     def Nspace(self):
-        '''
+        """
         Nspace : int
             Total number of points in the atmospheric spatial discretistaion.
-        '''
+        """
         return self.structure.Nspace
 
     @property
     def Nrays(self):
-        '''
+        """
         Nrays : int
             Number of rays in angular discretisation used.
-        '''
+        """
         try:
             if self.muz is None:
                 raise AttributeError('Nrays not set, call atmos.rays or .quadrature first')
         except AttributeError:
             raise AttributeError('Nrays not set, call atmos.rays or .quadrature first')
 
-
         return self.muz.shape[0]
 
     def dimensioned_view(self):
-        '''
+        """
         Returns a view over the contents of Layout reshaped so all data has
         the correct (1/2/3D) dimensionality for the atmospheric model, as
         these are all stored under a flat scheme.
-        '''
+        """
         shape = self.structure.dimensioned_shape
         atmos = copy(self)
         atmos.structure = self.structure.dimensioned_view()
@@ -742,16 +864,16 @@ class Atmosphere:
         return atmos
 
     def unit_view(self):
-        '''
+        """
         Returns a view over the contents of the Layout with the correct
         `astropy.units`.
-        '''
+        """
         atmos = copy(self)
         atmos.structure = self.structure.unit_view()
         atmos.temperature = self.temperature << u.K
         atmos.vturb = self.vturb << u.m / u.s
-        atmos.ne = self.ne << u.m**(-3)
-        atmos.nHTot = self.nHTot << u.m**(-3)
+        atmos.ne = self.ne << u.m ** (-3)
+        atmos.nHTot = self.nHTot << u.m ** (-3)
         if self.B is not None:
             atmos.B = self.B << u.T
             atmos.chiB = self.chiB << u.rad
@@ -759,11 +881,11 @@ class Atmosphere:
         return atmos
 
     def dimensioned_unit_view(self):
-        '''
+        """
         Returns a view over the contents of Layout reshaped so all data has
         the correct (1/2/3D) dimensionality for the atmospheric model, and
         the correct `astropy.units`.
-        '''
+        """
         atmos = self.dimensioned_view()
         return atmos.unit_view()
 
@@ -773,29 +895,29 @@ class Atmosphere:
         scale: ScaleType,
         depthScale: np.ndarray,
         temperature: np.ndarray,
-        vlos: Optional[np.ndarray]=None,
-        vturb: Optional[np.ndarray]=None,
-        ne: Optional[np.ndarray]=None,
-        hydrogenPops: Optional[np.ndarray]=None,
-        nHTot: Optional[np.ndarray]=None,
-        vx: Optional[np.ndarray]=None,
-        vy: Optional[np.ndarray]=None,
-        vz: Optional[np.ndarray]=None,
-        B: Optional[np.ndarray]=None,
-        gammaB: Optional[np.ndarray]=None,
-        chiB: Optional[np.ndarray]=None,
-        lowerBc: Optional[BoundaryCondition]=None,
-        upperBc: Optional[BoundaryCondition]=None,
-        convertScales: bool=True,
-        abundance: Optional[AtomicAbundance]=None,
-        logG: float=2.44,
-        Pgas: Optional[np.ndarray]=None,
-        Pe: Optional[np.ndarray]=None,
-        Ptop: Optional[float]=None,
-        PeTop: Optional[float]=None,
-        verbose: bool=False,
+        vlos: Optional[np.ndarray] = None,
+        vturb: Optional[np.ndarray] = None,
+        ne: Optional[np.ndarray] = None,
+        hydrogenPops: Optional[np.ndarray] = None,
+        nHTot: Optional[np.ndarray] = None,
+        vx: Optional[np.ndarray] = None,
+        vy: Optional[np.ndarray] = None,
+        vz: Optional[np.ndarray] = None,
+        B: Optional[np.ndarray] = None,
+        gammaB: Optional[np.ndarray] = None,
+        chiB: Optional[np.ndarray] = None,
+        lowerBc: Optional[BoundaryCondition] = None,
+        upperBc: Optional[BoundaryCondition] = None,
+        convertScales: bool = True,
+        abundance: Optional[AtomicAbundance] = None,
+        logG: float = 2.44,
+        Pgas: Optional[np.ndarray] = None,
+        Pe: Optional[np.ndarray] = None,
+        Ptop: Optional[float] = None,
+        PeTop: Optional[float] = None,
+        verbose: bool = False,
     ):
-        '''
+        """
         Constructor for 1D Atmosphere objects. Optionally will use an
         equation of state (EOS) to estimate missing parameters.
 
@@ -913,18 +1035,19 @@ class Atmosphere:
         ValueError
             if incorrect arguments or unable to construct estimate missing
             parameters.
-        '''
+        """
         if scale == ScaleType.Geometric:
             depthScale = (depthScale << u.m).value
             if np.any((depthScale[:-1] - depthScale[1:]) < 0.0):
-                raise ValueError("Geometric depth scale should be provided in decreasing height.")
+                raise ValueError('Geometric depth scale should be provided in decreasing height.')
         elif scale == ScaleType.ColumnMass:
             depthScale = (depthScale << u.kg / u.m**2).value
             if np.any((depthScale[1:] - depthScale[:-1]) < 0.0):
-                raise ValueError("Column mass depth scale should be provided in increasing column mass.")
+                raise ValueError(
+                    'Column mass depth scale should be provided in increasing column mass.'
+                )
 
-        check_shape = lambda x, xName: check_shape_exception(x,
-                                            depthScale.shape[0], 1, xName)
+        check_shape = lambda x, xName: check_shape_exception(x, depthScale.shape[0], 1, xName)
         temperature = (temperature << u.K).value
         check_shape(temperature, 'temperature')
         if vlos is None:
@@ -933,7 +1056,7 @@ class Atmosphere:
             else:
                 vlos = vz
         elif vz is not None:
-            raise ValueError("Cannot set both vlos and vz (they are aliases).")
+            raise ValueError('Cannot set both vlos and vz (they are aliases).')
         vlos = (vlos << u.m / u.s).value
         check_shape(vlos, 'vlos')
         vz = vlos
@@ -942,28 +1065,30 @@ class Atmosphere:
         vturb = (vturb << u.m / u.s).value
         check_shape(vturb, 'vturb')
         if ne is not None:
-            ne = (ne << u.m**(-3)).value
+            ne = (ne << u.m ** (-3)).value
             check_shape(ne, 'ne')
         if hydrogenPops is not None:
-            hydrogenPops = (hydrogenPops << u.m**(-3)).value
+            hydrogenPops = (hydrogenPops << u.m ** (-3)).value
             hydrogenPops = cast(np.ndarray, hydrogenPops)
             if hydrogenPops.shape[1] != depthScale.shape[0]:
-                raise ValueError(f'Array hydrogenPops does not have the expected'
-                                 f' second dimension: {depthScale.shape[0]}'
-                                 f' (got: {hydrogenPops.shape[1]}).')
+                raise ValueError(
+                    f'Array hydrogenPops does not have the expected'
+                    f' second dimension: {depthScale.shape[0]}'
+                    f' (got: {hydrogenPops.shape[1]}).'
+                )
         if nHTot is not None:
-            nHTot = (nHTot << u.m**(-3)).value
+            nHTot = (nHTot << u.m ** (-3)).value
             check_shape(nHTot, 'nHTot')
         if vx is not None:
             if vy is None:
-                raise ValueError("vx is set, vy must be also.")
+                raise ValueError('vx is set, vy must be also.')
             vx = (vx << u.m / u.s).value
-            check_shape(vx, "vx")
+            check_shape(vx, 'vx')
         if vy is not None:
             if vx is None:
-                raise ValueError("vy is set, vx must be also.")
+                raise ValueError('vy is set, vx must be also.')
             vy = (vy << u.m / u.s).value
-            check_shape(vy, "vy")
+            check_shape(vy, 'vy')
 
         if B is not None:
             B = (B << u.T).value
@@ -1014,8 +1139,9 @@ class Atmosphere:
             rho = np.zeros(Nspace)
             for k in range(Nspace):
                 rho[k] = eos.rho_from_pe(temperature[k], pe[k])
-            nHTot = np.copy((rho << u.Unit('g cm-3')).to('kg m-3').value
-                            / (Const.Amu * abundance.massPerH))
+            nHTot = np.copy(
+                (rho << u.Unit('g cm-3')).to('kg m-3').value / (Const.Amu * abundance.massPerH)
+            )
         elif ne is None and nHTot is not None:
             if verbose:
                 print('Setting ne from mass density.')
@@ -1053,27 +1179,42 @@ class Atmosphere:
             elif Pgas is None and Pe is None:
                 # Doing Hydrostatic Eq. based here on NICOLE implementation
                 gravAcc = ((10**logG) << u.Unit('m s-2')).to('cm s-2').value
-                Avog = 6.022045e23 # Avogadro's Number
+                Avog = 6.022045e23  # Avogadro's Number
                 if Ptop is None and PeTop is not None:
                     if verbose:
-                        print(('Setting ne, nHTot to hydrostatic equilibrium (logG=%f)'
-                               ' from provided top electron pressure.') % logG)
-                    PeTop = (PeTop << u.Unit("Pa")).to('dyn cm-2').value
+                        print(
+                            (
+                                'Setting ne, nHTot to hydrostatic equilibrium (logG=%f)'
+                                ' from provided top electron pressure.'
+                            )
+                            % logG
+                        )
+                    PeTop = (PeTop << u.Unit('Pa')).to('dyn cm-2').value
                     Ptop = eos.pg_from_pe(temperature[0], PeTop)
                 elif Ptop is not None and PeTop is None:
                     if verbose:
-                        print(('Setting ne, nHTot to hydrostatic equilibrium (logG=%f)'
-                              ' from provided top gas pressure.') % logG)
-                    Ptop = (Ptop << u.Unit("Pa")).to('dyn cm-2').value
+                        print(
+                            (
+                                'Setting ne, nHTot to hydrostatic equilibrium (logG=%f)'
+                                ' from provided top gas pressure.'
+                            )
+                            % logG
+                        )
+                    Ptop = (Ptop << u.Unit('Pa')).to('dyn cm-2').value
                     PeTop = eos.pe_from_pg(temperature[0], Ptop)
                 elif Ptop is None and PeTop is None:
                     if verbose:
-                        print(('Setting ne, nHTot to hydrostatic equilibrium (logG=%f)'
-                               ' from FALC gas pressure at upper boundary temperature.') % logG)
+                        print(
+                            (
+                                'Setting ne, nHTot to hydrostatic equilibrium (logG=%f)'
+                                ' from FALC gas pressure at upper boundary temperature.'
+                            )
+                            % logG
+                        )
                     Ptop = get_top_pressure(eos, temperature[0])
                     PeTop = eos.pe_from_pg(temperature[0], Ptop)
                 else:
-                    raise ValueError("Cannot set both Ptop and PeTop")
+                    raise ValueError('Cannot set both Ptop and PeTop')
 
                 if scale == ScaleType.Tau500:
                     tau = depthScale
@@ -1089,46 +1230,56 @@ class Atmosphere:
                 pe = np.zeros(Nspace)
                 pgas[0] = Ptop
                 pe[0] = PeTop
-                chi_c[0] = eos.cont_opacity(temperature[0], pgas[0], pe[0],
-                                            np.array([5000.0])).item()
-                avg_mol_weight = lambda k: abundance.massPerH / (abundance.totalAbundance
-                                                                  + pe[k] / pgas[k])
+                chi_c[0] = eos.cont_opacity(
+                    temperature[0], pgas[0], pe[0], np.array([5000.0])
+                ).item()
+                avg_mol_weight = lambda k: (
+                    abundance.massPerH / (abundance.totalAbundance + pe[k] / pgas[k])
+                )
                 rho[0] = Ptop * avg_mol_weight(0) / Avog / cgs.BK / temperature[0]
                 chi_c[0] /= rho[0]
 
                 for k in range(1, Nspace):
-                    chi_c[k] = chi_c[k-1]
-                    rho[k] = rho[k-1]
+                    chi_c[k] = chi_c[k - 1]
+                    rho[k] = rho[k - 1]
                     for it in range(200):
                         if scale == ScaleType.Tau500:
-                            dtau = tau[k] - tau[k-1]
-                            pgas[k] = (pgas[k-1] + gravAcc * dtau
-                                        / (0.5 * (chi_c[k-1] + chi_c[k])))
+                            dtau = tau[k] - tau[k - 1]
+                            pgas[k] = pgas[k - 1] + gravAcc * dtau / (
+                                0.5 * (chi_c[k - 1] + chi_c[k])
+                            )
                         elif scale == ScaleType.Geometric:
-                            pgas[k] = pgas[k-1] * np.exp(-gravAcc / Avog /
-                                                         cgs.BK * avg_mol_weight(k-1)
-                                                         * 0.5 * (1.0 / temperature[k-1]
-                                                                  + 1.0 / temperature[k]) *
-                                                         (height[k] - height[k-1]))
+                            pgas[k] = pgas[k - 1] * np.exp(
+                                -gravAcc
+                                / Avog
+                                / cgs.BK
+                                * avg_mol_weight(k - 1)
+                                * 0.5
+                                * (1.0 / temperature[k - 1] + 1.0 / temperature[k])
+                                * (height[k] - height[k - 1])
+                            )
                         else:
                             pgas[k] = gravAcc * cmass[k]
 
                         pe[k] = eos.pe_from_pg(temperature[k], pgas[k])
                         prevChi = chi_c[k]
-                        chi_c[k] = eos.cont_opacity(temperature[k], pgas[k], pe[k],
-                                                    np.array([5000.0])).item()
-                        rho[k] = (pgas[k] * avg_mol_weight(k) / Avog /
-                                  cgs.BK / temperature[k])
+                        chi_c[k] = eos.cont_opacity(
+                            temperature[k], pgas[k], pe[k], np.array([5000.0])
+                        ).item()
+                        rho[k] = pgas[k] * avg_mol_weight(k) / Avog / cgs.BK / temperature[k]
                         chi_c[k] /= rho[k]
 
                         change = np.abs(prevChi - chi_c[k]) / (prevChi + chi_c[k])
                         if change < 1e-5:
                             break
                     else:
-                        raise ConvergenceError(('No convergence in HSE at depth point %d, '
-                                                'last change %2.4e') % (k, change))
-            nHTot = np.copy((rho << u.Unit('g cm-3')).to('kg m-3').value
-                            / (Const.Amu * abundance.massPerH))
+                        raise ConvergenceError(
+                            ('No convergence in HSE at depth point %d, last change %2.4e')
+                            % (k, change)
+                        )
+            nHTot = np.copy(
+                (rho << u.Unit('g cm-3')).to('kg m-3').value / (Const.Amu * abundance.massPerH)
+            )
             ne = np.copy(((pe / (cgs.BK * temperature)) << u.Unit('cm-3')).to('m-3').value)
 
         # NOTE(cmo): Compute final pgas, pe from EOS that will be used for
@@ -1143,8 +1294,7 @@ class Atmosphere:
 
         chi_c = np.zeros_like(depthScale)
         for k in range(depthScale.shape[0]):
-            chi_c[k] = eos.cont_opacity(temperature[k], pgas[k], pe[k],
-                                        np.array([5000.0])).item()
+            chi_c[k] = eos.cont_opacity(temperature[k], pgas[k], pe[k], np.array([5000.0])).item()
         chi_c = (chi_c << u.Unit('cm-1')).to('m-1').value
 
         # NOTE(cmo): We should now have a uniform minimum set of data (other
@@ -1159,10 +1309,12 @@ class Atmosphere:
                 height[0] = 0.0
                 tau_ref[0] = chi_c[0] / rhoSI[0] * cmass[0]
                 for k in range(1, cmass.shape[0]):
-                    height[k] = height[k-1] - 2.0 * ((cmass[k] - cmass[k-1])
-                                                     / (rhoSI[k-1] + rhoSI[k]))
-                    tau_ref[k] = tau_ref[k-1] + 0.5 * ((chi_c[k-1] + chi_c[k])
-                                                       * (height[k-1] - height[k]))
+                    height[k] = height[k - 1] - 2.0 * (
+                        (cmass[k] - cmass[k - 1]) / (rhoSI[k - 1] + rhoSI[k])
+                    )
+                    tau_ref[k] = tau_ref[k - 1] + 0.5 * (
+                        (chi_c[k - 1] + chi_c[k]) * (height[k - 1] - height[k])
+                    )
 
                 hTau1 = np.interp(1.0, tau_ref, height)
                 height -= hTau1
@@ -1173,17 +1325,20 @@ class Atmosphere:
                 nHTot = cast(np.ndarray, nHTot)
                 ne = cast(np.ndarray, ne)
 
-                cmass[0] = ((nHTot[0] * abundance.totalAbundance + ne[0])
-                            * (Const.KBoltzmann * temperature[0] / 10**logG))
+                cmass[0] = (nHTot[0] * abundance.totalAbundance + ne[0]) * (
+                    Const.KBoltzmann * temperature[0] / 10**logG
+                )
                 tau_ref[0] = 0.5 * chi_c[0] * (height[0] - height[1])
                 if tau_ref[0] > 1.0:
                     tau_ref[0] = 0.0
 
                 for k in range(1, Nspace):
-                    cmass[k] = cmass[k-1] + 0.5 * ((rhoSI[k-1] + rhoSI[k])
-                                                   * (height[k-1] - height[k]))
-                    tau_ref[k] = tau_ref[k-1] + 0.5 * ((chi_c[k-1] + chi_c[k])
-                                                       * (height[k-1] - height[k]))
+                    cmass[k] = cmass[k - 1] + 0.5 * (
+                        (rhoSI[k - 1] + rhoSI[k]) * (height[k - 1] - height[k])
+                    )
+                    tau_ref[k] = tau_ref[k - 1] + 0.5 * (
+                        (chi_c[k - 1] + chi_c[k]) * (height[k - 1] - height[k])
+                    )
             elif scale == ScaleType.Tau500:
                 cmass = np.zeros(Nspace)
                 height = np.zeros(Nspace)
@@ -1191,19 +1346,21 @@ class Atmosphere:
 
                 cmass[0] = (tau_ref[0] / chi_c[0]) * rhoSI[0]
                 for k in range(1, Nspace):
-                    height[k] = height[k-1] - 2.0 * ((tau_ref[k] - tau_ref[k-1])
-                                                    / (chi_c[k-1] + chi_c[k]))
-                    cmass[k] = cmass[k-1] + 0.5 * ((rhoSI[k-1] + rhoSI[k])
-                                                   * (height[k-1] - height[k]))
+                    height[k] = height[k - 1] - 2.0 * (
+                        (tau_ref[k] - tau_ref[k - 1]) / (chi_c[k - 1] + chi_c[k])
+                    )
+                    cmass[k] = cmass[k - 1] + 0.5 * (
+                        (rhoSI[k - 1] + rhoSI[k]) * (height[k - 1] - height[k])
+                    )
 
                 hTau1 = np.interp(1.0, tau_ref, height)
                 height -= hTau1
             else:
-                raise ValueError("Other scales not handled yet")
+                raise ValueError('Other scales not handled yet')
 
             stratifications: Optional[Stratifications] = Stratifications(
-                                                            cmass=cmass,
-                                                            tauRef=tau_ref)
+                cmass=cmass, tauRef=tau_ref
+            )
 
         else:
             stratifications = None
@@ -1216,12 +1373,20 @@ class Atmosphere:
             vz=vz,
             lowerBc=lowerBc,
             upperBc=upperBc,
-            stratifications=stratifications
+            stratifications=stratifications,
         )
         ne = cast(np.ndarray, ne)
         nHTot = cast(np.ndarray, nHTot)
-        atmos = cls(structure=layout, temperature=temperature, vturb=vturb,
-                    ne=ne, nHTot=nHTot, B=B, gammaB=gammaB, chiB=chiB)
+        atmos = cls(
+            structure=layout,
+            temperature=temperature,
+            vturb=vturb,
+            ne=ne,
+            nHTot=nHTot,
+            B=B,
+            gammaB=gammaB,
+            chiB=chiB,
+        )
 
         return atmos
 
@@ -1231,23 +1396,23 @@ class Atmosphere:
         height: np.ndarray,
         x: np.ndarray,
         temperature: np.ndarray,
-        vx: Optional[np.ndarray]=None,
-        vy: Optional[np.ndarray]=None,
-        vz: Optional[np.ndarray]=None,
-        vturb: Optional[np.ndarray]=None,
-        ne: Optional[np.ndarray]=None,
-        nHTot: Optional[np.ndarray]=None,
-        B: Optional[np.ndarray]=None,
-        gammaB: Optional[np.ndarray]=None,
-        chiB: Optional[np.ndarray]=None,
-        xUpperBc: Optional[BoundaryCondition]=None,
-        xLowerBc: Optional[BoundaryCondition]=None,
-        zUpperBc: Optional[BoundaryCondition]=None,
-        zLowerBc: Optional[BoundaryCondition]=None,
-        abundance: Optional[AtomicAbundance]=None,
-        verbose=False
+        vx: Optional[np.ndarray] = None,
+        vy: Optional[np.ndarray] = None,
+        vz: Optional[np.ndarray] = None,
+        vturb: Optional[np.ndarray] = None,
+        ne: Optional[np.ndarray] = None,
+        nHTot: Optional[np.ndarray] = None,
+        B: Optional[np.ndarray] = None,
+        gammaB: Optional[np.ndarray] = None,
+        chiB: Optional[np.ndarray] = None,
+        xUpperBc: Optional[BoundaryCondition] = None,
+        xLowerBc: Optional[BoundaryCondition] = None,
+        zUpperBc: Optional[BoundaryCondition] = None,
+        zLowerBc: Optional[BoundaryCondition] = None,
+        abundance: Optional[AtomicAbundance] = None,
+        verbose=False,
     ):
-        '''
+        """
         Constructor for 2D Atmosphere objects.
 
         No provision for estimating parameters using hydrostatic equilibrium
@@ -1314,14 +1479,14 @@ class Atmosphere:
         ValueError
             if incorrect arguments or unable to construct estimate missing
             parameters.
-        '''
+        """
 
         x = (x << u.m).value
         if np.any((x[1:] - x[:-1]) < 0.0):
-            raise ValueError("x should be increasing with index (left -> right).")
+            raise ValueError('x should be increasing with index (left -> right).')
         height = (height << u.m).value
         if np.any((height[:-1] - height[1:]) < 0.0):
-            raise ValueError("Height should be decreasing with index (top -> bottom).")
+            raise ValueError('Height should be decreasing with index (top -> bottom).')
         temperature = (temperature << u.K).value
         if vx is None:
             vx = np.zeros_like(temperature)
@@ -1335,9 +1500,9 @@ class Atmosphere:
             vturb = np.zeros_like(temperature)
         vturb = (vturb << u.m / u.s).value
         if ne is not None:
-            ne = (ne << u.m**(-3)).value
+            ne = (ne << u.m ** (-3)).value
         if nHTot is not None:
-            nHTot = (nHTot << u.m**(-3)).value
+            nHTot = (nHTot << u.m ** (-3)).value
         if B is not None:
             B = (B << u.T).value
             B = cast(np.ndarray, B)
@@ -1372,7 +1537,6 @@ class Atmosphere:
         if xLowerBc is None:
             xLowerBc = PeriodicRadiation()
         if abundance is None:
-
             abundance = DefaultAtomicAbundance
 
         wittAbundances = np.array([abundance[e] for e in PeriodicTable.elements])
@@ -1390,18 +1554,23 @@ class Atmosphere:
             for k in range(Nspace):
                 rho[k] = eos.rho_from_pe(flatTemperature[k], pe[k])
             nHTot = np.ascontiguousarray(
-                (rho << u.Unit('g cm-3')).to('kg m-3').value
-                / (Const.Amu * abundance.massPerH)
+                (rho << u.Unit('g cm-3')).to('kg m-3').value / (Const.Amu * abundance.massPerH)
             )
         elif ne is None and nHTot is not None:
             if verbose:
                 print('Setting ne from mass density.')
             flatNHTot = view_flatten(nHTot)
-            rho = ((Const.Amu * abundance.massPerH * flatNHTot) << u.Unit('kg m-3')).to('g cm-3').value
+            rho = (
+                ((Const.Amu * abundance.massPerH * flatNHTot) << u.Unit('kg m-3'))
+                .to('g cm-3')
+                .value
+            )
             pe = np.zeros(Nspace)
             for k in range(Nspace):
                 pe[k] = eos.pe_from_rho(flatTemperature[k], rho[k])
-            ne = np.ascontiguousarray(((pe / (cgs.BK * flatTemperature)) << u.Unit('cm-3')).to('m-3').value)
+            ne = np.ascontiguousarray(
+                ((pe / (cgs.BK * flatTemperature)) << u.Unit('cm-3')).to('m-3').value
+            )
         elif ne is None and nHTot is None:
             raise ValueError('Cannot omit both ne and nHTot (currently).')
         flatX = view_flatten(x)
@@ -1427,20 +1596,26 @@ class Atmosphere:
             stratifications=None,
         )
 
-        atmos = cls(structure=layout, temperature=flatTemperature,
-                    vturb=flatVturb, ne=flatNe, nHTot=flatNHTot, B=flatB,
-                    gammaB=flatGammaB, chiB=flatChiB)
+        atmos = cls(
+            structure=layout,
+            temperature=flatTemperature,
+            vturb=flatVturb,
+            ne=flatNe,
+            nHTot=flatNHTot,
+            B=flatB,
+            gammaB=flatGammaB,
+            chiB=flatChiB,
+        )
         return atmos
-
 
     def quadrature(
         self,
-        Nrays: Optional[int]=None,
-        mu: Optional[Sequence[float]]=None,
-        wmu: Optional[Sequence[float]]=None,
-        force3d: bool=False,
+        Nrays: Optional[int] = None,
+        mu: Optional[Sequence[float]] = None,
+        wmu: Optional[Sequence[float]] = None,
+        force3d: bool = False,
     ):
-        '''
+        """
         Compute the angular quadrature for solving the RTE and Kinetic
         Equilibrium in a given atmosphere.
 
@@ -1497,11 +1672,11 @@ class Atmosphere:
         ------
         ValueError
             on incorrect input.
-        '''
+        """
 
         n_dim_effective = self.Ndim if not force3d else 3
         # NOTE(cmo): Catch the case where we need a 3d quadrature in a less than 3d atmosphere.
-        if self.structure.vx.size > 0  and self.structure.vy.size > 0:
+        if self.structure.vx.size > 0 and self.structure.vy.size > 0:
             n_dim_effective = 3
         if n_dim_effective == 1:
             if mu is not None:
@@ -1553,14 +1728,14 @@ class Atmosphere:
                 # Fill first half then flip in x-z plane. This solves for 2 octants.
                 # As always, we keep muz always positive in the atmosphere definition.
                 self.mux = np.zeros(Nrays)
-                self.mux[:Nrays // 2] = np.sin(theta) * np.cos(chi)
-                self.mux[Nrays // 2:] = -np.sin(theta) * np.cos(chi)
+                self.mux[: Nrays // 2] = np.sin(theta) * np.cos(chi)
+                self.mux[Nrays // 2 :] = -np.sin(theta) * np.cos(chi)
                 self.muz = np.zeros(Nrays)
-                self.muz[:Nrays // 2] = np.cos(theta)
-                self.muz[Nrays // 2:] = np.cos(theta)
+                self.muz[: Nrays // 2] = np.cos(theta)
+                self.muz[Nrays // 2 :] = np.cos(theta)
                 self.wmu = np.zeros(Nrays)
-                self.wmu[:Nrays // 2] = quad[:, 0]
-                self.wmu[Nrays // 2:] = quad[:, 0]
+                self.wmu[: Nrays // 2] = quad[:, 0]
+                self.wmu[Nrays // 2 :] = quad[:, 0]
                 self.wmu /= np.sum(self.wmu)
                 self.muy = np.sqrt(1.0 - (self.mux**2 + self.muz**2))
             else:
@@ -1576,32 +1751,33 @@ class Atmosphere:
                 # Then flip in y-z plane for second half. This solves for 4 octants.
                 # As always, we keep muz always positive in the atmosphere definition.
                 self.mux = np.zeros(Nrays)
-                self.mux[:Nrays // 4] = np.sin(theta) * np.cos(chi)
-                self.mux[Nrays // 4:Nrays // 2] = -np.sin(theta) * np.cos(chi)
-                self.mux[Nrays // 2:] = -self.mux[:Nrays // 2]
+                self.mux[: Nrays // 4] = np.sin(theta) * np.cos(chi)
+                self.mux[Nrays // 4 : Nrays // 2] = -np.sin(theta) * np.cos(chi)
+                self.mux[Nrays // 2 :] = -self.mux[: Nrays // 2]
                 self.muy = np.zeros(Nrays)
-                self.muy[:Nrays // 4] = np.sin(theta) * np.sin(chi)
-                self.muy[Nrays // 4:Nrays // 2] = np.sin(theta) * np.sin(chi)
-                self.muy[Nrays // 2:] = -self.muy[:Nrays // 2]
+                self.muy[: Nrays // 4] = np.sin(theta) * np.sin(chi)
+                self.muy[Nrays // 4 : Nrays // 2] = np.sin(theta) * np.sin(chi)
+                self.muy[Nrays // 2 :] = -self.muy[: Nrays // 2]
 
                 self.wmu = np.zeros(Nrays)
-                self.wmu[:Nrays // 4] = quad[:, 0]
-                self.wmu[Nrays // 4:Nrays // 2] = quad[:, 0]
-                self.wmu[Nrays // 2:] = self.wmu[:Nrays // 2]
+                self.wmu[: Nrays // 4] = quad[:, 0]
+                self.wmu[Nrays // 4 : Nrays // 2] = quad[:, 0]
+                self.wmu[Nrays // 2 :] = self.wmu[: Nrays // 2]
 
                 self.wmu /= np.sum(self.wmu)
                 self.muz = np.sqrt(1.0 - (self.mux**2 + self.muy**2))
 
-
         self.configure_bcs()
 
-
-    def rays(self, muz: Union[float, Sequence[float]],
-             mux: Optional[Union[float, Sequence[float]]]=None,
-             muy: Optional[Union[float, Sequence[float]]]=None,
-             wmu: Optional[Union[float, Sequence[float]]]=None,
-             upOnly: bool=False):
-        '''
+    def rays(
+        self,
+        muz: Union[float, Sequence[float]],
+        mux: Optional[Union[float, Sequence[float]]] = None,
+        muy: Optional[Union[float, Sequence[float]]] = None,
+        wmu: Optional[Union[float, Sequence[float]]] = None,
+        upOnly: bool = False,
+    ):
+        """
         Set up the rays on the Atmosphere for computing the intensity in a
         particular direction (or set of directions).
 
@@ -1633,7 +1809,7 @@ class Atmosphere:
         ValueError
             if the angular projections or integration weights are incorrectly
             normalised.
-        '''
+        """
 
         if isinstance(muz, numbers.Real):
             muz = [float(muz)]
@@ -1679,8 +1855,8 @@ class Atmosphere:
 
         self.configure_bcs(upOnly=upOnly)
 
-    def configure_bcs(self, upOnly: bool=False):
-        '''
+    def configure_bcs(self, upOnly: bool = False):
+        """
         Configure the required angular information for all boundary
         conditions on the model.
 
@@ -1689,7 +1865,7 @@ class Atmosphere:
         upOnly : bool, optional
             Whether to only configure boundary conditions for up-going rays.
             (default: False)
-        '''
+        """
 
         # NOTE(cmo): We always have z-bcs
         # For zLowerBc, muz is positive, and we have all mux, muz
@@ -1766,12 +1942,18 @@ class Atmosphere:
         muz = np.array(muz)
         self.xUpperBc.set_required_angles(mux, muy, muz, indexVector)
 
-        self.yLowerBc.set_required_angles(np.zeros((0)), np.zeros((0)), np.zeros((0)),
-                                          np.ones((self.mux.shape[0], 2),
-                                                  dtype=np.int32) * -1)
-        self.yUpperBc.set_required_angles(np.zeros((0)), np.zeros((0)), np.zeros((0)),
-                                          np.ones((self.mux.shape[0], 2),
-                                                  dtype=np.int32) * -1)
+        self.yLowerBc.set_required_angles(
+            np.zeros((0)),
+            np.zeros((0)),
+            np.zeros((0)),
+            np.ones((self.mux.shape[0], 2), dtype=np.int32) * -1,
+        )
+        self.yUpperBc.set_required_angles(
+            np.zeros((0)),
+            np.zeros((0)),
+            np.zeros((0)),
+            np.ones((self.mux.shape[0], 2), dtype=np.int32) * -1,
+        )
 
         if self.Ndim > 2:
             raise ValueError('Only <= 2D atmospheres supported currently.')

@@ -11,15 +11,17 @@ from .atmosphere import Atmosphere, ScaleType
 
 @dataclass
 class MultiMetadata:
-    '''
+    """
     Metadata that is stored in a MULTI atmosphere, but doesn't really belong
     in a Lightweaver atmosphere.
-    '''
+    """
+
     name: str
     logG: float
 
+
 def read_multi_atmos(filename: str) -> Tuple[MultiMetadata, Atmosphere]:
-    '''
+    """
     Load a MULTI atmosphere definition from a file for use in Lightweaver.
 
     Parameters
@@ -39,7 +41,7 @@ def read_multi_atmos(filename: str) -> Tuple[MultiMetadata, Atmosphere]:
     ------
     ValueError
         if file isn't found, or cannot be parsed correctly.
-    '''
+    """
     try:
         with open(filename, 'r') as f:
             lines = f.readlines()
@@ -56,7 +58,7 @@ def read_multi_atmos(filename: str) -> Tuple[MultiMetadata, Atmosphere]:
     atmosName = get_line()
 
     scaleStr = get_line()
-    logG = float(get_line()) - 2 # For conversion to log[m.s^-2]
+    logG = float(get_line()) - 2  # For conversion to log[m.s^-2]
     Nspace = int(get_line())
 
     dscale = np.zeros(Nspace)
@@ -102,12 +104,14 @@ def read_multi_atmos(filename: str) -> Tuple[MultiMetadata, Atmosphere]:
     hPops = (hPops << u.Unit('cm-3')).to('m-3').value
 
     meta = MultiMetadata(atmosName, logG)
-    atmos = Atmosphere.make_1d(scale=scaleType,
-                               depthScale=dscale,
-                               temperature=temp,
-                               vlos=vlos,
-                               vturb=vturb,
-                               ne=ne,
-                               hydrogenPops=hPops)
+    atmos = Atmosphere.make_1d(
+        scale=scaleType,
+        depthScale=dscale,
+        temperature=temp,
+        vlos=vlos,
+        vturb=vturb,
+        ne=ne,
+        hydrogenPops=hPops,
+    )
 
     return (meta, atmos)
