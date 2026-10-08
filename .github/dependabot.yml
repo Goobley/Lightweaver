@@ -1,0 +1,17 @@
+version: 2
+updates:
+  # Hook versions in .pre-commit-config.yaml (ruff).
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+
+  # Actions used in .github/workflows.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"

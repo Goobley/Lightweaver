@@ -5,8 +5,10 @@ from typing import List, Optional
 
 import astropy.config as conf
 import yaml
-from lightweaver.simd_management import (LwSimdImplsAndFlags,
-                                         get_available_simd_suffixes)
+
+from lightweaver.simd_management import LwSimdImplsAndFlags, get_available_simd_suffixes
+
+from .deprecation import accepts_old_kwargs
 
 Defaults = {
     'FormalSolver1d': 'piecewise_bezier3_1d',
@@ -17,21 +19,22 @@ Defaults = {
 
 params = copy(Defaults)
 
+
 def get_home_config_path() -> str:
-    '''
+    """
     Return the location where the user's configuration data *should* be stored,
     whether it is currently present or not.
-    '''
+    """
     confDir = conf.get_config_dir('lightweaver')
     homePath = path.join(confDir, 'lightweaverrc')
     return homePath
 
 
 def get_config_path() -> Optional[str]:
-    '''
+    """
     Returns the path to the `lightweaverrc` configuration file, or None if one
     cannot be found.
-    '''
+    """
     localPath = 'lightweaverrc'
     if path.isfile(localPath):
         return localPath
@@ -43,23 +46,24 @@ def get_config_path() -> Optional[str]:
 
 
 def set_most_advanced_simd_impl():
-    '''
+    """
     Picks the most advanced SIMD extensions (as detected by NumPy), that can be
     used on this system. This does not guarantee fastest (see the note in
     `update_config_dict`).
-    '''
+    """
     availableImpls = get_available_simd_suffixes()
 
-    def check_add_impl(simdType):
-        if simdType in availableImpls:
-            params['SimdImpl'] = simdType
+    def check_add_impl(simd_type):
+        if simd_type in availableImpls:
+            params['SimdImpl'] = simd_type
 
     for impl in LwSimdImplsAndFlags:
         check_add_impl(impl)
 
 
-def update_config_dict(configPath: Optional[str]):
-    '''
+@accepts_old_kwargs
+def update_config_dict(config_path: Optional[str]):
+    """
     Updates the configuration dict (`lightweaver.ConfigDict`), from the config
     file. If there is no config file, the defaults are used, and the most
     advanced instruction set is chosen for the SimdImpl. If the SimdImpl in the
@@ -68,38 +72,43 @@ def update_config_dict(configPath: Optional[str]):
 
     Parameters
     ----------
-    configPath :  str, optional
+    config_path :  str, optional
         The path to the config file, or None.
-    '''
-    if configPath is None:
-        warnings.warn('No config file found, using defaults. For optimised vectorised code,'
-                      ' please run `lightweaver.benchmark()`, otherwise the most advanced'
-                      ' instruction set supported by your machine will be picked, which may'
-                      ' not be the fastest (due to e.g. aggressive AVX offsets).')
+    """
+    if config_path is None:
+        warnings.warn(
+            'No config file found, using defaults. For optimised vectorised code,'
+            ' please run `lightweaver.benchmark()`, otherwise the most advanced'
+            ' instruction set supported by your machine will be picked, which may'
+            ' not be the fastest (due to e.g. aggressive AVX offsets).'
+        )
         set_most_advanced_simd_impl()
         return
 
-    with open(configPath, 'r') as f:
+    with open(config_path, 'r') as f:
         confDict = yaml.safe_load(f)
     params.update(confDict)
 
-    availableSimd : List[str] = get_available_simd_suffixes()
+    availableSimd: List[str] = get_available_simd_suffixes()
     if params['SimdImpl'] not in ['scalar'] + availableSimd:
         set_most_advanced_simd_impl()
-        warnings.warn('SimdImpl was set to an overly advanced instruction set for the '
-                      'current CPU, setting to the maximum supported by your CPU.')
+        warnings.warn(
+            'SimdImpl was set to an overly advanced instruction set for the '
+            'current CPU, setting to the maximum supported by your CPU.'
+        )
 
 
-def update_config_file(configPath: str):
-    '''
+@accepts_old_kwargs
+def update_config_file(config_path: str):
+    """
     Updates the config file to the current values of the config dict.
 
     Parameters
     ----------
-    configPath : str
+    config_path : str
         The path to the config file.
-    '''
-    with open(configPath, 'w') as f:
+    """
+    with open(config_path, 'w') as f:
         yaml.safe_dump(params, f)
 
 

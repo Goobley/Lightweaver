@@ -21,3 +21,4 @@ Utils/rh_atoms.py
 
 # pytest
 .pytest_cache/
+_generated_renames.rst

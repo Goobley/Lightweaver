@@ -1,22 +1,24 @@
-'''
+"""
 Statistical equilibrium: iterate a FAL-C model with H and Ca II active to
 convergence, then synthesise line profiles.
 
 Demonstrates `lw.iterate_ctx_se`, `Context.compute_rays`, PRD
-(`prd=True`) and charge conservation (`conserveCharge=True`).
-'''
-import numpy as np
+(`prd=True`) and charge conservation (`conserve_charge=True`).
+"""
 
+import numpy as np
 from conftest import converged_falc_ctx
 
-NmaxIter = 2000
+import lightweaver as lw
+
+MAX_ITER = 2000
 
 
-def line_wavelengths(lambda0, halfWidth, N=101):
-    '''
+def line_wavelengths(lambda0, half_width, N=101):
+    """
     A uniform wavelength grid [nm] around a line core.
-    '''
-    return np.linspace(lambda0 - halfWidth, lambda0 + halfWidth, N)
+    """
+    return np.linspace(lambda0 - half_width, lambda0 + half_width, N)
 
 
 # Vacuum line centres [nm] from the rh_atoms models.
@@ -27,31 +29,33 @@ Ca8542 = 854.444
 Halpha = 656.469
 
 
-def check_pops(eqPops, element):
-    '''
+def check_pops(eq_pops, element):
+    """
     Populations should be finite, positive and sum to the total population of
     the species.
-    '''
-    atom = eqPops.atomicPops[element]
+    """
+    atom = eq_pops.atomic_pops[element]
     assert np.all(np.isfinite(atom.n))
     assert np.all(atom.n > 0.0)
-    np.testing.assert_allclose(atom.n.sum(axis=0), atom.nTotal, rtol=1e-10)
+    np.testing.assert_allclose(atom.n.sum(axis=0), atom.n_total, rtol=1e-10)
 
 
 def test_crd_h_ca(falc_se, reference):
-    atmos, eqPops, ctx, Niter = falc_se
-    assert Niter < NmaxIter - 1
+    atmos, eq_pops, ctx, Niter = falc_se
+    assert Niter < MAX_ITER - 1
 
-    check_pops(eqPops, 'H')
-    check_pops(eqPops, 'Ca')
+    check_pops(eq_pops, 'H')
+    check_pops(eq_pops, 'Ca')
 
     # Synthesise the emergent profiles at disk centre (mu = 1) on a
     # wavelength grid of our choice.
     profiles = {}
-    for name, lambda0, halfWidth in [('CaK', CaK, 0.1),
-                                     ('Ca8542', Ca8542, 0.1),
-                                     ('Halpha', Halpha, 0.2)]:
-        wave = line_wavelengths(lambda0, halfWidth)
+    for name, lambda0, half_width in [
+        ('CaK', CaK, 0.1),
+        ('Ca8542', Ca8542, 0.1),
+        ('Halpha', Halpha, 0.2),
+    ]:
+        wave = line_wavelengths(lambda0, half_width)
         profiles[name] = ctx.compute_rays(wave, [1.0])
         assert np.all(np.isfinite(profiles[name]))
         assert np.all(profiles[name] > 0.0)
@@ -60,25 +64,24 @@ def test_crd_h_ca(falc_se, reference):
     # 854.2 is a strong absorption line: the core should be much
     # darker than the far wing.
     wing = ctx.compute_rays(np.array([Ca8542 + 1.5]), [1.0])
-    coreRatio = profiles['Ca8542'][50] / wing
-    assert 0.1 < coreRatio < 0.5
+    core_ratio = profiles['Ca8542'][50] / wing
+    assert 0.1 < core_ratio < 0.5
 
-    reference.check('stat_eq/CaPops', eqPops['Ca'])
-    reference.check('stat_eq/HPops', eqPops['H'])
+    reference.check('stat_eq/CaPops', eq_pops['Ca'])
+    reference.check('stat_eq/HPops', eq_pops['H'])
 
 
 def test_prd_charge_conservation(reference):
     # Mg II h & k, Ca II H & K, and Lyman alpha & beta are PRD lines in these
     # models; `prd=True` iterates the PRD redistribution alongside the
-    # populations, and `conserveCharge=True` updates the electron density
+    # populations, and `conserve_charge=True` updates the electron density
     # self-consistently.
-    atmos, eqPops, ctx, Niter = converged_falc_ctx(conserveCharge=True, prd=True,
-                                                   includeMg=True)
-    assert Niter < NmaxIter - 1
+    atmos, eq_pops, ctx, Niter = converged_falc_ctx(conserve_charge=True, prd=True, include_mg=True)
+    assert Niter < MAX_ITER - 1
 
-    check_pops(eqPops, 'H')
-    check_pops(eqPops, 'Ca')
-    check_pops(eqPops, 'Mg')
+    check_pops(eq_pops, 'H')
+    check_pops(eq_pops, 'Ca')
+    check_pops(eq_pops, 'Mg')
     ne = np.asarray(atmos.ne)
     assert np.all(np.isfinite(ne))
     assert np.all(ne > 0.0)
@@ -96,3 +99,12 @@ def test_prd_charge_conservation(reference):
     assert k[30] < k[:30].max() and k[30] < k[31:].max()
 
     reference.check('stat_eq_prd/ne', ne)
+
+
+def test_construct_from_state_dict_returns_context(falc_se):
+    # Copies must be the public Context subclass, with nr_post_update and the
+    # deprecated keyword handling.
+    _, _, ctx, _ = falc_se
+    new_ctx = ctx.construct_from_state_dict_with(ctx.state_dict())
+    assert type(new_ctx) is lw.Context
+    assert hasattr(new_ctx, 'nr_post_update')

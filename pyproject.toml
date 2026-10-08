@@ -4,7 +4,7 @@ requires = [
     "wheel",
     "setuptools_scm[toml]>=3.4",
     "cython",
-    "numpy>=2.0"
+    "numpy>=2.1"
 ]
 build-backend = 'setuptools.build_meta'
 
@@ -44,9 +44,9 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Physics",
 ]
 dependencies = [
-    "numpy>=2.0",
+    "numpy>=2.1",
     "astropy",
-    "numba~=0.60",
+    "numba~=0.61",
     "matplotlib",
     "scipy",
     "parse",
@@ -64,3 +64,49 @@ Source = "https://github.com/Goobley/Lightweaver"
 Issues = "https://github.com/Goobley/Lightweaver/issues"
 Paper = "https://arxiv.org/abs/2107.00475"
 
+
+[tool.cibuildwheel]
+# Smoke-test every built wheel before it's uploaded (both wheel workflows read this).
+# cibuildwheel runs the command from a temporary directory, so the installed
+# wheel is imported rather than the source tree.
+test-requires = ["pytest"]
+test-command = "python -m pytest {project}/tests -q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+# NOTE: rh_atoms.py is generated, and wittmann.py is vendored.
+extend-exclude = ["lightweaver/rh_atoms.py", "lightweaver/wittmann.py", "build", "LwBuild"]
+# Apply the excludes to files passed explicitly too (as pre-commit does).
+force-exclude = true
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint]
+# N801-N803/N815 enforce snake_case for the public API (classes, functions,
+# arguments, class-level names); local and module-level variables aren't checked.
+select = ["E4", "E7", "E9", "F", "W", "I", "N801", "N802", "N803", "N815"]
+# Single-letter physics symbols (I, l, ...) are intentional.
+ignore = ["E741"]
+
+[tool.ruff.lint.pep8-naming]
+# Physics symbols and N-counts keep their case (see lightweaver/_renames.py).
+ignore-names = [
+    "N*", "Aji", "Bij", "Bji", "B", "Cmat", "E_SI", "E_eV", "Ediss", "Falc82", "J", "J_tol",
+    "J_update", "Jl", "Ju", "L", "LS_coupling", "Ml", "Mu", "Pe", "Pe_top", "Pgas", "Ptop", "S",
+    "T", "Z", "chi_B", "gamma_B", "dJ_*", "updated_J", "updated_J_prd", "reproduce_old_RH_bug",
+    "voigt_H",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Public re-exports, including `from .constants import *`.
+"lightweaver/__init__.py" = ["F401", "F403"]
+# Standalone conversion script built on star imports of the atomic model classes.
+"Utils/ConvertAtom.py" = ["F403", "F405", "N"]
+# Standalone data-generation scripts.
+"Utils/*.py" = ["N"]
+
+[tool.pytest.ini_options]
+# Lightweaver itself must never use its deprecated names.
+filterwarnings = ["error::lightweaver.deprecation.LightweaverDeprecationWarning"]

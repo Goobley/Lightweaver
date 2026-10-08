@@ -1,26 +1,26 @@
-'''
+"""
 Contribution functions: store the depth-dependent opacity and emissivity
 during a formal solution, and use them to compute optical depths, formation
 heights and contribution functions.
 
-Demonstrates `ctx.depthData`, `lw.utils.compute_contribution_fn`,
+Demonstrates `ctx.depth_data`, `lw.utils.compute_contribution_fn`,
 `lw.utils.compute_tau` and `lw.utils.tau_isosurface`.
-'''
+"""
+
 import numpy as np
-
-from lightweaver.utils import compute_contribution_fn, compute_tau, tau_isosurface
-
 from conftest import copy_ctx
 from test_stat_eq import Ca8542
 
+from lightweaver.utils import compute_contribution_fn, compute_tau, tau_isosurface
+
 
 def test_contribution_fn(falc_se, reference):
-    atmos, eqPops, ctx, Niter = falc_se
+    atmos, eq_pops, ctx, Niter = falc_se
     ctx = copy_ctx(ctx)
 
     # Ask the formal solver to store the full depth-dependent chi
     # and eta, then perform a formal solution.
-    ctx.depthData.fill = True
+    ctx.depth_data.fill = True
     ctx.formal_sol_gamma_matrices()
 
     # The contribution function for the outgoing ray with the

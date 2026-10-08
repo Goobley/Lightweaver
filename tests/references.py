@@ -1,4 +1,4 @@
-'''
+"""
 Stored reference values for the smoke tests.
 
 The references in `data/references.npz` are produced by the current code and
@@ -12,16 +12,17 @@ and commit the updated `data/references.npz` alongside the change.
 
 To print the largest relative difference from each reference without
 failing (e.g. to compare iteration schemes), set LW_REFERENCE_REPORT=1.
-'''
+"""
+
 import os
 from pathlib import Path
 
 import numpy as np
 
-ReferencePath = Path(__file__).parent / 'data' / 'references.npz'
+REFERENCE_PATH = Path(__file__).parent / 'data' / 'references.npz'
 # Set from the spread of these quantities across the scalar, SSE2 and
 # AVX2FMA iteration schemes, with a safety margin.
-DefaultRtol = 1e-5
+DEFAULT_RTOL = 1e-5
 
 
 def env_flag(name: str) -> bool:
@@ -33,7 +34,7 @@ def regenerating() -> bool:
 
 
 class ReferenceStore:
-    def __init__(self, path: Path = ReferencePath):
+    def __init__(self, path: Path = REFERENCE_PATH):
         self.path = path
         self.regen = regenerating()
         self.report = env_flag('LW_REFERENCE_REPORT')
@@ -44,11 +45,11 @@ class ReferenceStore:
         else:
             self.stored = {}
 
-    def check(self, name: str, value, rtol: float = DefaultRtol, atol: float = 0.0):
-        '''
+    def check(self, name: str, value, rtol: float = DEFAULT_RTOL, atol: float = 0.0):
+        """
         Compare `value` against the stored reference `name` (or record it if
         regenerating).
-        '''
+        """
         value = np.asarray(value, dtype=np.float64)
         if self.regen:
             self.new[name] = value
@@ -61,8 +62,9 @@ class ReferenceStore:
             rel = np.max(np.abs(value - ref) / np.maximum(np.abs(ref), np.finfo(np.float64).tiny))
             print(f'\nREFERENCE {name}: max rel diff {rel:.3e}')
             return
-        np.testing.assert_allclose(value, self.stored[name], rtol=rtol, atol=atol,
-                                   err_msg=f'Reference "{name}" changed')
+        np.testing.assert_allclose(
+            value, self.stored[name], rtol=rtol, atol=atol, err_msg=f'Reference "{name}" changed'
+        )
 
     def save(self):
         if not self.regen or len(self.new) == 0:

@@ -1,5 +1,4 @@
 include README.md
 include LICENSE
-include environment.yml
 recursive-include lightweaver/Data *
 include lightweaver/DefaultIterSchemes/.placeholder

@@ -9,7 +9,7 @@ from typing import Dict, List, Union
 
 import numpy as np
 from Cython.Build import cythonize
-from setuptools import setup, find_namespace_packages
+from setuptools import find_namespace_packages, setup
 from setuptools.command.build_ext import build_ext
 from setuptools.extension import Extension
 
@@ -36,16 +36,17 @@ from setuptools.extension import Extension
 BuildDir = 'LwBuild'
 CI_BUILD = 'LW_CI_BUILD' in os.environ
 
+
 # NOTE(cmo): Whilst we're building a library, if we inherit from Library,
 # setuptools detects the libenkiTS as a dependency and makes LwCompiled use
 # stubs (on macos), and then things fail to import.
 class LwSharedLibraryNoExtension(Extension):
     pass
 
+
 # NOTE(cmo): Based on https://stackoverflow.com/a/60285245/3847013 , but
 # modified for current setuptools, and to catch only the necessary library
 class LwBuildExt(build_ext):
-
     @property
     def is_editable_build(self):
         try:
@@ -64,7 +65,7 @@ class LwBuildExt(build_ext):
             extension = self.ext_map[fullname]
             if isinstance(extension, LwSharedLibraryNoExtension):
                 base_ext = path.splitext(filename)[1]
-                filename = filename.replace(so_ext, "") + base_ext
+                filename = filename.replace(so_ext, '') + base_ext
         return filename
 
     def run(self):
@@ -100,18 +101,19 @@ class LwBuildExt(build_ext):
         if sys.platform != 'darwin':
             return
 
-        lw_shlibs = [ext for ext in self.extensions
-                     if isinstance(ext, LwSharedLibraryNoExtension)]
+        lw_shlibs = [ext for ext in self.extensions if isinstance(ext, LwSharedLibraryNoExtension)]
         if lw_shlibs:
             # NOTE(cmo): All based on current setuptools build_ext and distutils' sysconfig
             self._base_compiler = self.compiler
             self.setup_shlib_compiler()
             cxx = os.environ.get('CXX', get_config_var('CXX'))
-            ldcxxshared = os.environ.get('LDCXXSHARED', ' '.join([cxx, '-dynamiclib', '-undefined', 'dynamic_lookup']))
+            ldcxxshared = os.environ.get(
+                'LDCXXSHARED', ' '.join([cxx, '-dynamiclib', '-undefined', 'dynamic_lookup'])
+            )
             for flagname in ['LD', 'CXX', 'CPP']:
                 flags = os.environ.get(f'{flagname}FLAGS')
                 if flags:
-                    ldcxxshared = f"{ldcxxshared} {flags}"
+                    ldcxxshared = f'{ldcxxshared} {flags}'
             self.shlib_compiler.set_executables(linker_so_cxx=ldcxxshared)
 
     def build_extension(self, ext):
@@ -137,7 +139,9 @@ class LwBuildExt(build_ext):
             return
 
         if not self.is_editable_build:
-            warnings.warn('This block was only anticipated to run on an inplace (development) build, results may be not as expected.')
+            warnings.warn(
+                'This block was only anticipated to run on an inplace (development) build, results may be not as expected.'
+            )
 
         build_py = self.get_finalized_command('build_py')
         for ext in self.extensions:
@@ -151,75 +155,102 @@ class LwBuildExt(build_ext):
                 base_file = path.splitext(filename)[0]
                 for file_ext in ['.exp', '.lib']:
                     extra_file_name = base_file + file_ext
-                    dest_filename = os.path.join(package_dir,
-                                                os.path.basename(extra_file_name))
+                    dest_filename = os.path.join(package_dir, os.path.basename(extra_file_name))
                     src_filename = os.path.join(self.build_lib, extra_file_name)
 
                     self.copy_file(src_filename, dest_filename)
 
-posixCiArgs : Dict[str, List[str]] = {
+
+posixCiArgs: Dict[str, List[str]] = {
     'linux': ['-march=corei7-avx', '-mtune=corei7-avx'],
     'darwin': [],
     'win32': [],
     'cygwin': [],
-    'aix': []
+    'aix': [],
 }
 posixLinkerArgs = {
     'linux': ['-Wl,-rpath,$ORIGIN', '-Wl,-rpath,$ORIGIN/..', '-Wl,-zlazy'],
     'darwin': ['-Wl,-rpath,@loader_path', '-Wl,-rpath,@loader_path/..'],
     'win32': [],
     'cygwin': [],
-    'aix': []
+    'aix': [],
 }
 posixLocalArgs = ['-march=native', '-mtune=native']
-posixArgs : Dict[str, Union[str, List[str]]] = {
-   'baseCompileArgs': ['-std=c++17', '-Wno-sign-compare'],
-   'coreCompileArgs': (posixCiArgs[sys.platform] if CI_BUILD
-                                                 else posixLocalArgs),
-   'SSE2Args': ['-msse2'],
-   'AVX2FMAArgs': ['-mavx2', '-mfma'],
-   'AVX512Args': ['-mavx512f', '-mavx512dq', '-mfma'],
-   'libs': ['dl', 'enkiTS'],
-   'libDirs': [path.join(BuildDir, 'lightweaver')],
-   'linkArgs': posixLinkerArgs[sys.platform],
-   'stubDefinePrefix': '-DLW_MODULE_STUB_NAME=',
-   'lwCoreDefine': ['-DLW_CORE_LIB'],
-   'enkiTSBuild': ['-DENKITS_BUILD_DLL'],
-   'fsIterExtensionExports': [],
+posixArgs: Dict[str, Union[str, List[str]]] = {
+    'baseCompileArgs': ['-std=c++17', '-Wno-sign-compare'],
+    'coreCompileArgs': (posixCiArgs[sys.platform] if CI_BUILD else posixLocalArgs),
+    'SSE2Args': ['-msse2'],
+    'AVX2FMAArgs': ['-mavx2', '-mfma'],
+    'AVX512Args': ['-mavx512f', '-mavx512dq', '-mfma'],
+    'libs': ['dl', 'enkiTS'],
+    'libDirs': [path.join(BuildDir, 'lightweaver')],
+    'linkArgs': posixLinkerArgs[sys.platform],
+    'stubDefinePrefix': '-DLW_MODULE_STUB_NAME=',
+    'lwCoreDefine': ['-DLW_CORE_LIB'],
+    'enkiTSBuild': ['-DENKITS_BUILD_DLL'],
+    'fsIterExtensionExports': [],
 }
-msvcArgs : Dict[str, Union[str, List[str]]] = {
-   # NOTE(cmo): The last three of these disable some of the narrowing/sign
-   # compare warnings.  Whilst these might very occasionally be useful, they
-   # make too much noise.
-   'baseCompileArgs': ['/std:c++17', '/Z7', '/DENKITS_DLL',
-                       '/wd4244', '/wd4267', '/wd4018'],
-   'coreCompileArgs': [],
-   'SSE2Args': [],
-   'AVX2FMAArgs': ['/arch:AVX2'],
-   'AVX512Args': ['/arch:AVX512'],
-   'libs': ['libenkiTS'],
-   'libDirs': [path.join(BuildDir, 'lightweaver')],
-   'linkArgs': ['/DEBUG:FULL'],
-   'stubDefinePrefix': '/DLW_MODULE_STUB_NAME=',
-   'lwCoreDefine': ['/DLW_CORE_LIB'],
-   'enkiTSBuild': ['/DENKITS_BUILD_DLL'],
-   'fsIterExtensionExports': ['fs_iteration_fns_provider'],
+msvcArgs: Dict[str, Union[str, List[str]]] = {
+    # NOTE(cmo): The last three of these disable some of the narrowing/sign
+    # compare warnings.  Whilst these might very occasionally be useful, they
+    # make too much noise.
+    'baseCompileArgs': ['/std:c++17', '/Z7', '/DENKITS_DLL', '/wd4244', '/wd4267', '/wd4018'],
+    'coreCompileArgs': [],
+    'SSE2Args': [],
+    'AVX2FMAArgs': ['/arch:AVX2'],
+    'AVX512Args': ['/arch:AVX512'],
+    'libs': ['libenkiTS'],
+    'libDirs': [path.join(BuildDir, 'lightweaver')],
+    'linkArgs': ['/DEBUG:FULL'],
+    'stubDefinePrefix': '/DLW_MODULE_STUB_NAME=',
+    'lwCoreDefine': ['/DLW_CORE_LIB'],
+    'enkiTSBuild': ['/DENKITS_BUILD_DLL'],
+    'fsIterExtensionExports': ['fs_iteration_fns_provider'],
 }
+
 
 def prepend_source_dir(x):
     return [path.join('Source', y) for y in x]
 
+
 coreSource = prepend_source_dir(['LightweaverAmalgamated.cpp'])
-coreDepends = ['Atmosphere.cpp', 'Background.cpp', 'Background.hpp', 'Bezier.hpp',
-               'CmoArray.hpp', 'Constants.hpp', 'EscapeProbability.cpp', 'Faddeeva.cc',
-               'Faddeeva.hh', 'FastBackground.cpp', 'FastBackground.hpp',
-               'FormalInterface.cpp', 'FormalScalar.cpp', 'FormalScalar2d.cpp',
-               'FormalStokes.cpp', 'LuSolve.cpp', 'LuSolve.hpp', 'LwAtmosphere.hpp',
-               'LwAtom.hpp', 'LwContext.hpp', 'LwFormalInterface.hpp',
-               'LwFormalInterfacePosix.hpp', 'LwFormalInterfaceWin.hpp',
-               'LwInternal.hpp', 'LwMisc.hpp', 'LwTransition.hpp', 'Ng.hpp', 'Prd.cpp',
-               'Simd.hpp', 'SimdFullIterationTemplates.hpp', 'TaskScheduler.h',
-               'TaskStorage.cpp', 'TaskStorage.hpp', 'UpdatePopulations.cpp', 'Utils.hpp']
+coreDepends = [
+    'Atmosphere.cpp',
+    'Background.cpp',
+    'Background.hpp',
+    'Bezier.hpp',
+    'CmoArray.hpp',
+    'Constants.hpp',
+    'EscapeProbability.cpp',
+    'Faddeeva.cc',
+    'Faddeeva.hh',
+    'FastBackground.cpp',
+    'FastBackground.hpp',
+    'FormalInterface.cpp',
+    'FormalScalar.cpp',
+    'FormalScalar2d.cpp',
+    'FormalStokes.cpp',
+    'LuSolve.cpp',
+    'LuSolve.hpp',
+    'LwAtmosphere.hpp',
+    'LwAtom.hpp',
+    'LwContext.hpp',
+    'LwFormalInterface.hpp',
+    'LwFormalInterfacePosix.hpp',
+    'LwFormalInterfaceWin.hpp',
+    'LwInternal.hpp',
+    'LwMisc.hpp',
+    'LwTransition.hpp',
+    'Ng.hpp',
+    'Prd.cpp',
+    'Simd.hpp',
+    'SimdFullIterationTemplates.hpp',
+    'TaskScheduler.h',
+    'TaskStorage.cpp',
+    'TaskStorage.hpp',
+    'UpdatePopulations.cpp',
+    'Utils.hpp',
+]
 coreDepends = prepend_source_dir(coreDepends)
 stubSource = []
 if sys.platform == 'win32':
@@ -236,46 +267,61 @@ for simd in list(SimdImpls):
     if f'LW_NO_{simd}_LIB' in os.environ:
         SimdImpls.remove(simd)
 
-simdImplDepends = {impl: coreDepends + prepend_source_dir([f'SimdImpl_{impl}.cpp'])
-                   for impl in SimdImpls}
+simdImplDepends = {
+    impl: coreDepends + prepend_source_dir([f'SimdImpl_{impl}.cpp']) for impl in SimdImpls
+}
+
 
 def extension_list(args):
     lwExts = []
-    lwExts.append(LwSharedLibraryNoExtension('lightweaver.libenkiTS',
-                  sources=[path.join('Source', 'TaskScheduler.cpp')] + stubSource,
-                  extra_compile_args=args['baseCompileArgs']
-                                     + [f'{args["stubDefinePrefix"]}libenkiTS']
-                                     + args['enkiTSBuild'],
-                  language='c++'))
-    lwExts.append(Extension('lightweaver.LwCompiled',
-                  sources=[path.join('Source', 'LwMiddleLayer.pyx')] + coreSource,
-                  depends=coreDepends,
-                  include_dirs=[np.get_include()],
-                  language='c++',
-                  libraries=args['libs'],
-                  library_dirs=args['libDirs'],
-                  extra_compile_args=args['baseCompileArgs'] + args['coreCompileArgs']
-                                     + args['lwCoreDefine'],
-                  extra_link_args=args['linkArgs']))
+    lwExts.append(
+        LwSharedLibraryNoExtension(
+            'lightweaver.libenkiTS',
+            sources=[path.join('Source', 'TaskScheduler.cpp')] + stubSource,
+            extra_compile_args=args['baseCompileArgs']
+            + [f'{args["stubDefinePrefix"]}libenkiTS']
+            + args['enkiTSBuild'],
+            language='c++',
+        )
+    )
+    lwExts.append(
+        Extension(
+            'lightweaver.LwCompiled',
+            sources=[path.join('Source', 'LwMiddleLayer.pyx')] + coreSource,
+            depends=coreDepends,
+            include_dirs=[np.get_include()],
+            language='c++',
+            libraries=args['libs'],
+            library_dirs=args['libDirs'],
+            extra_compile_args=args['baseCompileArgs']
+            + args['coreCompileArgs']
+            + args['lwCoreDefine'],
+            extra_link_args=args['linkArgs'],
+        )
+    )
     lwExts = cythonize(lwExts, language_level=3)
     for simdImpl in SimdImpls:
-        lwExts.append(Extension(f'lightweaver.DefaultIterSchemes.SimdImpl_{simdImpl}',
-                                sources=[path.join('Source', f'SimdImpl_{simdImpl}.cpp')] +
-                                        coreSource + stubSource,
-                                depends=simdImplDepends[simdImpl],
-                                language='c++',
-                                libraries=args['libs'],
-                                library_dirs=args['libDirs'],
-                                extra_compile_args=args['baseCompileArgs'] +
-                                                   args[f'{simdImpl}Args'] +
-                                                   [f'{args["stubDefinePrefix"]}SimdImpl_{simdImpl}'],
-                                extra_link_args=args['linkArgs'],
-                                # NOTE(cmo): There is a bug with
-                                # export_symbols affecting its arguments, so we
-                                # submit a copy. See setuptools #3058
-                                export_symbols=copy(args['fsIterExtensionExports']),
-                                optional=True))
+        lwExts.append(
+            Extension(
+                f'lightweaver.DefaultIterSchemes.SimdImpl_{simdImpl}',
+                sources=[path.join('Source', f'SimdImpl_{simdImpl}.cpp')] + coreSource + stubSource,
+                depends=simdImplDepends[simdImpl],
+                language='c++',
+                libraries=args['libs'],
+                library_dirs=args['libDirs'],
+                extra_compile_args=args['baseCompileArgs']
+                + args[f'{simdImpl}Args']
+                + [f'{args["stubDefinePrefix"]}SimdImpl_{simdImpl}'],
+                extra_link_args=args['linkArgs'],
+                # NOTE(cmo): There is a bug with
+                # export_symbols affecting its arguments, so we
+                # submit a copy. See setuptools #3058
+                export_symbols=copy(args['fsIterExtensionExports']),
+                optional=True,
+            )
+        )
     return lwExts
+
 
 # NOTE(cmo): Delete pre-existing build directory if present, otherwise building
 # multiple wheels results in all of the libraries (for different python versions
@@ -283,15 +329,15 @@ def extension_list(args):
 if CI_BUILD and path.exists(BuildDir) and path.isdir(BuildDir):
     shutil.rmtree(BuildDir)
 
-setup(name='lightweaver',
-      setup_requires=['setuptools_scm'],
-      use_scm_version=True,
-      packages=['lightweaver'] + ['lightweaver.' + p for p in find_namespace_packages('lightweaver')],
-      ext_modules=extension_list(buildArgs),
-      cmdclass={'build_ext': LwBuildExt },
-      include_package_data=True,
-      options={
-          'build': {
-              'build_lib': BuildDir
-          },
-      })
+setup(
+    name='lightweaver',
+    setup_requires=['setuptools_scm'],
+    use_scm_version=True,
+    packages=['lightweaver'] + ['lightweaver.' + p for p in find_namespace_packages('lightweaver')],
+    ext_modules=extension_list(buildArgs),
+    cmdclass={'build_ext': LwBuildExt},
+    include_package_data=True,
+    options={
+        'build': {'build_lib': BuildDir},
+    },
+)

@@ -5,21 +5,24 @@ from typing import Tuple
 import astropy.units as u
 import numpy as np
 
-import lightweaver.constants as C
 from .atmosphere import Atmosphere, ScaleType
+from .deprecation import deprecated_names
 
 
+@deprecated_names
 @dataclass
 class MultiMetadata:
-    '''
+    """
     Metadata that is stored in a MULTI atmosphere, but doesn't really belong
     in a Lightweaver atmosphere.
-    '''
+    """
+
     name: str
-    logG: float
+    log_g: float
+
 
 def read_multi_atmos(filename: str) -> Tuple[MultiMetadata, Atmosphere]:
-    '''
+    """
     Load a MULTI atmosphere definition from a file for use in Lightweaver.
 
     Parameters
@@ -39,24 +42,24 @@ def read_multi_atmos(filename: str) -> Tuple[MultiMetadata, Atmosphere]:
     ------
     ValueError
         if file isn't found, or cannot be parsed correctly.
-    '''
+    """
     try:
         with open(filename, 'r') as f:
             lines = f.readlines()
     except FileNotFoundError:
         raise ValueError('Atmosphere file not found (%s)' % filename)
 
-    def get_line(commentPattern=r'^\s*\*'):
+    def get_line(comment_pattern=r'^\s*\*'):
         while len(lines) > 0:
             line = lines.pop(0)
-            if not re.match(commentPattern, line):
+            if not re.match(comment_pattern, line):
                 return line.strip()
         return None
 
     atmosName = get_line()
 
     scaleStr = get_line()
-    logG = float(get_line()) - 2 # For conversion to log[m.s^-2]
+    log_g = float(get_line()) - 2  # For conversion to log[m.s^-2]
     Nspace = int(get_line())
 
     dscale = np.zeros(Nspace)
@@ -93,21 +96,23 @@ def read_multi_atmos(filename: str) -> Tuple[MultiMetadata, Atmosphere]:
     if len(lines) <= Nspace:
         raise ValueError('Hydrogen populations not supplied!')
 
-    hPops = np.zeros((6, Nspace))
+    h_pops = np.zeros((6, Nspace))
     for k in range(Nspace):
         vals = get_line().split()
         vals = [float(v) for v in vals]
-        hPops[:, k] = vals
+        h_pops[:, k] = vals
 
-    hPops = (hPops << u.Unit('cm-3')).to('m-3').value
+    h_pops = (h_pops << u.Unit('cm-3')).to('m-3').value
 
-    meta = MultiMetadata(atmosName, logG)
-    atmos = Atmosphere.make_1d(scale=scaleType,
-                               depthScale=dscale,
-                               temperature=temp,
-                               vlos=vlos,
-                               vturb=vturb,
-                               ne=ne,
-                               hydrogenPops=hPops)
+    meta = MultiMetadata(atmosName, log_g)
+    atmos = Atmosphere.make_1d(
+        scale=scaleType,
+        depth_scale=dscale,
+        temperature=temp,
+        vlos=vlos,
+        vturb=vturb,
+        ne=ne,
+        hydrogen_pops=h_pops,
+    )
 
     return (meta, atmos)

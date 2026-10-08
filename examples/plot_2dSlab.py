@@ -3,7 +3,8 @@
 NLTE Ca II in a 2D slab with periodic boundaries
 ================================================
 """
-#%%
+
+# %%
 # Lightweaver can solve the NLTE problem in two dimensions. Here we construct
 # a horizontally homogeneous 2D slab from the FAL C model, with periodic
 # horizontal boundaries, solve for the Ca II populations, and compare against
@@ -17,7 +18,7 @@ from lightweaver.fal import Falc82
 from lightweaver.rh_atoms import CaII_atom, H_6_atom
 
 
-#%%
+# %%
 # Solve for Ca II in statistical equilibrium (H is treated in LTE as a
 # background species).
 def converged_ca(atmos):
@@ -30,7 +31,7 @@ def converged_ca(atmos):
     return eq_pops, ctx
 
 
-#%%
+# %%
 # 2D atmospheres are defined on a geometric height grid, with every quantity
 # provided as a [z, x] array. Here each of the 8 columns is a copy of FAL C,
 # and the x boundaries are periodic. This uses the 6 rays/octant quadrature of Štěpán et al 2020
@@ -44,22 +45,28 @@ def tile(a):
 
 x = np.arange(Nx) * 50e3
 zero = np.zeros((fal.Nspace, Nx))
-atmos_2d = lw.Atmosphere.make_2d(height=np.copy(fal.z), x=x,
-                                temperature=tile(fal.temperature),
-                                vx=zero, vz=zero, vturb=tile(fal.vturb),
-                                ne=tile(fal.ne), nHTot=tile(fal.nHTot),
-                                xLowerBc=lw.PeriodicRadiation(),
-                                xUpperBc=lw.PeriodicRadiation())
+atmos_2d = lw.Atmosphere.make_2d(
+    height=np.copy(fal.z),
+    x=x,
+    temperature=tile(fal.temperature),
+    vx=zero,
+    vz=zero,
+    vturb=tile(fal.vturb),
+    ne=tile(fal.ne),
+    nh_tot=tile(fal.nh_tot),
+    x_lower_bc=lw.PeriodicRadiation(),
+    x_upper_bc=lw.PeriodicRadiation(),
+)
 atmos_2d.quadrature(6)
 eq_pops_2d, ctx_2d = converged_ca(atmos_2d)
 
-#%%
+# %%
 # The plane-parallel solution for comparison.
 atmos_1d = Falc82()
 atmos_1d.quadrature(5)
 eq_pops_1d, ctx_1d = converged_ca(atmos_1d)
 
-#%%
+# %%
 # The spatial axis of 2D results is flattened in [z, x] order, so reshape to
 # [level, z, x] and take a central column.
 Nz = atmos_2d.Nz
@@ -67,7 +74,7 @@ ca_2d = np.asarray(eq_pops_2d['Ca']).reshape(-1, Nz, Nx)
 column = ca_2d[:, :, Nx // 2]
 ca_1d = np.asarray(eq_pops_1d['Ca'])
 
-#%%
+# %%
 # Plot the relative difference between the 2D column and the 1D solution for
 # each Ca II level. They agree fairly well, with differences mostly originating
 # from the angular quadrature (and different formal solver).

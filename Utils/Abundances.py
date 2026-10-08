@@ -1,11 +1,13 @@
 # Parsing abundance data from LaTeX tables found in Asplund et al 2009, from
 # source downloaded from ArXiv 0909.0948
 
-from dataclasses import dataclass, asdict
-from typing import List, Iterable
 import pickle
+from dataclasses import asdict, dataclass
 from itertools import chain
+from typing import Iterable, List
+
 flatten_list = chain.from_iterable
+
 
 def expected_mass_from_str(s: str):
     # NOTE(cmo): Handle [x,y] range by returning mean
@@ -23,6 +25,7 @@ def expected_mass_from_str(s: str):
 
     # NOTE(cmo): if it's none of these then try to convert to float
     return float(s)
+
 
 def parse_nist_mass_blocks(linesIn):
     lines = linesIn
@@ -56,6 +59,7 @@ def parse_nist_mass_blocks(linesIn):
         nameMapping[(N, Z)] = name
     return massData, nameMapping
 
+
 # NOTE(cmo): Parse all the masses from the NIST data
 # File isn't a great format.
 with open('NistMasses.txt', 'r') as f:
@@ -65,6 +69,7 @@ massData, nameMapping = parse_nist_mass_blocks(lines)
 with open('AtomicMassesNames.pickle', 'wb') as pkl:
     pickle.dump((massData, nameMapping), pkl)
 
+
 @dataclass
 class Element:
     Z: int
@@ -73,6 +78,7 @@ class Element:
 
     def __lt__(self, other):
         return self.Z < other.Z
+
 
 @dataclass
 class ElementalAbundance:
@@ -91,11 +97,13 @@ class ElementalAbundance:
     def __lt__(self, other):
         return self.Z < other.Z
 
+
 @dataclass
 class IsotopeProportion:
     N: int
     mass: float
     proportion: float
+
 
 @dataclass
 class ElementalDistribution:
@@ -113,49 +121,50 @@ class ElementalDistribution:
     def __lt__(self, other):
         return self.Z < other.Z
 
+
 abundanceStr = """\
-1  & H   & $12.00$            &  $8.22 \pm 0.04$        & 44 & Ru  &  $1.75 \pm 0.08$   &  $1.76 \pm 0.03$  \\
-2  & He  & $[10.93 \pm 0.01]$ &  $1.29$                 & 45 & Rh  &  $0.91 \pm 0.10$   &  $1.06 \pm 0.04$  \\
-3  & Li  &  $1.05 \pm 0.10$   &  $3.26 \pm 0.05$        & 46 & Pd  &  $1.57 \pm 0.10$   &  $1.65 \pm 0.02$  \\
-4  & Be  &  $1.38 \pm 0.09$   &  $1.30 \pm 0.03$        & 47 & Ag  &  $0.94 \pm 0.10$   &  $1.20 \pm 0.02$  \\
-5  & B   &  $2.70 \pm 0.20$   &  $2.79 \pm 0.04$        & 48 & Cd  &                    &  $1.71 \pm 0.03$  \\
-6  & C   &  $8.43 \pm 0.05$   &  $7.39 \pm 0.04$        & 49 & In  &  $0.80 \pm 0.20$   &  $0.76 \pm 0.03$  \\
-7  & N   &  $7.83 \pm 0.05$   &  $6.26 \pm 0.06$        & 50 & Sn  &  $2.04 \pm 0.10$   &  $2.07 \pm 0.06$  \\
-8  & O   &  $8.69 \pm 0.05$   &  $8.40 \pm 0.04$        & 51 & Sb  &  $$                &  $1.01 \pm 0.06$  \\
-9  & F   &  $4.56 \pm 0.30$   &  $4.42 \pm 0.06$        & 52 & Te  &                    &  $2.18 \pm 0.03$  \\
-10 & Ne  &  $[7.93 \pm 0.10]$ &  $-1.12$                & 53 & I   &                    &  $1.55 \pm 0.08$  \\
-11 & Na  &  $6.24 \pm 0.04$   &  $6.27 \pm 0.02$        & 54 & Xe  &  $[2.24 \pm 0.06]$ &  $-1.95$  \\
-12 & Mg  &  $7.60 \pm 0.04$   &  $7.53 \pm 0.01$        & 55 & Cs  &                    &  $1.08 \pm 0.02$  \\
-13 & Al  &  $6.45 \pm 0.03$   &  $6.43 \pm 0.01$        & 56 & Ba  &  $2.18 \pm 0.09$   &  $2.18 \pm 0.03$  \\
-14 & Si  &  $7.51 \pm 0.03$   &  $7.51 \pm 0.01$        & 57 & La  &  $1.10 \pm 0.04$   &  $1.17 \pm 0.02$  \\
-15 & P   &  $5.41 \pm 0.03$   &  $5.43 \pm 0.04$        & 58 & Ce  &  $1.58 \pm 0.04$   &  $1.58 \pm 0.02$  \\
-16 & S   &  $7.12 \pm 0.03$   &  $7.15 \pm 0.02$        & 59 & Pr  &  $0.72 \pm 0.04$   &  $0.76 \pm 0.03$  \\
-17 & Cl  &  $5.50 \pm 0.30$   &  $5.23 \pm 0.06$        & 60 & Nd  &  $1.42 \pm 0.04$   &  $1.45 \pm 0.02$  \\
-18 & Ar  &  $[6.40 \pm 0.13]$   &  $-0.50$              & 62 & Sm  &  $0.96 \pm 0.04$   &  $0.94 \pm 0.02$  \\
-19 & K   &  $5.03 \pm 0.09$   &  $5.08 \pm 0.02$        & 63 & Eu  &  $0.52 \pm 0.04$   &  $0.51 \pm 0.02$  \\
-20 & Ca  &  $6.34 \pm 0.04$   &  $6.29 \pm 0.02$        & 64 & Gd  &  $1.07 \pm 0.04$   &  $1.05 \pm 0.02$  \\
-21 & Sc  &  $3.15 \pm 0.04$   &  $3.05 \pm 0.02$        & 65 & Tb  &  $0.30 \pm 0.10$   &  $0.32 \pm 0.03$  \\
-22 & Ti  &  $4.95 \pm 0.05$   &  $4.91 \pm 0.03$        & 66 & Dy  &  $1.10 \pm 0.04$   &  $1.13 \pm 0.02$  \\
-23 & V   &  $3.93 \pm 0.08$   &  $3.96 \pm 0.02$        & 67 & Ho  &  $0.48 \pm 0.11$   &  $0.47 \pm 0.03$  \\
-24 & Cr  &  $5.64 \pm 0.04$   &  $5.64 \pm 0.01$        & 68 & Er  &  $0.92 \pm 0.05$   &  $0.92 \pm 0.02$  \\
-25 & Mn  &  $5.43 \pm 0.05$   &  $5.48 \pm 0.01$        & 69 & Tm  &  $0.10 \pm 0.04$   &  $0.12 \pm 0.03$  \\
-26 & Fe  &  $7.50 \pm 0.04$   &  $7.45 \pm 0.01$        & 70 & Yb  &  $0.84 \pm 0.11$   &  $0.92 \pm 0.02$  \\
-27 & Co  &  $4.99 \pm 0.07$   &  $4.87 \pm 0.01$        & 71 & Lu  &  $0.10 \pm 0.09$   &  $0.09 \pm 0.02$  \\
-28 & Ni  &  $6.22 \pm 0.04$   &  $6.20 \pm 0.01$        & 72 & Hf  &  $0.85 \pm 0.04$   &  $0.71 \pm 0.02$  \\
-29 & Cu  &  $4.19 \pm 0.04$   &  $4.25 \pm 0.04$        & 73 & Ta  &                    &  -$0.12 \pm 0.04$ \\
-30 & Zn  &  $4.56 \pm 0.05$   &  $4.63 \pm 0.04$        & 74 & W   &  $0.85 \pm 0.12$   &  $0.65 \pm 0.04$  \\
-31 & Ga  &  $3.04 \pm 0.09$   &  $3.08 \pm 0.02$        & 75 & Re  &                    &  $0.26 \pm 0.04$  \\
-32 & Ge  &  $3.65 \pm 0.10$   &  $3.58 \pm 0.04$        & 76 & Os  &  $1.40 \pm 0.08$   &  $1.35 \pm 0.03$  \\
-33 & As  &                    &  $2.30 \pm 0.04$        & 77 & Ir  &  $1.38 \pm 0.07$   &  $1.32 \pm 0.02$  \\
-34 & Se  &                    &  $3.34 \pm 0.03$        & 78 & Pt  &                    &  $1.62 \pm 0.03$  \\
-35 & Br  &                    &  $2.54 \pm 0.06$        & 79 & Au  &  $0.92 \pm 0.10$   &  $0.80 \pm 0.04$  \\
-36 & Kr  &  $[3.25 \pm 0.06]$   &  $-2.27$              & 80 & Hg  &                    &  $1.17 \pm 0.08$  \\
-37 & Rb  &  $2.52 \pm 0.10$   &  $2.36 \pm 0.03$        & 81 & Tl  &  $0.90 \pm 0.20$   &  $0.77 \pm 0.03$  \\
-38 & Sr  &  $2.87 \pm 0.07$   &  $2.88 \pm 0.03$        & 82 & Pb  &  $1.75 \pm 0.10$   &  $2.04 \pm 0.03$  \\
-39 & Y   &  $2.21 \pm 0.05$   &  $2.17 \pm 0.04$        & 83 & Bi  &  $$                &  $0.65 \pm 0.04$  \\
-40 & Zr  &  $2.58 \pm 0.04$   &  $2.53 \pm 0.04$        & 90 & Th  &  $0.02 \pm 0.10$   &  $0.06 \pm 0.03$  \\
-41 & Nb  &  $1.46 \pm 0.04$   &  $1.41 \pm 0.04$        & 92 & U   &                    &  -$0.54 \pm 0.03$  \\
-42 & Mo  &  $1.88 \pm 0.08$   &  $1.94 \pm 0.04$        & $$\\
+1  & H   & $12.00$            &  $8.22 \\pm 0.04$        & 44 & Ru  &  $1.75 \\pm 0.08$   &  $1.76 \\pm 0.03$  \\
+2  & He  & $[10.93 \\pm 0.01]$ &  $1.29$                 & 45 & Rh  &  $0.91 \\pm 0.10$   &  $1.06 \\pm 0.04$  \\
+3  & Li  &  $1.05 \\pm 0.10$   &  $3.26 \\pm 0.05$        & 46 & Pd  &  $1.57 \\pm 0.10$   &  $1.65 \\pm 0.02$  \\
+4  & Be  &  $1.38 \\pm 0.09$   &  $1.30 \\pm 0.03$        & 47 & Ag  &  $0.94 \\pm 0.10$   &  $1.20 \\pm 0.02$  \\
+5  & B   &  $2.70 \\pm 0.20$   &  $2.79 \\pm 0.04$        & 48 & Cd  &                    &  $1.71 \\pm 0.03$  \\
+6  & C   &  $8.43 \\pm 0.05$   &  $7.39 \\pm 0.04$        & 49 & In  &  $0.80 \\pm 0.20$   &  $0.76 \\pm 0.03$  \\
+7  & N   &  $7.83 \\pm 0.05$   &  $6.26 \\pm 0.06$        & 50 & Sn  &  $2.04 \\pm 0.10$   &  $2.07 \\pm 0.06$  \\
+8  & O   &  $8.69 \\pm 0.05$   &  $8.40 \\pm 0.04$        & 51 & Sb  &  $$                &  $1.01 \\pm 0.06$  \\
+9  & F   &  $4.56 \\pm 0.30$   &  $4.42 \\pm 0.06$        & 52 & Te  &                    &  $2.18 \\pm 0.03$  \\
+10 & Ne  &  $[7.93 \\pm 0.10]$ &  $-1.12$                & 53 & I   &                    &  $1.55 \\pm 0.08$  \\
+11 & Na  &  $6.24 \\pm 0.04$   &  $6.27 \\pm 0.02$        & 54 & Xe  &  $[2.24 \\pm 0.06]$ &  $-1.95$  \\
+12 & Mg  &  $7.60 \\pm 0.04$   &  $7.53 \\pm 0.01$        & 55 & Cs  &                    &  $1.08 \\pm 0.02$  \\
+13 & Al  &  $6.45 \\pm 0.03$   &  $6.43 \\pm 0.01$        & 56 & Ba  &  $2.18 \\pm 0.09$   &  $2.18 \\pm 0.03$  \\
+14 & Si  &  $7.51 \\pm 0.03$   &  $7.51 \\pm 0.01$        & 57 & La  &  $1.10 \\pm 0.04$   &  $1.17 \\pm 0.02$  \\
+15 & P   &  $5.41 \\pm 0.03$   &  $5.43 \\pm 0.04$        & 58 & Ce  &  $1.58 \\pm 0.04$   &  $1.58 \\pm 0.02$  \\
+16 & S   &  $7.12 \\pm 0.03$   &  $7.15 \\pm 0.02$        & 59 & Pr  &  $0.72 \\pm 0.04$   &  $0.76 \\pm 0.03$  \\
+17 & Cl  &  $5.50 \\pm 0.30$   &  $5.23 \\pm 0.06$        & 60 & Nd  &  $1.42 \\pm 0.04$   &  $1.45 \\pm 0.02$  \\
+18 & Ar  &  $[6.40 \\pm 0.13]$   &  $-0.50$              & 62 & Sm  &  $0.96 \\pm 0.04$   &  $0.94 \\pm 0.02$  \\
+19 & K   &  $5.03 \\pm 0.09$   &  $5.08 \\pm 0.02$        & 63 & Eu  &  $0.52 \\pm 0.04$   &  $0.51 \\pm 0.02$  \\
+20 & Ca  &  $6.34 \\pm 0.04$   &  $6.29 \\pm 0.02$        & 64 & Gd  &  $1.07 \\pm 0.04$   &  $1.05 \\pm 0.02$  \\
+21 & Sc  &  $3.15 \\pm 0.04$   &  $3.05 \\pm 0.02$        & 65 & Tb  &  $0.30 \\pm 0.10$   &  $0.32 \\pm 0.03$  \\
+22 & Ti  &  $4.95 \\pm 0.05$   &  $4.91 \\pm 0.03$        & 66 & Dy  &  $1.10 \\pm 0.04$   &  $1.13 \\pm 0.02$  \\
+23 & V   &  $3.93 \\pm 0.08$   &  $3.96 \\pm 0.02$        & 67 & Ho  &  $0.48 \\pm 0.11$   &  $0.47 \\pm 0.03$  \\
+24 & Cr  &  $5.64 \\pm 0.04$   &  $5.64 \\pm 0.01$        & 68 & Er  &  $0.92 \\pm 0.05$   &  $0.92 \\pm 0.02$  \\
+25 & Mn  &  $5.43 \\pm 0.05$   &  $5.48 \\pm 0.01$        & 69 & Tm  &  $0.10 \\pm 0.04$   &  $0.12 \\pm 0.03$  \\
+26 & Fe  &  $7.50 \\pm 0.04$   &  $7.45 \\pm 0.01$        & 70 & Yb  &  $0.84 \\pm 0.11$   &  $0.92 \\pm 0.02$  \\
+27 & Co  &  $4.99 \\pm 0.07$   &  $4.87 \\pm 0.01$        & 71 & Lu  &  $0.10 \\pm 0.09$   &  $0.09 \\pm 0.02$  \\
+28 & Ni  &  $6.22 \\pm 0.04$   &  $6.20 \\pm 0.01$        & 72 & Hf  &  $0.85 \\pm 0.04$   &  $0.71 \\pm 0.02$  \\
+29 & Cu  &  $4.19 \\pm 0.04$   &  $4.25 \\pm 0.04$        & 73 & Ta  &                    &  -$0.12 \\pm 0.04$ \\
+30 & Zn  &  $4.56 \\pm 0.05$   &  $4.63 \\pm 0.04$        & 74 & W   &  $0.85 \\pm 0.12$   &  $0.65 \\pm 0.04$  \\
+31 & Ga  &  $3.04 \\pm 0.09$   &  $3.08 \\pm 0.02$        & 75 & Re  &                    &  $0.26 \\pm 0.04$  \\
+32 & Ge  &  $3.65 \\pm 0.10$   &  $3.58 \\pm 0.04$        & 76 & Os  &  $1.40 \\pm 0.08$   &  $1.35 \\pm 0.03$  \\
+33 & As  &                    &  $2.30 \\pm 0.04$        & 77 & Ir  &  $1.38 \\pm 0.07$   &  $1.32 \\pm 0.02$  \\
+34 & Se  &                    &  $3.34 \\pm 0.03$        & 78 & Pt  &                    &  $1.62 \\pm 0.03$  \\
+35 & Br  &                    &  $2.54 \\pm 0.06$        & 79 & Au  &  $0.92 \\pm 0.10$   &  $0.80 \\pm 0.04$  \\
+36 & Kr  &  $[3.25 \\pm 0.06]$   &  $-2.27$              & 80 & Hg  &                    &  $1.17 \\pm 0.08$  \\
+37 & Rb  &  $2.52 \\pm 0.10$   &  $2.36 \\pm 0.03$        & 81 & Tl  &  $0.90 \\pm 0.20$   &  $0.77 \\pm 0.03$  \\
+38 & Sr  &  $2.87 \\pm 0.07$   &  $2.88 \\pm 0.03$        & 82 & Pb  &  $1.75 \\pm 0.10$   &  $2.04 \\pm 0.03$  \\
+39 & Y   &  $2.21 \\pm 0.05$   &  $2.17 \\pm 0.04$        & 83 & Bi  &  $$                &  $0.65 \\pm 0.04$  \\
+40 & Zr  &  $2.58 \\pm 0.04$   &  $2.53 \\pm 0.04$        & 90 & Th  &  $0.02 \\pm 0.10$   &  $0.06 \\pm 0.03$  \\
+41 & Nb  &  $1.46 \\pm 0.04$   &  $1.41 \\pm 0.04$        & 92 & U   &                    &  -$0.54 \\pm 0.03$  \\
+42 & Mo  &  $1.88 \\pm 0.08$   &  $1.94 \\pm 0.04$        & $$\\
 """
 
 # NOTE(cmo): Parse the abundance table into a spreadsheet of cells
@@ -163,13 +172,13 @@ replaceChars = ['$', '[', ']', '\\']
 for char in replaceChars:
     abundanceStr = abundanceStr.replace(char, '')
 
-abundanceRows : List[str] = abundanceStr.split('\n')
+abundanceRows: List[str] = abundanceStr.split('\n')
 
 splitStrs = ['&']
 abundanceCells = []
 # NOTE(cmo): Also trim off last empty line here with choice of iterable for loop
 for r in abundanceRows[:-1]:
-    row : Iterable[str] = [r]
+    row: Iterable[str] = [r]
     for s in splitStrs:
         row = flatten_list([x.split(s) for x in row])
     row = [x.split('pm')[0].strip() if 'pm' in x else x.strip() for x in row]
@@ -180,8 +189,9 @@ elements = []
 for row in abundanceCells:
     abund, solar = (float(row[2]), True) if row[2] != '' else (float(row[3]), False)
     Z = int(row[0])
-    e = ElementalAbundance(elem=Element(Z=Z, name=row[1], mass=massData[Z]),
-                           abundance=abund, solarData=solar)
+    e = ElementalAbundance(
+        elem=Element(Z=Z, name=row[1], mass=massData[Z]), abundance=abund, solarData=solar
+    )
     elements.append(e)
 
     if len(row) < FullRow:
@@ -189,8 +199,9 @@ for row in abundanceCells:
 
     abund, solar = (float(row[-2]), True) if row[-2] != '' else (float(row[-1]), False)
     Z = int(row[4])
-    e = ElementalAbundance(elem=Element(Z=Z, name=row[5], mass=massData[Z]),
-                           abundance=abund, solarData=solar)
+    e = ElementalAbundance(
+        elem=Element(Z=Z, name=row[5], mass=massData[Z]), abundance=abund, solarData=solar
+    )
     elements.append(e)
 
 elements = sorted(elements)
@@ -283,7 +294,7 @@ isotopeCells = [[y.strip() for y in x.split('&')] for x in isotopeRows[:-1]]
 isotopeReshape = []
 
 for elemStart in range(0, len(isotopeCells[0]), 3):
-    elemRange = slice(elemStart, elemStart+3)
+    elemRange = slice(elemStart, elemStart + 3)
     for row in isotopeCells:
         selection = row[elemRange]
         if not all([s == '' for s in selection]):
@@ -295,7 +306,7 @@ for row in isotopeReshape:
     if row[0] != '':
         try:
             elem = [e for e in elements if e.name == row[0]][0]
-        except:
+        except IndexError:
             raise ValueError('Unable to find element for name %s' % row[0])
         # NOTE(cmo): Elements split across columns of the table have their
         # name repeated at the top of the next column; merge these.
@@ -306,8 +317,7 @@ for row in isotopeReshape:
             current = ElementalDistribution(elem, [])
             dist.append(current)
     N = int(row[1])
-    iso = IsotopeProportion(N=N, proportion=(float(row[2]) / 100),
-                            mass=massData[(N, elem.Z)])
+    iso = IsotopeProportion(N=N, proportion=(float(row[2]) / 100), mass=massData[(N, elem.Z)])
     current.isotopes.append(iso)
 
 # NOTE(cmo): Ensure normalisation to machine precision

@@ -43,6 +43,8 @@ This requires a compiler supporting C++17.
 The build is then run with `python3 -m pip install -vvv -e . --config-settings editable_mode=strict` (the strict mode is optional, but advised).
 The libraries currently produce a few warnings, but should not produce any errors. This setup then enables the compilation of extension modules to shared libraries that can be loaded at runtime. This is advanced functionality -- ask me if you need help!
 
+The Python code is formatted and linted with [ruff](https://docs.astral.sh/ruff/), which CI checks. To run the same checks automatically on each commit, install the [pre-commit](https://pre-commit.com/) hooks with `python -m pip install pre-commit` and `pre-commit install`.
+
 ## Documentation
 
 - [Paper](https://arxiv.org/abs/2107.00475).

@@ -1,0 +1,10 @@
+# Run `pre-commit install` once to run these hooks on each commit. CI runs the same
+# hooks (`pre-commit run --all-files`), so the ruff version is only pinned here.
+# Dependabot updates the hook versions monthly (.github/dependabot.yml).
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.10
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format

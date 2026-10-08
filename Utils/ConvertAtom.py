@@ -1,18 +1,19 @@
-from lightweaver.atomic_model import *
-from lightweaver.collisional_rates import *
-from lightweaver.broadening import *
-from lightweaver.atomic_table import PeriodicTable
-from lightweaver.barklem import BarklemCrossSectionError
-import lightweaver as lw
-from typing import List
-from parse import parse
 import os
-from dataclasses import dataclass
-
 import re
+from dataclasses import dataclass
 from fractions import Fraction
+from typing import List
+
 import colorama
 from colorama import Fore, Style
+from parse import parse
+
+import lightweaver as lw
+from lightweaver.atomic_model import *
+from lightweaver.atomic_table import PeriodicTable
+from lightweaver.broadening import *
+from lightweaver.collisional_rates import *
+
 
 # https://stackoverflow.com/a/3303361
 def clean(s):
@@ -26,17 +27,41 @@ def clean(s):
     s = re.sub('^[^a-zA-Z_]+', '', s)
     return s
 
+
 @dataclass
 class PrincipalQuantum:
     J: Fraction
     L: int
     S: Fraction
 
+
 class CompositeLevelError(Exception):
     pass
 
+
 def get_oribital_number(orbit: str) -> int:
-    orbits = ['S', 'P', 'D', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'Q', 'R', 'T', 'U', 'V', 'W', 'X']
+    orbits = [
+        'S',
+        'P',
+        'D',
+        'F',
+        'G',
+        'H',
+        'I',
+        'J',
+        'K',
+        'L',
+        'M',
+        'N',
+        'O',
+        'Q',
+        'R',
+        'T',
+        'U',
+        'V',
+        'W',
+        'X',
+    ]
     return orbits.index(orbit)
 
 
@@ -44,12 +69,12 @@ def determinate(level: AtomicLevel) -> PrincipalQuantum:
     endIdx = [level.label.upper().rfind(x) for x in ['E', 'O']]
     maxIdx = max(endIdx)
     if maxIdx == -1:
-        raise ValueError("Unable to determine parity of level %s" % (repr(level)))
-    label = level.label[:maxIdx+1].upper()
+        raise ValueError('Unable to determine parity of level %s' % (repr(level)))
+    label = level.label[: maxIdx + 1].upper()
     words: List[str] = label.split()
 
     # _, multiplicity, orbit = parse('{}{:d}{!s}', words[-1])
-    match = re.match('[\S-]*(\d)(\S)[EO]$', words[-1])
+    match = re.match(r'[\S-]*(\d)(\S)[EO]$', words[-1])
     if match is None:
         raise ValueError('Unable to parse level label: %s' % level.label)
     else:
@@ -64,8 +89,8 @@ def determinate(level: AtomicLevel) -> PrincipalQuantum:
 
     return PrincipalQuantum(J=J, L=L, S=S)
 
-def check_barklem_compatible(vals: List[float],
-                             iLev: AtomicLevel, jLev: AtomicLevel) -> bool:
+
+def check_barklem_compatible(vals: List[float], iLev: AtomicLevel, jLev: AtomicLevel) -> bool:
 
     if vals[0] >= 20.0:
         return True
@@ -78,13 +103,13 @@ def check_barklem_compatible(vals: List[float],
     if upperNum is None or lowerNum is None:
         return False
 
-    if not ((abs(upperNum - lowerNum) == 1)
-            and (max(upperNum, lowerNum) <= 3)):
+    if not ((abs(upperNum - lowerNum) == 1) and (max(upperNum, lowerNum) <= 3)):
         return False
 
     # NOTE(cmo): We're not checking the table bounds here, but that should be fine.
 
     return True
+
 
 def getNextLine(data):
     if len(data) == 0:
@@ -99,15 +124,17 @@ def getNextLine(data):
     if i == len(data) - 1:
         data[:] = []
         return d.strip()
-    data[:] = data[i+1:]
+    data[:] = data[i + 1 :]
     return d.strip()
+
 
 def maybe_int(s):
     try:
         v = int(s)
-    except:
+    except ValueError:
         v = None
     return v
+
 
 def conv_atom(inFile):
     with open(inFile, 'r') as fi:
@@ -115,7 +142,13 @@ def conv_atom(inFile):
 
     ID = getNextLine(data)
     element = PeriodicTable[ID]
-    print(Fore.GREEN + '='*40 + '\n' + 'Reading model atom %s from file %s' % (ID, inFile) + Style.RESET_ALL)
+    print(
+        Fore.GREEN
+        + '=' * 40
+        + '\n'
+        + 'Reading model atom %s from file %s' % (ID, inFile)
+        + Style.RESET_ALL
+    )
     Ns = [maybe_int(d) for d in getNextLine(data).split()]
     Nlevel = Ns[0]
     Nline = Ns[1]
@@ -123,14 +156,14 @@ def conv_atom(inFile):
     Nfixed = Ns[3]
 
     if Nfixed != 0:
-        raise ValueError("Fixed transitions are not supported")
+        raise ValueError('Fixed transitions are not supported')
 
     levels = []
     # levelNos: List[int] = []
     for n in range(Nlevel):
         line = getNextLine(data)
 
-        res = parse('{:f}{}{:f}{}\'{}\'{}{:d}{}{:d}', line.strip())
+        res = parse("{:f}{}{:f}{}'{}'{}{:d}{}{:d}", line.strip())
         # print(res)
         # print(line)
         E = res[0]
@@ -152,7 +185,6 @@ def conv_atom(inFile):
             print(Fore.BLUE + 'Unable to determine quantum numbers for %s' % repr(levels[-1]))
             print('\t %s' % (repr(e)) + Style.RESET_ALL)
 
-
     lines = []
     lineNLambdas = []
     for n in range(Nline):
@@ -164,9 +196,8 @@ def conv_atom(inFile):
         f = float(line[2])
         typ = line[3]
         Nlambda = int(line[4])
-        sym = line[5]
-        qCore = float(line[6])
-        qWing = float(line[7])
+        q_core = float(line[6])
+        q_wing = float(line[7])
         vdw = line[8]
         vdwParams = [float(x) for x in line[9:13]]
         gRad = float(line[13])
@@ -188,7 +219,9 @@ def conv_atom(inFile):
         #     Nlambda *= 2
 
         if vdw.upper() == 'PARAMTR':
-            raise NotImplementedError('PARAMTR (Ridder & Rensbergen) van der Waals broadening is not supported')
+            raise NotImplementedError(
+                'PARAMTR (Ridder & Rensbergen) van der Waals broadening is not supported'
+            )
         elif vdw.upper() == 'UNSOLD':
             vdwParams = [vdwParams[0], vdwParams[2]]
             vdwApprox: VdwApprox = VdwUnsold(vdwParams)
@@ -212,14 +245,25 @@ def conv_atom(inFile):
         else:
             starkBroaden = QuadraticStarkBroadening(stark)
 
-        broadening = LineBroadening(natural=[RadiativeBroadening(gRad)], elastic=[vdwApprox, starkBroaden])
+        broadening = LineBroadening(
+            natural=[RadiativeBroadening(gRad)], elastic=[vdwApprox, starkBroaden]
+        )
         if element == PeriodicTable[1]:
             broadening.elastic.append(HydrogenLinearStarkBroadening())
 
-        quadrature = LinearCoreExpWings(qCore=qCore, qWing=qWing, Nlambda=Nlambda)
-        lines.append(VoigtLine(j=j, i=i, f=f, type=lineType, quadrature=quadrature, broadening=broadening, gLandeEff=gLande))
+        quadrature = LinearCoreExpWings(q_core=q_core, q_wing=q_wing, Nlambda=Nlambda)
+        lines.append(
+            VoigtLine(
+                j=j,
+                i=i,
+                f=f,
+                type=lineType,
+                quadrature=quadrature,
+                broadening=broadening,
+                g_lande_eff=gLande,
+            )
+        )
         lineNLambdas.append(Nlambda)
-
 
     continua: List[AtomicContinuum] = []
     for n in range(Ncont):
@@ -230,8 +274,7 @@ def conv_atom(inFile):
         alpha0 = float(line[2])
         Nlambda = int(line[3])
         wavelengthDep = line[4]
-        minLambda = float(line[5])
-
+        min_lambda = float(line[5])
 
         if wavelengthDep.upper() == 'EXPLICIT':
             wavelengths = []
@@ -241,11 +284,17 @@ def conv_atom(inFile):
                 l = l.split()
                 wavelengths.append(float(l[0]))
                 alphas.append(float(l[1]))
-            wavelengthGrid = wavelengths[::-1]
-            alphaGrid = alphas[::-1]
-            continua.append(ExplicitContinuum(j=j, i=i, wavelengthGrid=wavelengthGrid, alphaGrid=alphaGrid))
+            wavelength_grid = wavelengths[::-1]
+            alpha_grid = alphas[::-1]
+            continua.append(
+                ExplicitContinuum(j=j, i=i, wavelength_grid=wavelength_grid, alpha_grid=alpha_grid)
+            )
         elif wavelengthDep.upper() == 'HYDROGENIC':
-            continua.append(HydrogenicContinuum(j=j, i=i, alpha0=alpha0, minWavelength=minLambda, NlambdaGen=Nlambda))
+            continua.append(
+                HydrogenicContinuum(
+                    j=j, i=i, alpha0=alpha0, min_wavelength=min_lambda, Nlambda_gen=Nlambda
+                )
+            )
         else:
             raise ValueError('Unknown Continuum type %s' % wavelengthDep)
 
@@ -260,7 +309,7 @@ def conv_atom(inFile):
             Ntemp = int(line[1])
             temperatureGrid = []
             for i in range(Ntemp):
-                temperatureGrid.append(float(line[i+2]))
+                temperatureGrid.append(float(line[i + 2]))
         elif line[0].upper() == 'OMEGA':
             i1 = int(line[1])
             i2 = int(line[2])
@@ -268,7 +317,7 @@ def conv_atom(inFile):
             i = min(i1, i2)
             rates = []
             for nt in range(Ntemp):
-                rates.append(float(line[nt+3]))
+                rates.append(float(line[nt + 3]))
             collisions.append(Omega(j=j, i=i, temperature=temperatureGrid, rates=rates))
         elif line[0].upper() == 'CI':
             i1 = int(line[1])
@@ -277,7 +326,7 @@ def conv_atom(inFile):
             i = min(i1, i2)
             rates = []
             for nt in range(Ntemp):
-                rates.append(float(line[nt+3]))
+                rates.append(float(line[nt + 3]))
             collisions.append(CI(j=j, i=i, temperature=temperatureGrid, rates=rates))
         elif line[0].upper() == 'CE':
             i1 = int(line[1])
@@ -286,7 +335,7 @@ def conv_atom(inFile):
             i = min(i1, i2)
             rates = []
             for nt in range(Ntemp):
-                rates.append(float(line[nt+3]))
+                rates.append(float(line[nt + 3]))
             collisions.append(CE(j=j, i=i, temperature=temperatureGrid, rates=rates))
         elif line[0].upper() == 'CP':
             i1 = int(line[1])
@@ -295,7 +344,7 @@ def conv_atom(inFile):
             i = min(i1, i2)
             rates = []
             for nt in range(Ntemp):
-                rates.append(float(line[nt+3]))
+                rates.append(float(line[nt + 3]))
             collisions.append(CP(j=j, i=i, temperature=temperatureGrid, rates=rates))
         elif line[0].upper() == 'CH':
             i1 = int(line[1])
@@ -304,7 +353,7 @@ def conv_atom(inFile):
             i = min(i1, i2)
             rates = []
             for nt in range(Ntemp):
-                rates.append(float(line[nt+3]))
+                rates.append(float(line[nt + 3]))
             collisions.append(CH(j=j, i=i, temperature=temperatureGrid, rates=rates))
         elif line[0].upper() == 'CH0':
             i1 = int(line[1])
@@ -313,8 +362,10 @@ def conv_atom(inFile):
             i = min(i1, i2)
             rates = []
             for nt in range(Ntemp):
-                rates.append(float(line[nt+3]))
-            collisions.append(ChargeExchangeNeutralH(j=j, i=i, temperature=temperatureGrid, rates=rates))
+                rates.append(float(line[nt + 3]))
+            collisions.append(
+                ChargeExchangeNeutralH(j=j, i=i, temperature=temperatureGrid, rates=rates)
+            )
         elif line[0].upper() == 'CH+':
             i1 = int(line[1])
             i2 = int(line[2])
@@ -322,8 +373,10 @@ def conv_atom(inFile):
             i = min(i1, i2)
             rates = []
             for nt in range(Ntemp):
-                rates.append(float(line[nt+3]))
-            collisions.append(ChargeExchangeProton(j=j, i=i, temperature=temperatureGrid, rates=rates))
+                rates.append(float(line[nt + 3]))
+            collisions.append(
+                ChargeExchangeProton(j=j, i=i, temperature=temperatureGrid, rates=rates)
+            )
         elif line[0].upper() == 'AR85-CDI':
             i1 = int(line[1])
             i2 = int(line[2])
@@ -347,13 +400,20 @@ def conv_atom(inFile):
             fudge = float(line[3])
             collisions.append(Burgess(j=j, i=i, fudge=fudge))
         else:
-            print(Fore.YELLOW + "Ignoring unknown collisional string %s" % line[0].upper() + Style.RESET_ALL)
+            print(
+                Fore.YELLOW
+                + 'Ignoring unknown collisional string %s' % line[0].upper()
+                + Style.RESET_ALL
+            )
 
-    atom = AtomicModel(element=element, levels=levels, lines=lines, continua=continua, collisions=collisions)
+    atom = AtomicModel(
+        element=element, levels=levels, lines=lines, continua=continua, collisions=collisions
+    )
 
     # for i, l in enumerate(atom.lines):
     #     l.Nlambda = lineNLambdas[i]
     return atom
+
 
 def update_H_atom(h):
     for l in h.lines:
@@ -361,8 +421,8 @@ def update_H_atom(h):
         # enough, especially accounting for the corrected Sutton Linear Stark
         # Broadening
         if l.i == 1:
-            l.quadrature.qCore = max(l.quadrature.qCore, 15.0)
-            l.quadrature.qWing = max(l.quadrature.qWing, 350.0)
+            l.quadrature.q_core = max(l.quadrature.q_core, 15.0)
+            l.quadrature.q_wing = max(l.quadrature.q_wing, 350.0)
 
         # NOTE(cmo): Ensure all the more principal lines of the series have enough wavelength points
         if l.j <= 3:
@@ -374,11 +434,10 @@ def update_H_atom(h):
 colorama.init()
 fails = open('Fails.txt', 'w')
 path = './Atoms/'
-excludeFiles = ['FeII_big.atom', 'He_9_incorrect_translation.atom',
-                'C_I+II_9.atom', 'LiI.atom']
+excludeFiles = ['FeII_big.atom', 'He_9_incorrect_translation.atom', 'C_I+II_9.atom', 'LiI.atom']
 baseFiles = sorted([f for f in os.listdir(path) if f.endswith('.atom') and f not in excludeFiles])
 # baseFiles = ['He_9.atom']
-files = [path+f for f in baseFiles]
+files = [path + f for f in baseFiles]
 atoms = []
 doneFiles = []
 for i, f in enumerate(files):
@@ -386,15 +445,15 @@ for i, f in enumerate(files):
         atoms.append(conv_atom(f))
         doneFiles.append(baseFiles[i])
     except Exception as e:
-        print(Fore.RED +  'Failed: ' + Style.RESET_ALL, f)
+        print(Fore.RED + 'Failed: ' + Style.RESET_ALL, f)
         print(Fore.BLUE + '->' + repr(e) + Style.RESET_ALL)
-        print('-'*40)
+        print('-' * 40)
         fails.write('Failed: %s\n' % f)
         fails.write('->%s\n' % repr(e))
-        fails.write('-'*40 + '\n')
+        fails.write('-' * 40 + '\n')
 
 for i, a in enumerate(atoms):
-    if a.element.name == "H":
+    if a.element.name == 'H':
         atoms[i] = update_H_atom(a)
 
 with open('rh_atoms.py', 'w') as fi:

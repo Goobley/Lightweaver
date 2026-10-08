@@ -1,16 +1,44 @@
 import warnings
 
 import astropy.units as u
+
 try:
     import crtaf
 except ImportError:
     crtaf = None
 from fractions import Fraction
 
-from lightweaver.atomic_model import AtomicModel, AtomicLevel, LineType, LinearQuadrature, TabulatedQuadrature, LinearCoreExpWings, VoigtLine, HydrogenicContinuum, ExplicitContinuum
-from lightweaver.broadening import LineBroadening, RadiativeBroadening, HydrogenLinearStarkBroadening, MultiplicativeStarkBroadening, QuadraticStarkBroadening, VdwUnsold, ScaledExponentBroadening
-from lightweaver.collisional_rates import Omega, CE, CI, CH, CP, ChargeExchangeProton, ChargeExchangeNeutralH
+from lightweaver.atomic_model import (
+    AtomicLevel,
+    AtomicModel,
+    ExplicitContinuum,
+    HydrogenicContinuum,
+    LinearCoreExpWings,
+    LinearQuadrature,
+    LineType,
+    TabulatedQuadrature,
+    VoigtLine,
+)
 from lightweaver.atomic_table import PeriodicTable
+from lightweaver.broadening import (
+    HydrogenLinearStarkBroadening,
+    LineBroadening,
+    MultiplicativeStarkBroadening,
+    QuadraticStarkBroadening,
+    RadiativeBroadening,
+    ScaledExponentBroadening,
+    VdwUnsold,
+)
+from lightweaver.collisional_rates import (
+    CE,
+    CH,
+    CI,
+    CP,
+    ChargeExchangeNeutralH,
+    ChargeExchangeProton,
+    Omega,
+)
+
 
 def from_crtaf(model: 'crtaf.Atom') -> AtomicModel:
     if crtaf is None:
@@ -29,10 +57,10 @@ def from_crtaf(model: 'crtaf.Atom') -> AtomicModel:
         if level.S is not None:
             S = Fraction(level.S.numerator, level.S.denominator)
         lw_level = AtomicLevel(
-            E=level.energy.to("cm-1", equivalencies=u.spectral()).value.item(),
+            E=level.energy.to('cm-1', equivalencies=u.spectral()).value.item(),
             g=level.g,
-            label=level.label if level.label is not None else "",
-            stage=level.stage-1,
+            label=level.label if level.label is not None else '',
+            stage=level.stage - 1,
             J=J,
             L=L,
             S=S,
@@ -46,7 +74,9 @@ def from_crtaf(model: 'crtaf.Atom') -> AtomicModel:
     lines = []
     for line in model.lines:
         if not isinstance(line, crtaf.VoigtBoundBound):
-            raise ValueError(f"Unexpected line type encountered {line!r}, can only handle Voigt/PRD-Voigt.")
+            raise ValueError(
+                f'Unexpected line type encountered {line!r}, can only handle Voigt/PRD-Voigt.'
+            )
 
         ty = LineType.CRD
         if isinstance(line, crtaf.PrdVoigtBoundBound):
@@ -56,7 +86,7 @@ def from_crtaf(model: 'crtaf.Atom') -> AtomicModel:
         elastic_broadening = []
         for b in line.broadening:
             if isinstance(b, crtaf.NaturalBroadening):
-                natural_broadening.append(RadiativeBroadening(b.value.to("s-1").value))
+                natural_broadening.append(RadiativeBroadening(b.value.to('s-1').value))
             elif isinstance(b, crtaf.StarkLinearSutton):
                 elastic_broadening.append(HydrogenLinearStarkBroadening())
             elif isinstance(b, crtaf.StarkMultiplicative):
@@ -68,36 +98,38 @@ def from_crtaf(model: 'crtaf.Atom') -> AtomicModel:
             elif isinstance(b, crtaf.ScaledExponents):
                 lw_b = ScaledExponentBroadening(
                     scaling=b.scaling,
-                    temperatureExp=b.temperature_exponent,
-                    hydrogenExp=b.hydrogen_exponent,
-                    electronExp=b.electron_exponent,
+                    temperature_exp=b.temperature_exponent,
+                    hydrogen_exp=b.hydrogen_exponent,
+                    electron_exp=b.electron_exponent,
                 )
                 if b.elastic:
                     elastic_broadening.append(lw_b)
                 else:
                     natural_broadening.append(lw_b)
             else:
-                raise ValueError(f"Unexpected broadening ({b}), can only handle core CRTAF types.")
+                raise ValueError(f'Unexpected broadening ({b}), can only handle core CRTAF types.')
         broadening = LineBroadening(natural=natural_broadening, elastic=elastic_broadening)
 
         q = line.wavelength_grid
         if isinstance(q, crtaf.LinearGrid):
             grid = LinearQuadrature(
                 Nlambda=q.n_lambda,
-                deltaLambda=q.delta_lambda.to(u.nm).value.item(),
+                delta_lambda=q.delta_lambda.to(u.nm).value.item(),
             )
         elif isinstance(q, crtaf.TabulatedGrid):
             grid = TabulatedQuadrature(
-                wavelengthGrid=q.wavelengths.to(u.nm).value.tolist(),
+                wavelength_grid=q.wavelengths.to(u.nm).value.tolist(),
             )
         elif isinstance(q, crtaf.LinearCoreExpWings):
             grid = LinearCoreExpWings(
-                qCore=q.q_core,
-                qWing=q.q_wing,
+                q_core=q.q_core,
+                q_wing=q.q_wing,
                 Nlambda=q.n_lambda,
             )
         else:
-            raise ValueError(f"Unexpected WavelengthGrid ({q}), can only handle core CRTAF types and LinearCoreExpWings.")
+            raise ValueError(
+                f'Unexpected WavelengthGrid ({q}), can only handle core CRTAF types and LinearCoreExpWings.'
+            )
 
         lw_line = VoigtLine(
             j=level_conversion_dict[line.transition[0]],
@@ -109,26 +141,27 @@ def from_crtaf(model: 'crtaf.Atom') -> AtomicModel:
         )
         lines.append(lw_line)
 
-
     continua = []
     for cont in model.continua:
         if isinstance(cont, crtaf.HydrogenicBoundFree):
             lw_cont = HydrogenicContinuum(
                 j=level_conversion_dict[cont.transition[0]],
                 i=level_conversion_dict[cont.transition[1]],
-                NlambdaGen=cont.n_lambda,
-                alpha0=cont.sigma_peak.to("m2").value,
-                minWavelength=cont.lambda_min.to(u.nm).value,
+                Nlambda_gen=cont.n_lambda,
+                alpha0=cont.sigma_peak.to('m2').value,
+                min_wavelength=cont.lambda_min.to(u.nm).value,
             )
         elif isinstance(cont, crtaf.TabulatedBoundFree):
             lw_cont = ExplicitContinuum(
                 j=level_conversion_dict[cont.transition[0]],
                 i=level_conversion_dict[cont.transition[1]],
-                wavelengthGrid=cont.wavelengths.to(u.nm).value,
-                alphaGrid=cont.sigma.to("m2").value,
+                wavelength_grid=cont.wavelengths.to(u.nm).value,
+                alpha_grid=cont.sigma.to('m2').value,
             )
         else:
-            raise ValueError(f"Unexpected continuum ({cont}), can only handle Hydrogenic and Tabulated.")
+            raise ValueError(
+                f'Unexpected continuum ({cont}), can only handle Hydrogenic and Tabulated.'
+            )
         continua.append(lw_cont)
 
     collisions = []
@@ -148,49 +181,53 @@ def from_crtaf(model: 'crtaf.Atom') -> AtomicModel:
                     j=j,
                     i=i,
                     temperature=process.temperature.to(u.K).value.tolist(),
-                    rates=process.data.to("m3 s-1 K(-1/2)").value.tolist(),
+                    rates=process.data.to('m3 s-1 K(-1/2)').value.tolist(),
                 )
             elif isinstance(process, crtaf.CERate):
                 lw_coll = CE(
                     j=j,
                     i=i,
                     temperature=process.temperature.to(u.K).value.tolist(),
-                    rates=process.data.to("m3 s-1 K(-1/2)").value.tolist(),
+                    rates=process.data.to('m3 s-1 K(-1/2)').value.tolist(),
                 )
             elif isinstance(process, crtaf.CHRate):
                 lw_coll = CH(
                     j=j,
                     i=i,
                     temperature=process.temperature.to(u.K).value.tolist(),
-                    rates=process.data.to("m3 s-1").value.tolist(),
+                    rates=process.data.to('m3 s-1').value.tolist(),
                 )
             elif isinstance(process, crtaf.CPRate):
                 lw_coll = CP(
                     j=j,
                     i=i,
                     temperature=process.temperature.to(u.K).value.tolist(),
-                    rates=process.data.to("m3 s-1").value.tolist(),
+                    rates=process.data.to('m3 s-1').value.tolist(),
                 )
             elif isinstance(process, crtaf.ChargeExcHRate):
                 lw_coll = ChargeExchangeNeutralH(
                     j=j,
                     i=i,
                     temperature=process.temperature.to(u.K).value.tolist(),
-                    rates=process.data.to("m3 s-1").value.tolist(),
+                    rates=process.data.to('m3 s-1').value.tolist(),
                 )
             elif isinstance(process, crtaf.ChargeExcPRate):
                 lw_coll = ChargeExchangeProton(
                     j=j,
                     i=i,
                     temperature=process.temperature.to(u.K).value.tolist(),
-                    rates=process.data.to("m3 s-1").value.tolist(),
+                    rates=process.data.to('m3 s-1').value.tolist(),
                 )
             else:
-                raise ValueError(f"Unexpected collisional rate encountered ({coll}), expected one of [Omega, CI, CE, CH, CP, ChargeExcH, ChargeExcP].")
+                raise ValueError(
+                    f'Unexpected collisional rate encountered ({coll}), expected one of [Omega, CI, CE, CH, CP, ChargeExcH, ChargeExcP].'
+                )
             collisions.append(lw_coll)
 
     if model.element.N is not None:
-        warnings.warn("N provided. Whilst Lightweaver has the ability to handle isotopes, the CRTAF parser currently does not.")
+        warnings.warn(
+            'N provided. Whilst Lightweaver has the ability to handle isotopes, the CRTAF parser currently does not.'
+        )
     lw_model = AtomicModel(
         element=PeriodicTable[model.element.symbol],
         levels=levels,
@@ -199,4 +236,3 @@ def from_crtaf(model: 'crtaf.Atom') -> AtomicModel:
         collisions=collisions,
     )
     return lw_model
-

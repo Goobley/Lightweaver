@@ -5,6 +5,7 @@ from scipy.interpolate import RectBivariateSpline
 from scipy.special import gamma
 
 import lightweaver.constants as Const
+
 from .atomic_table import PeriodicTable
 from .utils import get_data_path
 
@@ -13,40 +14,46 @@ if TYPE_CHECKING:
 
 DeltaNeff = 0.1
 
+
 class BarklemTable:
-    '''
+    """
     Storage for each table of Barklem data for Van der Waals approximation.
-    '''
+    """
+
     def __init__(self, path: str, neff0: Tuple[float, float]):
         data = np.genfromtxt(path, comments='c')
         shape = data.shape
-        self.cross = data[:shape[0]//2]
-        self.alpha = data[shape[0]//2:]
+        self.cross = data[: shape[0] // 2]
+        self.alpha = data[shape[0] // 2 :]
 
-        self.neff1 = neff0[0] + np.arange(shape[0]//2) * DeltaNeff
+        self.neff1 = neff0[0] + np.arange(shape[0] // 2) * DeltaNeff
         self.neff2 = neff0[1] + np.arange(shape[1]) * DeltaNeff
 
+
 class BarklemCrossSectionError(Exception):
-    '''
+    """
     Raised if the Barklem cross-section cannot be applied to the atom in
     question.
-    '''
+    """
+
     pass
 
+
 class Barklem:
-    '''
+    """
     Storage for all three Barklem cross-section cases and application via the
     `get_active_cross_section` function.
-    '''
+    """
+
     barklem_sp = BarklemTable(get_data_path() + 'Barklem_spdata.dat', (1.0, 1.3))
     barklem_pd = BarklemTable(get_data_path() + 'Barklem_pddata.dat', (1.3, 2.3))
     barklem_df = BarklemTable(get_data_path() + 'Barklem_dfdata.dat', (2.3, 3.3))
 
     @classmethod
-    def get_active_cross_section(cls, atom: 'AtomicModel',
-                                 line: 'AtomicLine',
-                                 vals: Sequence[float]) -> Sequence[float]:
-        '''
+    def get_active_cross_section(
+        cls, atom: 'AtomicModel', line: 'AtomicLine', vals: Sequence[float]
+    ) -> Sequence[float]:
+        """
         Returns the cross section data for use in the Van der Waals collisional
         broadening routines.
         See:
@@ -67,7 +74,7 @@ class Barklem:
         result : list of 3 float
             Barklem cross-section, Barklem alpha, Helium contribution
             following Unsold (always 1.0)
-        '''
+        """
         i = line.i
         j = line.j
 
@@ -115,8 +122,7 @@ class Barklem:
 
             deltaEi = (atom.levels[ic].E - atom.levels[i].E) * Const.HC_CM
             deltaEj = (atom.levels[ic].E - atom.levels[j].E) * Const.HC_CM
-            E_Rydberg = Const.ERydberg / (1.0 + Const.MElectron
-                                           / (atom.element.mass * Const.Amu))
+            E_Rydberg = Const.ERydberg / (1.0 + Const.MElectron / (atom.element.mass * Const.Amu))
 
             neff1 = Z * np.sqrt(E_Rydberg / deltaEi)
             neff2 = Z * np.sqrt(E_Rydberg / deltaEj)
@@ -129,21 +135,23 @@ class Barklem:
             if not (table.neff2[0] <= neff2 <= table.neff2[-1]):
                 raise BarklemCrossSectionError('neff2 outside table.')
 
-
-            result[0] = float(RectBivariateSpline(table.neff1, table.neff2,
-                                                  table.cross)(neff1, neff2)[0, 0])
-            result[1] = float(RectBivariateSpline(table.neff1, table.neff2,
-                                                  table.alpha)(neff1, neff2)[0, 0])
+            result[0] = float(
+                RectBivariateSpline(table.neff1, table.neff2, table.cross)(neff1, neff2)[0, 0]
+            )
+            result[1] = float(
+                RectBivariateSpline(table.neff1, table.neff2, table.alpha)(neff1, neff2)[0, 0]
+            )
 
         reducedMass = Const.Amu / (1.0 / PeriodicTable[1].mass + 1.0 / atom.element.mass)
         meanVel = np.sqrt(8.0 * Const.KBoltzmann / (np.pi * reducedMass))
         sigma = result[0]
         alpha = result[1]
-        crossSection = sigma * Const.RBohr**2 * (meanVel / 1.0e4)**(-alpha)
+        crossSection = sigma * Const.RBohr**2 * (meanVel / 1.0e4) ** (-alpha)
 
         # NOTE(cmo): This is w/N/T^(0.5*(1.0-alpha)) (eq 3 without temperature contrib, multiplied by 2 for half-width)
-        result[0] = 2.0 * ((4.0 / np.pi)**(alpha / 2.0)
-                     * gamma(2.0 - alpha / 2.0) * meanVel * crossSection)
+        result[0] = 2.0 * (
+            (4.0 / np.pi) ** (alpha / 2.0) * gamma(2.0 - alpha / 2.0) * meanVel * crossSection
+        )
 
         # Use Unsold for Helium contribution
         result[2] = 1.0
