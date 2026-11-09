@@ -40,6 +40,15 @@ from lightweaver.collisional_rates import (
 )
 
 
+def _to_fraction(x) -> 'Fraction | None':
+    """CRTAF allows J and S as {numerator, denominator} or as a float."""
+    if x is None:
+        return None
+    if hasattr(x, 'numerator') and hasattr(x, 'denominator'):
+        return Fraction(int(x.numerator), int(x.denominator))
+    return Fraction(float(x)).limit_denominator(100)
+
+
 def from_crtaf(model: 'crtaf.Atom') -> AtomicModel:
     if crtaf is None:
         raise ImportError('The crtaf package is required to load CRTAF atomic models.')
@@ -47,15 +56,11 @@ def from_crtaf(model: 'crtaf.Atom') -> AtomicModel:
     levels = {}
     for label, level in model.levels.items():
         crtaf_labels.append(label)
-        J = None
-        if level.J is not None:
-            J = Fraction(level.J.numerator, level.J.denominator)
+        J = _to_fraction(level.J)
         L = None
         if level.L is not None:
             L = level.L
-        S = None
-        if level.S is not None:
-            S = Fraction(level.S.numerator, level.S.denominator)
+        S = _to_fraction(level.S)
         lw_level = AtomicLevel(
             E=level.energy.to('cm-1', equivalencies=u.spectral()).value.item(),
             g=level.g,
