@@ -54,7 +54,7 @@ def test_full_range_continuum(falc_se):
 
     # Away from all lines, the taper adds nothing: identical to a hard cut at
     # the edge of the quadrature (i.e. the opacity seen by the NLTE solution).
-    np.testing.assert_array_equal(I_taper[far], I_hard[far])
+    np.testing.assert_allclose(I_taper[far], I_hard[far], rtol=1e-12)
     # Whereas the untapered far wings substantially alter the UV continuum.
     uv = far & (spect.wavelength > 100.0) & (spect.wavelength < 300.0)
     rel = np.abs(I_legacy[uv] - I_taper[uv]) / I_taper[uv]

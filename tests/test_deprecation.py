@@ -160,7 +160,9 @@ def test_nr_post_update_old_dict_key(falc_se):
         else:
             step_ctx.nr_post_update(time_dependent_data={'dt': 1.0, key: prev_state})
         results.append(np.copy(step_ctx.active_atoms[0].n))
-    np.testing.assert_array_equal(results[0], results[1])
+    # Not bitwise: the threaded accumulation of Gamma and the rates
+    # depends on how wavelengths are scheduled across threads.
+    np.testing.assert_allclose(results[0], results[1], rtol=1e-10)
 
 
 def test_context_old_names(falc_se):

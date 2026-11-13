@@ -422,7 +422,7 @@ def update_H_atom(h):
         # Broadening
         if l.i == 1:
             l.quadrature.q_core = max(l.quadrature.q_core, 15.0)
-            l.quadrature.q_wing = max(l.quadrature.q_wing, 350.0)
+            l.quadrature.q_wing = max(l.quadrature.q_wing, 500.0)
 
         # NOTE(cmo): Ensure all the more principal lines of the series have enough wavelength points
         if l.j <= 3:
@@ -434,7 +434,13 @@ def update_H_atom(h):
 colorama.init()
 fails = open('Fails.txt', 'w')
 path = './Atoms/'
-excludeFiles = ['FeII_big.atom', 'He_9_incorrect_translation.atom', 'C_I+II_9.atom', 'LiI.atom']
+excludeFiles = [
+    'FeII_big.atom',
+    'He_9_incorrect_translation.atom',
+    'C_I+II_9.atom',
+    'LiI.atom',
+    'CaII_large.atom',
+]
 baseFiles = sorted([f for f in os.listdir(path) if f.endswith('.atom') and f not in excludeFiles])
 # baseFiles = ['He_9.atom']
 files = [path + f for f in baseFiles]
