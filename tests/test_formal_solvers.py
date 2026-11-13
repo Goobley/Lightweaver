@@ -78,8 +78,8 @@ def test_full_stokes(falc_se, reference):
 
     # Continuum points away from any polarisable line, one on either
     # side of the line.
-    continuum = np.array([500.0, 900.0])
-    wave = np.concatenate([continuum, line_wavelengths(Ca8542, 0.1)])
+    wave = np.concatenate([[500.0], line_wavelengths(Ca8542, 0.1), [900.0]])
+    continuum = [0, -1]
     iquv = mag_ctx.compute_rays(wave, [1.0], stokes=True)
     unpolarised = mag_ctx.compute_rays(wave, [1.0])
     assert np.all(np.isfinite(iquv))
@@ -89,12 +89,12 @@ def test_full_stokes(falc_se, reference):
 
     # Negligible polarisation in the continuum (only the far wings of
     # Zeeman-split lines contribute there).
-    assert np.all(np.abs(iquv[1:, :2]) < 1e-6 * iquv[0, :2])
+    assert np.all(np.abs(iquv[1:, continuum]) < 1e-6 * iquv[0, continuum])
 
     # Stokes V is non-zero in the line, and approximately
     # antisymmetric about the line core.
-    V = iquv[3, 2:]
-    assert np.abs(V).max() > 1e-3 * iquv[0, 2:].max()
+    V = iquv[3, 1:-1]
+    assert np.abs(V).max() > 1e-3 * iquv[0, 1:-1].max()
     assert np.abs(V + V[::-1]).max() < 0.2 * np.abs(V).max()
 
     reference.check('formal_solvers/stokes_8542', iquv)

@@ -2022,7 +2022,31 @@ cdef class LwTransition:
         self.Qelast[...] = Qelast
         self.a_damp[...] = a_damp
 
+        self.apply_far_wing_taper(polarised=False)
         self.trans.compute_wphi(self.atmos.atmos)
+
+    def apply_far_wing_taper(self, polarised=False):
+        '''
+        Applies the taper to the line profiles beyond the edge of the line's
+        original quadrature, if present in SpectrumConfiguration.
+        if `polarised` then applies to the polarised profiles too.
+        '''
+        far_wing_tapers = self.spect.far_wing_tapers
+        if far_wing_tapers is None:
+            return
+        trans_id = self.trans_model.trans_id
+        if trans_id not in far_wing_tapers:
+            return
+
+        far_wing_taper = far_wing_tapers[trans_id][:, None, None, None]
+        np.asarray(self.phi)[...] *= far_wing_taper
+        if polarised:
+            np.asarray(self.phi_Q)[...] *= far_wing_taper
+            np.asarray(self.phi_U)[...] *= far_wing_taper
+            np.asarray(self.phi_V)[...] *= far_wing_taper
+            np.asarray(self.psi_Q)[...] *= far_wing_taper
+            np.asarray(self.psi_U)[...] *= far_wing_taper
+            np.asarray(self.psi_V)[...] *= far_wing_taper
 
     cpdef compute_polarised_profiles(self):
         '''
@@ -2074,6 +2098,9 @@ cdef class LwTransition:
         cdef LwZeemanComponents zc = LwZeemanComponents(z)
 
         self.trans.compute_polarised_profiles(atmos[0], self.trans.aDamp, atom.atom.vBroad, zc.zc)
+        if self.spect.far_wing_tapers is not None:
+            self.apply_far_wing_taper(polarised=True)
+            self.trans.compute_wphi(atmos[0])
 
     cpdef recompute_gII(self):
         '''
@@ -3959,7 +3986,7 @@ cdef class LwContext:
     @accepts_old_kwargs
     def compute_rays(self, wavelengths=None, mus=None, stokes=False,
                      update_bcs=None, up_only=True, return_ctx=False,
-                     refine_prd=False, squeeze=True):
+                     refine_prd=False, squeeze=True, wing_taper_fraction=2.0):
         '''
         Compute the formal solution through a converged simulation for a
         particular ray (or set of rays). The wavelength range can be adjusted
@@ -4000,6 +4027,9 @@ cdef class LwContext:
         squeeze : bool, optional
             Whether to squeeze singular dimensions from the output array
             (default: True).
+        wing_taper_fraction : float, optional
+            Fraction of the line quadrature half-width over which to smoothly
+            taper any remaining opacity contribution to 0 (multiplies the line profile, default 2.0). This could bias the far wings of under-resolved lines slightly, and if you're worried about the real details there, the non-LTE quadrature needs to cover it. See `SpectrumConfiguration.subset_configuration`.
 
         Returns
         -------
@@ -4010,13 +4040,16 @@ cdef class LwContext:
         '''
         state = deepcopy(self.state_dict())
         if wavelengths is not None:
-            spect = state['kwargs']['spect'].subset_configuration(wavelengths)
+            spect = state['kwargs']['spect'].subset_configuration(
+                wavelengths, wing_taper_fraction=wing_taper_fraction
+            )
         else:
             # NOTE(cmo): Subsets handle overlaps differently (which prevents
             # jumps at the edge of grids), so require that here even if the
             # wavelength grid is the same
             spect = state['kwargs']['spect'].subset_configuration(
-                state['kwargs']['spect'].wavelength
+                state['kwargs']['spect'].wavelength,
+                wing_taper_fraction=wing_taper_fraction,
             )
 
         cdef LwContext rhoCtx, rayCtx

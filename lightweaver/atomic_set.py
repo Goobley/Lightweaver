@@ -11,7 +11,7 @@ from scipy.optimize import newton_krylov
 import lightweaver.constants as Const
 
 from .atmosphere import Atmosphere
-from .atomic_model import AtomicModel, LineType, element_sort
+from .atomic_model import AtomicLine, AtomicModel, LineType, element_sort
 from .atomic_table import (
     AtomicAbundance,
     DefaultAtomicAbundance,
@@ -203,6 +203,76 @@ class LteNeIterator:
         return diff
 
 
+def line_wing_taper(
+    wavelengths: np.ndarray,
+    lambda_blue: float,
+    lambda_red: float,
+    lambda0: float,
+    taper_fraction: float,
+) -> Tuple[np.ndarray, int, int]:
+    """
+    Computes the smooth roll-off applied to a line profile outside its
+    wavelength quadrature when computing a formal solution on a new grid
+    (e.g. `Context.compute_rays`).
+
+    Parameters
+    ----------
+    wavelengths : np.ndarray
+        The wavelength grid on which to evaluate the taper [nm].
+    lambda_blue, lambda_red : float
+        The edges of the line's wavelength quadrature [nm].
+    lambda0 : float
+        The rest wavelength of the line [nm].
+    taper_fraction : float
+        The width of the roll-off on each side, as a fraction of the half-width
+        of the quadrature. 0 produces a hard cut-off at the edges of the base
+        quadrature.
+
+    Returns
+    -------
+    far_wing_taper : np.ndarray
+        The taper evaluated on `wavelengths[blue:red]`.
+    blue : int
+        The index of the first wavelength within the support of the taper.
+    red : int
+        The exclusive end index (one past) of the wavelengths within the support of the taper.
+    """
+    if taper_fraction < 0.0:
+        raise ValueError('taper_fraction must be non-negative.')
+
+    blue_width = taper_fraction * max(lambda0 - lambda_blue, 0.0)
+    red_width = taper_fraction * max(lambda_red - lambda0, 0.0)
+    support_blue = lambda_blue - blue_width
+    support_red = lambda_red + red_width
+
+    blue = int(np.searchsorted(wavelengths, support_blue, side='left'))
+    red = int(np.searchsorted(wavelengths, support_red, side='right'))
+    if red - blue == 1 and wavelengths.shape[0] > 1:
+        # NOTE(cmo): A transition needs at least two wavelengths for its
+        # quadrature weights (wlambda), so force a neighbouring point with
+        # weight zero.
+        if red < wavelengths.shape[0]:
+            red += 1
+        else:
+            blue -= 1
+    wav = wavelengths[blue:red]
+
+    def roll_off(dist, width):
+        """
+        Taper as a function of distance beyond the edge of the quadrature
+        (negative inside): 1 inside, falling to 0 at `width` beyond the edge.
+        """
+        if width <= 0.0:
+            return (dist <= 0.0).astype(np.float64)
+        t = np.clip(1.0 - dist / width, 0.0, 1.0)
+        # NOTE(cmo): smootherstep -- C² continuous
+        return t * t * t * (t * (6.0 * t - 15.0) + 10.0)
+
+    far_wing_taper = roll_off(lambda_blue - wav, blue_width)
+    far_wing_taper *= roll_off(wav - lambda_red, red_width)
+    return far_wing_taper, blue, red
+
+
 @deprecated_names
 @dataclass
 class SpectrumConfiguration:
@@ -234,6 +304,11 @@ class SpectrumConfiguration:
         active or detailed static sense) over the range of wavelength.
     active_wavelengths : Dict[(Element, i, j), np.ndarray]
         A mask of the wavelengths at which this transition is active.
+    far_wing_tapers : Dict[(Element, i, j), np.ndarray], optional
+        Multiplicative taper applied to the line profile of each line over
+        its local wavelength grid (see `line_wing_taper`). Only present on
+        configurations produced by `subset_configuration` -- applied
+        outside the main quadrature to get smooth results from `compute_rays`.
 
     Properties
     ----------
@@ -249,35 +324,96 @@ class SpectrumConfiguration:
     red_idx: Dict[Tuple[Element, int, int], int]
     active_trans: Dict[Tuple[Element, int, int], bool]
     active_wavelengths: Dict[Tuple[Element, int, int], np.ndarray]
+    far_wing_tapers: Optional[Dict[Tuple[Element, int, int], np.ndarray]] = None
 
-    def subset_configuration(self, wavelengths) -> 'SpectrumConfiguration':
+    def subset_configuration(
+        self, wavelengths, wing_taper_fraction: Optional[float] = 2.0
+    ) -> 'SpectrumConfiguration':
         """
         Computes a SpectrumConfiguration for a sub-region of the global wavelength array.
 
         This is typically used for computing a final formal solution on a single
-        ray through the atmosphere. In this situation all lines are set to
-        contribute throughout the entire grid, to avoid situations where small
-        jumps in intensity occur from lines being cut off.
+        ray through the atmosphere. Each line contributes over its original
+        wavelength quadrature (as in the NLTE solution), and its profile is then
+        smoothly tapered to zero outside of this.
 
         Parameters
         ----------
         wavelengths : np.ndarray
-            The grid on which to produce the new SpectrumConfiguration.
+            The grid on which to produce the new SpectrumConfiguration
+            [nm]. Must be sorted.
+        wing_taper_fraction : float, optional
+            The width of the roll-off applied to each line's profile beyond the
+            edges of its quadrature, as a fraction of the half-width of the
+            quadrature (default: 2.0). 0 produces a hard cut-off at the edge of
+            the quadrature. None disables the taper, and every line contributes
+            throughout the entire grid -- this is a bad idea over full spectrum
+            ranges.
 
         Returns
         -------
         spectrumConfig : SpectrumConfiguration
             The subset spectrum configuration.
         """
+        wavelengths = np.asarray(wavelengths)
+        if wavelengths.ndim != 1 or np.any(np.diff(wavelengths) <= 0.0):
+            raise ValueError('wavelengths must be a 1D strictly increasing array.')
         Nblue = np.searchsorted(self.wavelength, wavelengths[0])
         Nred = min(np.searchsorted(self.wavelength, wavelengths[-1]) + 1, self.wavelength.shape[0])
         Nwavelengths = wavelengths.shape[0]
 
-        active_trans = {k: bool(np.any(v[Nblue:Nred])) for k, v in self.active_wavelengths.items()}
-        transGrids = {k: np.copy(wavelengths) for k, active in active_trans.items() if active}
-        active_wavelengths = {k: np.ones_like(wavelengths, dtype=bool) for k in transGrids}
-        blue_idx = {k: 0 for k in transGrids}
-        red_idx = {k: Nwavelengths for k in transGrids}
+        # NOTE(cmo): Select the transitions active in this range
+        active_trans = {
+            k: k in self.active_wavelengths and bool(np.any(self.active_wavelengths[k][Nblue:Nred]))
+            for k in self.active_trans
+        }
+
+        # NOTE(cmo): In case of tapering (which effectively extends the
+        # wavelength grid), the selection in active_trans may miss lines, so we
+        # need to pass over the lines again.
+        lines: Dict[Tuple[Element, int, int], AtomicLine] = {}
+        if wing_taper_fraction is not None:
+            for atom in self.models:
+                for t in atom.lines:
+                    if t.trans_id in active_trans:
+                        lines[t.trans_id] = t
+
+        trans_grids: Dict[Tuple[Element, int, int], np.ndarray] = {}
+        active_wavelengths: Dict[Tuple[Element, int, int], np.ndarray] = {}
+        blue_idx: Dict[Tuple[Element, int, int], int] = {}
+        red_idx: Dict[Tuple[Element, int, int], int] = {}
+        far_wing_tapers: Dict[Tuple[Element, int, int], np.ndarray] = {}
+        for k in active_trans:
+            if k in lines:
+                # NOTE(cmo): Build the taper on top of the original quadrature
+                quadrature = lines[k].wavelength()
+                lambda_blue, lambda_red = quadrature[0], quadrature[-1]
+                far_wing_taper, blue, red = line_wing_taper(
+                    wavelengths,
+                    lambda_blue,
+                    lambda_red,
+                    lines[k].lambda0,
+                    wing_taper_fraction,  # type: ignore
+                )
+                # NOTE(cmo): Lines is enabled if there is valid support on this
+                # new grid (including the taper).
+                active_trans[k] = red > blue
+                if not active_trans[k]:
+                    continue
+                trans_grids[k] = np.copy(wavelengths[blue:red])
+                mask = np.zeros_like(wavelengths, dtype=bool)
+                mask[blue:red] = True
+                active_wavelengths[k] = mask
+                blue_idx[k] = blue
+                red_idx[k] = red
+                far_wing_tapers[k] = far_wing_taper
+            elif active_trans[k]:
+                # NOTE(cmo): Continua clamp their cross-sections internally, so
+                # set any that overlap active everywhere.
+                trans_grids[k] = np.copy(wavelengths)
+                active_wavelengths[k] = np.ones_like(wavelengths, dtype=bool)
+                blue_idx[k] = 0
+                red_idx[k] = Nwavelengths
 
         def test_atom_active(atom: AtomicModel) -> bool:
             for t in atom.transitions:
@@ -294,11 +430,12 @@ class SpectrumConfiguration:
             rad_set=self.rad_set,
             wavelength=wavelengths,
             models=models,
-            trans_wavelengths=transGrids,
+            trans_wavelengths=trans_grids,
             blue_idx=blue_idx,
             red_idx=red_idx,
             active_trans=active_trans,
             active_wavelengths=active_wavelengths,
+            far_wing_tapers=far_wing_tapers if wing_taper_fraction is not None else None,
         )
 
     @property
