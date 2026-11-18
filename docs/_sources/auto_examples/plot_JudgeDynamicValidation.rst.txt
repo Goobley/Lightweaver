@@ -125,22 +125,34 @@ Find the initial statistical equilibrium solution,
     -- Iteration 0:
     dJ = 1.00e+00
         (Lambda iterating background)
-    -- Iteration 38:
-    dJ = 7.30e-02
-        H delta = 4.5031e-02
-        ne delta = 1.4122e-02
-    -- Iteration 75:
-    dJ = 2.31e-02
-        H delta = 1.5208e-02
-        ne delta = 5.5898e-03
+    -- Iteration 20:
+    dJ = 1.31e-01
+        H delta = 8.2173e-02
+        ne delta = 1.4623e-02
+    -- Iteration 40:
+    dJ = 7.09e-02
+        H delta = 4.2999e-02
+        ne delta = 1.4201e-02
+    -- Iteration 60:
+    dJ = 4.69e-02
+        H delta = 2.9307e-02
+        ne delta = 1.1031e-02
+    -- Iteration 80:
+    dJ = 1.69e-02
+        H delta = 1.1202e-02
+        ne delta = 4.0895e-03
+    -- Iteration 100:
+    dJ = 3.71e-03
+        H delta = 2.4945e-03
+        ne delta = 8.8966e-04
     --------------------------------------------------------------------------------
     Final Iteration: 111
     --------------------------------------------------------------------------------
     dJ = 1.46e-03
-        H delta = 9.8678e-04
+        H delta = 9.8671e-04
         ne delta = 3.4992e-04
     --------------------------------------------------------------------------------
-    Context converged to statistical equilibrium in 111 iterations after 0.60 s.
+    Context converged to statistical equilibrium in 111 iterations after 1.15 s.
     --------------------------------------------------------------------------------
     Achieved initial Stat Eq
 
@@ -321,7 +333,7 @@ Reproduce Judge plot.
 
  .. code-block:: none
 
-    Time taken: 4.24 s
+    Time taken: 7.47 s
 
 
 
@@ -329,7 +341,7 @@ Reproduce Judge plot.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 5.122 seconds)
+   **Total running time of the script:** (0 minutes 9.019 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_JudgeDynamicValidation.py:

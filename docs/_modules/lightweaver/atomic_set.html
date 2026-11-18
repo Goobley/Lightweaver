@@ -89,7 +89,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">lightweaver.constants</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">Const</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.atmosphere</span><span class="w"> </span><span class="kn">import</span> <span class="n">Atmosphere</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.atomic_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomicModel</span><span class="p">,</span> <span class="n">LineType</span><span class="p">,</span> <span class="n">element_sort</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.atomic_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomicLine</span><span class="p">,</span> <span class="n">AtomicModel</span><span class="p">,</span> <span class="n">LineType</span><span class="p">,</span> <span class="n">element_sort</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.atomic_table</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AtomicAbundance</span><span class="p">,</span>
     <span class="n">DefaultAtomicAbundance</span><span class="p">,</span>
@@ -284,6 +284,79 @@
         <span class="k">return</span> <span class="n">diff</span>
 
 
+<div class="viewcode-block" id="line_wing_taper">
+<a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.line_wing_taper">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">line_wing_taper</span><span class="p">(</span>
+    <span class="n">wavelengths</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">lambda_blue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">lambda_red</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">lambda0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">taper_fraction</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Computes the smooth roll-off applied to a line profile outside its</span>
+<span class="sd">    wavelength quadrature when computing a formal solution on a new grid</span>
+<span class="sd">    (e.g. `Context.compute_rays`).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    wavelengths : np.ndarray</span>
+<span class="sd">        The wavelength grid on which to evaluate the taper [nm].</span>
+<span class="sd">    lambda_blue, lambda_red : float</span>
+<span class="sd">        The edges of the line's wavelength quadrature [nm].</span>
+<span class="sd">    lambda0 : float</span>
+<span class="sd">        The rest wavelength of the line [nm].</span>
+<span class="sd">    taper_fraction : float</span>
+<span class="sd">        The width of the roll-off on each side, as a fraction of the half-width</span>
+<span class="sd">        of the quadrature. 0 produces a hard cut-off at the edges of the base</span>
+<span class="sd">        quadrature.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    far_wing_taper : np.ndarray</span>
+<span class="sd">        The taper evaluated on `wavelengths[blue:red]`.</span>
+<span class="sd">    blue : int</span>
+<span class="sd">        The index of the first wavelength within the support of the taper.</span>
+<span class="sd">    red : int</span>
+<span class="sd">        The exclusive end index (one past) of the wavelengths within the support of the taper.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">taper_fraction</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'taper_fraction must be non-negative.'</span><span class="p">)</span>
+
+    <span class="n">blue_width</span> <span class="o">=</span> <span class="n">taper_fraction</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="n">lambda0</span> <span class="o">-</span> <span class="n">lambda_blue</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">red_width</span> <span class="o">=</span> <span class="n">taper_fraction</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="n">lambda_red</span> <span class="o">-</span> <span class="n">lambda0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">support_blue</span> <span class="o">=</span> <span class="n">lambda_blue</span> <span class="o">-</span> <span class="n">blue_width</span>
+    <span class="n">support_red</span> <span class="o">=</span> <span class="n">lambda_red</span> <span class="o">+</span> <span class="n">red_width</span>
+
+    <span class="n">blue</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">wavelengths</span><span class="p">,</span> <span class="n">support_blue</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s1">'left'</span><span class="p">))</span>
+    <span class="n">red</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">wavelengths</span><span class="p">,</span> <span class="n">support_red</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s1">'right'</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">red</span> <span class="o">-</span> <span class="n">blue</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">wavelengths</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># NOTE(cmo): A transition needs at least two wavelengths for its</span>
+        <span class="c1"># quadrature weights (wlambda), so force a neighbouring point with</span>
+        <span class="c1"># weight zero.</span>
+        <span class="k">if</span> <span class="n">red</span> <span class="o">&lt;</span> <span class="n">wavelengths</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">red</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">blue</span> <span class="o">-=</span> <span class="mi">1</span>
+    <span class="n">wav</span> <span class="o">=</span> <span class="n">wavelengths</span><span class="p">[</span><span class="n">blue</span><span class="p">:</span><span class="n">red</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">roll_off</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="n">width</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Taper as a function of distance beyond the edge of the quadrature</span>
+<span class="sd">        (negative inside): 1 inside, falling to 0 at `width` beyond the edge.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">width</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">dist</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">dist</span> <span class="o">/</span> <span class="n">width</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="c1"># NOTE(cmo): smootherstep -- C² continuous</span>
+        <span class="k">return</span> <span class="n">t</span> <span class="o">*</span> <span class="n">t</span> <span class="o">*</span> <span class="n">t</span> <span class="o">*</span> <span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="p">(</span><span class="mf">6.0</span> <span class="o">*</span> <span class="n">t</span> <span class="o">-</span> <span class="mf">15.0</span><span class="p">)</span> <span class="o">+</span> <span class="mf">10.0</span><span class="p">)</span>
+
+    <span class="n">far_wing_taper</span> <span class="o">=</span> <span class="n">roll_off</span><span class="p">(</span><span class="n">lambda_blue</span> <span class="o">-</span> <span class="n">wav</span><span class="p">,</span> <span class="n">blue_width</span><span class="p">)</span>
+    <span class="n">far_wing_taper</span> <span class="o">*=</span> <span class="n">roll_off</span><span class="p">(</span><span class="n">wav</span> <span class="o">-</span> <span class="n">lambda_red</span><span class="p">,</span> <span class="n">red_width</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">far_wing_taper</span><span class="p">,</span> <span class="n">blue</span><span class="p">,</span> <span class="n">red</span></div>
+
+
+
 <div class="viewcode-block" id="SpectrumConfiguration">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.SpectrumConfiguration">[docs]</a>
 <span class="nd">@deprecated_names</span>
@@ -317,6 +390,11 @@
 <span class="sd">        active or detailed static sense) over the range of wavelength.</span>
 <span class="sd">    active_wavelengths : Dict[(Element, i, j), np.ndarray]</span>
 <span class="sd">        A mask of the wavelengths at which this transition is active.</span>
+<span class="sd">    far_wing_tapers : Dict[(Element, i, j), np.ndarray], optional</span>
+<span class="sd">        Multiplicative taper applied to the line profile of each line over</span>
+<span class="sd">        its local wavelength grid (see `line_wing_taper`). Only present on</span>
+<span class="sd">        configurations produced by `subset_configuration` -- applied</span>
+<span class="sd">        outside the main quadrature to get smooth results from `compute_rays`.</span>
 
 <span class="sd">    Properties</span>
 <span class="sd">    ----------</span>
@@ -332,37 +410,98 @@
     <span class="n">red_idx</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span>
     <span class="n">active_trans</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
     <span class="n">active_wavelengths</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+    <span class="n">far_wing_tapers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="SpectrumConfiguration.subset_configuration">
 <a class="viewcode-back" href="../../lightweaver-api.html#lightweaver.atomic_set.SpectrumConfiguration.subset_configuration">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">subset_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelengths</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">'SpectrumConfiguration'</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">subset_configuration</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">wavelengths</span><span class="p">,</span> <span class="n">wing_taper_fraction</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">'SpectrumConfiguration'</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Computes a SpectrumConfiguration for a sub-region of the global wavelength array.</span>
 
 <span class="sd">        This is typically used for computing a final formal solution on a single</span>
-<span class="sd">        ray through the atmosphere. In this situation all lines are set to</span>
-<span class="sd">        contribute throughout the entire grid, to avoid situations where small</span>
-<span class="sd">        jumps in intensity occur from lines being cut off.</span>
+<span class="sd">        ray through the atmosphere. Each line contributes over its original</span>
+<span class="sd">        wavelength quadrature (as in the NLTE solution), and its profile is then</span>
+<span class="sd">        smoothly tapered to zero outside of this.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        wavelengths : np.ndarray</span>
-<span class="sd">            The grid on which to produce the new SpectrumConfiguration.</span>
+<span class="sd">            The grid on which to produce the new SpectrumConfiguration</span>
+<span class="sd">            [nm]. Must be sorted.</span>
+<span class="sd">        wing_taper_fraction : float, optional</span>
+<span class="sd">            The width of the roll-off applied to each line's profile beyond the</span>
+<span class="sd">            edges of its quadrature, as a fraction of the half-width of the</span>
+<span class="sd">            quadrature (default: 2.0). 0 produces a hard cut-off at the edge of</span>
+<span class="sd">            the quadrature. None disables the taper, and every line contributes</span>
+<span class="sd">            throughout the entire grid -- this is a bad idea over full spectrum</span>
+<span class="sd">            ranges.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        spectrumConfig : SpectrumConfiguration</span>
 <span class="sd">            The subset spectrum configuration.</span>
 <span class="sd">        """</span>
+        <span class="n">wavelengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">wavelengths</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">wavelengths</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">wavelengths</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'wavelengths must be a 1D strictly increasing array.'</span><span class="p">)</span>
         <span class="n">Nblue</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wavelength</span><span class="p">,</span> <span class="n">wavelengths</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">Nred</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wavelength</span><span class="p">,</span> <span class="n">wavelengths</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wavelength</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">Nwavelengths</span> <span class="o">=</span> <span class="n">wavelengths</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        <span class="n">active_trans</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="n">Nblue</span><span class="p">:</span><span class="n">Nred</span><span class="p">]))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_wavelengths</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-        <span class="n">transGrids</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">wavelengths</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">active</span> <span class="ow">in</span> <span class="n">active_trans</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">active</span><span class="p">}</span>
-        <span class="n">active_wavelengths</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">wavelengths</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">transGrids</span><span class="p">}</span>
-        <span class="n">blue_idx</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">transGrids</span><span class="p">}</span>
-        <span class="n">red_idx</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">Nwavelengths</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">transGrids</span><span class="p">}</span>
+        <span class="c1"># NOTE(cmo): Select the transitions active in this range</span>
+        <span class="n">active_trans</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">k</span><span class="p">:</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_wavelengths</span> <span class="ow">and</span> <span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_wavelengths</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">Nblue</span><span class="p">:</span><span class="n">Nred</span><span class="p">]))</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_trans</span>
+        <span class="p">}</span>
+
+        <span class="c1"># NOTE(cmo): In case of tapering (which effectively extends the</span>
+        <span class="c1"># wavelength grid), the selection in active_trans may miss lines, so we</span>
+        <span class="c1"># need to pass over the lines again.</span>
+        <span class="n">lines</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">AtomicLine</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">wing_taper_fraction</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">atom</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">trans_id</span> <span class="ow">in</span> <span class="n">active_trans</span><span class="p">:</span>
+                        <span class="n">lines</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">trans_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span>
+
+        <span class="n">trans_grids</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">active_wavelengths</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">blue_idx</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">red_idx</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">far_wing_tapers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Element</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">active_trans</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+                <span class="c1"># NOTE(cmo): Build the taper on top of the original quadrature</span>
+                <span class="n">quadrature</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">wavelength</span><span class="p">()</span>
+                <span class="n">lambda_blue</span><span class="p">,</span> <span class="n">lambda_red</span> <span class="o">=</span> <span class="n">quadrature</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">quadrature</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">far_wing_taper</span><span class="p">,</span> <span class="n">blue</span><span class="p">,</span> <span class="n">red</span> <span class="o">=</span> <span class="n">line_wing_taper</span><span class="p">(</span>
+                    <span class="n">wavelengths</span><span class="p">,</span>
+                    <span class="n">lambda_blue</span><span class="p">,</span>
+                    <span class="n">lambda_red</span><span class="p">,</span>
+                    <span class="n">lines</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">lambda0</span><span class="p">,</span>
+                    <span class="n">wing_taper_fraction</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                <span class="p">)</span>
+                <span class="c1"># NOTE(cmo): Lines is enabled if there is valid support on this</span>
+                <span class="c1"># new grid (including the taper).</span>
+                <span class="n">active_trans</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">red</span> <span class="o">&gt;</span> <span class="n">blue</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">active_trans</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                    <span class="k">continue</span>
+                <span class="n">trans_grids</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">wavelengths</span><span class="p">[</span><span class="n">blue</span><span class="p">:</span><span class="n">red</span><span class="p">])</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">wavelengths</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+                <span class="n">mask</span><span class="p">[</span><span class="n">blue</span><span class="p">:</span><span class="n">red</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">active_wavelengths</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">mask</span>
+                <span class="n">blue_idx</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">blue</span>
+                <span class="n">red_idx</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">red</span>
+                <span class="n">far_wing_tapers</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">far_wing_taper</span>
+            <span class="k">elif</span> <span class="n">active_trans</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                <span class="c1"># NOTE(cmo): Continua clamp their cross-sections internally, so</span>
+                <span class="c1"># set any that overlap active everywhere.</span>
+                <span class="n">trans_grids</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">wavelengths</span><span class="p">)</span>
+                <span class="n">active_wavelengths</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">wavelengths</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+                <span class="n">blue_idx</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">red_idx</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">Nwavelengths</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">test_atom_active</span><span class="p">(</span><span class="n">atom</span><span class="p">:</span> <span class="n">AtomicModel</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">atom</span><span class="o">.</span><span class="n">transitions</span><span class="p">:</span>
@@ -379,11 +518,12 @@
             <span class="n">rad_set</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rad_set</span><span class="p">,</span>
             <span class="n">wavelength</span><span class="o">=</span><span class="n">wavelengths</span><span class="p">,</span>
             <span class="n">models</span><span class="o">=</span><span class="n">models</span><span class="p">,</span>
-            <span class="n">trans_wavelengths</span><span class="o">=</span><span class="n">transGrids</span><span class="p">,</span>
+            <span class="n">trans_wavelengths</span><span class="o">=</span><span class="n">trans_grids</span><span class="p">,</span>
             <span class="n">blue_idx</span><span class="o">=</span><span class="n">blue_idx</span><span class="p">,</span>
             <span class="n">red_idx</span><span class="o">=</span><span class="n">red_idx</span><span class="p">,</span>
             <span class="n">active_trans</span><span class="o">=</span><span class="n">active_trans</span><span class="p">,</span>
             <span class="n">active_wavelengths</span><span class="o">=</span><span class="n">active_wavelengths</span><span class="p">,</span>
+            <span class="n">far_wing_tapers</span><span class="o">=</span><span class="n">far_wing_tapers</span> <span class="k">if</span> <span class="n">wing_taper_fraction</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 

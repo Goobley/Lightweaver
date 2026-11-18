@@ -213,160 +213,270 @@ These results are then plotted.
     -- Iteration 0:
     dJ = 1.00e+00
         (Lambda iterating background)
-    -- Iteration 11:
-    dJ = 5.41e-01
-        H delta = 2.3811e-01
-        Ca delta = 1.7571e-01
-    -- Iteration 22:
-    dJ = 1.07e-01
-        H delta = 5.5150e-02
-        Ca delta = 4.8401e-02
-    -- Iteration 33:
-    dJ = 7.59e-02
-        H delta = 4.6047e-02
-        Ca delta = 2.5978e-02
-    -- Iteration 44:
-    dJ = 6.43e-02
-        H delta = 3.5603e-02
-        Ca delta = 1.6602e-02
-    -- Iteration 55:
-    dJ = 4.86e-02
-        H delta = 2.4705e-02
-        Ca delta = 9.1835e-03
+    -- Iteration 6:
+    dJ = 2.42e+00
+        H delta = 5.9860e-01
+        Ca delta = 2.2188e-01
+    -- Iteration 12:
+    dJ = 3.75e-01
+        H delta = 2.0283e-01
+        Ca delta = 1.5172e-01
+    -- Iteration 18:
+    dJ = 1.41e-01
+        H delta = 7.3596e-02
+        Ca delta = 6.8821e-02
+    -- Iteration 24:
+    dJ = 9.68e-02
+        H delta = 5.3145e-02
+        Ca delta = 4.1829e-02
+    -- Iteration 30:
+    dJ = 7.95e-02
+        H delta = 4.8067e-02
+        Ca delta = 2.9514e-02
+    -- Iteration 36:
+    dJ = 7.28e-02
+        H delta = 4.3636e-02
+        Ca delta = 2.3167e-02
+    -- Iteration 42:
+    dJ = 6.66e-02
+        H delta = 3.7502e-02
+        Ca delta = 1.8113e-02
+    -- Iteration 48:
+    dJ = 5.96e-02
+        H delta = 3.1505e-02
+        Ca delta = 1.3700e-02
+    -- Iteration 54:
+    dJ = 5.04e-02
+        H delta = 2.5354e-02
+        Ca delta = 9.7038e-03
+    -- Iteration 60:
+    dJ = 3.91e-02
+        H delta = 2.0760e-02
+        Ca delta = 6.4325e-03
     -- Iteration 66:
     dJ = 2.74e-02
-        H delta = 1.5182e-02
+        H delta = 1.5181e-02
         Ca delta = 4.0498e-03
-    -- Iteration 77:
-    dJ = 1.18e-02
-        H delta = 6.7548e-03
-        Ca delta = 1.5101e-03
-    -- Iteration 88:
-    dJ = 4.31e-03
-        H delta = 2.5071e-03
-        Ca delta = 5.3038e-04
+    -- Iteration 72:
+    dJ = 1.79e-02
+        H delta = 1.0098e-02
+        Ca delta = 2.3933e-03
+    -- Iteration 78:
+    dJ = 1.08e-02
+        H delta = 6.2077e-03
+        Ca delta = 1.3749e-03
+    -- Iteration 84:
+    dJ = 6.30e-03
+        H delta = 3.6451e-03
+        Ca delta = 7.7641e-04
+    -- Iteration 90:
+    dJ = 3.56e-03
+        H delta = 2.0732e-03
+        Ca delta = 4.3477e-04
+    -- Iteration 96:
+    dJ = 1.97e-03
+        H delta = 1.1471e-03
+        Ca delta = 2.3569e-04
     --------------------------------------------------------------------------------
     Final Iteration: 98
     --------------------------------------------------------------------------------
     dJ = 1.61e-03
-        H delta = 9.3706e-04
+        H delta = 9.3703e-04
         Ca delta = 1.9178e-04
     --------------------------------------------------------------------------------
-    Context converged to statistical equilibrium in 98 iterations after 1.93 s.
+    Context converged to statistical equilibrium in 98 iterations after 3.91 s.
     --------------------------------------------------------------------------------
     LTE Iterations 1 (-- slowest convergence)
     -- Iteration 0:
     dJ = 1.00e+00
         (Lambda iterating background)
-    -- Iteration 10:
-    dJ = 5.02e-01
-        H delta = 3.3673e-01
-        Ca delta = 1.7078e-01
-        ne delta = 1.0679e-01
-    -- Iteration 20:
-    dJ = 1.24e-01
-        H delta = 7.6386e-02
-        Ca delta = 5.3759e-02
-        ne delta = 1.6682e-02
-    -- Iteration 30:
-    dJ = 8.17e-02
-        H delta = 5.0039e-02
-        Ca delta = 2.6950e-02
-        ne delta = 1.5230e-02
-    -- Iteration 40:
-    dJ = 6.85e-02
-        H delta = 4.1500e-02
-        Ca delta = 1.5740e-02
-        ne delta = 1.5508e-02
-    -- Iteration 50:
-    dJ = 5.87e-02
-        H delta = 3.6133e-02
-        Ca delta = 8.3598e-03
-        ne delta = 1.4504e-02
-    -- Iteration 60:
-    dJ = 4.55e-02
-        H delta = 2.9086e-02
-        Ca delta = 3.6814e-03
-        ne delta = 1.1812e-02
-    -- Iteration 70:
-    dJ = 2.97e-02
-        H delta = 1.9655e-02
-        Ca delta = 2.2404e-03
-        ne delta = 7.9012e-03
-    -- Iteration 80:
-    dJ = 1.67e-02
-        H delta = 1.1227e-02
-        Ca delta = 1.4507e-03
-        ne delta = 4.4466e-03
-    -- Iteration 90:
-    dJ = 8.19e-03
-        H delta = 5.5476e-03
-        Ca delta = 7.5152e-04
-        ne delta = 2.1766e-03
-    -- Iteration 100:
-    dJ = 3.70e-03
-        H delta = 2.5138e-03
-        Ca delta = 3.5088e-04
-        ne delta = 9.8237e-04
-    -- Iteration 110:
-    dJ = 1.62e-03
-        H delta = 1.1013e-03
-        Ca delta = 1.5537e-04
-        ne delta = 4.2873e-04
+    -- Iteration 6:
+    dJ = 1.39e+00
+        H delta = 5.9356e-01
+        Ca delta = 2.1932e-01
+        ne delta = 1.6873e-01
+    -- Iteration 11:
+    dJ = 4.19e-01
+        H delta = 2.9790e-01
+        Ca delta = 1.5015e-01
+        ne delta = 8.9004e-02
+    -- Iteration 17:
+    dJ = 1.53e-01
+        H delta = 1.1505e-01
+        Ca delta = 7.0501e-02
+        ne delta = 2.6359e-02
+    -- Iteration 23:
+    dJ = 1.03e-01
+        H delta = 6.4740e-02
+        Ca delta = 4.2413e-02
+        ne delta = 1.6209e-02
+    -- Iteration 28:
+    dJ = 8.59e-02
+        H delta = 5.1894e-02
+        Ca delta = 3.0362e-02
+        ne delta = 1.5540e-02
+    -- Iteration 34:
+    dJ = 7.52e-02
+        H delta = 4.7207e-02
+        Ca delta = 2.1584e-02
+        ne delta = 1.5084e-02
+    -- Iteration 39:
+    dJ = 6.95e-02
+        H delta = 4.2572e-02
+        Ca delta = 1.6616e-02
+        ne delta = 1.5503e-02
+    -- Iteration 44:
+    dJ = 6.48e-02
+        H delta = 3.9204e-02
+        Ca delta = 1.2505e-02
+        ne delta = 1.5221e-02
+    -- Iteration 49:
+    dJ = 5.97e-02
+        H delta = 3.6645e-02
+        Ca delta = 8.9897e-03
+        ne delta = 1.4678e-02
+    -- Iteration 54:
+    dJ = 5.40e-02
+        H delta = 3.3564e-02
+        Ca delta = 6.1928e-03
+        ne delta = 1.3655e-02
+    -- Iteration 59:
+    dJ = 4.72e-02
+        H delta = 2.9943e-02
+        Ca delta = 4.0193e-03
+        ne delta = 1.2171e-02
+    -- Iteration 64:
+    dJ = 3.89e-02
+        H delta = 2.5316e-02
+        Ca delta = 2.6122e-03
+        ne delta = 1.0274e-02
+    -- Iteration 69:
+    dJ = 3.12e-02
+        H delta = 2.0604e-02
+        Ca delta = 2.3217e-03
+        ne delta = 8.2968e-03
+    -- Iteration 74:
+    dJ = 2.40e-02
+        H delta = 1.6040e-02
+        Ca delta = 1.9461e-03
+        ne delta = 6.4052e-03
+    -- Iteration 79:
+    dJ = 1.78e-02
+        H delta = 1.1958e-02
+        Ca delta = 1.5343e-03
+        ne delta = 4.7421e-03
+    -- Iteration 84:
+    dJ = 1.28e-02
+        H delta = 8.6082e-03
+        Ca delta = 1.1388e-03
+        ne delta = 3.3935e-03
+    -- Iteration 89:
+    dJ = 8.84e-03
+        H delta = 5.9846e-03
+        Ca delta = 8.0804e-04
+        ne delta = 2.3498e-03
+    -- Iteration 94:
+    dJ = 5.99e-03
+        H delta = 4.0676e-03
+        Ca delta = 5.5916e-04
+        ne delta = 1.5915e-03
+    -- Iteration 99:
+    dJ = 4.01e-03
+        H delta = 2.7262e-03
+        Ca delta = 3.7983e-04
+        ne delta = 1.0655e-03
+    -- Iteration 104:
+    dJ = 2.66e-03
+        H delta = 1.8123e-03
+        Ca delta = 2.5432e-04
+        ne delta = 7.0694e-04
+    -- Iteration 109:
+    dJ = 1.76e-03
+        H delta = 1.1972e-03
+        Ca delta = 1.6878e-04
+        ne delta = 4.6620e-04
     --------------------------------------------------------------------------------
     Final Iteration: 112
     --------------------------------------------------------------------------------
     dJ = 1.37e-03
-        H delta = 9.3152e-04
-        Ca delta = 1.3158e-04
+        H delta = 9.3150e-04
+        Ca delta = 1.3157e-04
         ne delta = 3.6245e-04
     --------------------------------------------------------------------------------
-    Context converged to statistical equilibrium in 112 iterations after 2.34 s.
+    Context converged to statistical equilibrium in 112 iterations after 4.56 s.
     --------------------------------------------------------------------------------
     LTE Iterations 1 (-- slowest convergence)
     -- Iteration 0:
     dJ = 1.00e+00
         (Lambda iterating background)
-    -- Iteration 11:
-    dJ = 3.52e-01
-        H delta = 1.8624e-01
-        Ca delta = 1.3708e-01
-    -- Iteration 22:
-    dJ = 1.03e-01
-        H delta = 5.7038e-02
-        Ca delta = 3.4188e-02
-    -- Iteration 33:
-    dJ = 7.19e-02
-        H delta = 4.7033e-02
-        Ca delta = 1.9780e-02
-    -- Iteration 44:
-    dJ = 5.78e-02
-        H delta = 3.3873e-02
-        Ca delta = 1.1671e-02
-    -- Iteration 55:
-    dJ = 3.90e-02
-        H delta = 2.0211e-02
-        Ca delta = 5.6154e-03
+    -- Iteration 6:
+    dJ = 1.68e+00
+        H delta = 5.9316e-01
+        Ca delta = 2.6750e-01
+    -- Iteration 12:
+    dJ = 2.89e-01
+        H delta = 1.4960e-01
+        Ca delta = 1.0630e-01
+    -- Iteration 18:
+    dJ = 1.32e-01
+        H delta = 7.3010e-02
+        Ca delta = 4.7099e-02
+    -- Iteration 24:
+    dJ = 9.42e-02
+        H delta = 5.5031e-02
+        Ca delta = 3.0147e-02
+    -- Iteration 30:
+    dJ = 7.69e-02
+        H delta = 4.9518e-02
+        Ca delta = 2.2515e-02
+    -- Iteration 36:
+    dJ = 6.80e-02
+        H delta = 4.4035e-02
+        Ca delta = 1.7365e-02
+    -- Iteration 42:
+    dJ = 6.06e-02
+        H delta = 3.6520e-02
+        Ca delta = 1.3001e-02
+    -- Iteration 48:
+    dJ = 5.17e-02
+        H delta = 2.7823e-02
+        Ca delta = 9.1778e-03
+    -- Iteration 54:
+    dJ = 4.09e-02
+        H delta = 2.1104e-02
+        Ca delta = 6.0671e-03
+    -- Iteration 60:
+    dJ = 2.87e-02
+        H delta = 1.5378e-02
+        Ca delta = 3.7086e-03
     -- Iteration 66:
     dJ = 1.86e-02
         H delta = 1.0214e-02
         Ca delta = 2.2083e-03
-    -- Iteration 77:
-    dJ = 7.23e-03
-        H delta = 4.0513e-03
-        Ca delta = 7.7384e-04
-    -- Iteration 86:
-    dJ = 3.04e-03
-        H delta = 1.7113e-03
-        Ca delta = 3.1560e-04
+    -- Iteration 72:
+    dJ = 1.15e-02
+        H delta = 6.3634e-03
+        Ca delta = 1.2646e-03
+    -- Iteration 78:
+    dJ = 6.58e-03
+        H delta = 3.6912e-03
+        Ca delta = 7.0110e-04
+    -- Iteration 84:
+    dJ = 3.70e-03
+        H delta = 2.0805e-03
+        Ca delta = 3.8580e-04
+    -- Iteration 90:
+    dJ = 2.04e-03
+        H delta = 1.1533e-03
+        Ca delta = 2.1069e-04
     --------------------------------------------------------------------------------
     Final Iteration: 92
     --------------------------------------------------------------------------------
     dJ = 1.67e-03
-        H delta = 9.4479e-04
+        H delta = 9.4477e-04
         Ca delta = 1.7206e-04
     --------------------------------------------------------------------------------
-    Context converged to statistical equilibrium in 92 iterations after 1.86 s.
+    Context converged to statistical equilibrium in 92 iterations after 3.59 s.
     --------------------------------------------------------------------------------
     LTE Iterations 1 (He slowest convergence)
 
@@ -376,7 +486,7 @@ These results are then plotted.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 6.769 seconds)
+   **Total running time of the script:** (0 minutes 12.894 seconds)
 
 
 .. _sphx_glr_download_auto_examples_plot_SimpleLineTest.py:
